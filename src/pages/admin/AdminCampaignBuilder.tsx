@@ -584,8 +584,11 @@ export default function AdminCampaignBuilder() {
   const [pdfGenerating, setPdfGenerating] = useState(false);
 
   // ── Generate PDF ────────────────────────────────────────────────────────
-  // Strategy: park-and-capture — move the LIVE element off-screen, capture it
-  // at its exact rendered size, then restore it. No cloning = no layout drift.
+  // Page 1 (one-pager): park-and-capture the LIVE element — no clone so text
+  //   never drifts from its rendered position.
+  // Pages 2+ (floor plans): sandbox-clone each at exactly 612×792 with
+  //   overflow:hidden enforced, so the flex image area is fully constrained
+  //   and nothing is zoomed in or cut off at the footer.
   const generatePDF = useCallback(async () => {
     const onePager = document.getElementById("one-pager-preview");
     if (!onePager) { toast.error("Preview not found"); return; }
@@ -593,6 +596,9 @@ export default function AdminCampaignBuilder() {
     const toastId = toast.loading("Generating PDF…");
 
     await document.fonts.ready;
+
+    const FP_W = 612;
+    const FP_H = 792;
 
     /** Wait for all <img> tags inside a node to finish loading */
     const waitImages = (root: HTMLElement) =>
@@ -608,69 +614,79 @@ export default function AdminCampaignBuilder() {
         ),
       );
 
-    /** Capture the live element by parking it off-screen (no clone). */
+    /** Park the LIVE element off-screen and capture it at its natural size. */
     const captureLive = async (el: HTMLElement): Promise<HTMLCanvasElement> => {
-      // Save original styles
-      const savedPos    = el.style.position;
-      const savedLeft   = el.style.left;
-      const savedTop    = el.style.top;
-      const savedMargin = el.style.margin;
-      const savedShadow = el.style.boxShadow;
-      const savedZIndex = el.style.zIndex;
-
-      // Park off-screen — keep width exactly as-is (already 612px)
-      el.style.position  = "fixed";
-      el.style.left      = "-9999px";
-      el.style.top       = "0px";
-      el.style.margin    = "0";
+      const saved = {
+        position: el.style.position, left: el.style.left, top: el.style.top,
+        margin: el.style.margin, boxShadow: el.style.boxShadow, zIndex: el.style.zIndex,
+      };
+      el.style.position = "fixed";
+      el.style.left     = "-9999px";
+      el.style.top      = "0px";
+      el.style.margin   = "0";
       el.style.boxShadow = "none";
-      el.style.zIndex    = "-9999";
+      el.style.zIndex   = "-9999";
 
-      // Wait for images + 4 paint frames so layout is fully settled
       await waitImages(el);
       await new Promise<void>(r =>
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() =>
-            requestAnimationFrame(() =>
-              requestAnimationFrame(() => r()),
-            ),
-          ),
-        ),
+        requestAnimationFrame(() => requestAnimationFrame(() =>
+          requestAnimationFrame(() => requestAnimationFrame(() => r()))
+        ))
       );
 
       const rect = el.getBoundingClientRect();
-      const captureW = Math.round(rect.width)  || 612;
-      const captureH = Math.round(rect.height) || Math.ceil(el.scrollHeight);
+      const cW = Math.round(rect.width)  || 612;
+      const cH = Math.round(rect.height) || Math.ceil(el.scrollHeight);
 
       const canvas = await html2canvas(el, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
+        scale: 3, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
-        width: captureW,
-        height: captureH,
-        windowWidth: captureW,
-        windowHeight: captureH,
-        x: rect.left,
-        y: rect.top,
-        scrollX: 0,
-        scrollY: 0,
+        width: cW, height: cH, windowWidth: cW, windowHeight: cH,
+        x: rect.left, y: rect.top, scrollX: 0, scrollY: 0,
       });
 
-      // Restore original styles
-      el.style.position  = savedPos;
-      el.style.left      = savedLeft;
-      el.style.top       = savedTop;
-      el.style.margin    = savedMargin;
-      el.style.boxShadow = savedShadow;
-      el.style.zIndex    = savedZIndex;
+      Object.assign(el.style, saved);
+      return canvas;
+    };
 
+    /** Clone a floor plan page into a hidden sandbox at exactly 612×792.
+     *  overflow:hidden is applied so flex children stay within the page. */
+    const captureFloorPlan = async (el: HTMLElement): Promise<HTMLCanvasElement> => {
+      const sandbox = document.createElement("div");
+      sandbox.style.cssText =
+        `position:fixed;top:0;left:-9999px;width:${FP_W}px;height:${FP_H}px;` +
+        "overflow:hidden;pointer-events:none;z-index:-9999;" +
+        "font-family:'Plus Jakarta Sans','DM Sans',Arial,sans-serif;";
+      document.body.appendChild(sandbox);
+
+      const clone = el.cloneNode(true) as HTMLElement;
+      // Reset any margin/shadow from the preview layout; enforce exact page size
+      clone.style.cssText =
+        `position:static;width:${FP_W}px;height:${FP_H}px;` +
+        "margin:0;box-shadow:none;overflow:hidden;flex-shrink:0;";
+      sandbox.appendChild(clone);
+
+      await waitImages(clone);
+      await new Promise<void>(r =>
+        requestAnimationFrame(() => requestAnimationFrame(() =>
+          requestAnimationFrame(() => requestAnimationFrame(() => r()))
+        ))
+      );
+
+      const canvas = await html2canvas(clone, {
+        scale: 3, useCORS: true, allowTaint: false, logging: false,
+        backgroundColor: "#ffffff",
+        width: FP_W, height: FP_H,
+        windowWidth: FP_W, windowHeight: FP_H,
+        x: 0, y: 0, scrollX: 0, scrollY: 0,
+      });
+
+      document.body.removeChild(sandbox);
       return canvas;
     };
 
     try {
-      // ── Page 1: one-pager ───────────────────────────────────────────────
+      // ── Page 1: one-pager (park-and-capture) ────────────────────────────
       const onePagerCanvas = await captureLive(onePager);
       const pdfPage1H = Math.round((onePagerCanvas.height / onePagerCanvas.width) * 612);
 
@@ -681,17 +697,15 @@ export default function AdminCampaignBuilder() {
         "JPEG", 0, 0, 612, pdfPage1H, undefined, "NONE",
       );
 
-      // ── Pages 2+: one page per floor plan (each captured individually) ──
-      const fpEls = Array.from(
-        document.querySelectorAll<HTMLElement>(".floor-plan-page"),
-      );
+      // ── Pages 2+: one sandboxed clone per floor plan ─────────────────────
+      const fpEls = Array.from(document.querySelectorAll<HTMLElement>(".floor-plan-page"));
       for (const fp of fpEls) {
-        const fpCanvas = await captureLive(fp);
-        const fpPdfH   = Math.round((fpCanvas.height / fpCanvas.width) * 612);
-        pdf.addPage([612, fpPdfH], "pt");
+        const fpCanvas = await captureFloorPlan(fp);
+        // Canvas is 612*3 × 792*3 — map back to 612×792 pt
+        pdf.addPage([FP_W, FP_H], "pt");
         pdf.addImage(
           fpCanvas.toDataURL("image/jpeg", 0.97),
-          "JPEG", 0, 0, 612, fpPdfH, undefined, "NONE",
+          "JPEG", 0, 0, FP_W, FP_H, undefined, "NONE",
         );
       }
 
