@@ -477,7 +477,11 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
       <div style={{ background: C.ink, borderTop: `2.5px solid ${C.gold}`, padding: "11px 20px", display: "flex" }}>
         {/* left: photo + info */}
         <div style={{ display: "flex", flex: 1, gap: 12 }}>
-          <div style={{ width: 48, height: 48, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, background: C.coal }} />
+          {agent.photo ? (
+            <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 48, height: 48, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, objectFit: "cover", display: "block" }} />
+          ) : (
+            <div style={{ width: 48, height: 48, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, background: C.coal }} />
+          )}
           <div style={{ paddingTop: 2 }}>
             <div style={{ color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: "0.06em", lineHeight: 1 }}>{agent.name}</div>
             <div style={{ color: C.textMuted, fontSize: 6, marginTop: 4, lineHeight: 1 }}>{agent.title}</div>
