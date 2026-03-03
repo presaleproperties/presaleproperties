@@ -612,16 +612,17 @@ export default function AdminCampaignBuilder() {
 
     const captureEl = async (el: HTMLElement, fixedHeight?: number): Promise<HTMLCanvasElement> => {
       const clone = el.cloneNode(true) as HTMLElement;
-      // Strip the box-shadow so it doesn't inflate the canvas
-      clone.style.boxShadow = "none";
-      clone.style.marginTop = "0";
-      clone.style.width = "612px";
+      clone.style.cssText += ";box-shadow:none!important;margin:0!important;width:612px!important;position:static!important;";
       if (fixedHeight) clone.style.height = `${fixedHeight}px`;
+      else clone.style.height = "auto";
       host.innerHTML = "";
       host.appendChild(clone);
 
-      // Two rAF ticks so flexbox/grid layout settles
-      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      // Three rAF ticks so all flex/block layouts fully settle
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(r))));
+
+      // Read the fully-laid-out height AFTER layout settles
+      const captureH = fixedHeight ?? clone.getBoundingClientRect().height;
 
       return html2canvas(clone, {
         scale: 4,
@@ -630,9 +631,9 @@ export default function AdminCampaignBuilder() {
         logging: false,
         backgroundColor: "#ffffff",
         width: 612,
-        height: fixedHeight ?? clone.scrollHeight,
+        height: Math.ceil(captureH),
         windowWidth: 612,
-        windowHeight: fixedHeight ?? clone.scrollHeight,
+        windowHeight: Math.ceil(captureH),
         x: 0,
         y: 0,
         scrollX: 0,
