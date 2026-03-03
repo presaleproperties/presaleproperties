@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { QRCodeSVG } from "qrcode.react";
 import {
   Building2, User, DollarSign, FileText, Sparkles, Download, Save, Upload,
-  Plus, Trash2, ChevronDown, Image as ImageIcon
+  Plus, Trash2, Image as ImageIcon, BookOpen, Layers, FileSpreadsheet, AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -48,6 +49,7 @@ const PRESET_AGENTS = [
 interface Plan {
   id: number; name: string; type: string; sqft: string; bal: string;
   wasPrice: string; nowPrice: string; saved: string; psf: string;
+  floorPlanUrl: string; // URL to downloadable floor plan PDF/image
 }
 
 interface Deposit {
@@ -69,11 +71,13 @@ interface FormState {
   incentiveBanner: IncentiveBanner;
   agentIdx: number;
   heroImage: string | null;
+  brochureUrl: string;    // downloadable brochure URL
+  pricingSheetUrl: string; // downloadable pricing sheet URL
 }
 
 const emptyPlan = (): Plan => ({
   id: Date.now(), name: "", type: "", sqft: "", bal: "",
-  wasPrice: "", nowPrice: "", saved: "", psf: "",
+  wasPrice: "", nowPrice: "", saved: "", psf: "", floorPlanUrl: "",
 });
 
 const DEFAULT_STATE: FormState = {
@@ -95,7 +99,21 @@ const DEFAULT_STATE: FormState = {
   },
   agentIdx: 0,
   heroImage: null,
+  brochureUrl: "",
+  pricingSheetUrl: "",
 };
+
+// ─── QR Code helper (inline for PDF) ────────────────────────────────────────
+function DocQR({ url, label, size = 36 }: { url: string; label: string; size?: number }) {
+  if (!url) return null;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+      <QRCodeSVG value={url} size={size} bgColor="transparent" fgColor={C.ink} level="M" />
+      <div style={{ color: C.gold, fontSize: 4.5, fontWeight: 700, letterSpacing: "0.08em", textAlign: "center", maxWidth: size + 8, wordBreak: "break-all" }}>{label}</div>
+      <div style={{ color: C.textFaint, fontSize: 4, textAlign: "center", maxWidth: size + 8, wordBreak: "break-all", lineHeight: 1.3 }}>{url.replace(/^https?:\/\//, "")}</div>
+    </div>
+  );
+}
 
 // ─── Logo Mark SVG ──────────────────────────────────────────────────────────
 function LogoMark({ size = 28 }: { size?: number }) {
@@ -227,7 +245,13 @@ function OnePagerPreview({ data }: { data: FormState }) {
             )}
             <div style={{ height: 1, background: C.smoke, marginBottom: 6 }} />
             <div style={{ color: C.textMuted, fontSize: 5.5, marginBottom: 2 }}>Price per sq.ft.</div>
-            <div style={{ color: C.ink, fontSize: 8, fontWeight: 700 }}>{plan.psf || "—"}</div>
+            <div style={{ color: C.ink, fontSize: 8, fontWeight: 700, marginBottom: plan.floorPlanUrl ? 8 : 0 }}>{plan.psf || "—"}</div>
+            {/* Per-plan floor plan QR */}
+            {plan.floorPlanUrl && (
+              <div style={{ marginTop: "auto", paddingTop: 8, borderTop: `1px solid ${C.smoke}`, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                <DocQR url={plan.floorPlanUrl} label="Floor Plan" size={colCount <= 2 ? 48 : 38} />
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -248,7 +272,20 @@ function OnePagerPreview({ data }: { data: FormState }) {
         })}
       </div>
 
-      {/* ── 7. FOOTER with headshot ── */}
+      {/* ── 7. DOCUMENTS STRIP (Brochure + Pricing Sheet) ── */}
+      {(data.brochureUrl || data.pricingSheetUrl) && (
+        <div style={{ background: C.offWhite, borderTop: `2px solid ${C.smoke}`, padding: "10px 20px", display: "flex", alignItems: "center", gap: 24, justifyContent: "center" }}>
+          <div style={{ color: C.textMuted, fontSize: 6, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginRight: 8 }}>📄 Download Documents</div>
+          {data.brochureUrl && (
+            <DocQR url={data.brochureUrl} label="Brochure" size={44} />
+          )}
+          {data.pricingSheetUrl && (
+            <DocQR url={data.pricingSheetUrl} label="Pricing Sheet" size={44} />
+          )}
+        </div>
+      )}
+
+      {/* ── 8. FOOTER with headshot ── */}
       <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "12px 20px", display: "flex", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
           {/* Agent headshot */}
@@ -299,6 +336,8 @@ interface ProjectOption {
   completion_year: number | null; completion_month: number | null;
   project_type: string; unit_mix: string | null;
   highlights: string[] | null; amenities: string[] | null;
+  brochure_files: string[] | null; pricing_sheets: string[] | null;
+  floorplan_files: string[] | null;
 }
 
 export default function AdminCampaignBuilder() {
@@ -313,7 +352,7 @@ export default function AdminCampaignBuilder() {
     const fetchProjects = async () => {
       const { data } = await supabase
         .from("presale_projects")
-        .select("id, name, city, neighborhood, address, developer_name, starting_price, price_range, deposit_structure, deposit_percent, incentives, featured_image, completion_year, completion_month, project_type, unit_mix, highlights, amenities")
+        .select("id, name, city, neighborhood, address, developer_name, starting_price, price_range, deposit_structure, deposit_percent, incentives, featured_image, completion_year, completion_month, project_type, unit_mix, highlights, amenities, brochure_files, pricing_sheets, floorplan_files")
         .eq("is_published", true)
         .order("name");
       if (data) setProjects(data as ProjectOption[]);
@@ -395,6 +434,9 @@ export default function AdminCampaignBuilder() {
       fromPrice: fmt(project.starting_price),
       fromPsf: "",
       heroImage: project.featured_image || null,
+      // Auto-fill docs from project if available
+      brochureUrl: project.brochure_files?.[0] || f.brochureUrl,
+      pricingSheetUrl: project.pricing_sheets?.[0] || f.pricingSheetUrl,
     }));
 
     toast.success(`Loaded "${project.name}" — fill in plans & incentives`);
@@ -426,6 +468,34 @@ export default function AdminCampaignBuilder() {
   };
 
   const generatePDF = () => window.print();
+
+  // ── Upload a file to storage and return public URL ──────────────────────
+  const uploadFile = async (file: File, folder: string): Promise<string | null> => {
+    const ext = file.name.split(".").pop();
+    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from("listing-files").upload(path, file, { upsert: true });
+    if (error) { toast.error(`Upload failed: ${error.message}`); return null; }
+    const { data } = supabase.storage.from("listing-files").getPublicUrl(path);
+    return data.publicUrl;
+  };
+
+  const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "brochureUrl" | "pricingSheetUrl") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    toast.loading("Uploading…");
+    const url = await uploadFile(file, "campaign-docs");
+    toast.dismiss();
+    if (url) { set(field, url); toast.success("Uploaded ✓"); }
+  };
+
+  const handlePlanFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    toast.loading("Uploading floor plan…");
+    const url = await uploadFile(file, "campaign-floorplans");
+    toast.dismiss();
+    if (url) { setPlan(idx, "floorPlanUrl", url); toast.success("Floor plan uploaded ✓"); }
+  };
 
   return (
     <AdminLayout>
@@ -557,6 +627,11 @@ export default function AdminCampaignBuilder() {
                         <Badge variant="outline" className="text-[10px] font-bold border-primary/30 text-primary">
                           Plan {idx + 1}
                         </Badge>
+                        {!plan.floorPlanUrl && (
+                          <span className="flex items-center gap-1 text-[9px] text-amber-600">
+                            <AlertCircle className="h-3 w-3" /> Floor plan required
+                          </span>
+                        )}
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         {[
@@ -574,6 +649,36 @@ export default function AdminCampaignBuilder() {
                             />
                           </div>
                         ))}
+                      </div>
+                      {/* Floor Plan Upload */}
+                      <div className="space-y-1 pt-1 border-t border-border">
+                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                          <Layers className="h-3 w-3" /> Floor Plan File (PDF/Image)
+                        </Label>
+                        {plan.floorPlanUrl ? (
+                          <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-2 py-1.5">
+                            <Download className="h-3 w-3 text-primary shrink-0" />
+                            <span className="text-[10px] text-primary font-medium flex-1 truncate">Floor plan ready</span>
+                            <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-muted-foreground hover:text-destructive" onClick={() => setPlan(idx, "floorPlanUrl", "")}>
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <label className="flex items-center gap-2 rounded-lg border border-dashed border-amber-400/50 bg-amber-50/30 px-2 py-1.5 cursor-pointer hover:border-primary/50 transition-colors">
+                            <input type="file" accept=".pdf,image/*" onChange={e => handlePlanFileUpload(e, idx)} className="hidden" />
+                            <Upload className="h-3 w-3 text-amber-600 shrink-0" />
+                            <span className="text-[10px] text-muted-foreground">Upload floor plan PDF or image</span>
+                          </label>
+                        )}
+                        <div className="space-y-1">
+                          <Label className="text-[9px] text-muted-foreground/70">Or paste URL:</Label>
+                          <Input
+                            value={plan.floorPlanUrl}
+                            onChange={e => setPlan(idx, "floorPlanUrl", e.target.value)}
+                            placeholder="https://..."
+                            className="h-7 text-xs"
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -710,6 +815,7 @@ export default function AdminCampaignBuilder() {
 
                 {/* ─── TAB: Files ─── */}
                 <TabsContent value="files" className="mt-0 space-y-4">
+                  {/* Hero Image */}
                   <div className="space-y-2">
                     <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Hero Image</Label>
                     <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border hover:border-primary/50 bg-muted/20 p-4 cursor-pointer transition-colors">
@@ -717,19 +823,65 @@ export default function AdminCampaignBuilder() {
                       {form.heroImage ? (
                         <div className="w-full">
                           <img src={form.heroImage} alt="hero" className="w-full h-24 object-cover rounded-lg" />
-                          <p className="text-[10px] text-primary font-medium text-center mt-2">✓ Hero image loaded · Click to replace</p>
+                          <p className="text-[10px] text-primary font-medium text-center mt-2">✓ Hero loaded · Click to replace</p>
                         </div>
                       ) : (
                         <div className="text-center">
                           <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
                           <p className="text-xs text-muted-foreground">Click to upload hero image</p>
-                          <p className="text-[10px] text-muted-foreground/60 mt-1">JPG, PNG recommended</p>
                         </div>
                       )}
                     </label>
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    If no hero image is uploaded, the project's featured image from the database will be used automatically.
+
+                  {/* Brochure */}
+                  <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+                    <Label className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <BookOpen className="h-3 w-3 text-primary" /> Brochure (QR code on PDF)
+                    </Label>
+                    {form.brochureUrl ? (
+                      <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-2 py-1.5">
+                        <Download className="h-3 w-3 text-primary shrink-0" />
+                        <span className="text-[10px] text-primary font-medium flex-1 truncate">Brochure ready</span>
+                        <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-muted-foreground hover:text-destructive" onClick={() => set("brochureUrl", "")}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <label className="flex items-center gap-2 rounded-lg border border-dashed border-border bg-muted/20 px-2 py-1.5 cursor-pointer hover:border-primary/50 transition-colors">
+                        <input type="file" accept=".pdf,image/*" onChange={e => handleDocUpload(e, "brochureUrl")} className="hidden" />
+                        <Upload className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="text-[10px] text-muted-foreground">Upload brochure PDF</span>
+                      </label>
+                    )}
+                    <Input value={form.brochureUrl} onChange={e => set("brochureUrl", e.target.value)} placeholder="Or paste URL…" className="h-7 text-xs" />
+                  </div>
+
+                  {/* Pricing Sheet */}
+                  <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+                    <Label className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <FileSpreadsheet className="h-3 w-3 text-primary" /> Pricing Sheet (QR code on PDF)
+                    </Label>
+                    {form.pricingSheetUrl ? (
+                      <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-2 py-1.5">
+                        <Download className="h-3 w-3 text-primary shrink-0" />
+                        <span className="text-[10px] text-primary font-medium flex-1 truncate">Pricing sheet ready</span>
+                        <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-muted-foreground hover:text-destructive" onClick={() => set("pricingSheetUrl", "")}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <label className="flex items-center gap-2 rounded-lg border border-dashed border-border bg-muted/20 px-2 py-1.5 cursor-pointer hover:border-primary/50 transition-colors">
+                        <input type="file" accept=".pdf,image/*" onChange={e => handleDocUpload(e, "pricingSheetUrl")} className="hidden" />
+                        <Upload className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="text-[10px] text-muted-foreground">Upload pricing sheet PDF</span>
+                      </label>
+                    )}
+                    <Input value={form.pricingSheetUrl} onChange={e => set("pricingSheetUrl", e.target.value)} placeholder="Or paste URL…" className="h-7 text-xs" />
+                  </div>
+
+                  <p className="text-[10px] text-muted-foreground bg-muted/50 rounded-lg p-2">
+                    QR codes for all uploaded documents will appear on the printed one-pager so recipients can scan and download them instantly.
                   </p>
                 </TabsContent>
               </div>
