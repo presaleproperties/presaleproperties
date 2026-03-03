@@ -270,13 +270,10 @@ function OnePagerPreview({ data }: { data: FormState }) {
           </div>
         </div>
         <div style={{ width: 1, height: 36, background: "#333", margin: "0 18px" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ color: "#fff", fontSize: 9.5, fontWeight: 800 }}>{agent.phone}</div>
-            <div style={{ color: C.textMuted, fontSize: 6.5, marginTop: 2 }}>{agent.email}</div>
-            <div style={{ color: C.gold, fontSize: 6.5, marginTop: 1 }}>{agent.website}</div>
-          </div>
-          <LogoMark size={22} />
+        <div style={{ textAlign: "right" }}>
+          <div style={{ color: "#fff", fontSize: 9.5, fontWeight: 800 }}>{agent.phone}</div>
+          <div style={{ color: C.textMuted, fontSize: 6.5, marginTop: 2 }}>{agent.email}</div>
+          <div style={{ color: C.gold, fontSize: 6.5, marginTop: 1 }}>{agent.website}</div>
         </div>
       </div>
 
