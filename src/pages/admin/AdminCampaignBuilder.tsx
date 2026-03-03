@@ -533,12 +533,12 @@ function OnePagerPreview({ data }: { data: FormState }) {
         </div>
 
         {/* Floor plan image — fills remaining vertical space */}
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 28px", background: "#fff" }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "10px 16px", background: "#fff" }}>
           <img
             src={plan.floorPlanUrl}
             crossOrigin="anonymous"
             alt={`Floor plan ${plan.name}`}
-            style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
+            style={{ maxWidth: "100%", maxHeight: "100%", width: "100%", height: "100%", objectFit: "contain", display: "block" }}
           />
         </div>
 
