@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { QRCodeSVG } from "qrcode.react";
 import {
   Building2, User, DollarSign, FileText, Sparkles, Download, Save, Upload,
   Plus, Trash2, Image as ImageIcon, BookOpen, Layers, FileSpreadsheet, AlertCircle
@@ -103,18 +102,6 @@ const DEFAULT_STATE: FormState = {
   pricingSheetUrl: "",
 };
 
-// ─── QR Code helper (inline for PDF) ────────────────────────────────────────
-function DocQR({ url, label, size = 36 }: { url: string; label: string; size?: number }) {
-  if (!url) return null;
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-      <QRCodeSVG value={url} size={size} bgColor="transparent" fgColor={C.ink} level="M" />
-      <div style={{ color: C.gold, fontSize: 4.5, fontWeight: 700, letterSpacing: "0.08em", textAlign: "center", maxWidth: size + 8, wordBreak: "break-all" }}>{label}</div>
-      <div style={{ color: C.textFaint, fontSize: 4, textAlign: "center", maxWidth: size + 8, wordBreak: "break-all", lineHeight: 1.3 }}>{url.replace(/^https?:\/\//, "")}</div>
-    </div>
-  );
-}
-
 // ─── Logo Mark SVG ──────────────────────────────────────────────────────────
 function LogoMark({ size = 28 }: { size?: number }) {
   return (
@@ -135,6 +122,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
   const colCount = plans.length || 1;
 
   return (
+    <>
     <div
       id="one-pager-preview"
       style={{
@@ -245,13 +233,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
             )}
             <div style={{ height: 1, background: C.smoke, marginBottom: 6 }} />
             <div style={{ color: C.textMuted, fontSize: 5.5, marginBottom: 2 }}>Price per sq.ft.</div>
-            <div style={{ color: C.ink, fontSize: 8, fontWeight: 700, marginBottom: plan.floorPlanUrl ? 8 : 0 }}>{plan.psf || "—"}</div>
-            {/* Per-plan floor plan QR */}
-            {plan.floorPlanUrl && (
-              <div style={{ marginTop: "auto", paddingTop: 8, borderTop: `1px solid ${C.smoke}`, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                <DocQR url={plan.floorPlanUrl} label="Floor Plan" size={colCount <= 2 ? 48 : 38} />
-              </div>
-            )}
+            <div style={{ color: C.ink, fontSize: 8, fontWeight: 700 }}>{plan.psf || "—"}</div>
           </div>
         ))}
       </div>
@@ -272,20 +254,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
         })}
       </div>
 
-      {/* ── 7. DOCUMENTS STRIP (Brochure + Pricing Sheet) ── */}
-      {(data.brochureUrl || data.pricingSheetUrl) && (
-        <div style={{ background: C.offWhite, borderTop: `2px solid ${C.smoke}`, padding: "10px 20px", display: "flex", alignItems: "center", gap: 24, justifyContent: "center" }}>
-          <div style={{ color: C.textMuted, fontSize: 6, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginRight: 8 }}>📄 Download Documents</div>
-          {data.brochureUrl && (
-            <DocQR url={data.brochureUrl} label="Brochure" size={44} />
-          )}
-          {data.pricingSheetUrl && (
-            <DocQR url={data.pricingSheetUrl} label="Pricing Sheet" size={44} />
-          )}
-        </div>
-      )}
-
-      {/* ── 8. FOOTER with headshot ── */}
+      {/* ── 7. FOOTER with headshot ── */}
       <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "12px 20px", display: "flex", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
           {/* Agent headshot */}
@@ -323,6 +292,66 @@ function OnePagerPreview({ data }: { data: FormState }) {
         </p>
       </div>
     </div>
+
+    {/* ── FLOOR PLAN PAGES (one per plan with a floor plan image) ── */}
+    {plans.filter(p => p.floorPlanUrl).map((plan, i) => (
+      <div
+        key={`fp-page-${plan.id}`}
+        className="floor-plan-page"
+        style={{
+          width: PAGE_W,
+          minHeight: 792,
+          background: C.offWhite,
+          fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif",
+          boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
+          marginTop: 24,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        {/* Page header */}
+        <div style={{ background: C.ink, borderBottom: `3px solid ${C.gold}`, padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <LogoMark size={24} />
+            <div>
+              <div style={{ color: C.gold, fontSize: 7, fontWeight: 700, letterSpacing: "0.2em", lineHeight: 1 }}>PRESALE PROPERTIES</div>
+              <div style={{ color: "#888", fontSize: 5.5, letterSpacing: "0.1em", marginTop: 1 }}>FLOOR PLAN · {data.projectName || "Project"}</div>
+            </div>
+          </div>
+          <div style={{ background: C.gold, borderRadius: 4, padding: "3px 10px" }}>
+            <span style={{ color: "#111", fontSize: 7, fontWeight: 700, letterSpacing: "0.1em" }}>{plan.name || `PLAN ${i + 1}`}</span>
+          </div>
+        </div>
+
+        {/* Plan details strip */}
+        <div style={{ background: C.dark, padding: "8px 20px", display: "flex", gap: 24, alignItems: "center" }}>
+          {plan.type && <div><div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Unit Type</div><div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{plan.type}</div></div>}
+          {plan.sqft && <div><div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Interior</div><div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{plan.sqft} sqft</div></div>}
+          {plan.bal && <div><div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Balcony</div><div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{plan.bal} sqft</div></div>}
+          {plan.nowPrice && <div><div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Price</div><div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{plan.nowPrice}</div></div>}
+          {plan.psf && <div><div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Price/sqft</div><div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{plan.psf}</div></div>}
+        </div>
+
+        {/* Floor plan image — fills the page */}
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, background: "#fff" }}>
+          <img
+            src={plan.floorPlanUrl}
+            alt={`Floor plan ${plan.name}`}
+            style={{ maxWidth: "100%", maxHeight: 580, objectFit: "contain", display: "block" }}
+          />
+        </div>
+
+        {/* Page footer */}
+        <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "8px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ color: "#fff", fontSize: 7, fontWeight: 700 }}>{agent.name} · {agent.phone}</div>
+          <div style={{ color: "#444", fontSize: 5, textAlign: "right" }}>
+            E&OE. Floor plans subject to change. Not to scale.
+          </div>
+        </div>
+      </div>
+    ))}
+  </>
   );
 }
 
@@ -502,14 +531,23 @@ export default function AdminCampaignBuilder() {
       <style>{`
         @media print {
           body * { visibility: hidden !important; }
-          #one-pager-preview, #one-pager-preview * { visibility: visible !important; }
-          #one-pager-preview {
+          #print-root, #print-root * { visibility: visible !important; }
+          #print-root {
             position: fixed !important;
             left: 0 !important;
             top: 0 !important;
             width: 612pt !important;
             transform: none !important;
+            gap: 0 !important;
+          }
+          #one-pager-preview {
             box-shadow: none !important;
+            page-break-after: always;
+          }
+          .floor-plan-page {
+            box-shadow: none !important;
+            page-break-after: always;
+            margin-top: 0 !important;
           }
           @page { size: letter; margin: 0; }
         }
@@ -881,7 +919,7 @@ export default function AdminCampaignBuilder() {
                   </div>
 
                   <p className="text-[10px] text-muted-foreground bg-muted/50 rounded-lg p-2">
-                    QR codes for all uploaded documents will appear on the printed one-pager so recipients can scan and download them instantly.
+                    Floor plans uploaded in the Plans tab will appear as additional pages at the end of the printed PDF.
                   </p>
                 </TabsContent>
               </div>
@@ -904,7 +942,7 @@ export default function AdminCampaignBuilder() {
                 </Button>
               </div>
               <p className="text-[10px] text-muted-foreground text-center">
-                Page 1 — One Pager · {form.planCount} floor plan{form.planCount !== 1 ? "s" : ""}
+                {1 + form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length} page{form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length > 0 ? "s" : ""} · {form.planCount} plan{form.planCount !== 1 ? "s" : ""} · {form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length} floor plan PDF{form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length !== 1 ? "s" : ""}
               </p>
             </div>
           </div>
@@ -920,7 +958,7 @@ export default function AdminCampaignBuilder() {
               ref={previewRef}
               className="flex-1 overflow-auto flex items-start justify-center p-6"
             >
-              <div style={{ transform: "scale(0.95)", transformOrigin: "top center" }}>
+              <div id="print-root" style={{ transform: "scale(0.95)", transformOrigin: "top center", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
                 <OnePagerPreview data={form} />
               </div>
             </div>
