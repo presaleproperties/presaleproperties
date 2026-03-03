@@ -103,15 +103,12 @@ const DEFAULT_STATE: FormState = {
   pricingSheetUrl: "",
 };
 
-// ─── Logo Mark SVG ──────────────────────────────────────────────────────────
+// ─── Logo Mark (actual brand logo) ─────────────────────────────────────────
+const LOGO_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-new.png";
 function LogoMark({ size = 28 }: { size?: number }) {
+  const h = size * 1.6;
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <circle cx="16" cy="16" r="15" fill={C.gold} />
-      <rect x="9" y="8" width="3" height="16" rx="1.5" fill="#111" />
-      <rect x="14.5" y="8" width="3" height="16" rx="1.5" fill="#111" />
-      <rect x="20" y="8" width="3" height="16" rx="1.5" fill="#111" />
-    </svg>
+    <img src={LOGO_URL} alt="Presale Properties" style={{ height: h, width: "auto", objectFit: "contain", display: "block" }} />
   );
 }
 
@@ -144,12 +141,8 @@ function OnePagerPreview({ data }: { data: FormState }) {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.75) 100%)" }} />
 
         {/* Top-left logo */}
-        <div style={{ position: "absolute", top: 18, left: 20, display: "flex", alignItems: "center", gap: 8 }}>
-          <LogoMark size={30} />
-          <div>
-            <div style={{ color: C.gold, fontSize: 7, fontWeight: 700, letterSpacing: "0.2em", lineHeight: 1 }}>PRESALE</div>
-            <div style={{ color: "#fff", fontSize: 7, fontWeight: 400, letterSpacing: "0.18em", lineHeight: 1.2 }}>PROPERTIES</div>
-          </div>
+        <div style={{ position: "absolute", top: 14, left: 16 }}>
+          <LogoMark size={28} />
         </div>
 
         {/* Top-right VIP badge */}
@@ -269,13 +262,13 @@ function OnePagerPreview({ data }: { data: FormState }) {
           </div>
         </div>
         <div style={{ width: 1, height: 36, background: "#333", margin: "0 18px" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <LogoMark size={26} />
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ textAlign: "right" }}>
             <div style={{ color: "#fff", fontSize: 9.5, fontWeight: 800 }}>{agent.phone}</div>
             <div style={{ color: C.textMuted, fontSize: 6.5, marginTop: 2 }}>{agent.email}</div>
             <div style={{ color: C.gold, fontSize: 6.5, marginTop: 1 }}>{agent.website}</div>
           </div>
+          <LogoMark size={22} />
         </div>
       </div>
 
@@ -313,12 +306,9 @@ function OnePagerPreview({ data }: { data: FormState }) {
       >
         {/* Page header */}
         <div style={{ background: C.ink, borderBottom: `3px solid ${C.gold}`, padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <LogoMark size={24} />
-            <div>
-              <div style={{ color: C.gold, fontSize: 7, fontWeight: 700, letterSpacing: "0.2em", lineHeight: 1 }}>PRESALE PROPERTIES</div>
-              <div style={{ color: "#888", fontSize: 5.5, letterSpacing: "0.1em", marginTop: 1 }}>FLOOR PLAN · {data.projectName || "Project"}</div>
-            </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <LogoMark size={18} />
+            <div style={{ color: "#888", fontSize: 5.5, letterSpacing: "0.1em" }}>FLOOR PLAN · {data.projectName || "Project"}</div>
           </div>
           <div style={{ background: C.gold, borderRadius: 4, padding: "3px 10px" }}>
             <span style={{ color: "#111", fontSize: 7, fontWeight: 700, letterSpacing: "0.1em" }}>{plan.name || `PLAN ${i + 1}`}</span>
