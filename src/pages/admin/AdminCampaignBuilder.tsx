@@ -202,16 +202,19 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
       {/* ── 3. INCENTIVE BANNER ── */}
       {data.incentiveBanner.items.some(x => x) && (
-        <div style={{ background: `linear-gradient(135deg, #1a7a3c, #25a455)`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ fontSize: 8, fontWeight: 800, color: "#fff", letterSpacing: "0.12em" }}>
-              🎁 {data.incentiveBanner.headline}
-            </div>
+        <div style={{ background: `linear-gradient(135deg, #145c2e 0%, #1e8c46 50%, #145c2e 100%)`, padding: "11px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 7, borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+          {/* Headline centered */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 16, height: 1, background: "rgba(255,255,255,0.4)" }} />
+            <span style={{ fontSize: 7, fontWeight: 800, color: "#fff", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.9 }}>🎁 {data.incentiveBanner.headline}</span>
+            <div style={{ width: 16, height: 1, background: "rgba(255,255,255,0.4)" }} />
           </div>
-          <div style={{ display: "flex", gap: 12 }}>
+          {/* Items row — centered */}
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
             {data.incentiveBanner.items.filter(Boolean).map((item, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 4, padding: "3px 8px" }}>
-                <span style={{ color: "#fff", fontSize: 7, fontWeight: 700 }}>✓ {item}</span>
+              <div key={i} style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 20, padding: "4px 11px", display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ color: "#a8ffbc", fontSize: 7, fontWeight: 800 }}>✓</span>
+                <span style={{ color: "#fff", fontSize: 7, fontWeight: 600, letterSpacing: "0.04em" }}>{item}</span>
               </div>
             ))}
           </div>
