@@ -483,18 +483,18 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
             <div style={{ width: 48, height: 48, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, background: C.coal }} />
           )}
           <div style={{ paddingTop: 2 }}>
-            <div style={{ color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: "0.06em", lineHeight: 1 }}>{agent.name}</div>
-            <div style={{ color: C.textMuted, fontSize: 6, marginTop: 4, lineHeight: 1 }}>{agent.title}</div>
-            <div style={{ color: C.gold, fontSize: 6, marginTop: 3, lineHeight: 1 }}>{agent.languages}</div>
+            <div style={{ color: "#fff", fontSize: 12, fontWeight: 800, letterSpacing: "0.06em", lineHeight: 1 }}>{agent.name}</div>
+            <div style={{ color: C.textMuted, fontSize: 9, marginTop: 4, lineHeight: 1 }}>{agent.title}</div>
+            <div style={{ color: C.gold, fontSize: 9, marginTop: 3, lineHeight: 1 }}>{agent.languages}</div>
           </div>
         </div>
         {/* divider */}
         <div style={{ width: 1, height: 40, background: "#333", margin: "0 18px", flexShrink: 0 }} />
         {/* right: contact */}
         <div style={{ textAlign: "right", flexShrink: 0, paddingTop: 2 }}>
-          <div style={{ color: "#fff", fontSize: 11, fontWeight: 800, lineHeight: 1 }}>{agent.phone}</div>
-          <div style={{ color: C.textMuted, fontSize: 6.5, marginTop: 4, lineHeight: 1 }}>{agent.email}</div>
-          <div style={{ color: C.gold, fontSize: 6.5, marginTop: 3, lineHeight: 1 }}>{agent.website}</div>
+          <div style={{ color: "#fff", fontSize: 14, fontWeight: 800, lineHeight: 1 }}>{agent.phone}</div>
+          <div style={{ color: C.textMuted, fontSize: 9, marginTop: 4, lineHeight: 1 }}>{agent.email}</div>
+          <div style={{ color: C.gold, fontSize: 9, marginTop: 3, lineHeight: 1 }}>{agent.website}</div>
         </div>
       </div>
 
