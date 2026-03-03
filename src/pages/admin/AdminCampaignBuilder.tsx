@@ -243,46 +243,61 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
       {/* ── 6. DEPOSIT TIMELINE ── */}
       {(() => {
-        // Auto-calculate dollar amounts from first plan's nowPrice
         const basePrice = parseFloat(String(plans[0]?.nowPrice || data.fromPrice || "").replace(/[^0-9.]/g, "")) || 0;
         const calcAmount = (pctStr: string) => {
-          const pct = parseFloat(pctStr.replace(/[^0-9.]/g, ""));
+          const pct = parseFloat(String(pctStr).replace(/[^0-9.]/g, ""));
           if (!basePrice || isNaN(pct)) return null;
           return `$${Math.round(basePrice * pct / 100).toLocaleString()}`;
         };
+        // Filter out mortgage step (last) for regular steps
+        const regularDeposits = data.deposits.filter((_, i) => i < data.deposits.length - 1);
+        const mortgageStep = data.deposits[data.deposits.length - 1];
         return (
-          <div style={{ background: C.dark, borderTop: `1px solid #333` }}>
-            {/* Section header */}
-            <div style={{ padding: "7px 20px", borderBottom: `1px solid #222`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ background: C.dark, padding: "10px 20px 12px" }}>
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <span style={{ color: C.gold, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" }}>Deposit Structure</span>
-              {basePrice > 0 && <span style={{ color: C.textFaint, fontSize: 5.5 }}>Based on {plans[0]?.nowPrice || data.fromPrice}</span>}
+              {basePrice > 0 && <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 5.5 }}>Based on {plans[0]?.nowPrice || data.fromPrice}</span>}
             </div>
-            {/* Timeline row */}
-            <div style={{ display: "flex", alignItems: "stretch" }}>
-              {data.deposits.map((d, i) => {
-                const isLast = i === data.deposits.length - 1;
+            {/* Timeline */}
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {regularDeposits.map((d, i) => {
                 const autoAmt = calcAmount(d.percent);
+                const displayAmt = autoAmt || d.amount;
+                const isFirst = i === 0;
                 return (
-                  <div key={i} style={{ flex: 1, padding: "10px 14px", borderRight: isLast ? "none" : `1px solid #333`, position: "relative" }}>
-                    {/* Step connector dot */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                      <div style={{ width: 18, height: 18, borderRadius: "50%", background: isLast ? C.gold : "#2a2a2a", border: `1.5px solid ${isLast ? C.gold : "#444"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <span style={{ color: isLast ? "#111" : C.gold, fontSize: 6.5, fontWeight: 800 }}>{i + 1}</span>
+                  <div key={i} style={{ display: "flex", alignItems: "center", flex: 1 }}>
+                    {/* Node */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 56 }}>
+                      <div style={{ width: 22, height: 22, borderRadius: "50%", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 800, color: "#111", marginBottom: 5, flexShrink: 0 }}>
+                        {i + 1}
                       </div>
-                      <span style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>{d.label}</span>
+                      <div style={{ color: C.gold, fontSize: 7, fontWeight: 700 }}>{d.percent || "—"}</div>
+                      {displayAmt && <div style={{ color: "#fff", fontSize: 6.5, fontWeight: 600, marginTop: 1 }}>{displayAmt}</div>}
+                      <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 5.5, marginTop: 2, textAlign: "center", maxWidth: 60 }}>{d.label}</div>
                     </div>
-                    {/* Percentage pill */}
-                    <div style={{ display: "inline-block", background: isLast ? C.gold : "#1a1a1a", border: `1px solid ${isLast ? C.gold : "#444"}`, borderRadius: 10, padding: "2px 8px", marginBottom: 5 }}>
-                      <span style={{ color: isLast ? "#111" : "#fff", fontSize: 8, fontWeight: 800 }}>{d.percent}</span>
-                    </div>
-                    {/* Auto-calculated amount */}
-                    <div style={{ color: "#fff", fontSize: 9, fontWeight: 700, lineHeight: 1.2 }}>
-                      {autoAmt || d.amount}
-                    </div>
-                    {d.note && <div style={{ color: C.textFaint, fontSize: 5.5, marginTop: 3 }}>{d.note}</div>}
+                    {/* Connector line */}
+                    {i < regularDeposits.length - 1 && (
+                      <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${C.gold}88, rgba(255,255,255,0.15))`, margin: "0 4px", marginBottom: 28 }} />
+                    )}
                   </div>
                 );
               })}
+              {/* Dashed connector to mortgage */}
+              {mortgageStep && (
+                <>
+                  <div style={{ flex: 1, height: 1, borderTop: "1.5px dashed rgba(255,255,255,0.2)", margin: "0 4px", marginBottom: 28 }} />
+                  {/* Mortgage node */}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 60 }}>
+                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#2a2a2a", border: `1.5px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 5, flexShrink: 0 }}>
+                      <span style={{ fontSize: 9 }}>🏠</span>
+                    </div>
+                    <div style={{ color: C.gold, fontSize: 6.5, fontWeight: 700 }}>Completion</div>
+                    <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 5.5, marginTop: 2, textAlign: "center", maxWidth: 60 }}>Mortgage begins</div>
+                    <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 5, marginTop: 1, textAlign: "center" }}>{mortgageStep.label}</div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         );
