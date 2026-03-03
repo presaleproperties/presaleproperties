@@ -168,13 +168,21 @@ function OnePagerPreview({ data }: { data: FormState }) {
         </div>
 
         {/* Bottom-right: price */}
-        <div style={{ position: "absolute", bottom: 20, right: 20, textAlign: "right" }}>
-          <div style={{ color: "#fff", fontSize: 16, fontWeight: 800 }}>From {data.fromPrice || "$—"}</div>
-          <div style={{ color: C.gold, fontSize: 8, fontWeight: 600, marginTop: 2 }}>{data.fromPriceLabel}</div>
-          <div style={{ width: "100%", height: 1, background: "rgba(255,255,255,0.2)", margin: "6px 0" }} />
-          <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 10, fontWeight: 600 }}>From {data.fromPsf || "$—/sqft"}</div>
-          <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 7 }}>{data.psfLabel}</div>
-        </div>
+        {(() => {
+          const plan0 = plans[0];
+          const displayPrice = plan0?.nowPrice || data.fromPrice || "$—";
+          const displayPsf = plan0?.psf || data.fromPsf || "$—/sqft";
+          return (
+            <div style={{ position: "absolute", bottom: 20, right: 20, textAlign: "right" }}>
+              <div style={{ color: "#fff", fontSize: 16, fontWeight: 800 }}>From {displayPrice}</div>
+              <div style={{ color: C.gold, fontSize: 8, fontWeight: 600, marginTop: 2 }}>{data.fromPriceLabel}</div>
+              <div style={{ width: "100%", height: 1, background: "rgba(255,255,255,0.2)", margin: "6px 0" }} />
+              <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 10, fontWeight: 600 }}>From {displayPsf}</div>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 7 }}>{data.psfLabel}</div>
+            </div>
+          );
+        })()}
+        
       </div>
 
       {/* ── 2. STAT BLOCKS ── */}
