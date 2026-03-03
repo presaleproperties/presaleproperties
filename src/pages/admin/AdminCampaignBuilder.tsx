@@ -194,16 +194,16 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
       {/* ── 3. INCENTIVE BANNER ── */}
       {data.incentiveBanner.items.some(x => x) && (
-        <div style={{ background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ background: `linear-gradient(135deg, #1a7a3c, #25a455)`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ fontSize: 8, fontWeight: 800, color: "#111", letterSpacing: "0.12em" }}>
-              {data.incentiveBanner.headline}
+            <div style={{ fontSize: 8, fontWeight: 800, color: "#fff", letterSpacing: "0.12em" }}>
+              🎁 {data.incentiveBanner.headline}
             </div>
           </div>
           <div style={{ display: "flex", gap: 12 }}>
             {data.incentiveBanner.items.filter(Boolean).map((item, i) => (
-              <div key={i} style={{ background: "rgba(0,0,0,0.15)", borderRadius: 4, padding: "3px 8px" }}>
-                <span style={{ color: "#fff", fontSize: 7, fontWeight: 700 }}>{item}</span>
+              <div key={i} style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 4, padding: "3px 8px" }}>
+                <span style={{ color: "#fff", fontSize: 7, fontWeight: 700 }}>✓ {item}</span>
               </div>
             ))}
           </div>
