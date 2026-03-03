@@ -648,13 +648,12 @@ export default function AdminCampaignBuilder() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const canvas = await html2canvas(el, {
       scale: SCALE, useCORS: true, allowTaint: false, logging: false,
-      backgroundColor: null,
+      backgroundColor: "#ffffff",
       width: Math.round(rect.width), height: Math.round(rect.height),
-      windowWidth: Math.round(rect.width),
-      windowHeight: Math.round(rect.height),
-      x: Math.round(rect.left + scrollLeft),
-      y: Math.round(rect.top + scrollTop),
-      scrollX: 0, scrollY: 0,
+      windowWidth: document.documentElement.clientWidth,
+      windowHeight: document.documentElement.clientHeight,
+      scrollX: -window.scrollX,
+      scrollY: -window.scrollY,
     });
     canvas.toBlob(blob => {
       if (!blob) { toast.error("Export failed"); return; }
