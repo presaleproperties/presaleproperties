@@ -583,113 +583,112 @@ export default function AdminCampaignBuilder() {
   const previewRef = useRef<HTMLDivElement>(null);
   const [pdfGenerating, setPdfGenerating] = useState(false);
 
-  // ── Generate PDF: capture the LIVE rendered elements directly ───────────
-  // All preview styles are inline — no Tailwind classes to lose.
-  // We temporarily pin each element at position:fixed / top:0 / left:-9999px
-  // so html2canvas sees it at its natural rendered width (612px) with full
-  // font, image, and layout context intact. No cloning = no re-layout.
+  // ── Generate PDF ────────────────────────────────────────────────────────
+  // Strategy: clone each page element into a dedicated off-screen sandboxed
+  // container one at a time. Because all styles are inline (no Tailwind
+  // classes on the preview), the clone is visually identical. We place the
+  // container at a fixed 612px width so flexbox percentages compute exactly
+  // as in the preview. Each page is captured independently → no overlap.
   const generatePDF = useCallback(async () => {
     const onePager = document.getElementById("one-pager-preview");
     if (!onePager) { toast.error("Preview not found"); return; }
     setPdfGenerating(true);
     const toastId = toast.loading("Generating PDF…");
 
-    // Ensure all web fonts are fully loaded before capture
+    // Ensure fonts are loaded before any capture
     await document.fonts.ready;
 
-    // Capture a live element by parking it off-screen without cloning.
-    // Saves/restores the original style properties so the UI is unaffected.
-    const captureLive = async (
+    // Sandboxed off-screen container — 612 px wide, visible to the browser
+    // layout engine but invisible to the user.
+    const sandbox = document.createElement("div");
+    sandbox.style.cssText =
+      "position:fixed;top:0;left:-9999px;width:612px;" +
+      "overflow:visible;pointer-events:none;z-index:-9999;" +
+      "font-family:'Plus Jakarta Sans','DM Sans',Arial,sans-serif;";
+    document.body.appendChild(sandbox);
+
+    // Capture a single element by cloning it into the sandbox.
+    // fixedHeight: forces the clone to a specific px height (for floor plan pages).
+    const capturePage = async (
       el: HTMLElement,
-      pdfW: number,
-      pdfH?: number,
+      fixedHeight?: number,
     ): Promise<HTMLCanvasElement> => {
-      // ── Save original styles ──
-      const saved = {
-        position:   el.style.position,
-        top:        el.style.top,
-        left:       el.style.left,
-        margin:     el.style.margin,
-        boxShadow:  el.style.boxShadow,
-        zIndex:     el.style.zIndex,
-        visibility: el.style.visibility,
-        height:     el.style.height,
-      };
+      // Deep-clone; all styles are inline so clone is pixel-perfect.
+      const clone = el.cloneNode(true) as HTMLElement;
+      clone.style.position   = "static";
+      clone.style.width      = "612px";
+      clone.style.margin     = "0";
+      clone.style.boxShadow  = "none";
+      clone.style.marginTop  = "0";
+      if (fixedHeight) {
+        clone.style.height   = `${fixedHeight}px`;
+        clone.style.overflow = "hidden";
+      } else {
+        clone.style.height   = "auto";
+      }
 
-      // ── Park off-screen at its natural width ──
-      el.style.position   = "fixed";
-      el.style.top        = "0px";
-      el.style.left       = "-9999px";
-      el.style.margin     = "0px";
-      el.style.boxShadow  = "none";
-      el.style.zIndex     = "-9999";
-      el.style.visibility = "visible";
-      if (pdfH) el.style.height = `${pdfH}px`;
+      sandbox.innerHTML = "";
+      sandbox.appendChild(clone);
 
-      // Wait for browser to finish layout + paint (3 frames is robust)
+      // 3 animation frames — enough for flex layout + image decode
       await new Promise<void>(r => {
-        requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => r())
+          )
+        );
       });
 
-      const naturalH = pdfH ?? el.getBoundingClientRect().height;
+      const captureH = fixedHeight ?? Math.ceil(clone.getBoundingClientRect().height);
 
-      const canvas = await html2canvas(el, {
+      return html2canvas(clone, {
         scale: 3,
         useCORS: true,
         allowTaint: false,
         logging: false,
         backgroundColor: "#ffffff",
-        // Do NOT override windowWidth/windowHeight — let html2canvas use the
-        // real window so viewport-relative units resolve correctly.
-        width:   Math.round(pdfW),
-        height:  Math.ceil(naturalH),
-        x:       el.getBoundingClientRect().left,
-        y:       el.getBoundingClientRect().top,
+        width: 612,
+        height: captureH,
+        windowWidth: 1200,   // wide enough that no media-query fires
+        windowHeight: captureH + 200,
+        x: 0,
+        y: 0,
         scrollX: 0,
         scrollY: 0,
       });
-
-      // ── Restore original styles ──
-      el.style.position   = saved.position;
-      el.style.top        = saved.top;
-      el.style.left       = saved.left;
-      el.style.margin     = saved.margin;
-      el.style.boxShadow  = saved.boxShadow;
-      el.style.zIndex     = saved.zIndex;
-      el.style.visibility = saved.visibility;
-      el.style.height     = saved.height;
-
-      return canvas;
     };
 
     try {
-      // ── Page 1: one-pager — dynamic height ──
-      const PAGE_W = onePager.offsetWidth || 612;
-      const onePagerCanvas = await captureLive(onePager, PAGE_W);
-      const pageH = (onePagerCanvas.height / onePagerCanvas.width) * 612;
+      // ── Page 1: one-pager (dynamic height) ──────────────────────────────
+      const onePagerCanvas = await capturePage(onePager);
+      const pageH = Math.round((onePagerCanvas.height / onePagerCanvas.width) * 612);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pdf = new (jsPDF as any)({ unit: "pt", format: [612, pageH], compress: false });
       pdf.addImage(
         onePagerCanvas.toDataURL("image/jpeg", 0.97),
-        "JPEG", 0, 0, 612, pageH, undefined, "NONE"
+        "JPEG", 0, 0, 612, pageH, undefined, "NONE",
       );
 
-      // ── Subsequent pages: floor plan pages (Letter = 612 × 792 pt) ──
-      const fpPages = document.querySelectorAll<HTMLElement>(".floor-plan-page");
-      for (const fp of fpPages) {
-        const fpCanvas = await captureLive(fp, fp.offsetWidth || 612, 792);
+      // ── Pages 2+: one page per floor plan (612 × 792 pt) ────────────────
+      const fpEls = Array.from(
+        document.querySelectorAll<HTMLElement>(".floor-plan-page")
+      );
+      for (const fp of fpEls) {
+        const fpCanvas = await capturePage(fp, 792);
         pdf.addPage([612, 792], "pt");
         pdf.addImage(
           fpCanvas.toDataURL("image/jpeg", 0.97),
-          "JPEG", 0, 0, 612, 792, undefined, "NONE"
+          "JPEG", 0, 0, 612, 792, undefined, "NONE",
         );
       }
 
+      document.body.removeChild(sandbox);
       const slug = (form.projectName || "campaign").replace(/\s+/g, "-").toLowerCase();
       pdf.save(`${slug}-exclusive.pdf`);
       toast.success("PDF downloaded ✓", { id: toastId });
     } catch (err: any) {
+      if (document.body.contains(sandbox)) document.body.removeChild(sandbox);
       toast.error(err.message || "PDF generation failed", { id: toastId });
     } finally {
       setPdfGenerating(false);
