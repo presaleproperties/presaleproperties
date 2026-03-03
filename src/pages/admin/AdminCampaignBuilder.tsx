@@ -423,10 +423,26 @@ export default function AdminCampaignBuilder() {
 
   const set = useCallback((key: keyof FormState, val: any) => setForm(f => ({ ...f, [key]: val })), []);
 
+  // Parse price/sqft strings robustly (handles $1,234,567 etc.)
+  const parseMoney = (s: string) => parseFloat(String(s).replace(/[^0-9.]/g, "")) || 0;
+
+  // Recalculate psf + saved for a plan, and sync fromPsf if idx === 0
+  const calcPlan = (plan: Plan): Plan => {
+    const nowNum = parseMoney(plan.nowPrice);
+    const wasNum = parseMoney(plan.wasPrice);
+    const sqftNum = parseMoney(plan.sqft);
+    const updated = { ...plan };
+    if (wasNum > nowNum && nowNum > 0) updated.saved = `$${(wasNum - nowNum).toLocaleString()}`;
+    if (nowNum > 0 && sqftNum > 0) updated.psf = `$${Math.round(nowNum / sqftNum).toLocaleString()}/sqft`;
+    return updated;
+  };
+
   const setPlan = (idx: number, key: keyof Plan, val: any) => {
     setForm(f => {
-      const plans = f.plans.map((p, i) => i === idx ? { ...p, [key]: val } : p);
-      return { ...f, plans };
+      const plans = f.plans.map((p, i) => i === idx ? calcPlan({ ...p, [key]: val }) : p);
+      const plan0 = plans[0];
+      const psf0 = plan0?.psf || "";
+      return { ...f, plans, fromPsf: psf0 ? psf0 : f.fromPsf };
     });
   };
 
@@ -570,15 +586,17 @@ export default function AdminCampaignBuilder() {
           setForm(f => {
             const plans = f.plans.map((p, i) => {
               if (i !== idx) return p;
-              return {
+              const merged = {
                 ...p,
                 name: data.planName || p.name,
                 type: data.unitType || p.type,
                 sqft: data.interiorSqft ? String(data.interiorSqft) : p.sqft,
                 bal: data.balconySqft ? String(data.balconySqft) : p.bal,
               };
+              return calcPlan(merged);
             });
-            return { ...f, plans };
+            const psf0 = plans[0]?.psf || "";
+            return { ...f, plans, fromPsf: psf0 ? psf0 : f.fromPsf };
           });
           toast.success("AI extracted plan details ✓", { id: `extract-${idx}` });
         } else {
@@ -596,27 +614,8 @@ export default function AdminCampaignBuilder() {
     }
   };
 
-  // Auto-calculate saved and psf when nowPrice or sqft changes
-  const setPlanWithCalc = (idx: number, key: keyof Plan, val: string) => {
-    setForm(f => {
-      const plans = f.plans.map((p, i) => {
-        if (i !== idx) return p;
-        const updated = { ...p, [key]: val };
-        // Auto-calculate saved (wasPrice - nowPrice)
-        const wasNum = parseFloat(String(updated.wasPrice).replace(/[^0-9.]/g, ""));
-        const nowNum = parseFloat(String(updated.nowPrice).replace(/[^0-9.]/g, ""));
-        const sqftNum = parseFloat(String(updated.sqft).replace(/[^0-9.]/g, ""));
-        if (!isNaN(wasNum) && !isNaN(nowNum) && wasNum > nowNum) {
-          updated.saved = `$${(wasNum - nowNum).toLocaleString()}`;
-        }
-        if (!isNaN(nowNum) && !isNaN(sqftNum) && sqftNum > 0) {
-          updated.psf = `$${Math.round(nowNum / sqftNum).toLocaleString()}`;
-        }
-        return updated;
-      });
-      return { ...f, plans };
-    });
-  };
+  // setPlanWithCalc is now just an alias for setPlan (which auto-calcs via calcPlan)
+  const setPlanWithCalc = setPlan;
 
 
 
