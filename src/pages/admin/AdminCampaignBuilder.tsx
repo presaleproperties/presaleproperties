@@ -252,10 +252,13 @@ function OnePagerPreview({ data }: { data: FormState }) {
               padding: "9px 12px 8px",
               borderLeft: i > 0 ? `2px solid ${C.gold}` : undefined,
               boxSizing: "border-box",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
             }}
           >
-            <div style={{ color: "#fff", fontSize: 8.5, fontWeight: 700, lineHeight: 1.25, whiteSpace: "normal", wordBreak: "break-word" }}>{s.val}</div>
-            <div style={{ color: C.gold, fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", marginTop: 3 }}>{s.lbl}</div>
+            <div style={{ color: "#fff", fontSize: 8.5, fontWeight: 700, lineHeight: 1.2, whiteSpace: "normal", wordBreak: "break-word" }}>{s.val}</div>
+            <div style={{ color: C.gold, fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", marginTop: 2, lineHeight: 1 }}>{s.lbl}</div>
           </div>
         ))}
       </div>
@@ -406,9 +409,9 @@ function OnePagerPreview({ data }: { data: FormState }) {
                 }}>
                   {i + 1}
                 </div>
-                <div style={{ color: C.gold, fontSize: 8, fontWeight: 700 }}>{d.percent || "—"}</div>
-                {displayAmt && <div style={{ color: "#fff", fontSize: 7, fontWeight: 600, marginTop: 2 }}>{displayAmt}</div>}
-                <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 6, marginTop: 3 }}>{d.label}</div>
+                <div style={{ color: C.gold, fontSize: 8, fontWeight: 700, lineHeight: 1 }}>{d.percent || "—"}</div>
+                {displayAmt && <div style={{ color: "#fff", fontSize: 7, fontWeight: 600, marginTop: 1, lineHeight: 1 }}>{displayAmt}</div>}
+                <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 6, marginTop: 2, lineHeight: 1 }}>{d.label}</div>
               </div>
             );
           })}
@@ -434,9 +437,9 @@ function OnePagerPreview({ data }: { data: FormState }) {
                 }}>
                   🏠
                 </div>
-                <div style={{ color: C.gold, fontSize: 7.5, fontWeight: 700 }}>Completion</div>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 6, marginTop: 2 }}>Mortgage begins</div>
-                <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 6, marginTop: 1 }}>{mortgageStep.label}</div>
+                <div style={{ color: C.gold, fontSize: 7.5, fontWeight: 700, lineHeight: 1 }}>Completion</div>
+                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 6, marginTop: 1, lineHeight: 1 }}>Mortgage begins</div>
+                <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 6, marginTop: 1, lineHeight: 1 }}>{mortgageStep.label}</div>
               </div>
             );
           })()}
