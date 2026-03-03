@@ -479,27 +479,29 @@ export default function AdminCampaignBuilder() {
               </Select>
             </div>
 
-            {/* Tabs */}
+          {/* Tabs */}
             <Tabs defaultValue="project" className="flex flex-col flex-1 min-h-0">
-              <TabsList className="w-full rounded-none border-b border-border h-auto p-0 bg-transparent justify-start">
-                {[
-                  { val: "project", label: "Project", icon: Building2 },
-                  { val: "plans", label: "Plans", icon: FileText },
-                  { val: "incentives", label: "Incentives", icon: Sparkles },
-                  { val: "deposit", label: "Deposit", icon: DollarSign },
-                  { val: "agent", label: "Agent", icon: User },
-                  { val: "files", label: "Files", icon: ImageIcon },
-                ].map(tab => (
-                  <TabsTrigger
-                    key={tab.val}
-                    value={tab.val}
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-xs px-3 py-2.5 gap-1.5"
-                  >
-                    <tab.icon className="h-3 w-3" />
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+              <div className="border-b border-border overflow-x-auto scrollbar-none">
+                <TabsList className="h-auto p-0 bg-transparent rounded-none flex w-max min-w-full">
+                  {[
+                    { val: "project", label: "Project", icon: Building2 },
+                    { val: "plans", label: "Plans", icon: FileText },
+                    { val: "incentives", label: "Incentives", icon: Sparkles },
+                    { val: "deposit", label: "Deposit", icon: DollarSign },
+                    { val: "agent", label: "Agent", icon: User },
+                    { val: "files", label: "Files", icon: ImageIcon },
+                  ].map(tab => (
+                    <TabsTrigger
+                      key={tab.val}
+                      value={tab.val}
+                      className="flex-shrink-0 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[11px] px-3.5 py-2.5 gap-1.5 whitespace-nowrap"
+                    >
+                      <tab.icon className="h-3 w-3" />
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
 
               <div className="flex-1 overflow-y-auto px-4 py-4">
 
