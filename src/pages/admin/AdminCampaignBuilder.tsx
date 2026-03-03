@@ -240,21 +240,52 @@ function OnePagerPreview({ data }: { data: FormState }) {
         ))}
       </div>
 
-      {/* ── 6. DEPOSIT BLOCKS ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
-        {data.deposits.map((d, i) => {
-          const isLast = i === 3;
-          const isFirst = i === 0;
-          return (
-            <div key={i} style={{ background: i % 2 === 0 ? C.dark : C.coal, padding: "10px 10px", borderTop: (isFirst || isLast) ? `2px solid ${C.gold}` : undefined, borderLeft: isLast ? `3px solid ${C.gold}` : undefined }}>
-              <div style={{ display: "inline-flex", background: isLast ? C.gold : "#333", color: isLast ? "#111" : "#fff", borderRadius: 10, padding: "2px 7px", fontSize: 7, fontWeight: 800, marginBottom: 5 }}>{d.percent}</div>
-              <div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 3 }}>{d.label}</div>
-              <div style={{ color: "#fff", fontSize: 8.5, fontWeight: 700, marginBottom: 3 }}>{d.amount}</div>
-              <div style={{ color: C.textMuted, fontSize: 6 }}>{d.note}</div>
+      {/* ── 6. DEPOSIT TIMELINE ── */}
+      {(() => {
+        // Auto-calculate dollar amounts from first plan's nowPrice
+        const basePrice = parseFloat(String(plans[0]?.nowPrice || data.fromPrice || "").replace(/[^0-9.]/g, "")) || 0;
+        const calcAmount = (pctStr: string) => {
+          const pct = parseFloat(pctStr.replace(/[^0-9.]/g, ""));
+          if (!basePrice || isNaN(pct)) return null;
+          return `$${Math.round(basePrice * pct / 100).toLocaleString()}`;
+        };
+        return (
+          <div style={{ background: C.dark, borderTop: `1px solid #333` }}>
+            {/* Section header */}
+            <div style={{ padding: "7px 20px", borderBottom: `1px solid #222`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ color: C.gold, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" }}>Deposit Structure</span>
+              {basePrice > 0 && <span style={{ color: C.textFaint, fontSize: 5.5 }}>Based on {plans[0]?.nowPrice || data.fromPrice}</span>}
             </div>
-          );
-        })}
-      </div>
+            {/* Timeline row */}
+            <div style={{ display: "flex", alignItems: "stretch" }}>
+              {data.deposits.map((d, i) => {
+                const isLast = i === data.deposits.length - 1;
+                const autoAmt = calcAmount(d.percent);
+                return (
+                  <div key={i} style={{ flex: 1, padding: "10px 14px", borderRight: isLast ? "none" : `1px solid #333`, position: "relative" }}>
+                    {/* Step connector dot */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                      <div style={{ width: 18, height: 18, borderRadius: "50%", background: isLast ? C.gold : "#2a2a2a", border: `1.5px solid ${isLast ? C.gold : "#444"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <span style={{ color: isLast ? "#111" : C.gold, fontSize: 6.5, fontWeight: 800 }}>{i + 1}</span>
+                      </div>
+                      <span style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>{d.label}</span>
+                    </div>
+                    {/* Percentage pill */}
+                    <div style={{ display: "inline-block", background: isLast ? C.gold : "#1a1a1a", border: `1px solid ${isLast ? C.gold : "#444"}`, borderRadius: 10, padding: "2px 8px", marginBottom: 5 }}>
+                      <span style={{ color: isLast ? "#111" : "#fff", fontSize: 8, fontWeight: 800 }}>{d.percent}</span>
+                    </div>
+                    {/* Auto-calculated amount */}
+                    <div style={{ color: "#fff", fontSize: 9, fontWeight: 700, lineHeight: 1.2 }}>
+                      {autoAmt || d.amount}
+                    </div>
+                    {d.note && <div style={{ color: C.textFaint, fontSize: 5.5, marginTop: 3 }}>{d.note}</div>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── 7. FOOTER with headshot ── */}
       <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "12px 20px", display: "flex", alignItems: "center" }}>
