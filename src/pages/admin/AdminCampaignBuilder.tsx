@@ -626,34 +626,63 @@ export default function AdminCampaignBuilder() {
   const [pdfGenerating, setPdfGenerating] = useState(false);
   const [screenshottingPage, setScreenshottingPage] = useState<number | null>(null);
 
-  // ── Screenshot-based Export ─────────────────────────────────────────────
-  // Helper: screenshot one element and download as PNG
-  const screenshotEl = useCallback(async (el: HTMLElement, filename: string) => {
-    const SCALE = 3;
+  // ── Export Helpers ────────────────────────────────────────────────────────
+
+  /** Wait for fonts, image decode, and 2 rAF frames so layout is fully settled */
+  const waitForStableLayout = useCallback(async (el: HTMLElement) => {
+    // 1) Ensure all web fonts are loaded
+    if (document.fonts?.ready) await document.fonts.ready;
+    // 2) Wait for images to load AND decode (prevents mid-capture reflow)
     const imgs = Array.from(el.querySelectorAll<HTMLImageElement>("img"));
-    await Promise.all(imgs.map(img =>
-      img.complete ? Promise.resolve() :
-      new Promise<void>(r => { img.onload = img.onerror = () => r(); })
-    ));
+    await Promise.all(imgs.map(async img => {
+      if (!img.complete) {
+        await new Promise<void>(r => { img.onload = img.onerror = () => r(); });
+      }
+      try { if (img.decode) await img.decode(); } catch (_) {}
+    }));
+    // 3) Two animation frames so the browser has fully painted
     await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r())));
-    const rect = el.getBoundingClientRect();
-    const canvas = await html2canvas(el, {
-      scale: SCALE, useCORS: true, allowTaint: false, logging: false,
-      backgroundColor: null,
-      width: Math.round(rect.width), height: Math.round(rect.height),
-      windowWidth: document.documentElement.clientWidth,
-      windowHeight: document.documentElement.clientHeight,
-      x: 0, y: 0, scrollX: -window.scrollX, scrollY: -window.scrollY,
-    });
-    canvas.toBlob(blob => {
-      if (!blob) { toast.error("Export failed"); return; }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = filename; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-      toast.success(`Downloaded ${filename}`);
-    }, "image/png");
   }, []);
+
+  /** Core PNG capture — adds export-mode, waits for stable layout, captures, removes class */
+  const screenshotEl = useCallback(async (el: HTMLElement, filename: string) => {
+    const PAGE_W = 612; // fixed design width — matches the preview exactly
+    const SCALE = 3;
+
+    // Freeze the element for capture: no transitions, consistent font rendering
+    el.classList.add("export-mode");
+    try {
+      await waitForStableLayout(el);
+
+      const canvas = await html2canvas(el, {
+        scale: SCALE,
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        backgroundColor: null,
+        width: PAGE_W,
+        height: Math.round(el.getBoundingClientRect().height),
+        windowWidth: PAGE_W,
+        windowHeight: Math.round(el.getBoundingClientRect().height),
+        x: 0, y: 0,
+        scrollX: 0, scrollY: 0,
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        canvas.toBlob(blob => {
+          if (!blob) { reject(new Error("Export failed")); return; }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = filename; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+          toast.success(`Downloaded ${filename}`);
+          resolve();
+        }, "image/png", 1.0);
+      });
+    } finally {
+      el.classList.remove("export-mode");
+    }
+  }, [waitForStableLayout]);
 
   // Download ALL pages as separate PNG files
   const generatePDF = useCallback(async () => {
