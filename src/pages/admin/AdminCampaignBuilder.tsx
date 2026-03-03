@@ -616,34 +616,35 @@ export default function AdminCampaignBuilder() {
         ),
       );
 
-    /** Park the LIVE element off-screen and capture it at its natural size. */
+    /** Clone the one-pager into a sandboxed container at exactly 612px wide
+     *  so the full natural height is measured (position:fixed clips to viewport). */
     const captureLive = async (el: HTMLElement): Promise<HTMLCanvasElement> => {
-      const saved = {
-        position: el.style.position, left: el.style.left, top: el.style.top,
-        margin: el.style.margin, boxShadow: el.style.boxShadow, zIndex: el.style.zIndex,
-      };
-      el.style.position = "fixed";
-      el.style.left     = "0px";   // keep at 0,0 so html2canvas x/y are correct
-      el.style.top      = "0px";
-      el.style.margin   = "0";
-      el.style.boxShadow = "none";
-      el.style.zIndex   = "9999";  // on top so it renders fully
-      el.style.pointerEvents = "none";
+      const PAGE_WIDTH = 612;
 
-      await waitImages(el);
+      // Create an off-screen sandbox tall enough for any content
+      const sandbox = document.createElement("div");
+      sandbox.style.cssText =
+        `position:absolute;top:0;left:0;width:${PAGE_WIDTH}px;` +
+        "min-height:2000px;overflow:visible;pointer-events:none;z-index:-1;opacity:0;";
+      document.body.appendChild(sandbox);
+
+      // Deep-clone into sandbox so we get full natural height without viewport clipping
+      const clone = el.cloneNode(true) as HTMLElement;
+      clone.style.cssText =
+        `position:static;width:${PAGE_WIDTH}px;margin:0;box-shadow:none;`;
+      sandbox.appendChild(clone);
+
+      await waitImages(clone);
       await new Promise<void>(r =>
         requestAnimationFrame(() => requestAnimationFrame(() =>
           requestAnimationFrame(() => requestAnimationFrame(() => r()))
         ))
       );
 
-      const cW = Math.round(el.offsetWidth)  || 612;
-      const cH = Math.round(el.scrollHeight) || 900;
+      const cW = PAGE_WIDTH;
+      const cH = Math.round(clone.scrollHeight) || 1200;
 
-      // Lock windowWidth to the page width so html2canvas computes flex/layout
-      // identically to what the 612px-wide preview renders — prevents badge
-      // stretching and image compression from wide-viewport context.
-      const canvas = await html2canvas(el, {
+      const canvas = await html2canvas(clone, {
         scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: cW, height: cH,
@@ -652,8 +653,7 @@ export default function AdminCampaignBuilder() {
         x: 0, y: 0, scrollX: 0, scrollY: 0,
       });
 
-      Object.assign(el.style, saved);
-      el.style.pointerEvents = "";
+      document.body.removeChild(sandbox);
       return canvas;
     };
 
