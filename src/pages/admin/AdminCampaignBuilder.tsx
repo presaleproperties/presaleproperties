@@ -175,6 +175,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
     ══════════════════════════════════════════════════════════════════════ */}
     <div
       id="one-pager-preview"
+      data-page-export="one-pager"
       className="pdf-page"
       style={{
         width: PAGE_W,
@@ -486,6 +487,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
     {plans.filter(p => p.floorPlanUrl).map((plan, fpIdx) => (
       <div
         key={`fp-${plan.id}`}
+        data-page-export={`floor-plan-${fpIdx}`}
         className="floor-plan-page pdf-page"
         style={{
           width: PAGE_W,
@@ -593,146 +595,98 @@ export default function AdminCampaignBuilder() {
   const previewRef = useRef<HTMLDivElement>(null);
   const [pdfGenerating, setPdfGenerating] = useState(false);
 
-  // ── Generate PNG ────────────────────────────────────────────────────────
-  // Each page is exported as a separate high-res PNG (4× retina scale).
-  // Page 1 (one-pager): park-and-capture the LIVE element — no clone so text
-  //   never drifts from its rendered position.
-  // Pages 2+ (floor plans): sandbox-clone each at exactly 612×792 with
-  //   overflow:hidden enforced so nothing is cut off or zoomed.
+  // ── Screenshot-based Export ─────────────────────────────────────────────
+  // Captures each [data-page-export] element as it appears live in the DOM,
+  // edge-to-edge, then stitches them into one tall PNG download.
   const generatePDF = useCallback(async () => {
-    const onePager = document.getElementById("one-pager-preview");
-    if (!onePager) { toast.error("Preview not found"); return; }
+    const SCALE = 3; // 3× for high-res output
+    const GAP = 0;   // no gap between pages in final PNG
+
     setPdfGenerating(true);
-    const toastId = toast.loading("Generating PNGs…");
-
-    await document.fonts.ready;
-
-    const FP_W = 612;
-    const FP_H = 792;
-
-    /** Wait for all <img> tags inside a node to finish loading */
-    const waitImages = (root: HTMLElement) =>
-      Promise.all(
-        Array.from(root.querySelectorAll<HTMLImageElement>("img")).map(
-          img =>
-            img.complete
-              ? Promise.resolve()
-              : new Promise<void>(res => {
-                  img.onload = () => res();
-                  img.onerror = () => res();
-                }),
-        ),
-      );
-
-    /** Clone the one-pager into a sandboxed container at exactly 612px wide
-     *  so the full natural height is measured (position:fixed clips to viewport). */
-    const captureLive = async (el: HTMLElement): Promise<HTMLCanvasElement> => {
-      const PAGE_WIDTH = 612;
-
-      // Create an off-screen sandbox tall enough for any content
-      const sandbox = document.createElement("div");
-      sandbox.style.cssText =
-        `position:absolute;top:0;left:0;width:${PAGE_WIDTH}px;` +
-        "min-height:2000px;overflow:visible;pointer-events:none;z-index:-1;opacity:0;";
-      document.body.appendChild(sandbox);
-
-      // Deep-clone into sandbox so we get full natural height without viewport clipping
-      const clone = el.cloneNode(true) as HTMLElement;
-      clone.style.cssText =
-        `position:static;width:${PAGE_WIDTH}px;margin:0;box-shadow:none;`;
-      sandbox.appendChild(clone);
-
-      await waitImages(clone);
-      await new Promise<void>(r =>
-        requestAnimationFrame(() => requestAnimationFrame(() =>
-          requestAnimationFrame(() => requestAnimationFrame(() => r()))
-        ))
-      );
-
-      const cW = PAGE_WIDTH;
-      const cH = Math.round(clone.scrollHeight) || 1200;
-
-      const canvas = await html2canvas(clone, {
-        scale: 4, useCORS: true, allowTaint: false, logging: false,
-        backgroundColor: "#ffffff",
-        width: cW, height: cH,
-        windowWidth: cW,
-        windowHeight: cH,
-        x: 0, y: 0, scrollX: 0, scrollY: 0,
-      });
-
-      document.body.removeChild(sandbox);
-      return canvas;
-    };
-
-    /** Clone a floor plan page into a hidden sandbox at exactly 612×792.
-     *  overflow:hidden is applied so flex children stay within the page. */
-    const captureFloorPlan = async (el: HTMLElement): Promise<HTMLCanvasElement> => {
-      const sandbox = document.createElement("div");
-      // Park at 0,0 on top so html2canvas renders it in the same viewport context
-      // as the rest of the page — avoids text/layout drift from off-screen rendering.
-      sandbox.style.cssText =
-        `position:fixed;top:0;left:0;width:${FP_W}px;height:${FP_H}px;` +
-        "overflow:hidden;pointer-events:none;z-index:99999;opacity:0;" +
-        "font-family:'Plus Jakarta Sans','DM Sans',Arial,sans-serif;";
-      document.body.appendChild(sandbox);
-
-      const clone = el.cloneNode(true) as HTMLElement;
-      // Reset any margin/shadow from the preview layout; enforce exact page size
-      clone.style.cssText =
-        `position:static;width:${FP_W}px;height:${FP_H}px;` +
-        "margin:0;box-shadow:none;overflow:hidden;flex-shrink:0;";
-      sandbox.appendChild(clone);
-
-      await waitImages(clone);
-      await new Promise<void>(r =>
-        requestAnimationFrame(() => requestAnimationFrame(() =>
-          requestAnimationFrame(() => requestAnimationFrame(() => r()))
-        ))
-      );
-
-      const canvas = await html2canvas(clone, {
-        scale: 4, useCORS: true, allowTaint: false, logging: false,
-        backgroundColor: "#ffffff",
-        width: FP_W, height: FP_H,
-        windowWidth: document.documentElement.clientWidth,
-        windowHeight: document.documentElement.clientHeight,
-        x: 0, y: 0, scrollX: 0, scrollY: 0,
-      });
-
-      document.body.removeChild(sandbox);
-      return canvas;
-    };
-
-    /** Helper: convert canvas → lossless PNG and trigger browser download */
-    const downloadPNG = (canvas: HTMLCanvasElement, filename: string) => {
-      const a = document.createElement("a");
-      a.href = canvas.toDataURL("image/png");
-      a.download = filename;
-      a.click();
-    };
-
-    const slug = (form.projectName || "campaign").replace(/\s+/g, "-").toLowerCase();
-
     try {
-      // ── Page 1: one-pager (park-and-capture — 4× retina) ────────────────
-      const onePagerCanvas = await captureLive(onePager);
-      downloadPNG(onePagerCanvas, `${slug}-VIP-Pricing.png`);
+      const slug = (form.projectName || "campaign").toLowerCase().replace(/\s+/g, "-");
 
-      // ── Pages 2+: one PNG per floor plan ─────────────────────────────────
-      const fpEls = Array.from(document.querySelectorAll<HTMLElement>(".floor-plan-page"));
-      for (let i = 0; i < fpEls.length; i++) {
-        const fpCanvas = await captureFloorPlan(fpEls[i]);
-        downloadPNG(fpCanvas, `${slug}-Floor-Plan-${i + 1}.png`);
+      // Collect all page elements in DOM order
+      const pageEls = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-page-export]")
+      );
+      if (pageEls.length === 0) {
+        toast.error("No pages found to export");
+        return;
       }
 
-      toast.success(`${1 + fpEls.length} PNG(s) downloaded ✓`, { id: toastId });
-    } catch (err: any) {
-      toast.error(err.message || "PNG generation failed", { id: toastId });
+      // Wait for all images inside pages to fully load
+      const waitAllImages = async (els: HTMLElement[]) => {
+        const imgs = els.flatMap(el => Array.from(el.querySelectorAll<HTMLImageElement>("img")));
+        await Promise.all(imgs.map(img =>
+          img.complete ? Promise.resolve() :
+          new Promise<void>(r => { img.onload = img.onerror = () => r(); })
+        ));
+      };
+      await waitAllImages(pageEls);
+
+      // Give browser one more frame to finish painting
+      await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+
+      // Screenshot each page
+      const canvases: HTMLCanvasElement[] = [];
+      for (const el of pageEls) {
+        const rect = el.getBoundingClientRect();
+        const canvas = await html2canvas(el, {
+          scale: SCALE,
+          useCORS: true,
+          allowTaint: false,
+          logging: false,
+          backgroundColor: null,
+          width: Math.round(rect.width),
+          height: Math.round(rect.height),
+          windowWidth: document.documentElement.clientWidth,
+          windowHeight: document.documentElement.clientHeight,
+          x: 0,
+          y: 0,
+          scrollX: -window.scrollX,
+          scrollY: -window.scrollY,
+        });
+        canvases.push(canvas);
+      }
+
+      // Stitch all canvases into one tall combined canvas
+      const totalW = Math.max(...canvases.map(c => c.width));
+      const totalH = canvases.reduce((sum, c) => sum + c.height, 0) + GAP * (canvases.length - 1);
+      const combined = document.createElement("canvas");
+      combined.width = totalW;
+      combined.height = totalH;
+      const ctx = combined.getContext("2d")!;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, totalW, totalH);
+
+      let y = 0;
+      for (const c of canvases) {
+        ctx.drawImage(c, Math.round((totalW - c.width) / 2), y);
+        y += c.height + GAP;
+      }
+
+      // Download
+      combined.toBlob(blob => {
+        if (!blob) { toast.error("Export failed"); return; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${slug}-VIP-Pricing.png`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        toast.success("Downloaded!");
+      }, "image/png");
+
+    } catch (e) {
+      console.error(e);
+      toast.error("Export failed");
     } finally {
       setPdfGenerating(false);
     }
-  }, [form.projectName]);
+  }, [form]);
+
+
 
   // Fetch projects + load template if editing
   useEffect(() => {
