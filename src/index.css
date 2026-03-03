@@ -734,26 +734,6 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* =====================================================
-   EXPORT MODE — freezes layout for pixel-accurate PNG capture
-   ===================================================== */
-.export-mode {
-  width: 612px !important;
-  max-width: 612px !important;
-  min-width: 612px !important;
-  transform: none !important;
-  position: relative !important;
-}
-
-.export-mode,
-.export-mode * {
-  animation: none !important;
-  transition: none !important;
-  caret-color: transparent !important;
-  -webkit-font-smoothing: antialiased !important;
-  text-rendering: geometricPrecision !important;
-}
-
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
   .img-optimized,
