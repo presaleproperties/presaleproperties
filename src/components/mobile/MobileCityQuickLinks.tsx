@@ -72,7 +72,7 @@ export function MobileCityQuickLinks({ mode = "presale" }: MobileCityQuickLinksP
       } else {
         // Resale mode - query MLS listings
         const { data: listings } = await supabase
-          .from("mls_listings")
+          .from("mls_listings_safe")
           .select("city")
           .eq("standard_status", "Active");
 

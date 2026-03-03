@@ -220,7 +220,7 @@ export default function ResaleListings() {
       };
 
       let countQuery = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
         .gte("year_built", effectiveMinYear);
@@ -231,7 +231,7 @@ export default function ResaleListings() {
       const { count } = await countQuery;
 
       let query = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("id, listing_id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, days_on_market, list_date, list_agent_name, list_office_name, virtual_tour_url, year_built, created_at")
         .eq("mls_status", "Active")
         .gte("year_built", effectiveMinYear);
@@ -271,7 +271,7 @@ export default function ResaleListings() {
       const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
       
       let query = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
         .eq("mls_status", "Active")
         .gte("year_built", 2024)

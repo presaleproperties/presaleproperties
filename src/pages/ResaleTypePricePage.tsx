@@ -180,7 +180,7 @@ export default function ResaleTypePricePage() {
 
       // Count query
       let countQuery = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
         .gte("year_built", 2024)
@@ -198,7 +198,7 @@ export default function ResaleTypePricePage() {
 
       // Data query
       let query = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, list_date, year_built, list_office_name")
         .eq("mls_status", "Active")
         .gte("year_built", 2024)

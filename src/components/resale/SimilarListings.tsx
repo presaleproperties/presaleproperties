@@ -29,7 +29,7 @@ export function SimilarListings({
     queryKey: ["similar-listings-2024", city, bedrooms, bathrooms, price, excludeListingKey],
     queryFn: async () => {
       let query = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select(`
           id, listing_key, listing_price, city, neighborhood,
           unparsed_address, street_number, street_name,

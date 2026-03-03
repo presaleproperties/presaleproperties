@@ -272,7 +272,7 @@ export default function NeighbourhoodProductPage() {
       if (!cityName || !neighbourhoodConfig) return [];
       
       const { data, error } = await supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("id, listing_key, listing_price, property_type, property_sub_type, city, neighborhood, unparsed_address, bedrooms_total, bathrooms_total, living_area, photos, days_on_market")
         .eq("mls_status", "Active")
         .eq("city", cityName)

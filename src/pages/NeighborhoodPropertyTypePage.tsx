@@ -71,7 +71,7 @@ export default function NeighborhoodPropertyTypePage() {
     queryKey: ["neighborhood-listings", citySlug, neighborhoodSlug, propertyType],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("*")
         .eq("mls_status", "Active")
         .ilike("city", city)

@@ -80,11 +80,11 @@ type MLSListing = {
   public_remarks: string | null;
   list_agent_key: string | null;
   list_agent_name: string | null;
-  list_agent_phone: string | null;
-  list_agent_email: string | null;
+  list_agent_phone?: string | null;
+  list_agent_email?: string | null;
   list_office_key: string | null;
   list_office_name: string | null;
-  list_office_phone: string | null;
+  list_office_phone?: string | null;
   buyer_agent_name: string | null;
   buyer_office_name: string | null;
   association_fee: number | null;
@@ -166,7 +166,7 @@ export default function ResaleListingDetail() {
       const {
         data,
         error
-      } = await supabase.from("mls_listings").select("*").eq("listing_key", listingKey).maybeSingle();
+      } = await supabase.from("mls_listings_safe").select("*").eq("listing_key", listingKey).maybeSingle();
       if (error) throw error;
       return data as MLSListing | null;
     },

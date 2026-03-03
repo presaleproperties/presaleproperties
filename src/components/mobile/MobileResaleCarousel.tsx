@@ -50,7 +50,7 @@ export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCaro
     queryKey: ["mobile-resale-carousel-2024", city],
     queryFn: async () => {
       let query = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, created_at")
         .eq("mls_status", "Active")
         .gte("year_built", 2024)

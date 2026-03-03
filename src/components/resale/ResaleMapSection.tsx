@@ -73,7 +73,7 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
       
       // Fetch first page
       const { data: firstPage, error: firstError } = await supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built, list_agent_name, list_office_name")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
@@ -93,7 +93,7 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
       // If first page is full, fetch second page in parallel
       if (firstChunk.length === pageSize) {
         const { data: secondPage } = await supabase
-          .from("mls_listings")
+          .from("mls_listings_safe")
           .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built, list_agent_name, list_office_name")
           .eq("mls_status", "Active")
           .not("latitude", "is", null)
