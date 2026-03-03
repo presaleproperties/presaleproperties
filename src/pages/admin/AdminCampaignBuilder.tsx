@@ -482,13 +482,15 @@ function OnePagerPreview({ data }: { data: FormState }) {
         style={{
           width: PAGE_W,
           height: 792,
+          minHeight: 792,
+          maxHeight: 792,
           background: "#ffffff",
           fontFamily: "'Plus Jakarta Sans', 'DM Sans', Arial, sans-serif",
           boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
-          marginTop: 24,
+          marginTop: 40,
           display: "flex",
           flexDirection: "column",
-          // No overflow:hidden — html2canvas safe
+          overflow: "hidden",
         }}
       >
         {/* Header bar */}
@@ -677,10 +679,11 @@ export default function AdminCampaignBuilder() {
       );
 
       const canvas = await html2canvas(clone, {
-        scale: 4, useCORS: true, allowTaint: false, logging: false,
+        scale: 2, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: FP_W, height: FP_H,
-        windowWidth: FP_W, windowHeight: FP_H,
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
         x: 0, y: 0, scrollX: 0, scrollY: 0,
       });
 
