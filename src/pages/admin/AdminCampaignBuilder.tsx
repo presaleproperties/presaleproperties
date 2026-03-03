@@ -144,33 +144,38 @@ function OnePagerPreview({ data }: { data: FormState }) {
       }}
     >
       {/* ── 1. HERO ── */}
-      <div style={{ position: "relative", height: 248, overflow: "hidden", background: "#111" }}>
+      <div style={{ position: "relative", height: 290, overflow: "hidden", background: "#111" }}>
         {data.heroImage ? (
           <img src={data.heroImage} alt="hero" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         ) : (
           <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)" }} />
         )}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.75) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.8) 100%)" }} />
 
-        {/* Top-left logo */}
-        <div style={{ position: "absolute", top: 10, left: 16 }}>
-          <LogoWhite height={120} />
+        {/* Top-left logo — contained so it doesn't bleed over price */}
+        <div style={{ position: "absolute", top: 12, left: 16, maxWidth: "45%" }}>
+          <LogoWhite height={80} />
         </div>
 
-        {/* Top-right VIP badge */}
-        <div style={{ position: "absolute", top: 28, right: 18, background: C.gold, borderRadius: 20, padding: "4px 12px", fontSize: 7, fontWeight: 700, color: "#111", letterSpacing: "0.12em" }}>
-          {data.vipBadge}
+        {/* Top-right VIP badge + exclusivity line */}
+        <div style={{ position: "absolute", top: 14, right: 16, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
+          <div style={{ background: C.gold, borderRadius: 20, padding: "4px 12px", fontSize: 7, fontWeight: 700, color: "#111", letterSpacing: "0.12em" }}>
+            {data.vipBadge}
+          </div>
+          <div style={{ fontSize: 5, color: "rgba(255,255,255,0.55)", fontStyle: "italic" }}>
+            Exclusive to Presale Properties Group clients only.
+          </div>
         </div>
 
-        {/* Bottom-left: project info */}
-        <div style={{ position: "absolute", bottom: 20, left: 20, maxWidth: "60%" }}>
-          <div style={{ width: 28, height: 2.5, background: C.gold, marginBottom: 8 }} />
-          <div style={{ color: "#fff", fontSize: 34, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.02em", textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}>{data.projectName || "Project Name"}</div>
-          <div style={{ color: C.gold, fontSize: 10, fontWeight: 600, marginTop: 4 }}>{data.tagline || "by Developer"}</div>
-          <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 8, marginTop: 2 }}>{data.address}{data.city ? ` · ${data.city}` : ""}</div>
+        {/* Bottom-left: project info — stays in its lane */}
+        <div style={{ position: "absolute", bottom: 16, left: 20, maxWidth: "55%" }}>
+          <div style={{ width: 28, height: 2.5, background: C.gold, marginBottom: 6 }} />
+          <div style={{ color: "#fff", fontSize: 32, fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.02em", textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}>{data.projectName || "Project Name"}</div>
+          <div style={{ color: C.gold, fontSize: 9.5, fontWeight: 600, marginTop: 4 }}>{data.tagline || "by Developer"}</div>
+          <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 7.5, marginTop: 2 }}>{data.address}{data.city ? ` · ${data.city}` : ""}</div>
         </div>
 
-        {/* Bottom-right: price */}
+        {/* Bottom-right: price — aligned to bottom-right corner */}
         {(() => {
           const parsePrice = (s: string) => parseFloat(String(s).replace(/[^0-9.]/g, "")) || 0;
           const prices = plans.map(p => parsePrice(p.nowPrice)).filter(n => n > 0);
@@ -179,16 +184,15 @@ function OnePagerPreview({ data }: { data: FormState }) {
           const displayPrice = lowestPrice > 0 ? `$${lowestPrice.toLocaleString()}` : (data.fromPrice || "$—");
           const displayPsf = lowestPlan?.psf || data.fromPsf || "";
           return (
-            <div style={{ position: "absolute", bottom: 20, right: 20, textAlign: "right" }}>
-              <div style={{ color: C.gold, fontSize: 7.5, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 3, opacity: 0.85 }}>Starting From</div>
-              <div style={{ color: "#fff", fontSize: 18, fontWeight: 800, lineHeight: 1 }}>{displayPrice}</div>
+            <div style={{ position: "absolute", bottom: 16, right: 20, textAlign: "right" }}>
+              <div style={{ color: C.gold, fontSize: 7, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 3, opacity: 0.85 }}>Starting From</div>
+              <div style={{ color: "#fff", fontSize: 20, fontWeight: 800, lineHeight: 1 }}>{displayPrice}</div>
               {displayPsf && (
-                <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 7.5, fontWeight: 500, marginTop: 4 }}>{displayPsf}</div>
+                <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 7, fontWeight: 500, marginTop: 3 }}>{displayPsf}</div>
               )}
             </div>
           );
         })()}
-        
       </div>
 
       {/* ── 2. STAT BLOCKS ── */}
@@ -199,7 +203,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
           { val: data.completionDate || "—", lbl: "Completion" },
           { val: data.developerName || "—", lbl: "Developer" },
         ].map((s, i) => (
-          <div key={i} style={{ background: i % 2 === 0 ? C.dark : C.coal, padding: "7px 12px", borderLeft: i % 2 === 1 ? `2px solid ${C.gold}` : undefined }}>
+          <div key={i} style={{ background: i % 2 === 0 ? C.dark : C.coal, padding: "8px 12px", borderLeft: i % 2 === 1 ? `2px solid ${C.gold}` : undefined }}>
             <div style={{ color: "#fff", fontSize: 8, fontWeight: 700, lineHeight: 1.3 }}>{s.val}</div>
             <div style={{ color: C.gold, fontSize: 6, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 3 }}>{s.lbl}</div>
           </div>
@@ -208,15 +212,13 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
       {/* ── 3. INCENTIVE BANNER ── */}
       {data.incentiveBanner.items.some(x => x) && (
-        <div style={{ background: `linear-gradient(135deg, #145c2e 0%, #1e8c46 50%, #145c2e 100%)`, padding: "7px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-          {/* Headline centered */}
+        <div style={{ background: `linear-gradient(135deg, #145c2e 0%, #1e8c46 50%, #145c2e 100%)`, padding: "9px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ width: 16, height: 1, background: "rgba(255,255,255,0.4)" }} />
             <span style={{ fontSize: 7, fontWeight: 800, color: "#fff", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.9 }}>{data.incentiveBanner.headline}</span>
             <div style={{ width: 16, height: 1, background: "rgba(255,255,255,0.4)" }} />
           </div>
-          {/* Items row — centered */}
-          <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap" }}>
             {data.incentiveBanner.items.filter(Boolean).map((item, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 20, padding: "4px 11px", display: "flex", alignItems: "center", gap: 4 }}>
                 <span style={{ color: "#a8ffbc", fontSize: 7, fontWeight: 800 }}>✓</span>
@@ -228,7 +230,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
       )}
 
       {/* ── 4. PLANS HEADER ── */}
-      <div style={{ background: C.dark, borderTop: `2px solid ${C.gold}`, padding: "6px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ background: C.dark, borderTop: `2px solid ${C.gold}`, padding: "7px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ color: "#fff", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.15em" }}>FLOOR PLANS · VIP PRICING</span>
         <span style={{ color: C.textMuted, fontSize: 6.5 }}>Limited Time · Subject to Change</span>
       </div>
@@ -236,22 +238,22 @@ function OnePagerPreview({ data }: { data: FormState }) {
       {/* ── 5. FLOOR PLAN CARDS ── */}
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${colCount}, 1fr)` }}>
         {plans.map((plan, i) => (
-          <div key={plan.id} style={{ background: i % 2 === 0 ? "#fff" : C.offWhite, borderTop: `3px solid ${C.gold}`, padding: "8px 10px", display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "inline-flex", background: C.ink, color: "#fff", borderRadius: 12, padding: "2px 8px", fontSize: 6.5, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 6, alignSelf: "flex-start" }}>{plan.name || "—"}</div>
-            <div style={{ color: C.ink, fontSize: 8, fontWeight: 700, lineHeight: 1.3, marginBottom: 3 }}>{plan.type || "—"}</div>
-            <div style={{ color: C.textMuted, fontSize: 6.5, marginBottom: 8 }}>{plan.sqft || "—"} sqft{plan.bal ? ` + ${plan.bal} bal` : ""}</div>
-            <div style={{ height: 1, background: C.smoke, marginBottom: 6 }} />
+          <div key={plan.id} style={{ background: i % 2 === 0 ? "#fff" : C.offWhite, borderTop: `3px solid ${C.gold}`, padding: "10px 10px 8px", display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "inline-flex", background: C.ink, color: "#fff", borderRadius: 12, padding: "2px 8px", fontSize: 6.5, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 5, alignSelf: "flex-start" }}>{plan.name || "—"}</div>
+            <div style={{ color: C.ink, fontSize: 8, fontWeight: 700, lineHeight: 1.3, marginBottom: 2 }}>{plan.type || "—"}</div>
+            <div style={{ color: C.textMuted, fontSize: 6.5, marginBottom: 7 }}>{plan.sqft || "—"} sqft{plan.bal ? ` + ${plan.bal} bal` : ""}</div>
+            <div style={{ height: 1, background: C.smoke, marginBottom: 5 }} />
             <div style={{ color: C.textMuted, fontSize: 5.5, fontWeight: 600, letterSpacing: "0.1em", marginBottom: 2 }}>WAS</div>
-            <div style={{ color: C.red, fontSize: 8.5, fontWeight: 700, textDecoration: "line-through", marginBottom: 6 }}>{plan.wasPrice || "—"}</div>
-            <div style={{ height: 1, background: C.smoke, marginBottom: 6 }} />
+            <div style={{ color: C.red, fontSize: 8.5, fontWeight: 700, textDecoration: "line-through", marginBottom: 5 }}>{plan.wasPrice || "—"}</div>
+            <div style={{ height: 1, background: C.smoke, marginBottom: 5 }} />
             <div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 2 }}>NOW</div>
-            <div style={{ color: C.ink, fontSize: colCount <= 2 ? 16 : 13, fontWeight: 800, marginBottom: 8 }}>{plan.nowPrice || "—"}</div>
+            <div style={{ color: C.ink, fontSize: colCount <= 2 ? 16 : 13, fontWeight: 800, marginBottom: 7 }}>{plan.nowPrice || "—"}</div>
             {plan.saved && (
-              <div style={{ background: C.greenBg, borderLeft: `3px solid ${C.greenBorder}`, padding: "4px 6px", marginBottom: 8, borderRadius: "0 4px 4px 0" }}>
+              <div style={{ background: C.greenBg, borderLeft: `3px solid ${C.greenBorder}`, padding: "3px 6px", marginBottom: 7, borderRadius: "0 4px 4px 0" }}>
                 <div style={{ color: C.green, fontSize: 6.5, fontWeight: 700 }}>Save {plan.saved}</div>
               </div>
             )}
-            <div style={{ height: 1, background: C.smoke, marginBottom: 6 }} />
+            <div style={{ height: 1, background: C.smoke, marginBottom: 5 }} />
             <div style={{ color: C.textMuted, fontSize: 5.5, marginBottom: 2 }}>Price per sq.ft.</div>
             <div style={{ color: C.ink, fontSize: 8, fontWeight: 700 }}>{plan.psf || "—"}</div>
           </div>
@@ -266,25 +268,20 @@ function OnePagerPreview({ data }: { data: FormState }) {
           if (!basePrice || isNaN(pct)) return null;
           return `$${Math.round(basePrice * pct / 100).toLocaleString()}`;
         };
-        // Filter out mortgage step (last) for regular steps
         const regularDeposits = data.deposits.filter((_, i) => i < data.deposits.length - 1);
         const mortgageStep = data.deposits[data.deposits.length - 1];
         return (
-          <div style={{ background: C.dark, padding: "7px 20px 8px" }}>
-            {/* Header */}
+          <div style={{ background: C.dark, padding: "10px 20px 12px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <span style={{ color: C.gold, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" }}>Deposit Structure</span>
               {basePrice > 0 && <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 5.5 }}>Based on {plans[0]?.nowPrice || data.fromPrice}</span>}
             </div>
-            {/* Timeline */}
             <div style={{ display: "flex", alignItems: "center" }}>
               {regularDeposits.map((d, i) => {
                 const autoAmt = calcAmount(d.percent);
                 const displayAmt = autoAmt || d.amount;
-                const isFirst = i === 0;
                 return (
                   <div key={i} style={{ display: "flex", alignItems: "center", flex: 1 }}>
-                    {/* Node */}
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 56 }}>
                       <div style={{ width: 22, height: 22, borderRadius: "50%", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 800, color: "#111", marginBottom: 5, flexShrink: 0 }}>
                         {i + 1}
@@ -293,18 +290,15 @@ function OnePagerPreview({ data }: { data: FormState }) {
                       {displayAmt && <div style={{ color: "#fff", fontSize: 6.5, fontWeight: 600, marginTop: 1 }}>{displayAmt}</div>}
                       <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 5.5, marginTop: 2, textAlign: "center", maxWidth: 60 }}>{d.label}</div>
                     </div>
-                    {/* Connector line */}
                     {i < regularDeposits.length - 1 && (
                       <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${C.gold}88, rgba(255,255,255,0.15))`, margin: "0 4px", marginBottom: 28 }} />
                     )}
                   </div>
                 );
               })}
-              {/* Dashed connector to mortgage */}
               {mortgageStep && (
                 <>
                   <div style={{ flex: 1, height: 1, borderTop: "1.5px dashed rgba(255,255,255,0.2)", margin: "0 4px", marginBottom: 28 }} />
-                  {/* Mortgage node */}
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 60 }}>
                     <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#2a2a2a", border: `1.5px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 5, flexShrink: 0 }}>
                       <span style={{ fontSize: 9 }}>🏠</span>
@@ -321,10 +315,9 @@ function OnePagerPreview({ data }: { data: FormState }) {
       })()}
 
       {/* ── 7. FOOTER with headshot ── */}
-      <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "8px 20px", display: "flex", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-          {/* Agent headshot */}
-          <div style={{ width: 42, height: 42, borderRadius: "50%", overflow: "hidden", border: `2px solid ${C.gold}`, flexShrink: 0 }}>
+      <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "10px 20px", display: "flex", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1 }}>
+          <div style={{ width: 44, height: 44, borderRadius: "50%", overflow: "hidden", border: `2px solid ${C.gold}`, flexShrink: 0 }}>
             <img src={agent.photo} alt={agent.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
           <div>
@@ -349,21 +342,21 @@ function OnePagerPreview({ data }: { data: FormState }) {
       )}
 
       {/* Disclaimer */}
-      <div style={{ background: C.ink, padding: "6px 20px" }}>
+      <div style={{ background: C.ink, padding: "5px 20px" }}>
         <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 5, lineHeight: 1.4, margin: 0 }}>
           E&OE. Prices subject to change without notice. Limited time offer. Not intended to solicit buyers currently under contract.
         </p>
       </div>
     </div>
 
-    {/* ── FLOOR PLAN PAGES (one per plan with a floor plan image) ── */}
+    {/* ── FLOOR PLAN PAGES — fixed 792px, everything proportioned to fit ── */}
     {plans.filter(p => p.floorPlanUrl).map((plan, i) => (
       <div
         key={`fp-page-${plan.id}`}
         className="floor-plan-page pdf-page"
         style={{
           width: PAGE_W,
-          minHeight: 792,
+          height: 792,
           background: C.offWhite,
           fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif",
           boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
@@ -373,39 +366,48 @@ function OnePagerPreview({ data }: { data: FormState }) {
           overflow: "hidden",
         }}
       >
-        {/* Page header */}
-        <div style={{ background: C.ink, borderBottom: `3px solid ${C.gold}`, padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        {/* Page header — logo + plan badge */}
+        <div style={{ background: C.ink, borderBottom: `3px solid ${C.gold}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <LogoWhite height={72} />
-            <div style={{ color: "#aaa", fontSize: 8, letterSpacing: "0.1em", fontWeight: 600 }}>FLOOR PLAN · {data.projectName || "Project"}</div>
+            <LogoWhite height={48} />
+            <div style={{ width: 1, height: 30, background: "#333" }} />
+            <div style={{ color: "#aaa", fontSize: 7.5, letterSpacing: "0.12em", fontWeight: 600, textTransform: "uppercase" }}>Floor Plan · {data.projectName || "Project"}</div>
           </div>
           <div style={{ background: C.gold, borderRadius: 4, padding: "5px 14px" }}>
-            <span style={{ color: "#111", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em" }}>{plan.name || `PLAN ${i + 1}`}</span>
+            <span style={{ color: "#111", fontSize: 9, fontWeight: 800, letterSpacing: "0.1em" }}>{plan.name || `PLAN ${i + 1}`}</span>
           </div>
         </div>
 
         {/* Plan details strip */}
-        <div style={{ background: C.dark, padding: "10px 20px", display: "flex", gap: 24, alignItems: "center" }}>
-          {plan.type && <div><div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Unit Type</div><div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{plan.type}</div></div>}
-          {plan.sqft && <div><div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Interior</div><div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{plan.sqft} sqft</div></div>}
-          {plan.bal && <div><div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Balcony</div><div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{plan.bal} sqft</div></div>}
-          {plan.nowPrice && <div><div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Price</div><div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{plan.nowPrice}</div></div>}
-          {plan.psf && <div><div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Price/sqft</div><div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{plan.psf}</div></div>}
+        <div style={{ background: C.dark, padding: "9px 20px", display: "flex", gap: 28, alignItems: "center", flexShrink: 0 }}>
+          {plan.type && <div><div style={{ color: C.gold, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 2 }}>Unit Type</div><div style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>{plan.type}</div></div>}
+          {plan.sqft && <div><div style={{ color: C.gold, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 2 }}>Interior</div><div style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>{plan.sqft} sqft</div></div>}
+          {plan.bal && <div><div style={{ color: C.gold, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 2 }}>Balcony</div><div style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>{plan.bal} sqft</div></div>}
+          {plan.nowPrice && <div><div style={{ color: C.gold, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 2 }}>Price</div><div style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>{plan.nowPrice}</div></div>}
+          {plan.psf && <div><div style={{ color: C.gold, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 2 }}>Price/sqft</div><div style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>{plan.psf}</div></div>}
         </div>
 
-        {/* Floor plan image — fills the page */}
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, background: "#fff" }}>
+        {/* Floor plan image — expands to fill available space */}
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px 24px", background: "#fff", overflow: "hidden" }}>
           <img
             src={plan.floorPlanUrl}
             alt={`Floor plan ${plan.name}`}
-            style={{ maxWidth: "100%", maxHeight: 580, objectFit: "contain", display: "block" }}
+            style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
           />
         </div>
 
         {/* Page footer */}
-        <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>{agent.name} · {agent.phone}</div>
-          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 7, textAlign: "right" }}>
+        <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "9px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${C.gold}`, flexShrink: 0 }}>
+              <img src={agent.photo} alt={agent.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
+            <div>
+              <div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{agent.name}</div>
+              <div style={{ color: C.gold, fontSize: 7, fontWeight: 600 }}>{agent.phone}</div>
+            </div>
+          </div>
+          <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 5.5, textAlign: "right" }}>
             E&OE. Floor plans subject to change. Not to scale.
           </div>
         </div>
@@ -597,36 +599,40 @@ export default function AdminCampaignBuilder() {
     if (!pageEls.length) { toast.error("Preview not found"); return; }
     toast.info("Generating PDF…");
     try {
+      // Letter: 612 × 792 pt. Each .pdf-page element = exactly ONE PDF page.
+      // We capture at native design width (612px) then scale-to-fit the page height.
       const PDF_W_PT = 612;
       const PDF_H_PT = 792;
       const DESIGN_W_PX = 612;
-      const SCALE = 4;
+      const SCALE = 4; // 4× retina = 2448px wide canvas, max quality
 
       const pdf = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
 
-      // Off-screen container — full 612px width, no clip
+      // Off-screen render container — full 612px, no clipping
       const offscreen = document.createElement("div");
       offscreen.style.cssText = `
         position: fixed; left: -9999px; top: 0;
-        width: ${DESIGN_W_PX}px; z-index: -1;
-        background: #111111; overflow: visible;
+        width: ${DESIGN_W_PX}px; background: transparent;
+        overflow: visible; z-index: -9999;
       `;
       document.body.appendChild(offscreen);
 
       try {
         for (let i = 0; i < pageEls.length; i++) {
-          // Clone so we don't disturb the live DOM
           const clone = pageEls[i].cloneNode(true) as HTMLElement;
-          clone.style.width = `${DESIGN_W_PX}px`;
-          clone.style.minWidth = `${DESIGN_W_PX}px`;
-          clone.style.maxWidth = `${DESIGN_W_PX}px`;
-          clone.style.transform = "none";
-          clone.style.boxShadow = "none";
-          clone.style.margin = "0";
+          // Force full design width, remove any transforms or shadows that affect capture
+          clone.style.cssText += `
+            width: ${DESIGN_W_PX}px !important;
+            min-width: ${DESIGN_W_PX}px !important;
+            max-width: ${DESIGN_W_PX}px !important;
+            transform: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+          `;
           offscreen.innerHTML = "";
           offscreen.appendChild(clone);
 
-          // Let the browser lay out the clone at full width
+          // Two rAF passes — ensures full layout (images, fonts, flex) is settled
           await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
           const elH = clone.scrollHeight;
@@ -635,7 +641,7 @@ export default function AdminCampaignBuilder() {
             scale: SCALE,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: "#111111",
+            backgroundColor: null, // preserve element's own background
             logging: false,
             width: DESIGN_W_PX,
             height: elH,
@@ -643,28 +649,23 @@ export default function AdminCampaignBuilder() {
             windowHeight: elH,
           });
 
-          const imgData = canvas.toDataURL("image/jpeg", 1.0);
-          // Map canvas → PDF points: canvas.width = DESIGN_W_PX * SCALE → PDF_W_PT
-          const imgH_pt = (canvas.height / (DESIGN_W_PX * SCALE)) * PDF_W_PT;
-
           if (i > 0) pdf.addPage();
 
-          if (imgH_pt <= PDF_H_PT) {
-            // Fits on one page — pin to top
-            pdf.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, imgH_pt);
+          const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+          // Natural height in PDF points at full width
+          const naturalH_pt = (canvas.height / (DESIGN_W_PX * SCALE)) * PDF_W_PT;
+
+          if (naturalH_pt <= PDF_H_PT) {
+            // Content shorter than a page — place at top, no scaling needed
+            pdf.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, naturalH_pt);
           } else {
-            // Taller than one page — slice into pages
-            const pxPerPdfPage = (PDF_H_PT / PDF_W_PT) * (DESIGN_W_PX * SCALE);
-            let sliceStartPx = 0;
-            let pageIndex = 0;
-            while (sliceStartPx < canvas.height) {
-              if (pageIndex > 0) pdf.addPage();
-              // Place the full image shifted upward so the correct slice is visible
-              const yOffset_pt = -(sliceStartPx / (DESIGN_W_PX * SCALE)) * PDF_W_PT;
-              pdf.addImage(imgData, "JPEG", 0, yOffset_pt, PDF_W_PT, imgH_pt);
-              sliceStartPx += pxPerPdfPage;
-              pageIndex++;
-            }
+            // Content taller than a page (e.g. very long one-pager) —
+            // scale it DOWN proportionally so it fits on exactly ONE page
+            const scaleFactor = PDF_H_PT / naturalH_pt;
+            const fittedW = PDF_W_PT * scaleFactor;
+            const xOffset = (PDF_W_PT - fittedW) / 2; // centre horizontally
+            pdf.addImage(imgData, "JPEG", xOffset, 0, fittedW, PDF_H_PT);
           }
         }
       } finally {
