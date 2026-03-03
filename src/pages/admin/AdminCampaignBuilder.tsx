@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -589,7 +591,43 @@ export default function AdminCampaignBuilder() {
     }
   };
 
-  const generatePDF = () => window.print();
+  const generatePDF = async () => {
+    const el = document.getElementById("print-root");
+    if (!el) { toast.error("Preview not found"); return; }
+    toast.info("Generating PDF…");
+    try {
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#111111",
+        logging: false,
+        width: el.scrollWidth,
+        height: el.scrollHeight,
+        windowWidth: el.scrollWidth,
+        windowHeight: el.scrollHeight,
+      });
+      const pdf = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const canvasRatio = canvas.height / canvas.width;
+      const totalImgH = pageW * canvasRatio;
+      let yOffset = 0;
+      let pageNum = 0;
+      while (yOffset < totalImgH) {
+        if (pageNum > 0) pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, -yOffset, pageW, totalImgH);
+        yOffset += pageH;
+        pageNum++;
+      }
+      const projectSlug = form.projectName?.replace(/\s+/g, "-").toLowerCase() || "brochure";
+      pdf.save(`${projectSlug}-exclusive.pdf`);
+      toast.success("PDF downloaded!");
+    } catch (err) {
+      console.error(err);
+      toast.error("PDF generation failed");
+    }
+  };
 
   // ── Upload a file to storage and return public URL ──────────────────────
   const uploadFile = async (file: File, folder: string): Promise<string | null> => {
