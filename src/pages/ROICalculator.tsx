@@ -20,7 +20,7 @@ import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 declare global {
   interface Window {
-    gtag?: (...args: unknown[]) => void;
+    gtag?: (...args: any[]) => void;
   }
 }
 
