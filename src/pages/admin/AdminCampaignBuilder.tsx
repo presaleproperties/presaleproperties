@@ -641,7 +641,7 @@ export default function AdminCampaignBuilder() {
       const cH = Math.round(el.scrollHeight) || 900;
 
       const canvas = await html2canvas(el, {
-        scale: 2, useCORS: true, allowTaint: false, logging: false,
+        scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: cW, height: cH,
         windowWidth: window.innerWidth,
@@ -679,7 +679,7 @@ export default function AdminCampaignBuilder() {
       );
 
       const canvas = await html2canvas(clone, {
-        scale: 2, useCORS: true, allowTaint: false, logging: false,
+        scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: FP_W, height: FP_H,
         windowWidth: window.innerWidth,
