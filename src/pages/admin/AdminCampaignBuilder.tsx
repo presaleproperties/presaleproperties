@@ -135,7 +135,11 @@ function LogoMark({ size = 28 }: { size?: number }) {
 }
 
 // ─── PREVIEW COMPONENT ──────────────────────────────────────────────────────
-function OnePagerPreview({ data }: { data: FormState }) {
+function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
+  data: FormState;
+  onScreenshot?: (pageIdx: number) => void;
+  screenshottingPage?: number | null;
+}) {
   const PAGE_W = 612;
   const agent = PRESET_AGENTS[data.agentIdx] || PRESET_AGENTS[0];
   const plans = data.plans.slice(0, data.planCount);
@@ -168,11 +172,35 @@ function OnePagerPreview({ data }: { data: FormState }) {
     muted: { color: C.textMuted, fontSize: 6, lineHeight: 1.35 },
   };
 
+  const PageBtn = ({ pageIdx, label }: { pageIdx: number; label: string }) =>
+    onScreenshot ? (
+      <button
+        onClick={() => onScreenshot(pageIdx)}
+        disabled={screenshottingPage != null}
+        title={`Download ${label}`}
+        style={{
+          position: "absolute", top: 8, right: -88,
+          width: 80, display: "flex", flexDirection: "column", alignItems: "center",
+          gap: 4, padding: "6px 8px", borderRadius: 8, border: "1px solid hsl(var(--border))",
+          background: "hsl(var(--background))", cursor: "pointer", opacity: screenshottingPage != null ? 0.4 : 1,
+          fontSize: 9, fontWeight: 600, color: "hsl(var(--foreground))",
+          fontFamily: "inherit",
+        }}
+      >
+        {screenshottingPage === pageIdx
+          ? <span style={{ fontSize: 11 }}>⏳</span>
+          : <span style={{ fontSize: 13 }}>⬇</span>}
+        {label}
+      </button>
+    ) : null;
+
   return (
     <>
     {/* ══════════════════════════════════════════════════════════════════════
         ONE-PAGER  —  612 px wide, no CSS Grid anywhere (html2canvas safe)
     ══════════════════════════════════════════════════════════════════════ */}
+    <div style={{ position: "relative", display: "inline-block" }}>
+    <PageBtn pageIdx={0} label="1-Pager" />
     <div
       id="one-pager-preview"
       data-page-export="one-pager"
@@ -480,30 +508,32 @@ function OnePagerPreview({ data }: { data: FormState }) {
         </div>
       </div>
     </div>
+    </div>{/* end relative wrapper for one-pager */}
 
     {/* ══════════════════════════════════════════════════════════════════════
         FLOOR PLAN PAGES  —  612 × 792 px fixed, flex column
     ══════════════════════════════════════════════════════════════════════ */}
     {plans.filter(p => p.floorPlanUrl).map((plan, fpIdx) => (
-      <div
-        key={`fp-${plan.id}`}
-        data-page-export={`floor-plan-${fpIdx}`}
-        data-page-label={`floor-plan-${fpIdx + 1}-${plan.name || fpIdx + 1}`}
-        className="floor-plan-page pdf-page"
-        style={{
-          width: PAGE_W,
-          height: 792,
-          minHeight: 792,
-          maxHeight: 792,
-          background: "#ffffff",
-          fontFamily: "'Plus Jakarta Sans', 'DM Sans', Arial, sans-serif",
-          boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
-          marginTop: 40,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
+      <div key={`fp-wrapper-${plan.id}`} style={{ position: "relative", display: "inline-block", marginTop: 40 }}>
+        <PageBtn pageIdx={fpIdx + 1} label={`Plan ${fpIdx + 1}${plan.name ? ` · ${plan.name}` : ""}`} />
+        <div
+          key={`fp-${plan.id}`}
+          data-page-export={`floor-plan-${fpIdx}`}
+          data-page-label={`floor-plan-${fpIdx + 1}-${plan.name || fpIdx + 1}`}
+          className="floor-plan-page pdf-page"
+          style={{
+            width: PAGE_W,
+            height: 792,
+            minHeight: 792,
+            maxHeight: 792,
+            background: "#ffffff",
+            fontFamily: "'Plus Jakarta Sans', 'DM Sans', Arial, sans-serif",
+            boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
         {/* Header bar */}
         <div style={{ background: C.ink, borderBottom: `3px solid ${C.gold}`, padding: "0px 16px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -559,6 +589,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
             <div style={{ color: C.gold, fontSize: 6, marginTop: 4, lineHeight: 1 }}>{agent.website}</div>
           </div>
         </div>
+      </div>
       </div>
     ))}
   </>
@@ -1472,45 +1503,8 @@ export default function AdminCampaignBuilder() {
               ref={previewRef}
               className="flex-1 overflow-auto p-3"
             >
-              {/* Side-by-side: buttons column + pages column */}
-              <div className="flex items-start justify-center gap-3">
-                {/* ── Screenshot buttons column (one per page) ── */}
-                {(() => {
-                  const fpPlans = form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl);
-                  const pages = [
-                    { idx: 0, label: "1-Pager", height: null },
-                    ...fpPlans.map((p, i) => ({ idx: i + 1, label: `Plan ${i + 1}${p.name ? ` · ${p.name}` : ""}`, height: 792 })),
-                  ];
-                  return (
-                    <div className="flex flex-col gap-0 pt-0 shrink-0" style={{ width: 80 }}>
-                      {pages.map(page => (
-                        <div
-                          key={page.idx}
-                          className="flex flex-col items-center justify-start gap-1 pt-3"
-                          style={{ height: page.height ? page.height : "auto", minHeight: page.height ? page.height : 200 }}
-                        >
-                          <button
-                            onClick={() => screenshotPage(page.idx)}
-                            disabled={screenshottingPage !== null}
-                            className="flex flex-col items-center gap-1 px-2 py-2 rounded-lg border border-border bg-background hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all disabled:opacity-40 w-full"
-                            title={`Screenshot ${page.label}`}
-                          >
-                            {screenshottingPage === page.idx
-                              ? <Loader2 className="h-4 w-4 animate-spin" />
-                              : <Download className="h-4 w-4" />
-                            }
-                            <span className="text-[9px] font-medium text-center leading-tight">{page.label}</span>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
-
-                {/* ── Pages ── */}
-                <div id="print-root" style={{ width: 612, display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-                  <OnePagerPreview data={form} />
-                </div>
+              <div id="print-root" style={{ width: 700, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                <OnePagerPreview data={form} onScreenshot={screenshotPage} screenshottingPage={screenshottingPage} />
               </div>
             </div>
           </div>
