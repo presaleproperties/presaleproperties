@@ -19,20 +19,18 @@ Deno.serve(async (req) => {
 - planName: the plan name or label (e.g. "Plan A", "Unit 1B", "The Maple") — look for bold labels or unit identifiers
 - unitType: bedroom/bathroom description (e.g. "1 Bed + Den", "2 Bed 2 Bath", "Studio")
 - interiorSqft: interior square footage as a number only (no units), null if not found
-- balconySqft: balcony/patio/outdoor square footage as a number only (no units), null if not found
+- balconySqft: balcony/patio/outdoor/exterior square footage as a number only (no units), null if not found
 
 Return ONLY the JSON object, nothing else. Example: {"planName":"Plan A","unitType":"1 Bed 1 Bath","interiorSqft":612,"balconySqft":80}`;
 
-    // Try OpenRouter as the AI gateway (supports vision models)
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://presaleproperties.lovable.app",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-exp:free",
+        model: "google/gemini-2.5-flash",
         messages: [
           {
             role: "user",
