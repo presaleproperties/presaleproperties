@@ -474,27 +474,26 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
       </div>
 
       {/* ── 7. AGENT FOOTER ─────────────────────────────────────────────────── */}
-      <div style={{ background: C.ink, borderTop: `2.5px solid ${C.gold}`, padding: "11px 20px", display: "flex" }}>
-        {/* left: photo + info */}
-        <div style={{ display: "flex", flex: 1, gap: 12 }}>
-          {agent.photo ? (
-            <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 48, height: 48, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, objectFit: "cover", objectPosition: "center 15%", display: "block" }} />
-          ) : (
-            <div style={{ width: 48, height: 48, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, background: C.coal }} />
-          )}
-          <div style={{ paddingTop: 2 }}>
-            <div style={{ color: "#fff", fontSize: 12, fontWeight: 800, letterSpacing: "0.06em", lineHeight: 1 }}>{agent.name}</div>
-            <div style={{ color: C.textMuted, fontSize: 9, marginTop: 4, lineHeight: 1 }}>{agent.title}</div>
-            <div style={{ color: C.gold, fontSize: 9, marginTop: 3, lineHeight: 1 }}>{agent.languages}</div>
-          </div>
+      <div style={{ background: C.ink, borderTop: `2.5px solid ${C.gold}`, padding: "14px 24px", display: "flex", alignItems: "center", gap: 16 }}>
+        {/* Photo */}
+        {agent.photo ? (
+          <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 54, height: 54, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, objectFit: "cover", objectPosition: "center 15%", display: "block" }} />
+        ) : (
+          <div style={{ width: 54, height: 54, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, background: C.coal }} />
+        )}
+        {/* Name + title + languages */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ color: "#fff", fontSize: 13, fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1 }}>{agent.name}</div>
+          <div style={{ color: C.textMuted, fontSize: 10, marginTop: 5, lineHeight: 1 }}>{agent.title}</div>
+          {agent.languages && <div style={{ color: C.gold, fontSize: 9, marginTop: 4, lineHeight: 1 }}>{agent.languages}</div>}
         </div>
-        {/* divider */}
-        <div style={{ width: 1, height: 40, background: "#333", margin: "0 18px", flexShrink: 0 }} />
-        {/* right: contact */}
-        <div style={{ textAlign: "right", flexShrink: 0, paddingTop: 2 }}>
-          <div style={{ color: "#fff", fontSize: 14, fontWeight: 800, lineHeight: 1 }}>{agent.phone}</div>
-          <div style={{ color: C.textMuted, fontSize: 9, marginTop: 4, lineHeight: 1 }}>{agent.email}</div>
-          <div style={{ color: C.gold, fontSize: 9, marginTop: 3, lineHeight: 1 }}>{agent.website}</div>
+        {/* Divider */}
+        <div style={{ width: 1, height: 44, background: "#333", flexShrink: 0 }} />
+        {/* Phone + email + website */}
+        <div style={{ textAlign: "right", flexShrink: 0 }}>
+          <div style={{ color: "#fff", fontSize: 15, fontWeight: 800, lineHeight: 1 }}>{agent.phone}</div>
+          <div style={{ color: C.textMuted, fontSize: 10, marginTop: 5, lineHeight: 1 }}>{agent.email}</div>
+          <div style={{ color: C.gold, fontSize: 10, marginTop: 4, lineHeight: 1 }}>{agent.website}</div>
         </div>
       </div>
 
@@ -579,21 +578,26 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
           />
         </div>
 
-        {/* Footer */}
-        <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "10px 20px", display: "flex", justifyContent: "space-between", flexShrink: 0 }}>
-          <div style={{ display: "flex", gap: 10 }}>
-            {agent.photo
-              ? <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 36, height: 36, borderRadius: "50%", border: `2px solid ${C.gold}`, objectFit: "cover", objectPosition: "center 15%", display: "block", flexShrink: 0 }} />
-              : <div style={{ width: 36, height: 36, borderRadius: "50%", border: `2px solid ${C.gold}`, background: C.coal, flexShrink: 0 }} />
-            }
-            <div style={{ paddingTop: 2 }}>
-              <div style={{ color: "#fff", fontSize: 8.5, fontWeight: 700, lineHeight: 1 }}>{agent.name}</div>
-              <div style={{ color: C.gold, fontSize: 7.5, fontWeight: 600, marginTop: 4, lineHeight: 1 }}>{agent.phone}</div>
-            </div>
+        {/* Footer — matches one-pager footer */}
+        <div style={{ background: C.ink, borderTop: `2.5px solid ${C.gold}`, padding: "12px 24px", display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
+          {agent.photo
+            ? <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 44, height: 44, borderRadius: "50%", border: `2px solid ${C.gold}`, objectFit: "cover", objectPosition: "center 15%", display: "block", flexShrink: 0 }} />
+            : <div style={{ width: 44, height: 44, borderRadius: "50%", border: `2px solid ${C.gold}`, background: C.coal, flexShrink: 0 }} />
+          }
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: "#fff", fontSize: 11, fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1 }}>{agent.name}</div>
+            <div style={{ color: C.textMuted, fontSize: 9, marginTop: 4, lineHeight: 1 }}>{agent.title}</div>
+            {agent.languages && <div style={{ color: C.gold, fontSize: 8, marginTop: 3, lineHeight: 1 }}>{agent.languages}</div>}
           </div>
-          <div style={{ textAlign: "right", paddingTop: 2 }}>
-            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 5.5, lineHeight: 1 }}>E&OE. Floor plans subject to change. Not to scale.</div>
-            <div style={{ color: C.gold, fontSize: 6, marginTop: 4, lineHeight: 1 }}>{agent.website}</div>
+          <div style={{ width: 1, height: 36, background: "#333", flexShrink: 0 }} />
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
+            <div style={{ color: "#fff", fontSize: 12, fontWeight: 800, lineHeight: 1 }}>{agent.phone}</div>
+            <div style={{ color: C.textMuted, fontSize: 9, marginTop: 4, lineHeight: 1 }}>{agent.email}</div>
+            <div style={{ color: C.gold, fontSize: 8.5, marginTop: 3, lineHeight: 1 }}>{agent.website}</div>
+          </div>
+          <div style={{ width: 1, height: 36, background: "#333", flexShrink: 0 }} />
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
+            <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 7, lineHeight: 1.4 }}>E&OE. Floor plans subject to change.<br/>Not to scale.</div>
           </div>
         </div>
       </div>
