@@ -478,7 +478,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         {/* left: photo + info */}
         <div style={{ display: "flex", flex: 1, gap: 12 }}>
           {agent.photo ? (
-            <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 48, height: 48, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, objectFit: "cover", display: "block" }} />
+            <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 48, height: 48, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, objectFit: "cover", objectPosition: "center 15%", display: "block" }} />
           ) : (
             <div style={{ width: 48, height: 48, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, background: C.coal }} />
           )}
@@ -583,7 +583,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "10px 20px", display: "flex", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", gap: 10 }}>
             {agent.photo
-              ? <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 36, height: 36, borderRadius: "50%", border: `2px solid ${C.gold}`, objectFit: "cover", display: "block", flexShrink: 0 }} />
+              ? <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 36, height: 36, borderRadius: "50%", border: `2px solid ${C.gold}`, objectFit: "cover", objectPosition: "center 15%", display: "block", flexShrink: 0 }} />
               : <div style={{ width: 36, height: 36, borderRadius: "50%", border: `2px solid ${C.gold}`, background: C.coal, flexShrink: 0 }} />
             }
             <div style={{ paddingTop: 2 }}>
