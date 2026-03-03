@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
-import { DollarSign, Percent, Calendar } from "lucide-react";
+import { DollarSign, Percent, Calendar, Pen, Clock, Key, CheckCircle2 } from "lucide-react";
 import { FinancingDetails } from "@/types/roi";
 
 interface FinancingStepProps {
@@ -22,17 +22,15 @@ export function FinancingStep({ financing, purchasePrice, updateInputs }: Financ
     }).format(value);
   };
 
-  // Calculate mortgage details
   const totalDeposit = purchasePrice * ((financing.deposit1Percent + financing.deposit2Percent) / 100);
   const downPayment = purchasePrice * (financing.downPaymentPercent / 100);
   const additionalAtClose = Math.max(0, downPayment - totalDeposit);
   const mortgageAmount = purchasePrice - downPayment;
 
-  // Calculate monthly payment
   const monthlyRate = financing.mortgageInterestRate / 100 / 12;
   const numPayments = financing.amortizationYears * 12;
   const monthlyPayment = mortgageAmount > 0 && monthlyRate > 0
-    ? mortgageAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+    ? mortgageAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
       (Math.pow(1 + monthlyRate, numPayments) - 1)
     : 0;
 
@@ -48,78 +46,135 @@ export function FinancingStep({ financing, purchasePrice, updateInputs }: Financ
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Deposit Structure */}
-        <div className="space-y-4">
+
+        {/* Deposit Timeline */}
+        <div className="space-y-3">
           <h4 className="font-medium text-sm">Deposit Structure</h4>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="deposit1">First Deposit (%)</Label>
-              <Input
-                id="deposit1"
-                type="number"
-                step="0.5"
-                min="0"
-                max="50"
-                value={financing.deposit1Percent}
-                onChange={(e) => updateInputs("deposit1Percent", parseFloat(e.target.value) || 0)}
-              />
-              <p className="text-xs text-muted-foreground">
-                {formatCurrency(purchasePrice * (financing.deposit1Percent / 100))}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="deposit1Months">Due (months)</Label>
-              <Input
-                id="deposit1Months"
-                type="number"
-                min="0"
-                max="24"
-                value={financing.deposit1Months}
-                onChange={(e) => updateInputs("deposit1Months", parseInt(e.target.value) || 0)}
-              />
-              <p className="text-xs text-muted-foreground">
-                {financing.deposit1Months === 0 ? "At signing" : `In ${financing.deposit1Months} months`}
-              </p>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="deposit2">Second Deposit (%)</Label>
-              <Input
-                id="deposit2"
-                type="number"
-                step="0.5"
-                min="0"
-                max="50"
-                value={financing.deposit2Percent}
-                onChange={(e) => updateInputs("deposit2Percent", parseFloat(e.target.value) || 0)}
-              />
-              <p className="text-xs text-muted-foreground">
-                {formatCurrency(purchasePrice * (financing.deposit2Percent / 100))}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="deposit2Months">Due (months)</Label>
-              <Input
-                id="deposit2Months"
-                type="number"
-                min="0"
-                max="24"
-                value={financing.deposit2Months}
-                onChange={(e) => updateInputs("deposit2Months", parseInt(e.target.value) || 0)}
-              />
-              <p className="text-xs text-muted-foreground">
-                {`In ${financing.deposit2Months} months`}
-              </p>
-            </div>
-          </div>
+          <div className="relative">
+            {/* Vertical connector */}
+            <div className="absolute left-5 top-10 bottom-10 w-0.5 bg-border" />
 
-          <div className="bg-muted/50 rounded-lg p-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Total Deposits:</span>
-              <span className="font-medium">{formatCurrency(totalDeposit)}</span>
+            <div className="space-y-4">
+
+              {/* Step 1 — At Signing */}
+              <div className="flex gap-4 items-start">
+                <div className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-amber-500 text-white ring-2 ring-amber-200 shrink-0">
+                  <Pen className="h-4 w-4" />
+                </div>
+                <div className="flex-1 bg-muted/50 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="font-medium text-sm">1st Deposit — At Signing</p>
+                      <p className="text-xs text-muted-foreground">Due immediately upon contract</p>
+                    </div>
+                    <span className="font-semibold text-sm">
+                      {formatCurrency(purchasePrice * (financing.deposit1Percent / 100))}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 space-y-1">
+                      <Label className="text-xs">Percent</Label>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        max="50"
+                        value={financing.deposit1Percent}
+                        onChange={(e) => updateInputs("deposit1Percent", parseFloat(e.target.value) || 0)}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <span className="pt-5 text-xs text-muted-foreground">%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 2 — 2nd Deposit */}
+              <div className="flex gap-4 items-start">
+                <div className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-secondary text-secondary-foreground ring-2 ring-border shrink-0">
+                  <Clock className="h-4 w-4" />
+                </div>
+                <div className="flex-1 bg-muted/50 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="font-medium text-sm">2nd Deposit</p>
+                      <p className="text-xs text-muted-foreground">
+                        {financing.deposit2Months === 0
+                          ? "At signing"
+                          : `In ${financing.deposit2Months} month${financing.deposit2Months !== 1 ? "s" : ""}`}
+                      </p>
+                    </div>
+                    <span className="font-semibold text-sm">
+                      {formatCurrency(purchasePrice * (financing.deposit2Percent / 100))}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 space-y-1">
+                      <Label className="text-xs">Percent</Label>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        max="50"
+                        value={financing.deposit2Percent}
+                        onChange={(e) => updateInputs("deposit2Percent", parseFloat(e.target.value) || 0)}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <span className="pt-5 text-xs text-muted-foreground">%</span>
+                    <div className="flex-1 space-y-1">
+                      <Label className="text-xs">Due (months)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="24"
+                        value={financing.deposit2Months}
+                        onChange={(e) => updateInputs("deposit2Months", parseInt(e.target.value) || 0)}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <span className="pt-5 text-xs text-muted-foreground">mo</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3 — Completion */}
+              <div className="flex gap-4 items-start">
+                <div className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground ring-2 ring-primary/20 shrink-0">
+                  <Key className="h-4 w-4" />
+                </div>
+                <div className="flex-1 bg-primary/5 border border-primary/20 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Balance at Completion</p>
+                      <p className="text-xs text-muted-foreground">Remaining down payment due at keys</p>
+                    </div>
+                    <span className="font-semibold text-sm text-primary">
+                      {formatCurrency(additionalAtClose)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 4 — Total */}
+              <div className="flex gap-4 items-start">
+                <div className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-green-600 text-white ring-2 ring-green-200 shrink-0">
+                  <CheckCircle2 className="h-4 w-4" />
+                </div>
+                <div className="flex-1 bg-muted rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Total Cash Pre-Completion</p>
+                      <p className="text-xs text-muted-foreground">All deposits combined</p>
+                    </div>
+                    <span className="font-bold text-base">
+                      {formatCurrency(totalDeposit)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -129,7 +184,7 @@ export function FinancingStep({ financing, purchasePrice, updateInputs }: Financ
         {/* Down Payment at Completion */}
         <div className="space-y-4">
           <h4 className="font-medium text-sm">Down Payment at Completion</h4>
-          
+
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <Label>Down Payment: {financing.downPaymentPercent}%</Label>
