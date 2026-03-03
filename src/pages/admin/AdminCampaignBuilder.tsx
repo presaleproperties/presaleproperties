@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Building2, User, DollarSign, FileText, Sparkles, Download, Save, Upload,
-  Plus, Trash2, Image as ImageIcon, BookOpen, Layers, FileSpreadsheet, Check,
+  Plus, PlusCircle, Trash2, Image as ImageIcon, BookOpen, Layers, FileSpreadsheet, Check,
   Wand2, Loader2, Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -478,6 +478,23 @@ export default function AdminCampaignBuilder() {
   const setDeposit = (idx: number, key: keyof Deposit, val: string) => {
     setForm(f => {
       const deposits = f.deposits.map((d, i) => i === idx ? { ...d, [key]: val } : d);
+      return { ...f, deposits };
+    });
+  };
+
+  const addDeposit = () => {
+    setForm(f => {
+      // Insert a new empty deposit before the last item (mortgage/completion step)
+      const last = f.deposits[f.deposits.length - 1];
+      const rest = f.deposits.slice(0, -1);
+      return { ...f, deposits: [...rest, { label: "NEW STAGE", percent: "2.5%", amount: "", note: "" }, last] };
+    });
+  };
+
+  const removeDeposit = (idx: number) => {
+    setForm(f => {
+      if (f.deposits.length <= 2) return f; // keep at least 1 regular + 1 completion
+      const deposits = f.deposits.filter((_, i) => i !== idx);
       return { ...f, deposits };
     });
   };
@@ -983,28 +1000,49 @@ export default function AdminCampaignBuilder() {
 
                 {/* ─── TAB: Deposit ─── */}
                 <TabsContent value="deposit" className="mt-0 space-y-3">
-                  {form.deposits.map((dep, idx) => (
-                    <div key={idx} className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
-                      <Badge variant="outline" className="text-[10px] font-bold border-primary/30 text-primary">
-                        Stage {idx + 1}
-                      </Badge>
-                      <div className="grid grid-cols-2 gap-2">
-                        {[
-                          ["label", "Stage Label"], ["percent", "Percentage"],
-                          ["amount", "Dollar Amount"], ["note", "Note"],
-                        ].map(([key, label]) => (
-                          <div key={key} className="space-y-1">
-                            <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</Label>
-                            <Input
-                              value={(dep as any)[key]}
-                              onChange={e => setDeposit(idx, key as keyof Deposit, e.target.value)}
-                              className="h-7 text-xs"
-                            />
-                          </div>
-                        ))}
+                  {form.deposits.map((dep, idx) => {
+                    const isLast = idx === form.deposits.length - 1;
+                    return (
+                      <div key={idx} className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Badge variant="outline" className="text-[10px] font-bold border-primary/30 text-primary">
+                            {isLast ? "Completion / Mortgage" : `Stage ${idx + 1}`}
+                          </Badge>
+                          {!isLast && (
+                            <button
+                              onClick={() => removeDeposit(idx)}
+                              disabled={form.deposits.length <= 2}
+                              className="text-destructive hover:text-destructive/80 disabled:opacity-30 transition-colors"
+                              title="Remove this stage"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {[
+                            ["label", "Stage Label"], ["percent", "Percentage"],
+                            ["amount", "Dollar Amount"], ["note", "Note"],
+                          ].map(([key, label]) => (
+                            <div key={key} className="space-y-1">
+                              <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</Label>
+                              <Input
+                                value={(dep as any)[key]}
+                                onChange={e => setDeposit(idx, key as keyof Deposit, e.target.value)}
+                                className="h-7 text-xs"
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
+                  <button
+                    onClick={addDeposit}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-primary/40 text-primary text-xs py-2 hover:bg-primary/5 transition-colors"
+                  >
+                    <PlusCircle className="w-3.5 h-3.5" /> Add Deposit Stage
+                  </button>
                 </TabsContent>
 
                 {/* ─── TAB: Agent ─── */}
