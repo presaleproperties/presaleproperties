@@ -176,6 +176,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
     <div
       id="one-pager-preview"
       data-page-export="one-pager"
+      data-page-label="one-pager"
       className="pdf-page"
       style={{
         width: PAGE_W,
@@ -491,6 +492,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
       <div
         key={`fp-${plan.id}`}
         data-page-export={`floor-plan-${fpIdx}`}
+        data-page-label={`floor-plan-${fpIdx + 1}-${plan.name || fpIdx + 1}`}
         className="floor-plan-page pdf-page"
         style={{
           width: PAGE_W,
@@ -595,97 +597,70 @@ export default function AdminCampaignBuilder() {
   const [extractingPlan, setExtractingPlan] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const [pdfGenerating, setPdfGenerating] = useState(false);
+  const [screenshottingPage, setScreenshottingPage] = useState<number | null>(null);
 
   // ── Screenshot-based Export ─────────────────────────────────────────────
-  // Captures each [data-page-export] element as it appears live in the DOM,
-  // edge-to-edge, then stitches them into one tall PNG download.
-  const generatePDF = useCallback(async () => {
-    const SCALE = 3; // 3× for high-res output
-    const GAP = 0;   // no gap between pages in final PNG
+  // Helper: screenshot one element and download as PNG
+  const screenshotEl = useCallback(async (el: HTMLElement, filename: string) => {
+    const SCALE = 3;
+    const imgs = Array.from(el.querySelectorAll<HTMLImageElement>("img"));
+    await Promise.all(imgs.map(img =>
+      img.complete ? Promise.resolve() :
+      new Promise<void>(r => { img.onload = img.onerror = () => r(); })
+    ));
+    await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+    const rect = el.getBoundingClientRect();
+    const canvas = await html2canvas(el, {
+      scale: SCALE, useCORS: true, allowTaint: false, logging: false,
+      backgroundColor: null,
+      width: Math.round(rect.width), height: Math.round(rect.height),
+      windowWidth: document.documentElement.clientWidth,
+      windowHeight: document.documentElement.clientHeight,
+      x: 0, y: 0, scrollX: -window.scrollX, scrollY: -window.scrollY,
+    });
+    canvas.toBlob(blob => {
+      if (!blob) { toast.error("Export failed"); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast.success(`Downloaded ${filename}`);
+    }, "image/png");
+  }, []);
 
+  // Download ALL pages as separate PNG files
+  const generatePDF = useCallback(async () => {
     setPdfGenerating(true);
     try {
       const slug = (form.projectName || "campaign").toLowerCase().replace(/\s+/g, "-");
-
-      // Collect all page elements in DOM order
-      const pageEls = Array.from(
-        document.querySelectorAll<HTMLElement>("[data-page-export]")
-      );
-      if (pageEls.length === 0) {
-        toast.error("No pages found to export");
-        return;
+      const pageEls = Array.from(document.querySelectorAll<HTMLElement>("[data-page-export]"));
+      if (pageEls.length === 0) { toast.error("No pages found to export"); return; }
+      for (let i = 0; i < pageEls.length; i++) {
+        const label = pageEls[i].getAttribute("data-page-label") || `page-${i + 1}`;
+        await screenshotEl(pageEls[i], `${slug}-${label}.png`);
       }
-
-      // Wait for all images inside pages to fully load
-      const waitAllImages = async (els: HTMLElement[]) => {
-        const imgs = els.flatMap(el => Array.from(el.querySelectorAll<HTMLImageElement>("img")));
-        await Promise.all(imgs.map(img =>
-          img.complete ? Promise.resolve() :
-          new Promise<void>(r => { img.onload = img.onerror = () => r(); })
-        ));
-      };
-      await waitAllImages(pageEls);
-
-      // Give browser one more frame to finish painting
-      await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r())));
-
-      // Screenshot each page
-      const canvases: HTMLCanvasElement[] = [];
-      for (const el of pageEls) {
-        const rect = el.getBoundingClientRect();
-        const canvas = await html2canvas(el, {
-          scale: SCALE,
-          useCORS: true,
-          allowTaint: false,
-          logging: false,
-          backgroundColor: null,
-          width: Math.round(rect.width),
-          height: Math.round(rect.height),
-          windowWidth: document.documentElement.clientWidth,
-          windowHeight: document.documentElement.clientHeight,
-          x: 0,
-          y: 0,
-          scrollX: -window.scrollX,
-          scrollY: -window.scrollY,
-        });
-        canvases.push(canvas);
-      }
-
-      // Stitch all canvases into one tall combined canvas
-      const totalW = Math.max(...canvases.map(c => c.width));
-      const totalH = canvases.reduce((sum, c) => sum + c.height, 0) + GAP * (canvases.length - 1);
-      const combined = document.createElement("canvas");
-      combined.width = totalW;
-      combined.height = totalH;
-      const ctx = combined.getContext("2d")!;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, totalW, totalH);
-
-      let y = 0;
-      for (const c of canvases) {
-        ctx.drawImage(c, Math.round((totalW - c.width) / 2), y);
-        y += c.height + GAP;
-      }
-
-      // Download
-      combined.toBlob(blob => {
-        if (!blob) { toast.error("Export failed"); return; }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${slug}-VIP-Pricing.png`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-        toast.success("Downloaded!");
-      }, "image/png");
-
     } catch (e) {
       console.error(e);
       toast.error("Export failed");
     } finally {
       setPdfGenerating(false);
     }
-  }, [form]);
+  }, [form, screenshotEl]);
+
+  // Screenshot a single page by index (for per-page button)
+  const screenshotPage = useCallback(async (pageIndex: number) => {
+    setScreenshottingPage(pageIndex);
+    try {
+      const pageEls = Array.from(document.querySelectorAll<HTMLElement>("[data-page-export]"));
+      const el = pageEls[pageIndex];
+      if (!el) return;
+      const slug = (form.projectName || "campaign").toLowerCase().replace(/\s+/g, "-");
+      const label = el.getAttribute("data-page-label") || `page-${pageIndex + 1}`;
+      await screenshotEl(el, `${slug}-${label}.png`);
+    } finally {
+      setScreenshottingPage(null);
+    }
+  }, [form, screenshotEl]);
 
 
 
@@ -1499,10 +1474,47 @@ export default function AdminCampaignBuilder() {
 
             <div
               ref={previewRef}
-              className="flex-1 overflow-auto flex items-start justify-center p-3"
+              className="flex-1 overflow-auto p-3"
             >
-              <div id="print-root" style={{ width: 612, display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-                <OnePagerPreview data={form} />
+              {/* Side-by-side: buttons column + pages column */}
+              <div className="flex items-start justify-center gap-3">
+                {/* ── Screenshot buttons column (one per page) ── */}
+                {(() => {
+                  const fpPlans = form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl);
+                  const pages = [
+                    { idx: 0, label: "1-Pager", height: null },
+                    ...fpPlans.map((p, i) => ({ idx: i + 1, label: `Plan ${i + 1}${p.name ? ` · ${p.name}` : ""}`, height: 792 })),
+                  ];
+                  return (
+                    <div className="flex flex-col gap-0 pt-0 shrink-0" style={{ width: 80 }}>
+                      {pages.map(page => (
+                        <div
+                          key={page.idx}
+                          className="flex flex-col items-center justify-start gap-1 pt-3"
+                          style={{ height: page.height ? page.height : "auto", minHeight: page.height ? page.height : 200 }}
+                        >
+                          <button
+                            onClick={() => screenshotPage(page.idx)}
+                            disabled={screenshottingPage !== null}
+                            className="flex flex-col items-center gap-1 px-2 py-2 rounded-lg border border-border bg-background hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all disabled:opacity-40 w-full"
+                            title={`Screenshot ${page.label}`}
+                          >
+                            {screenshottingPage === page.idx
+                              ? <Loader2 className="h-4 w-4 animate-spin" />
+                              : <Download className="h-4 w-4" />
+                            }
+                            <span className="text-[9px] font-medium text-center leading-tight">{page.label}</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+
+                {/* ── Pages ── */}
+                <div id="print-root" style={{ width: 612, display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+                  <OnePagerPreview data={form} />
+                </div>
               </div>
             </div>
           </div>
