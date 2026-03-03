@@ -597,56 +597,78 @@ export default function AdminCampaignBuilder() {
     if (!pageEls.length) { toast.error("Preview not found"); return; }
     toast.info("Generating PDF…");
     try {
-      // Letter page in points: 612 × 792
       const PDF_W_PT = 612;
       const PDF_H_PT = 792;
-      // The one-pager is designed at exactly 612px — we capture at that native width
       const DESIGN_W_PX = 612;
-      const SCALE = 3; // 3× for retina quality
+      const SCALE = 3;
 
       const pdf = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
 
-      for (let i = 0; i < pageEls.length; i++) {
-        const el = pageEls[i];
-        const elH = el.scrollHeight;
+      // Off-screen container — full 612px width, no clip
+      const offscreen = document.createElement("div");
+      offscreen.style.cssText = `
+        position: fixed; left: -9999px; top: 0;
+        width: ${DESIGN_W_PX}px; z-index: -1;
+        background: #111111; overflow: visible;
+      `;
+      document.body.appendChild(offscreen);
 
-        const canvas = await html2canvas(el, {
-          scale: SCALE,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: "#111111",
-          logging: false,
-          // Force capture at the design width regardless of display width
-          width: DESIGN_W_PX,
-          height: elH,
-          windowWidth: DESIGN_W_PX,
-          windowHeight: elH,
-          x: 0,
-          y: 0,
-          scrollX: 0,
-          scrollY: 0,
-        });
+      try {
+        for (let i = 0; i < pageEls.length; i++) {
+          // Clone so we don't disturb the live DOM
+          const clone = pageEls[i].cloneNode(true) as HTMLElement;
+          clone.style.width = `${DESIGN_W_PX}px`;
+          clone.style.minWidth = `${DESIGN_W_PX}px`;
+          clone.style.maxWidth = `${DESIGN_W_PX}px`;
+          clone.style.transform = "none";
+          clone.style.boxShadow = "none";
+          clone.style.margin = "0";
+          offscreen.innerHTML = "";
+          offscreen.appendChild(clone);
 
-        const imgData = canvas.toDataURL("image/jpeg", 1.0);
-        // canvas is DESIGN_W_PX*SCALE wide → map to PDF_W_PT exactly
-        const imgH_pt = (canvas.height / canvas.width) * PDF_W_PT;
+          // Let the browser lay out the clone at full width
+          await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-        if (i > 0) pdf.addPage();
+          const elH = clone.scrollHeight;
 
-        if (imgH_pt <= PDF_H_PT) {
-          // Content fits on one page — centre vertically
-          const topPad = (PDF_H_PT - imgH_pt) / 2;
-          pdf.addImage(imgData, "JPEG", 0, topPad, PDF_W_PT, imgH_pt);
-        } else {
-          // Content is taller than one page — tile across pages
-          let srcY = 0;
-          const srcPageH = Math.round((PDF_H_PT / PDF_W_PT) * canvas.width);
-          while (srcY < canvas.height) {
-            if (srcY > 0) pdf.addPage();
-            pdf.addImage(imgData, "JPEG", 0, -((srcY / canvas.height) * imgH_pt), PDF_W_PT, imgH_pt);
-            srcY += srcPageH;
+          const canvas = await html2canvas(clone, {
+            scale: SCALE,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#111111",
+            logging: false,
+            width: DESIGN_W_PX,
+            height: elH,
+            windowWidth: DESIGN_W_PX,
+            windowHeight: elH,
+          });
+
+          const imgData = canvas.toDataURL("image/jpeg", 1.0);
+          // Map canvas → PDF points: canvas.width = DESIGN_W_PX * SCALE → PDF_W_PT
+          const imgH_pt = (canvas.height / (DESIGN_W_PX * SCALE)) * PDF_W_PT;
+
+          if (i > 0) pdf.addPage();
+
+          if (imgH_pt <= PDF_H_PT) {
+            // Fits on one page — pin to top
+            pdf.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, imgH_pt);
+          } else {
+            // Taller than one page — slice into pages
+            const pxPerPdfPage = (PDF_H_PT / PDF_W_PT) * (DESIGN_W_PX * SCALE);
+            let sliceStartPx = 0;
+            let pageIndex = 0;
+            while (sliceStartPx < canvas.height) {
+              if (pageIndex > 0) pdf.addPage();
+              // Place the full image shifted upward so the correct slice is visible
+              const yOffset_pt = -(sliceStartPx / (DESIGN_W_PX * SCALE)) * PDF_W_PT;
+              pdf.addImage(imgData, "JPEG", 0, yOffset_pt, PDF_W_PT, imgH_pt);
+              sliceStartPx += pxPerPdfPage;
+              pageIndex++;
+            }
           }
         }
+      } finally {
+        document.body.removeChild(offscreen);
       }
 
       const projectSlug = form.projectName?.replace(/\s+/g, "-").toLowerCase() || "brochure";
