@@ -103,12 +103,20 @@ const DEFAULT_STATE: FormState = {
   pricingSheetUrl: "",
 };
 
-// ─── Logo Mark (actual brand logo) ─────────────────────────────────────────
-const LOGO_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-new.png";
-function LogoMark({ size = 28 }: { size?: number }) {
-  const h = size * 1.6;
+// ─── Logo assets ────────────────────────────────────────────────────────────
+const LOGO_WHITE_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-white.png";
+
+/** Full white logo — for hero overlay / dark backgrounds */
+function LogoWhite({ height = 44 }: { height?: number }) {
   return (
-    <img src={LOGO_URL} alt="Presale Properties" style={{ height: h, width: "auto", objectFit: "contain", display: "block" }} />
+    <img src={LOGO_WHITE_URL} alt="Presale Properties Group" style={{ height, width: "auto", objectFit: "contain", display: "block" }} />
+  );
+}
+
+/** Compact logo for footer corner — same white asset, smaller */
+function LogoMark({ size = 28 }: { size?: number }) {
+  return (
+    <img src={LOGO_WHITE_URL} alt="Presale Properties Group" style={{ height: size * 1.4, width: "auto", objectFit: "contain", display: "block" }} />
   );
 }
 
@@ -142,7 +150,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
         {/* Top-left logo */}
         <div style={{ position: "absolute", top: 14, left: 16 }}>
-          <LogoMark size={28} />
+          <LogoWhite height={42} />
         </div>
 
         {/* Top-right VIP badge */}
