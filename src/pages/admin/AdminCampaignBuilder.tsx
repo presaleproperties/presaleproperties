@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+// jsPDF removed — using PNG export instead
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -583,17 +583,17 @@ export default function AdminCampaignBuilder() {
   const previewRef = useRef<HTMLDivElement>(null);
   const [pdfGenerating, setPdfGenerating] = useState(false);
 
-  // ── Generate PDF ────────────────────────────────────────────────────────
+  // ── Generate PNG ────────────────────────────────────────────────────────
+  // Each page is exported as a separate high-res PNG (4× retina scale).
   // Page 1 (one-pager): park-and-capture the LIVE element — no clone so text
   //   never drifts from its rendered position.
   // Pages 2+ (floor plans): sandbox-clone each at exactly 612×792 with
-  //   overflow:hidden enforced, so the flex image area is fully constrained
-  //   and nothing is zoomed in or cut off at the footer.
+  //   overflow:hidden enforced so nothing is cut off or zoomed.
   const generatePDF = useCallback(async () => {
     const onePager = document.getElementById("one-pager-preview");
     if (!onePager) { toast.error("Preview not found"); return; }
     setPdfGenerating(true);
-    const toastId = toast.loading("Generating PDF…");
+    const toastId = toast.loading("Generating PNGs…");
 
     await document.fonts.ready;
 
@@ -639,7 +639,7 @@ export default function AdminCampaignBuilder() {
       const cH = Math.round(rect.height) || Math.ceil(el.scrollHeight);
 
       const canvas = await html2canvas(el, {
-        scale: 3, useCORS: true, allowTaint: false, logging: false,
+        scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: cW, height: cH, windowWidth: cW, windowHeight: cH,
         x: rect.left, y: rect.top, scrollX: 0, scrollY: 0,
@@ -674,7 +674,7 @@ export default function AdminCampaignBuilder() {
       );
 
       const canvas = await html2canvas(clone, {
-        scale: 3, useCORS: true, allowTaint: false, logging: false,
+        scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: FP_W, height: FP_H,
         windowWidth: FP_W, windowHeight: FP_H,
@@ -685,35 +685,31 @@ export default function AdminCampaignBuilder() {
       return canvas;
     };
 
+    /** Helper: convert canvas → lossless PNG and trigger browser download */
+    const downloadPNG = (canvas: HTMLCanvasElement, filename: string) => {
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
+      a.download = filename;
+      a.click();
+    };
+
+    const slug = (form.projectName || "campaign").replace(/\s+/g, "-").toLowerCase();
+
     try {
-      // ── Page 1: one-pager (park-and-capture) ────────────────────────────
+      // ── Page 1: one-pager (park-and-capture — 4× retina) ────────────────
       const onePagerCanvas = await captureLive(onePager);
-      const pdfPage1H = Math.round((onePagerCanvas.height / onePagerCanvas.width) * 612);
+      downloadPNG(onePagerCanvas, `${slug}-VIP-Pricing.png`);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pdf = new (jsPDF as any)({ unit: "pt", format: [612, pdfPage1H], compress: false });
-      pdf.addImage(
-        onePagerCanvas.toDataURL("image/jpeg", 0.97),
-        "JPEG", 0, 0, 612, pdfPage1H, undefined, "NONE",
-      );
-
-      // ── Pages 2+: one sandboxed clone per floor plan ─────────────────────
+      // ── Pages 2+: one PNG per floor plan ─────────────────────────────────
       const fpEls = Array.from(document.querySelectorAll<HTMLElement>(".floor-plan-page"));
-      for (const fp of fpEls) {
-        const fpCanvas = await captureFloorPlan(fp);
-        // Canvas is 612*3 × 792*3 — map back to 612×792 pt
-        pdf.addPage([FP_W, FP_H], "pt");
-        pdf.addImage(
-          fpCanvas.toDataURL("image/jpeg", 0.97),
-          "JPEG", 0, 0, FP_W, FP_H, undefined, "NONE",
-        );
+      for (let i = 0; i < fpEls.length; i++) {
+        const fpCanvas = await captureFloorPlan(fpEls[i]);
+        downloadPNG(fpCanvas, `${slug}-Floor-Plan-${i + 1}.png`);
       }
 
-      const slug = (form.projectName || "campaign").replace(/\s+/g, "-").toLowerCase();
-      pdf.save(`${slug}-exclusive.pdf`);
-      toast.success(`PDF downloaded — ${1 + fpEls.length} page(s) ✓`, { id: toastId });
+      toast.success(`${1 + fpEls.length} PNG(s) downloaded ✓`, { id: toastId });
     } catch (err: any) {
-      toast.error(err.message || "PDF generation failed", { id: toastId });
+      toast.error(err.message || "PNG generation failed", { id: toastId });
     } finally {
       setPdfGenerating(false);
     }
@@ -1124,7 +1120,7 @@ export default function AdminCampaignBuilder() {
                     className="h-8 text-xs gap-1.5 px-3 flex-shrink-0"
                   >
                     {pdfGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-                    {pdfGenerating ? "Building…" : "PDF"}
+                    {pdfGenerating ? "Generating…" : "PNG"}
                   </Button>
                   <Button
                     variant="outline"
