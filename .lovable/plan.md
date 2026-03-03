@@ -1,122 +1,58 @@
 
-## Live Activity Monitor — Admin Dashboard
+## The Core Problem
 
-### Overview
-A new admin page at `/admin/live-activity` that shows real-time visitor sessions, IP flags, bot detection status, and suspicious traffic alerts. It polls the `client_activity` table every 10 seconds and uses Supabase Realtime for live inserts.
+The one-pager is rendering correctly in the browser preview but when exported to PDF, it feels cramped. This happens because:
 
----
+1. **The one-pager's natural rendered height exceeds 792pt** (a standard Letter page), so the current code hits the `else` branch and *scales the entire image down* to fit — compressing everything and making it look cramped.
+2. **PNG vs JPEG**: PNG would improve quality for graphics/text (lossless), but won't fix the cramped layout since that's a geometry problem, not a compression one. Switching to PNG for the one-pager is worth doing for sharpness.
 
-### What Gets Built
+## The Real Fix: Use a Tabloid/Legal Format
 
-**1. New Page: `src/pages/admin/AdminLiveActivity.tsx`**
+The cleanest solution is to match the PDF page dimensions to the one-pager's natural content height rather than squeezing content into Letter size. Two options:
 
-A full-page dashboard with 4 sections:
+**Option A — Tabloid (11"×17" = 792×1224pt)**  
+Gives a lot of room. The one-pager is a brochure-style document, so this is a natural fit.
 
-**Header Stats Bar** (auto-refreshing every 10s)
-- Active sessions in last 30 min
-- Blocked/flagged IPs count (last 24h — from console logs proxy via DB)
-- Unique visitors today
-- Bot attempts blocked (sourced from activity with suspicious IP patterns)
+**Option B — Measure the actual rendered height and use a custom page size**  
+For the one-pager page only, measure `scrollHeight`, set a custom jsPDF page size to match, and render at 1:1 without any scaling. Floor plan pages stay Letter (612×792). This gives you *exactly* what you see in the preview.
 
-**Live Activity Feed** (real-time via Supabase channel subscription)
-- Scrollable table, newest-first
-- Columns: Time, Activity Type, Visitor ID (truncated), IP Address, City (from activity), Page, Device, Flags
-- Color-coded rows: green = clean, yellow = watch, red = flagged/suspicious
-- IP flag logic runs client-side against `BLOCKED_IP_PREFIXES`:
-  - `43.173.`, `42.106.`, `45.83.`, `185.220.`, `194.165.`, `167.94.`, `216.244.`
-- Bot badge shown if IP prefix matches
-- "Known Lead" badge if `client_id` is linked
+**Option B is the best approach** — it's pixel-perfect to what the user sees in the browser.
 
-**Suspicious Traffic Alerts Panel** (right sidebar)
-- Groups flagged IPs from last 24h by prefix/country
-- Shows: IP, hit count, last seen, inferred region label
-- Quick-action "Add to Blocklist" note (informational — shows the prefix to add)
+## Plan
 
-**Session Summary Cards** (below feed)
-- Top 5 most active visitor IDs in the last hour with activity counts
-- Top 5 pages viewed in the last hour
-- Device type breakdown (desktop/mobile/tablet)
+### 1. One-pager: custom page size = exact preview height
+- After cloning the element off-screen, measure `clone.scrollHeight`
+- Compute `naturalH_pt = scrollHeight` (1px = 1pt at our design width)
+- Create the first PDF page with `format: [612, naturalH_pt]` so there's zero scaling
+- Render at scale 4 for maximum quality
 
----
+### 2. Switch one-pager to PNG (lossless)
+- Use `canvas.toDataURL("image/png")` for the one-pager page (index 0)
+- Keep JPEG for floor plan pages (smaller file, acceptable for images)
 
-### Data Source
+### 3. Floor plan pages: keep Letter but fix the "running into second page" issue
+- The floor plan pages have `height: 792` set in CSS. The problem is that when cloned off-screen at 612px width, the flex layout may recalculate heights and overflow
+- Fix: explicitly set `height: 792px; overflow: hidden` on the clone before capture
+- This guarantees a clean single-page capture
 
-All data comes from the existing `client_activity` table — no schema changes needed.
+### 4. No layout compression on one-pager
+- Remove the scale-down fallback (`else` branch) for the one-pager entirely — instead we use a custom page height
+- This preserves all padding, font sizes, and spacing exactly as seen in preview
 
-```
-Query for feed:
-SELECT id, created_at, activity_type, visitor_id, ip_address, city,
-       page_url, page_title, device_type, client_id, session_id
-FROM client_activity
-ORDER BY created_at DESC
-LIMIT 200
-```
+## Summary of Changes (all in `AdminCampaignBuilder.tsx`)
 
-Realtime subscription on `client_activity` INSERT events updates the feed live.
-
-IP flagging runs in the browser — no backend changes needed for the detection logic.
-
----
-
-### Navigation Integration
-
-Added to `AdminLayout.tsx` under the **Analytics** section:
-```
-{ href: "/admin/live-activity", label: "Live Monitor", icon: Activity }
+```text
+generatePDF()
+├── Page 0 (one-pager)
+│   ├── Capture at SCALE=4
+│   ├── Measure naturalH_pt from canvas.height / (DESIGN_W_PX * SCALE) * PDF_W_PT
+│   ├── pdf = new jsPDF({ format: [PDF_W_PT, naturalH_pt] })  ← custom tall page
+│   └── addImage at full 612×naturalH_pt, no scaling, PNG format
+│
+└── Pages 1..N (floor plans)
+    ├── Clone with explicit height: 792px; overflow: hidden
+    ├── Capture at SCALE=4, JPEG quality 1.0
+    └── addPage("letter") then addImage at 612×792
 ```
 
-And to `iconColors`:
-```
-"Live Monitor": "text-red-500"
-```
-
-Route added to `App.tsx`:
-```tsx
-<Route path="/admin/live-activity" element={<AdminProtectedRoute><AdminLiveActivity /></AdminProtectedRoute>} />
-```
-
----
-
-### Technical Detail
-
-**Realtime setup:**
-```typescript
-const channel = supabase
-  .channel('live-activity-feed')
-  .on('postgres_changes', {
-    event: 'INSERT',
-    schema: 'public',
-    table: 'client_activity',
-  }, (payload) => {
-    setActivities(prev => [payload.new as ActivityRow, ...prev].slice(0, 200));
-  })
-  .subscribe();
-```
-
-**IP flagging (client-side, consistent with edge functions):**
-```typescript
-const BLOCKED_IP_PREFIXES = ["43.173.", "42.106.", "45.83.", "185.220.", "194.165.", "167.94.", "216.244."];
-const IP_REGION_MAP: Record<string, string> = {
-  "43.173.": "China (Tencent Cloud)",
-  "42.106.": "India (Jio DC)",
-  "45.83.":  "Eastern Europe DC",
-  "185.220.": "Tor Exit Node",
-  "194.165.": "Russia DC",
-  "167.94.": "Censys Scanner",
-  "216.244.": "DotSematext Bot",
-};
-```
-
-**Auto-refresh:** Stats bar polls every 10 seconds using `setInterval` in `useEffect`.
-
----
-
-### Files Changed
-
-| File | Action |
-|---|---|
-| `src/pages/admin/AdminLiveActivity.tsx` | Create — main page |
-| `src/components/admin/AdminLayout.tsx` | Add nav item + icon color |
-| `src/App.tsx` | Add route |
-
-No database migrations. No edge function changes. No secrets required.
+This ensures the PDF one-pager is an **exact pixel-perfect replica** of what the user sees in the browser preview — no cramping, no scaling. The user asked "can we use PNG?" — yes, and we should for the one-pager specifically (lossless = sharper text/graphics). Floor plans can stay JPEG since they're primarily photos.
