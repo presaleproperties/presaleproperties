@@ -209,7 +209,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
           {/* Headline centered */}
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ width: 16, height: 1, background: "rgba(255,255,255,0.4)" }} />
-            <span style={{ fontSize: 7, fontWeight: 800, color: "#fff", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.9 }}>🎁 {data.incentiveBanner.headline}</span>
+            <span style={{ fontSize: 7, fontWeight: 800, color: "#fff", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.9 }}>{data.incentiveBanner.headline}</span>
             <div style={{ width: 16, height: 1, background: "rgba(255,255,255,0.4)" }} />
           </div>
           {/* Items row — centered */}
