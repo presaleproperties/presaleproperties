@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 
 // ─── Brand colours ─────────────────────────────────────────────────────────
 const C = {
@@ -436,7 +437,9 @@ export default function AdminCampaignBuilder() {
   };
 
   return (
-    <>
+    <AdminLayout>
+      {/* Break out of AdminLayout's max-w-6xl container */}
+      <div style={{ margin: "-24px -24px 0", minHeight: "calc(100vh - 56px)" }}>
       {/* Print stylesheet */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
@@ -689,31 +692,11 @@ export default function AdminCampaignBuilder() {
           <div style={{ padding: "10px 20px", borderBottom: `1px solid #1a1a1a`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ color: "#555", fontSize: 10, fontWeight: 600, letterSpacing: "0.08em" }}>LIVE PREVIEW — US LETTER (612×792pt)</span>
             <span style={{ color: "#333", fontSize: 10 }}>Updates in real time</span>
-          </div>
-
-          {/* Preview viewport */}
-          <div
-            ref={previewRef}
-            style={{
-              flex: 1,
-              overflow: "auto",
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "center",
-              padding: "24px",
-            }}
-          >
-            <div
-              style={{
-                transform: "scale(0.97)",
-                transformOrigin: "top center",
-              }}
-            >
-              <OnePagerPreview data={form} />
             </div>
           </div>
         </div>
       </div>
-    </>
+    </AdminLayout>
   );
 }
+
