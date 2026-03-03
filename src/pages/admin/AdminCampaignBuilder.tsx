@@ -133,6 +133,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
     <>
     <div
       id="one-pager-preview"
+      className="pdf-page"
       style={{
         width: "100%",
         background: C.offWhite,
@@ -359,7 +360,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
     {plans.filter(p => p.floorPlanUrl).map((plan, i) => (
       <div
         key={`fp-page-${plan.id}`}
-        className="floor-plan-page"
+        className="floor-plan-page pdf-page"
         style={{
           width: PAGE_W,
           minHeight: 792,
@@ -592,34 +593,37 @@ export default function AdminCampaignBuilder() {
   };
 
   const generatePDF = async () => {
-    const el = document.getElementById("print-root");
-    if (!el) { toast.error("Preview not found"); return; }
+    // Capture each logical page separately so nothing gets sliced mid-content
+    const pageEls = document.querySelectorAll<HTMLElement>(".pdf-page");
+    if (!pageEls.length) { toast.error("Preview not found"); return; }
     toast.info("Generating PDF…");
     try {
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#111111",
-        logging: false,
-        width: el.scrollWidth,
-        height: el.scrollHeight,
-        windowWidth: el.scrollWidth,
-        windowHeight: el.scrollHeight,
-      });
       const pdf = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      const imgData = canvas.toDataURL("image/jpeg", 0.95);
-      const canvasRatio = canvas.height / canvas.width;
-      const totalImgH = pageW * canvasRatio;
-      let yOffset = 0;
-      let pageNum = 0;
-      while (yOffset < totalImgH) {
-        if (pageNum > 0) pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 0, -yOffset, pageW, totalImgH);
-        yOffset += pageH;
-        pageNum++;
+
+      for (let i = 0; i < pageEls.length; i++) {
+        const el = pageEls[i];
+        const canvas = await html2canvas(el, {
+          scale: 3,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#111111",
+          logging: false,
+          width: el.offsetWidth,
+          height: el.offsetHeight,
+          windowWidth: el.offsetWidth,
+          windowHeight: el.offsetHeight,
+        });
+        const imgData = canvas.toDataURL("image/jpeg", 1.0);
+        // Scale to fill the full letter page
+        const canvasRatio = canvas.height / canvas.width;
+        const imgH = pageW * canvasRatio;
+        const yStart = (pageH - imgH) / 2; // centre vertically if shorter
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, Math.max(0, yStart), pageW, Math.min(imgH, pageH));
       }
+
       const projectSlug = form.projectName?.replace(/\s+/g, "-").toLowerCase() || "brochure";
       pdf.save(`${projectSlug}-exclusive.pdf`);
       toast.success("PDF downloaded!");
