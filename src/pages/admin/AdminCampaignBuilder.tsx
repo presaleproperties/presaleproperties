@@ -621,11 +621,12 @@ export default function AdminCampaignBuilder() {
         margin: el.style.margin, boxShadow: el.style.boxShadow, zIndex: el.style.zIndex,
       };
       el.style.position = "fixed";
-      el.style.left     = "-9999px";
+      el.style.left     = "0px";   // keep at 0,0 so html2canvas x/y are correct
       el.style.top      = "0px";
       el.style.margin   = "0";
       el.style.boxShadow = "none";
-      el.style.zIndex   = "-9999";
+      el.style.zIndex   = "9999";  // on top so it renders fully
+      el.style.pointerEvents = "none";
 
       await waitImages(el);
       await new Promise<void>(r =>
@@ -634,18 +635,19 @@ export default function AdminCampaignBuilder() {
         ))
       );
 
-      const rect = el.getBoundingClientRect();
-      const cW = Math.round(rect.width)  || 612;
-      const cH = Math.round(rect.height) || Math.ceil(el.scrollHeight);
+      const cW = Math.round(el.offsetWidth)  || 612;
+      const cH = Math.round(el.scrollHeight) || 900;
 
       const canvas = await html2canvas(el, {
         scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
-        width: cW, height: cH, windowWidth: cW, windowHeight: cH,
-        x: rect.left, y: rect.top, scrollX: 0, scrollY: 0,
+        width: cW, height: cH,
+        windowWidth: cW, windowHeight: cH,
+        x: 0, y: 0, scrollX: 0, scrollY: 0,
       });
 
       Object.assign(el.style, saved);
+      el.style.pointerEvents = "";
       return canvas;
     };
 
