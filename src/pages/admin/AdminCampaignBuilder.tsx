@@ -445,11 +445,10 @@ export default function AdminCampaignBuilder() {
         }
       `}</style>
 
-      <div style={{ margin: "-24px -24px 0", minHeight: "calc(100vh - 56px)" }}>
-        <div className="flex h-[calc(100vh-56px)]">
+      <div className="flex flex-1 min-h-0 h-full">
 
           {/* ── LEFT PANEL ── */}
-          <div className="w-[430px] min-w-[430px] border-r border-border bg-card flex flex-col h-full">
+          <div className="w-[380px] min-w-[320px] max-w-[380px] border-r border-border bg-card flex flex-col min-h-0">
 
             {/* Header */}
             <div className="p-4 border-b border-border">
@@ -775,7 +774,6 @@ export default function AdminCampaignBuilder() {
             </div>
           </div>
         </div>
-      </div>
     </AdminLayout>
   );
 }

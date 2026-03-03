@@ -419,15 +419,17 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         )}
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto">
-          {location.pathname === "/admin/campaign-builder" ? (
-            children
-          ) : (
+        {location.pathname === "/admin/campaign-builder" ? (
+          <main className="flex-1 overflow-hidden flex flex-col min-h-0">
+            {children}
+          </main>
+        ) : (
+          <main className="flex-1 overflow-auto">
             <div className="max-w-6xl mx-auto py-6 px-4 sm:px-6">
               {children}
             </div>
-          )}
-        </main>
+          </main>
+        )}
       </div>
     </div>
   );
