@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { CampaignPDFDocument } from "@/components/admin/CampaignPDF";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -436,6 +436,65 @@ export default function AdminCampaignBuilder() {
   const [projectSearchFocused, setProjectSearchFocused] = useState(false);
   const [extractingPlan, setExtractingPlan] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const [pdfGenerating, setPdfGenerating] = useState(false);
+
+  // ── Generate PDF by capturing the live HTML preview at 8x scale ──────────
+  const generatePDF = useCallback(async () => {
+    const onePager = document.getElementById("one-pager-preview");
+    if (!onePager) { toast.error("Preview not found"); return; }
+    setPdfGenerating(true);
+    const toastId = toast.loading("Generating PDF…");
+    try {
+      const SCALE = 8;
+      const captureEl = async (el: HTMLElement, width: number, height: number) => {
+        // Clone off-screen so layout is forced to exact dimensions
+        const host = document.createElement("div");
+        host.style.cssText = `position:fixed;left:-99999px;top:0;width:${width}px;height:${height > 0 ? height + "px" : "auto"};overflow:hidden;`;
+        const clone = el.cloneNode(true) as HTMLElement;
+        clone.style.width = `${width}px`;
+        if (height > 0) clone.style.height = `${height}px`;
+        clone.style.margin = "0";
+        clone.style.boxShadow = "none";
+        clone.style.marginTop = "0";
+        host.appendChild(clone);
+        document.body.appendChild(host);
+        // Wait 2 frames for layout
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        const canvas = await html2canvas(clone, {
+          scale: SCALE,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: null,
+        });
+        document.body.removeChild(host);
+        return canvas;
+      };
+
+      // Page 1: one-pager (dynamic height)
+      const onePagerCanvas = await captureEl(onePager, 612, 0);
+      const pageH = (onePagerCanvas.height / onePagerCanvas.width) * 612;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pdf = new (jsPDF as any)({ unit: "pt", format: [612, pageH], compress: true });
+      pdf.addImage(onePagerCanvas.toDataURL("image/png"), "PNG", 0, 0, 612, pageH, undefined, "NONE");
+
+      // Subsequent pages: floor plan pages (fixed 792pt height)
+      const fpPages = document.querySelectorAll<HTMLElement>(".floor-plan-page");
+      for (const fp of fpPages) {
+        const fpCanvas = await captureEl(fp, 612, 792);
+        pdf.addPage([612, 792], "pt");
+        pdf.addImage(fpCanvas.toDataURL("image/png"), "PNG", 0, 0, 612, 792, undefined, "NONE");
+      }
+
+      const slug = (form.projectName || "campaign").replace(/\s+/g, "-").toLowerCase();
+      pdf.save(`${slug}-exclusive.pdf`);
+      toast.success("PDF downloaded ✓", { id: toastId });
+    } catch (err: any) {
+      toast.error(err.message || "PDF generation failed", { id: toastId });
+    } finally {
+      setPdfGenerating(false);
+    }
+  }, [form.projectName]);
 
   // Fetch projects + load template if editing
   useEffect(() => {
@@ -836,23 +895,14 @@ export default function AdminCampaignBuilder() {
                       className="h-8 text-xs"
                     />
                   </div>
-                  <PDFDownloadLink
-                    document={
-                      <CampaignPDFDocument
-                        data={{ ...form, agent: PRESET_AGENTS[form.agentIdx] || PRESET_AGENTS[0] }}
-                        agent={PRESET_AGENTS[form.agentIdx] || PRESET_AGENTS[0]}
-                      />
-                    }
-                    fileName={`${(form.projectName || "campaign").replace(/\s+/g, "-").toLowerCase()}-exclusive.pdf`}
-                    className="flex-shrink-0"
+                  <Button
+                    onClick={generatePDF}
+                    disabled={pdfGenerating}
+                    className="h-8 text-xs gap-1.5 px-3 flex-shrink-0"
                   >
-                    {({ loading }) => (
-                      <Button disabled={loading} className="h-8 text-xs gap-1.5 px-3">
-                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-                        {loading ? "Building…" : "PDF"}
-                      </Button>
-                    )}
-                  </PDFDownloadLink>
+                    {pdfGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                    {pdfGenerating ? "Building…" : "PDF"}
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
