@@ -132,7 +132,8 @@ function OnePagerPreview({ data }: { data: FormState }) {
     <div
       id="one-pager-preview"
       style={{
-        width: PAGE_W, background: C.offWhite,
+        width: "100%",
+        background: C.offWhite,
         fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif",
         position: "relative",
         boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
@@ -1119,9 +1120,9 @@ export default function AdminCampaignBuilder() {
 
             <div
               ref={previewRef}
-              className="flex-1 overflow-auto flex items-start justify-center p-6"
+              className="flex-1 overflow-auto flex items-start justify-center p-3"
             >
-              <div id="print-root" style={{ transform: "scale(0.95)", transformOrigin: "top center", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+              <div id="print-root" style={{ width: "100%", maxWidth: 612, transformOrigin: "top center", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
                 <OnePagerPreview data={form} />
               </div>
             </div>
