@@ -581,88 +581,87 @@ export default function AdminCampaignBuilder() {
   const previewRef = useRef<HTMLDivElement>(null);
   const [pdfGenerating, setPdfGenerating] = useState(false);
 
-  // ── Generate PDF by capturing the live HTML preview at 8x scale ──────────
+  // ── Generate PDF: deep-clone into an isolated off-screen container ────────
+  // Cloning into a container that exactly mirrors the preview's font/layout
+  // context is the only way to guarantee pixel-accurate capture without
+  // html2canvas re-flowing the live page at a different viewport width.
   const generatePDF = useCallback(async () => {
     const onePager = document.getElementById("one-pager-preview");
     if (!onePager) { toast.error("Preview not found"); return; }
     setPdfGenerating(true);
     const toastId = toast.loading("Generating PDF…");
 
-    // Helper: capture a LIVE element by temporarily scrolling it into a
-    // position where html2canvas can see it with all fonts and CSS intact.
-    // We do NOT clone — cloning loses computed styles, grid layouts, and fonts.
-    const captureLive = async (el: HTMLElement): Promise<HTMLCanvasElement> => {
-      // Save original styles we'll override temporarily
-      const origPosition = el.style.position;
-      const origLeft = el.style.left;
-      const origTop = el.style.top;
-      const origMargin = el.style.margin;
-      const origBoxShadow = el.style.boxShadow;
-      const origVisibility = el.style.visibility;
-      const origZIndex = el.style.zIndex;
+    // Wait for all web fonts to finish loading
+    await document.fonts.ready;
 
-      // Move element to top-left offscreen so it's rendered at its natural size
-      el.style.position = "fixed";
-      el.style.left = "0px";
-      el.style.top = "0px";
-      el.style.margin = "0";
-      el.style.boxShadow = "none";
-      el.style.visibility = "visible";
-      el.style.zIndex = "-1";
+    // Off-screen host: exact 612px wide, out of viewport, but NOT display:none
+    // (display:none prevents layout computation inside html2canvas)
+    const host = document.createElement("div");
+    host.style.cssText = [
+      "position:fixed",
+      "left:-9999px",
+      "top:0",
+      "width:612px",
+      "overflow:visible",
+      "pointer-events:none",
+      "z-index:-9999",
+      // inherit the same font stack as the preview
+      "font-family:'Plus Jakarta Sans','DM Sans',Arial,sans-serif",
+    ].join(";");
+    document.body.appendChild(host);
 
-      // Wait for fonts + 2 paint frames
-      await document.fonts.ready;
+    const captureEl = async (el: HTMLElement, fixedHeight?: number): Promise<HTMLCanvasElement> => {
+      const clone = el.cloneNode(true) as HTMLElement;
+      // Strip the box-shadow so it doesn't inflate the canvas
+      clone.style.boxShadow = "none";
+      clone.style.marginTop = "0";
+      clone.style.width = "612px";
+      if (fixedHeight) clone.style.height = `${fixedHeight}px`;
+      host.innerHTML = "";
+      host.appendChild(clone);
+
+      // Two rAF ticks so flexbox/grid layout settles
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-      const canvas = await html2canvas(el, {
-        scale: 8,
+      return html2canvas(clone, {
+        scale: 4,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         logging: false,
         backgroundColor: "#ffffff",
-        // Capture the element at its natural rendered size
-        width: el.offsetWidth,
-        height: el.offsetHeight,
+        width: 612,
+        height: fixedHeight ?? clone.scrollHeight,
+        windowWidth: 612,
+        windowHeight: fixedHeight ?? clone.scrollHeight,
         x: 0,
         y: 0,
         scrollX: 0,
         scrollY: 0,
-        windowWidth: el.offsetWidth,
-        windowHeight: el.offsetHeight,
       });
-
-      // Restore original styles
-      el.style.position = origPosition;
-      el.style.left = origLeft;
-      el.style.top = origTop;
-      el.style.margin = origMargin;
-      el.style.boxShadow = origBoxShadow;
-      el.style.visibility = origVisibility;
-      el.style.zIndex = origZIndex;
-
-      return canvas;
     };
 
     try {
-      // Page 1: one-pager (natural height, 612pt wide)
-      const onePagerCanvas = await captureLive(onePager);
+      // Page 1: one-pager (natural scroll height)
+      const onePagerCanvas = await captureEl(onePager);
       const pageH = (onePagerCanvas.height / onePagerCanvas.width) * 612;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pdf = new (jsPDF as any)({ unit: "pt", format: [612, pageH], compress: false });
-      pdf.addImage(onePagerCanvas.toDataURL("image/png"), "PNG", 0, 0, 612, pageH, undefined, "NONE");
+      pdf.addImage(onePagerCanvas.toDataURL("image/jpeg", 0.97), "JPEG", 0, 0, 612, pageH, undefined, "NONE");
 
       // Subsequent pages: floor plan pages (fixed Letter height = 792pt)
       const fpPages = document.querySelectorAll<HTMLElement>(".floor-plan-page");
       for (const fp of fpPages) {
-        const fpCanvas = await captureLive(fp);
+        const fpCanvas = await captureEl(fp, 792);
         pdf.addPage([612, 792], "pt");
-        pdf.addImage(fpCanvas.toDataURL("image/png"), "PNG", 0, 0, 612, 792, undefined, "NONE");
+        pdf.addImage(fpCanvas.toDataURL("image/jpeg", 0.97), "JPEG", 0, 0, 612, 792, undefined, "NONE");
       }
 
+      document.body.removeChild(host);
       const slug = (form.projectName || "campaign").replace(/\s+/g, "-").toLowerCase();
       pdf.save(`${slug}-exclusive.pdf`);
       toast.success("PDF downloaded ✓", { id: toastId });
     } catch (err: any) {
+      if (document.body.contains(host)) document.body.removeChild(host);
       toast.error(err.message || "PDF generation failed", { id: toastId });
     } finally {
       setPdfGenerating(false);
