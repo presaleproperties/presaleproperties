@@ -637,7 +637,7 @@ export default function AdminCampaignBuilder() {
       const PDF_W_PT = 612;
       const PDF_H_PT = 792;
       const DESIGN_W_PX = 612;
-      const SCALE = 4;
+      const SCALE = 8; // 8x = ~4896px wide on letter = true 2K+ quality
 
       let pdf: jsPDF | null = null;
 
@@ -672,12 +672,12 @@ export default function AdminCampaignBuilder() {
           // Custom page exactly matching rendered height — zero scaling, pixel-perfect
           pdf = new jsPDF({ unit: "pt", format: [PDF_W_PT, naturalH_pt], orientation: "portrait" });
           const imgData = canvas.toDataURL("image/png");
-          pdf.addImage(imgData, "PNG", 0, 0, PDF_W_PT, naturalH_pt);
+          pdf.addImage(imgData, "PNG", 0, 0, PDF_W_PT, naturalH_pt, undefined, "NONE");
         } else {
           // Floor plan pages: standard Letter
           pdf!.addPage([PDF_W_PT, PDF_H_PT], "portrait");
           const imgData = canvas.toDataURL("image/png");
-          pdf!.addImage(imgData, "PNG", 0, 0, PDF_W_PT, PDF_H_PT);
+          pdf!.addImage(imgData, "PNG", 0, 0, PDF_W_PT, PDF_H_PT, undefined, "NONE");
         }
       }
 
