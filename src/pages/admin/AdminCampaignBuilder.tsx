@@ -444,44 +444,74 @@ export default function AdminCampaignBuilder() {
     if (!onePager) { toast.error("Preview not found"); return; }
     setPdfGenerating(true);
     const toastId = toast.loading("Generating PDF…");
-    try {
-      const SCALE = 8;
-      const captureEl = async (el: HTMLElement, width: number, height: number) => {
-        // Clone off-screen so layout is forced to exact dimensions
-        const host = document.createElement("div");
-        host.style.cssText = `position:fixed;left:-99999px;top:0;width:${width}px;height:${height > 0 ? height + "px" : "auto"};overflow:hidden;`;
-        const clone = el.cloneNode(true) as HTMLElement;
-        clone.style.width = `${width}px`;
-        if (height > 0) clone.style.height = `${height}px`;
-        clone.style.margin = "0";
-        clone.style.boxShadow = "none";
-        clone.style.marginTop = "0";
-        host.appendChild(clone);
-        document.body.appendChild(host);
-        // Wait 2 frames for layout
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-        const canvas = await html2canvas(clone, {
-          scale: SCALE,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          backgroundColor: null,
-        });
-        document.body.removeChild(host);
-        return canvas;
-      };
 
-      // Page 1: one-pager (dynamic height)
-      const onePagerCanvas = await captureEl(onePager, 612, 0);
+    // Helper: capture a LIVE element by temporarily scrolling it into a
+    // position where html2canvas can see it with all fonts and CSS intact.
+    // We do NOT clone — cloning loses computed styles, grid layouts, and fonts.
+    const captureLive = async (el: HTMLElement): Promise<HTMLCanvasElement> => {
+      // Save original styles we'll override temporarily
+      const origPosition = el.style.position;
+      const origLeft = el.style.left;
+      const origTop = el.style.top;
+      const origMargin = el.style.margin;
+      const origBoxShadow = el.style.boxShadow;
+      const origVisibility = el.style.visibility;
+      const origZIndex = el.style.zIndex;
+
+      // Move element to top-left offscreen so it's rendered at its natural size
+      el.style.position = "fixed";
+      el.style.left = "0px";
+      el.style.top = "0px";
+      el.style.margin = "0";
+      el.style.boxShadow = "none";
+      el.style.visibility = "visible";
+      el.style.zIndex = "-1";
+
+      // Wait for fonts + 2 paint frames
+      await document.fonts.ready;
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+      const canvas = await html2canvas(el, {
+        scale: 8,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+        // Capture the element at its natural rendered size
+        width: el.offsetWidth,
+        height: el.offsetHeight,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: el.offsetWidth,
+        windowHeight: el.offsetHeight,
+      });
+
+      // Restore original styles
+      el.style.position = origPosition;
+      el.style.left = origLeft;
+      el.style.top = origTop;
+      el.style.margin = origMargin;
+      el.style.boxShadow = origBoxShadow;
+      el.style.visibility = origVisibility;
+      el.style.zIndex = origZIndex;
+
+      return canvas;
+    };
+
+    try {
+      // Page 1: one-pager (natural height, 612pt wide)
+      const onePagerCanvas = await captureLive(onePager);
       const pageH = (onePagerCanvas.height / onePagerCanvas.width) * 612;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pdf = new (jsPDF as any)({ unit: "pt", format: [612, pageH], compress: true });
+      const pdf = new (jsPDF as any)({ unit: "pt", format: [612, pageH], compress: false });
       pdf.addImage(onePagerCanvas.toDataURL("image/png"), "PNG", 0, 0, 612, pageH, undefined, "NONE");
 
-      // Subsequent pages: floor plan pages (fixed 792pt height)
+      // Subsequent pages: floor plan pages (fixed Letter height = 792pt)
       const fpPages = document.querySelectorAll<HTMLElement>(".floor-plan-page");
       for (const fp of fpPages) {
-        const fpCanvas = await captureEl(fp, 612, 792);
+        const fpCanvas = await captureLive(fp);
         pdf.addPage([612, 792], "pt");
         pdf.addImage(fpCanvas.toDataURL("image/png"), "PNG", 0, 0, 612, 792, undefined, "NONE");
       }
