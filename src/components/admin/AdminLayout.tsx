@@ -419,7 +419,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         )}
 
         {/* Page content */}
-        {location.pathname === "/admin/campaign-builder" ? (
+        {(location.pathname === "/admin/campaign-builder" || location.pathname.startsWith("/admin/campaign-builder/")) ? (
           <main className="flex-1 overflow-hidden flex flex-col min-h-0">
             {children}
           </main>

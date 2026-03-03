@@ -360,6 +360,36 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_templates: {
+        Row: {
+          created_at: string
+          form_data: Json
+          id: string
+          name: string
+          project_name: string
+          thumbnail_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          form_data?: Json
+          id?: string
+          name: string
+          project_name?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          form_data?: Json
+          id?: string
+          name?: string
+          project_name?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       city_market_stats: {
         Row: {
           avg_price_sqft: number | null

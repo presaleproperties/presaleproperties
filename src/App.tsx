@@ -84,6 +84,7 @@ const AdminClientSearches = lazy(() => import("./pages/admin/AdminClientSearches
 const AdminClientForm = lazy(() => import("./pages/admin/AdminClientForm"));
 const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
 const AdminCampaignBuilder = lazy(() => import("./pages/admin/AdminCampaignBuilder"));
+const AdminCampaignHub = lazy(() => import("./pages/admin/AdminCampaignHub"));
 const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
@@ -339,7 +340,9 @@ const App = () => (
             
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
-            <Route path="/admin/campaign-builder" element={<AdminProtectedRoute><AdminCampaignBuilder /></AdminProtectedRoute>} />
+            <Route path="/admin/campaign-builder" element={<AdminProtectedRoute><AdminCampaignHub /></AdminProtectedRoute>} />
+            <Route path="/admin/campaign-builder/new" element={<AdminProtectedRoute><AdminCampaignBuilder /></AdminProtectedRoute>} />
+            <Route path="/admin/campaign-builder/:templateId" element={<AdminProtectedRoute><AdminCampaignBuilder /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/edit" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/searches" element={<AdminProtectedRoute><AdminClientSearches /></AdminProtectedRoute>} />
             <Route path="/admin/team-members" element={<AdminProtectedRoute><AdminTeamMembers /></AdminProtectedRoute>} />

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -10,8 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Building2, User, DollarSign, FileText, Sparkles, Download, Save, Upload,
-  Plus, PlusCircle, Trash2, Image as ImageIcon, BookOpen, Layers, FileSpreadsheet, Check,
-  Wand2, Loader2, Search
+  Plus, PlusCircle, Trash2, Image as ImageIcon, BookOpen, Layers, FileSpreadsheet,
+  Wand2, Loader2, Search, ArrowLeft, LayoutGrid
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -432,7 +433,11 @@ interface ProjectOption {
 }
 
 export default function AdminCampaignBuilder() {
+  const navigate = useNavigate();
+  const { templateId } = useParams<{ templateId?: string }>();
   const [form, setForm] = useState<FormState>(DEFAULT_STATE);
+  const [templateName, setTemplateName] = useState("");
+  const [saving, setSaving] = useState(false);
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -441,19 +446,35 @@ export default function AdminCampaignBuilder() {
   const [extractingPlan, setExtractingPlan] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // Fetch projects
+  // Fetch projects + load template if editing
   useEffect(() => {
-    const fetchProjects = async () => {
-      const { data } = await supabase
+    const init = async () => {
+      // Load projects
+      const { data: projData } = await supabase
         .from("presale_projects")
         .select("id, name, city, neighborhood, address, developer_name, starting_price, price_range, deposit_structure, deposit_percent, incentives, featured_image, completion_year, completion_month, project_type, unit_mix, highlights, amenities, brochure_files, pricing_sheets, floorplan_files")
         .eq("is_published", true)
         .order("name");
-      if (data) setProjects(data as ProjectOption[]);
+      if (projData) setProjects(projData as ProjectOption[]);
+
+      // Load template if editing existing
+      if (templateId && templateId !== "new") {
+        const { data: tmpl } = await supabase
+          .from("campaign_templates" as any)
+          .select("*")
+          .eq("id", templateId)
+          .single();
+        if (tmpl) {
+          const t = tmpl as any;
+          setTemplateName(t.name || "");
+          if (t.form_data) setForm(t.form_data as FormState);
+        }
+      }
+
       setLoading(false);
     };
-    fetchProjects();
-  }, []);
+    init();
+  }, [templateId]);
 
   const set = useCallback((key: keyof FormState, val: any) => setForm(f => ({ ...f, [key]: val })), []);
 
@@ -577,20 +598,34 @@ export default function AdminCampaignBuilder() {
     });
   };
 
-  const saveTemplate = () => {
-    localStorage.setItem(`campaign_${form.projectName}`, JSON.stringify(form));
-    toast.success(`Template "${form.projectName}" saved`);
-  };
-
-  const loadTemplate = () => {
-    const name = prompt("Enter project name to load:");
-    if (!name) return;
-    const saved = localStorage.getItem(`campaign_${name}`);
-    if (saved) {
-      setForm(JSON.parse(saved));
-      toast.success(`Loaded template for "${name}"`);
-    } else {
-      toast.error("No template found for that name.");
+  const saveTemplate = async () => {
+    const name = templateName || form.projectName || "Untitled Campaign";
+    setSaving(true);
+    try {
+      if (templateId && templateId !== "new") {
+        // Update existing
+        const { error } = await supabase
+          .from("campaign_templates" as any)
+          .update({ name, project_name: form.projectName, form_data: form })
+          .eq("id", templateId);
+        if (error) throw error;
+        toast.success("Template updated ✓");
+      } else {
+        // Create new
+        const { data, error } = await supabase
+          .from("campaign_templates" as any)
+          .insert({ name, project_name: form.projectName, form_data: form })
+          .select("id")
+          .single();
+        if (error) throw error;
+        const newId = (data as any)?.id;
+        toast.success(`Template "${name}" saved ✓`);
+        if (newId) navigate(`/admin/campaign-builder/${newId}`, { replace: true });
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save template");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -764,12 +799,27 @@ export default function AdminCampaignBuilder() {
             {/* Header */}
             <div className="p-4 border-b border-border">
               <div className="flex items-center gap-3 mb-3">
-                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary-deep flex items-center justify-center">
-                  <Sparkles className="h-4 w-4 text-primary-foreground" />
+                <button
+                  onClick={() => navigate("/admin/campaign-builder")}
+                  className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center hover:bg-muted transition-colors shrink-0"
+                  title="Back to Campaign Hub"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                </button>
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-white" />
                 </div>
-                <div>
-                  <h1 className="font-bold text-sm tracking-tight">Campaign Builder</h1>
-                  <p className="text-xs text-muted-foreground">One-Pager Generator</p>
+                <div className="min-w-0">
+                  <h1 className="font-bold text-sm tracking-tight truncate">
+                    {templateId && templateId !== "new" ? (templateName || form.projectName || "Edit Campaign") : "New Campaign"}
+                  </h1>
+                  <button
+                    onClick={() => navigate("/admin/campaign-builder")}
+                    className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <LayoutGrid className="h-2.5 w-2.5" />
+                    Campaign Hub
+                  </button>
                 </div>
               </div>
 
@@ -1221,18 +1271,30 @@ export default function AdminCampaignBuilder() {
 
             {/* ── BOTTOM ACTION BAR ── */}
             <div className="p-3 border-t border-border bg-card space-y-2">
+              {/* Template name */}
+              <div className="space-y-1">
+                <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">Template Name</Label>
+                <Input
+                  value={templateName}
+                  onChange={e => setTemplateName(e.target.value)}
+                  placeholder={form.projectName || "e.g. Oakridge Q1 2026 VIP"}
+                  className="h-8 text-xs"
+                />
+              </div>
               <div className="flex gap-2">
                 <Button onClick={generatePDF} className="flex-1 h-9 text-xs gap-1.5">
                   <Download className="h-3.5 w-3.5" />
                   Generate PDF
                 </Button>
-                <Button variant="outline" size="sm" onClick={saveTemplate} className="h-9 text-xs gap-1">
-                  <Save className="h-3.5 w-3.5" />
-                  Save
-                </Button>
-                <Button variant="outline" size="sm" onClick={loadTemplate} className="h-9 text-xs gap-1">
-                  <Upload className="h-3.5 w-3.5" />
-                  Load
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={saveTemplate}
+                  disabled={saving}
+                  className="h-9 text-xs gap-1 min-w-[72px]"
+                >
+                  {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                  {saving ? "Saving…" : templateId && templateId !== "new" ? "Update" : "Save"}
                 </Button>
               </div>
               <p className="text-[10px] text-muted-foreground text-center">
