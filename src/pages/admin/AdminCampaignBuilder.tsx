@@ -593,35 +593,60 @@ export default function AdminCampaignBuilder() {
   };
 
   const generatePDF = async () => {
-    // Capture each logical page separately so nothing gets sliced mid-content
     const pageEls = document.querySelectorAll<HTMLElement>(".pdf-page");
     if (!pageEls.length) { toast.error("Preview not found"); return; }
     toast.info("Generating PDF…");
     try {
+      // Letter page in points: 612 × 792
+      const PDF_W_PT = 612;
+      const PDF_H_PT = 792;
+      // The one-pager is designed at exactly 612px — we capture at that native width
+      const DESIGN_W_PX = 612;
+      const SCALE = 3; // 3× for retina quality
+
       const pdf = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
 
       for (let i = 0; i < pageEls.length; i++) {
         const el = pageEls[i];
+        const elH = el.scrollHeight;
+
         const canvas = await html2canvas(el, {
-          scale: 3,
+          scale: SCALE,
           useCORS: true,
           allowTaint: true,
           backgroundColor: "#111111",
           logging: false,
-          width: el.offsetWidth,
-          height: el.offsetHeight,
-          windowWidth: el.offsetWidth,
-          windowHeight: el.offsetHeight,
+          // Force capture at the design width regardless of display width
+          width: DESIGN_W_PX,
+          height: elH,
+          windowWidth: DESIGN_W_PX,
+          windowHeight: elH,
+          x: 0,
+          y: 0,
+          scrollX: 0,
+          scrollY: 0,
         });
+
         const imgData = canvas.toDataURL("image/jpeg", 1.0);
-        // Scale to fill the full letter page
-        const canvasRatio = canvas.height / canvas.width;
-        const imgH = pageW * canvasRatio;
-        const yStart = (pageH - imgH) / 2; // centre vertically if shorter
+        // canvas is DESIGN_W_PX*SCALE wide → map to PDF_W_PT exactly
+        const imgH_pt = (canvas.height / canvas.width) * PDF_W_PT;
+
         if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 0, Math.max(0, yStart), pageW, Math.min(imgH, pageH));
+
+        if (imgH_pt <= PDF_H_PT) {
+          // Content fits on one page — centre vertically
+          const topPad = (PDF_H_PT - imgH_pt) / 2;
+          pdf.addImage(imgData, "JPEG", 0, topPad, PDF_W_PT, imgH_pt);
+        } else {
+          // Content is taller than one page — tile across pages
+          let srcY = 0;
+          const srcPageH = Math.round((PDF_H_PT / PDF_W_PT) * canvas.width);
+          while (srcY < canvas.height) {
+            if (srcY > 0) pdf.addPage();
+            pdf.addImage(imgData, "JPEG", 0, -((srcY / canvas.height) * imgH_pt), PDF_W_PT, imgH_pt);
+            srcY += srcPageH;
+          }
+        }
       }
 
       const projectSlug = form.projectName?.replace(/\s+/g, "-").toLowerCase() || "brochure";
