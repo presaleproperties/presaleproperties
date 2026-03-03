@@ -169,16 +169,19 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
         {/* Bottom-right: price */}
         {(() => {
-          const plan0 = plans[0];
-          const displayPrice = plan0?.nowPrice || data.fromPrice || "$—";
-          const displayPsf = plan0?.psf || data.fromPsf || "$—/sqft";
+          const parsePrice = (s: string) => parseFloat(String(s).replace(/[^0-9.]/g, "")) || 0;
+          const prices = plans.map(p => parsePrice(p.nowPrice)).filter(n => n > 0);
+          const lowestPrice = prices.length > 0 ? Math.min(...prices) : 0;
+          const lowestPlan = plans.find(p => parsePrice(p.nowPrice) === lowestPrice) || plans[0];
+          const displayPrice = lowestPrice > 0 ? `$${lowestPrice.toLocaleString()}` : (data.fromPrice || "$—");
+          const displayPsf = lowestPlan?.psf || data.fromPsf || "";
           return (
             <div style={{ position: "absolute", bottom: 20, right: 20, textAlign: "right" }}>
-              <div style={{ color: "#fff", fontSize: 16, fontWeight: 800 }}>From {displayPrice}</div>
-              <div style={{ color: C.gold, fontSize: 8, fontWeight: 600, marginTop: 2 }}>{data.fromPriceLabel}</div>
-              <div style={{ width: "100%", height: 1, background: "rgba(255,255,255,0.2)", margin: "6px 0" }} />
-              <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 10, fontWeight: 600 }}>From {displayPsf}</div>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 7 }}>{data.psfLabel}</div>
+              <div style={{ color: C.gold, fontSize: 7.5, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 3, opacity: 0.85 }}>Starting From</div>
+              <div style={{ color: "#fff", fontSize: 18, fontWeight: 800, lineHeight: 1 }}>{displayPrice}</div>
+              {displayPsf && (
+                <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 7.5, fontWeight: 500, marginTop: 4 }}>{displayPsf}</div>
+              )}
             </div>
           );
         })()}
