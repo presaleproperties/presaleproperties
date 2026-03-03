@@ -640,12 +640,14 @@ export default function AdminCampaignBuilder() {
       const cW = Math.round(el.offsetWidth)  || 612;
       const cH = Math.round(el.scrollHeight) || 900;
 
+      // windowWidth must match the actual rendered viewport so that font sizes
+      // and layout match 1:1 with the live preview.
       const canvas = await html2canvas(el, {
         scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: cW, height: cH,
-        windowWidth: cW,
-        windowHeight: cH,
+        windowWidth: document.documentElement.clientWidth,
+        windowHeight: document.documentElement.clientHeight,
         x: 0, y: 0, scrollX: 0, scrollY: 0,
       });
 
@@ -658,9 +660,11 @@ export default function AdminCampaignBuilder() {
      *  overflow:hidden is applied so flex children stay within the page. */
     const captureFloorPlan = async (el: HTMLElement): Promise<HTMLCanvasElement> => {
       const sandbox = document.createElement("div");
+      // Park at 0,0 on top so html2canvas renders it in the same viewport context
+      // as the rest of the page — avoids text/layout drift from off-screen rendering.
       sandbox.style.cssText =
-        `position:fixed;top:0;left:-9999px;width:${FP_W}px;height:${FP_H}px;` +
-        "overflow:hidden;pointer-events:none;z-index:-9999;" +
+        `position:fixed;top:0;left:0;width:${FP_W}px;height:${FP_H}px;` +
+        "overflow:hidden;pointer-events:none;z-index:99999;opacity:0;" +
         "font-family:'Plus Jakarta Sans','DM Sans',Arial,sans-serif;";
       document.body.appendChild(sandbox);
 
@@ -682,8 +686,8 @@ export default function AdminCampaignBuilder() {
         scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: FP_W, height: FP_H,
-        windowWidth: FP_W,
-        windowHeight: FP_H,
+        windowWidth: document.documentElement.clientWidth,
+        windowHeight: document.documentElement.clientHeight,
         x: 0, y: 0, scrollX: 0, scrollY: 0,
       });
 
