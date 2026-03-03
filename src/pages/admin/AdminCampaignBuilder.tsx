@@ -911,6 +911,38 @@ export default function AdminCampaignBuilder() {
                 </TabsList>
               </div>
 
+              {/* ── ACTION BAR (pinned below tabs, always visible) ── */}
+              <div className="px-3 py-2 border-b border-border bg-card space-y-2">
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1 space-y-1">
+                    <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">Template Name</Label>
+                    <Input
+                      value={templateName}
+                      onChange={e => setTemplateName(e.target.value)}
+                      placeholder={form.projectName || "e.g. Oakridge Q1 2026 VIP"}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <Button onClick={generatePDF} className="h-8 text-xs gap-1.5 px-3 flex-shrink-0">
+                    <Download className="h-3.5 w-3.5" />
+                    PDF
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={saveTemplate}
+                    disabled={saving}
+                    className="h-8 text-xs gap-1 px-3 flex-shrink-0"
+                  >
+                    {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                    {saving ? "Saving…" : templateId && templateId !== "new" ? "Update" : "Save"}
+                  </Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  {1 + form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length} page{form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length > 0 ? "s" : ""} · {form.planCount} plan{form.planCount !== 1 ? "s" : ""} · {form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length} floor plan PDF{form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length !== 1 ? "s" : ""}
+                </p>
+              </div>
+
               <div className="flex-1 overflow-y-auto px-4 py-4">
 
                 {/* ─── TAB: Project ─── */}
@@ -1287,39 +1319,6 @@ export default function AdminCampaignBuilder() {
                 </TabsContent>
               </div>
             </Tabs>
-
-            {/* ── BOTTOM ACTION BAR ── */}
-            <div className="p-3 border-t border-border bg-card space-y-2">
-              {/* Template name */}
-              <div className="space-y-1">
-                <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">Template Name</Label>
-                <Input
-                  value={templateName}
-                  onChange={e => setTemplateName(e.target.value)}
-                  placeholder={form.projectName || "e.g. Oakridge Q1 2026 VIP"}
-                  className="h-8 text-xs"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={generatePDF} className="flex-1 h-9 text-xs gap-1.5">
-                  <Download className="h-3.5 w-3.5" />
-                  Generate PDF
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={saveTemplate}
-                  disabled={saving}
-                  className="h-9 text-xs gap-1 min-w-[72px]"
-                >
-                  {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                  {saving ? "Saving…" : templateId && templateId !== "new" ? "Update" : "Save"}
-                </Button>
-              </div>
-              <p className="text-[10px] text-muted-foreground text-center">
-                {1 + form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length} page{form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length > 0 ? "s" : ""} · {form.planCount} plan{form.planCount !== 1 ? "s" : ""} · {form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length} floor plan PDF{form.plans.slice(0, form.planCount).filter(p => p.floorPlanUrl).length !== 1 ? "s" : ""}
-              </p>
-            </div>
           </div>
 
           {/* ── RIGHT PANEL: PREVIEW ── */}
