@@ -79,9 +79,10 @@ const navSections = [
   {
     label: "Content",
     items: [
-      { href: "/admin/blogs",          label: "Blog Posts", icon: BookOpen,  color: "text-rose-500",   badgeKey: null },
-      { href: "/admin/landing-pages",  label: "Campaigns",  icon: Megaphone, color: "text-orange-500", badgeKey: null },
-      { href: "/admin/google-reviews", label: "Reviews",    icon: Star,      color: "text-yellow-500", badgeKey: null },
+      { href: "/admin/blogs",              label: "Blog Posts",       icon: BookOpen,  color: "text-rose-500",   badgeKey: null },
+      { href: "/admin/landing-pages",      label: "Campaigns",        icon: Megaphone, color: "text-orange-500", badgeKey: null },
+      { href: "/admin/campaign-builder",   label: "Campaign Builder", icon: FileStack, color: "text-amber-400",  badgeKey: null },
+      { href: "/admin/google-reviews",     label: "Reviews",          icon: Star,      color: "text-yellow-500", badgeKey: null },
     ],
   },
   {
@@ -362,9 +363,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
         {/* Page content */}
         <main className="flex-1 overflow-auto">
-          <div className="max-w-6xl mx-auto py-6 px-4 sm:px-6">
-            {children}
-          </div>
+          {location.pathname === "/admin/campaign-builder" ? (
+            children
+          ) : (
+            <div className="max-w-6xl mx-auto py-6 px-4 sm:px-6">
+              {children}
+            </div>
+          )}
         </main>
       </div>
     </div>
