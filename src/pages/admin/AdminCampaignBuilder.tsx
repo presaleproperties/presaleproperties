@@ -547,9 +547,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
         {/* Footer */}
         <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", overflow: "hidden", border: `2px solid ${C.gold}`, flexShrink: 0 }}>
-              <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            </div>
+            <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ height: 36, width: "auto", display: "block", flexShrink: 0 }} />
             <div>
               <div style={{ color: "#fff", fontSize: 8.5, fontWeight: 700 }}>{agent.name}</div>
               <div style={{ color: C.gold, fontSize: 7.5, fontWeight: 600, marginTop: 1 }}>{agent.phone}</div>
