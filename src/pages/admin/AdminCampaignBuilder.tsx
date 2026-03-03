@@ -347,7 +347,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
       {/* Disclaimer */}
       <div style={{ background: C.ink, padding: "6px 20px" }}>
-        <p style={{ color: "#444", fontSize: 5, lineHeight: 1.4, margin: 0 }}>
+        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 5, lineHeight: 1.4, margin: 0 }}>
           E&OE. Prices subject to change without notice. Limited time offer. Not intended to solicit buyers currently under contract.
         </p>
       </div>
