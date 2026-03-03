@@ -644,9 +644,9 @@ export default function AdminCampaignBuilder() {
         scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: cW, height: cH,
-        windowWidth: window.innerWidth,
-        windowHeight: window.innerHeight,
-        x: 0, y: 0, scrollX: 0, scrollY: -window.scrollY,
+        windowWidth: cW,
+        windowHeight: cH,
+        x: 0, y: 0, scrollX: 0, scrollY: 0,
       });
 
       Object.assign(el.style, saved);
@@ -682,8 +682,8 @@ export default function AdminCampaignBuilder() {
         scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: FP_W, height: FP_H,
-        windowWidth: window.innerWidth,
-        windowHeight: window.innerHeight,
+        windowWidth: FP_W,
+        windowHeight: FP_H,
         x: 0, y: 0, scrollX: 0, scrollY: 0,
       });
 
