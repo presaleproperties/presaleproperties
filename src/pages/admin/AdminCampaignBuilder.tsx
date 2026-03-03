@@ -599,14 +599,10 @@ export default function AdminCampaignBuilder() {
     if (!pageEls.length) { toast.error("Preview not found"); return; }
     toast.info("Generating PDF…");
     try {
-      // Letter: 612 × 792 pt. Each .pdf-page element = exactly ONE PDF page.
-      // We capture at native design width (612px) then scale-to-fit the page height.
       const PDF_W_PT = 612;
       const PDF_H_PT = 792;
       const DESIGN_W_PX = 612;
       const SCALE = 4; // 4× retina = 2448px wide canvas, max quality
-
-      const pdf = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
 
       // Off-screen render container — full 612px, no clipping
       const offscreen = document.createElement("div");
@@ -617,10 +613,13 @@ export default function AdminCampaignBuilder() {
       `;
       document.body.appendChild(offscreen);
 
+      let pdf: jsPDF | null = null;
+
       try {
         for (let i = 0; i < pageEls.length; i++) {
+          const isOnePager = i === 0;
           const clone = pageEls[i].cloneNode(true) as HTMLElement;
-          // Force full design width, remove any transforms or shadows that affect capture
+
           clone.style.cssText += `
             width: ${DESIGN_W_PX}px !important;
             min-width: ${DESIGN_W_PX}px !important;
@@ -629,43 +628,49 @@ export default function AdminCampaignBuilder() {
             box-shadow: none !important;
             margin: 0 !important;
           `;
+
+          // Floor plan pages: enforce strict Letter height so nothing overflows
+          if (!isOnePager) {
+            clone.style.cssText += `
+              height: ${PDF_H_PT}px !important;
+              max-height: ${PDF_H_PT}px !important;
+              overflow: hidden !important;
+            `;
+          }
+
           offscreen.innerHTML = "";
           offscreen.appendChild(clone);
 
           // Two rAF passes — ensures full layout (images, fonts, flex) is settled
           await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-          const elH = clone.scrollHeight;
+          const captureH = isOnePager ? clone.scrollHeight : PDF_H_PT;
 
           const canvas = await html2canvas(clone, {
             scale: SCALE,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: null, // preserve element's own background
+            backgroundColor: null,
             logging: false,
             width: DESIGN_W_PX,
-            height: elH,
+            height: captureH,
             windowWidth: DESIGN_W_PX,
-            windowHeight: elH,
+            windowHeight: captureH,
           });
-
-          if (i > 0) pdf.addPage();
-
-          const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
           // Natural height in PDF points at full width
           const naturalH_pt = (canvas.height / (DESIGN_W_PX * SCALE)) * PDF_W_PT;
 
-          if (naturalH_pt <= PDF_H_PT) {
-            // Content shorter than a page — place at top, no scaling needed
-            pdf.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, naturalH_pt);
+          if (isOnePager) {
+            // Page 0: custom tall page = pixel-perfect preview, PNG for lossless quality
+            pdf = new jsPDF({ unit: "pt", format: [PDF_W_PT, naturalH_pt], orientation: "portrait" });
+            const imgData = canvas.toDataURL("image/png");
+            pdf.addImage(imgData, "PNG", 0, 0, PDF_W_PT, naturalH_pt);
           } else {
-            // Content taller than a page (e.g. very long one-pager) —
-            // scale it DOWN proportionally so it fits on exactly ONE page
-            const scaleFactor = PDF_H_PT / naturalH_pt;
-            const fittedW = PDF_W_PT * scaleFactor;
-            const xOffset = (PDF_W_PT - fittedW) / 2; // centre horizontally
-            pdf.addImage(imgData, "JPEG", xOffset, 0, fittedW, PDF_H_PT);
+            // Floor plan pages: standard Letter, JPEG (photos are fine with JPEG)
+            pdf!.addPage([PDF_W_PT, PDF_H_PT], "portrait");
+            const imgData = canvas.toDataURL("image/jpeg", 1.0);
+            pdf!.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, PDF_H_PT);
           }
         }
       } finally {
@@ -673,7 +678,7 @@ export default function AdminCampaignBuilder() {
       }
 
       const projectSlug = form.projectName?.replace(/\s+/g, "-").toLowerCase() || "brochure";
-      pdf.save(`${projectSlug}-exclusive.pdf`);
+      pdf!.save(`${projectSlug}-exclusive.pdf`);
       toast.success("PDF downloaded!");
     } catch (err) {
       console.error(err);
