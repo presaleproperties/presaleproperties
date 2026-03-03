@@ -1,58 +1,72 @@
 
-## The Core Problem
+## Root Cause Analysis
 
-The one-pager is rendering correctly in the browser preview but when exported to PDF, it feels cramped. This happens because:
+The one-pager preview renders at 612px wide in the browser, but it's displayed inside a **scrollable container** — the browser is the one doing the "fitting" visually. The `#one-pager-preview` div has `overflow: "visible"` which means its content can visually spill but `scrollHeight` may not capture everything (especially absolutely-positioned elements like the hero image, floating badges, and the bottom price text).
 
-1. **The one-pager's natural rendered height exceeds 792pt** (a standard Letter page), so the current code hits the `else` branch and *scales the entire image down* to fit — compressing everything and making it look cramped.
-2. **PNG vs JPEG**: PNG would improve quality for graphics/text (lossless), but won't fix the cramped layout since that's a geometry problem, not a compression one. Switching to PNG for the one-pager is worth doing for sharpness.
+The core issues:
 
-## The Real Fix: Use a Tabloid/Legal Format
+1. **`overflow: "visible"` means `scrollHeight` is unreliable** — elements positioned `absolute` or overflowing don't add to `scrollHeight`. The hero section alone is `290px` tall. The `captureH = el.scrollHeight` may be returning less than the true visual height, so `html2canvas` clips the bottom.
 
-The cleanest solution is to match the PDF page dimensions to the one-pager's natural content height rather than squeezing content into Letter size. Two options:
+2. **`html2canvas` captures the element at its own coordinate space**, but when the element is inside a scaled/scrolled container, `x: 0, y: 0` may not align with the visual top of the element. The element might be partially scrolled out of view.
 
-**Option A — Tabloid (11"×17" = 792×1224pt)**  
-Gives a lot of room. The one-pager is a brochure-style document, so this is a natural fit.
+3. **The preview wrapper has `overflow-auto`** — if the user has scrolled, the capture origin shifts.
 
-**Option B — Measure the actual rendered height and use a custom page size**  
-For the one-pager page only, measure `scrollHeight`, set a custom jsPDF page size to match, and render at 1:1 without any scaling. Floor plan pages stay Letter (612×792). This gives you *exactly* what you see in the preview.
+4. **`backgroundColor: null`** combined with absolutely positioned children can cause transparent gaps that don't get measured.
 
-**Option B is the best approach** — it's pixel-perfect to what the user sees in the browser.
+## The Fix: Off-Screen Clone Approach (Isolated Render)
+
+The most reliable approach is to **clone the OnePagerPreview into an isolated, off-screen container** with:
+- Fixed position far off-screen (`position: fixed; left: -9999px; top: 0`)
+- No overflow clipping (`overflow: visible`)
+- Known fixed width: exactly `612px`
+- **Measure `offsetHeight` after a layout paint** (not `scrollHeight`)
+- Capture the clone, then remove it
+
+This decouples the capture from scroll position, parent overflow, and any CSS transforms applied to the preview container.
+
+Additionally: the `print-root` wrapper has `transformOrigin: "top left"` — if any CSS scale transform is being applied to fit the preview into the panel, `html2canvas` will capture the transformed (shrunk) version, not the true 612px version.
 
 ## Plan
 
-### 1. One-pager: custom page size = exact preview height
-- After cloning the element off-screen, measure `clone.scrollHeight`
-- Compute `naturalH_pt = scrollHeight` (1px = 1pt at our design width)
-- Create the first PDF page with `format: [612, naturalH_pt]` so there's zero scaling
-- Render at scale 4 for maximum quality
+### Change 1 — Isolated off-screen clone for the one-pager
+Instead of querying `.pdf-page` from the live DOM, clone only the `#one-pager-preview` element into a fresh `div` appended to `document.body`:
+```
+const clone = el.cloneNode(true) as HTMLElement;
+const host = document.createElement("div");
+host.style.cssText = "position:fixed;left:-10000px;top:0;width:612px;overflow:visible;z-index:-1;";
+host.appendChild(clone);
+document.body.appendChild(host);
+await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+const captureH = host.offsetHeight; // reliable, no scroll offset
+```
 
-### 2. Switch one-pager to PNG (lossless)
-- Use `canvas.toDataURL("image/png")` for the one-pager page (index 0)
-- Keep JPEG for floor plan pages (smaller file, acceptable for images)
+### Change 2 — Remove CSS transform from print-root wrapper
+The `print-root` div has `transformOrigin: "top left"` — strip any `transform: scale(...)` that may be applied for the visual preview fit. Use a CSS class instead of inline styles for the visual scaling, so the DOM element itself stays at true 1:1 size.
 
-### 3. Floor plan pages: keep Letter but fix the "running into second page" issue
-- The floor plan pages have `height: 792` set in CSS. The problem is that when cloned off-screen at 612px width, the flex layout may recalculate heights and overflow
-- Fix: explicitly set `height: 792px; overflow: hidden` on the clone before capture
-- This guarantees a clean single-page capture
+### Change 3 — Force explicit background color on the clone
+Set `clone.style.background = "#0f0f0f"` (or the actual dark background) on the clone so `html2canvas` doesn't produce a transparent canvas that the PDF renders incorrectly.
 
-### 4. No layout compression on one-pager
-- Remove the scale-down fallback (`else` branch) for the one-pager entirely — instead we use a custom page height
-- This preserves all padding, font sizes, and spacing exactly as seen in preview
+### Change 4 — Use `offsetHeight` not `scrollHeight`
+`offsetHeight` includes all rendered height including padding/borders. For an off-screen clone at `width: 612px` with `overflow: visible`, this gives the true total height of all content.
 
-## Summary of Changes (all in `AdminCampaignBuilder.tsx`)
+### Change 5 — Bump SCALE to 10 for true 2K+
+At 612px design width × 10 = 6120px render width — genuine 2K+ (2160px = 4K threshold is 3840px, so 6120px exceeds it). Keeps existing "NONE" compression.
+
+## Summary of changes (all in `AdminCampaignBuilder.tsx`)
 
 ```text
 generatePDF()
-├── Page 0 (one-pager)
-│   ├── Capture at SCALE=4
-│   ├── Measure naturalH_pt from canvas.height / (DESIGN_W_PX * SCALE) * PDF_W_PT
-│   ├── pdf = new jsPDF({ format: [PDF_W_PT, naturalH_pt] })  ← custom tall page
-│   └── addImage at full 612×naturalH_pt, no scaling, PNG format
+├── For the one-pager:
+│   ├── Clone #one-pager-preview into an isolated off-screen host div
+│   ├── Wait 2 animation frames for layout
+│   ├── Measure host.offsetHeight (reliable total height)
+│   ├── Run html2canvas on the clone (not the live DOM element)
+│   ├── Remove the host from DOM after capture
+│   └── Create PDF with [612, offsetHeight] custom page — zero scaling
 │
-└── Pages 1..N (floor plans)
-    ├── Clone with explicit height: 792px; overflow: hidden
-    ├── Capture at SCALE=4, JPEG quality 1.0
-    └── addPage("letter") then addImage at 612×792
+└── print-root wrapper:
+    └── Remove transformOrigin / any scale transforms from inline style
+        (visual scaling for preview panel = separate CSS class only)
 ```
 
-This ensures the PDF one-pager is an **exact pixel-perfect replica** of what the user sees in the browser preview — no cramping, no scaling. The user asked "can we use PNG?" — yes, and we should for the one-pager specifically (lossless = sharper text/graphics). Floor plans can stay JPEG since they're primarily photos.
+This eliminates the compression by ensuring the captured element is never subject to scroll offsets, parent overflow clipping, or CSS transforms.
