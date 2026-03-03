@@ -34,6 +34,35 @@ serve(async (req: Request): Promise<Response> => {
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+    // Verify admin authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ") || !supabaseUrl || !anonKey) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    const { createClient: createAuthClient } = await import("https://esm.sh/@supabase/supabase-js@2.89.0");
+    const anonClient = createAuthClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    const { data: adminRole } = await anonClient.from("user_roles").select("role").eq("user_id", claimsData.claims.sub).eq("role", "admin").maybeSingle();
+    if (!adminRole) {
+      return new Response(JSON.stringify({ error: "Forbidden - Admin required" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
     if (!resendApiKey) throw new Error("Email service not configured");
     if (!supabaseUrl || !serviceRoleKey) throw new Error("Backend not configured");

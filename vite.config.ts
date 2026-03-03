@@ -3,9 +3,6 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// Routes to prerender for SEO
-// NOTE: /map-search is EXCLUDED (noindex page)
-
 // Metro Vancouver cities for programmatic SEO
 const PROGRAMMATIC_CITIES = [
   "vancouver", "surrey", "burnaby", "coquitlam", "langley", "richmond",
