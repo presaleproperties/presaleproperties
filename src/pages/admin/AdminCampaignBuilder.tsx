@@ -639,11 +639,12 @@ export default function AdminCampaignBuilder() {
       const cH = Math.round(el.scrollHeight) || 900;
 
       const canvas = await html2canvas(el, {
-        scale: 4, useCORS: true, allowTaint: false, logging: false,
+        scale: 2, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: cW, height: cH,
-        windowWidth: cW, windowHeight: cH,
-        x: 0, y: 0, scrollX: 0, scrollY: 0,
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+        x: 0, y: 0, scrollX: 0, scrollY: -window.scrollY,
       });
 
       Object.assign(el.style, saved);
