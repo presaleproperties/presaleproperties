@@ -150,7 +150,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
         {/* Top-left logo */}
         <div style={{ position: "absolute", top: 14, left: 16 }}>
-          <LogoWhite height={42} />
+          <LogoWhite height={64} />
         </div>
 
         {/* Top-right VIP badge */}
