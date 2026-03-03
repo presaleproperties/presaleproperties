@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,8 @@ import {
   CalendarCog,
   BarChart3,
   ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -152,20 +154,23 @@ function NavLink({
   pending,
   onClick,
   mobile,
+  collapsed,
 }: {
   item: (typeof allNavItems)[number];
   active: boolean;
   pending?: number;
   onClick?: () => void;
   mobile?: boolean;
+  collapsed?: boolean;
 }) {
   return (
     <Link
       to={item.href}
       onClick={onClick}
+      title={collapsed ? item.label : undefined}
       className={cn(
-        "group flex items-center gap-2.5 rounded-lg px-2.5 transition-all duration-150",
-        mobile ? "py-2.5 text-sm" : "py-[7px] text-[13px]",
+        "group flex items-center gap-2.5 rounded-lg transition-all duration-150",
+        collapsed ? "justify-center px-2 py-2" : mobile ? "px-2.5 py-2.5 text-sm" : "px-2.5 py-[7px] text-[13px]",
         active
           ? "bg-primary/10 text-foreground shadow-sm border border-primary/15 font-semibold"
           : "font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -178,13 +183,16 @@ function NavLink({
           active ? "text-primary" : item.color
         )}
       />
-      <span className="truncate">{item.label}</span>
-      {pending && pending > 0 ? (
+      {!collapsed && <span className="truncate">{item.label}</span>}
+      {!collapsed && pending && pending > 0 ? (
         <span className="ml-auto shrink-0 min-w-[18px] h-[18px] rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center px-1">
           {pending > 99 ? "99+" : pending}
         </span>
-      ) : active ? (
+      ) : !collapsed && active ? (
         <ChevronRight className="ml-auto h-3 w-3 opacity-40" />
+      ) : null}
+      {collapsed && pending && pending > 0 ? (
+        <span className="absolute top-0.5 right-0.5 h-3 w-3 rounded-full bg-amber-500" />
       ) : null}
     </Link>
   );
@@ -196,7 +204,18 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem("admin_sidebar_collapsed") === "true"; } catch { return false; }
+  });
   const pending = usePendingCounts();
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarCollapsed(v => {
+      const next = !v;
+      try { localStorage.setItem("admin_sidebar_collapsed", String(next)); } catch {}
+      return next;
+    });
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -215,14 +234,17 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   const currentPageLabel = allNavItems.find((item) => isActive(item.href))?.label ?? "Admin";
 
-  const renderNav = (mobile = false) => (
-    <nav className={cn("space-y-4", mobile ? "p-3" : "pb-4")}>
+  const renderNav = (mobile = false, collapsed = false) => (
+    <nav className={cn("space-y-4", mobile ? "p-3" : collapsed ? "py-4 px-1.5" : "pb-4")}>
       {navSections.map((section, idx) => (
         <div key={idx}>
-          {section.label && (
+          {section.label && !collapsed && (
             <p className="px-2 mb-1.5 text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.14em]">
               {section.label}
             </p>
+          )}
+          {section.label && collapsed && (
+            <div className="mx-auto h-px bg-border/50 mb-2 mt-1" />
           )}
           <div className="space-y-0.5">
             {section.items.map((item) => (
@@ -233,6 +255,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 pending={getPending(item.badgeKey ?? null)}
                 onClick={mobile ? () => setMobileMenuOpen(false) : undefined}
                 mobile={mobile}
+                collapsed={collapsed}
               />
             ))}
           </div>
@@ -247,44 +270,78 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="min-h-screen flex bg-muted/30">
       {/* ── Sidebar Desktop ────────────────────────────────────── */}
-      <aside className="hidden lg:flex w-[232px] flex-col border-r border-border/50 bg-card shadow-sm">
+      <aside className={cn(
+        "hidden lg:flex flex-col border-r border-border/50 bg-card shadow-sm transition-all duration-200",
+        sidebarCollapsed ? "w-14" : "w-[232px]"
+      )}>
         {/* Header */}
-        <div className="p-4 pb-3">
-          <Link to="/admin" className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary-deep flex items-center justify-center shadow-sm shrink-0">
+        <div className={cn("p-3 flex items-center", sidebarCollapsed ? "justify-center" : "justify-between gap-2")}>
+          {!sidebarCollapsed && (
+            <Link to="/admin" className="flex items-center gap-2.5 min-w-0">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary-deep flex items-center justify-center shadow-sm shrink-0">
+                <Shield className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold text-[13px] tracking-tight text-foreground leading-tight">Admin Panel</p>
+                <p className="text-[10px] text-muted-foreground leading-tight">Command Center</p>
+              </div>
+            </Link>
+          )}
+          {sidebarCollapsed && (
+            <Link to="/admin" className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary-deep flex items-center justify-center shadow-sm">
               <Shield className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <div className="min-w-0">
-              <p className="font-bold text-[13px] tracking-tight text-foreground leading-tight">Admin Panel</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">Command Center</p>
-            </div>
-          </Link>
-        </div>
-
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border to-transparent mb-1" />
-
-        <ScrollArea className="flex-1 px-2.5 pt-2">
-          {renderNav()}
-        </ScrollArea>
-
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-        <div className="p-2.5 space-y-0.5">
-          <Link to="/" target="_blank">
-            <Button variant="ghost" size="sm" className="w-full justify-start text-[13px] h-9 text-muted-foreground hover:text-foreground gap-2">
-              <ExternalLink className="h-3.5 w-3.5 text-sky-500" />
-              View Live Site
-            </Button>
-          </Link>
+            </Link>
+          )}
           <Button
             variant="ghost"
-            size="sm"
-            className="w-full justify-start text-[13px] h-9 text-muted-foreground hover:text-destructive hover:bg-destructive/8 gap-2"
-            onClick={handleSignOut}
+            size="icon"
+            onClick={toggleSidebar}
+            className={cn("h-7 w-7 shrink-0 text-muted-foreground hover:text-foreground", sidebarCollapsed && "mt-2")}
+            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            <LogOut className="h-3.5 w-3.5" />
-            Sign Out
+            {sidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
           </Button>
+        </div>
+
+        <div className="mx-3 h-px bg-gradient-to-r from-transparent via-border to-transparent mb-1" />
+
+        <ScrollArea className={cn("flex-1 pt-2", sidebarCollapsed ? "px-0" : "px-2.5")}>
+          {renderNav(false, sidebarCollapsed)}
+        </ScrollArea>
+
+        <div className="mx-3 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+        <div className={cn("p-2 space-y-0.5", sidebarCollapsed && "flex flex-col items-center")}>
+          {!sidebarCollapsed ? (
+            <>
+              <Link to="/" target="_blank">
+                <Button variant="ghost" size="sm" className="w-full justify-start text-[13px] h-9 text-muted-foreground hover:text-foreground gap-2">
+                  <ExternalLink className="h-3.5 w-3.5 text-sky-500" />
+                  View Live Site
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-[13px] h-9 text-muted-foreground hover:text-destructive hover:bg-destructive/8 gap-2"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/" target="_blank" title="View Live Site">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                  <ExternalLink className="h-3.5 w-3.5 text-sky-500" />
+                </Button>
+              </Link>
+              <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign Out" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                <LogOut className="h-3.5 w-3.5" />
+              </Button>
+            </>
+          )}
         </div>
       </aside>
 
