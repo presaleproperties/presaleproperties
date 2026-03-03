@@ -199,7 +199,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
     {/* ══════════════════════════════════════════════════════════════════════
         ONE-PAGER  —  612 px wide, no CSS Grid anywhere (html2canvas safe)
     ══════════════════════════════════════════════════════════════════════ */}
-    <div style={{ position: "relative", display: "inline-block" }}>
+    <div style={{ position: "relative", display: "block" }}>
     <PageBtn pageIdx={0} label="1-Pager" />
     <div
       id="one-pager-preview"
@@ -514,7 +514,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         FLOOR PLAN PAGES  —  612 × 792 px fixed, flex column
     ══════════════════════════════════════════════════════════════════════ */}
     {plans.filter(p => p.floorPlanUrl).map((plan, fpIdx) => (
-      <div key={`fp-wrapper-${plan.id}`} style={{ position: "relative", display: "inline-block", marginTop: 40 }}>
+      <div key={`fp-wrapper-${plan.id}`} style={{ position: "relative", display: "block", marginTop: 40 }}>
         <PageBtn pageIdx={fpIdx + 1} label={`Plan ${fpIdx + 1}${plan.name ? ` · ${plan.name}` : ""}`} />
         <div
           key={`fp-${plan.id}`}
