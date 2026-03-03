@@ -221,9 +221,9 @@ function OnePagerPreview({ data }: { data: FormState }) {
           </div>
           <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap" }}>
             {data.incentiveBanner.items.filter(Boolean).map((item, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 20, padding: "4px 11px", display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ color: "#a8ffbc", fontSize: 7, fontWeight: 800 }}>✓</span>
-                <span style={{ color: "#fff", fontSize: 7, fontWeight: 600, letterSpacing: "0.04em" }}>{item}</span>
+              <div key={i} style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 20, padding: "4px 11px", display: "inline-block", whiteSpace: "nowrap" }}>
+                <span style={{ color: "#a8ffbc", fontSize: 7, fontWeight: 800, verticalAlign: "middle" }}>✓ </span>
+                <span style={{ color: "#fff", fontSize: 7, fontWeight: 600, letterSpacing: "0.04em", verticalAlign: "middle" }}>{item}</span>
               </div>
             ))}
           </div>
@@ -284,7 +284,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
                 return (
                   <div key={i} style={{ display: "flex", alignItems: "center", flex: 1 }}>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 56 }}>
-                      <div style={{ width: 22, height: 22, borderRadius: "50%", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 800, color: "#111", marginBottom: 5, flexShrink: 0 }}>
+                      <div style={{ width: 22, height: 22, borderRadius: "50%", background: C.gold, fontSize: 8, fontWeight: 800, color: "#111", marginBottom: 5, flexShrink: 0, textAlign: "center", lineHeight: "22px", display: "block" }}>
                         {i + 1}
                       </div>
                       <div style={{ color: C.gold, fontSize: 7, fontWeight: 700 }}>{d.percent || "—"}</div>
@@ -301,8 +301,8 @@ function OnePagerPreview({ data }: { data: FormState }) {
                 <>
                   <div style={{ flex: 1, height: 1, borderTop: "1.5px dashed rgba(255,255,255,0.2)", margin: "0 4px", marginBottom: 28 }} />
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 60 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#2a2a2a", border: `1.5px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 5, flexShrink: 0 }}>
-                      <span style={{ fontSize: 9 }}>🏠</span>
+                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#2a2a2a", border: `1.5px solid ${C.gold}`, marginBottom: 5, flexShrink: 0, textAlign: "center", lineHeight: "20px", fontSize: 11, display: "block" }}>
+                      🏠
                     </div>
                     <div style={{ color: C.gold, fontSize: 6.5, fontWeight: 700 }}>Completion</div>
                     <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 5.5, marginTop: 2, textAlign: "center", maxWidth: 60 }}>Mortgage begins</div>
