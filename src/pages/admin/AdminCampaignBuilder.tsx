@@ -262,23 +262,23 @@ function OnePagerPreview({ data }: { data: FormState }) {
             </span>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.3)" }} />
           </div>
-          {/* badges row — single row, never wraps, equal flex distribution */}
-          <div style={{ display: "flex", flexWrap: "nowrap" as const, justifyContent: "center", alignItems: "center", gap: 5, width: "100%", overflow: "visible" }}>
+          {/* badges row — inline-block so each pill is exactly content-width */}
+          <div style={{ textAlign: "center" as const, lineHeight: "1" }}>
             {data.incentiveBanner.items.filter(Boolean).map((item, i) => (
               <div
                 key={i}
                 style={{
+                  display: "inline-block",
                   background: "rgba(255,255,255,0.13)",
                   border: "1px solid rgba(255,255,255,0.3)",
                   borderRadius: 22,
-                  padding: "4px 10px",
+                  padding: "5px 12px",
                   fontSize: 7,
                   fontWeight: 600,
                   color: "#fff",
                   letterSpacing: "0.03em",
                   whiteSpace: "nowrap" as const,
-                  flexShrink: 1,
-                  minWidth: 0,
+                  margin: "3px 4px",
                 }}
               >
                 <span style={{ color: "#a8ffbc", fontWeight: 800 }}>✓ </span>{item}
