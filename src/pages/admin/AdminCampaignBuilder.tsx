@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import logoWhiteAsset from "@/assets/logo-white.png";
 import { useNavigate, useParams } from "react-router-dom";
 import html2canvas from "html2canvas";
 // jsPDF removed — using PNG export instead
@@ -107,12 +108,22 @@ const DEFAULT_STATE: FormState = {
 };
 
 // ─── Logo assets ────────────────────────────────────────────────────────────
-const LOGO_WHITE_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-white.png";
+const LOGO_WHITE_URL = logoWhiteAsset;
 
 /** Full white logo — for hero overlay / dark backgrounds */
 function LogoWhite({ height = 44 }: { height?: number }) {
   return (
-    <img src={LOGO_WHITE_URL} alt="Presale Properties Group" style={{ height, width: "auto", objectFit: "contain", display: "block" }} />
+    <img
+      src={LOGO_WHITE_URL}
+      alt="Presale Properties Group"
+      style={{
+        height,
+        width: "auto",
+        objectFit: "contain",
+        display: "block",
+        
+      }}
+    />
   );
 }
 
