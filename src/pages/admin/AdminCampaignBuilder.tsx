@@ -4,14 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Building2, User, DollarSign, FileText, Sparkles, Download, Save, Upload,
   Plus, Trash2, Image as ImageIcon, BookOpen, Layers, FileSpreadsheet, Check,
-  ChevronsUpDown, Wand2, Loader2
+  Wand2, Loader2, Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -377,7 +375,8 @@ export default function AdminCampaignBuilder() {
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [projectSearchOpen, setProjectSearchOpen] = useState(false);
+  const [projectSearchQuery, setProjectSearchQuery] = useState("");
+  const [projectSearchFocused, setProjectSearchFocused] = useState(false);
   const [extractingPlan, setExtractingPlan] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -638,52 +637,49 @@ export default function AdminCampaignBuilder() {
                 </div>
               </div>
 
-              {/* Project searchable combobox */}
-              <Popover open={projectSearchOpen} onOpenChange={setProjectSearchOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={projectSearchOpen}
-                    className="w-full h-9 text-xs justify-between font-normal"
-                  >
-                    <span className="truncate">
-                      {selectedProjectId
-                        ? projects.find(p => p.id === selectedProjectId)?.name ?? "Select project…"
-                        : loading ? "Loading projects…" : "Search & select a project…"}
-                    </span>
-                    <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[340px] p-0" align="start">
-                  <Command>
-                    <CommandInput placeholder="Search by name, city, developer…" className="h-9 text-xs" />
-                    <CommandList>
-                      <CommandEmpty className="text-xs py-4">No projects found.</CommandEmpty>
-                      <CommandGroup>
-                        {projects.map(p => (
-                          <CommandItem
-                            key={p.id}
-                            value={`${p.name} ${p.city} ${p.developer_name ?? ""}`}
-                            onSelect={() => {
-                              handleProjectSelect(p.id);
-                              setProjectSearchOpen(false);
-                            }}
-                            className="text-xs"
-                          >
-                            <Check className={cn("mr-2 h-3.5 w-3.5", selectedProjectId === p.id ? "opacity-100" : "opacity-0")} />
-                            <div className="min-w-0">
-                              <span className="font-semibold">{p.name}</span>
-                              <span className="text-muted-foreground ml-1.5">· {p.city}</span>
-                              {p.developer_name && <span className="text-muted-foreground/60 ml-1">· {p.developer_name}</span>}
-                            </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              {/* Project search */}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Search project name…"
+                  value={projectSearchQuery}
+                  onChange={e => setProjectSearchQuery(e.target.value)}
+                  onFocus={() => setProjectSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setProjectSearchFocused(false), 150)}
+                  className="h-9 pl-8 text-xs"
+                />
+                {projectSearchFocused && projectSearchQuery.length > 0 && (() => {
+                  const filtered = projects
+                    .filter(p => p.name.toLowerCase().includes(projectSearchQuery.toLowerCase()))
+                    .sort((a, b) => {
+                      const q = projectSearchQuery.toLowerCase();
+                      const aStart = a.name.toLowerCase().startsWith(q);
+                      const bStart = b.name.toLowerCase().startsWith(q);
+                      return aStart === bStart ? a.name.localeCompare(b.name) : aStart ? -1 : 1;
+                    })
+                    .slice(0, 8);
+                  if (!filtered.length) return null;
+                  return (
+                    <div className="absolute z-50 mt-1 w-full bg-background border border-border rounded-lg shadow-lg overflow-hidden">
+                      {filtered.map(p => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onMouseDown={() => {
+                            handleProjectSelect(p.id);
+                            setProjectSearchQuery(p.name);
+                            setProjectSearchFocused(false);
+                          }}
+                          className="w-full text-left px-3 py-2 text-xs hover:bg-muted transition-colors border-b border-border last:border-0"
+                        >
+                          <span className="font-medium">{p.name}</span>
+                          {p.city && <span className="text-muted-foreground ml-1.5">· {p.city}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
 
           {/* Tabs */}
