@@ -575,14 +575,17 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
             src={plan.floorPlanUrl}
             crossOrigin="anonymous"
             alt={`Floor plan ${plan.name}`}
-            style={{ maxWidth: "100%", maxHeight: "100%", width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+            style={{ maxWidth: "100%", maxHeight: "100%", width: "auto", height: "auto", objectFit: "contain", display: "block", margin: "0 auto" }}
           />
         </div>
 
         {/* Footer */}
         <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "10px 20px", display: "flex", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", gap: 10 }}>
-            <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ height: 36, width: "auto", display: "block", flexShrink: 0 }} />
+            {agent.photo
+              ? <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 36, height: 36, borderRadius: "50%", border: `2px solid ${C.gold}`, objectFit: "cover", display: "block", flexShrink: 0 }} />
+              : <div style={{ width: 36, height: 36, borderRadius: "50%", border: `2px solid ${C.gold}`, background: C.coal, flexShrink: 0 }} />
+            }
             <div style={{ paddingTop: 2 }}>
               <div style={{ color: "#fff", fontSize: 8.5, fontWeight: 700, lineHeight: 1 }}>{agent.name}</div>
               <div style={{ color: C.gold, fontSize: 7.5, fontWeight: 600, marginTop: 4, lineHeight: 1 }}>{agent.phone}</div>
@@ -641,13 +644,17 @@ export default function AdminCampaignBuilder() {
     ));
     await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r())));
     const rect = el.getBoundingClientRect();
+    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const canvas = await html2canvas(el, {
       scale: SCALE, useCORS: true, allowTaint: false, logging: false,
       backgroundColor: null,
       width: Math.round(rect.width), height: Math.round(rect.height),
-      windowWidth: document.documentElement.clientWidth,
-      windowHeight: document.documentElement.clientHeight,
-      x: 0, y: 0, scrollX: -window.scrollX, scrollY: -window.scrollY,
+      windowWidth: Math.round(rect.width),
+      windowHeight: Math.round(rect.height),
+      x: Math.round(rect.left + scrollLeft),
+      y: Math.round(rect.top + scrollTop),
+      scrollX: 0, scrollY: 0,
     });
     canvas.toBlob(blob => {
       if (!blob) { toast.error("Export failed"); return; }
