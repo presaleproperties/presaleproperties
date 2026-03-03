@@ -637,7 +637,7 @@ export default function AdminCampaignBuilder() {
       const PDF_W_PT = 612;
       const PDF_H_PT = 792;
       const DESIGN_W_PX = 612;
-      const SCALE = 8; // 8x = ~4896px wide on letter = true 2K+ quality
+      const SCALE = 10; // 10x = 6120px wide — exceeds 4K
 
       let pdf: jsPDF | null = null;
 
@@ -645,17 +645,30 @@ export default function AdminCampaignBuilder() {
         const el = pageEls[i];
         const isOnePager = i === 0;
 
-        // Wait for layout to settle
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        let captureEl = el;
+        let host: HTMLDivElement | null = null;
 
-        // Capture height: for one-pager use full scrollHeight; for floor plans use fixed 792
-        const captureH = isOnePager ? el.scrollHeight : PDF_H_PT;
+        if (isOnePager) {
+          // ── Isolated off-screen clone: decouples from scroll, transforms, overflow ──
+          const clone = el.cloneNode(true) as HTMLElement;
+          clone.style.transform = "none";
+          clone.style.background = "#0d0d0d";
+          host = document.createElement("div");
+          host.style.cssText = "position:fixed;left:-10000px;top:0;width:612px;overflow:visible;z-index:-1;pointer-events:none;";
+          host.appendChild(clone);
+          document.body.appendChild(host);
+          // Wait 2 frames for full layout paint
+          await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+          captureEl = host;
+        }
 
-        const canvas = await html2canvas(el, {
+        const captureH = isOnePager ? captureEl.offsetHeight : PDF_H_PT;
+
+        const canvas = await html2canvas(captureEl, {
           scale: SCALE,
           useCORS: true,
           allowTaint: true,
-          backgroundColor: null,
+          backgroundColor: isOnePager ? "#0d0d0d" : null,
           logging: false,
           width: DESIGN_W_PX,
           height: captureH,
@@ -664,6 +677,12 @@ export default function AdminCampaignBuilder() {
           x: 0,
           y: 0,
         });
+
+        // Remove clone host after capture
+        if (host) {
+          document.body.removeChild(host);
+          host = null;
+        }
 
         // Compute natural PDF height (1px at 612px design width = 1pt)
         const naturalH_pt = (canvas.height / SCALE);
@@ -1314,7 +1333,7 @@ export default function AdminCampaignBuilder() {
               ref={previewRef}
               className="flex-1 overflow-auto flex items-start justify-center p-3"
             >
-              <div id="print-root" style={{ width: 612, transformOrigin: "top left", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+              <div id="print-root" style={{ width: 612, display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
                 <OnePagerPreview data={form} />
               </div>
             </div>
