@@ -197,7 +197,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
         {/* top-left logo */}
         <div style={{ position: "absolute", top: 14, left: 18 }}>
-          <LogoWhite height={100} />
+          <LogoWhite height={130} />
         </div>
 
         {/* top-right VIP badge */}
@@ -504,7 +504,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
         {/* Header bar */}
         <div style={{ background: C.ink, borderBottom: `3px solid ${C.gold}`, padding: "6px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <LogoWhite height={52} />
+            <LogoWhite height={70} />
             <div style={{ width: 1, height: 32, background: "#333", flexShrink: 0 }} />
             <div>
               <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 6, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 2 }}>Floor Plan</div>
