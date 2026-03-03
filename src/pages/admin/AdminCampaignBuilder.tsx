@@ -144,7 +144,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
       }}
     >
       {/* ── 1. HERO ── */}
-      <div style={{ position: "relative", height: 330, overflow: "hidden", background: "#111" }}>
+      <div style={{ position: "relative", height: 248, overflow: "hidden", background: "#111" }}>
         {data.heroImage ? (
           <img src={data.heroImage} alt="hero" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         ) : (
@@ -199,7 +199,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
           { val: data.completionDate || "—", lbl: "Completion" },
           { val: data.developerName || "—", lbl: "Developer" },
         ].map((s, i) => (
-          <div key={i} style={{ background: i % 2 === 0 ? C.dark : C.coal, padding: "10px 12px", borderLeft: i % 2 === 1 ? `2px solid ${C.gold}` : undefined }}>
+          <div key={i} style={{ background: i % 2 === 0 ? C.dark : C.coal, padding: "7px 12px", borderLeft: i % 2 === 1 ? `2px solid ${C.gold}` : undefined }}>
             <div style={{ color: "#fff", fontSize: 8, fontWeight: 700, lineHeight: 1.3 }}>{s.val}</div>
             <div style={{ color: C.gold, fontSize: 6, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 3 }}>{s.lbl}</div>
           </div>
@@ -208,7 +208,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
       {/* ── 3. INCENTIVE BANNER ── */}
       {data.incentiveBanner.items.some(x => x) && (
-        <div style={{ background: `linear-gradient(135deg, #145c2e 0%, #1e8c46 50%, #145c2e 100%)`, padding: "11px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 7, borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+        <div style={{ background: `linear-gradient(135deg, #145c2e 0%, #1e8c46 50%, #145c2e 100%)`, padding: "7px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
           {/* Headline centered */}
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ width: 16, height: 1, background: "rgba(255,255,255,0.4)" }} />
@@ -228,7 +228,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
       )}
 
       {/* ── 4. PLANS HEADER ── */}
-      <div style={{ background: C.dark, borderTop: `2px solid ${C.gold}`, padding: "9px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ background: C.dark, borderTop: `2px solid ${C.gold}`, padding: "6px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ color: "#fff", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.15em" }}>FLOOR PLANS · VIP PRICING</span>
         <span style={{ color: C.textMuted, fontSize: 6.5 }}>Limited Time · Subject to Change</span>
       </div>
@@ -236,7 +236,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
       {/* ── 5. FLOOR PLAN CARDS ── */}
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${colCount}, 1fr)` }}>
         {plans.map((plan, i) => (
-          <div key={plan.id} style={{ background: i % 2 === 0 ? "#fff" : C.offWhite, borderTop: `3px solid ${C.gold}`, padding: "12px 10px", display: "flex", flexDirection: "column" }}>
+          <div key={plan.id} style={{ background: i % 2 === 0 ? "#fff" : C.offWhite, borderTop: `3px solid ${C.gold}`, padding: "8px 10px", display: "flex", flexDirection: "column" }}>
             <div style={{ display: "inline-flex", background: C.ink, color: "#fff", borderRadius: 12, padding: "2px 8px", fontSize: 6.5, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 6, alignSelf: "flex-start" }}>{plan.name || "—"}</div>
             <div style={{ color: C.ink, fontSize: 8, fontWeight: 700, lineHeight: 1.3, marginBottom: 3 }}>{plan.type || "—"}</div>
             <div style={{ color: C.textMuted, fontSize: 6.5, marginBottom: 8 }}>{plan.sqft || "—"} sqft{plan.bal ? ` + ${plan.bal} bal` : ""}</div>
@@ -270,7 +270,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
         const regularDeposits = data.deposits.filter((_, i) => i < data.deposits.length - 1);
         const mortgageStep = data.deposits[data.deposits.length - 1];
         return (
-          <div style={{ background: C.dark, padding: "10px 20px 12px" }}>
+          <div style={{ background: C.dark, padding: "7px 20px 8px" }}>
             {/* Header */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <span style={{ color: C.gold, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" }}>Deposit Structure</span>
@@ -321,7 +321,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
       })()}
 
       {/* ── 7. FOOTER with headshot ── */}
-      <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "12px 20px", display: "flex", alignItems: "center" }}>
+      <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "8px 20px", display: "flex", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
           {/* Agent headshot */}
           <div style={{ width: 42, height: 42, borderRadius: "50%", overflow: "hidden", border: `2px solid ${C.gold}`, flexShrink: 0 }}>
@@ -374,23 +374,23 @@ function OnePagerPreview({ data }: { data: FormState }) {
         }}
       >
         {/* Page header */}
-        <div style={{ background: C.ink, borderBottom: `3px solid ${C.gold}`, padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <LogoMark size={18} />
-            <div style={{ color: "#888", fontSize: 5.5, letterSpacing: "0.1em" }}>FLOOR PLAN · {data.projectName || "Project"}</div>
+        <div style={{ background: C.ink, borderBottom: `3px solid ${C.gold}`, padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <LogoWhite height={72} />
+            <div style={{ color: "#aaa", fontSize: 8, letterSpacing: "0.1em", fontWeight: 600 }}>FLOOR PLAN · {data.projectName || "Project"}</div>
           </div>
-          <div style={{ background: C.gold, borderRadius: 4, padding: "3px 10px" }}>
-            <span style={{ color: "#111", fontSize: 7, fontWeight: 700, letterSpacing: "0.1em" }}>{plan.name || `PLAN ${i + 1}`}</span>
+          <div style={{ background: C.gold, borderRadius: 4, padding: "5px 14px" }}>
+            <span style={{ color: "#111", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em" }}>{plan.name || `PLAN ${i + 1}`}</span>
           </div>
         </div>
 
         {/* Plan details strip */}
-        <div style={{ background: C.dark, padding: "8px 20px", display: "flex", gap: 24, alignItems: "center" }}>
-          {plan.type && <div><div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Unit Type</div><div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{plan.type}</div></div>}
-          {plan.sqft && <div><div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Interior</div><div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{plan.sqft} sqft</div></div>}
-          {plan.bal && <div><div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Balcony</div><div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{plan.bal} sqft</div></div>}
-          {plan.nowPrice && <div><div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Price</div><div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{plan.nowPrice}</div></div>}
-          {plan.psf && <div><div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Price/sqft</div><div style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{plan.psf}</div></div>}
+        <div style={{ background: C.dark, padding: "10px 20px", display: "flex", gap: 24, alignItems: "center" }}>
+          {plan.type && <div><div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Unit Type</div><div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{plan.type}</div></div>}
+          {plan.sqft && <div><div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Interior</div><div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{plan.sqft} sqft</div></div>}
+          {plan.bal && <div><div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Balcony</div><div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{plan.bal} sqft</div></div>}
+          {plan.nowPrice && <div><div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Price</div><div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{plan.nowPrice}</div></div>}
+          {plan.psf && <div><div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Price/sqft</div><div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{plan.psf}</div></div>}
         </div>
 
         {/* Floor plan image — fills the page */}
@@ -403,9 +403,9 @@ function OnePagerPreview({ data }: { data: FormState }) {
         </div>
 
         {/* Page footer */}
-        <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "8px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ color: "#fff", fontSize: 7, fontWeight: 700 }}>{agent.name} · {agent.phone}</div>
-          <div style={{ color: "#444", fontSize: 5, textAlign: "right" }}>
+        <div style={{ background: C.ink, borderTop: `2px solid ${C.gold}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>{agent.name} · {agent.phone}</div>
+          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 7, textAlign: "right" }}>
             E&OE. Floor plans subject to change. Not to scale.
           </div>
         </div>
@@ -600,7 +600,7 @@ export default function AdminCampaignBuilder() {
       const PDF_W_PT = 612;
       const PDF_H_PT = 792;
       const DESIGN_W_PX = 612;
-      const SCALE = 3;
+      const SCALE = 4;
 
       const pdf = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
 
