@@ -1,72 +1,104 @@
 
-## Root Cause Analysis
+## Root Cause
 
-The one-pager preview renders at 612px wide in the browser, but it's displayed inside a **scrollable container** — the browser is the one doing the "fitting" visually. The `#one-pager-preview` div has `overflow: "visible"` which means its content can visually spill but `scrollHeight` may not capture everything (especially absolutely-positioned elements like the hero image, floating badges, and the bottom price text).
+There are two separate rendering systems:
+1. **Browser preview** → `OnePagerPreview` (HTML/CSS, rendered by Chromium)
+2. **Downloaded PDF** → `CampaignPDFDocument` (react-pdf/renderer, uses its own PDF layout engine)
 
-The core issues:
+These two engines interpret layout, fonts, spacing, and flexbox differently. No amount of style-tweaking will make them match — they are fundamentally different renderers. The react-pdf engine does not support CSS grid, gradient backgrounds, `textDecoration: line-through` reliably, emoji in circles, custom fonts, etc.
 
-1. **`overflow: "visible"` means `scrollHeight` is unreliable** — elements positioned `absolute` or overflowing don't add to `scrollHeight`. The hero section alone is `290px` tall. The `captureH = el.scrollHeight` may be returning less than the true visual height, so `html2canvas` clips the bottom.
+## Options
 
-2. **`html2canvas` captures the element at its own coordinate space**, but when the element is inside a scaled/scrolled container, `x: 0, y: 0` may not align with the visual top of the element. The element might be partially scrolled out of view.
+### Option A — Capture the HTML preview directly (html2canvas → PDF)
+**How it works:** Screenshot the existing `OnePagerPreview` HTML at high resolution using `html2canvas` at `scale: 4`, embed as a single image in a jsPDF page. Floor plan pages use the same approach — capture each floor plan HTML block.
 
-3. **The preview wrapper has `overflow-auto`** — if the user has scrolled, the capture origin shifts.
+**Pros:**
+- PDF is a **pixel-perfect screenshot** of exactly what you see in the browser preview
+- One rendering engine (Chromium/html2canvas) = zero alignment gap
+- All CSS features work: gradients, grid, flexbox, emoji, custom fonts
 
-4. **`backgroundColor: null`** combined with absolutely positioned children can cause transparent gaps that don't get measured.
+**Cons:**
+- Result is a raster image inside a PDF (not vector text) — but at 4x scale this is ~2448px wide, which is well above print quality
+- File size ~3–6 MB for a 5-page document
 
-## The Fix: Off-Screen Clone Approach (Isolated Render)
+### Option B — Fix and align the react-pdf component to match the HTML preview
+**How it works:** Manually re-tune every font size, padding, margin, and color in `CampaignPDF.tsx` until the react-pdf output visually matches the HTML preview.
 
-The most reliable approach is to **clone the OnePagerPreview into an isolated, off-screen container** with:
-- Fixed position far off-screen (`position: fixed; left: -9999px; top: 0`)
-- No overflow clipping (`overflow: visible`)
-- Known fixed width: exactly `612px`
-- **Measure `offsetHeight` after a layout paint** (not `scrollHeight`)
-- Capture the clone, then remove it
+**Pros:**
+- Vector PDF with selectable text
+- Smaller file size (~200–400 KB)
 
-This decouples the capture from scroll position, parent overflow, and any CSS transforms applied to the preview container.
+**Cons:**
+- React-pdf does not support CSS grid → floor plan cards would need manual width math
+- React-pdf does not support gradient backgrounds → green incentive section loses gradient
+- React-pdf's font metrics differ from browser fonts → can never be a true pixel match
+- Any future change to the preview requires a parallel change in the PDF component
+- Ongoing maintenance burden — two codebases for one design
 
-Additionally: the `print-root` wrapper has `transformOrigin: "top left"` — if any CSS scale transform is being applied to fit the preview into the panel, `html2canvas` will capture the transformed (shrunk) version, not the true 612px version.
+### Option C — Print-to-PDF via browser window.print() (CSS @media print)
+**How it works:** Style the HTML preview with `@media print` CSS and trigger `window.print()`. The browser prints exactly what it renders.
 
-## Plan
+**Pros:**
+- True pixel match, uses the same Chromium renderer as the preview
+- Vector text (browser PDF export is vector)
+- Zero dependency changes
 
-### Change 1 — Isolated off-screen clone for the one-pager
-Instead of querying `.pdf-page` from the live DOM, clone only the `#one-pager-preview` element into a fresh `div` appended to `document.body`:
+**Cons:**
+- User sees the browser's native "Print" dialog — not a direct download
+- Print dialog varies by OS/browser
+- Page break control is limited — multi-page needs careful CSS
+
+---
+
+## Recommendation: Option A
+
+Option A is the right choice here because:
+- It guarantees **exact visual fidelity** to the preview — no tuning needed
+- It works reliably in all browsers with no print dialog
+- At `scale: 4`, the quality is ~2448 × 3168px (above 4K) — indistinguishable from vector for a marketing PDF
+- The floor plan pages already have a fixed 612×792 container in HTML, so they capture cleanly
+
+## Implementation Plan (Option A)
+
+### Step 1 — Restore html2canvas + jsPDF as the PDF engine
+- Re-add `html2canvas` to the project (it's already installed)
+- Remove `PDFDownloadLink` from the action bar
+- Replace with a `Button` that calls an async `generatePDF()` function
+
+### Step 2 — Capture the one-pager
 ```
-const clone = el.cloneNode(true) as HTMLElement;
-const host = document.createElement("div");
-host.style.cssText = "position:fixed;left:-10000px;top:0;width:612px;overflow:visible;z-index:-1;";
-host.appendChild(clone);
-document.body.appendChild(host);
-await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-const captureH = host.offsetHeight; // reliable, no scroll offset
+1. Query #one-pager-preview
+2. Clone it into an off-screen host div (position: fixed; left: -9999px; width: 612px)
+3. Wait 2 animation frames for layout
+4. html2canvas(clone, { scale: 4, useCORS: true, allowTaint: true, logging: false })
+5. const pdf = new jsPDF({ unit: "pt", format: [612, clone.offsetHeight] })
+6. pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, 612, clone.offsetHeight)
 ```
 
-### Change 2 — Remove CSS transform from print-root wrapper
-The `print-root` div has `transformOrigin: "top left"` — strip any `transform: scale(...)` that may be applied for the visual preview fit. Use a CSS class instead of inline styles for the visual scaling, so the DOM element itself stays at true 1:1 size.
-
-### Change 3 — Force explicit background color on the clone
-Set `clone.style.background = "#0f0f0f"` (or the actual dark background) on the clone so `html2canvas` doesn't produce a transparent canvas that the PDF renders incorrectly.
-
-### Change 4 — Use `offsetHeight` not `scrollHeight`
-`offsetHeight` includes all rendered height including padding/borders. For an off-screen clone at `width: 612px` with `overflow: visible`, this gives the true total height of all content.
-
-### Change 5 — Bump SCALE to 10 for true 2K+
-At 612px design width × 10 = 6120px render width — genuine 2K+ (2160px = 4K threshold is 3840px, so 6120px exceeds it). Keeps existing "NONE" compression.
-
-## Summary of changes (all in `AdminCampaignBuilder.tsx`)
-
-```text
-generatePDF()
-├── For the one-pager:
-│   ├── Clone #one-pager-preview into an isolated off-screen host div
-│   ├── Wait 2 animation frames for layout
-│   ├── Measure host.offsetHeight (reliable total height)
-│   ├── Run html2canvas on the clone (not the live DOM element)
-│   ├── Remove the host from DOM after capture
-│   └── Create PDF with [612, offsetHeight] custom page — zero scaling
-│
-└── print-root wrapper:
-    └── Remove transformOrigin / any scale transforms from inline style
-        (visual scaling for preview panel = separate CSS class only)
+### Step 3 — Capture each floor plan page
+```
+For each .floor-plan-page element:
+  1. Same off-screen clone pattern (width: 612, height: 792)
+  2. html2canvas at scale: 4
+  3. pdf.addPage([612, 792], "pt")
+  4. pdf.addImage(...)
 ```
 
-This eliminates the compression by ensuring the captured element is never subject to scroll offsets, parent overflow clipping, or CSS transforms.
+### Step 4 — Save
+```
+pdf.save(`${projectName}-exclusive.pdf`)
+```
+
+### Step 5 — Remove CampaignPDF.tsx (optional cleanup)
+The react-pdf component becomes unused — can be deleted or kept for future reference.
+
+### Files to change
+- `src/pages/admin/AdminCampaignBuilder.tsx` — swap PDFDownloadLink for button + generatePDF()
+- `src/components/admin/CampaignPDF.tsx` — can be removed (no longer used)
+- `package.json` — remove `@react-pdf/renderer`, keep `html2canvas` + `jspdf`
+
+### Quality note
+At `scale: 4` with JPEG 0.95:
+- One-pager: ~2448px wide (exceeds 2K)  
+- Floor plan pages: 2448 × 3168px (exceeds 4K height)
+- File size estimate: ~2–4 MB for a 5-page PDF — acceptable for a marketing document
