@@ -515,14 +515,14 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
               <LogoWhite height={90} />
             </div>
 
-            {/* Center: plan badge */}
-            <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ background: `linear-gradient(135deg,${C.gold},${C.goldLight})`, borderRadius: 5, padding: "6px 20px", boxShadow: `0 2px 16px rgba(184,150,62,0.45)` }}>
-                <span style={{ color: "#111", fontSize: 12, fontWeight: 900, letterSpacing: "0.16em" }}>{plan.name || `PLAN ${fpIdx + 1}`}</span>
-              </div>
-            </div>
 
             {/* Right: savings box */}
+            {plan.saved && (
+              <div style={{ background: "linear-gradient(135deg,#15803d,#16a34a)", borderRadius: 6, padding: "7px 16px", boxShadow: "0 2px 16px rgba(22,163,74,0.4)", textAlign: "center", flexShrink: 0 }}>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 6.5, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 2 }}>You Save</div>
+                <div style={{ color: "#fff", fontSize: 14, fontWeight: 900, letterSpacing: "0.01em", lineHeight: 1 }}>{plan.saved}</div>
+              </div>
+            )}
           </div>
 
           {/* Specs strip */}
