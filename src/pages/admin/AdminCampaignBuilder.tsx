@@ -163,7 +163,12 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
   })();
   const lowestPlan = plans.find(p => parsePrice(p.nowPrice) === lowestNowPrice) || plans[0];
   const displayPrice = lowestNowPrice > 0 ? `$${lowestNowPrice.toLocaleString()}` : (data.fromPrice || "$—");
-  const displayPsf = lowestPlan?.psf || data.fromPsf || "";
+  const lowestPsf = (() => {
+    const psfNums = plans.map(p => parsePrice(p.psf)).filter(n => n > 0);
+    if (!psfNums.length) return data.fromPsf || "";
+    return `$${Math.min(...psfNums).toLocaleString()}/sqft`;
+  })();
+  const displayPsf = lowestPsf || data.fromPsf || "";
   const baseDepositPrice = parsePrice(plans[0]?.nowPrice || data.fromPrice || "");
   const calcAmt = (pct: string) => {
     const n = parseFloat(String(pct).replace(/[^0-9.]/g, ""));
