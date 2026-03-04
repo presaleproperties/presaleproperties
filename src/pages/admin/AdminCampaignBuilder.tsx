@@ -225,7 +225,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
     >
 
       {/* ── 1. HERO ────────────────────────────────────────────────────────── */}
-      <div style={{ position: "relative", width: "100%", height: 360, background: "#0d0d0d", display: "block" }}>
+      <div style={{ position: "relative", width: "100%", height: 300, background: "#0d0d0d", display: "block" }}>
         {data.heroImage
           ? <img src={data.heroImage} alt="" crossOrigin="anonymous" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
           : <div style={{ width: "100%", height: "100%", background: "linear-gradient(150deg,#0f2027,#203a43,#2c5364)" }} />
@@ -239,7 +239,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         </div>
 
         {/* HEADLINE — full width, bottom aligned, stacked layout */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 24px 22px" }}>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 24px 14px" }}>
           {/* gold accent bar */}
           <div style={{ width: 40, height: 4, background: C.gold, borderRadius: 2, marginBottom: 14, boxShadow: `0 0 12px ${C.gold}` }} />
 
@@ -296,7 +296,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
             key={i}
             style={{
               flex: "1 1 33.33%",
-              padding: "14px 18px",
+              padding: "9px 14px",
               borderLeft: i > 0 ? `1px solid rgba(255,255,255,0.1)` : undefined,
               boxSizing: "border-box",
             }}
@@ -309,8 +309,8 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
 
       {/* ── 3. INCENTIVE BANNER ─────────────────────────────────────────────── */}
       {data.incentiveBanner.items.some(x => x) && (
-        <div style={{ background: "linear-gradient(135deg,#145c2e 0%,#1e8c46 50%,#145c2e 100%)", padding: "12px 20px 14px", boxSizing: "border-box" as const, width: "100%" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 10 }}>
+        <div style={{ background: "linear-gradient(135deg,#145c2e 0%,#1e8c46 50%,#145c2e 100%)", padding: "8px 20px 10px", boxSizing: "border-box" as const, width: "100%" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 6 }}>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.3)" }} />
             <span style={{ fontSize: 10, fontWeight: 800, color: "#fff", letterSpacing: "0.18em", textTransform: "uppercase" as const }}>
               {data.incentiveBanner.headline}
@@ -343,7 +343,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
       )}
 
       {/* ── 4. FLOOR PLANS HEADER ───────────────────────────────────────────── */}
-      <div style={{ background: "linear-gradient(135deg,#111 0%,#1a1a1a 100%)", borderTop: `2px solid ${C.gold}`, padding: "11px 22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ background: "linear-gradient(135deg,#111 0%,#1a1a1a 100%)", borderTop: `2px solid ${C.gold}`, padding: "7px 22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 3, height: 18, background: C.gold, borderRadius: 2, flexShrink: 0 }} />
           <span style={{ color: "#fff", fontSize: 12, fontWeight: 800, letterSpacing: "0.14em" }}>FLOOR PLANS</span>
@@ -364,7 +364,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
                 width: colW,
                 background: i % 2 === 0 ? "#ffffff" : "#fafaf8",
                 borderLeft: i > 0 ? `1px solid ${C.smoke}` : undefined,
-                padding: "16px 16px 14px",
+                padding: "11px 12px 10px",
                 display: "flex",
                 flexDirection: "column",
                 boxSizing: "border-box",
@@ -383,10 +383,10 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
               </div>
 
               {/* Unit type */}
-              <div style={{ color: C.ink, fontSize: 12, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>{plan.type || "—"}</div>
+              <div style={{ color: C.ink, fontSize: 12, fontWeight: 700, lineHeight: 1.2, marginBottom: 6 }}>{plan.type || "—"}</div>
 
               {/* Price section — dark bg for contrast */}
-              <div style={{ background: C.ink, borderRadius: 6, padding: "10px 12px", marginBottom: 10 }}>
+              <div style={{ background: C.ink, borderRadius: 6, padding: "8px 10px", marginBottom: 7 }}>
                 {plan.wasPrice && (
                   <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, fontWeight: 500, textDecoration: "line-through", marginBottom: 4 }}>{plan.wasPrice}</div>
                 )}
@@ -411,7 +411,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
       {/* ── 6. DEPOSIT STRUCTURE ────────────────────────────────────────────── */}
       <div style={{ background: "linear-gradient(180deg,#111 0%,#1a1a1a 100%)", borderTop: `2px solid ${C.gold}` }}>
         {/* Section header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 24px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 24px 0" }}>
           <div style={{ width: 3, height: 18, background: C.gold, borderRadius: 2, flexShrink: 0 }} />
           <span style={{ color: "#fff", fontSize: 12, fontWeight: 800, letterSpacing: "0.14em" }}>DEPOSIT</span>
           <span style={{ color: C.gold, fontSize: 12, fontWeight: 800, letterSpacing: "0.14em" }}>STRUCTURE</span>
@@ -421,7 +421,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         </div>
 
         {/* Timeline nodes */}
-        <div style={{ display: "flex", width: "100%", alignItems: "stretch", padding: "18px 16px 20px", gap: 0 }}>
+        <div style={{ display: "flex", width: "100%", alignItems: "stretch", padding: "12px 16px 14px", gap: 0 }}>
           {regularDeposits.map((d, i) => {
             const displayAmt = calcAmt(d.percent) || d.amount;
             const totalCols = regularDeposits.length + (mortgageStep ? 1 : 0);
@@ -482,7 +482,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
       </div>
 
       {/* ── 7. AGENT FOOTER ─────────────────────────────────────────────────── */}
-      <div style={{ background: C.ink, borderTop: `2.5px solid ${C.gold}`, padding: "16px 24px", display: "flex", alignItems: "center", gap: 18 }}>
+      <div style={{ background: C.ink, borderTop: `2.5px solid ${C.gold}`, padding: "10px 20px", display: "flex", alignItems: "center", gap: 14 }}>
         {agent.photo ? (
           <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 60, height: 60, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, objectFit: "cover", objectPosition: "center 15%", display: "block" }} />
         ) : (
