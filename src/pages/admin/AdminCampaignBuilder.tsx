@@ -68,6 +68,9 @@ interface FormState {
   projectName: string; tagline: string; address: string; city: string;
   developerName: string; buildingType: string; completionDate: string; awards: string;
   heroHeadline: string; heroSubheadline: string;
+  infoBlock1Label: string; infoBlock1Value: string;
+  infoBlock2Label: string; infoBlock2Value: string;
+  infoBlock3Label: string; infoBlock3Value: string;
   planCount: number; plans: Plan[];
   deposits: Deposit[];
   fromPrice: string; fromPriceLabel: string; fromPsf: string; psfLabel: string;
@@ -89,6 +92,9 @@ const DEFAULT_STATE: FormState = {
   projectName: "", tagline: "", address: "", city: "", developerName: "",
   buildingType: "", completionDate: "", awards: "",
   heroHeadline: "", heroSubheadline: "",
+  infoBlock1Label: "ADDRESS", infoBlock1Value: "",
+  infoBlock2Label: "TYPE", infoBlock2Value: "",
+  infoBlock3Label: "COMPLETION", infoBlock3Value: "",
   planCount: 4,
   plans: [emptyPlan(), emptyPlan(), emptyPlan(), emptyPlan()],
   deposits: [
@@ -282,21 +288,21 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
       {/* ── 2. INFO BAR ──────────────────────────────────────────────────────── */}
       <div style={{ display: "flex", width: "100%", background: C.ink }}>
         {[
-          { val: data.address || "—", lbl: "ADDRESS" },
-          { val: data.buildingType || "—", lbl: "TYPE" },
-          { val: data.completionDate || "—", lbl: "COMPLETION" },
+          { val: data.infoBlock1Value || data.address || "—", lbl: data.infoBlock1Label || "ADDRESS" },
+          { val: data.infoBlock2Value || data.buildingType || "—", lbl: data.infoBlock2Label || "TYPE" },
+          { val: data.infoBlock3Value || data.completionDate || "—", lbl: data.infoBlock3Label || "COMPLETION" },
         ].map((s, i) => (
           <div
             key={i}
             style={{
               flex: "1 1 33.33%",
-              padding: "12px 16px",
+              padding: "14px 18px",
               borderLeft: i > 0 ? `1px solid rgba(255,255,255,0.1)` : undefined,
               boxSizing: "border-box",
             }}
           >
-            <div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 4 }}>{s.lbl}</div>
-            <div style={{ color: "#fff", fontSize: 11, fontWeight: 600, lineHeight: 1.3, whiteSpace: "normal", wordBreak: "break-word" }}>{s.val}</div>
+            <div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 5 }}>{s.lbl}</div>
+            <div style={{ color: "#fff", fontSize: 13, fontWeight: 600, lineHeight: 1.3, wordBreak: "break-word" }}>{s.val}</div>
           </div>
         ))}
       </div>
@@ -844,6 +850,9 @@ export default function AdminCampaignBuilder() {
       developerName: project.developer_name || "",
       buildingType: projectType,
       completionDate,
+      infoBlock1Label: "ADDRESS", infoBlock1Value: project.address || `${project.neighborhood}, ${project.city}`,
+      infoBlock2Label: "TYPE", infoBlock2Value: projectType,
+      infoBlock3Label: "COMPLETION", infoBlock3Value: completionDate,
       fromPrice: fmt(project.starting_price),
       fromPsf: "",
       heroImage: project.featured_image || null,
@@ -1159,7 +1168,7 @@ export default function AdminCampaignBuilder() {
 
                   {/* Project Details */}
                   <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Project Details (Info Bar)</p>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Project Details</p>
                     {[
                       ["projectName", "Project Name"],
                       ["tagline", "Tagline"],
@@ -1178,6 +1187,40 @@ export default function AdminCampaignBuilder() {
                           onChange={e => set(key as keyof FormState, e.target.value)}
                           className="h-8 text-xs"
                         />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Info Bar Blocks */}
+                  <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-3">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Info Bar — 3 Blocks</p>
+                    {[
+                      ["infoBlock1Label", "infoBlock1Value", "Block 1"],
+                      ["infoBlock2Label", "infoBlock2Value", "Block 2"],
+                      ["infoBlock3Label", "infoBlock3Value", "Block 3"],
+                    ].map(([labelKey, valueKey, title]) => (
+                      <div key={labelKey} className="space-y-1">
+                        <p className="text-[9px] font-semibold text-primary uppercase tracking-wider">{title}</p>
+                        <div className="flex gap-2">
+                          <div className="flex-1 space-y-1">
+                            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Label</Label>
+                            <Input
+                              value={String((form as any)[labelKey] || "")}
+                              onChange={e => set(labelKey as keyof FormState, e.target.value)}
+                              placeholder="e.g. ADDRESS"
+                              className="h-8 text-xs"
+                            />
+                          </div>
+                          <div className="flex-[2] space-y-1">
+                            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Value</Label>
+                            <Input
+                              value={String((form as any)[valueKey] || "")}
+                              onChange={e => set(valueKey as keyof FormState, e.target.value)}
+                              placeholder="e.g. Willoughby, Langley"
+                              className="h-8 text-xs"
+                            />
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
