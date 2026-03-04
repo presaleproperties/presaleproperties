@@ -234,7 +234,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.95) 100%)" }} />
 
         {/* top-left logo */}
-        <div style={{ position: "absolute", top: 4, left: 18 }}>
+        <div style={{ position: "absolute", top: -8, left: 18 }}>
           <LogoWhite height={176} />
         </div>
 
