@@ -393,12 +393,12 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
               {/* Price section — dark bg for contrast */}
               <div style={{ background: C.ink, borderRadius: 6, padding: "10px 12px", marginBottom: 10 }}>
                 {plan.wasPrice && (
-                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 9, fontWeight: 500, textDecoration: "line-through", marginBottom: 3 }}>{plan.wasPrice}</div>
+                  <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, fontWeight: 500, textDecoration: "line-through", marginBottom: 4 }}>{plan.wasPrice}</div>
                 )}
                 <div style={{ color: "#fff", fontSize: nowFontSize, fontWeight: 800, lineHeight: 1 }}>{plan.nowPrice || "—"}</div>
                 {plan.saved && (
-                  <div style={{ marginTop: 6, display: "inline-block", background: "#16a34a", borderRadius: 3, padding: "2px 8px" }}>
-                    <span style={{ color: "#fff", fontSize: 8.5, fontWeight: 700 }}>Save {plan.saved}</span>
+                  <div style={{ marginTop: 8, background: "#16a34a", borderRadius: 3, padding: "5px 10px", textAlign: "center" }}>
+                    <span style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>Save {plan.saved}</span>
                   </div>
                 )}
               </div>
