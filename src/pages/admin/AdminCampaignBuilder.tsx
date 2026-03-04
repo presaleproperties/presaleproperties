@@ -616,21 +616,31 @@ export default function AdminCampaignBuilder() {
   // Helper: screenshot one element and download as PNG
   const screenshotEl = useCallback(async (el: HTMLElement, filename: string) => {
     const SCALE = 3;
+
+    // Scroll element into view so it's fully rendered in viewport
+    el.scrollIntoView({ block: "start" });
+    // Wait for layout + paint to settle after scroll
+    await new Promise<void>(r => setTimeout(r, 120));
+
     const imgs = Array.from(el.querySelectorAll<HTMLImageElement>("img"));
     await Promise.all(imgs.map(img =>
       img.complete ? Promise.resolve() :
       new Promise<void>(r => { img.onload = img.onerror = () => r(); })
     ));
     await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+
     const rect = el.getBoundingClientRect();
     const canvas = await html2canvas(el, {
       scale: SCALE, useCORS: true, allowTaint: false, logging: false,
       backgroundColor: "#ffffff",
-      width: Math.round(rect.width), height: Math.round(rect.height),
-      windowWidth: document.documentElement.clientWidth,
-      windowHeight: document.documentElement.clientHeight,
-      scrollX: -window.scrollX,
-      scrollY: -window.scrollY,
+      width: Math.round(rect.width),
+      height: Math.round(rect.height),
+      x: 0,
+      y: 0,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: Math.round(rect.width),
+      windowHeight: Math.round(rect.height),
     });
     canvas.toBlob(blob => {
       if (!blob) { toast.error("Export failed"); return; }
