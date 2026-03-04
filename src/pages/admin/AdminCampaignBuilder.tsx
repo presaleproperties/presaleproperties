@@ -234,8 +234,8 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.95) 100%)" }} />
 
         {/* top-left logo */}
-        <div style={{ position: "absolute", top: -22, left: 18 }}>
-          <LogoWhite height={130} />
+        <div style={{ position: "absolute", top: 12, left: 18 }}>
+          <LogoWhite height={44} />
         </div>
 
         {/* HEADLINE — full width, bottom aligned, stacked layout */}
@@ -545,12 +545,10 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LogoWhite height={90} />
             <div style={{ width: 1, height: 32, background: "#333", flexShrink: 0 }} />
-            {!data.heroHeadline && (
-              <div>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 6, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 2 }}>Floor Plan</div>
-                <div style={{ color: "#fff", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.04em" }}>{data.projectName || "Project"}</div>
-              </div>
-            )}
+            <div>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 6, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 2 }}>Floor Plan</div>
+              <div style={{ color: "#fff", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.04em" }}>{data.heroHeadline || data.projectName || "Project"}</div>
+            </div>
           </div>
           <div style={{ background: C.gold, borderRadius: 6, padding: "6px 16px" }}>
             <span style={{ color: "#111", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em" }}>{plan.name || `PLAN ${fpIdx + 1}`}</span>
@@ -653,8 +651,6 @@ export default function AdminCampaignBuilder() {
     ));
     await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r())));
     const rect = el.getBoundingClientRect();
-    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const canvas = await html2canvas(el, {
       scale: SCALE, useCORS: true, allowTaint: false, logging: false,
       backgroundColor: "#ffffff",
@@ -751,7 +747,12 @@ export default function AdminCampaignBuilder() {
     const wasNum = parseMoney(plan.wasPrice);
     const sqftNum = parseMoney(plan.sqft);
     const updated = { ...plan };
-    if (wasNum > nowNum && nowNum > 0) updated.saved = `$${(wasNum - nowNum).toLocaleString()}`;
+    // Auto-calc saved: only when was > now > 0; clear it if wasPrice is empty or invalid
+    if (wasNum > nowNum && nowNum > 0) {
+      updated.saved = `$${(wasNum - nowNum).toLocaleString()}`;
+    } else if (!plan.wasPrice || wasNum === 0) {
+      updated.saved = ""; // clear auto-saved when wasPrice removed
+    }
     if (nowNum > 0 && sqftNum > 0) updated.psf = `$${Math.round(nowNum / sqftNum).toLocaleString()}/sqft`;
     return updated;
   };
@@ -783,6 +784,8 @@ export default function AdminCampaignBuilder() {
 
   const removeDeposit = (idx: number) => {
     setForm(f => {
+      const isLast = idx === f.deposits.length - 1;
+      if (isLast) return f; // never remove the Completion/Mortgage step
       if (f.deposits.length <= 2) return f; // keep at least 1 regular + 1 completion
       const deposits = f.deposits.filter((_, i) => i !== idx);
       return { ...f, deposits };
@@ -913,9 +916,9 @@ export default function AdminCampaignBuilder() {
   const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "brochureUrl" | "pricingSheetUrl") => {
     const file = e.target.files?.[0];
     if (!file) return;
-    toast.loading("Uploading…");
+    const toastId = toast.loading("Uploading…");
     const url = await uploadFile(file, "campaign-docs");
-    toast.dismiss();
+    toast.dismiss(toastId);
     if (url) { set(field, url); toast.success("Uploaded ✓"); }
   };
 
