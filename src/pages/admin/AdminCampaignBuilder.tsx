@@ -312,7 +312,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         <div style={{ background: "linear-gradient(135deg,#145c2e 0%,#1e8c46 50%,#145c2e 100%)", padding: "8px 20px 10px", boxSizing: "border-box" as const, width: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 6 }}>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.3)" }} />
-            <span style={{ fontSize: 10, fontWeight: 800, color: "#fff", letterSpacing: "0.18em", textTransform: "uppercase" as const }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", letterSpacing: "0.18em", textTransform: "uppercase" as const }}>
               {data.incentiveBanner.headline}
             </span>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.3)" }} />
@@ -326,8 +326,8 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
                   background: "rgba(255,255,255,0.13)",
                   border: "1px solid rgba(255,255,255,0.3)",
                   borderRadius: 22,
-                  padding: "6px 14px",
-                  fontSize: 10,
+                   padding: "6px 16px",
+                  fontSize: 11.5,
                   fontWeight: 600,
                   color: "#fff",
                   letterSpacing: "0.02em",
@@ -392,8 +392,8 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
                 )}
                 <div style={{ color: "#fff", fontSize: nowFontSize, fontWeight: 800, lineHeight: 1 }}>{plan.nowPrice || "—"}</div>
                 {plan.saved && (
-                  <div style={{ marginTop: 8, background: "#16a34a", borderRadius: 3, padding: "5px 10px", textAlign: "center" }}>
-                    <span style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>Save {plan.saved}</span>
+                  <div style={{ marginTop: 8, background: "#16a34a", borderRadius: 3, padding: "6px 10px", textAlign: "center" }}>
+                     <span style={{ color: "#fff", fontSize: 14, fontWeight: 700 }}>Save {plan.saved}</span>
                   </div>
                 )}
               </div>
@@ -413,8 +413,8 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         {/* Section header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 24px 0" }}>
           <div style={{ width: 3, height: 18, background: C.gold, borderRadius: 2, flexShrink: 0 }} />
-          <span style={{ color: "#fff", fontSize: 12, fontWeight: 800, letterSpacing: "0.14em" }}>DEPOSIT</span>
-          <span style={{ color: C.gold, fontSize: 12, fontWeight: 800, letterSpacing: "0.14em" }}>STRUCTURE</span>
+          <span style={{ color: "#fff", fontSize: 14, fontWeight: 800, letterSpacing: "0.14em" }}>DEPOSIT</span>
+          <span style={{ color: C.gold, fontSize: 14, fontWeight: 800, letterSpacing: "0.14em" }}>STRUCTURE</span>
           {baseDepositPrice > 0 && (
             <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 9, marginLeft: "auto" }}>Based on {plans[0]?.nowPrice || data.fromPrice}</span>
           )}
@@ -448,9 +448,9 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
 
                 {/* Card */}
                 <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(184,150,62,0.2)", borderRadius: 6, padding: "8px 10px", width: "80%", textAlign: "center" }}>
-                  <div style={{ color: C.gold, fontSize: 13, fontWeight: 800, lineHeight: 1, marginBottom: 3 }}>{d.percent || "—"}</div>
-                  {displayAmt && <div style={{ color: "#fff", fontSize: 11, fontWeight: 600, lineHeight: 1, marginBottom: 3 }}>{displayAmt}</div>}
-                  <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 8.5, lineHeight: 1.2 }}>{d.label}</div>
+                  <div style={{ color: C.gold, fontSize: 15, fontWeight: 800, lineHeight: 1, marginBottom: 3 }}>{d.percent || "—"}</div>
+                  {displayAmt && <div style={{ color: "#fff", fontSize: 13, fontWeight: 600, lineHeight: 1, marginBottom: 3 }}>{displayAmt}</div>}
+                  <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, lineHeight: 1.2 }}>{d.label}</div>
                 </div>
               </div>
             );
@@ -471,9 +471,9 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
                   marginBottom: 10,
                 }}>🏠</div>
                 <div style={{ background: `linear-gradient(135deg, rgba(184,150,62,0.15), rgba(184,150,62,0.05))`, border: `1px solid ${C.gold}`, borderRadius: 6, padding: "8px 10px", width: "80%", textAlign: "center" }}>
-                  <div style={{ color: C.gold, fontSize: 12, fontWeight: 800, lineHeight: 1, marginBottom: 3 }}>Completion</div>
-                  <div style={{ color: "#fff", fontSize: 10, fontWeight: 600, lineHeight: 1, marginBottom: 3 }}>Mortgage</div>
-                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 8.5, lineHeight: 1.2 }}>{mortgageStep.label}</div>
+                  <div style={{ color: C.gold, fontSize: 14, fontWeight: 800, lineHeight: 1, marginBottom: 3 }}>Completion</div>
+                  <div style={{ color: "#fff", fontSize: 12, fontWeight: 600, lineHeight: 1, marginBottom: 3 }}>Mortgage</div>
+                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, lineHeight: 1.2 }}>{mortgageStep.label}</div>
                 </div>
               </div>
             );
