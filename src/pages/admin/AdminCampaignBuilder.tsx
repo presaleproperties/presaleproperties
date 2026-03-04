@@ -240,12 +240,6 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         {/* Subtle side vignette */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.35) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.2) 100%)" }} />
 
-        {/* VIP badge — top right */}
-        {data.vipBadge && (
-          <div style={{ position: "absolute", top: 14, right: 18, background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, borderRadius: 4, padding: "4px 12px", boxShadow: `0 2px 14px rgba(184,150,62,0.5)` }}>
-            <span style={{ color: "#111", fontSize: 8, fontWeight: 900, letterSpacing: "0.2em", textTransform: "uppercase" }}>{data.vipBadge}</span>
-          </div>
-        )}
 
         {/* top-left logo */}
         <div style={{ position: "absolute", top: -36, left: 18 }}>
