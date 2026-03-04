@@ -408,54 +408,72 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
       </div>
 
       {/* ── 6. DEPOSIT STRUCTURE ────────────────────────────────────────────── */}
-      <div style={{ background: C.dark, padding: "14px 24px 16px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-          <span style={{ color: C.gold, fontSize: 10, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase" }}>DEPOSIT STRUCTURE</span>
+      <div style={{ background: "linear-gradient(180deg,#111 0%,#1a1a1a 100%)", borderTop: `2px solid ${C.gold}` }}>
+        {/* Section header */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 24px 0" }}>
+          <div style={{ width: 3, height: 18, background: C.gold, borderRadius: 2, flexShrink: 0 }} />
+          <span style={{ color: "#fff", fontSize: 12, fontWeight: 800, letterSpacing: "0.14em" }}>DEPOSIT</span>
+          <span style={{ color: C.gold, fontSize: 12, fontWeight: 800, letterSpacing: "0.14em" }}>STRUCTURE</span>
           {baseDepositPrice > 0 && (
-            <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 9 }}>Based on {plans[0]?.nowPrice || data.fromPrice}</span>
+            <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 9, marginLeft: "auto" }}>Based on {plans[0]?.nowPrice || data.fromPrice}</span>
           )}
         </div>
 
-        <div style={{ display: "flex", width: "100%", alignItems: "flex-start" }}>
+        {/* Timeline nodes */}
+        <div style={{ display: "flex", width: "100%", alignItems: "stretch", padding: "18px 16px 20px", gap: 0 }}>
           {regularDeposits.map((d, i) => {
             const displayAmt = calcAmt(d.percent) || d.amount;
             const totalCols = regularDeposits.length + (mortgageStep ? 1 : 0);
+            const isLast = i === regularDeposits.length - 1 && !mortgageStep;
             return (
-              <div key={i} style={{ flex: `1 1 ${(100/totalCols).toFixed(2)}%`, textAlign: "center", position: "relative" }}>
-                {i > 0 && (
-                  <div style={{ position: "absolute", top: 15, left: 0, width: "50%", height: 1, borderTop: `1.5px dashed rgba(184,150,62,0.45)` }} />
-                )}
-                <div style={{ position: "absolute", top: 15, right: 0, width: "50%", height: 1, borderTop: `1.5px dashed rgba(184,150,62,0.45)` }} />
+              <div key={i} style={{ flex: `1 1 ${(100/totalCols).toFixed(2)}%`, position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                {/* connector line left */}
+                {i > 0 && <div style={{ position: "absolute", top: 17, left: 0, width: "50%", height: 1, background: `linear-gradient(to right, rgba(184,150,62,0.25), rgba(184,150,62,0.6))` }} />}
+                {/* connector line right */}
+                {!isLast && <div style={{ position: "absolute", top: 17, right: 0, width: "50%", height: 1, background: `linear-gradient(to right, rgba(184,150,62,0.6), rgba(184,150,62,0.25))` }} />}
+
+                {/* Node circle */}
                 <div style={{
-                  width: 30, height: 30, borderRadius: "50%",
-                  background: C.gold,
-                  fontSize: 12, fontWeight: 800, color: "#111",
-                  lineHeight: "30px", textAlign: "center",
-                  margin: "0 auto 8px",
-                  position: "relative", zIndex: 1,
+                  width: 34, height: 34, borderRadius: "50%",
+                  background: `linear-gradient(135deg, ${C.goldLight}, ${C.gold})`,
+                  boxShadow: `0 0 14px rgba(184,150,62,0.4)`,
+                  fontSize: 13, fontWeight: 900, color: "#111",
+                  lineHeight: "34px", textAlign: "center",
+                  position: "relative", zIndex: 1, flexShrink: 0,
+                  marginBottom: 10,
                 }}>
                   {i + 1}
                 </div>
-                <div style={{ color: C.gold, fontSize: 11, fontWeight: 700, lineHeight: 1 }}>{d.percent || "—"}</div>
-                {displayAmt && <div style={{ color: "#fff", fontSize: 10, fontWeight: 600, marginTop: 2, lineHeight: 1 }}>{displayAmt}</div>}
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 9, marginTop: 3, lineHeight: 1 }}>{d.label}</div>
+
+                {/* Card */}
+                <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(184,150,62,0.2)", borderRadius: 6, padding: "8px 10px", width: "80%", textAlign: "center" }}>
+                  <div style={{ color: C.gold, fontSize: 13, fontWeight: 800, lineHeight: 1, marginBottom: 3 }}>{d.percent || "—"}</div>
+                  {displayAmt && <div style={{ color: "#fff", fontSize: 11, fontWeight: 600, lineHeight: 1, marginBottom: 3 }}>{displayAmt}</div>}
+                  <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 8.5, lineHeight: 1.2 }}>{d.label}</div>
+                </div>
               </div>
             );
           })}
+
+          {/* Completion / mortgage node */}
           {mortgageStep && (() => {
             const totalCols = regularDeposits.length + 1;
             return (
-              <div style={{ flex: `1 1 ${(100/totalCols).toFixed(2)}%`, textAlign: "center", position: "relative" }}>
-                <div style={{ position: "absolute", top: 15, left: 0, width: "50%", height: 1, borderTop: `1.5px dashed rgba(184,150,62,0.45)` }} />
+              <div style={{ flex: `1 1 ${(100/totalCols).toFixed(2)}%`, position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{ position: "absolute", top: 17, left: 0, width: "50%", height: 1, background: `linear-gradient(to right, rgba(184,150,62,0.25), rgba(184,150,62,0.6))` }} />
                 <div style={{
-                  width: 30, height: 30, borderRadius: "50%",
-                  background: C.coal, border: `2px solid ${C.gold}`,
-                  fontSize: 16, lineHeight: "26px", textAlign: "center",
-                  margin: "0 auto 8px", position: "relative", zIndex: 1,
+                  width: 34, height: 34, borderRadius: "50%",
+                  background: "#1a1a1a", border: `2px solid ${C.gold}`,
+                  boxShadow: `0 0 14px rgba(184,150,62,0.3)`,
+                  fontSize: 17, lineHeight: "30px", textAlign: "center",
+                  position: "relative", zIndex: 1, flexShrink: 0,
+                  marginBottom: 10,
                 }}>🏠</div>
-                <div style={{ color: C.gold, fontSize: 10, fontWeight: 700, lineHeight: 1 }}>Completion</div>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 9, marginTop: 2, lineHeight: 1 }}>Mortgage begins</div>
-                <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 9, marginTop: 2, lineHeight: 1 }}>{mortgageStep.label}</div>
+                <div style={{ background: `linear-gradient(135deg, rgba(184,150,62,0.15), rgba(184,150,62,0.05))`, border: `1px solid ${C.gold}`, borderRadius: 6, padding: "8px 10px", width: "80%", textAlign: "center" }}>
+                  <div style={{ color: C.gold, fontSize: 12, fontWeight: 800, lineHeight: 1, marginBottom: 3 }}>Completion</div>
+                  <div style={{ color: "#fff", fontSize: 10, fontWeight: 600, lineHeight: 1, marginBottom: 3 }}>Mortgage</div>
+                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 8.5, lineHeight: 1.2 }}>{mortgageStep.label}</div>
+                </div>
               </div>
             );
           })()}
