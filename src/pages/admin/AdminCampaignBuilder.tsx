@@ -272,7 +272,6 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
           { val: data.address || "—", lbl: "ADDRESS" },
           { val: data.buildingType || "—", lbl: "CONSTRUCTION" },
           { val: data.completionDate || "—", lbl: "COMPLETION" },
-          { val: data.developerName || "—", lbl: "DEVELOPER" },
         ].map((s, i) => (
           <div
             key={i}
