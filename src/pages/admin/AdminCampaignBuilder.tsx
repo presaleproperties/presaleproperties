@@ -233,36 +233,36 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         </div>
 
         {/* top-right VIP badge */}
-        <div style={{ position: "absolute", top: 14, right: 18 }}>
-          <div style={{ display: "inline-block", background: C.gold, borderRadius: 4, padding: "5px 14px", fontSize: 7, fontWeight: 800, color: "#111", letterSpacing: "0.16em" }}>
+        <div style={{ position: "absolute", top: 18, right: 20 }}>
+          <div style={{ display: "inline-block", background: C.gold, borderRadius: 4, padding: "7px 16px", fontSize: 10, fontWeight: 800, color: "#111", letterSpacing: "0.14em" }}>
             {data.vipBadge || "VIP EXCLUSIVE PRICING"}
           </div>
         </div>
 
-        {/* bottom: headline left, price right — with generous padding */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 22px 22px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+        {/* bottom: headline left, price right */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 24px 24px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           {/* Headline block */}
           <div style={{ maxWidth: 360 }}>
-            <div style={{ width: 28, height: 3, background: C.gold, marginBottom: 10, borderRadius: 2 }} />
-            <div style={{ color: "#fff", fontSize: 38, fontWeight: 800, lineHeight: 1.0, letterSpacing: "-0.03em", textShadow: "0 2px 30px rgba(0,0,0,0.8)" }}>
+            <div style={{ width: 32, height: 4, background: C.gold, marginBottom: 12, borderRadius: 2 }} />
+            <div style={{ color: "#fff", fontSize: 42, fontWeight: 800, lineHeight: 1.0, letterSpacing: "-0.03em", textShadow: "0 2px 30px rgba(0,0,0,0.8)" }}>
               {data.heroHeadline || data.projectName || "Project Name"}
             </div>
             {(data.heroSubheadline || data.developerName) && (
-              <div style={{ color: C.goldLight, fontSize: 11, fontWeight: 600, marginTop: 7, letterSpacing: "0.04em" }}>
+              <div style={{ color: C.goldLight, fontSize: 14, fontWeight: 600, marginTop: 8, letterSpacing: "0.03em" }}>
                 {data.heroSubheadline || `by ${data.developerName}`}
               </div>
             )}
           </div>
           {/* Price block */}
           <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 7, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 4 }}>
+            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 5 }}>
               STARTING FROM
             </div>
-            <div style={{ color: "#fff", fontSize: 28, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.01em" }}>
+            <div style={{ color: "#fff", fontSize: 32, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.01em" }}>
               {displayPrice}
             </div>
             {displayPsf && (
-              <div style={{ color: C.goldLight, fontSize: 8, marginTop: 5, fontWeight: 600 }}>{displayPsf} / sqft</div>
+              <div style={{ color: C.goldLight, fontSize: 11, marginTop: 6, fontWeight: 600 }}>{displayPsf} / sqft</div>
             )}
           </div>
         </div>
@@ -279,30 +279,28 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
             key={i}
             style={{
               flex: "1 1 33.33%",
-              padding: "10px 14px",
-              borderLeft: i > 0 ? `1px solid rgba(255,255,255,0.08)` : undefined,
+              padding: "12px 16px",
+              borderLeft: i > 0 ? `1px solid rgba(255,255,255,0.1)` : undefined,
               boxSizing: "border-box",
             }}
           >
-            <div style={{ color: C.gold, fontSize: 5.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 3 }}>{s.lbl}</div>
-            <div style={{ color: "#fff", fontSize: 8, fontWeight: 600, lineHeight: 1.3, whiteSpace: "normal", wordBreak: "break-word" }}>{s.val}</div>
+            <div style={{ color: C.gold, fontSize: 8, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 4 }}>{s.lbl}</div>
+            <div style={{ color: "#fff", fontSize: 11, fontWeight: 600, lineHeight: 1.3, whiteSpace: "normal", wordBreak: "break-word" }}>{s.val}</div>
           </div>
         ))}
       </div>
 
       {/* ── 3. INCENTIVE BANNER ─────────────────────────────────────────────── */}
       {data.incentiveBanner.items.some(x => x) && (
-        <div style={{ background: "linear-gradient(135deg,#145c2e 0%,#1e8c46 50%,#145c2e 100%)", padding: "10px 16px 12px", borderTop: "1px solid rgba(255,255,255,0.08)", borderBottom: "1px solid rgba(255,255,255,0.08)", boxSizing: "border-box" as const, width: "100%", overflow: "visible" }}>
-          {/* headline row */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
+        <div style={{ background: "linear-gradient(135deg,#145c2e 0%,#1e8c46 50%,#145c2e 100%)", padding: "12px 20px 14px", boxSizing: "border-box" as const, width: "100%" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 10 }}>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.3)" }} />
-            <span style={{ fontSize: 7, fontWeight: 800, color: "#fff", letterSpacing: "0.20em", textTransform: "uppercase" as const }}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: "#fff", letterSpacing: "0.18em", textTransform: "uppercase" as const }}>
               {data.incentiveBanner.headline}
             </span>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.3)" }} />
           </div>
-          {/* badges row — inline-block so each pill is exactly content-width */}
-          <div style={{ textAlign: "center" as const, lineHeight: "1" }}>
+          <div style={{ textAlign: "center" as const }}>
             {data.incentiveBanner.items.filter(Boolean).map((item, i) => (
               <div
                 key={i}
@@ -311,13 +309,13 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
                   background: "rgba(255,255,255,0.13)",
                   border: "1px solid rgba(255,255,255,0.3)",
                   borderRadius: 22,
-                  padding: "5px 12px",
-                  fontSize: 7,
+                  padding: "6px 14px",
+                  fontSize: 10,
                   fontWeight: 600,
                   color: "#fff",
-                  letterSpacing: "0.03em",
+                  letterSpacing: "0.02em",
                   whiteSpace: "nowrap" as const,
-                  margin: "3px 4px",
+                  margin: "3px 5px",
                 }}
               >
                 <span style={{ color: "#a8ffbc", fontWeight: 800 }}>✓ </span>{item}
@@ -328,15 +326,15 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
       )}
 
       {/* ── 4. FLOOR PLANS HEADER ───────────────────────────────────────────── */}
-      <div style={{ background: C.dark, borderTop: `2px solid ${C.gold}`, padding: "7px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ color: "#fff", fontSize: 7.5, fontWeight: 800, letterSpacing: "0.18em" }}>FLOOR PLANS · VIP PRICING</span>
-        <span style={{ color: C.textFaint, fontSize: 6, fontStyle: "italic" }}>Limited Time · Subject to Change</span>
+      <div style={{ background: C.dark, borderTop: `2px solid ${C.gold}`, padding: "9px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ color: "#fff", fontSize: 11, fontWeight: 800, letterSpacing: "0.16em" }}>FLOOR PLANS · VIP PRICING</span>
+        <span style={{ color: C.textFaint, fontSize: 9, fontStyle: "italic" }}>Limited Time · Subject to Change</span>
       </div>
 
       {/* ── 5. PLAN CARDS ───────────────────────────────────────────────────── */}
       <div style={{ display: "flex", width: "100%", background: "#fff" }}>
         {plans.map((plan, i) => {
-          const nowFontSize = colCount === 1 ? 22 : colCount === 2 ? 18 : 15;
+          const nowFontSize = colCount === 1 ? 26 : colCount === 2 ? 22 : 18;
           return (
             <div
               key={plan.id}
@@ -345,7 +343,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
                 width: colW,
                 background: "#fff",
                 borderLeft: i > 0 ? `1px solid ${C.smoke}` : undefined,
-                padding: "12px 12px 10px",
+                padding: "14px 14px 12px",
                 display: "flex",
                 flexDirection: "column",
                 boxSizing: "border-box",
@@ -356,116 +354,93 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
               <div style={{
                 display: "inline-block",
                 background: C.ink, color: "#fff",
-                borderRadius: 3, padding: "2px 8px",
-                fontSize: 6.5, fontWeight: 700, letterSpacing: "0.1em",
-                marginBottom: 7, alignSelf: "flex-start",
+                borderRadius: 3, padding: "3px 10px",
+                fontSize: 9, fontWeight: 700, letterSpacing: "0.1em",
+                marginBottom: 8, alignSelf: "flex-start",
               }}>{plan.name || "—"}</div>
 
               {/* Type + size */}
-              <div style={{ color: C.ink, fontSize: 9, fontWeight: 700, lineHeight: 1.2, marginBottom: 1 }}>{plan.type || "—"}</div>
-              <div style={{ color: C.textMuted, fontSize: 6.5, marginBottom: 10 }}>{plan.sqft || "—"} sqft{plan.bal ? ` + ${plan.bal} bal` : ""}</div>
+              <div style={{ color: C.ink, fontSize: 12, fontWeight: 700, lineHeight: 1.2, marginBottom: 2 }}>{plan.type || "—"}</div>
+              <div style={{ color: C.textMuted, fontSize: 9, marginBottom: 10 }}>{plan.sqft || "—"} sqft{plan.bal ? ` + ${plan.bal} bal` : ""}</div>
 
-              {/* Price block — NOW prominent, WAS smaller above */}
+              {/* WAS strikethrough */}
               {plan.wasPrice && (
-                <div style={{ color: C.red, fontSize: 7.5, fontWeight: 600, textDecoration: "line-through", opacity: 0.7, marginBottom: 1 }}>{plan.wasPrice}</div>
+                <div style={{ color: C.red, fontSize: 10, fontWeight: 600, textDecoration: "line-through", opacity: 0.7, marginBottom: 2 }}>{plan.wasPrice}</div>
               )}
-              <div style={{ color: C.ink, fontSize: nowFontSize, fontWeight: 800, lineHeight: 1, marginBottom: 6 }}>{plan.nowPrice || "—"}</div>
+              {/* NOW price — dominant */}
+              <div style={{ color: C.ink, fontSize: nowFontSize, fontWeight: 800, lineHeight: 1, marginBottom: 8 }}>{plan.nowPrice || "—"}</div>
 
               {plan.saved && (
                 <div style={{
                   background: C.greenBg,
                   border: `1px solid ${C.greenBorder}`,
                   borderRadius: 3,
-                  padding: "3px 7px",
-                  marginBottom: 8,
+                  padding: "4px 8px",
+                  marginBottom: 10,
                   display: "inline-block",
                   alignSelf: "flex-start",
                 }}>
-                  <span style={{ color: C.green, fontSize: 6.5, fontWeight: 700 }}>Save {plan.saved}</span>
+                  <span style={{ color: C.green, fontSize: 9, fontWeight: 700 }}>Save {plan.saved}</span>
                 </div>
               )}
 
-              <div style={{ height: 1, background: C.smoke, marginBottom: 6 }} />
-              <div style={{ color: C.textMuted, fontSize: 6, letterSpacing: "0.06em" }}>PSF</div>
-              <div style={{ color: C.ink, fontSize: 8, fontWeight: 700, marginTop: 1 }}>{plan.psf || "—"}</div>
+              <div style={{ height: 1, background: C.smoke, marginBottom: 7 }} />
+              <div style={{ color: C.textMuted, fontSize: 8, letterSpacing: "0.06em", marginBottom: 1 }}>Price Per Sqft</div>
+              <div style={{ color: C.ink, fontSize: 11, fontWeight: 700 }}>{plan.psf || "—"}</div>
             </div>
           );
         })}
       </div>
 
       {/* ── 6. DEPOSIT STRUCTURE ────────────────────────────────────────────── */}
-      <div style={{ background: C.dark, padding: "12px 22px 14px" }}>
-        {/* header row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-          <span style={{ color: C.gold, fontSize: 7, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase" }}>DEPOSIT STRUCTURE</span>
+      <div style={{ background: C.dark, padding: "14px 24px 16px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <span style={{ color: C.gold, fontSize: 10, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase" }}>DEPOSIT STRUCTURE</span>
           {baseDepositPrice > 0 && (
-            <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 6 }}>Based on {plans[0]?.nowPrice || data.fromPrice}</span>
+            <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 9 }}>Based on {plans[0]?.nowPrice || data.fromPrice}</span>
           )}
         </div>
 
-        {/* timeline — flex row, equal cells */}
         <div style={{ display: "flex", width: "100%", alignItems: "flex-start" }}>
           {regularDeposits.map((d, i) => {
             const displayAmt = calcAmt(d.percent) || d.amount;
             const totalCols = regularDeposits.length + (mortgageStep ? 1 : 0);
             return (
               <div key={i} style={{ flex: `1 1 ${(100/totalCols).toFixed(2)}%`, textAlign: "center", position: "relative" }}>
-                {/* dashed connector line (except first) */}
                 {i > 0 && (
-                  <div style={{
-                    position: "absolute",
-                    top: 12, left: 0, width: "50%",
-                    height: 1,
-                    borderTop: `1.5px dashed rgba(184,150,62,0.45)`,
-                  }} />
+                  <div style={{ position: "absolute", top: 15, left: 0, width: "50%", height: 1, borderTop: `1.5px dashed rgba(184,150,62,0.45)` }} />
                 )}
+                <div style={{ position: "absolute", top: 15, right: 0, width: "50%", height: 1, borderTop: `1.5px dashed rgba(184,150,62,0.45)` }} />
                 <div style={{
-                  position: "absolute",
-                  top: 12, right: 0, width: "50%",
-                  height: 1,
-                  borderTop: `1.5px dashed rgba(184,150,62,0.45)`,
-                }} />
-                <div style={{
-                  width: 26, height: 26, borderRadius: "50%",
+                  width: 30, height: 30, borderRadius: "50%",
                   background: C.gold,
-                  fontSize: 9, fontWeight: 800, color: "#111",
-                  lineHeight: "26px", textAlign: "center",
-                  margin: "0 auto 6px",
+                  fontSize: 12, fontWeight: 800, color: "#111",
+                  lineHeight: "30px", textAlign: "center",
+                  margin: "0 auto 8px",
                   position: "relative", zIndex: 1,
                 }}>
                   {i + 1}
                 </div>
-                <div style={{ color: C.gold, fontSize: 8, fontWeight: 700, lineHeight: 1 }}>{d.percent || "—"}</div>
-                {displayAmt && <div style={{ color: "#fff", fontSize: 7, fontWeight: 600, marginTop: 1, lineHeight: 1 }}>{displayAmt}</div>}
-                <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 6, marginTop: 2, lineHeight: 1 }}>{d.label}</div>
+                <div style={{ color: C.gold, fontSize: 11, fontWeight: 700, lineHeight: 1 }}>{d.percent || "—"}</div>
+                {displayAmt && <div style={{ color: "#fff", fontSize: 10, fontWeight: 600, marginTop: 2, lineHeight: 1 }}>{displayAmt}</div>}
+                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 9, marginTop: 3, lineHeight: 1 }}>{d.label}</div>
               </div>
             );
           })}
-          {/* Mortgage / completion node */}
           {mortgageStep && (() => {
             const totalCols = regularDeposits.length + 1;
             return (
               <div style={{ flex: `1 1 ${(100/totalCols).toFixed(2)}%`, textAlign: "center", position: "relative" }}>
+                <div style={{ position: "absolute", top: 15, left: 0, width: "50%", height: 1, borderTop: `1.5px dashed rgba(184,150,62,0.45)` }} />
                 <div style={{
-                  position: "absolute",
-                  top: 12, left: 0, width: "50%",
-                  height: 1,
-                  borderTop: `1.5px dashed rgba(184,150,62,0.45)`,
-                }} />
-                <div style={{
-                  width: 26, height: 26, borderRadius: "50%",
-                  background: C.coal,
-                  border: `2px solid ${C.gold}`,
-                  fontSize: 14,
-                  lineHeight: "22px", textAlign: "center",
-                  margin: "0 auto 6px",
-                  position: "relative", zIndex: 1,
-                }}>
-                  🏠
-                </div>
-                <div style={{ color: C.gold, fontSize: 7.5, fontWeight: 700, lineHeight: 1 }}>Completion</div>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 6, marginTop: 1, lineHeight: 1 }}>Mortgage begins</div>
-                <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 6, marginTop: 1, lineHeight: 1 }}>{mortgageStep.label}</div>
+                  width: 30, height: 30, borderRadius: "50%",
+                  background: C.coal, border: `2px solid ${C.gold}`,
+                  fontSize: 16, lineHeight: "26px", textAlign: "center",
+                  margin: "0 auto 8px", position: "relative", zIndex: 1,
+                }}>🏠</div>
+                <div style={{ color: C.gold, fontSize: 10, fontWeight: 700, lineHeight: 1 }}>Completion</div>
+                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 9, marginTop: 2, lineHeight: 1 }}>Mortgage begins</div>
+                <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 9, marginTop: 2, lineHeight: 1 }}>{mortgageStep.label}</div>
               </div>
             );
           })()}
@@ -473,39 +448,34 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
       </div>
 
       {/* ── 7. AGENT FOOTER ─────────────────────────────────────────────────── */}
-      <div style={{ background: C.ink, borderTop: `2.5px solid ${C.gold}`, padding: "14px 24px", display: "flex", alignItems: "center", gap: 16 }}>
-        {/* Photo */}
+      <div style={{ background: C.ink, borderTop: `2.5px solid ${C.gold}`, padding: "16px 24px", display: "flex", alignItems: "center", gap: 18 }}>
         {agent.photo ? (
-          <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 54, height: 54, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, objectFit: "cover", objectPosition: "center 15%", display: "block" }} />
+          <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 60, height: 60, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, objectFit: "cover", objectPosition: "center 15%", display: "block" }} />
         ) : (
-          <div style={{ width: 54, height: 54, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, background: C.coal }} />
+          <div style={{ width: 60, height: 60, borderRadius: "50%", border: `2px solid ${C.gold}`, flexShrink: 0, background: C.coal }} />
         )}
-        {/* Name + title + languages */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ color: "#fff", fontSize: 13, fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1 }}>{agent.name}</div>
-          <div style={{ color: C.textMuted, fontSize: 10, marginTop: 5, lineHeight: 1 }}>{agent.title}</div>
-          {agent.languages && <div style={{ color: C.gold, fontSize: 9, marginTop: 4, lineHeight: 1 }}>{agent.languages}</div>}
+          <div style={{ color: "#fff", fontSize: 15, fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1 }}>{agent.name}</div>
+          <div style={{ color: C.textMuted, fontSize: 11, marginTop: 5, lineHeight: 1 }}>{agent.title}</div>
+          {agent.languages && <div style={{ color: C.gold, fontSize: 10, marginTop: 5, lineHeight: 1 }}>{agent.languages}</div>}
         </div>
-        {/* Divider */}
-        <div style={{ width: 1, height: 44, background: "#333", flexShrink: 0 }} />
-        {/* Phone + email + website */}
+        <div style={{ width: 1, height: 48, background: "#333", flexShrink: 0 }} />
         <div style={{ textAlign: "right", flexShrink: 0 }}>
-          <div style={{ color: "#fff", fontSize: 15, fontWeight: 800, lineHeight: 1 }}>{agent.phone}</div>
-          <div style={{ color: C.textMuted, fontSize: 10, marginTop: 5, lineHeight: 1 }}>{agent.email}</div>
-          <div style={{ color: C.gold, fontSize: 10, marginTop: 4, lineHeight: 1 }}>{agent.website}</div>
+          <div style={{ color: "#fff", fontSize: 17, fontWeight: 800, lineHeight: 1 }}>{agent.phone}</div>
+          <div style={{ color: C.textMuted, fontSize: 11, marginTop: 5, lineHeight: 1 }}>{agent.email}</div>
+          <div style={{ color: C.gold, fontSize: 11, marginTop: 5, lineHeight: 1 }}>{agent.website}</div>
         </div>
       </div>
 
-      {/* Awards ribbon */}
       {data.awards && (
-        <div style={{ background: C.gold, padding: "5px 0", textAlign: "center" }}>
-          <span style={{ color: "#111", fontSize: 7, fontWeight: 800, letterSpacing: "0.16em" }}>🏆 {data.awards}</span>
+        <div style={{ background: C.gold, padding: "6px 0", textAlign: "center" }}>
+          <span style={{ color: "#111", fontSize: 10, fontWeight: 800, letterSpacing: "0.16em" }}>🏆 {data.awards}</span>
         </div>
       )}
 
       {/* Legal disclaimer */}
-      <div style={{ background: C.ink, padding: "6px 20px" }}>
-        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 5.5, lineHeight: 1.45 }}>
+      <div style={{ background: C.ink, padding: "7px 22px" }}>
+        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 8, lineHeight: 1.45 }}>
           E&OE. Prices subject to change without notice. Limited time offer. Not intended to solicit buyers currently under contract.
         </div>
       </div>
