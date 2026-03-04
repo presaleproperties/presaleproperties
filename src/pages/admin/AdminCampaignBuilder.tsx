@@ -232,13 +232,6 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
           <LogoWhite height={130} />
         </div>
 
-        {/* top-right VIP badge */}
-        <div style={{ position: "absolute", top: 18, right: 20 }}>
-          <div style={{ display: "inline-block", background: C.gold, borderRadius: 4, padding: "7px 16px", fontSize: 10, fontWeight: 800, color: "#111", letterSpacing: "0.14em" }}>
-            {data.vipBadge || "VIP EXCLUSIVE PRICING"}
-          </div>
-        </div>
-
         {/* bottom: headline left, price right */}
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 24px 24px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           {/* Headline block */}
