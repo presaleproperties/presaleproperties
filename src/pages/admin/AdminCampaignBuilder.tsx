@@ -513,11 +513,6 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
             {/* Logo */}
             <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
               <LogoWhite height={90} />
-              <div style={{ width: 1, height: 32, background: "rgba(255,255,255,0.1)" }} />
-              <div>
-                <div style={{ color: C.gold, fontSize: 6.5, fontWeight: 800, letterSpacing: "0.25em", textTransform: "uppercase", marginBottom: 2 }}>Floor Plan</div>
-                <div style={{ color: "#fff", fontSize: 11, fontWeight: 900, letterSpacing: "0.04em", lineHeight: 1.1 }}>{data.heroHeadline || data.projectName || "Project"}</div>
-              </div>
             </div>
 
             {/* Center: plan badge */}
@@ -528,12 +523,6 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
             </div>
 
             {/* Right: savings box */}
-            {plan.saved && (
-              <div style={{ background: "linear-gradient(135deg,#15803d,#16a34a)", borderRadius: 6, padding: "7px 16px", boxShadow: "0 2px 16px rgba(22,163,74,0.4)", textAlign: "center", flexShrink: 0 }}>
-                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 6.5, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 2 }}>You Save</div>
-                <div style={{ color: "#fff", fontSize: 14, fontWeight: 900, letterSpacing: "0.01em", lineHeight: 1 }}>{plan.saved}</div>
-              </div>
-            )}
           </div>
 
           {/* Specs strip */}
