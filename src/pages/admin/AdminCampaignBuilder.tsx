@@ -339,11 +339,6 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
               </div>
             ))}
           </div>
-          <div style={{ textAlign: "center" as const, marginTop: 5, paddingTop: 5, borderTop: "1px solid rgba(255,255,255,0.15)" }}>
-            <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 10, fontStyle: "italic", letterSpacing: "0.01em", lineHeight: 1 }}>
-              This offering is exclusive to Presale Properties Group Clients
-            </span>
-          </div>
         </div>
       )}
 
