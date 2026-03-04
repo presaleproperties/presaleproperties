@@ -219,44 +219,62 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
     >
 
       {/* ── 1. HERO ────────────────────────────────────────────────────────── */}
-      <div style={{ position: "relative", width: "100%", height: 340, background: "#0d0d0d", display: "block" }}>
+      <div style={{ position: "relative", width: "100%", height: 360, background: "#0d0d0d", display: "block" }}>
         {data.heroImage
           ? <img src={data.heroImage} alt="" crossOrigin="anonymous" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
           : <div style={{ width: "100%", height: "100%", background: "linear-gradient(150deg,#0f2027,#203a43,#2c5364)" }} />
         }
-        {/* strong bottom gradient for text legibility */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(to bottom,rgba(0,0,0,0.3) 0%,rgba(0,0,0,0.05) 35%,rgba(0,0,0,0.88) 100%)" }} />
+        {/* deep gradient — heavy at bottom for headline legibility */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.95) 100%)" }} />
 
         {/* top-left logo */}
         <div style={{ position: "absolute", top: -22, left: 18 }}>
           <LogoWhite height={130} />
         </div>
 
-        {/* bottom: headline left, price right */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 24px 24px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-          {/* Headline block */}
-          <div style={{ maxWidth: 360 }}>
-            <div style={{ width: 32, height: 4, background: C.gold, marginBottom: 12, borderRadius: 2 }} />
-            <div style={{ color: "#fff", fontSize: 42, fontWeight: 800, lineHeight: 1.0, letterSpacing: "-0.03em", textShadow: "0 2px 30px rgba(0,0,0,0.8)" }}>
-              {data.heroHeadline || data.projectName || "Project Name"}
-            </div>
+        {/* HEADLINE — full width, bottom aligned, stacked layout */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 24px 22px" }}>
+          {/* gold accent bar */}
+          <div style={{ width: 40, height: 4, background: C.gold, borderRadius: 2, marginBottom: 14, boxShadow: `0 0 12px ${C.gold}` }} />
+
+          {/* Main headline — large, bold, full width */}
+          <div style={{
+            color: "#fff",
+            fontSize: 52,
+            fontWeight: 900,
+            lineHeight: 0.95,
+            letterSpacing: "-0.03em",
+            textShadow: "0 4px 40px rgba(0,0,0,1), 0 2px 8px rgba(0,0,0,0.9)",
+            marginBottom: 12,
+            wordBreak: "break-word",
+          }}>
+            {data.heroHeadline || data.projectName || "Project Name"}
+          </div>
+
+          {/* Subheadline + price on same row */}
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
             {(data.heroSubheadline || data.developerName) && (
-              <div style={{ color: C.goldLight, fontSize: 14, fontWeight: 600, marginTop: 8, letterSpacing: "0.03em" }}>
+              <div style={{
+                color: C.goldLight,
+                fontSize: 16,
+                fontWeight: 600,
+                letterSpacing: "0.04em",
+                textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+                lineHeight: 1.2,
+              }}>
                 {data.heroSubheadline || `by ${data.developerName}`}
               </div>
             )}
-          </div>
-          {/* Price block */}
-          <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 5 }}>
-              STARTING FROM
+            {/* Price — right aligned */}
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 4 }}>STARTING FROM</div>
+              <div style={{ color: "#fff", fontSize: 30, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.01em", textShadow: "0 2px 20px rgba(0,0,0,0.9)" }}>
+                {displayPrice}
+              </div>
+              {displayPsf && (
+                <div style={{ color: C.goldLight, fontSize: 11, marginTop: 4, fontWeight: 600 }}>{displayPsf} / sqft</div>
+              )}
             </div>
-            <div style={{ color: "#fff", fontSize: 32, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.01em" }}>
-              {displayPrice}
-            </div>
-            {displayPsf && (
-              <div style={{ color: C.goldLight, fontSize: 11, marginTop: 6, fontWeight: 600 }}>{displayPsf} / sqft</div>
-            )}
           </div>
         </div>
       </div>
