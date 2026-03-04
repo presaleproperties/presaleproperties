@@ -542,10 +542,12 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LogoWhite height={90} />
             <div style={{ width: 1, height: 32, background: "#333", flexShrink: 0 }} />
-            <div>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 6, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 2 }}>Floor Plan</div>
-              <div style={{ color: "#fff", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.04em" }}>{data.projectName || "Project"}</div>
-            </div>
+            {!data.heroHeadline && (
+              <div>
+                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 6, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 2 }}>Floor Plan</div>
+                <div style={{ color: "#fff", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.04em" }}>{data.projectName || "Project"}</div>
+              </div>
+            )}
           </div>
           <div style={{ background: C.gold, borderRadius: 6, padding: "6px 16px" }}>
             <span style={{ color: "#111", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em" }}>{plan.name || `PLAN ${fpIdx + 1}`}</span>
