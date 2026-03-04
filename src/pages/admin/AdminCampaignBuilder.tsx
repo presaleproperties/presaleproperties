@@ -329,7 +329,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 3, height: 16, background: `linear-gradient(180deg,${C.goldLight},${C.gold})`, borderRadius: 2, flexShrink: 0 }} />
           <span style={{ color: "#fff", fontSize: 11.5, fontWeight: 900, letterSpacing: "0.18em" }}>FLOOR PLANS</span>
-          <span style={{ color: C.gold, fontSize: 11.5, fontWeight: 900, letterSpacing: "0.18em" }}>· VIP PRICING</span>
+          
         </div>
         <span style={{ color: "rgba(255,255,255,0.28)", fontSize: 8, fontStyle: "italic", letterSpacing: "0.04em" }}>Limited Time · Subject to Change</span>
       </div>
