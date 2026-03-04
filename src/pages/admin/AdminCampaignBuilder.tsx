@@ -98,7 +98,7 @@ const DEFAULT_STATE: FormState = {
     { label: "SUMMER 2028", percent: "—", amount: "Mortgage", note: "At completion" },
   ],
   fromPrice: "", fromPriceLabel: "Starting Price", fromPsf: "", psfLabel: "Price Per Sq. Ft.",
-  vipBadge: "VIP EXCLUSIVE PRICING",
+  vipBadge: "Private Offering",
   incentiveBanner: {
     headline: "LIMITED TIME INCENTIVES",
     items: ["Up to $80,000 in savings", "Reduced deposit structure", "Free AC upgrade included"],
