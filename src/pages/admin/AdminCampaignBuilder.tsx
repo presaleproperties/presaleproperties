@@ -370,7 +370,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
                 <div style={{ color: "#fff", fontSize: nowFontSize, fontWeight: 900, lineHeight: 1, letterSpacing: "-0.01em" }}>{plan.nowPrice || "—"}</div>
                 {plan.saved && (
                   <div style={{ marginTop: 8, background: "linear-gradient(135deg,#15803d,#16a34a)", borderRadius: 4, padding: "6px 10px", textAlign: "center", boxShadow: "0 1px 8px rgba(22,163,74,0.3)" }}>
-                    <span style={{ color: "#fff", fontSize: 13, fontWeight: 800, letterSpacing: "0.02em" }}>✦ Save {plan.saved}</span>
+                    <span style={{ color: "#fff", fontSize: 13, fontWeight: 800, letterSpacing: "0.02em" }}>Save {plan.saved}</span>
                   </div>
                 )}
               </div>
