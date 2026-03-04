@@ -235,7 +235,7 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
 
         {/* top-left logo */}
         <div style={{ position: "absolute", top: 12, left: 18 }}>
-          <LogoWhite height={44} />
+          <LogoWhite height={176} />
         </div>
 
         {/* HEADLINE — full width, bottom aligned, stacked layout */}
