@@ -506,35 +506,52 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
             display: "flex", flexDirection: "column", overflow: "hidden",
           }}
         >
-        {/* Header bar */}
-        <div style={{ background: "linear-gradient(135deg,#0e0e0e,#181818)", borderBottom: `3px solid ${C.gold}`, padding: "0 18px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, overflow: "hidden" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <LogoWhite height={90} />
-            <div style={{ width: 1, height: 30, background: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
-            <div>
-              <div style={{ color: C.gold, fontSize: 6.5, fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: 3 }}>Floor Plan</div>
-              <div style={{ color: "#fff", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em" }}>{data.heroHeadline || data.projectName || "Project"}</div>
+        {/* Header bar — redesigned premium */}
+        <div style={{ background: "linear-gradient(135deg,#0a0a0a,#161616)", borderBottom: `3px solid ${C.gold}`, flexShrink: 0, overflow: "hidden" }}>
+          {/* Top row: logo | project name + plan badge | savings */}
+          <div style={{ padding: "0 20px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            {/* Logo */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
+              <LogoWhite height={90} />
+              <div style={{ width: 1, height: 32, background: "rgba(255,255,255,0.1)" }} />
+              <div>
+                <div style={{ color: C.gold, fontSize: 6.5, fontWeight: 800, letterSpacing: "0.25em", textTransform: "uppercase", marginBottom: 2 }}>Floor Plan</div>
+                <div style={{ color: "#fff", fontSize: 11, fontWeight: 900, letterSpacing: "0.04em", lineHeight: 1.1 }}>{data.heroHeadline || data.projectName || "Project"}</div>
+              </div>
             </div>
-          </div>
-          <div style={{ background: `linear-gradient(135deg,${C.gold},${C.goldLight})`, borderRadius: 6, padding: "7px 18px", boxShadow: `0 2px 12px rgba(184,150,62,0.4)` }}>
-            <span style={{ color: "#111", fontSize: 11, fontWeight: 900, letterSpacing: "0.14em" }}>{plan.name || `PLAN ${fpIdx + 1}`}</span>
-          </div>
-        </div>
 
-        {/* Specs strip */}
-        <div style={{ background: "linear-gradient(135deg,#1a1a1a,#222)", padding: "11px 22px", display: "flex", gap: 0, alignItems: "stretch", flexShrink: 0, borderBottom: "1px solid rgba(184,150,62,0.15)" }}>
-          {[
-            plan.type     && { lbl: "UNIT TYPE",   val: plan.type },
-            plan.sqft     && { lbl: "INTERIOR",    val: `${plan.sqft} sqft` },
-            plan.bal      && { lbl: "BALCONY",     val: `${plan.bal} sqft` },
-            plan.nowPrice && { lbl: "PRICE",       val: plan.nowPrice },
-            plan.psf      && { lbl: "PRICE/SQFT",  val: plan.psf },
-          ].filter(Boolean).map((item: any, si) => (
-            <div key={si} style={{ paddingLeft: si > 0 ? 22 : 0, borderLeft: si > 0 ? `1px solid rgba(255,255,255,0.08)` : undefined, marginLeft: si > 0 ? 22 : 0 }}>
-              <div style={{ color: C.gold, fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 4 }}>{item.lbl}</div>
-              <div style={{ color: "#fff", fontSize: 12, fontWeight: 800, letterSpacing: "0.02em" }}>{item.val}</div>
+            {/* Center: plan badge */}
+            <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ background: `linear-gradient(135deg,${C.gold},${C.goldLight})`, borderRadius: 5, padding: "6px 20px", boxShadow: `0 2px 16px rgba(184,150,62,0.45)` }}>
+                <span style={{ color: "#111", fontSize: 12, fontWeight: 900, letterSpacing: "0.16em" }}>{plan.name || `PLAN ${fpIdx + 1}`}</span>
+              </div>
             </div>
-          ))}
+
+            {/* Right: savings box */}
+            {plan.saved && (
+              <div style={{ background: "linear-gradient(135deg,#15803d,#16a34a)", borderRadius: 6, padding: "7px 16px", boxShadow: "0 2px 16px rgba(22,163,74,0.4)", textAlign: "center", flexShrink: 0 }}>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 6.5, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 2 }}>You Save</div>
+                <div style={{ color: "#fff", fontSize: 14, fontWeight: 900, letterSpacing: "0.01em", lineHeight: 1 }}>{plan.saved}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Specs strip */}
+          <div style={{ background: "rgba(0,0,0,0.35)", padding: "9px 20px", display: "flex", gap: 0, alignItems: "stretch", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            {[
+              plan.type     && { lbl: "UNIT TYPE",   val: plan.type },
+              plan.sqft     && { lbl: "INTERIOR",    val: `${plan.sqft} sqft` },
+              plan.bal      && { lbl: "BALCONY",     val: `${plan.bal} sqft` },
+              plan.nowPrice && { lbl: "PRICE",       val: plan.nowPrice },
+              plan.wasPrice && { lbl: "WAS",         val: plan.wasPrice, strike: true },
+              plan.psf      && { lbl: "PRICE/SQFT",  val: plan.psf },
+            ].filter(Boolean).map((item: any, si) => (
+              <div key={si} style={{ paddingLeft: si > 0 ? 20 : 0, borderLeft: si > 0 ? `1px solid rgba(255,255,255,0.08)` : undefined, marginLeft: si > 0 ? 20 : 0 }}>
+                <div style={{ color: C.gold, fontSize: 6.5, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 3 }}>{item.lbl}</div>
+                <div style={{ color: item.strike ? "rgba(255,255,255,0.45)" : "#fff", fontSize: 11.5, fontWeight: 800, letterSpacing: "0.01em", textDecoration: item.strike ? "line-through" : "none" }}>{item.val}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Floor plan image — fills remaining vertical space */}
