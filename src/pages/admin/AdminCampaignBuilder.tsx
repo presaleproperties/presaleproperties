@@ -67,6 +67,7 @@ interface IncentiveBanner {
 interface FormState {
   projectName: string; tagline: string; address: string; city: string;
   developerName: string; buildingType: string; completionDate: string; awards: string;
+  heroHeadline: string; heroSubheadline: string;
   planCount: number; plans: Plan[];
   deposits: Deposit[];
   fromPrice: string; fromPriceLabel: string; fromPsf: string; psfLabel: string;
@@ -87,6 +88,7 @@ const emptyPlan = (): Plan => ({
 const DEFAULT_STATE: FormState = {
   projectName: "", tagline: "", address: "", city: "", developerName: "",
   buildingType: "", completionDate: "", awards: "",
+  heroHeadline: "", heroSubheadline: "",
   planCount: 4,
   plans: [emptyPlan(), emptyPlan(), emptyPlan(), emptyPlan()],
   deposits: [
@@ -241,14 +243,13 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         <div style={{ position: "absolute", bottom: 18, left: 20, maxWidth: 340 }}>
           <div style={{ width: 32, height: 3, background: C.gold, marginBottom: 7, borderRadius: 2 }} />
           <div style={{ color: "#fff", fontSize: 34, fontWeight: 800, lineHeight: 1.0, letterSpacing: "-0.025em", textShadow: "0 2px 24px rgba(0,0,0,0.7)" }}>
-            {data.projectName || "Project Name"}
+            {data.heroHeadline || data.projectName || "Project Name"}
           </div>
-          <div style={{ color: C.gold, fontSize: 10, fontWeight: 600, marginTop: 5 }}>
-            {data.tagline || "by Developer"}
-          </div>
-          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 8, marginTop: 3 }}>
-            {data.address}{data.city ? ` · ${data.city}` : ""}
-          </div>
+          {(data.heroSubheadline || data.developerName) && (
+            <div style={{ color: C.gold, fontSize: 10, fontWeight: 600, marginTop: 5 }}>
+              {data.heroSubheadline || `by ${data.developerName}`}
+            </div>
+          )}
         </div>
 
         {/* bottom-right price */}
@@ -833,6 +834,8 @@ export default function AdminCampaignBuilder() {
       ...f,
       projectName: project.name,
       tagline: project.developer_name ? `by ${project.developer_name}` : "",
+      heroHeadline: project.name,
+      heroSubheadline: project.developer_name ? `by ${project.developer_name}` : "",
       address: project.address || "",
       city: `${project.neighborhood}, ${project.city}`,
       developerName: project.developer_name || "",
@@ -1132,26 +1135,49 @@ export default function AdminCampaignBuilder() {
 
                 {/* ─── TAB: Project ─── */}
                 <TabsContent value="project" className="mt-0 space-y-3">
-                  {[
-                    ["projectName", "Project Name"],
-                    ["tagline", "Tagline"],
-                    ["address", "Street Address"],
-                    ["city", "City / Area"],
-                    ["developerName", "Developer"],
-                    ["buildingType", "Building Type"],
-                    ["completionDate", "Completion Date"],
-                    ["awards", "Awards"],
-                    ["vipBadge", "VIP Badge Text"],
-                  ].map(([key, label]) => (
-                    <div key={key} className="space-y-1">
-                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</Label>
-                      <Input
-                        value={String((form as any)[key] || "")}
-                        onChange={e => set(key as keyof FormState, e.target.value)}
-                        className="h-8 text-xs"
-                      />
-                    </div>
-                  ))}
+                  {/* Hero Text Section */}
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-primary">Hero Section Text</p>
+                    {[
+                      ["heroHeadline", "Hero Headline (big text)"],
+                      ["heroSubheadline", "Hero Subheadline (gold text)"],
+                    ].map(([key, label]) => (
+                      <div key={key} className="space-y-1">
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</Label>
+                        <Input
+                          value={String((form as any)[key] || "")}
+                          onChange={e => set(key as keyof FormState, e.target.value)}
+                          placeholder={key === "heroHeadline" ? (form.projectName || "e.g. The Smithe") : (form.developerName ? `by ${form.developerName}` : "e.g. by Bosa Development")}
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Project Details */}
+                  <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Project Details (Info Bar)</p>
+                    {[
+                      ["projectName", "Project Name"],
+                      ["tagline", "Tagline"],
+                      ["address", "Street Address"],
+                      ["city", "City / Area"],
+                      ["developerName", "Developer"],
+                      ["buildingType", "Building Type"],
+                      ["completionDate", "Completion Date"],
+                      ["awards", "Awards"],
+                      ["vipBadge", "VIP Badge Text"],
+                    ].map(([key, label]) => (
+                      <div key={key} className="space-y-1">
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</Label>
+                        <Input
+                          value={String((form as any)[key] || "")}
+                          onChange={e => set(key as keyof FormState, e.target.value)}
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </TabsContent>
 
                 {/* ─── TAB: Plans & Pricing ─── */}
