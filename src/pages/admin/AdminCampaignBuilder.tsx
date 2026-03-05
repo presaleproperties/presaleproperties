@@ -62,7 +62,7 @@ interface AssignmentFormState {
   askingPrice: string; depositToLock: string;
   buyerAgentCommission: string;
   developerApprovalRequired: boolean;
-  heroImage: string | null; description: string;
+  heroImage: string | null; description: string; shortDescription: string;
   floorPlanUrl: string | null;
   agentIdx: number;
 }
@@ -76,7 +76,7 @@ const DEFAULT_ASSIGNMENT_STATE: AssignmentFormState = {
   askingPrice: "", depositToLock: "",
   buyerAgentCommission: "",
   developerApprovalRequired: false,
-  heroImage: null, description: "",
+  heroImage: null, description: "", shortDescription: "",
   floorPlanUrl: null,
   agentIdx: 0,
 };
@@ -823,10 +823,10 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         </div>
 
         {/* ── 5. DESCRIPTION ───────────────────────────────────────────── */}
-        {data.description && (
+        {(data.shortDescription || data.description) && (
           <div style={{ background: C.smoke, padding: "14px 26px", borderTop: `1px solid rgba(0,0,0,0.07)` }}>
-            <div style={{ color: C.textFaint, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 6 }}>Description</div>
-            <div style={{ color: C.ink, fontSize: 9, lineHeight: 1.6 }}>{data.description}</div>
+            <div style={{ color: C.textFaint, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 6 }}>About This Project</div>
+            <div style={{ color: C.ink, fontSize: 9, lineHeight: 1.6 }}>{data.shortDescription || data.description}</div>
           </div>
         )}
 
@@ -1059,10 +1059,13 @@ export default function AdminCampaignBuilder() {
       // Load assignment listings
       const { data: listingData } = await (supabase as any)
         .from("listings")
-        .select("id, title, project_name, unit_number, unit_type, interior_sqft, exterior_sqft, floor_level, exposure, parking, has_locker, estimated_completion, assignment_price, deposit_to_lock, buyer_agent_commission, developer_approval_required, description, address, city, featured_image, floor_plan_url, floor_plan_name")
+        .select("id, title, project_name, unit_number, unit_type, interior_sqft, exterior_sqft, floor_level, exposure, parking, has_locker, estimated_completion, assignment_price, deposit_to_lock, buyer_agent_commission, developer_approval_required, description, address, city, featured_image, floor_plan_url, floor_plan_name, project_id, presale_projects(short_description)")
         .eq("status", "published")
         .order("created_at", { ascending: false });
-      if (listingData) setAssignmentListings(listingData);
+      if (listingData) setAssignmentListings(listingData.map((l: any) => ({
+        ...l,
+        short_description: l.presale_projects?.short_description || "",
+      })));
 
       // Load template if editing existing
       if (templateId && templateId !== "new") {
@@ -1233,6 +1236,7 @@ export default function AdminCampaignBuilder() {
       developerApprovalRequired: !!listing.developer_approval_required,
       heroImage: listing.featured_image || null,
       description: listing.description || "",
+      shortDescription: listing.short_description || "",
       floorPlanUrl: listing.floor_plan_url || null,
       agentIdx: assignmentForm.agentIdx,
     });
