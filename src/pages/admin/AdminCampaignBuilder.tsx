@@ -1599,6 +1599,20 @@ export default function AdminCampaignBuilder() {
                       <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Description</p>
                       <textarea value={assignmentForm.description} onChange={e => setAssignmentForm(f => ({ ...f, description: e.target.value }))} rows={4} className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none" placeholder="Optional unit description…" />
                     </div>
+                    {/* About This Project */}
+                    <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">About This Project</p>
+                        <span className="text-[8px] text-muted-foreground/60">Shown on one-pager</span>
+                      </div>
+                      <textarea
+                        value={assignmentForm.shortDescription}
+                        onChange={e => setAssignmentForm(f => ({ ...f, shortDescription: e.target.value }))}
+                        rows={4}
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                        placeholder="Project short description (auto-filled from project, editable)…"
+                      />
+                    </div>
                   </TabsContent>
                   {/* PRICING TAB */}
                   <TabsContent value="pricing" className="mt-0 space-y-3">
