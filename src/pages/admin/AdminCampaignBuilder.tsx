@@ -665,7 +665,7 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
     { label: "Buyer's Comm.", value: data.buyerAgentCommission || "—" },
   ];
 
-  return (
+  return (<>
     <div style={{ position: "relative", display: "block" }}>
       <PageBtn pageIdx={0} label="Assignment" />
       <div
@@ -802,7 +802,88 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         </div>
       </div>
     </div>
-  );
+
+    {/* ══════════════════════════════════════════════════════════════════════
+        FLOOR PLAN PAGE 2  —  shown when floorPlanUrl is available
+    ══════════════════════════════════════════════════════════════════════ */}
+    {data.floorPlanUrl && (
+      <div style={{ position: "relative", display: "block", marginTop: 40 }}>
+        <PageBtn pageIdx={1} label="Floor Plan" />
+        <div
+          id="assignment-floor-plan-preview"
+          data-page-export="assignment-floor-plan"
+          data-page-label="assignment-floor-plan"
+          className="pdf-page"
+          style={{
+            width: PAGE_W, height: 792, minHeight: 792, maxHeight: 792,
+            background: "#fff",
+            fontFamily: "'Plus Jakarta Sans', 'DM Sans', Arial, sans-serif",
+            display: "flex", flexDirection: "column",
+            boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
+          }}
+        >
+          {/* Header bar */}
+          <div style={{ background: C.dark, padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, borderBottom: `2px solid ${C.gold}` }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 6.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>Unit Floor Plan</div>
+              <div style={{ color: "#fff", fontSize: 13, fontWeight: 800, letterSpacing: "0.02em" }}>{data.projectName || "Project Name"}{data.unitNumber ? ` · Unit ${data.unitNumber}` : ""}</div>
+            </div>
+            <LogoWhite height={28} />
+          </div>
+
+          {/* Spec pill */}
+          <div style={{ background: C.offWhite, padding: "8px 24px", flexShrink: 0, borderBottom: `1px solid ${C.smoke}` }}>
+            <div style={{ display: "inline-flex", alignItems: "center", background: C.gold, color: "#fff", fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", padding: "3px 12px", borderRadius: 3 }}>
+              {data.unitType ? `${data.unitType}` : "Floor Plan"}
+              {data.interiorSqft ? ` · ${data.interiorSqft} sqft Interior` : ""}
+              {data.exteriorSqft ? ` · ${data.exteriorSqft} sqft Outdoor` : ""}
+            </div>
+          </div>
+
+          {/* Floor plan image */}
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px 20px", background: "#fff" }}>
+            {data.floorPlanUrl.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? (
+              <img
+                src={data.floorPlanUrl}
+                crossOrigin="anonymous"
+                alt="Floor Plan"
+                style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
+              />
+            ) : (
+              <div style={{ textAlign: "center", padding: 32 }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
+                <div style={{ color: C.ink, fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Floor Plan PDF Available</div>
+                <div style={{ color: C.textMuted, fontSize: 9, wordBreak: "break-all" }}>{data.floorPlanUrl}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Agent footer */}
+          <div style={{ background: "linear-gradient(135deg,#0e0e0e,#161616)", borderTop: `2.5px solid ${C.gold}`, padding: "10px 22px", display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
+            {agent.photo
+              ? <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 46, height: 46, borderRadius: "50%", border: `2px solid ${C.gold}`, objectFit: "cover", objectPosition: "center 15%", display: "block", flexShrink: 0 }} />
+              : <div style={{ width: 46, height: 46, borderRadius: "50%", border: `2px solid ${C.gold}`, background: "#222", flexShrink: 0 }} />
+            }
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ color: "#fff", fontSize: 11, fontWeight: 900, letterSpacing: "0.06em", lineHeight: 1 }}>{agent.name}</div>
+              <div style={{ color: "#888", fontSize: 8.5, marginTop: 3 }}>{agent.title}</div>
+              {agent.languages && <div style={{ color: C.gold, fontSize: 8, marginTop: 2, letterSpacing: "0.04em" }}>{agent.languages}</div>}
+            </div>
+            <div style={{ width: 1, height: 30, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ color: "#fff", fontSize: 12, fontWeight: 900, lineHeight: 1 }}>{agent.phone}</div>
+              <div style={{ color: "#888", fontSize: 9, marginTop: 3 }}>{agent.email}</div>
+              <div style={{ color: C.gold, fontSize: 8.5, marginTop: 2 }}>{agent.website}</div>
+            </div>
+            <div style={{ width: 1, height: 30, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 7, lineHeight: 1.45, letterSpacing: "0.02em" }}>E&OE. Information subject to change.<br/>Not to be used as an offer to purchase.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </>);
 }
 
 // ─── MAIN PAGE ──────────────────────────────────────────────────────────────
@@ -886,7 +967,7 @@ export default function AdminCampaignBuilder() {
   const generatePDF = useCallback(async () => {
     setPdfGenerating(true);
     try {
-      const slug = (form.projectName || "campaign").toLowerCase().replace(/\s+/g, "-");
+      const slug = (campaignType === "assignment" ? (assignmentForm.projectName || "assignment") : (form.projectName || "campaign")).toLowerCase().replace(/\s+/g, "-");
       const pageEls = Array.from(document.querySelectorAll<HTMLElement>("[data-page-export]"));
       if (pageEls.length === 0) { toast.error("No pages found to export"); return; }
       for (let i = 0; i < pageEls.length; i++) {
@@ -899,7 +980,7 @@ export default function AdminCampaignBuilder() {
     } finally {
       setPdfGenerating(false);
     }
-  }, [form, screenshotEl]);
+  }, [form, assignmentForm, campaignType, screenshotEl]);
 
   // Screenshot a single page by index (for per-page button)
   const screenshotPage = useCallback(async (pageIndex: number) => {
@@ -908,13 +989,13 @@ export default function AdminCampaignBuilder() {
       const pageEls = Array.from(document.querySelectorAll<HTMLElement>("[data-page-export]"));
       const el = pageEls[pageIndex];
       if (!el) return;
-      const slug = (form.projectName || "campaign").toLowerCase().replace(/\s+/g, "-");
+      const slug = (campaignType === "assignment" ? (assignmentForm.projectName || "assignment") : (form.projectName || "campaign")).toLowerCase().replace(/\s+/g, "-");
       const label = el.getAttribute("data-page-label") || `page-${pageIndex + 1}`;
       await screenshotEl(el, `${slug}-${label}.png`);
     } finally {
       setScreenshottingPage(null);
     }
-  }, [form, screenshotEl]);
+  }, [form, assignmentForm, campaignType, screenshotEl]);
 
 
 
