@@ -842,20 +842,25 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
 
           {/* Floor plan image */}
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px 20px", background: "#fff" }}>
-            {data.floorPlanUrl.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? (
-              <img
-                src={data.floorPlanUrl}
-                crossOrigin="anonymous"
-                alt="Floor Plan"
-                style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
-              />
-            ) : (
-              <div style={{ textAlign: "center", padding: 32 }}>
-                <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
-                <div style={{ color: C.ink, fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Floor Plan PDF Available</div>
-                <div style={{ color: C.textMuted, fontSize: 9, wordBreak: "break-all" }}>{data.floorPlanUrl}</div>
-              </div>
-            )}
+            {(() => {
+              const isPdf = data.floorPlanUrl.split("?")[0].match(/\.pdf$/i);
+              return isPdf ? (
+                <div style={{ textAlign: "center", padding: 32 }}>
+                  <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
+                  <div style={{ color: C.ink, fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Floor Plan PDF</div>
+                  <div style={{ color: C.gold, fontSize: 9, wordBreak: "break-all" }}>
+                    <a href={data.floorPlanUrl} target="_blank" rel="noreferrer" style={{ color: C.gold }}>{data.floorPlanUrl.split("/").pop()?.split("?")[0] || "View PDF"}</a>
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={data.floorPlanUrl}
+                  crossOrigin="anonymous"
+                  alt="Floor Plan"
+                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
+                />
+              );
+            })()}
           </div>
 
           {/* Agent footer */}
