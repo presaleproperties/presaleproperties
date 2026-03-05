@@ -254,18 +254,6 @@ export default function AdminListings() {
           expiresAt.setDate(expiresAt.getDate() + 365);
           updates.expires_at = expiresAt.toISOString();
         }
-        // Copy map coordinates from project if not already set
-        if (!selectedListing.map_lat && !selectedListing.map_lng && selectedListing.project_id) {
-          const { data: proj } = await supabase
-            .from("presale_projects")
-            .select("map_lat, map_lng")
-            .eq("id", selectedListing.project_id)
-            .maybeSingle();
-          if (proj?.map_lat && proj?.map_lng) {
-            updates.map_lat = proj.map_lat;
-            updates.map_lng = proj.map_lng;
-          }
-        }
       } else {
         updates.rejection_reason = notes || null;
       }
@@ -572,8 +560,6 @@ export default function AdminListings() {
         address: editForm.address || null,
         developer_name: editForm.developer_name || null,
         featured_image: editForm.featured_image || null,
-        map_lat: editForm.map_lat ? parseFloat(editForm.map_lat) : null,
-        map_lng: editForm.map_lng ? parseFloat(editForm.map_lng) : null,
         unit_number: editForm.unit_number,
         unit_type: editForm.unit_type || null,
         beds: parseFloat(editForm.beds) || 0,
