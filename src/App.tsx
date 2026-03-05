@@ -87,6 +87,7 @@ const AdminCampaignBuilder = lazy(() => import("./pages/admin/AdminCampaignBuild
 const AdminCampaignHub = lazy(() => import("./pages/admin/AdminCampaignHub"));
 const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Assignments = lazy(() => import("./pages/Assignments"));
 const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
 const PresaleProjectDetail = lazy(() => import("./pages/PresaleProjectDetail"));
 const CityPresalePage = lazy(() => import("./pages/CityPresalePage"));
@@ -174,7 +175,8 @@ const App = () => (
             
             <Route path="/map-search" element={<MapSearch />} />
             
-            {/* Assignment Detail - Verified agents only */}
+            {/* Assignment browse + detail */}
+            <Route path="/assignments" element={<Assignments />} />
             <Route path="/assignments/:id" element={<AssignmentDetail />} />
             
             <Route path="/properties" element={<ResaleListings />} />
