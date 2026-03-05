@@ -60,6 +60,7 @@ interface AssignmentFormState {
   buyerAgentCommission: string;
   developerApprovalRequired: boolean;
   heroImage: string | null; description: string;
+  floorPlanUrl: string | null;
   agentIdx: number;
 }
 
@@ -73,6 +74,7 @@ const DEFAULT_ASSIGNMENT_STATE: AssignmentFormState = {
   buyerAgentCommission: "",
   developerApprovalRequired: false,
   heroImage: null, description: "",
+  floorPlanUrl: null,
   agentIdx: 0,
 };
 
@@ -1104,6 +1106,7 @@ export default function AdminCampaignBuilder() {
       developerApprovalRequired: !!listing.developer_approval_required,
       heroImage: listing.featured_image || null,
       description: listing.description || "",
+      floorPlanUrl: listing.floor_plan_url || null,
       agentIdx: assignmentForm.agentIdx,
     });
 
