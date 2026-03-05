@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 import logoWhiteAsset from "@/assets/logo-white.png";
 import { useNavigate, useParams } from "react-router-dom";
 import html2canvas from "html2canvas";
@@ -623,10 +624,15 @@ function PdfPageRenderer({ url, style }: { url: string; style?: React.CSSPropert
     let cancelled = false;
     (async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument({ url, withCredentials: false });
-        const pdf = await loadingTask.promise;
+        // Fetch as ArrayBuffer to avoid CORS issues with Supabase storage
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        if (cancelled || !canvasRef.current) return;
+
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         const page = await pdf.getPage(1);
         if (cancelled || !canvasRef.current) return;
+
         const viewport = page.getViewport({ scale: 2.5 });
         const canvas = canvasRef.current;
         canvas.width = viewport.width;
@@ -656,6 +662,7 @@ function PdfPageRenderer({ url, style }: { url: string; style?: React.CSSPropert
     />
   );
 }
+
 
 // ─── ASSIGNMENT ONE-PAGER PREVIEW ───────────────────────────────────────────
 function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
