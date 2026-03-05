@@ -36,6 +36,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
+import { ExpertAdvisoryCard } from "@/components/listings/ExpertAdvisoryCard";
+import { AboutContactForm } from "@/components/about/AboutContactForm";
 
 interface ListingRow {
   id: string;
@@ -102,6 +105,8 @@ const formatPrice = (price: number) =>
 export default function AssignmentDetail() {
   const { id } = useParams<{ id: string }>();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [formOpen, setFormOpen] = useState(false);
+  const { isVerified } = useVerifiedAgent();
 
   const { data: listing, isLoading, error } = useQuery({
     queryKey: ["assignment-detail", id],
@@ -434,8 +439,21 @@ export default function AssignmentDetail() {
           {/* RIGHT COLUMN */}
           <div className="space-y-6">
             {/* Pricing Card */}
-            <Card className="border-primary/20 sticky top-4">
-              <CardContent className="pt-6">
+            <Card className="border-primary/20 sticky top-4 overflow-hidden">
+              <CardContent className="pt-6 relative">
+                {/* Non-verified soft gate */}
+                {!isVerified && (
+                  <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-6 text-center rounded-xl">
+                    <Lock className="h-8 w-8 text-primary mb-3" />
+                    <p className="font-semibold text-foreground mb-1">Agent Access Only</p>
+                    <p className="text-sm text-muted-foreground mb-4">Verify your agent credentials to view full pricing & details.</p>
+                    <Button size="sm" className="w-full" onClick={() => setFormOpen(true)}>
+                      <Shield className="h-4 w-4 mr-2" />
+                      Request Access
+                    </Button>
+                  </div>
+                )}
+
                 <p className="text-sm text-muted-foreground mb-1">Assignment Price</p>
                 <div className="text-3xl font-bold text-foreground mb-3">
                   {formatPrice(listing.assignment_price)}
@@ -444,7 +462,7 @@ export default function AssignmentDetail() {
                 {discount && discount > 0 && (
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price!)}</span>
-                    <Badge variant="secondary" className="bg-green-500/10 text-green-700">Save {formatPrice(discount)}</Badge>
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400">Save {formatPrice(discount)}</Badge>
                   </div>
                 )}
 
@@ -470,7 +488,7 @@ export default function AssignmentDetail() {
                     </div>
                   )}
                   {listing.developer_approval_required && (
-                    <div className="flex justify-between text-amber-600">
+                    <div className="flex justify-between text-amber-600 dark:text-amber-400">
                       <span>Developer Approval Required</span>
                       <CheckCircle className="h-4 w-4" />
                     </div>
@@ -479,7 +497,7 @@ export default function AssignmentDetail() {
 
                 <Separator className="my-4" />
 
-                <Button size="lg" className="w-full">
+                <Button size="lg" className="w-full" onClick={() => setFormOpen(true)}>
                   <MessageSquare className="h-4 w-4 mr-2" />
                   Inquire About This Unit
                 </Button>
@@ -523,11 +541,45 @@ export default function AssignmentDetail() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Documents Sidebar */}
+            {(listing.floor_plan_url || listing.brochure_url) && (
+              <Card>
+                <CardHeader><CardTitle className="text-base flex items-center gap-2"><Download className="h-4 w-4 text-primary" />Downloads</CardTitle></CardHeader>
+                <CardContent className="space-y-2">
+                  {listing.floor_plan_url && (
+                    <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
+                      <FileText className="h-4 w-4 text-primary shrink-0" />
+                      <span className="flex-1 text-sm font-medium">{listing.floor_plan_name || "Floor Plan"}</span>
+                      <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                    </a>
+                  )}
+                  {listing.brochure_url && (
+                    <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
+                      <BookOpen className="h-4 w-4 text-primary shrink-0" />
+                      <span className="flex-1 text-sm font-medium">Project Brochure</span>
+                      <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                    </a>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Expert Advisory Card */}
+            <ExpertAdvisoryCard />
           </div>
         </div>
       </main>
 
       <Footer />
+
+      <AboutContactForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        selectedAgentName={listing.title}
+      />
     </div>
   );
 }
