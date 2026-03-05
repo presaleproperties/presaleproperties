@@ -84,6 +84,8 @@ interface PresaleProject {
   rental_restrictions: string | null;
   strata_fees: string | null;
   slug: string;
+  map_lat: number | null;
+  map_lng: number | null;
 }
 
 interface AddListingForm {
@@ -95,6 +97,8 @@ interface AddListingForm {
   address: string;
   developer_name: string;
   featured_image: string;
+  map_lat: string;
+  map_lng: string;
   // Unit details
   unit_number: string;
   unit_type: string;
@@ -127,7 +131,7 @@ interface AddListingForm {
 
 const EMPTY_FORM: AddListingForm = {
   project_id: "", project_name: "", city: "", neighborhood: "", address: "",
-  developer_name: "", featured_image: "",
+  developer_name: "", featured_image: "", map_lat: "", map_lng: "",
   unit_number: "", unit_type: "", beds: "", baths: "", floor_level: "",
   interior_sqft: "", exterior_sqft: "", exposure: "", parking: "", has_locker: false,
   floor_plan_url: "", floor_plan_name: "",
@@ -167,6 +171,12 @@ export default function AdminListings() {
   const [floorPlanDragOver, setFloorPlanDragOver] = useState(false);
   const [brochureDragOver, setBrochureDragOver] = useState(false);
 
+  // Edit listing dialog state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editListingId, setEditListingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<AddListingForm>(EMPTY_FORM);
+  const [editSaving, setEditSaving] = useState(false);
+
   useEffect(() => {
     fetchListings();
     fetchProjects();
@@ -179,7 +189,7 @@ export default function AdminListings() {
   const fetchProjects = async () => {
     const { data } = await supabase
       .from("presale_projects")
-      .select("id, name, city, neighborhood, address, developer_name, featured_image, gallery_images, completion_year, completion_month, starting_price, deposit_percent, deposit_structure, brochure_files, highlights, amenities, near_skytrain, rental_restrictions, strata_fees, slug")
+      .select("id, name, city, neighborhood, address, developer_name, featured_image, gallery_images, completion_year, completion_month, starting_price, deposit_percent, deposit_structure, brochure_files, highlights, amenities, near_skytrain, rental_restrictions, strata_fees, slug, map_lat, map_lng")
       .eq("is_published", true)
       .order("name");
     if (data) setProjects(data as PresaleProject[]);
@@ -235,12 +245,7 @@ export default function AdminListings() {
     setProcessing(true);
     try {
       const newStatus = actionType === "approve" ? "published" : "rejected";
-      const updates: {
-        status: "published" | "rejected";
-        rejection_reason?: string | null;
-        published_at?: string | null;
-        expires_at?: string | null
-      } = { status: newStatus };
+      const updates: Record<string, any> = { status: newStatus };
 
       if (actionType === "approve") {
         updates.published_at = new Date().toISOString();
@@ -248,6 +253,18 @@ export default function AdminListings() {
           const expiresAt = new Date();
           expiresAt.setDate(expiresAt.getDate() + 365);
           updates.expires_at = expiresAt.toISOString();
+        }
+        // Copy map coordinates from project if not already set
+        if (!selectedListing.map_lat && !selectedListing.map_lng && selectedListing.project_id) {
+          const { data: proj } = await supabase
+            .from("presale_projects")
+            .select("map_lat, map_lng")
+            .eq("id", selectedListing.project_id)
+            .maybeSingle();
+          if (proj?.map_lat && proj?.map_lng) {
+            updates.map_lat = proj.map_lat;
+            updates.map_lng = proj.map_lng;
+          }
         }
       } else {
         updates.rejection_reason = notes || null;
@@ -324,6 +341,8 @@ export default function AdminListings() {
       address: project.address || "",
       developer_name: project.developer_name || "",
       featured_image: project.featured_image || "",
+      map_lat: project.map_lat ? String(project.map_lat) : "",
+      map_lng: project.map_lng ? String(project.map_lng) : "",
       estimated_completion: f.estimated_completion || completion,
       brochure_url: f.brochure_url || projectBrochure || "",
       title: f.unit_number ? `${project.name} – Unit ${f.unit_number}` : project.name,
@@ -502,7 +521,95 @@ export default function AdminListings() {
     }
   };
 
-  // ── Filter helpers ───────────────────────────────────────────────────────
+  // ── Open edit dialog ─────────────────────────────────────────────────────
+  const openEdit = (listing: Listing) => {
+    setEditListingId(listing.id);
+    setEditForm({
+      project_id: listing.project_id || "",
+      project_name: listing.project_name || "",
+      city: listing.city || "",
+      neighborhood: listing.neighborhood || "",
+      address: listing.address || "",
+      developer_name: listing.developer_name || "",
+      featured_image: listing.featured_image || "",
+      map_lat: listing.map_lat ? String(listing.map_lat) : "",
+      map_lng: listing.map_lng ? String(listing.map_lng) : "",
+      unit_number: listing.unit_number || "",
+      unit_type: listing.unit_type || "",
+      beds: listing.beds != null ? String(listing.beds) : "",
+      baths: listing.baths != null ? String(listing.baths) : "",
+      floor_level: listing.floor_level != null ? String(listing.floor_level) : "",
+      interior_sqft: listing.interior_sqft != null ? String(listing.interior_sqft) : "",
+      exterior_sqft: listing.exterior_sqft != null ? String(listing.exterior_sqft) : "",
+      exposure: listing.exposure || "",
+      parking: listing.parking || "",
+      has_locker: !!listing.has_locker,
+      floor_plan_url: listing.floor_plan_url || "",
+      floor_plan_name: listing.floor_plan_name || "",
+      brochure_url: listing.brochure_url || "",
+      estimated_completion: listing.estimated_completion || "",
+      assignment_price: listing.assignment_price != null ? String(listing.assignment_price) : "",
+      original_price: listing.original_price != null ? String(listing.original_price) : "",
+      deposit_to_lock: listing.deposit_to_lock != null ? String(listing.deposit_to_lock) : "",
+      buyer_agent_commission: listing.buyer_agent_commission || "",
+      developer_approval_required: !!listing.developer_approval_required,
+      description: listing.description || "",
+      title: listing.title || "",
+    });
+    setEditOpen(true);
+  };
+
+  // ── Save edited listing ──────────────────────────────────────────────────
+  const handleEditListing = async () => {
+    if (!editListingId) return;
+    setEditSaving(true);
+    try {
+      const payload: Record<string, any> = {
+        title: editForm.title,
+        project_name: editForm.project_name,
+        city: editForm.city,
+        neighborhood: editForm.neighborhood || null,
+        address: editForm.address || null,
+        developer_name: editForm.developer_name || null,
+        featured_image: editForm.featured_image || null,
+        map_lat: editForm.map_lat ? parseFloat(editForm.map_lat) : null,
+        map_lng: editForm.map_lng ? parseFloat(editForm.map_lng) : null,
+        unit_number: editForm.unit_number,
+        unit_type: editForm.unit_type || null,
+        beds: parseFloat(editForm.beds) || 0,
+        baths: parseFloat(editForm.baths) || 0,
+        floor_level: editForm.floor_level ? parseInt(editForm.floor_level) : null,
+        interior_sqft: editForm.interior_sqft ? parseInt(editForm.interior_sqft) : null,
+        exterior_sqft: editForm.exterior_sqft ? parseInt(editForm.exterior_sqft) : null,
+        exposure: editForm.exposure || null,
+        parking: editForm.parking || null,
+        has_locker: editForm.has_locker,
+        floor_plan_url: editForm.floor_plan_url || null,
+        floor_plan_name: editForm.floor_plan_name || null,
+        brochure_url: editForm.brochure_url || null,
+        estimated_completion: editForm.estimated_completion || null,
+        assignment_price: parseFloat(String(editForm.assignment_price).replace(/[^0-9.]/g, "")) || 0,
+        original_price: editForm.original_price ? parseFloat(String(editForm.original_price).replace(/[^0-9.]/g, "")) : null,
+        deposit_to_lock: editForm.deposit_to_lock ? parseFloat(String(editForm.deposit_to_lock).replace(/[^0-9.]/g, "")) : null,
+        buyer_agent_commission: editForm.buyer_agent_commission || null,
+        developer_approval_required: editForm.developer_approval_required,
+        description: editForm.description || null,
+      };
+
+      const { error } = await (supabase as any).from("listings").update(payload).eq("id", editListingId);
+      if (error) throw error;
+
+      toast({ title: "Listing updated ✓", description: `"${editForm.title}" has been saved` });
+      setEditOpen(false);
+      setEditListingId(null);
+      fetchListings();
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error updating listing", description: String(err), variant: "destructive" });
+    } finally {
+      setEditSaving(false);
+    }
+  };
   const filterBySearch = (list: Listing[]) => {
     if (!searchQuery.trim()) return list;
     const query = searchQuery.toLowerCase();
@@ -626,7 +733,8 @@ export default function AdminListings() {
                     <AdminAssignmentCard key={l.id} listing={l} showApprovalActions onRefresh={fetchListings}
                       onPreview={() => setPreviewListing(l)}
                       onApprove={() => handleAction(l, "approve")}
-                      onReject={() => handleAction(l, "reject")} />
+                      onReject={() => handleAction(l, "reject")}
+                      onEdit={() => openEdit(l)} />
                   ))}</div>}
               </TabsContent>
 
@@ -637,7 +745,8 @@ export default function AdminListings() {
                     <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings}
                       onPreview={() => setPreviewListing(l)}
                       onToggleFeatured={() => toggleFeatured(l)}
-                      isUpdatingFeatured={updatingFeatured === l.id} />
+                      isUpdatingFeatured={updatingFeatured === l.id}
+                      onEdit={() => openEdit(l)} />
                   ))}</div>}
               </TabsContent>
 
@@ -648,7 +757,8 @@ export default function AdminListings() {
                     <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings}
                       onPreview={() => setPreviewListing(l)}
                       onToggleFeatured={() => toggleFeatured(l)}
-                      isUpdatingFeatured={updatingFeatured === l.id} />
+                      isUpdatingFeatured={updatingFeatured === l.id}
+                      onEdit={() => openEdit(l)} />
                   ))}</div>}
               </TabsContent>
 
@@ -656,7 +766,7 @@ export default function AdminListings() {
                 {filteredListings.length === 0
                   ? renderEmptyState(<Pause className="h-12 w-12 text-muted-foreground" />, "No paused assignments")
                   : <div className="space-y-4">{filteredListings.map(l => (
-                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings} onPreview={() => setPreviewListing(l)} />
+                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings} onPreview={() => setPreviewListing(l)} onEdit={() => openEdit(l)} />
                   ))}</div>}
               </TabsContent>
 
@@ -664,7 +774,7 @@ export default function AdminListings() {
                 {filteredListings.length === 0
                   ? renderEmptyState(<FileX className="h-12 w-12 text-muted-foreground" />, "No expired assignments")
                   : <div className="space-y-4">{filteredListings.map(l => (
-                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings} onPreview={() => setPreviewListing(l)} />
+                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings} onPreview={() => setPreviewListing(l)} onEdit={() => openEdit(l)} />
                   ))}</div>}
               </TabsContent>
 
@@ -679,7 +789,8 @@ export default function AdminListings() {
                       onApprove={() => handleAction(l, "approve")}
                       onReject={() => handleAction(l, "reject")}
                       onToggleFeatured={l.status === "published" ? () => toggleFeatured(l) : undefined}
-                      isUpdatingFeatured={updatingFeatured === l.id} />
+                      isUpdatingFeatured={updatingFeatured === l.id}
+                      onEdit={() => openEdit(l)} />
                   ))}</div>}
               </TabsContent>
             </>
@@ -1002,6 +1113,116 @@ export default function AdminListings() {
             <Button onClick={handleAddListing} disabled={addSaving || !addForm.project_id || !addForm.unit_number} className="gap-2">
               {addSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
               {addSaving ? "Creating…" : "Create Listing"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Edit Listing Dialog ──────────────────────────────────────────────── */}
+      <Dialog open={editOpen} onOpenChange={open => { setEditOpen(open); if (!open) setEditListingId(null); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] p-0 flex flex-col">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-primary" />
+              Edit Assignment Listing
+            </DialogTitle>
+            <DialogDescription>Update unit details, pricing, and documents for this listing.</DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="flex-1 overflow-auto">
+            <div className="px-6 py-5 space-y-6">
+              {/* Project info (read-only) */}
+              {editForm.project_id && (
+                <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
+                  {editForm.featured_image && <img src={editForm.featured_image} alt="" className="h-8 w-10 rounded object-cover shrink-0" />}
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold truncate">{editForm.project_name}</div>
+                    <div className="text-xs text-muted-foreground">{editForm.city}{editForm.developer_name ? ` · ${editForm.developer_name}` : ""}</div>
+                  </div>
+                  <Badge className="ml-auto text-[10px] shrink-0 bg-primary text-primary-foreground">Linked Project</Badge>
+                </div>
+              )}
+
+              {/* Unit Details */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Unit Details</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {([
+                    ["unit_number", "Unit Number *", "1204"],
+                    ["unit_type", "Unit Type", "2 Bed + Den"],
+                    ["beds", "Bedrooms", "2"],
+                    ["baths", "Bathrooms", "2"],
+                    ["floor_level", "Floor Level", "12"],
+                    ["exposure", "Exposure", "South-West"],
+                    ["interior_sqft", "Interior sqft", "850"],
+                    ["exterior_sqft", "Balcony sqft", "80"],
+                    ["parking", "Parking", "1 Underground"],
+                    ["estimated_completion", "Est. Completion", "Q3 2026"],
+                  ] as [keyof AddListingForm, string, string][]).map(([key, label, ph]) => (
+                    <div key={key} className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">{label}</Label>
+                      <Input value={String(editForm[key] ?? "")} onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))} placeholder={ph} className="h-9" />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-4 pt-1">
+                  {([["has_locker", "Locker Included"], ["developer_approval_required", "Dev. Approval Required"]] as [keyof AddListingForm, string][]).map(([key, label]) => (
+                    <label key={key} className="flex items-center gap-2 cursor-pointer select-none">
+                      <button type="button" onClick={() => setEditForm(f => ({ ...f, [key]: !f[key] }))} className={`h-5 w-9 rounded-full transition-colors relative ${editForm[key] ? "bg-primary" : "bg-muted"}`}>
+                        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${editForm[key] ? "left-[18px]" : "left-0.5"}`} />
+                      </button>
+                      <span className="text-xs text-muted-foreground">{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Floor Plan URL */}
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Floor Plan URL</p>
+                <Input value={editForm.floor_plan_url} onChange={e => setEditForm(f => ({ ...f, floor_plan_url: e.target.value }))} placeholder="https://… or leave blank" className="h-9" />
+                {editForm.floor_plan_url && editForm.floor_plan_url.match(/\.(jpg|jpeg|png|webp)$/i) && (
+                  <img src={editForm.floor_plan_url} alt="Floor plan" className="w-full max-h-40 object-contain rounded-lg border" />
+                )}
+              </div>
+
+              {/* Brochure URL */}
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Brochure URL</p>
+                <Input value={editForm.brochure_url} onChange={e => setEditForm(f => ({ ...f, brochure_url: e.target.value }))} placeholder="https://… or leave blank" className="h-9" />
+              </div>
+
+              {/* Pricing */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Pricing</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {([["assignment_price", "Assignment Price", "$899,000"], ["original_price", "Original Price", "$780,000"], ["deposit_to_lock", "Deposit to Lock", "$50,000"], ["buyer_agent_commission", "Buyer Agent Commission", "3%"]] as [keyof AddListingForm, string, string][]).map(([key, label, ph]) => (
+                    <div key={key} className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">{label}</Label>
+                      <Input value={String(editForm[key] ?? "")} onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))} placeholder={ph} className="h-9" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Title + Description */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Listing Info</p>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Title</Label>
+                  <Input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} className="h-9" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Description</Label>
+                  <Textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} rows={3} className="resize-none text-sm" />
+                </div>
+              </div>
+            </div>
+          </ScrollArea>
+          <DialogFooter className="px-6 py-4 border-t shrink-0">
+            <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button onClick={handleEditListing} disabled={editSaving} className="gap-2">
+              {editSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              {editSaving ? "Saving…" : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>
