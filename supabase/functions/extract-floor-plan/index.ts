@@ -75,7 +75,7 @@ Return null for any field you cannot determine.`,
       ];
     }
 
-    const aiResp = await fetch("https://lovable.dev/api/ai/v1/chat/completions", {
+    const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
