@@ -752,21 +752,21 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 26px 18px" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
               <div>
-                <div style={{ display: "inline-block", background: C.gold, color: "#fff", fontSize: 7.5, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", padding: "3px 10px", borderRadius: 3, marginBottom: 8 }}>
+                <div style={{ display: "inline-block", background: C.gold, color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", padding: "4px 12px", borderRadius: 3, marginBottom: 8 }}>
                   Assignment of Contract
                 </div>
                 <div style={{ color: "#ffffff", fontSize: 28, fontWeight: 900, lineHeight: 1.1, letterSpacing: "-0.01em", textShadow: "0 2px 16px rgba(0,0,0,0.7)" }}>
                   {data.projectName || "Project Name"}
                 </div>
                 {data.address && (
-                  <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 9, marginTop: 5, letterSpacing: "0.04em" }}>
+                  <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 5, letterSpacing: "0.04em" }}>
                     {data.address}{data.city ? `, ${data.city}` : ""}
                   </div>
                 )}
               </div>
               {data.unitNumber && (
                 <div style={{ textAlign: "right", paddingBottom: 2 }}>
-                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 7.5, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 3 }}>Unit</div>
+                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 3 }}>Unit</div>
                   <div style={{ color: C.gold, fontSize: 22, fontWeight: 900, lineHeight: 1 }}>{data.unitNumber}</div>
                 </div>
               )}
@@ -777,13 +777,13 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         {/* ── 2. PRICE BAR ─────────────────────────────────────────────── */}
         <div style={{ background: C.dark, display: "flex", borderBottom: `1px solid ${C.coal}` }}>
           <div style={{ flex: 1, padding: "16px 26px", borderRight: `1px solid ${C.coal}` }}>
-            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>Asking Price</div>
+            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>Asking Price</div>
             <div style={{ color: C.gold, fontSize: 26, fontWeight: 900, letterSpacing: "-0.01em", lineHeight: 1 }}>
               {fmtPrice(data.askingPrice)}
             </div>
           </div>
           <div style={{ flex: 1, padding: "16px 26px" }}>
-            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>Deposit to Lock</div>
+            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>Deposit to Lock</div>
             <div style={{ color: "#ffffff", fontSize: 26, fontWeight: 900, letterSpacing: "-0.01em", lineHeight: 1 }}>
               {fmtPrice(data.depositToLock)}
             </div>
@@ -802,8 +802,8 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
               flex: 1, padding: "11px 16px", textAlign: "center",
               borderRight: i < arr.length - 1 ? `1px solid rgba(255,255,255,0.08)` : undefined,
             }}>
-              <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 6.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 4 }}>{item.label}</div>
-              <div style={{ color: "#ffffff", fontSize: 11, fontWeight: 700, lineHeight: 1 }}>{item.value}</div>
+              <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 4 }}>{item.label}</div>
+              <div style={{ color: "#ffffff", fontSize: 13, fontWeight: 700, lineHeight: 1 }}>{item.value}</div>
             </div>
           ))}
         </div>
@@ -816,8 +816,8 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
                 width: "33.333%", padding: "8px 12px 8px 0",
                 borderBottom: i < 3 ? `1px solid ${C.smoke}` : undefined,
               }}>
-                <div style={{ color: C.textFaint, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 3 }}>{item.label}</div>
-                <div style={{ color: C.ink, fontSize: 10.5, fontWeight: 700 }}>{item.value}</div>
+                <div style={{ color: C.textFaint, fontSize: 8.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 3 }}>{item.label}</div>
+                <div style={{ color: C.ink, fontSize: 12.5, fontWeight: 700 }}>{item.value}</div>
               </div>
             ))}
           </div>
@@ -826,8 +826,8 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
         {/* ── 5. DESCRIPTION ───────────────────────────────────────────── */}
         {(data.shortDescription || data.description) && (
           <div style={{ background: C.smoke, padding: "14px 26px", borderTop: `1px solid rgba(0,0,0,0.07)` }}>
-            <div style={{ color: C.textFaint, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 6 }}>About This Project</div>
-            <div style={{ color: C.ink, fontSize: 9, lineHeight: 1.6 }}>{data.shortDescription || data.description}</div>
+            <div style={{ color: C.textFaint, fontSize: 8.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 6 }}>About This Project</div>
+            <div style={{ color: C.ink, fontSize: 11.5, lineHeight: 1.65 }}>{data.shortDescription || data.description}</div>
           </div>
         )}
 
@@ -838,19 +838,19 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
             : <div style={{ width: 54, height: 54, borderRadius: "50%", border: `2px solid ${C.gold}`, background: "#222", flexShrink: 0 }} />
           }
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: "#fff", fontSize: 12, fontWeight: 900, letterSpacing: "0.06em", lineHeight: 1 }}>{agent.name}</div>
-            <div style={{ color: "#888", fontSize: 9.5, marginTop: 4, lineHeight: 1 }}>{agent.title}</div>
-            {agent.languages && <div style={{ color: C.gold, fontSize: 8.5, marginTop: 3, lineHeight: 1, letterSpacing: "0.04em" }}>{agent.languages}</div>}
+          <div style={{ color: "#fff", fontSize: 13, fontWeight: 900, letterSpacing: "0.06em", lineHeight: 1 }}>{agent.name}</div>
+            <div style={{ color: "#888", fontSize: 11, marginTop: 4, lineHeight: 1 }}>{agent.title}</div>
+            {agent.languages && <div style={{ color: C.gold, fontSize: 10, marginTop: 3, lineHeight: 1, letterSpacing: "0.04em" }}>{agent.languages}</div>}
           </div>
           <div style={{ width: 1, height: 34, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
           <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ color: "#fff", fontSize: 13, fontWeight: 900, lineHeight: 1 }}>{agent.phone}</div>
-            <div style={{ color: "#888", fontSize: 9.5, marginTop: 4, lineHeight: 1 }}>{agent.email}</div>
-            <div style={{ color: C.gold, fontSize: 9, marginTop: 3, lineHeight: 1 }}>{agent.website}</div>
+            <div style={{ color: "#fff", fontSize: 14, fontWeight: 900, lineHeight: 1 }}>{agent.phone}</div>
+            <div style={{ color: "#888", fontSize: 11, marginTop: 4, lineHeight: 1 }}>{agent.email}</div>
+            <div style={{ color: C.gold, fontSize: 10.5, marginTop: 3, lineHeight: 1 }}>{agent.website}</div>
           </div>
           <div style={{ width: 1, height: 34, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
           <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 7.5, lineHeight: 1.45, letterSpacing: "0.02em" }}>E&OE. Information subject to change.<br/>Not to be used as an offer to purchase.</div>
+            <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 9, lineHeight: 1.45, letterSpacing: "0.02em" }}>E&OE. Information subject to change.<br/>Not to be used as an offer to purchase.</div>
           </div>
         </div>
       </div>
