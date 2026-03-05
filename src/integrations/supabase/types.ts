@@ -1357,6 +1357,7 @@ export type Database = {
           assignment_price: number
           baths: number
           beds: number
+          brochure_url: string | null
           buyer_agent_commission: string | null
           city: string
           created_at: string
@@ -1399,6 +1400,7 @@ export type Database = {
           assignment_price?: number
           baths?: number
           beds?: number
+          brochure_url?: string | null
           buyer_agent_commission?: string | null
           city?: string
           created_at?: string
@@ -1441,6 +1443,7 @@ export type Database = {
           assignment_price?: number
           baths?: number
           beds?: number
+          brochure_url?: string | null
           buyer_agent_commission?: string | null
           city?: string
           created_at?: string

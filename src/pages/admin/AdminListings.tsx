@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,6 +34,10 @@ import {
   Upload,
   X,
   Layers,
+  Sparkles,
+  FileText,
+  BookOpen,
+  Download,
 } from "lucide-react";
 
 interface Listing {
@@ -97,6 +101,8 @@ interface AddListingForm {
   // Floor plan
   floor_plan_url: string;
   floor_plan_name: string;
+  // Brochure
+  brochure_url: string;
   // Dates / completion
   estimated_completion: string;
   // Pricing
@@ -117,6 +123,7 @@ const EMPTY_FORM: AddListingForm = {
   unit_number: "", unit_type: "", beds: "", baths: "", floor_level: "",
   interior_sqft: "", exterior_sqft: "", exposure: "", parking: "", has_locker: false,
   floor_plan_url: "", floor_plan_name: "",
+  brochure_url: "",
   estimated_completion: "",
   assignment_price: "", original_price: "", deposit_to_lock: "", buyer_agent_commission: "",
   developer_approval_required: false,
@@ -147,6 +154,10 @@ export default function AdminListings() {
   const [projectSearch, setProjectSearch] = useState("");
   const [projectSearchFocused, setProjectSearchFocused] = useState(false);
   const [floorPlanUploading, setFloorPlanUploading] = useState(false);
+  const [floorPlanExtracting, setFloorPlanExtracting] = useState(false);
+  const [brochureUploading, setBrochureUploading] = useState(false);
+  const [floorPlanDragOver, setFloorPlanDragOver] = useState(false);
+  const [brochureDragOver, setBrochureDragOver] = useState(false);
 
   useEffect(() => {
     fetchListings();
@@ -160,7 +171,7 @@ export default function AdminListings() {
   const fetchProjects = async () => {
     const { data } = await supabase
       .from("presale_projects")
-      .select("id, name, city, neighborhood, address, developer_name, featured_image, completion_year, completion_month, starting_price, deposit_percent")
+      .select("id, name, city, neighborhood, address, developer_name, featured_image, completion_year, completion_month, starting_price, deposit_percent, brochure_files")
       .eq("is_published", true)
       .order("name");
     if (data) setProjects(data as PresaleProject[]);
@@ -288,10 +299,13 @@ export default function AdminListings() {
   };
 
   // ── Project picker for add dialog ────────────────────────────────────────
-  const handleProjectSelect = (project: PresaleProject) => {
+  const handleProjectSelect = (project: PresaleProject & { brochure_files?: string[] | null }) => {
     const completion = project.completion_month && project.completion_year
       ? `${MONTHS[project.completion_month]} ${project.completion_year}`
       : project.completion_year ? `${project.completion_year}` : "";
+
+    // Pull first brochure from project if available
+    const projectBrochure = project.brochure_files?.[0] || null;
 
     setAddForm(f => ({
       ...f,
@@ -303,18 +317,17 @@ export default function AdminListings() {
       developer_name: project.developer_name || "",
       featured_image: project.featured_image || "",
       estimated_completion: f.estimated_completion || completion,
-      // Auto-suggest title
+      brochure_url: f.brochure_url || projectBrochure || "",
       title: f.unit_number ? `${project.name} – Unit ${f.unit_number}` : project.name,
     }));
     setProjectSearch(project.name);
     setProjectSearchFocused(false);
   };
 
-  // ── Floor plan upload ────────────────────────────────────────────────────
-  const handleFloorPlanUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // ── Upload + AI-extract floor plan ──────────────────────────────────────
+  const uploadAndExtractFloorPlan = async (file: File) => {
     setFloorPlanUploading(true);
+    let publicUrl = "";
     try {
       const ext = file.name.split(".").pop();
       const path = `floor-plans/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -323,17 +336,99 @@ export default function AdminListings() {
         .upload(path, file, { upsert: true });
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from("listing-files").getPublicUrl(path);
+      publicUrl = urlData.publicUrl;
       setAddForm(f => ({
         ...f,
-        floor_plan_url: urlData.publicUrl,
+        floor_plan_url: publicUrl,
         floor_plan_name: f.floor_plan_name || file.name.replace(/\.[^/.]+$/, ""),
       }));
-      toast({ title: "Floor plan uploaded ✓" });
+      toast({ title: "Floor plan uploaded ✓", description: "Extracting details with AI…" });
     } catch (err) {
       toast({ title: "Upload failed", description: String(err), variant: "destructive" });
-    } finally {
       setFloorPlanUploading(false);
+      return;
     }
+    setFloorPlanUploading(false);
+
+    // AI extraction
+    setFloorPlanExtracting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("extract-floor-plan", {
+        body: { fileUrl: publicUrl, fileName: file.name },
+      });
+      if (error) throw error;
+      if (data?.data) {
+        const d = data.data;
+        setAddForm(f => ({
+          ...f,
+          unit_number: d.unit_number || f.unit_number,
+          unit_type: d.unit_type || f.unit_type,
+          beds: d.beds != null ? String(d.beds) : f.beds,
+          baths: d.baths != null ? String(d.baths) : f.baths,
+          floor_level: d.floor_level != null ? String(d.floor_level) : f.floor_level,
+          interior_sqft: d.interior_sqft != null ? String(d.interior_sqft) : f.interior_sqft,
+          exterior_sqft: d.exterior_sqft != null ? String(d.exterior_sqft) : f.exterior_sqft,
+          exposure: d.exposure || f.exposure,
+          floor_plan_name: d.floor_plan_name || f.floor_plan_name,
+          title: f.project_name && (d.unit_number || f.unit_number)
+            ? `${f.project_name} – Unit ${d.unit_number || f.unit_number}`
+            : f.title,
+        }));
+        toast({ title: "AI extracted unit details ✓", description: "Review and adjust as needed" });
+      }
+    } catch (err) {
+      toast({ title: "AI extraction skipped", description: "Fill in unit details manually", variant: "default" });
+    } finally {
+      setFloorPlanExtracting(false);
+    }
+  };
+
+  const handleFloorPlanUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadAndExtractFloorPlan(file);
+  };
+
+  const handleFloorPlanDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setFloorPlanDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    await uploadAndExtractFloorPlan(file);
+  };
+
+  // ── Brochure upload ──────────────────────────────────────────────────────
+  const uploadBrochure = async (file: File) => {
+    setBrochureUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `brochures/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("listing-files")
+        .upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from("listing-files").getPublicUrl(path);
+      setAddForm(f => ({ ...f, brochure_url: urlData.publicUrl }));
+      toast({ title: "Brochure uploaded ✓" });
+    } catch (err) {
+      toast({ title: "Brochure upload failed", description: String(err), variant: "destructive" });
+    } finally {
+      setBrochureUploading(false);
+    }
+  };
+
+  const handleBrochureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadBrochure(file);
+  };
+
+  const handleBrochureDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setBrochureDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    await uploadBrochure(file);
   };
 
   // ── Save new listing ──────────────────────────────────────────────────────
@@ -372,6 +467,7 @@ export default function AdminListings() {
         has_locker: addForm.has_locker,
         floor_plan_url: addForm.floor_plan_url || null,
         floor_plan_name: addForm.floor_plan_name || null,
+        brochure_url: addForm.brochure_url || null,
         estimated_completion: addForm.estimated_completion || null,
         assignment_price: parseFloat(String(addForm.assignment_price).replace(/[^0-9.]/g, "")) || 0,
         original_price: addForm.original_price ? parseFloat(String(addForm.original_price).replace(/[^0-9.]/g, "")) : null,
@@ -764,16 +860,26 @@ export default function AdminListings() {
                 </div>
               </div>
 
+
               {/* ── Floor Plan Upload ── */}
               <div className="space-y-3">
-                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Floor Plan</p>
+                <div className="flex items-center justify-between border-b pb-1">
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Floor Plan</p>
+                  {floorPlanExtracting && (
+                    <span className="flex items-center gap-1.5 text-xs text-primary font-medium">
+                      <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+                      AI extracting details…
+                    </span>
+                  )}
+                </div>
                 {addForm.floor_plan_url ? (
                   <div className="rounded-lg border border-primary/30 bg-primary/5 overflow-hidden">
                     {addForm.floor_plan_url.match(/\.(jpg|jpeg|png|webp|gif)$/i)
-                      ? <img src={addForm.floor_plan_url} alt="Floor plan" className="w-full max-h-48 object-contain" />
+                      ? <img src={addForm.floor_plan_url} alt="Floor plan" className="w-full max-h-48 object-contain bg-white" />
                       : <div className="flex items-center gap-3 px-4 py-3">
-                        <Layers className="h-5 w-5 text-primary shrink-0" />
+                        <FileText className="h-5 w-5 text-primary shrink-0" />
                         <span className="text-sm text-primary font-medium flex-1 truncate">Floor plan uploaded</span>
+                        <a href={addForm.floor_plan_url} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground underline shrink-0">View</a>
                       </div>
                     }
                     <div className="px-3 pb-3 pt-2 flex items-center gap-2">
@@ -789,24 +895,65 @@ export default function AdminListings() {
                     </div>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border hover:border-primary/50 bg-muted/20 p-6 cursor-pointer transition-colors">
+                  <label
+                    className={`flex flex-col items-center gap-2 rounded-xl border-2 border-dashed p-6 cursor-pointer transition-colors ${floorPlanDragOver ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 bg-muted/20"}`}
+                    onDragOver={e => { e.preventDefault(); setFloorPlanDragOver(true); }}
+                    onDragLeave={() => setFloorPlanDragOver(false)}
+                    onDrop={handleFloorPlanDrop}
+                  >
                     <input type="file" accept=".pdf,image/*" onChange={handleFloorPlanUpload} className="hidden" />
                     {floorPlanUploading
                       ? <Loader2 className="h-6 w-6 animate-spin text-primary" />
                       : <>
                         <div className="flex items-center gap-2">
                           <Upload className="h-5 w-5 text-muted-foreground" />
-                          <Layers className="h-4 w-4 text-primary" />
+                          <Sparkles className="h-4 w-4 text-primary" />
                         </div>
-                        <p className="text-sm text-muted-foreground font-medium">Upload floor plan</p>
-                        <p className="text-xs text-muted-foreground/60">PDF or image accepted</p>
+                        <p className="text-sm text-muted-foreground font-medium">Drop or click to upload floor plan</p>
+                        <p className="text-xs text-muted-foreground/60">PDF or image • AI will auto-fill unit details</p>
                       </>
                     }
                   </label>
                 )}
               </div>
 
-              {/* ── Pricing ── */}
+              {/* ── Brochure ── */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Project Brochure</p>
+                {addForm.brochure_url ? (
+                  <div className="rounded-lg border border-border bg-muted/30 flex items-center gap-3 px-4 py-3">
+                    <BookOpen className="h-5 w-5 text-primary shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">Brochure attached</p>
+                      <a href={addForm.brochure_url} target="_blank" rel="noreferrer" className="text-xs text-primary underline">Preview</a>
+                    </div>
+                    <Button variant="ghost" size="sm" className="h-8 px-2 text-destructive hover:text-destructive shrink-0" onClick={() => setAddForm(f => ({ ...f, brochure_url: "" }))}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label
+                    className={`flex flex-col items-center gap-2 rounded-xl border-2 border-dashed p-6 cursor-pointer transition-colors ${brochureDragOver ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 bg-muted/20"}`}
+                    onDragOver={e => { e.preventDefault(); setBrochureDragOver(true); }}
+                    onDragLeave={() => setBrochureDragOver(false)}
+                    onDrop={handleBrochureDrop}
+                  >
+                    <input type="file" accept=".pdf,image/*" onChange={handleBrochureUpload} className="hidden" />
+                    {brochureUploading
+                      ? <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      : <>
+                        <BookOpen className="h-5 w-5 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground font-medium">Drop or click to upload brochure</p>
+                        <p className="text-xs text-muted-foreground/60">
+                          {addForm.project_id ? "Project brochure will auto-load when you select a project" : "Select a project above to auto-load its brochure"} • PDF or image
+                        </p>
+                      </>
+                    }
+                  </label>
+                )}
+              </div>
+
+
               <div className="space-y-3">
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Pricing</p>
                 <div className="grid grid-cols-2 gap-3">

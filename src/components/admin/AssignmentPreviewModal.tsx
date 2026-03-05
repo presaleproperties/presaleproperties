@@ -13,7 +13,6 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   MapPin,
   Bed,
-  Bath,
   Maximize,
   Building2,
   Calendar,
@@ -30,7 +29,10 @@ import {
   FileText,
   Globe,
   Lock,
-  Compass
+  Compass,
+  Download,
+  BookOpen,
+  Layers,
 } from "lucide-react";
 
 interface Listing {
@@ -373,31 +375,82 @@ export function AssignmentPreviewModal({
               </div>
             </div>
 
-            {/* Documents */}
-            {files.length > 0 && (
-              <>
-                <Separator />
-                <div>
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Documents ({files.length})
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {files.map((file, index) => (
-                      <Badge
-                        key={index}
-                        variant="outline"
-                        className="cursor-pointer hover:bg-muted"
-                        onClick={() => window.open(file.url, "_blank")}
-                      >
-                        <FileText className="h-3 w-3 mr-1" />
-                        {file.file_name || `Document ${index + 1}`}
+            {/* Documents & Download Bundle */}
+            <>
+              <Separator />
+              <div>
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Documents
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {listing.floor_plan_url && (
+                    <a href={listing.floor_plan_url} target="_blank" rel="noreferrer" download>
+                      <Badge variant="outline" className="cursor-pointer hover:bg-muted gap-1.5 py-1.5 px-3">
+                        <Layers className="h-3.5 w-3.5" />
+                        Floor Plan
+                        <Download className="h-3 w-3 ml-1 opacity-60" />
                       </Badge>
-                    ))}
-                  </div>
+                    </a>
+                  )}
+                  {listing.brochure_url && (
+                    <a href={listing.brochure_url} target="_blank" rel="noreferrer" download>
+                      <Badge variant="outline" className="cursor-pointer hover:bg-muted gap-1.5 py-1.5 px-3">
+                        <BookOpen className="h-3.5 w-3.5" />
+                        Project Brochure
+                        <Download className="h-3 w-3 ml-1 opacity-60" />
+                      </Badge>
+                    </a>
+                  )}
+                  {files.map((file, index) => (
+                    <a key={index} href={file.url} target="_blank" rel="noreferrer" download>
+                      <Badge variant="outline" className="cursor-pointer hover:bg-muted gap-1.5 py-1.5 px-3">
+                        <FileText className="h-3.5 w-3.5" />
+                        {file.file_name || `Document ${index + 1}`}
+                        <Download className="h-3 w-3 ml-1 opacity-60" />
+                      </Badge>
+                    </a>
+                  ))}
+                  {!listing.floor_plan_url && !listing.brochure_url && files.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No documents attached</p>
+                  )}
                 </div>
-              </>
-            )}
+              </div>
+              {listing.status === "published" && (listing.floor_plan_url || listing.brochure_url) && (
+                <>
+                  <Separator />
+                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+                    <h3 className="font-semibold mb-1 flex items-center gap-2 text-primary">
+                      <Download className="h-4 w-4" />
+                      Buyer's Agent Download Bundle
+                    </h3>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      These documents are available for download on the live listing page for verified buyer's agents.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {listing.floor_plan_url && (
+                        <a href={listing.floor_plan_url} target="_blank" rel="noreferrer" download>
+                          <Button variant="outline" size="sm" className="gap-2 h-8 text-xs">
+                            <Layers className="h-3.5 w-3.5" />
+                            Floor Plan
+                            <Download className="h-3 w-3" />
+                          </Button>
+                        </a>
+                      )}
+                      {listing.brochure_url && (
+                        <a href={listing.brochure_url} target="_blank" rel="noreferrer" download>
+                          <Button variant="outline" size="sm" className="gap-2 h-8 text-xs">
+                            <BookOpen className="h-3.5 w-3.5" />
+                            Brochure
+                            <Download className="h-3 w-3" />
+                          </Button>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </>
 
             {/* Description */}
             {listing.description && (
