@@ -785,6 +785,62 @@ export default function AdminListings() {
                 )}
               </div>
 
+              {/* ── Floor Plan Upload (FIRST STEP after project) ── */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b pb-1">
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Floor Plan</p>
+                  {floorPlanExtracting && (
+                    <span className="flex items-center gap-1.5 text-xs text-primary font-medium">
+                      <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+                      AI extracting details…
+                    </span>
+                  )}
+                </div>
+                {addForm.floor_plan_url ? (
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 overflow-hidden">
+                    {addForm.floor_plan_url.match(/\.(jpg|jpeg|png|webp|gif)$/i)
+                      ? <img src={addForm.floor_plan_url} alt="Floor plan" className="w-full max-h-48 object-contain bg-white" />
+                      : <div className="flex items-center gap-3 px-4 py-3">
+                        <FileText className="h-5 w-5 text-primary shrink-0" />
+                        <span className="text-sm text-primary font-medium flex-1 truncate">Floor plan uploaded</span>
+                        <a href={addForm.floor_plan_url} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground underline shrink-0">View</a>
+                      </div>
+                    }
+                    <div className="px-3 pb-3 pt-2 flex items-center gap-2">
+                      <Input
+                        value={addForm.floor_plan_name}
+                        onChange={e => setAddForm(f => ({ ...f, floor_plan_name: e.target.value }))}
+                        placeholder="Plan name (e.g. Plan B – 2 Bed)"
+                        className="h-8 text-xs"
+                      />
+                      <Button variant="ghost" size="sm" className="h-8 px-2 text-destructive hover:text-destructive" onClick={() => setAddForm(f => ({ ...f, floor_plan_url: "", floor_plan_name: "" }))}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <label
+                    className={`flex flex-col items-center gap-2 rounded-xl border-2 border-dashed p-6 cursor-pointer transition-colors ${floorPlanDragOver ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 bg-muted/20"}`}
+                    onDragOver={e => { e.preventDefault(); setFloorPlanDragOver(true); }}
+                    onDragLeave={() => setFloorPlanDragOver(false)}
+                    onDrop={handleFloorPlanDrop}
+                  >
+                    <input type="file" accept=".pdf,image/*" onChange={handleFloorPlanUpload} className="hidden" />
+                    {floorPlanUploading
+                      ? <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      : <>
+                        <div className="flex items-center gap-2">
+                          <Upload className="h-5 w-5 text-muted-foreground" />
+                          <Sparkles className="h-4 w-4 text-primary" />
+                        </div>
+                        <p className="text-sm text-muted-foreground font-medium">Drop or click to upload floor plan</p>
+                        <p className="text-xs text-muted-foreground/60">PDF or image • AI will auto-fill unit details below</p>
+                      </>
+                    }
+                  </label>
+                )}
+              </div>
+
               {/* ── Unit Details ── */}
               <div className="space-y-3">
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Unit Details</p>
@@ -860,62 +916,6 @@ export default function AdminListings() {
                 </div>
               </div>
 
-
-              {/* ── Floor Plan Upload ── */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between border-b pb-1">
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Floor Plan</p>
-                  {floorPlanExtracting && (
-                    <span className="flex items-center gap-1.5 text-xs text-primary font-medium">
-                      <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-                      AI extracting details…
-                    </span>
-                  )}
-                </div>
-                {addForm.floor_plan_url ? (
-                  <div className="rounded-lg border border-primary/30 bg-primary/5 overflow-hidden">
-                    {addForm.floor_plan_url.match(/\.(jpg|jpeg|png|webp|gif)$/i)
-                      ? <img src={addForm.floor_plan_url} alt="Floor plan" className="w-full max-h-48 object-contain bg-white" />
-                      : <div className="flex items-center gap-3 px-4 py-3">
-                        <FileText className="h-5 w-5 text-primary shrink-0" />
-                        <span className="text-sm text-primary font-medium flex-1 truncate">Floor plan uploaded</span>
-                        <a href={addForm.floor_plan_url} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground underline shrink-0">View</a>
-                      </div>
-                    }
-                    <div className="px-3 pb-3 pt-2 flex items-center gap-2">
-                      <Input
-                        value={addForm.floor_plan_name}
-                        onChange={e => setAddForm(f => ({ ...f, floor_plan_name: e.target.value }))}
-                        placeholder="Plan name (e.g. Plan B – 2 Bed)"
-                        className="h-8 text-xs"
-                      />
-                      <Button variant="ghost" size="sm" className="h-8 px-2 text-destructive hover:text-destructive" onClick={() => setAddForm(f => ({ ...f, floor_plan_url: "", floor_plan_name: "" }))}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <label
-                    className={`flex flex-col items-center gap-2 rounded-xl border-2 border-dashed p-6 cursor-pointer transition-colors ${floorPlanDragOver ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 bg-muted/20"}`}
-                    onDragOver={e => { e.preventDefault(); setFloorPlanDragOver(true); }}
-                    onDragLeave={() => setFloorPlanDragOver(false)}
-                    onDrop={handleFloorPlanDrop}
-                  >
-                    <input type="file" accept=".pdf,image/*" onChange={handleFloorPlanUpload} className="hidden" />
-                    {floorPlanUploading
-                      ? <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                      : <>
-                        <div className="flex items-center gap-2">
-                          <Upload className="h-5 w-5 text-muted-foreground" />
-                          <Sparkles className="h-4 w-4 text-primary" />
-                        </div>
-                        <p className="text-sm text-muted-foreground font-medium">Drop or click to upload floor plan</p>
-                        <p className="text-xs text-muted-foreground/60">PDF or image • AI will auto-fill unit details</p>
-                      </>
-                    }
-                  </label>
-                )}
-              </div>
 
               {/* ── Brochure ── */}
               <div className="space-y-3">
