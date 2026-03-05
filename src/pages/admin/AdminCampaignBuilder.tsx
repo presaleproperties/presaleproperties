@@ -715,6 +715,7 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
     { label: "Completion", value: data.estimatedCompletion || "TBD" },
     { label: "Dev. Approval", value: data.developerApprovalRequired ? "Required" : "Not Required" },
     { label: "Buyer's Comm.", value: data.buyerAgentCommission || "—" },
+    ...(data.depositPaid ? [{ label: "Deposit Paid", value: data.depositPaid }] : []),
   ];
 
   return (<>
@@ -781,20 +782,12 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
               {fmtPrice(data.askingPrice)}
             </div>
           </div>
-          <div style={{ flex: 1, padding: "16px 26px", borderRight: `1px solid ${C.coal}` }}>
+          <div style={{ flex: 1, padding: "16px 26px" }}>
             <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>Deposit to Lock</div>
             <div style={{ color: "#ffffff", fontSize: 26, fontWeight: 900, letterSpacing: "-0.01em", lineHeight: 1 }}>
               {fmtPrice(data.depositToLock)}
             </div>
           </div>
-          {data.depositPaid && (
-            <div style={{ flex: 1, padding: "16px 26px" }}>
-              <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>Deposit Paid</div>
-              <div style={{ color: C.goldLight, fontSize: 26, fontWeight: 900, letterSpacing: "-0.01em", lineHeight: 1 }}>
-                {data.depositPaid}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* ── 3. SPECS STRIP ───────────────────────────────────────────── */}
