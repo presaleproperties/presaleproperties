@@ -930,7 +930,7 @@ export default function AdminCampaignBuilder() {
       // Load assignment listings
       const { data: listingData } = await (supabase as any)
         .from("listings")
-        .select("id, title, project_name, unit_number, unit_type, interior_sqft, exterior_sqft, floor_level, exposure, has_parking, parking_count, has_storage, completion_month, completion_year, assignment_price, deposit_paid, description, address, city, featured_image")
+        .select("id, title, project_name, unit_number, unit_type, interior_sqft, exterior_sqft, floor_level, exposure, parking, has_locker, estimated_completion, assignment_price, deposit_to_lock, buyer_agent_commission, developer_approval_required, description, address, city, featured_image, floor_plan_url, floor_plan_name")
         .eq("status", "published")
         .order("created_at", { ascending: false });
       if (listingData) setAssignmentListings(listingData);
@@ -1084,11 +1084,6 @@ export default function AdminCampaignBuilder() {
     const listing = assignmentListings.find((l: any) => l.id === listingId);
     if (!listing) return;
 
-    const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const completion = listing.completion_month && listing.completion_year
-      ? `${months[listing.completion_month]} ${listing.completion_year}`
-      : listing.completion_year ? String(listing.completion_year) : "";
-
     setAssignmentForm({
       listingId,
       projectName: listing.project_name || listing.title || "",
@@ -1098,15 +1093,15 @@ export default function AdminCampaignBuilder() {
       unitType: listing.unit_type || "",
       interiorSqft: listing.interior_sqft ? String(listing.interior_sqft) : "",
       exteriorSqft: listing.exterior_sqft ? String(listing.exterior_sqft) : "",
-      floorLevel: listing.floor_level || "",
+      floorLevel: listing.floor_level ? String(listing.floor_level) : "",
       exposure: listing.exposure || "",
-      parkingStalls: listing.has_parking ? (listing.parking_count ? `${listing.parking_count} Stall${listing.parking_count > 1 ? "s" : ""}` : "1 Stall") : "None",
-      hasLocker: !!listing.has_storage,
-      estimatedCompletion: completion,
-      askingPrice: listing.assignment_price ? String(listing.assignment_price) : "",
-      depositToLock: listing.deposit_paid ? String(listing.deposit_paid) : "",
-      buyerAgentCommission: "",
-      developerApprovalRequired: false,
+      parkingStalls: listing.parking || "",
+      hasLocker: !!listing.has_locker,
+      estimatedCompletion: listing.estimated_completion || "",
+      askingPrice: listing.assignment_price ? `$${Number(listing.assignment_price).toLocaleString()}` : "",
+      depositToLock: listing.deposit_to_lock ? `$${Number(listing.deposit_to_lock).toLocaleString()}` : "",
+      buyerAgentCommission: listing.buyer_agent_commission || "",
+      developerApprovalRequired: !!listing.developer_approval_required,
       heroImage: listing.featured_image || null,
       description: listing.description || "",
       agentIdx: assignmentForm.agentIdx,

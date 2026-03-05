@@ -1350,6 +1350,143 @@ export type Database = {
           },
         ]
       }
+      listings: {
+        Row: {
+          address: string | null
+          agent_id: string | null
+          assignment_price: number
+          baths: number
+          beds: number
+          buyer_agent_commission: string | null
+          city: string
+          created_at: string
+          deposit_to_lock: number | null
+          description: string | null
+          developer_approval_required: boolean
+          developer_name: string | null
+          estimated_completion: string | null
+          expires_at: string | null
+          exposure: string | null
+          exterior_sqft: number | null
+          featured_image: string | null
+          floor_level: number | null
+          floor_plan_name: string | null
+          floor_plan_url: string | null
+          has_locker: boolean
+          highlights: string[] | null
+          id: string
+          interior_sqft: number | null
+          is_active: boolean
+          is_featured: boolean
+          neighborhood: string | null
+          original_completion_year: number | null
+          original_price: number | null
+          parking: string | null
+          photos: string[] | null
+          project_id: string | null
+          project_name: string
+          published_at: string | null
+          rejection_reason: string | null
+          status: string
+          title: string
+          unit_number: string | null
+          unit_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          agent_id?: string | null
+          assignment_price?: number
+          baths?: number
+          beds?: number
+          buyer_agent_commission?: string | null
+          city?: string
+          created_at?: string
+          deposit_to_lock?: number | null
+          description?: string | null
+          developer_approval_required?: boolean
+          developer_name?: string | null
+          estimated_completion?: string | null
+          expires_at?: string | null
+          exposure?: string | null
+          exterior_sqft?: number | null
+          featured_image?: string | null
+          floor_level?: number | null
+          floor_plan_name?: string | null
+          floor_plan_url?: string | null
+          has_locker?: boolean
+          highlights?: string[] | null
+          id?: string
+          interior_sqft?: number | null
+          is_active?: boolean
+          is_featured?: boolean
+          neighborhood?: string | null
+          original_completion_year?: number | null
+          original_price?: number | null
+          parking?: string | null
+          photos?: string[] | null
+          project_id?: string | null
+          project_name?: string
+          published_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          title?: string
+          unit_number?: string | null
+          unit_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          agent_id?: string | null
+          assignment_price?: number
+          baths?: number
+          beds?: number
+          buyer_agent_commission?: string | null
+          city?: string
+          created_at?: string
+          deposit_to_lock?: number | null
+          description?: string | null
+          developer_approval_required?: boolean
+          developer_name?: string | null
+          estimated_completion?: string | null
+          expires_at?: string | null
+          exposure?: string | null
+          exterior_sqft?: number | null
+          featured_image?: string | null
+          floor_level?: number | null
+          floor_plan_name?: string | null
+          floor_plan_url?: string | null
+          has_locker?: boolean
+          highlights?: string[] | null
+          id?: string
+          interior_sqft?: number | null
+          is_active?: boolean
+          is_featured?: boolean
+          neighborhood?: string | null
+          original_completion_year?: number | null
+          original_price?: number | null
+          parking?: string | null
+          photos?: string[] | null
+          project_id?: string | null
+          project_name?: string
+          published_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          title?: string
+          unit_number?: string | null
+          unit_type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "presale_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_data: {
         Row: {
           appreciation_5yr: number
