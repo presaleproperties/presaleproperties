@@ -97,7 +97,7 @@ function popupHtml(assignment: Assignment) {
 
   return `
     <div style="width:220px;font-family:system-ui,-apple-system,sans-serif;">
-      <a href="/dashboard/assignments/${assignment.id}" style="display:block;text-decoration:none;color:inherit;padding:12px;">
+      <a href="/assignments/${assignment.id}" style="display:block;text-decoration:none;color:inherit;padding:12px;">
         ${img}
         <div style="padding-top:${photo ? '10px' : '0'};">
           <div style="font-weight:600;font-size:14px;line-height:1.3;color:#1a1a1a;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${assignment.project_name}</div>
