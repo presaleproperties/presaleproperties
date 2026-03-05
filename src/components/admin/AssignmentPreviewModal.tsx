@@ -272,7 +272,7 @@ export function AssignmentPreviewModal({
                 </div>
                 <p className="font-medium">{getCompletionDate()}</p>
                 <p className="text-sm text-muted-foreground capitalize">
-                  {listing.construction_status.replace("_", " ")}
+                  {listing.construction_status?.replace("_", " ")}
                 </p>
               </div>
             </div>
