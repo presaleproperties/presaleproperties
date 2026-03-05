@@ -1,4 +1,6 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
+import * as pdfjsLib from "pdfjs-dist";
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 import logoWhiteAsset from "@/assets/logo-white.png";
 import { useNavigate, useParams } from "react-router-dom";
 import html2canvas from "html2canvas";
@@ -612,6 +614,49 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
   );
 }
 
+// ─── PDF PAGE RENDERER ────────────────────────────────────────────────────────
+function PdfPageRenderer({ url, style }: { url: string; style?: React.CSSProperties }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [renderError, setRenderError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const loadingTask = pdfjsLib.getDocument({ url, withCredentials: false });
+        const pdf = await loadingTask.promise;
+        const page = await pdf.getPage(1);
+        if (cancelled || !canvasRef.current) return;
+        const viewport = page.getViewport({ scale: 2.5 });
+        const canvas = canvasRef.current;
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        await page.render({ canvasContext: ctx, viewport }).promise;
+      } catch (e) {
+        console.error("PDF render error", e);
+        if (!cancelled) setRenderError(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [url]);
+
+  if (renderError) return (
+    <div style={{ textAlign: "center", padding: 24, color: "#888", fontSize: 11 }}>
+      Unable to render PDF preview.{" "}
+      <a href={url} target="_blank" rel="noreferrer" style={{ color: "#b8860b" }}>Open PDF ↗</a>
+    </div>
+  );
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block", ...style }}
+    />
+  );
+}
+
 // ─── ASSIGNMENT ONE-PAGER PREVIEW ───────────────────────────────────────────
 function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
   data: AssignmentFormState;
@@ -841,27 +886,16 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
           </div>
 
           {/* Floor plan image */}
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px 20px", background: "#fff" }}>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px 20px", background: "#fff", overflow: "hidden" }}>
             {(() => {
-              const isPdf = data.floorPlanUrl.split("?")[0].match(/\.pdf$/i);
-              return isPdf ? (
-                <div style={{ textAlign: "center", padding: 32 }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
-                  <div style={{ color: C.ink, fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Floor Plan PDF</div>
-                  <div style={{ color: C.gold, fontSize: 9, wordBreak: "break-all" }}>
-                    <a href={data.floorPlanUrl} target="_blank" rel="noreferrer" style={{ color: C.gold }}>{data.floorPlanUrl.split("/").pop()?.split("?")[0] || "View PDF"}</a>
-                  </div>
-                </div>
-              ) : (
-                <img
-                  src={data.floorPlanUrl}
-                  crossOrigin="anonymous"
-                  alt="Floor Plan"
-                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
-                />
-              );
+              const cleanUrl = data.floorPlanUrl.split("?")[0];
+              const isPdf = /\.pdf$/i.test(cleanUrl);
+              return isPdf
+                ? <PdfPageRenderer url={data.floorPlanUrl} style={{ maxHeight: 580 }} />
+                : <img src={data.floorPlanUrl} crossOrigin="anonymous" alt="Floor Plan" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }} />;
             })()}
           </div>
+
 
           {/* Agent footer */}
           <div style={{ background: "linear-gradient(135deg,#0e0e0e,#161616)", borderTop: `2.5px solid ${C.gold}`, padding: "10px 22px", display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
