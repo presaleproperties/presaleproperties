@@ -1,28 +1,44 @@
 
-## Plan: Assignment of Contract Campaign Type
+## Assessment: Assignment Detail Page — Public-Facing State
 
-### What gets built
-Add a **Presale / Assignment toggle** at the top of the Campaign Builder. When in Assignment mode, the builder pulls from live `listings`, auto-fills unit data, and renders a dedicated Assignment one-pager for PNG export.
+The current `AssignmentDetail.tsx` has the right bones but is missing several important elements that match the quality of the presale project detail pages. Here's what needs to be improved:
 
-### Layout: Assignment One-Pager (612px)
-```
-HERO photo + logo + project name + "Assignment of Contract" + unit #
-PRICE BAR: Asking $XXX,XXX  |  Deposit to Lock $XX,XXX
-SPECS STRIP: Unit Type | Interior Sqft | Floor Level | Exposure
-DETAILS GRID: Parking / Locker / Completion / Dev Approval / Commission
-DESCRIPTION block
-AGENT FOOTER (identical to presale)
-```
+### What's Currently Missing / Weak
 
-### Implementation steps
-1. Add `AssignmentFormState` type + `DEFAULT_ASSIGNMENT_STATE`
-2. Add `campaignType` state (`"presale" | "assignment"`)
-3. Add `assignmentListings` fetch from `listings` table (status = published)
-4. Add `handleAssignmentSelect()` — maps listing fields to form
-5. Add `AssignmentOnePagerPreview` component (inline, same colour palette + export pipeline)
-6. Add campaign type toggle pill buttons in left panel header
-7. Add Assignment-specific left panel tabs: Unit / Pricing / Agent
-8. Conditionally render presale vs assignment preview and left panel
+1. **No Expert Advisory Card** — The sidebar has a pricing card, deposit info, and key dates, but no `ExpertAdvisoryCard` (which exists and is used on resale/presale pages). The "Inquire About This Unit" button goes nowhere — it has no `onClick` handler and no lead form wired up.
 
-### Files changed
-- `src/pages/admin/AdminCampaignBuilder.tsx` only — no DB changes needed
+2. **No lead capture / inquiry form** — The CTA button renders but does nothing. There's no `AboutContactForm` connected to it. Leads from assignment pages are not being captured.
+
+3. **No document download section on the sidebar** — Documents (floor plan, brochure, one-pager) are only shown in the left column mid-page. They should also have a prominent download bundle section, especially for verified agent visitors.
+
+4. **No agent-gate UX** — The route in `App.tsx` shows `/assignments/:id` is accessible to anyone, but the map restricts non-verified agents from clicking through. The detail page itself has no verification check — a non-agent who navigates directly sees full pricing and details with no lead capture.
+
+5. **SEO is set to `noindex, nofollow`** — This is intentional for agent-gated content, which is fine.
+
+6. **"Inquire About This Unit" sends no context** — When wired up, it should pre-fill the listing title/project/price into the contact form.
+
+---
+
+### Plan
+
+**1. Wire up the "Inquire About This Unit" CTA**
+- Import `AboutContactForm` into `AssignmentDetail.tsx`
+- Add `formOpen` state and connect the button's `onClick`
+- Pass `selectedAgentName` as `listing.title` so the form is pre-contextualized
+
+**2. Add `ExpertAdvisoryCard` to the right sidebar**
+- Place it below the pricing card in the right column
+- This adds trust signals and a second conversion path (same pattern as presale/resale pages)
+
+**3. Prominent Documents Download section in the sidebar**
+- Add a dedicated "Downloads" card in the right sidebar showing floor plan, brochure, and a note about the one-pager being available on request
+- Keep the existing documents section in the left column too, but the sidebar version is more visible for agents
+
+**4. Non-verified agent soft gate**
+- If the user is not a verified agent (using `useVerifiedAgent` hook), show a blurred/locked overlay on the pricing card with a CTA to verify — consistent with how the map already handles it
+- This creates a lead capture moment instead of a dead end
+
+**Files to edit:**
+- `src/pages/AssignmentDetail.tsx` — primary changes (CTA form, expert card, sidebar downloads, agent gate)
+
+This is a single-file change with no DB migrations needed.
