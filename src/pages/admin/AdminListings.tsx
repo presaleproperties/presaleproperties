@@ -71,11 +71,19 @@ interface PresaleProject {
   address: string | null;
   developer_name: string | null;
   featured_image: string | null;
+  gallery_images: string[] | null;
   completion_year: number | null;
   completion_month: number | null;
   starting_price: number | null;
   deposit_percent: number | null;
-  developer_approval_required?: boolean;
+  deposit_structure: string | null;
+  brochure_files: string[] | null;
+  highlights: string[] | null;
+  amenities: string[] | null;
+  near_skytrain: boolean | null;
+  rental_restrictions: string | null;
+  strata_fees: string | null;
+  slug: string;
 }
 
 interface AddListingForm {
@@ -171,7 +179,7 @@ export default function AdminListings() {
   const fetchProjects = async () => {
     const { data } = await supabase
       .from("presale_projects")
-      .select("id, name, city, neighborhood, address, developer_name, featured_image, completion_year, completion_month, starting_price, deposit_percent, brochure_files")
+      .select("id, name, city, neighborhood, address, developer_name, featured_image, gallery_images, completion_year, completion_month, starting_price, deposit_percent, deposit_structure, brochure_files, highlights, amenities, near_skytrain, rental_restrictions, strata_fees, slug")
       .eq("is_published", true)
       .order("name");
     if (data) setProjects(data as PresaleProject[]);
@@ -299,7 +307,7 @@ export default function AdminListings() {
   };
 
   // ── Project picker for add dialog ────────────────────────────────────────
-  const handleProjectSelect = (project: PresaleProject & { brochure_files?: string[] | null }) => {
+  const handleProjectSelect = (project: PresaleProject) => {
     const completion = project.completion_month && project.completion_year
       ? `${MONTHS[project.completion_month]} ${project.completion_year}`
       : project.completion_year ? `${project.completion_year}` : "";
