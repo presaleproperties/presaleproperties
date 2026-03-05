@@ -39,31 +39,35 @@ interface Listing {
   id: string;
   title: string;
   project_name?: string;
+  project_id?: string | null;
   city?: string;
   neighborhood?: string | null;
+  address?: string | null;
+  developer_name?: string | null;
   beds?: number;
   baths?: number;
   interior_sqft?: number | null;
   exterior_sqft?: number | null;
+  floor_level?: number | null;
+  exposure?: string | null;
+  unit_number?: string | null;
+  unit_type?: string | null;
+  parking?: string | null;
+  has_locker?: boolean;
   assignment_price?: number;
   original_price?: number | null;
-  deposit_paid?: number | null;
+  deposit_to_lock?: number | null;
+  buyer_agent_commission?: string | null;
+  developer_approval_required?: boolean;
+  estimated_completion?: string | null;
+  floor_plan_url?: string | null;
+  floor_plan_name?: string | null;
+  brochure_url?: string | null;
+  featured_image?: string | null;
+  photos?: string[] | null;
+  description?: string | null;
   status?: string;
   is_featured?: boolean | null;
-  visibility_mode?: string | null;
-  unit_type?: string;
-  construction_status?: string;
-  completion_month?: number | null;
-  completion_year?: number | null;
-  has_parking?: boolean | null;
-  parking_count?: number | null;
-  has_storage?: boolean | null;
-  floor_level?: string | null;
-  exposure?: string | null;
-  description?: string | null;
-  address?: string | null;
-  map_lat?: number | null;
-  map_lng?: number | null;
   agent_profile?: {
     full_name: string | null;
     email: string;
@@ -134,12 +138,7 @@ export function AssignmentPreviewModal({
   };
 
   const getCompletionDate = () => {
-    if (listing?.completion_month && listing?.completion_year) {
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      return `${months[listing.completion_month - 1]} ${listing.completion_year}`;
-    }
-    if (listing?.completion_year) return listing.completion_year.toString();
-    return "TBD";
+    return listing?.estimated_completion || "TBD";
   };
 
   const getUnitTypeLabel = (type: string) => {
@@ -309,10 +308,16 @@ export function AssignmentPreviewModal({
                   </div>
                 )}
 
-                {listing.deposit_paid && (
+                {listing.deposit_to_lock && (
                   <div className="bg-muted/50 rounded-lg p-4">
-                    <p className="text-sm text-muted-foreground mb-1">Deposit Paid</p>
-                    <p className="text-lg font-semibold">{formatPrice(listing.deposit_paid)}</p>
+                    <p className="text-sm text-muted-foreground mb-1">Deposit to Lock</p>
+                    <p className="text-lg font-semibold">{formatPrice(listing.deposit_to_lock)}</p>
+                  </div>
+                )}
+                {listing.buyer_agent_commission && (
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground mb-1">Buyer Agent Commission</p>
+                    <p className="text-lg font-semibold">{listing.buyer_agent_commission}</p>
                   </div>
                 )}
               </div>
@@ -322,18 +327,16 @@ export function AssignmentPreviewModal({
 
             {/* Additional Details */}
             <div className="grid grid-cols-2 gap-6">
-              <div>
+                <div>
                 <h3 className="font-semibold mb-3">Features</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <Car className="h-4 w-4 text-muted-foreground" />
-                    <span>
-                      Parking: {listing.has_parking ? `Yes (${listing.parking_count || 1})` : "No"}
-                    </span>
+                    <span>Parking: {listing.parking || "Not included"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Box className="h-4 w-4 text-muted-foreground" />
-                    <span>Storage: {listing.has_storage ? "Yes" : "No"}</span>
+                    <span>Locker: {listing.has_locker ? "Yes" : "No"}</span>
                   </div>
                   {listing.floor_level && (
                     <div className="flex items-center gap-2">
@@ -345,6 +348,12 @@ export function AssignmentPreviewModal({
                     <div className="flex items-center gap-2">
                       <Compass className="h-4 w-4 text-muted-foreground" />
                       <span>Exposure: {listing.exposure}</span>
+                    </div>
+                  )}
+                  {listing.developer_approval_required && (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-amber-500" />
+                      <span>Developer Approval Required</span>
                     </div>
                   )}
                 </div>
