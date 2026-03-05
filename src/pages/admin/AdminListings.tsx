@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -19,8 +21,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminAssignmentCard } from "@/components/admin/AdminAssignmentCard";
 import { AssignmentPreviewModal } from "@/components/admin/AssignmentPreviewModal";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  CheckCircle, 
+import {
+  CheckCircle,
   Building2,
   Loader2,
   Star,
@@ -28,6 +30,10 @@ import {
   Search,
   Pause,
   FileX,
+  Plus,
+  Upload,
+  X,
+  Layers,
 } from "lucide-react";
 
 interface Listing {
@@ -53,6 +59,72 @@ interface Listing {
   [key: string]: any;
 }
 
+interface PresaleProject {
+  id: string;
+  name: string;
+  city: string;
+  neighborhood: string | null;
+  address: string | null;
+  developer_name: string | null;
+  featured_image: string | null;
+  completion_year: number | null;
+  completion_month: number | null;
+  starting_price: number | null;
+  deposit_percent: number | null;
+  developer_approval_required?: boolean;
+}
+
+interface AddListingForm {
+  project_id: string;
+  // Auto-filled from project
+  project_name: string;
+  city: string;
+  neighborhood: string;
+  address: string;
+  developer_name: string;
+  featured_image: string;
+  // Unit details
+  unit_number: string;
+  unit_type: string;
+  beds: string;
+  baths: string;
+  floor_level: string;
+  interior_sqft: string;
+  exterior_sqft: string;
+  exposure: string;
+  parking: string;
+  has_locker: boolean;
+  // Floor plan
+  floor_plan_url: string;
+  floor_plan_name: string;
+  // Dates / completion
+  estimated_completion: string;
+  // Pricing
+  assignment_price: string;
+  original_price: string;
+  deposit_to_lock: string;
+  buyer_agent_commission: string;
+  // Flags
+  developer_approval_required: boolean;
+  // Content
+  description: string;
+  title: string;
+}
+
+const EMPTY_FORM: AddListingForm = {
+  project_id: "", project_name: "", city: "", neighborhood: "", address: "",
+  developer_name: "", featured_image: "",
+  unit_number: "", unit_type: "", beds: "", baths: "", floor_level: "",
+  interior_sqft: "", exterior_sqft: "", exposure: "", parking: "", has_locker: false,
+  floor_plan_url: "", floor_plan_name: "",
+  estimated_completion: "",
+  assignment_price: "", original_price: "", deposit_to_lock: "", buyer_agent_commission: "",
+  developer_approval_required: false,
+  description: "", title: "",
+};
+
+const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 export default function AdminListings() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
@@ -67,13 +139,32 @@ export default function AdminListings() {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
+  // Add listing dialog state
+  const [addOpen, setAddOpen] = useState(false);
+  const [addForm, setAddForm] = useState<AddListingForm>(EMPTY_FORM);
+  const [addSaving, setAddSaving] = useState(false);
+  const [projects, setProjects] = useState<PresaleProject[]>([]);
+  const [projectSearch, setProjectSearch] = useState("");
+  const [projectSearchFocused, setProjectSearchFocused] = useState(false);
+  const [floorPlanUploading, setFloorPlanUploading] = useState(false);
+
   useEffect(() => {
     fetchListings();
+    fetchProjects();
   }, []);
 
   useEffect(() => {
     setSearchParams({ tab: activeTab });
   }, [activeTab]);
+
+  const fetchProjects = async () => {
+    const { data } = await supabase
+      .from("presale_projects")
+      .select("id, name, city, neighborhood, address, developer_name, featured_image, completion_year, completion_month, starting_price, deposit_percent")
+      .eq("is_published", true)
+      .order("name");
+    if (data) setProjects(data as PresaleProject[]);
+  };
 
   const fetchListings = async () => {
     try {
@@ -125,16 +216,15 @@ export default function AdminListings() {
     setProcessing(true);
     try {
       const newStatus = actionType === "approve" ? "published" : "rejected";
-      const updates: { 
-        status: "published" | "rejected"; 
-        rejection_reason?: string | null; 
-        published_at?: string | null; 
-        expires_at?: string | null 
+      const updates: {
+        status: "published" | "rejected";
+        rejection_reason?: string | null;
+        published_at?: string | null;
+        expires_at?: string | null
       } = { status: newStatus };
 
       if (actionType === "approve") {
         updates.published_at = new Date().toISOString();
-        // Set default expiry to 365 days if not already set
         if (!selectedListing.expires_at) {
           const expiresAt = new Date();
           expiresAt.setDate(expiresAt.getDate() + 365);
@@ -143,7 +233,7 @@ export default function AdminListings() {
       } else {
         updates.rejection_reason = notes || null;
       }
-      
+
       const { error } = await (supabase as any)
         .from("listings")
         .update(updates)
@@ -181,7 +271,7 @@ export default function AdminListings() {
 
       if (error) throw error;
 
-      setListings(prev => 
+      setListings(prev =>
         prev.map(l => l.id === listing.id ? { ...l, is_featured: !l.is_featured } : l)
       );
 
@@ -191,24 +281,132 @@ export default function AdminListings() {
       });
     } catch (error) {
       console.error("Error updating featured status:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update featured status",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to update featured status", variant: "destructive" });
     } finally {
       setUpdatingFeatured(null);
     }
   };
 
-  // Filter by search query
+  // ── Project picker for add dialog ────────────────────────────────────────
+  const handleProjectSelect = (project: PresaleProject) => {
+    const completion = project.completion_month && project.completion_year
+      ? `${MONTHS[project.completion_month]} ${project.completion_year}`
+      : project.completion_year ? `${project.completion_year}` : "";
+
+    setAddForm(f => ({
+      ...f,
+      project_id: project.id,
+      project_name: project.name,
+      city: project.city,
+      neighborhood: project.neighborhood || "",
+      address: project.address || "",
+      developer_name: project.developer_name || "",
+      featured_image: project.featured_image || "",
+      estimated_completion: f.estimated_completion || completion,
+      // Auto-suggest title
+      title: f.unit_number ? `${project.name} – Unit ${f.unit_number}` : project.name,
+    }));
+    setProjectSearch(project.name);
+    setProjectSearchFocused(false);
+  };
+
+  // ── Floor plan upload ────────────────────────────────────────────────────
+  const handleFloorPlanUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFloorPlanUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `floor-plans/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("listing-files")
+        .upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from("listing-files").getPublicUrl(path);
+      setAddForm(f => ({
+        ...f,
+        floor_plan_url: urlData.publicUrl,
+        floor_plan_name: f.floor_plan_name || file.name.replace(/\.[^/.]+$/, ""),
+      }));
+      toast({ title: "Floor plan uploaded ✓" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: String(err), variant: "destructive" });
+    } finally {
+      setFloorPlanUploading(false);
+    }
+  };
+
+  // ── Save new listing ──────────────────────────────────────────────────────
+  const handleAddListing = async () => {
+    if (!addForm.project_id) {
+      toast({ title: "Select a project first", variant: "destructive" });
+      return;
+    }
+    if (!addForm.unit_number) {
+      toast({ title: "Unit number is required", variant: "destructive" });
+      return;
+    }
+
+    setAddSaving(true);
+    try {
+      const title = addForm.title || `${addForm.project_name} – Unit ${addForm.unit_number}`;
+
+      const payload: Record<string, any> = {
+        project_id: addForm.project_id,
+        title,
+        project_name: addForm.project_name,
+        city: addForm.city,
+        neighborhood: addForm.neighborhood || null,
+        address: addForm.address || null,
+        developer_name: addForm.developer_name || null,
+        featured_image: addForm.featured_image || null,
+        unit_number: addForm.unit_number,
+        unit_type: addForm.unit_type || null,
+        beds: parseFloat(addForm.beds) || 0,
+        baths: parseFloat(addForm.baths) || 0,
+        floor_level: addForm.floor_level ? parseInt(addForm.floor_level) : null,
+        interior_sqft: addForm.interior_sqft ? parseInt(addForm.interior_sqft) : null,
+        exterior_sqft: addForm.exterior_sqft ? parseInt(addForm.exterior_sqft) : null,
+        exposure: addForm.exposure || null,
+        parking: addForm.parking || null,
+        has_locker: addForm.has_locker,
+        floor_plan_url: addForm.floor_plan_url || null,
+        floor_plan_name: addForm.floor_plan_name || null,
+        estimated_completion: addForm.estimated_completion || null,
+        assignment_price: parseFloat(String(addForm.assignment_price).replace(/[^0-9.]/g, "")) || 0,
+        original_price: addForm.original_price ? parseFloat(String(addForm.original_price).replace(/[^0-9.]/g, "")) : null,
+        deposit_to_lock: addForm.deposit_to_lock ? parseFloat(String(addForm.deposit_to_lock).replace(/[^0-9.]/g, "")) : null,
+        buyer_agent_commission: addForm.buyer_agent_commission || null,
+        developer_approval_required: addForm.developer_approval_required,
+        description: addForm.description || null,
+        status: "pending_approval",
+      };
+
+      const { error } = await (supabase as any).from("listings").insert(payload);
+      if (error) throw error;
+
+      toast({ title: "Assignment listing created", description: `"${title}" is pending approval` });
+      setAddOpen(false);
+      setAddForm(EMPTY_FORM);
+      setProjectSearch("");
+      fetchListings();
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error creating listing", description: String(err), variant: "destructive" });
+    } finally {
+      setAddSaving(false);
+    }
+  };
+
+  // ── Filter helpers ───────────────────────────────────────────────────────
   const filterBySearch = (list: Listing[]) => {
     if (!searchQuery.trim()) return list;
     const query = searchQuery.toLowerCase();
-    return list.filter(l => 
-      l.title.toLowerCase().includes(query) ||
-      l.project_name.toLowerCase().includes(query) ||
-      l.city.toLowerCase().includes(query) ||
+    return list.filter(l =>
+      l.title?.toLowerCase().includes(query) ||
+      l.project_name?.toLowerCase().includes(query) ||
+      l.city?.toLowerCase().includes(query) ||
+      l.unit_number?.toLowerCase().includes(query) ||
       l.agent_profile?.full_name?.toLowerCase().includes(query) ||
       l.agent_profile?.email?.toLowerCase().includes(query)
     );
@@ -243,6 +441,11 @@ export default function AdminListings() {
     </Card>
   );
 
+  // ── Filtered project list for dropdown ──────────────────────────────────
+  const filteredProjects = projects
+    .filter(p => p.name.toLowerCase().includes(projectSearch.toLowerCase()))
+    .slice(0, 10);
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -252,8 +455,7 @@ export default function AdminListings() {
             <h1 className="text-2xl font-bold">Assignment Management</h1>
             <p className="text-muted-foreground">Manage, approve, and monitor all assignments</p>
           </div>
-          
-          {/* Quick Stats */}
+
           <div className="flex items-center gap-3">
             {pendingListings.length > 0 && (
               <Badge variant="destructive" className="px-3 py-1">
@@ -267,6 +469,10 @@ export default function AdminListings() {
                 {expiredListings.length} Expired
               </Badge>
             )}
+            <Button onClick={() => setAddOpen(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add Listing
+            </Button>
           </div>
         </div>
 
@@ -274,7 +480,7 @@ export default function AdminListings() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by title, project, city, or agent..."
+            placeholder="Search by title, project, city, unit, or agent..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -287,29 +493,20 @@ export default function AdminListings() {
             <TabsTrigger value="pending" className="relative">
               Pending
               {pendingListings.length > 0 && (
-                <Badge variant="destructive" className="ml-2 h-5 px-1.5">
-                  {pendingListings.length}
-                </Badge>
+                <Badge variant="destructive" className="ml-2 h-5 px-1.5">{pendingListings.length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="published">
-              Published ({publishedListings.length})
-            </TabsTrigger>
+            <TabsTrigger value="published">Published ({publishedListings.length})</TabsTrigger>
             <TabsTrigger value="featured">
-              <Star className="h-4 w-4 mr-1" />
-              Featured ({featuredListings.length})
+              <Star className="h-4 w-4 mr-1" />Featured ({featuredListings.length})
             </TabsTrigger>
             <TabsTrigger value="paused">
-              <Pause className="h-4 w-4 mr-1" />
-              Paused ({pausedListings.length})
+              <Pause className="h-4 w-4 mr-1" />Paused ({pausedListings.length})
             </TabsTrigger>
             <TabsTrigger value="expired">
-              <FileX className="h-4 w-4 mr-1" />
-              Expired ({expiredListings.length})
+              <FileX className="h-4 w-4 mr-1" />Expired ({expiredListings.length})
             </TabsTrigger>
-            <TabsTrigger value="all">
-              All ({listings.length})
-            </TabsTrigger>
+            <TabsTrigger value="all">All ({listings.length})</TabsTrigger>
           </TabsList>
 
           {loading ? (
@@ -319,177 +516,94 @@ export default function AdminListings() {
           ) : (
             <>
               <TabsContent value="pending" className="mt-6">
-                {filteredListings.length === 0 ? (
-                  renderEmptyState(
-                    <CheckCircle className="h-12 w-12 text-green-500" />,
-                    "All caught up!",
-                    "No assignments pending approval"
-                  )
-                ) : (
-                  <div className="space-y-4">
-                    {filteredListings.map((listing) => (
-                      <AdminAssignmentCard
-                        key={listing.id}
-                        listing={listing}
-                        showApprovalActions
-                        onRefresh={fetchListings}
-                        onPreview={() => setPreviewListing(listing)}
-                        onApprove={() => handleAction(listing, "approve")}
-                        onReject={() => handleAction(listing, "reject")}
-                      />
-                    ))}
-                  </div>
-                )}
+                {filteredListings.length === 0
+                  ? renderEmptyState(<CheckCircle className="h-12 w-12 text-green-500" />, "All caught up!", "No assignments pending approval")
+                  : <div className="space-y-4">{filteredListings.map(l => (
+                    <AdminAssignmentCard key={l.id} listing={l} showApprovalActions onRefresh={fetchListings}
+                      onPreview={() => setPreviewListing(l)}
+                      onApprove={() => handleAction(l, "approve")}
+                      onReject={() => handleAction(l, "reject")} />
+                  ))}</div>}
               </TabsContent>
 
               <TabsContent value="published" className="mt-6">
-                {filteredListings.length === 0 ? (
-                  renderEmptyState(
-                    <Building2 className="h-12 w-12 text-muted-foreground" />,
-                    "No published assignments"
-                  )
-                ) : (
-                  <div className="space-y-4">
-                    {filteredListings.map((listing) => (
-                      <AdminAssignmentCard
-                        key={listing.id}
-                        listing={listing}
-                        onRefresh={fetchListings}
-                        onPreview={() => setPreviewListing(listing)}
-                        onToggleFeatured={() => toggleFeatured(listing)}
-                        isUpdatingFeatured={updatingFeatured === listing.id}
-                      />
-                    ))}
-                  </div>
-                )}
+                {filteredListings.length === 0
+                  ? renderEmptyState(<Building2 className="h-12 w-12 text-muted-foreground" />, "No published assignments")
+                  : <div className="space-y-4">{filteredListings.map(l => (
+                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings}
+                      onPreview={() => setPreviewListing(l)}
+                      onToggleFeatured={() => toggleFeatured(l)}
+                      isUpdatingFeatured={updatingFeatured === l.id} />
+                  ))}</div>}
               </TabsContent>
 
               <TabsContent value="featured" className="mt-6">
-                {filteredListings.length === 0 ? (
-                  renderEmptyState(
-                    <Star className="h-12 w-12 text-muted-foreground" />,
-                    "No featured assignments",
-                    "Feature assignments from the Published tab"
-                  )
-                ) : (
-                  <div className="space-y-4">
-                    {filteredListings.map((listing) => (
-                      <AdminAssignmentCard
-                        key={listing.id}
-                        listing={listing}
-                        onRefresh={fetchListings}
-                        onPreview={() => setPreviewListing(listing)}
-                        onToggleFeatured={() => toggleFeatured(listing)}
-                        isUpdatingFeatured={updatingFeatured === listing.id}
-                      />
-                    ))}
-                  </div>
-                )}
+                {filteredListings.length === 0
+                  ? renderEmptyState(<Star className="h-12 w-12 text-muted-foreground" />, "No featured assignments", "Feature assignments from the Published tab")
+                  : <div className="space-y-4">{filteredListings.map(l => (
+                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings}
+                      onPreview={() => setPreviewListing(l)}
+                      onToggleFeatured={() => toggleFeatured(l)}
+                      isUpdatingFeatured={updatingFeatured === l.id} />
+                  ))}</div>}
               </TabsContent>
 
               <TabsContent value="paused" className="mt-6">
-                {filteredListings.length === 0 ? (
-                  renderEmptyState(
-                    <Pause className="h-12 w-12 text-muted-foreground" />,
-                    "No paused assignments",
-                    "Paused assignments will appear here"
-                  )
-                ) : (
-                  <div className="space-y-4">
-                    {filteredListings.map((listing) => (
-                      <AdminAssignmentCard
-                        key={listing.id}
-                        listing={listing}
-                        onRefresh={fetchListings}
-                        onPreview={() => setPreviewListing(listing)}
-                      />
-                    ))}
-                  </div>
-                )}
+                {filteredListings.length === 0
+                  ? renderEmptyState(<Pause className="h-12 w-12 text-muted-foreground" />, "No paused assignments")
+                  : <div className="space-y-4">{filteredListings.map(l => (
+                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings} onPreview={() => setPreviewListing(l)} />
+                  ))}</div>}
               </TabsContent>
 
               <TabsContent value="expired" className="mt-6">
-                {filteredListings.length === 0 ? (
-                  renderEmptyState(
-                    <FileX className="h-12 w-12 text-muted-foreground" />,
-                    "No expired assignments",
-                    "Expired assignments will appear here"
-                  )
-                ) : (
-                  <div className="space-y-4">
-                    {filteredListings.map((listing) => (
-                      <AdminAssignmentCard
-                        key={listing.id}
-                        listing={listing}
-                        onRefresh={fetchListings}
-                        onPreview={() => setPreviewListing(listing)}
-                      />
-                    ))}
-                  </div>
-                )}
+                {filteredListings.length === 0
+                  ? renderEmptyState(<FileX className="h-12 w-12 text-muted-foreground" />, "No expired assignments")
+                  : <div className="space-y-4">{filteredListings.map(l => (
+                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings} onPreview={() => setPreviewListing(l)} />
+                  ))}</div>}
               </TabsContent>
 
               <TabsContent value="all" className="mt-6">
-                {filteredListings.length === 0 ? (
-                  renderEmptyState(
-                    <Building2 className="h-12 w-12 text-muted-foreground" />,
-                    searchQuery ? "No matching assignments" : "No assignments yet"
-                  )
-                ) : (
-                  <div className="space-y-4">
-                    {filteredListings.map((listing) => (
-                      <AdminAssignmentCard
-                        key={listing.id}
-                        listing={listing}
-                        showApprovalActions={listing.status === "pending_approval"}
-                        onRefresh={fetchListings}
-                        onPreview={() => setPreviewListing(listing)}
-                        onApprove={() => handleAction(listing, "approve")}
-                        onReject={() => handleAction(listing, "reject")}
-                        onToggleFeatured={listing.status === "published" ? () => toggleFeatured(listing) : undefined}
-                        isUpdatingFeatured={updatingFeatured === listing.id}
-                      />
-                    ))}
-                  </div>
-                )}
+                {filteredListings.length === 0
+                  ? renderEmptyState(<Building2 className="h-12 w-12 text-muted-foreground" />, searchQuery ? "No matching assignments" : "No assignments yet")
+                  : <div className="space-y-4">{filteredListings.map(l => (
+                    <AdminAssignmentCard key={l.id} listing={l}
+                      showApprovalActions={l.status === "pending_approval"}
+                      onRefresh={fetchListings}
+                      onPreview={() => setPreviewListing(l)}
+                      onApprove={() => handleAction(l, "approve")}
+                      onReject={() => handleAction(l, "reject")}
+                      onToggleFeatured={l.status === "published" ? () => toggleFeatured(l) : undefined}
+                      isUpdatingFeatured={updatingFeatured === l.id} />
+                  ))}</div>}
               </TabsContent>
             </>
           )}
         </Tabs>
       </div>
 
-      {/* Confirmation Dialog */}
+      {/* ── Approve / Reject Dialog ─────────────────────────────────────────── */}
       <Dialog open={!!selectedListing && !!actionType} onOpenChange={() => { setSelectedListing(null); setActionType(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {actionType === "approve" ? "Approve Assignment" : "Reject Assignment"}
-            </DialogTitle>
+            <DialogTitle>{actionType === "approve" ? "Approve Assignment" : "Reject Assignment"}</DialogTitle>
             <DialogDescription>
-              {actionType === "approve" 
+              {actionType === "approve"
                 ? `Approve "${selectedListing?.title}"? It will be published immediately.`
                 : `Reject "${selectedListing?.title}"? Please provide a reason.`}
             </DialogDescription>
           </DialogHeader>
-          
           {actionType === "reject" && (
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Rejection Reason</label>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Explain why the assignment was rejected..."
-                  className="mt-1"
-                />
+                <Textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Explain why the assignment was rejected..." className="mt-1" />
               </div>
             </div>
           )}
-
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setSelectedListing(null); setActionType(null); }}>
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => { setSelectedListing(null); setActionType(null); }}>Cancel</Button>
             <Button
               onClick={confirmAction}
               disabled={processing || (actionType === "reject" && !notes.trim())}
@@ -502,11 +616,247 @@ export default function AdminListings() {
         </DialogContent>
       </Dialog>
 
-      {/* Assignment Preview Modal */}
+      {/* ── Add Assignment Listing Dialog ───────────────────────────────────── */}
+      <Dialog open={addOpen} onOpenChange={open => { setAddOpen(open); if (!open) { setAddForm(EMPTY_FORM); setProjectSearch(""); } }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] p-0 flex flex-col">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-primary" />
+              Add Assignment Listing
+            </DialogTitle>
+            <DialogDescription>
+              Select a presale project and fill in unit-specific details. The listing will be created as "Pending Approval".
+            </DialogDescription>
+          </DialogHeader>
+
+          <ScrollArea className="flex-1 overflow-auto">
+            <div className="px-6 py-5 space-y-6">
+
+              {/* ── Project Selector ── */}
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Presale Project <span className="text-destructive">*</span>
+                </Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    placeholder="Search project name…"
+                    value={projectSearch}
+                    onChange={e => { setProjectSearch(e.target.value); if (!e.target.value) setAddForm(f => ({ ...f, project_id: "" })); }}
+                    onFocus={() => setProjectSearchFocused(true)}
+                    onBlur={() => setTimeout(() => setProjectSearchFocused(false), 150)}
+                    className="pl-9"
+                  />
+                  {addForm.project_id && (
+                    <button
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      onClick={() => { setAddForm(f => ({ ...f, project_id: "" })); setProjectSearch(""); }}
+                    ><X className="h-4 w-4" /></button>
+                  )}
+                  {projectSearchFocused && projectSearch && !addForm.project_id && (
+                    <div className="absolute z-50 mt-1 w-full bg-background border border-border rounded-lg shadow-xl overflow-hidden">
+                      {filteredProjects.length === 0
+                        ? <div className="px-3 py-3 text-sm text-muted-foreground">No projects found</div>
+                        : filteredProjects.map(p => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onMouseDown={() => handleProjectSelect(p)}
+                            className="w-full text-left px-3 py-2.5 text-sm hover:bg-muted transition-colors border-b border-border last:border-0 flex items-center gap-3"
+                          >
+                            {p.featured_image
+                              ? <img src={p.featured_image} alt="" className="h-9 w-12 rounded object-cover shrink-0" />
+                              : <div className="h-9 w-12 rounded bg-muted shrink-0 flex items-center justify-center"><Building2 className="h-4 w-4 text-muted-foreground" /></div>}
+                            <div>
+                              <div className="font-medium">{p.name}</div>
+                              <div className="text-xs text-muted-foreground">{p.city}{p.neighborhood ? ` · ${p.neighborhood}` : ""}</div>
+                            </div>
+                          </button>
+                        ))
+                      }
+                    </div>
+                  )}
+                </div>
+                {addForm.project_id && (
+                  <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
+                    {addForm.featured_image && <img src={addForm.featured_image} alt="" className="h-8 w-10 rounded object-cover shrink-0" />}
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold truncate">{addForm.project_name}</div>
+                      <div className="text-xs text-muted-foreground">{addForm.city}{addForm.developer_name ? ` · ${addForm.developer_name}` : ""}</div>
+                    </div>
+                    <Badge className="ml-auto text-[10px] shrink-0 bg-primary text-primary-foreground">Selected</Badge>
+                  </div>
+                )}
+              </div>
+
+              {/* ── Unit Details ── */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Unit Details</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Unit Number <span className="text-destructive">*</span></Label>
+                    <Input
+                      value={addForm.unit_number}
+                      onChange={e => setAddForm(f => ({
+                        ...f,
+                        unit_number: e.target.value,
+                        title: f.project_name ? `${f.project_name} – Unit ${e.target.value}` : f.title,
+                      }))}
+                      placeholder="e.g. 1204"
+                      className="h-9"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Unit Type</Label>
+                    <Input value={addForm.unit_type} onChange={e => setAddForm(f => ({ ...f, unit_type: e.target.value }))} placeholder="e.g. 2 Bed + Den" className="h-9" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Bedrooms</Label>
+                    <Input value={addForm.beds} onChange={e => setAddForm(f => ({ ...f, beds: e.target.value }))} placeholder="2" className="h-9" type="number" min="0" step="0.5" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Bathrooms</Label>
+                    <Input value={addForm.baths} onChange={e => setAddForm(f => ({ ...f, baths: e.target.value }))} placeholder="2" className="h-9" type="number" min="0" step="0.5" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Floor Level</Label>
+                    <Input value={addForm.floor_level} onChange={e => setAddForm(f => ({ ...f, floor_level: e.target.value }))} placeholder="12" className="h-9" type="number" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Exposure</Label>
+                    <Input value={addForm.exposure} onChange={e => setAddForm(f => ({ ...f, exposure: e.target.value }))} placeholder="e.g. South-West" className="h-9" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Interior sqft</Label>
+                    <Input value={addForm.interior_sqft} onChange={e => setAddForm(f => ({ ...f, interior_sqft: e.target.value }))} placeholder="850" className="h-9" type="number" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Balcony sqft</Label>
+                    <Input value={addForm.exterior_sqft} onChange={e => setAddForm(f => ({ ...f, exterior_sqft: e.target.value }))} placeholder="80" className="h-9" type="number" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Parking</Label>
+                    <Input value={addForm.parking} onChange={e => setAddForm(f => ({ ...f, parking: e.target.value }))} placeholder="1 Underground" className="h-9" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Est. Completion</Label>
+                    <Input value={addForm.estimated_completion} onChange={e => setAddForm(f => ({ ...f, estimated_completion: e.target.value }))} placeholder="Q3 2026" className="h-9" />
+                  </div>
+                </div>
+
+                {/* Toggles */}
+                <div className="flex flex-wrap gap-4 pt-1">
+                  {([
+                    ["has_locker", "Locker Included"],
+                    ["developer_approval_required", "Dev. Approval Required"],
+                  ] as [keyof AddListingForm, string][]).map(([key, label]) => (
+                    <label key={key} className="flex items-center gap-2 cursor-pointer select-none">
+                      <button
+                        type="button"
+                        onClick={() => setAddForm(f => ({ ...f, [key]: !f[key] }))}
+                        className={`h-5 w-9 rounded-full transition-colors relative ${addForm[key] ? "bg-primary" : "bg-muted"}`}
+                      >
+                        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${addForm[key] ? "left-[18px]" : "left-0.5"}`} />
+                      </button>
+                      <span className="text-xs text-muted-foreground">{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Floor Plan Upload ── */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Floor Plan</p>
+                {addForm.floor_plan_url ? (
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 overflow-hidden">
+                    {addForm.floor_plan_url.match(/\.(jpg|jpeg|png|webp|gif)$/i)
+                      ? <img src={addForm.floor_plan_url} alt="Floor plan" className="w-full max-h-48 object-contain" />
+                      : <div className="flex items-center gap-3 px-4 py-3">
+                        <Layers className="h-5 w-5 text-primary shrink-0" />
+                        <span className="text-sm text-primary font-medium flex-1 truncate">Floor plan uploaded</span>
+                      </div>
+                    }
+                    <div className="px-3 pb-3 pt-2 flex items-center gap-2">
+                      <Input
+                        value={addForm.floor_plan_name}
+                        onChange={e => setAddForm(f => ({ ...f, floor_plan_name: e.target.value }))}
+                        placeholder="Plan name (e.g. Plan B – 2 Bed)"
+                        className="h-8 text-xs"
+                      />
+                      <Button variant="ghost" size="sm" className="h-8 px-2 text-destructive hover:text-destructive" onClick={() => setAddForm(f => ({ ...f, floor_plan_url: "", floor_plan_name: "" }))}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border hover:border-primary/50 bg-muted/20 p-6 cursor-pointer transition-colors">
+                    <input type="file" accept=".pdf,image/*" onChange={handleFloorPlanUpload} className="hidden" />
+                    {floorPlanUploading
+                      ? <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      : <>
+                        <div className="flex items-center gap-2">
+                          <Upload className="h-5 w-5 text-muted-foreground" />
+                          <Layers className="h-4 w-4 text-primary" />
+                        </div>
+                        <p className="text-sm text-muted-foreground font-medium">Upload floor plan</p>
+                        <p className="text-xs text-muted-foreground/60">PDF or image accepted</p>
+                      </>
+                    }
+                  </label>
+                )}
+              </div>
+
+              {/* ── Pricing ── */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Pricing</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {([
+                    ["assignment_price", "Asking / Assignment Price", "$899,000"],
+                    ["original_price", "Original Purchase Price", "$780,000"],
+                    ["deposit_to_lock", "Deposit to Lock", "$50,000"],
+                    ["buyer_agent_commission", "Buyer's Agent Commission", "3%"],
+                  ] as [keyof AddListingForm, string, string][]).map(([key, label, ph]) => (
+                    <div key={key} className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">{label}</Label>
+                      <Input value={String(addForm[key] ?? "")} onChange={e => setAddForm(f => ({ ...f, [key]: e.target.value }))} placeholder={ph} className="h-9" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Listing Info ── */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Listing Info</p>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Listing Title</Label>
+                  <Input value={addForm.title} onChange={e => setAddForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. The Smith – Unit 1204" className="h-9" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Description</Label>
+                  <Textarea value={addForm.description} onChange={e => setAddForm(f => ({ ...f, description: e.target.value }))} rows={3} placeholder="Optional notes about this unit or the assignment opportunity…" className="resize-none text-sm" />
+                </div>
+              </div>
+
+            </div>
+          </ScrollArea>
+
+          <DialogFooter className="px-6 py-4 border-t shrink-0">
+            <Button variant="outline" onClick={() => { setAddOpen(false); setAddForm(EMPTY_FORM); setProjectSearch(""); }}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddListing} disabled={addSaving || !addForm.project_id || !addForm.unit_number} className="gap-2">
+              {addSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              {addSaving ? "Creating…" : "Create Listing"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Assignment Preview Modal ─────────────────────────────────────────── */}
       <AssignmentPreviewModal
         listing={previewListing}
         open={!!previewListing}
-        onOpenChange={(open) => !open && setPreviewListing(null)}
+        onOpenChange={open => !open && setPreviewListing(null)}
         onApprove={() => {
           if (previewListing) {
             setSelectedListing(previewListing);
