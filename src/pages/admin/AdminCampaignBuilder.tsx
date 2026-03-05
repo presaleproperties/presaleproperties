@@ -59,7 +59,7 @@ interface AssignmentFormState {
   floorLevel: string; exposure: string;
   parkingStalls: string; hasLocker: boolean;
   estimatedCompletion: string;
-  askingPrice: string; depositToLock: string;
+  askingPrice: string; depositToLock: string; depositPaid: string;
   buyerAgentCommission: string;
   developerApprovalRequired: boolean;
   heroImage: string | null; description: string; shortDescription: string;
@@ -73,7 +73,7 @@ const DEFAULT_ASSIGNMENT_STATE: AssignmentFormState = {
   floorLevel: "", exposure: "",
   parkingStalls: "", hasLocker: false,
   estimatedCompletion: "",
-  askingPrice: "", depositToLock: "",
+  askingPrice: "", depositToLock: "", depositPaid: "",
   buyerAgentCommission: "",
   developerApprovalRequired: false,
   heroImage: null, description: "", shortDescription: "",
@@ -781,12 +781,20 @@ function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
               {fmtPrice(data.askingPrice)}
             </div>
           </div>
-          <div style={{ flex: 1, padding: "16px 26px" }}>
+          <div style={{ flex: 1, padding: "16px 26px", borderRight: `1px solid ${C.coal}` }}>
             <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>Deposit to Lock</div>
             <div style={{ color: "#ffffff", fontSize: 26, fontWeight: 900, letterSpacing: "-0.01em", lineHeight: 1 }}>
               {fmtPrice(data.depositToLock)}
             </div>
           </div>
+          {data.depositPaid && (
+            <div style={{ flex: 1, padding: "16px 26px" }}>
+              <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>Deposit Paid</div>
+              <div style={{ color: C.goldLight, fontSize: 26, fontWeight: 900, letterSpacing: "-0.01em", lineHeight: 1 }}>
+                {data.depositPaid}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── 3. SPECS STRIP ───────────────────────────────────────────── */}
@@ -1232,6 +1240,7 @@ export default function AdminCampaignBuilder() {
       estimatedCompletion: listing.estimated_completion || "",
       askingPrice: listing.assignment_price ? `$${Number(listing.assignment_price).toLocaleString()}` : "",
       depositToLock: listing.deposit_to_lock ? `$${Number(listing.deposit_to_lock).toLocaleString()}` : "",
+      depositPaid: listing.deposit_paid ? `${listing.deposit_paid}%` : "",
       buyerAgentCommission: listing.buyer_agent_commission || "",
       developerApprovalRequired: !!listing.developer_approval_required,
       heroImage: listing.featured_image || null,
@@ -1621,6 +1630,7 @@ export default function AdminCampaignBuilder() {
                       {([
                         ["askingPrice", "Asking Price", "$899,000"],
                         ["depositToLock", "Deposit to Lock", "$50,000"],
+                        ["depositPaid", "Deposit Paid (%)", "e.g. 20%"],
                         ["buyerAgentCommission", "Buyer's Agent Commission", "3% or $20,000"],
                       ] as [keyof AssignmentFormState, string, string][]).map(([key, label, ph]) => (
                         <div key={key} className="space-y-1">
