@@ -48,6 +48,34 @@ const PRESET_AGENTS = [
   },
 ];
 
+// ─── Assignment types ───────────────────────────────────────────────────────
+interface AssignmentFormState {
+  listingId: string;
+  projectName: string; unitNumber: string; address: string; city: string;
+  unitType: string; interiorSqft: string; exteriorSqft: string;
+  floorLevel: string; exposure: string;
+  parkingStalls: string; hasLocker: boolean;
+  estimatedCompletion: string;
+  askingPrice: string; depositToLock: string;
+  buyerAgentCommission: string;
+  developerApprovalRequired: boolean;
+  heroImage: string | null; description: string;
+  agentIdx: number;
+}
+
+const DEFAULT_ASSIGNMENT_STATE: AssignmentFormState = {
+  listingId: "", projectName: "", unitNumber: "", address: "", city: "",
+  unitType: "", interiorSqft: "", exteriorSqft: "",
+  floorLevel: "", exposure: "",
+  parkingStalls: "", hasLocker: false,
+  estimatedCompletion: "",
+  askingPrice: "", depositToLock: "",
+  buyerAgentCommission: "",
+  developerApprovalRequired: false,
+  heroImage: null, description: "",
+  agentIdx: 0,
+};
+
 // ─── Types ─────────────────────────────────────────────────────────────────
 interface Plan {
   id: number; name: string; type: string; sqft: string; bal: string;
@@ -582,6 +610,199 @@ function OnePagerPreview({ data, onScreenshot, screenshottingPage }: {
   );
 }
 
+// ─── ASSIGNMENT ONE-PAGER PREVIEW ───────────────────────────────────────────
+function AssignmentOnePagerPreview({ data, onScreenshot, screenshottingPage }: {
+  data: AssignmentFormState;
+  onScreenshot?: (pageIdx: number) => void;
+  screenshottingPage?: number | null;
+}) {
+  const PAGE_W = 612;
+  const agent = PRESET_AGENTS[data.agentIdx] || PRESET_AGENTS[0];
+
+  const fmtPrice = (s: string) => {
+    const n = parseFloat(String(s).replace(/[^0-9.]/g, ""));
+    if (!n) return s || "—";
+    return `$${n.toLocaleString()}`;
+  };
+
+  const PageBtn = ({ pageIdx, label }: { pageIdx: number; label: string }) =>
+    onScreenshot ? (
+      <button
+        onClick={() => onScreenshot(pageIdx)}
+        disabled={screenshottingPage != null}
+        title={`Download ${label}`}
+        style={{
+          position: "absolute", top: 8, right: -88,
+          width: 80, display: "flex", flexDirection: "column", alignItems: "center",
+          gap: 4, padding: "6px 8px", borderRadius: 8, border: "1px solid hsl(var(--border))",
+          background: "hsl(var(--background))", cursor: "pointer", opacity: screenshottingPage != null ? 0.4 : 1,
+          fontSize: 9, fontWeight: 600, color: "hsl(var(--foreground))",
+          fontFamily: "inherit",
+        }}
+      >
+        {screenshottingPage === pageIdx
+          ? <span style={{ fontSize: 11 }}>⏳</span>
+          : <span style={{ fontSize: 13 }}>⬇</span>}
+        {label}
+      </button>
+    ) : null;
+
+  const unitTypeLabel = (t: string) => {
+    const m: Record<string, string> = {
+      studio: "Studio", "1bed": "1 Bedroom", "1bed_den": "1 Bed + Den",
+      "2bed": "2 Bedroom", "2bed_den": "2 Bed + Den", "3bed": "3 Bedroom", penthouse: "Penthouse",
+    };
+    return m[t] || t || "—";
+  };
+
+  const detailItems = [
+    { label: "Parking", value: data.parkingStalls || "—" },
+    { label: "Locker", value: data.hasLocker ? "Included" : "Not Included" },
+    { label: "Completion", value: data.estimatedCompletion || "TBD" },
+    { label: "Dev. Approval", value: data.developerApprovalRequired ? "Required" : "Not Required" },
+    { label: "Buyer's Comm.", value: data.buyerAgentCommission || "—" },
+  ];
+
+  return (
+    <div style={{ position: "relative", display: "block" }}>
+      <PageBtn pageIdx={0} label="Assignment" />
+      <div
+        id="assignment-pager-preview"
+        data-page-export="assignment-pager"
+        data-page-label="assignment-one-pager"
+        className="pdf-page"
+        style={{
+          width: PAGE_W,
+          background: C.offWhite,
+          fontFamily: "'Plus Jakarta Sans', 'DM Sans', Arial, sans-serif",
+          display: "block",
+          boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
+        }}
+      >
+        {/* ── 1. HERO ──────────────────────────────────────────────────── */}
+        <div style={{ position: "relative", width: "100%", height: 300, background: "#08080a", display: "block" }}>
+          {data.heroImage
+            ? <img src={data.heroImage} alt="" crossOrigin="anonymous" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", opacity: 0.88 }} />
+            : <div style={{ width: "100%", height: "100%", background: "linear-gradient(150deg,#0a1628,#1a2a40,#0d1f35)" }} />
+          }
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 25%, rgba(0,0,0,0.55) 58%, rgba(0,0,0,0.97) 100%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.35) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.2) 100%)" }} />
+
+          {/* Logo top-left */}
+          <div style={{ position: "absolute", top: -36, left: 18 }}>
+            <LogoWhite height={141} />
+          </div>
+
+          {/* Bottom: project name + pill + unit */}
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 26px 18px" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ display: "inline-block", background: C.gold, color: "#fff", fontSize: 7.5, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", padding: "3px 10px", borderRadius: 3, marginBottom: 8 }}>
+                  Assignment of Contract
+                </div>
+                <div style={{ color: "#ffffff", fontSize: 28, fontWeight: 900, lineHeight: 1.1, letterSpacing: "-0.01em", textShadow: "0 2px 16px rgba(0,0,0,0.7)" }}>
+                  {data.projectName || "Project Name"}
+                </div>
+                {data.address && (
+                  <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 9, marginTop: 5, letterSpacing: "0.04em" }}>
+                    {data.address}{data.city ? `, ${data.city}` : ""}
+                  </div>
+                )}
+              </div>
+              {data.unitNumber && (
+                <div style={{ textAlign: "right", paddingBottom: 2 }}>
+                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 7.5, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 3 }}>Unit</div>
+                  <div style={{ color: C.gold, fontSize: 22, fontWeight: 900, lineHeight: 1 }}>{data.unitNumber}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── 2. PRICE BAR ─────────────────────────────────────────────── */}
+        <div style={{ background: C.dark, display: "flex", borderBottom: `1px solid ${C.coal}` }}>
+          <div style={{ flex: 1, padding: "16px 26px", borderRight: `1px solid ${C.coal}` }}>
+            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>Asking Price</div>
+            <div style={{ color: C.gold, fontSize: 26, fontWeight: 900, letterSpacing: "-0.01em", lineHeight: 1 }}>
+              {fmtPrice(data.askingPrice)}
+            </div>
+          </div>
+          <div style={{ flex: 1, padding: "16px 26px" }}>
+            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>Deposit to Lock</div>
+            <div style={{ color: "#ffffff", fontSize: 26, fontWeight: 900, letterSpacing: "-0.01em", lineHeight: 1 }}>
+              {fmtPrice(data.depositToLock)}
+            </div>
+          </div>
+        </div>
+
+        {/* ── 3. SPECS STRIP ───────────────────────────────────────────── */}
+        <div style={{ background: C.coal, display: "flex", borderBottom: `1px solid rgba(255,255,255,0.06)` }}>
+          {[
+            { label: "Unit Type", value: unitTypeLabel(data.unitType) },
+            { label: "Interior", value: data.interiorSqft ? `${data.interiorSqft} sqft` : "—" },
+            { label: "Floor Level", value: data.floorLevel || "—" },
+            { label: "Exposure", value: data.exposure || "—" },
+          ].map((item, i, arr) => (
+            <div key={i} style={{
+              flex: 1, padding: "11px 16px", textAlign: "center",
+              borderRight: i < arr.length - 1 ? `1px solid rgba(255,255,255,0.08)` : undefined,
+            }}>
+              <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 6.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 4 }}>{item.label}</div>
+              <div style={{ color: "#ffffff", fontSize: 11, fontWeight: 700, lineHeight: 1 }}>{item.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── 4. DETAILS GRID ──────────────────────────────────────────── */}
+        <div style={{ background: C.offWhite, padding: "18px 26px" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 0 }}>
+            {detailItems.map((item, i) => (
+              <div key={i} style={{
+                width: "33.333%", padding: "8px 12px 8px 0",
+                borderBottom: i < 3 ? `1px solid ${C.smoke}` : undefined,
+              }}>
+                <div style={{ color: C.textFaint, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 3 }}>{item.label}</div>
+                <div style={{ color: C.ink, fontSize: 10.5, fontWeight: 700 }}>{item.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── 5. DESCRIPTION ───────────────────────────────────────────── */}
+        {data.description && (
+          <div style={{ background: C.smoke, padding: "14px 26px", borderTop: `1px solid rgba(0,0,0,0.07)` }}>
+            <div style={{ color: C.textFaint, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 6 }}>Description</div>
+            <div style={{ color: C.ink, fontSize: 9, lineHeight: 1.6 }}>{data.description}</div>
+          </div>
+        )}
+
+        {/* ── 6. AGENT FOOTER ──────────────────────────────────────────── */}
+        <div style={{ background: "linear-gradient(135deg,#0e0e0e,#161616)", borderTop: `2.5px solid ${C.gold}`, padding: "11px 22px", display: "flex", alignItems: "center", gap: 14 }}>
+          {agent.photo
+            ? <img src={agent.photo} crossOrigin="anonymous" alt={agent.name} style={{ width: 54, height: 54, borderRadius: "50%", border: `2px solid ${C.gold}`, objectFit: "cover", objectPosition: "center 15%", display: "block", flexShrink: 0, boxShadow: `0 0 12px rgba(184,150,62,0.3)` }} />
+            : <div style={{ width: 54, height: 54, borderRadius: "50%", border: `2px solid ${C.gold}`, background: "#222", flexShrink: 0 }} />
+          }
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: "#fff", fontSize: 12, fontWeight: 900, letterSpacing: "0.06em", lineHeight: 1 }}>{agent.name}</div>
+            <div style={{ color: "#888", fontSize: 9.5, marginTop: 4, lineHeight: 1 }}>{agent.title}</div>
+            {agent.languages && <div style={{ color: C.gold, fontSize: 8.5, marginTop: 3, lineHeight: 1, letterSpacing: "0.04em" }}>{agent.languages}</div>}
+          </div>
+          <div style={{ width: 1, height: 34, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
+            <div style={{ color: "#fff", fontSize: 13, fontWeight: 900, lineHeight: 1 }}>{agent.phone}</div>
+            <div style={{ color: "#888", fontSize: 9.5, marginTop: 4, lineHeight: 1 }}>{agent.email}</div>
+            <div style={{ color: C.gold, fontSize: 9, marginTop: 3, lineHeight: 1 }}>{agent.website}</div>
+          </div>
+          <div style={{ width: 1, height: 34, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
+            <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 7.5, lineHeight: 1.45, letterSpacing: "0.02em" }}>E&OE. Information subject to change.<br/>Not to be used as an offer to purchase.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN PAGE ──────────────────────────────────────────────────────────────
 interface ProjectOption {
   id: string; name: string; city: string; neighborhood: string;
@@ -611,6 +832,13 @@ export default function AdminCampaignBuilder() {
   const previewRef = useRef<HTMLDivElement>(null);
   const [pdfGenerating, setPdfGenerating] = useState(false);
   const [screenshottingPage, setScreenshottingPage] = useState<number | null>(null);
+
+  // ── Assignment mode ─────────────────────────────────────────────────────
+  const [campaignType, setCampaignType] = useState<"presale" | "assignment">("presale");
+  const [assignmentForm, setAssignmentForm] = useState<AssignmentFormState>(DEFAULT_ASSIGNMENT_STATE);
+  const [assignmentListings, setAssignmentListings] = useState<any[]>([]);
+  const [assignmentSearchQuery, setAssignmentSearchQuery] = useState("");
+  const [assignmentSearchFocused, setAssignmentSearchFocused] = useState(false);
 
   // ── Screenshot-based Export ─────────────────────────────────────────────
   // Helper: screenshot one element and download as PNG
@@ -698,6 +926,14 @@ export default function AdminCampaignBuilder() {
         .eq("is_published", true)
         .order("name");
       if (projData) setProjects(projData as ProjectOption[]);
+
+      // Load assignment listings
+      const { data: listingData } = await (supabase as any)
+        .from("listings")
+        .select("id, title, project_name, unit_number, unit_type, interior_sqft, exterior_sqft, floor_level, exposure, has_parking, parking_count, has_storage, completion_month, completion_year, assignment_price, deposit_paid, description, address, city, featured_image")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+      if (listingData) setAssignmentListings(listingData);
 
       // Load template if editing existing
       if (templateId && templateId !== "new") {
@@ -842,6 +1078,43 @@ export default function AdminCampaignBuilder() {
     }));
 
     toast.success(`Loaded "${project.name}" — fill in plans & incentives`);
+  };
+
+  const handleAssignmentSelect = (listingId: string) => {
+    const listing = assignmentListings.find((l: any) => l.id === listingId);
+    if (!listing) return;
+
+    const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const completion = listing.completion_month && listing.completion_year
+      ? `${months[listing.completion_month]} ${listing.completion_year}`
+      : listing.completion_year ? String(listing.completion_year) : "";
+
+    setAssignmentForm({
+      listingId,
+      projectName: listing.project_name || listing.title || "",
+      unitNumber: listing.unit_number || "",
+      address: listing.address || "",
+      city: listing.city || "",
+      unitType: listing.unit_type || "",
+      interiorSqft: listing.interior_sqft ? String(listing.interior_sqft) : "",
+      exteriorSqft: listing.exterior_sqft ? String(listing.exterior_sqft) : "",
+      floorLevel: listing.floor_level || "",
+      exposure: listing.exposure || "",
+      parkingStalls: listing.has_parking ? (listing.parking_count ? `${listing.parking_count} Stall${listing.parking_count > 1 ? "s" : ""}` : "1 Stall") : "None",
+      hasLocker: !!listing.has_storage,
+      estimatedCompletion: completion,
+      askingPrice: listing.assignment_price ? String(listing.assignment_price) : "",
+      depositToLock: listing.deposit_paid ? String(listing.deposit_paid) : "",
+      buyerAgentCommission: "",
+      developerApprovalRequired: false,
+      heroImage: listing.featured_image || null,
+      description: listing.description || "",
+      agentIdx: assignmentForm.agentIdx,
+    });
+
+    setAssignmentSearchQuery(listing.project_name || listing.title || "");
+    setAssignmentSearchFocused(false);
+    toast.success(`Loaded "${listing.project_name || listing.title}" — review and export`);
   };
 
   const updatePlanCount = (count: number) => {
@@ -1018,52 +1291,245 @@ export default function AdminCampaignBuilder() {
                 </div>
               </div>
 
-              {/* Project search */}
-              <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                <Input
-                  placeholder="Search project name…"
-                  value={projectSearchQuery}
-                  onChange={e => setProjectSearchQuery(e.target.value)}
-                  onFocus={() => setProjectSearchFocused(true)}
-                  onBlur={() => setTimeout(() => setProjectSearchFocused(false), 150)}
-                  className="h-9 pl-8 text-xs"
-                />
-                {projectSearchFocused && projectSearchQuery.length > 0 && (() => {
-                  const filtered = projects
-                    .filter(p => p.name.toLowerCase().includes(projectSearchQuery.toLowerCase()))
-                    .sort((a, b) => {
-                      const q = projectSearchQuery.toLowerCase();
-                      const aStart = a.name.toLowerCase().startsWith(q);
-                      const bStart = b.name.toLowerCase().startsWith(q);
-                      return aStart === bStart ? a.name.localeCompare(b.name) : aStart ? -1 : 1;
-                    })
-                    .slice(0, 8);
-                  if (!filtered.length) return null;
-                  return (
-                    <div className="absolute z-50 mt-1 w-full bg-background border border-border rounded-lg shadow-lg overflow-hidden">
-                      {filtered.map(p => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onMouseDown={() => {
-                            handleProjectSelect(p.id);
-                            setProjectSearchQuery(p.name);
-                            setProjectSearchFocused(false);
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs hover:bg-muted transition-colors border-b border-border last:border-0"
-                        >
-                          <span className="font-medium">{p.name}</span>
-                          {p.city && <span className="text-muted-foreground ml-1.5">· {p.city}</span>}
-                        </button>
-                      ))}
-                    </div>
-                  );
-                })()}
+              {/* Campaign type toggle */}
+              <div className="flex rounded-lg border border-border overflow-hidden mb-3">
+                {(["presale", "assignment"] as const).map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setCampaignType(type)}
+                    className={cn(
+                      "flex-1 py-1.5 text-[11px] font-semibold transition-colors",
+                      campaignType === type
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    {type === "presale" ? "Presale" : "Assignment"}
+                  </button>
+                ))}
               </div>
+
+              {/* Conditional search */}
+              {campaignType === "presale" ? (
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                  <Input
+                    placeholder="Search project name…"
+                    value={projectSearchQuery}
+                    onChange={e => setProjectSearchQuery(e.target.value)}
+                    onFocus={() => setProjectSearchFocused(true)}
+                    onBlur={() => setTimeout(() => setProjectSearchFocused(false), 150)}
+                    className="h-9 pl-8 text-xs"
+                  />
+                  {projectSearchFocused && projectSearchQuery.length > 0 && (() => {
+                    const filtered = projects
+                      .filter(p => p.name.toLowerCase().includes(projectSearchQuery.toLowerCase()))
+                      .sort((a, b) => {
+                        const q = projectSearchQuery.toLowerCase();
+                        const aStart = a.name.toLowerCase().startsWith(q);
+                        const bStart = b.name.toLowerCase().startsWith(q);
+                        return aStart === bStart ? a.name.localeCompare(b.name) : aStart ? -1 : 1;
+                      })
+                      .slice(0, 8);
+                    if (!filtered.length) return null;
+                    return (
+                      <div className="absolute z-50 mt-1 w-full bg-background border border-border rounded-lg shadow-lg overflow-hidden">
+                        {filtered.map(p => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onMouseDown={() => {
+                              handleProjectSelect(p.id);
+                              setProjectSearchQuery(p.name);
+                              setProjectSearchFocused(false);
+                            }}
+                            className="w-full text-left px-3 py-2 text-xs hover:bg-muted transition-colors border-b border-border last:border-0"
+                          >
+                            <span className="font-medium">{p.name}</span>
+                            {p.city && <span className="text-muted-foreground ml-1.5">· {p.city}</span>}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
+              ) : (
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                  <Input
+                    placeholder="Search assignment listing…"
+                    value={assignmentSearchQuery}
+                    onChange={e => setAssignmentSearchQuery(e.target.value)}
+                    onFocus={() => setAssignmentSearchFocused(true)}
+                    onBlur={() => setTimeout(() => setAssignmentSearchFocused(false), 150)}
+                    className="h-9 pl-8 text-xs"
+                  />
+                  {assignmentSearchFocused && assignmentSearchQuery.length > 0 && (() => {
+                    const q = assignmentSearchQuery.toLowerCase();
+                    const filtered = assignmentListings
+                      .filter((l: any) => (l.project_name || l.title || "").toLowerCase().includes(q))
+                      .slice(0, 8);
+                    if (!filtered.length) return (
+                      <div className="absolute z-50 mt-1 w-full bg-background border border-border rounded-lg shadow-lg overflow-hidden">
+                        <div className="px-3 py-2 text-xs text-muted-foreground">No published assignments found</div>
+                      </div>
+                    );
+                    return (
+                      <div className="absolute z-50 mt-1 w-full bg-background border border-border rounded-lg shadow-lg overflow-hidden">
+                        {filtered.map((l: any) => (
+                          <button
+                            key={l.id}
+                            type="button"
+                            onMouseDown={() => handleAssignmentSelect(l.id)}
+                            className="w-full text-left px-3 py-2 text-xs hover:bg-muted transition-colors border-b border-border last:border-0"
+                          >
+                            <span className="font-medium">{l.project_name || l.title}</span>
+                            {l.unit_number && <span className="text-primary ml-1.5">Unit {l.unit_number}</span>}
+                            {l.city && <span className="text-muted-foreground ml-1.5">· {l.city}</span>}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
 
           {/* Tabs */}
+            {campaignType === "assignment" ? (
+              /* ── ASSIGNMENT LEFT PANEL ── */
+              <Tabs defaultValue="unit" className="flex flex-col flex-1 min-h-0">
+                <div className="border-b border-border overflow-x-auto scrollbar-none">
+                  <TabsList className="h-auto p-0 bg-transparent rounded-none flex w-max min-w-full">
+                    {[
+                      { val: "unit", label: "Unit", icon: Building2 },
+                      { val: "pricing", label: "Pricing", icon: DollarSign },
+                      { val: "agent", label: "Agent", icon: User },
+                      { val: "files", label: "Photo", icon: ImageIcon },
+                    ].map(tab => (
+                      <TabsTrigger key={tab.val} value={tab.val} className="flex-shrink-0 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[11px] px-3.5 py-2.5 gap-1.5 whitespace-nowrap">
+                        <tab.icon className="h-3 w-3" />{tab.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
+                {/* Action bar */}
+                <div className="px-3 py-2 border-b border-border bg-card space-y-2">
+                  <div className="flex gap-2 items-center">
+                    <div className="flex-1 space-y-1">
+                      <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">Template Name</Label>
+                      <Input value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder={assignmentForm.projectName || "e.g. The Smith – Unit 1204"} className="h-8 text-xs" />
+                    </div>
+                    <Button onClick={generatePDF} disabled={pdfGenerating} className="h-8 text-xs gap-1.5 px-3 flex-shrink-0 mt-4">
+                      {pdfGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                      PNG
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={saveTemplate} disabled={saving} className="h-8 text-xs gap-1 px-3 flex-shrink-0 mt-4">
+                      {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                      Save
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto px-4 py-4">
+                  {/* UNIT TAB */}
+                  <TabsContent value="unit" className="mt-0 space-y-3">
+                    <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Unit Details</p>
+                      {([
+                        ["projectName", "Project Name"],
+                        ["unitNumber", "Unit Number"],
+                        ["address", "Street Address"],
+                        ["city", "City"],
+                        ["unitType", "Unit Type"],
+                        ["interiorSqft", "Interior Sqft"],
+                        ["exteriorSqft", "Exterior / Balcony Sqft"],
+                        ["floorLevel", "Floor Level"],
+                        ["exposure", "Exposure"],
+                        ["parkingStalls", "Parking"],
+                        ["estimatedCompletion", "Est. Completion"],
+                      ] as [keyof AssignmentFormState, string][]).map(([key, label]) => (
+                        <div key={key} className="space-y-1">
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</Label>
+                          <Input value={String(assignmentForm[key] ?? "")} onChange={e => setAssignmentForm(f => ({ ...f, [key]: e.target.value }))} className="h-8 text-xs" />
+                        </div>
+                      ))}
+                      <div className="flex items-center justify-between pt-1">
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Locker Included</Label>
+                        <button onClick={() => setAssignmentForm(f => ({ ...f, hasLocker: !f.hasLocker }))} className={cn("h-6 w-11 rounded-full transition-colors relative", assignmentForm.hasLocker ? "bg-primary" : "bg-muted")}>
+                          <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all", assignmentForm.hasLocker ? "left-[22px]" : "left-0.5")} />
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Dev. Approval Required</Label>
+                        <button onClick={() => setAssignmentForm(f => ({ ...f, developerApprovalRequired: !f.developerApprovalRequired }))} className={cn("h-6 w-11 rounded-full transition-colors relative", assignmentForm.developerApprovalRequired ? "bg-primary" : "bg-muted")}>
+                          <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all", assignmentForm.developerApprovalRequired ? "left-[22px]" : "left-0.5")} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Description</p>
+                      <textarea value={assignmentForm.description} onChange={e => setAssignmentForm(f => ({ ...f, description: e.target.value }))} rows={4} className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none" placeholder="Optional unit description…" />
+                    </div>
+                  </TabsContent>
+                  {/* PRICING TAB */}
+                  <TabsContent value="pricing" className="mt-0 space-y-3">
+                    <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Pricing</p>
+                      {([
+                        ["askingPrice", "Asking Price", "$899,000"],
+                        ["depositToLock", "Deposit to Lock", "$50,000"],
+                        ["buyerAgentCommission", "Buyer's Agent Commission", "3% or $20,000"],
+                      ] as [keyof AssignmentFormState, string, string][]).map(([key, label, ph]) => (
+                        <div key={key} className="space-y-1">
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</Label>
+                          <Input value={String(assignmentForm[key] ?? "")} onChange={e => setAssignmentForm(f => ({ ...f, [key]: e.target.value }))} className="h-8 text-xs" placeholder={ph} />
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+                  {/* AGENT TAB */}
+                  <TabsContent value="agent" className="mt-0 space-y-4">
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Select Agent</Label>
+                      <div className="grid grid-cols-1 gap-2">
+                        {PRESET_AGENTS.map((agent, idx) => (
+                          <button key={idx} onClick={() => setAssignmentForm(f => ({ ...f, agentIdx: idx }))} className={cn("flex items-center gap-3 p-3 rounded-xl border text-left transition-all", assignmentForm.agentIdx === idx ? "border-primary bg-primary/5 shadow-sm" : "border-border bg-background hover:border-primary/30")}>
+                            <img src={agent.photo} alt={agent.name} className="h-10 w-10 rounded-full object-cover border-2" style={{ borderColor: assignmentForm.agentIdx === idx ? C.gold : "transparent" }} />
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold truncate">{agent.name}</div>
+                              <div className="text-[10px] text-muted-foreground">{agent.title}</div>
+                              <div className="text-[10px] text-primary">{agent.phone}</div>
+                            </div>
+                            {assignmentForm.agentIdx === idx && <Badge className="ml-auto text-[9px] bg-primary text-primary-foreground">Selected</Badge>}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </TabsContent>
+                  {/* PHOTO TAB */}
+                  <TabsContent value="files" className="mt-0 space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Hero Image</Label>
+                      <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border hover:border-primary/50 bg-muted/20 p-4 cursor-pointer transition-colors">
+                        <input type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (!f) return; const r = new FileReader(); r.onload = ev => setAssignmentForm(af => ({ ...af, heroImage: ev.target?.result as string })); r.readAsDataURL(f); }} className="hidden" />
+                        {assignmentForm.heroImage ? (
+                          <div className="w-full">
+                            <img src={assignmentForm.heroImage} alt="hero" className="w-full h-24 object-cover rounded-lg" />
+                            <p className="text-[10px] text-primary font-medium text-center mt-2">✓ Photo loaded · Click to replace</p>
+                          </div>
+                        ) : (
+                          <div className="text-center">
+                            <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+                            <p className="text-xs text-muted-foreground">Click to upload building photo</p>
+                          </div>
+                        )}
+                      </label>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground bg-muted/50 rounded-lg p-2">If no photo is uploaded, the listing's featured image will be used.</p>
+                  </TabsContent>
+                </div>
+              </Tabs>
+            ) : (
             <Tabs defaultValue="project" className="flex flex-col flex-1 min-h-0">
               <div className="border-b border-border overflow-x-auto scrollbar-none">
                 <TabsList className="h-auto p-0 bg-transparent rounded-none flex w-max min-w-full">
@@ -1556,21 +2022,24 @@ export default function AdminCampaignBuilder() {
                 </TabsContent>
               </div>
             </Tabs>
+            )}
           </div>
 
           {/* ── RIGHT PANEL: PREVIEW ── */}
           <div className="flex-1 bg-muted/20 flex flex-col overflow-hidden">
             <div className="px-5 py-2.5 border-b border-border flex items-center justify-between">
-              <span className="text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">Live Preview — US Letter (612×792pt)</span>
+              <span className="text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
+                Live Preview — {campaignType === "assignment" ? "Assignment One-Pager (612px)" : "US Letter (612×792pt)"}
+              </span>
               <Badge variant="outline" className="text-[9px]">Updates in real time</Badge>
             </div>
 
-            <div
-              ref={previewRef}
-              className="flex-1 overflow-auto p-3"
-            >
+            <div ref={previewRef} className="flex-1 overflow-auto p-3">
               <div id="print-root" style={{ width: 700, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                <OnePagerPreview data={form} onScreenshot={screenshotPage} screenshottingPage={screenshottingPage} />
+                {campaignType === "assignment"
+                  ? <AssignmentOnePagerPreview data={assignmentForm} onScreenshot={screenshotPage} screenshottingPage={screenshottingPage} />
+                  : <OnePagerPreview data={form} onScreenshot={screenshotPage} screenshottingPage={screenshottingPage} />
+                }
               </div>
             </div>
           </div>
