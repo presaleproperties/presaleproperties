@@ -33,12 +33,17 @@ import {
   CheckCircle,
   XCircle,
   Home,
+  FileDown,
+  Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
 import { ExpertAdvisoryCard } from "@/components/listings/ExpertAdvisoryCard";
 import { AboutContactForm } from "@/components/about/AboutContactForm";
+import { AssignmentOnePager } from "@/components/assignments/AssignmentOnePager";
+import html2canvas from "html2canvas";
+import { toast } from "sonner";
 
 interface ListingRow {
   id: string;
@@ -106,6 +111,8 @@ export default function AssignmentDetail() {
   const { id } = useParams<{ id: string }>();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const onePagerRef = useRef<HTMLDivElement>(null);
   const { isVerified } = useVerifiedAgent();
 
   const { data: listing, isLoading, error } = useQuery({
@@ -157,6 +164,45 @@ export default function AssignmentDetail() {
   const discount = listing?.original_price && listing.original_price > listing.assignment_price
     ? listing.original_price - listing.assignment_price
     : null;
+
+  const handleDownloadOnePager = async () => {
+    if (!onePagerRef.current || !listing) return;
+    setIsExporting(true);
+    try {
+      const el = onePagerRef.current;
+      el.scrollIntoView({ block: "start" });
+      await new Promise((r) => setTimeout(r, 150));
+      const rect = el.getBoundingClientRect();
+      const canvas = await html2canvas(el, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        backgroundColor: "#ffffff",
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: rect.width,
+        windowHeight: rect.height,
+      });
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `assignment-${listing.project_name.replace(/\s+/g, "-").toLowerCase()}-${listing.unit_number || listing.id.slice(0, 6)}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("One-pager downloaded!");
+      }, "image/png");
+    } catch (e) {
+      console.error(e);
+      toast.error("Export failed. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -569,6 +615,35 @@ export default function AssignmentDetail() {
 
             {/* Expert Advisory Card */}
             <ExpertAdvisoryCard />
+
+            {/* One-Pager Download — verified agents only */}
+            {isVerified && (
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="pt-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <FileDown className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm text-foreground">Download One-Pager</p>
+                      <p className="text-xs text-muted-foreground">Branded PDF for client sharing</p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleDownloadOnePager}
+                    disabled={isExporting}
+                    variant="outline"
+                    className="w-full h-10 gap-2 text-sm font-semibold border-primary/30 hover:bg-primary/5"
+                  >
+                    {isExporting ? (
+                      <><Loader2 className="h-4 w-4 animate-spin" />Generating...</>
+                    ) : (
+                      <><Download className="h-4 w-4" />Download PNG One-Pager</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </main>
@@ -580,6 +655,27 @@ export default function AssignmentDetail() {
         onOpenChange={setFormOpen}
         selectedAgentName={listing.title}
       />
+
+      {/* Off-screen one-pager template for html2canvas capture */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: "-9999px",
+          width: 612,
+          visibility: "visible",
+          pointerEvents: "none",
+          zIndex: -1,
+        }}
+      >
+        <AssignmentOnePager
+          ref={onePagerRef}
+          listing={listing}
+          project={project || null}
+          heroImage={uniqueGallery[0]}
+          completionDisplay={completionDisplay}
+        />
+      </div>
     </div>
   );
 }
