@@ -1372,7 +1372,8 @@ export default function MapSearch() {
 
   const activeFilterCount = [
     selectedCities.length > 0,
-    selectedPropertyTypes.length > 0,
+    // Check both multi-select (types) and legacy single-select (type)
+    selectedPropertyTypes.length > 0 || (filters.propertyType && filters.propertyType !== "any"),
     selectedPriceRanges.length > 0,
     filters.beds !== "any",
     filters.baths !== "any",
