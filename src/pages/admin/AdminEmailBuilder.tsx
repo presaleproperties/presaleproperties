@@ -68,6 +68,27 @@ const PRESET_AGENTS = [
   },
 ];
 
+const LOGO_EMAIL_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
+
+// ─── Premium headline presets ─────────────────────────────────────────────────
+const HEADLINE_PRESETS = [
+  {
+    label: "The Moment",
+    headline: "The Moment Has Arrived",
+    body: "A rare opportunity to own in one of the most sought-after communities. Limited homes available — register before public launch to secure preferred pricing and first access to floorplan selection.",
+  },
+  {
+    label: "Exclusive Access",
+    headline: "Exclusive VIP Access — Before the Public",
+    body: "Your clients deserve first access. Before this goes public, we're offering a select group of realtors priority pricing, co-op commissions, and dedicated support from contract to keys.",
+  },
+  {
+    label: "Your Next Investment",
+    headline: "The Investment Your Clients Have Been Waiting For",
+    body: "Strong rental yields. Appreciation-driven location. Developer-backed incentives. This is precisely the presale opportunity serious investors have been positioning for — and it won't last long.",
+  },
+];
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Project {
   id: string;
