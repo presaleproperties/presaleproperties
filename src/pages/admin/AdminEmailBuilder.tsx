@@ -54,7 +54,10 @@ import {
   Loader2,
   PlusCircle,
   CheckCheck,
+  DollarSign,
+  TableProperties,
 } from "lucide-react";
+import * as pdfjsLib from "pdfjs-dist";
 import { cn } from "@/lib/utils";
 
 // ─── Saved Template type ──────────────────────────────────────────────────────
