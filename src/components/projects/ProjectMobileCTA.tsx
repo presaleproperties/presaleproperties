@@ -197,12 +197,12 @@ export function ProjectMobileCTA({
                 <div className="px-5 pt-4 pb-3 border-b border-border/40 flex items-center justify-between">
                   <div>
                     <h3 className="font-bold text-base tracking-tight">
-                      {submitted ? (hasAnyDocuments ? "Access Unlocked" : "Thank You!") : "Get Instant Access"}
+                      {submitted ? "You're All Set!" : "Get Instant Access"}
                     </h3>
                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                       {!submitted && <Lock className="h-3 w-3" />}
                       {submitted
-                        ? hasAnyDocuments ? "Your documents are ready below." : "We'll send details within 24 hours."
+                        ? "An email with full details will be sent to you shortly."
                         : hasAnyDocuments ? "Floor plans & brochures · No obligation" : "An agent will contact you within 24 hrs"}
                     </p>
                   </div>
