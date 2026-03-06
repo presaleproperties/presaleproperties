@@ -228,19 +228,19 @@ const FONT_PAIRINGS: FontPairing[] = [
 
 const HEADLINE_PRESETS = [
   {
-    label: "Found Something For You",
-    headline: "I Found Something Worth Your Attention",
-    body: "You signed up because you're serious about getting into a new home — and I take that seriously. I personally vetted this project and I think it lines up with what you're looking for. I'm here to walk you through it, answer every question, and make sure you have all the information before making any decision.",
+    label: "You Showed Interest",
+    headline: "You Asked About This One",
+    body: "I saw your registration come through and I wanted to personally follow up. I've attached the floorplans and pricing below — but the real value is in a quick call where I can walk you through what's worth knowing before you make any decisions. No pressure at all.",
   },
   {
-    label: "Before It Goes Public",
-    headline: "Before This Goes to the Public",
-    body: "As a presale specialist, I get early access to new projects before they're widely advertised. I'm reaching out to you first because you registered your interest with us. There's no obligation — I just want to make sure you have the chance to see this before it's gone.",
+    label: "Here's What I Found",
+    headline: "Here's Everything You Need",
+    body: "You registered interest and I pulled together everything — pricing, floorplans, and my honest take on whether this project makes sense right now. I'd rather give you 10 minutes of real information than have you make a decision without it. Give me a call.",
   },
   {
-    label: "Your Investment",
-    headline: "This One Checks a Lot of Boxes",
-    body: "Strong location. Solid developer track record. Pricing that still makes sense before appreciation kicks in. I've looked at a lot of projects and this one genuinely stands out. Let me show you why — no pressure, just a conversation.",
+    label: "Worth a Conversation",
+    headline: "This Project Is Worth a Conversation",
+    body: "The floorplans and pricing are below. But there are a few things about this project that are easier to explain over the phone — incentives, the developer's track record, and how the pricing compares to what's around it. Happy to jump on a quick call whenever works for you.",
   },
 ];
 
