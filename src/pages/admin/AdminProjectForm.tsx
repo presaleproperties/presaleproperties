@@ -2353,11 +2353,70 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
               </CardContent>
             </Card>
 
-            {/* Occupancy Estimate */}
+            {/* Completion */}
             <Card>
               <CardHeader>
-                <CardTitle>Occupancy Estimate</CardTitle>
+                <CardTitle>Completion</CardTitle>
               </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="occupancy_season">Season</Label>
+                    <select
+                      id="occupancy_season"
+                      value={formData.occupancy_estimate.match(/\b(Spring|Summer|Fall|Winter)\b/i)?.[1] || ""}
+                      onChange={(e) => {
+                        const season = e.target.value;
+                        const yearMatch = formData.occupancy_estimate.match(/\b(\d{4})\b/);
+                        const year = yearMatch ? yearMatch[1] : "";
+                        setFormData((prev) => ({
+                          ...prev,
+                          occupancy_estimate: season && year ? `${season} ${year}` : season || year,
+                        }));
+                      }}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    >
+                      <option value="" disabled>
+                        Select season
+                      </option>
+                      <option value="Spring">Spring</option>
+                      <option value="Summer">Summer</option>
+                      <option value="Fall">Fall</option>
+                      <option value="Winter">Winter</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="occupancy_year">Year</Label>
+                    <select
+                      id="occupancy_year"
+                      value={formData.occupancy_estimate.match(/\b(\d{4})\b/)?.[1] || ""}
+                      onChange={(e) => {
+                        const year = e.target.value;
+                        const seasonMatch = formData.occupancy_estimate.match(/\b(Spring|Summer|Fall|Winter)\b/i);
+                        const season = seasonMatch ? seasonMatch[1] : "";
+                        setFormData((prev) => ({
+                          ...prev,
+                          occupancy_estimate: season && year ? `${season} ${year}` : season || year,
+                        }));
+                      }}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    >
+                      <option value="" disabled>
+                        Select year
+                      </option>
+                      {Array.from({ length: 12 }, (_, i) => {
+                        const year = new Date().getFullYear() + i;
+                        return (
+                          <option key={year} value={year.toString()}>
+                            {year}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
               <CardContent className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
