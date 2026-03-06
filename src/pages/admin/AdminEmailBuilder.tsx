@@ -1511,8 +1511,8 @@ export default function AdminEmailBuilder() {
                           size="sm"
                           className="h-7 text-xs flex-1 gap-1"
                           onClick={appendPromoToHighlights}
-                        >
-                          <PlusCircle className="h-3 w-3" /> Add to Highlights
+                         >
+                           <PlusCircle className="h-3 w-3" /> Add to Incentives
                         </Button>
                         <Button
                           size="sm"
