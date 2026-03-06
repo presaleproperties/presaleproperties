@@ -454,9 +454,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td valign="top">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; margin-bottom:10px; mso-line-height-rule:exactly; line-height:1.5;">Display &amp; Presentation Centre</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#888888; line-height:1.9; mso-line-height-rule:exactly;">#108 2350 165 Street, Surrey BC</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#888888; line-height:1.9; mso-line-height-rule:exactly;">Open Daily 12&ndash;5pm &nbsp;|&nbsp; Closed Thu &amp; Fri</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#888888; line-height:1.9; mso-line-height-rule:exactly;">presaleproperties.com &nbsp;|&nbsp; Vancouver, BC</div>
                   </td>
                   ${vars.projectUrl ? `<td align="right" valign="bottom">
                     <a href="${vars.projectUrl}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; text-decoration:none;">View Project &rarr;</a>
