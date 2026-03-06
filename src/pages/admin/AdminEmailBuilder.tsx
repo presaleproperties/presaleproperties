@@ -308,7 +308,7 @@ const EMPTY_VARS: TemplateVars = {
   projectUrl: "",
   headline: "",
   bodyCopy: "",
-  bookUrl: "https://presaleproperties.ca/book",
+  bookUrl: "https://presaleproperties.com/book",
   subjectLine: "",
   previewText: "",
 };
@@ -454,7 +454,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                   <td valign="bottom">
                     <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E &nbsp; P R O P E R T I E S</div>
                     <div style="font-family:${font.display}; font-size:42px; font-weight:400; color:#ffffff; line-height:1; margin-bottom:10px; mso-line-height-rule:exactly;">${vars.projectName || "New Release"}</div>
-                    <div style="font-family:${font.body}; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Your Presale Specialist &nbsp;&middot;&nbsp; presaleproperties.ca</div>
+                    <div style="font-family:${font.body}; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Your Presale Specialist &nbsp;&middot;&nbsp; presaleproperties.com</div>
                     <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0;">&nbsp;</div>
                   </td>
                   ${(vars.neighborhood || vars.city) ? `
@@ -597,7 +597,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                       </tr>` : ""}
                       <tr>
                         <td style="padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#127760;</td>
-                        <td style="vertical-align:middle;"><a href="https://presaleproperties.ca" target="_blank" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">presaleproperties.ca</a></td>
+                        <td style="vertical-align:middle;"><a href="https://presaleproperties.com" target="_blank" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">presaleproperties.com</a></td>
                       </tr>
                     </table>
                   </td>
@@ -615,7 +615,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           <tr>
             <td class="footer-td" bgcolor="#0d1f18" style="padding:22px 40px; background-color:#0d1f18;">
               <div style="font-family:'DM Sans', Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; margin-bottom:6px; mso-line-height-rule:exactly; line-height:1.5;">PRESALE PROPERTIES &nbsp;&middot;&nbsp; ${vars.city ? `${vars.city.toUpperCase()}, BC` : "VANCOUVER, BC"}</div>
-              <div style="font-family:'DM Sans', Arial, sans-serif; font-size:12px; font-weight:300; color:#8aaa96; mso-line-height-rule:exactly; line-height:1.6;">presaleproperties.ca &nbsp;&middot;&nbsp; ${agent.phone}</div>
+              <div style="font-family:'DM Sans', Arial, sans-serif; font-size:12px; font-weight:300; color:#8aaa96; mso-line-height-rule:exactly; line-height:1.6;">presaleproperties.com &nbsp;&middot;&nbsp; ${agent.phone}</div>
             </td>
           </tr>
 
@@ -723,7 +723,7 @@ export default function AdminEmailBuilder() {
     const brochureUrl = p.brochure_files?.[0] ?? "";
     const floorplanUrl = p.floorplan_files?.[0] ?? "";
     const pricingUrl = p.pricing_sheets?.[0] ?? "";
-    const projectUrl = `https://presaleproperties.ca/presale/${p.slug}`;
+    const projectUrl = `https://presaleproperties.com/presale/${p.slug}`;
 
     setCta((prev) => ({
       ...prev,
