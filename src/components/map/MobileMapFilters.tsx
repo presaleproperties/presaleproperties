@@ -24,6 +24,14 @@ interface SimpleOption {
   label: string;
 }
 
+export interface PresetConfig {
+  priceMin?: number;
+  priceMax?: number;
+  propertyType?: string;
+  cities?: string[];
+  beds?: string;
+}
+
 interface MobileMapFiltersProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -58,6 +66,8 @@ interface MobileMapFiltersProps {
   // Actions
   onClearAll: () => void;
   onApply: () => void;
+  // Atomic preset application - applies all changes in one URL update
+  onApplyPreset: (preset: PresetConfig) => void;
   activeFilterCount: number;
 }
 
