@@ -77,12 +77,13 @@ export function PowerSearch({
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
 
-  // Update dropdown position when open
+  // Update dropdown position when open — use full bar container if provided
   useEffect(() => {
-    if (isOpen && containerRef.current) {
-      setDropdownRect(containerRef.current.getBoundingClientRect());
+    const el = dropdownContainer?.current ?? containerRef.current;
+    if (isOpen && el) {
+      setDropdownRect(el.getBoundingClientRect());
     }
-  }, [isOpen, query]);
+  }, [isOpen, query, dropdownContainer]);
 
   // Debounce search query
   useEffect(() => {
