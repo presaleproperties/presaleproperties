@@ -743,7 +743,7 @@ export default function MapSearch() {
   // IMPORTANT: this page is frequently used right after admins change the enabled-city scope.
   // We intentionally keep this query “hot” so the count and markers update immediately.
   const { data: resaleListings, isLoading: resaleLoading } = useQuery<MLSListing[]>({
-    queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities],
+    queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, filters.propertyType, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings_safe")
