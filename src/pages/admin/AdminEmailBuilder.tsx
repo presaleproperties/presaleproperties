@@ -303,6 +303,7 @@ const EMPTY_VARS: TemplateVars = {
   neighborhood: "",
   completion: "",
   startingPrice: "",
+  deposit: "",
   featuredImage: "",
   brochureUrl: "",
   floorplanUrl: "",
