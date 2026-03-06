@@ -911,10 +911,11 @@ export default function AdminEmailBuilder() {
 
   const appendPromoToHighlights = () => {
     if (!promoSnippet.trim()) return;
-    const current = vars.incentiveText.trim();
     setVars((prev) => ({
       ...prev,
-      incentiveText: current ? `${current}\n${promoSnippet}` : promoSnippet,
+      incentiveText: prev.incentiveText.trim()
+        ? `${prev.incentiveText.trim()}\n${promoSnippet.trim()}`
+        : promoSnippet.trim(),
     }));
     setPromoNotes("");
     setPromoSnippet("");
