@@ -721,11 +721,23 @@ export default function MapSearch() {
   // Selected price ranges
   const selectedPriceRanges = filters.priceRanges;
 
-  // Price slider state
+  // Price slider state - sync from URL params so preset buttons update the slider
   const [priceRange, setPriceRange] = useState<[number, number]>([
     filters.priceMin ? parseInt(filters.priceMin) : MIN_PRICE,
     filters.priceMax ? parseInt(filters.priceMax) : MAX_PRICE,
   ]);
+
+  // Keep priceRange local state in sync with URL params (preset buttons update URL directly)
+  useEffect(() => {
+    const urlMin = filters.priceMin ? parseInt(filters.priceMin) : MIN_PRICE;
+    const urlMax = filters.priceMax ? parseInt(filters.priceMax) : MAX_PRICE;
+    setPriceRange(prev => {
+      if (prev[0] !== urlMin || prev[1] !== urlMax) {
+        return [urlMin, urlMax];
+      }
+      return prev;
+    });
+  }, [filters.priceMin, filters.priceMax]);
 
   // Fetch resale listings (2024+ builds only - move-in ready new construction)
   // IMPORTANT: this page is frequently used right after admins change the enabled-city scope.
