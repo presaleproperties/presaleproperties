@@ -917,7 +917,8 @@ export default function AdminEmailBuilder() {
   const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(
     vars, cta,
     selectedAgent ?? { id: "", full_name: "Your Name", title: "Presale Expert", photo_url: null, phone: "", email: "" },
-    FONT_PAIRINGS[fontIdx]
+    FONT_PAIRINGS[fontIdx],
+    pricingData
   );
 
   const handleCopy = useCallback(async () => {
