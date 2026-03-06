@@ -404,7 +404,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
     cta.floorplan && vars.floorplanUrl ? primaryCta(vars.floorplanUrl, "View Brochure &amp; Floorplans") : "",
     cta.brochure && vars.brochureUrl ? primaryCta(vars.brochureUrl, "Download Brochure") : "",
     cta.pricing && vars.pricingUrl ? primaryCta(vars.pricingUrl, "View Pricing") : "",
-    cta.bookConsult && vars.bookUrl ? secondaryCta(vars.bookUrl, "Call Now &mdash; Book a Showing") : "",
+    cta.bookConsult && vars.bookUrl ? secondaryCta(vars.bookUrl, "&#128222;&nbsp; CALL NOW") : "",
     cta.viewProject && vars.projectUrl ? secondaryCta(vars.projectUrl, "View Full Project") : "",
   ].filter(Boolean).join("\n");
 
