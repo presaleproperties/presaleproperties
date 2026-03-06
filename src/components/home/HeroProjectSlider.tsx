@@ -139,26 +139,16 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
 
             {/* Actions */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {hasAnyDoc ? (
+          {hasAnyDoc ? (
                 <>
-                  {/* Mobile: secondary style pill → detail page */}
+                  {/* All sizes: link to project page where docs are gated behind lead form */}
                   <Link
                     to={`/presale/${project.slug}`}
-                    className="flex sm:hidden items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 backdrop-blur-md text-white border border-white/25 active:scale-95 transition-all text-xs font-bold whitespace-nowrap"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 backdrop-blur-md text-white border border-white/25 active:scale-95 transition-all text-xs font-bold whitespace-nowrap"
                   >
                     <Download className="h-3 w-3 text-primary shrink-0" />
                     {hasFloorplan ? "Floor Plans" : hasPricing ? "Pricing" : "Brochure"}
                   </Link>
-                  {/* Tablet+: downloads the file */}
-                  <a
-                    href={hasFloorplan ? project.floorplan_files![0] : hasPricing ? project.pricing_sheets![0] : project.brochure_files![0]}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 active:scale-95 transition-all text-xs font-bold whitespace-nowrap"
-                  >
-                    <Download className="h-3 w-3 text-primary shrink-0" />
-                    {hasFloorplan ? "Floor Plans" : hasPricing ? "Pricing" : "Brochure"}
-                  </a>
                 </>
               ) : (
                 /* Mobile: no docs — show Details button */
