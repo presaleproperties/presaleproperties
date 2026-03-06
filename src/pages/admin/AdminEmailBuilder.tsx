@@ -228,19 +228,19 @@ const FONT_PAIRINGS: FontPairing[] = [
 
 const HEADLINE_PRESETS = [
   {
-    label: "Worth Your Time",
-    headline: "Worth a Few Minutes of Your Time",
-    body: "If you've been looking at [city/area], this one is worth a look. I've pulled the key info together below — the quick breakdown, floorplans, and pricing. Go through it, and if anything catches your eye or you have questions, just give me a call. I work exclusively with buyers on presale, so I know these projects inside out.",
+    label: "Thank You — Here's the Info",
+    headline: "Thank You for Your Interest",
+    body: "I appreciate you taking the time to register. I've put together everything you need on this project below — the key details, floorplans, and pricing. Take a look, and when you're ready, give me a call. I'm here to make this easy for you.",
   },
   {
-    label: "Final Phase",
-    headline: "The Final Phase Just Opened",
-    body: "This is the last opportunity to buy into this community. Once it's gone, it's gone. I've put together everything you need below — home sizes, pricing, and what makes this project stand out in [city]. My job is to get you the right information and the right floorplan. Give me a call and let's figure out if this is the right fit.",
+    label: "You Registered — Let's Talk",
+    headline: "You Registered — Here's What to Know",
+    body: "Thanks for signing up. I wanted to personally follow up with the full details on this project. I've included the pricing and floorplans below. Once you've had a chance to review, I'd love to hop on a quick call and walk you through it. No pressure — just honest information.",
   },
   {
-    label: "Homes Are Moving",
-    headline: "Homes Are Moving — Here's the Breakdown",
-    body: "You registered interest, so I wanted to get this in front of you before inventory tightens up. Everything is below — pricing, floorplans, and the highlights. I work exclusively with buyers, not developers, so you'll always get a straight answer from me. Questions? Just call.",
+    label: "Here's Your Info",
+    headline: "Here's the Information You Requested",
+    body: "Thanks for reaching out. Below you'll find the key details on this project — home sizes, pricing, deposit structure, and estimated completion. I work exclusively with buyers, so my job is to make sure you have everything you need to make the right decision. Give me a call whenever you're ready.",
   },
 ];
 
