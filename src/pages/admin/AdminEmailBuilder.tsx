@@ -1706,7 +1706,90 @@ export default function AdminEmailBuilder() {
                   </div>
                 </div>
 
-                {/* SECTION: Key Stats */}
+                {/* SECTION: Pricing Sheet Upload */}
+                <div className="px-4 pt-3.5 pb-4 border-b border-border/60">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="h-1 w-1 rounded-full bg-primary" />
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Pricing Sheet</span>
+                    {pricingData && (
+                      <span className="ml-auto text-[9px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> Active
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mb-2.5 leading-relaxed">
+                    Upload a pricing sheet PDF — AI extracts unit types, sizes &amp; prices into a premium card in the email.
+                  </p>
+                  <input
+                    ref={pricingFileRef}
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={handlePricingFileUpload}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full h-8 text-xs gap-1.5 border-primary/40 text-primary hover:bg-primary/5"
+                    onClick={() => pricingFileRef.current?.click()}
+                    disabled={extractingPricing}
+                  >
+                    {extractingPricing
+                      ? <><Loader2 className="h-3 w-3 animate-spin" /> Extracting pricing…</>
+                      : <><DollarSign className="h-3 w-3" /> Upload Pricing Sheet PDF</>
+                    }
+                  </Button>
+
+                  {pricingData && (
+                    <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                          <TableProperties className="h-3 w-3" /> Pricing Summary
+                        </p>
+                        <button
+                          onClick={() => setPricingData(null)}
+                          className="text-[9px] text-muted-foreground hover:text-destructive transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      {pricingData.summary && (
+                        <p className="text-xs text-foreground/80 leading-relaxed">{pricingData.summary}</p>
+                      )}
+                      {(pricingData.units ?? []).length > 0 && (
+                        <div className="rounded border border-border overflow-hidden">
+                          <table className="w-full text-[10px]">
+                            <thead>
+                              <tr className="bg-muted/50">
+                                <th className="text-left px-2 py-1 text-muted-foreground font-medium">Type</th>
+                                <th className="text-center px-2 py-1 text-muted-foreground font-medium">Sq Ft</th>
+                                <th className="text-right px-2 py-1 text-muted-foreground font-medium">From</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {(pricingData.units ?? []).map((u, i) => (
+                                <tr key={i} className="border-t border-border/50">
+                                  <td className="px-2 py-1 text-foreground font-medium">{u.type}</td>
+                                  <td className="px-2 py-1 text-muted-foreground text-center">{u.sqft ?? "—"}</td>
+                                  <td className="px-2 py-1 text-primary font-semibold text-right">{u.price ?? "—"}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                      {(pricingData.highlights ?? []).length > 0 && (
+                        <ul className="space-y-0.5">
+                          {(pricingData.highlights ?? []).map((h, i) => (
+                            <li key={i} className="flex items-start gap-1.5 text-[10px] text-muted-foreground">
+                              <span className="text-primary mt-0.5">·</span> {h}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
                   <div className="flex items-center gap-1.5 mb-2.5">
                     <div className="h-1 w-1 rounded-full bg-primary" />
