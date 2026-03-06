@@ -394,7 +394,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           <tr>
             <td style="border:1.5px solid #C9A55A; padding:15px 40px; mso-padding-alt:15px 40px; text-align:center;">
               <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block;">${label}</a><![endif]-->
-              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block;">&#128222;&nbsp; ${label}</a><!--<![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block;">${label}</a><!--<![endif]-->
             </td>
           </tr>
         </table>`
@@ -404,7 +404,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
     cta.floorplan && vars.floorplanUrl ? primaryCta(vars.floorplanUrl, "View Brochure &amp; Floorplans") : "",
     cta.brochure && vars.brochureUrl ? primaryCta(vars.brochureUrl, "Download Brochure") : "",
     cta.pricing && vars.pricingUrl ? primaryCta(vars.pricingUrl, "View Pricing") : "",
-    cta.bookConsult && vars.bookUrl ? secondaryCta(vars.bookUrl, "Call Now &mdash; Book a Showing") : "",
+    cta.bookConsult && vars.bookUrl ? secondaryCta(vars.bookUrl, "&#128222;&nbsp; CALL NOW") : "",
     cta.viewProject && vars.projectUrl ? secondaryCta(vars.projectUrl, "View Full Project") : "",
   ].filter(Boolean).join("\n");
 
@@ -573,7 +573,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                       <tr>
                         <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:14px 22px;">
                           <!--[if !mso]><!-->
-                          <a href="${vars.bookUrl}" target="_blank" style="font-family:'DM Sans', Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; white-space:nowrap;">&#128222;&nbsp; CALL NOW</a>
+                          <a href="${vars.bookUrl}" target="_blank" style="font-family:'DM Sans', Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; white-space:nowrap;">&#128197;&nbsp; BOOK NOW</a>
                           <!--<![endif]-->
                         </td>
                       </tr>
