@@ -942,7 +942,39 @@ export default function AdminEmailBuilder() {
               {/* ── CONTENT TAB ── */}
               <TabsContent value="content" className="mt-0 px-4 pb-4 space-y-4">
 
-                {/* Inbox section */}
+                {/* Agent selector */}
+                <div className="pt-3">
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Sender / Signature</span>
+                  </div>
+                  <div className="flex gap-2">
+                    {PRESET_AGENTS.map((a, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setAgentIdx(i)}
+                        className={cn(
+                          "flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all flex-1",
+                          agentIdx === i
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border bg-background hover:border-primary/30"
+                        )}
+                      >
+                        <img
+                          src={a.photo}
+                          alt={a.name}
+                          className="w-8 h-8 rounded-full object-cover border border-border shrink-0"
+                          style={{ objectPosition: "center 15%" }}
+                        />
+                        <div className="min-w-0">
+                          <div className="text-[11px] font-medium text-foreground truncate">{a.name.split(" ")[0]}</div>
+                          <div className="text-[10px] text-muted-foreground truncate">{a.title.split(" ")[0]}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
                 <div className="pt-3">
                   <div className="flex items-center gap-1.5 mb-2.5">
                     <Mail className="h-3 w-3 text-muted-foreground" />
