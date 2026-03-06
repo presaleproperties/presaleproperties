@@ -313,11 +313,15 @@ export default function PresaleProjectDetail() {
     const occ = project.occupancy_estimate;
     const yr = project.completion_year;
     const mo = project.completion_month;
-    // If occupancy_estimate contains a 4-digit year, use it as-is ("Spring 2026")
-    if (occ && /\d{4}/.test(occ)) return occ;
-    // If occupancy_estimate is just a season word, append the year
-    if (occ && yr) return `${occ} ${yr}`;
-    // Fall back to month + year or just year
+    if (occ) {
+      const seasonMatch = occ.match(/\b(Spring|Summer|Fall|Winter)\b/i);
+      const yearMatch = occ.match(/\b(\d{4})\b/);
+      const season = seasonMatch ? seasonMatch[1] : null;
+      const occYear = yearMatch ? yearMatch[1] : null;
+      if (season && occYear) return `${season} ${occYear}`;
+      if (season && yr) return `${season} ${yr}`;
+      if (occYear) return occYear;
+    }
     if (mo && yr) return `${getMonthName(mo)} ${yr}`;
     if (yr) return String(yr);
     return null;
