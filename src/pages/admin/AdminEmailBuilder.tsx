@@ -894,6 +894,9 @@ export default function AdminEmailBuilder() {
       const a = agents.find((ag) => ag.id === fd.agentId);
       if (a) setSelectedAgent(a);
     }
+    if (fd.selectedProjectId) {
+      setSelectedProjectId(fd.selectedProjectId as string);
+    }
     setUseCustomHtml(false);
     setTemplatesOpen(false);
     toast.success(`Loaded: ${tpl.name}`);
