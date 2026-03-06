@@ -1338,6 +1338,7 @@ export default function AdminEmailBuilder() {
                         { key: "neighborhood" as keyof TemplateVars, label: "Neighborhood" },
                         { key: "completion" as keyof TemplateVars, label: "Est. Completion" },
                         { key: "startingPrice" as keyof TemplateVars, label: "Starting Price" },
+                        { key: "deposit" as keyof TemplateVars, label: "Deposit to Secure" },
                       ]
                     ).map(({ key, label }) => (
                       <div key={key}>
