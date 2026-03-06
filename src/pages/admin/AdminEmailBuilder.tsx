@@ -623,12 +623,12 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                 <tr>
                   <!-- Left: photo -->
                   ${agent.photo_url ? `
-                  <td class="sig-photo-td" width="110" valign="middle" style="padding:32px 0 32px 36px; vertical-align:middle; line-height:0; font-size:0;">
+                  <td class="sig-photo-td" width="110" valign="middle" style="padding:44px 0 44px 36px; vertical-align:middle; line-height:0; font-size:0;">
                     <img src="${agent.photo_url}" alt="${agent.full_name}" width="84" height="84" border="0"
                          style="display:block; width:84px; height:84px; border-radius:50%; object-fit:cover; object-position:center top; border:2px solid #C9A55A; -ms-interpolation-mode:bicubic;" />
                   </td>` : ""}
                   <!-- Middle: info -->
-                  <td class="sig-info-td" valign="middle" style="padding:32px 20px 32px ${agent.photo_url ? "20px" : "36px"}; vertical-align:middle;">
+                  <td class="sig-info-td" valign="middle" style="padding:44px 20px 44px ${agent.photo_url ? "20px" : "36px"}; vertical-align:middle;">
                     <div class="sig-name" style="font-family:${font.display}; font-size:22px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly; margin-bottom:4px;">${agent.full_name}</div>
                     <div style="font-family:${font.body}; font-size:10px; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; mso-line-height-rule:exactly; line-height:1.5; margin-bottom:14px;">${agent.title}</div>
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
