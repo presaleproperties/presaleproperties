@@ -562,7 +562,7 @@ Neighborhood: ${formData.neighborhood || ''}
 Starting Price: ${formData.starting_price ? `$${parseInt(formData.starting_price).toLocaleString()}` : 'TBD'}
 Unit Mix: ${formData.unit_mix || ''}
 Developer: ${formData.developer_name || ''}
-Completion: ${formData.completion_year ? `${formData.completion_month ? new Date(2000, Number(formData.completion_month) - 1).toLocaleString('default', { month: 'short' }) + ' ' : ''}${formData.completion_year}` : 'TBD'}
+Completion: ${formData.occupancy_estimate || (formData.completion_year ? `${formData.completion_month ? new Date(2000, Number(formData.completion_month) - 1).toLocaleString('default', { month: 'short' }) + ' ' : ''}${formData.completion_year}` : 'TBD')}
 Highlights: ${formData.highlights.join(', ') || 'N/A'}
       `.trim();
       
@@ -2353,10 +2353,10 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
               </CardContent>
             </Card>
 
-            {/* Occupancy Estimate */}
+            {/* Completion */}
             <Card>
               <CardHeader>
-                <CardTitle>Occupancy Estimate</CardTitle>
+                <CardTitle>Completion</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -2364,10 +2364,11 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                     <Label htmlFor="occupancy_season">Season</Label>
                     <select
                       id="occupancy_season"
-                      value={formData.occupancy_estimate.split(" ")[0] || ""}
+                      value={formData.occupancy_estimate.match(/\b(Spring|Summer|Fall|Winter)\b/i)?.[1] || ""}
                       onChange={(e) => {
                         const season = e.target.value;
-                        const year = formData.occupancy_estimate.split(" ")[1] || "";
+                        const yearMatch = formData.occupancy_estimate.match(/\b(\d{4})\b/);
+                        const year = yearMatch ? yearMatch[1] : "";
                         setFormData((prev) => ({
                           ...prev,
                           occupancy_estimate: season && year ? `${season} ${year}` : season || year,
@@ -2388,10 +2389,11 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                     <Label htmlFor="occupancy_year">Year</Label>
                     <select
                       id="occupancy_year"
-                      value={formData.occupancy_estimate.split(" ")[1] || ""}
+                      value={formData.occupancy_estimate.match(/\b(\d{4})\b/)?.[1] || ""}
                       onChange={(e) => {
                         const year = e.target.value;
-                        const season = formData.occupancy_estimate.split(" ")[0] || "";
+                        const seasonMatch = formData.occupancy_estimate.match(/\b(Spring|Summer|Fall|Winter)\b/i);
+                        const season = seasonMatch ? seasonMatch[1] : "";
                         setFormData((prev) => ({
                           ...prev,
                           occupancy_estimate: season && year ? `${season} ${year}` : season || year,
