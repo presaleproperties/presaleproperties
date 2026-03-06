@@ -817,6 +817,11 @@ export default function AdminEmailBuilder() {
   const [promoSnippet, setPromoSnippet] = useState("");
   const [rewritingPromo, setRewritingPromo] = useState(false);
 
+  // ── Pricing sheet state ──────────────────────────────────────────────────────
+  const [pricingData, setPricingData] = useState<PricingSummaryData | null>(null);
+  const [extractingPricing, setExtractingPricing] = useState(false);
+  const pricingFileRef = useRef<HTMLInputElement>(null);
+
   // ── Agent list from DB ───────────────────────────────────────────────────────
   const [agents, setAgents] = useState<AgentProfile[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<AgentProfile | null>(null);
