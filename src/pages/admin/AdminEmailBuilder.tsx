@@ -1121,96 +1121,78 @@ export default function AdminEmailBuilder() {
       </div>
 
       {/* INBOX PREVIEW BAR */}
-      <div className="mb-4 rounded-lg border border-border bg-card px-4 py-2.5">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 shrink-0">
-            <div className="h-2 w-2 rounded-full bg-red-400" />
-            <div className="h-2 w-2 rounded-full bg-amber-400" />
-            <div className="h-2 w-2 rounded-full bg-green-400" />
+      <div className="mb-3 rounded-lg border border-border bg-card overflow-hidden shrink-0">
+        <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b border-border">
+          <div className="flex items-center gap-1 shrink-0">
+            <div className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+            <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+            <div className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
           </div>
-          <Separator orientation="vertical" className="h-5" />
-          <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <div className="flex items-center gap-1.5 min-w-0 flex-1 text-sm">
-            <span className="font-semibold text-foreground shrink-0 text-xs">PresaleProperties</span>
-            <span className="text-muted-foreground/30 shrink-0">·</span>
-            <span className={cn("font-medium truncate text-xs", !vars.subjectLine && "text-muted-foreground italic")}>
-              {vars.subjectLine || "Your subject line will appear here"}
+          <Separator orientation="vertical" className="h-4 mx-1" />
+          <div className="flex items-center gap-1 flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 shrink-0 bg-muted/50 rounded px-2 py-0.5">
+              <div className="w-3 h-3 rounded-full bg-primary/40 shrink-0" />
+              <span className="text-[10px] font-medium text-foreground">PresaleProperties</span>
+            </div>
+            <span className="text-muted-foreground/40 shrink-0 text-xs">›</span>
+            <span className={cn("text-xs truncate flex-1 min-w-0", vars.subjectLine ? "font-medium text-foreground" : "italic text-muted-foreground")}>
+              {vars.subjectLine || "Your subject line will appear here…"}
             </span>
             {vars.previewText && (
-              <>
-                <span className="text-muted-foreground/30 shrink-0 hidden md:inline">—</span>
-                <span className="text-muted-foreground text-xs truncate hidden md:inline">{vars.previewText}</span>
-              </>
+              <span className="text-muted-foreground text-[11px] truncate hidden lg:block shrink-0 max-w-[240px]">
+                — {vars.previewText}
+              </span>
             )}
           </div>
-          <Badge variant="outline" className="shrink-0 text-[10px] py-0 h-5 text-muted-foreground">
-            Gmail preview
-          </Badge>
+          <Badge variant="outline" className="shrink-0 text-[9px] py-0 h-4 px-1.5 text-muted-foreground/60">Gmail</Badge>
         </div>
       </div>
 
       {/* MAIN 2-PANEL LAYOUT */}
-      <div className="grid grid-cols-[1fr_340px] gap-4 h-[calc(100vh-230px)] min-h-[600px]">
+      <div className="grid grid-cols-[1fr_360px] gap-3 h-[calc(100vh-220px)] min-h-[600px]">
 
         {/* LEFT: Email preview */}
         <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-          <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/20 shrink-0">
-            <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/10 shrink-0">
+            {/* Preview/Code toggle */}
+            <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
               <Button
                 variant="ghost" size="sm"
-                className={cn("h-7 px-3 text-xs gap-1.5 rounded-md transition-all", previewMode === "preview" && "bg-card shadow-sm text-foreground font-medium")}
+                className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "preview" && "bg-card shadow-sm text-foreground")}
                 onClick={() => setPreviewMode("preview")}
               >
                 <Eye className="h-3 w-3" /> Preview
               </Button>
               <Button
                 variant="ghost" size="sm"
-                className={cn("h-7 px-3 text-xs gap-1.5 rounded-md transition-all", previewMode === "code" && "bg-card shadow-sm text-foreground font-medium")}
+                className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "code" && "bg-card shadow-sm text-foreground")}
                 onClick={() => setPreviewMode("code")}
               >
-                <Code2 className="h-3 w-3" /> HTML Code
+                <Code2 className="h-3 w-3" /> HTML
               </Button>
             </div>
 
+            {/* Device toggle */}
             {previewMode === "preview" && (
-              <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost" size="sm"
-                      className={cn("h-7 w-8 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm")}
-                      onClick={() => setPreviewDevice("desktop")}
-                    >
-                      <Monitor className="h-3.5 w-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Desktop view</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost" size="sm"
-                      className={cn("h-7 w-8 p-0 rounded-md transition-all", previewDevice === "mobile" && "bg-card shadow-sm")}
-                      onClick={() => setPreviewDevice("mobile")}
-                    >
-                      <Smartphone className="h-3.5 w-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Mobile view</TooltipContent>
-                </Tooltip>
+              <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
+                <Button variant="ghost" size="sm"
+                  className={cn("h-6 w-7 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm text-foreground")}
+                  onClick={() => setPreviewDevice("desktop")}
+                ><Monitor className="h-3 w-3" /></Button>
+                <Button variant="ghost" size="sm"
+                  className={cn("h-6 w-7 p-0 rounded-md transition-all", previewDevice === "mobile" && "bg-card shadow-sm text-foreground")}
+                  onClick={() => setPreviewDevice("mobile")}
+                ><Smartphone className="h-3 w-3" /></Button>
               </div>
             )}
 
             <div className="flex items-center gap-2">
-              {previewMode === "preview" && (
-                <span className="text-[11px] text-muted-foreground hidden lg:block">
-                  {previewDevice === "desktop" ? "600px email width" : "375px mobile width"}
-                </span>
-              )}
+              <span className="text-[10px] text-muted-foreground/50 hidden lg:block">
+                {previewMode === "code" ? `${Math.round(finalHtml.length / 1024)}KB` : previewDevice === "desktop" ? "600px" : "375px"}
+              </span>
               {previewMode === "code" && (
-                <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1" onClick={handleCopy}>
-                  <Copy className="h-3 w-3" />
-                  {copied ? "Copied!" : "Copy"}
+                <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px] gap-1" onClick={handleCopy}>
+                  <Copy className="h-3 w-3" /> {copied ? "Copied!" : "Copy"}
                 </Button>
               )}
             </div>
@@ -1219,14 +1201,14 @@ export default function AdminEmailBuilder() {
           {previewMode === "preview" ? (
             <div className={cn(
               "flex-1 overflow-auto",
-              previewDevice === "desktop" ? "bg-[#e8e5e0]" : "bg-[#e8e5e0] flex items-start justify-center pt-4 pb-4"
+              previewDevice === "desktop" ? "bg-[#e8e5e0]" : "bg-[#d6d3ce] flex items-start justify-center pt-6"
             )}>
               <iframe
                 ref={iframeRef}
                 srcDoc={finalHtml}
                 className={cn(
                   "border-0",
-                  previewDevice === "desktop" ? "w-full h-full" : "w-[375px] h-full min-h-[800px] shadow-2xl rounded-sm"
+                  previewDevice === "desktop" ? "w-full h-full" : "w-[375px] min-h-[800px] shadow-2xl"
                 )}
                 sandbox="allow-same-origin"
                 title="Email Preview"
@@ -1234,9 +1216,12 @@ export default function AdminEmailBuilder() {
             </div>
           ) : (
             <div className="flex-1 overflow-auto" style={{ background: "#0d1117" }}>
-              <div className="p-4 pb-2 flex items-center justify-between border-b border-white/5">
-                <span className="text-[11px] font-mono text-emerald-400">email.html</span>
-                <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars · Mailchimp-compatible</span>
+              <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5" style={{ background: "#161b22" }}>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono text-emerald-400">email.html</span>
+                  <Badge className="text-[9px] h-4 px-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Mailchimp-ready</Badge>
+                </div>
+                <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars</span>
               </div>
               <pre className="p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed" style={{ color: "#e6edf3" }}>
                 {finalHtml}
@@ -1246,107 +1231,100 @@ export default function AdminEmailBuilder() {
         </div>
 
         {/* RIGHT: Editor panel */}
-        <div className="flex flex-col gap-0 rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-          <div className="px-4 pt-4 pb-3 border-b border-border bg-muted/10 shrink-0">
+        <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+          {/* Panel header */}
+          <div className="px-4 pt-3 pb-2.5 border-b border-border bg-gradient-to-r from-muted/30 to-transparent shrink-0">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">Email Editor</h2>
-              {useCustomHtml && (
-                <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2 text-amber-600 hover:text-amber-700" onClick={() => setUseCustomHtml(false)}>
-                  ← Use template
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 rounded bg-primary/10 flex items-center justify-center">
+                  <Sparkles className="h-3 w-3 text-primary" />
+                </div>
+                <span className="text-sm font-semibold text-foreground">Email Editor</span>
+              </div>
+              {useCustomHtml ? (
+                <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2 text-amber-500 hover:text-amber-600" onClick={() => setUseCustomHtml(false)}>
+                  ← Back to template
                 </Button>
-              )}
+              ) : vars.projectName ? (
+                <span className="text-[10px] text-muted-foreground truncate max-w-[120px]">{vars.projectName}</span>
+              ) : null}
             </div>
           </div>
 
           <Tabs defaultValue="content" className="flex flex-col flex-1 overflow-hidden">
-            <div className="px-3 pt-2 shrink-0">
-              <TabsList className="w-full h-8 text-xs grid grid-cols-3">
-                <TabsTrigger value="content" className="text-xs gap-1.5">
-                  <FileText className="h-3 w-3" /> Content
+            <div className="px-3 pt-2.5 pb-1.5 shrink-0 border-b border-border bg-muted/5">
+              <TabsList className="w-full h-8 text-xs grid grid-cols-3 p-0.5">
+                <TabsTrigger value="content" className="text-xs gap-1 h-7 rounded-md">
+                  <Sparkles className="h-3 w-3" /> Content
                 </TabsTrigger>
-                <TabsTrigger value="project" className="text-xs gap-1.5">
+                <TabsTrigger value="project" className="text-xs gap-1 h-7 rounded-md">
                   <Building2 className="h-3 w-3" /> Project
                 </TabsTrigger>
-                <TabsTrigger value="urls" className="text-xs gap-1.5">
+                <TabsTrigger value="urls" className="text-xs gap-1 h-7 rounded-md">
                   <Link2 className="h-3 w-3" /> URLs
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <div className={cn("flex-1 overflow-y-auto", useCustomHtml && "opacity-40 pointer-events-none select-none")}>
+            <div className={cn("flex-1 overflow-y-auto scrollbar-thin", useCustomHtml && "opacity-40 pointer-events-none select-none")}>
 
               {/* CONTENT TAB */}
-              <TabsContent value="content" className="mt-0 px-4 pb-4 space-y-4">
-                <div className="pt-3 space-y-3">
-                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Sender / Signature</span>
+              <TabsContent value="content" className="mt-0 pb-4 space-y-0">
 
-                  {/* Agent picker */}
-                  <div className="flex gap-1.5 flex-wrap">
+                {/* SECTION: Agent / Sender */}
+                <div className="px-4 pt-4 pb-3 border-b border-border/60">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <div className="h-1 w-1 rounded-full bg-primary" />
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Sender</span>
+                  </div>
+                  <div className="flex gap-1.5 flex-wrap mb-2">
                     {agents.map((a) => (
                       <button
                         key={a.id}
                         onClick={() => setSelectedAgent({ ...a })}
                         className={cn(
-                          "flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all",
+                          "flex items-center gap-2 px-2 py-1.5 rounded-lg border text-left transition-all",
                           selectedAgent?.id === a.id
-                            ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-border bg-background hover:border-primary/30"
+                            ? "border-primary bg-primary/8 shadow-sm"
+                            : "border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/40"
                         )}
                       >
                         {a.photo_url ? (
-                          <img src={a.photo_url} alt={a.full_name}
-                            className="w-9 h-9 rounded-full object-cover object-top border border-border shrink-0" />
+                          <img src={a.photo_url} alt={a.full_name} className="w-7 h-7 rounded-full object-cover object-top border border-border shrink-0" />
                         ) : (
-                          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
                             {a.full_name.charAt(0)}
                           </div>
                         )}
                         <div className="min-w-0">
-                          <div className="text-[11px] font-semibold text-foreground truncate">{a.full_name.split(" ")[0]}</div>
-                          <div className="text-[9px] text-muted-foreground truncate leading-tight">{a.title}</div>
+                          <div className="text-[11px] font-semibold text-foreground">{a.full_name.split(" ")[0]}</div>
+                          <div className="text-[9px] text-muted-foreground leading-tight">{a.title.split(" ").slice(0,2).join(" ")}</div>
                         </div>
+                        {selectedAgent?.id === a.id && <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />}
                       </button>
                     ))}
                   </div>
-
-                  {/* Editable signature fields */}
                   {selectedAgent && (
-                    <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        {selectedAgent.photo_url && (
-                          <img src={selectedAgent.photo_url} alt={selectedAgent.full_name}
-                            className="w-10 h-10 rounded-full object-cover object-top border-2 border-primary/40 shrink-0" />
-                        )}
-                        <div>
-                          <div className="text-[11px] font-semibold text-foreground">{selectedAgent.full_name}</div>
-                          <div className="text-[10px] text-muted-foreground">Edit signature details below</div>
-                        </div>
-                      </div>
+                    <div className="grid grid-cols-2 gap-1.5">
                       <div>
-                        <Label className="text-[10px] text-muted-foreground">Title</Label>
-                        <Input value={selectedAgent.title} onChange={(e) => setSelectedAgent({ ...selectedAgent, title: e.target.value })}
-                          className="h-7 text-xs mt-0.5" />
-                      </div>
-                      <div>
-                        <Label className="text-[10px] text-muted-foreground">Phone</Label>
+                        <Label className="text-[9px] text-muted-foreground uppercase tracking-wide">Phone</Label>
                         <Input value={selectedAgent.phone} onChange={(e) => setSelectedAgent({ ...selectedAgent, phone: e.target.value })}
                           className="h-7 text-xs mt-0.5" placeholder="778-000-0000" />
                       </div>
                       <div>
-                        <Label className="text-[10px] text-muted-foreground">Email</Label>
+                        <Label className="text-[9px] text-muted-foreground uppercase tracking-wide">Email</Label>
                         <Input value={selectedAgent.email} onChange={(e) => setSelectedAgent({ ...selectedAgent, email: e.target.value })}
-                          className="h-7 text-xs mt-0.5" placeholder="name@presaleproperties.com" />
+                          className="h-7 text-xs mt-0.5" placeholder="name@…" />
                       </div>
                     </div>
                   )}
                 </div>
 
-                <Separator />
-
-                {/* Font Pairing Selector */}
-                <div className="pt-3">
+                {/* SECTION: Typography */}
+                <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
                   <div className="flex items-center gap-1.5 mb-2.5">
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Typography</span>
+                    <div className="h-1 w-1 rounded-full bg-primary" />
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Typography</span>
                   </div>
                   <div className="grid grid-cols-2 gap-1.5">
                     {FONT_PAIRINGS.map((fp, i) => (
@@ -1357,51 +1335,47 @@ export default function AdminEmailBuilder() {
                           "text-left rounded-lg border px-2.5 py-2 transition-all",
                           fontIdx === i
                             ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-border bg-background hover:border-primary/30"
+                            : "border-border bg-muted/10 hover:border-primary/30"
                         )}
                       >
-                        <div className="text-[11px] font-medium text-foreground leading-tight truncate">{fp.label.split(" + ")[0]}</div>
-                        <div className="text-[9px] text-muted-foreground truncate">+ {fp.label.split(" + ")[1]}</div>
-                        <div className="text-[9px] text-primary/70 mt-0.5 font-medium">{fp.tag}</div>
+                        <div className="text-[11px] font-semibold text-foreground leading-tight truncate">{fp.label.split(" + ")[0]}</div>
+                        <div className="text-[9px] text-muted-foreground/70 truncate">+ {fp.label.split(" + ")[1]}</div>
+                        <div className={cn("text-[9px] mt-0.5 font-medium", fontIdx === i ? "text-primary" : "text-muted-foreground/50")}>{fp.tag}</div>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <Separator />
-                <div className="pt-3">
+                {/* SECTION: Inbox */}
+                <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
                   <div className="flex items-center gap-1.5 mb-2.5">
-                    <Mail className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Inbox</span>
+                    <div className="h-1 w-1 rounded-full bg-primary" />
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Inbox</span>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <Label className="text-[11px] text-muted-foreground">Greeting / Opening Line</Label>
-                      <Input value={vars.greeting} onChange={v("greeting")} className="h-8 text-xs mt-1" placeholder="Hi *|FNAME|*," />
-                      <p className="text-[10px] text-muted-foreground/60 mt-1">Use your platform's merge tag: Mailchimp = *|FNAME|*, Klaviyo = {'{{ first_name }}'}, etc.</p>
+                      <Label className="text-[10px] text-muted-foreground">Subject Line</Label>
+                      <Input value={vars.subjectLine} onChange={v("subjectLine")} className="h-8 text-xs mt-0.5" placeholder="🏙️ Exclusive Access: Project — City" />
                     </div>
                     <div>
-                      <Label className="text-[11px] text-muted-foreground">Subject Line</Label>
-                      <Input value={vars.subjectLine} onChange={v("subjectLine")} className="h-8 text-xs mt-1" placeholder="🏙️ Exclusive Access: Project Name — City" />
+                      <Label className="text-[10px] text-muted-foreground">Preview Text <span className="text-muted-foreground/40 font-normal">(shown in inbox)</span></Label>
+                      <Input value={vars.previewText} onChange={v("previewText")} className="h-8 text-xs mt-0.5" placeholder="From $599K · Surrey · Limited units" />
                     </div>
                     <div>
-                      <Label className="text-[11px] text-muted-foreground">Preview Text</Label>
-                      <Input value={vars.previewText} onChange={v("previewText")} className="h-8 text-xs mt-1" placeholder="From $599K · Surrey · Limited units" />
-                      <p className="text-[10px] text-muted-foreground/60 mt-1">Shown after subject line in inbox</p>
+                      <Label className="text-[10px] text-muted-foreground">Greeting</Label>
+                      <Input value={vars.greeting} onChange={v("greeting")} className="h-8 text-xs mt-0.5" placeholder="Hi *|FNAME|*," />
+                      <p className="text-[9px] text-muted-foreground/40 mt-0.5">Mailchimp: *|FNAME|* · Klaviyo: {'{{ first_name }}'}</p>
                     </div>
                   </div>
                 </div>
 
-                <Separator />
-
-                <div>
+                {/* SECTION: Email Body */}
+                <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
                   <div className="flex items-center gap-1.5 mb-2.5">
-                    <Sparkles className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Email Body</span>
+                    <div className="h-1 w-1 rounded-full bg-primary" />
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Email Body</span>
                   </div>
-                  {/* Premium text presets */}
-                  <div className="mb-3 space-y-2">
-                    <Label className="text-[11px] text-muted-foreground">Premium Text Presets</Label>
+                  <div className="space-y-2 mb-3">
                     {HEADLINE_PRESETS.map((preset, i) => (
                       <button
                         key={i}
@@ -1410,127 +1384,104 @@ export default function AdminEmailBuilder() {
                           setVars((prev) => ({ ...prev, headline: preset.headline, bodyCopy: prev.bodyCopy || preset.body }));
                         }}
                         className={cn(
-                          "w-full text-left rounded-lg border px-3 py-2.5 transition-all",
+                          "w-full text-left rounded-lg border px-3 py-2 transition-all",
                           headlinePresetIdx === i
                             ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-border bg-background hover:border-primary/30"
+                            : "border-border/60 bg-muted/10 hover:border-primary/30"
                         )}
                       >
-                        <div className="text-[11px] font-semibold text-foreground mb-0.5">{preset.label}</div>
-                        <div className="text-[10px] text-muted-foreground italic leading-relaxed line-clamp-2">"{preset.headline}"</div>
+                        <div className="flex items-center justify-between">
+                          <div className="text-[11px] font-semibold text-foreground">{preset.label}</div>
+                          {headlinePresetIdx === i && <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground italic mt-0.5 line-clamp-1">"{preset.headline}"</div>
                       </button>
                     ))}
                   </div>
-
                   <div className="space-y-2">
                     <div>
-                      <Label className="text-[11px] text-muted-foreground">Headline (italic gold subhead)</Label>
-                      <Input value={vars.headline} onChange={v("headline")} className="h-8 text-xs mt-1" placeholder="Final Phase" />
+                      <Label className="text-[10px] text-muted-foreground">Subheadline <span className="text-muted-foreground/40">(italic gold)</span></Label>
+                      <Input value={vars.headline} onChange={v("headline")} className="h-8 text-xs mt-0.5" placeholder="Thank You for Your Interest" />
                     </div>
                     <div>
-                      <Label className="text-[11px] text-muted-foreground">
-                        Highlights
-                        <span className="ml-1 text-muted-foreground/50 font-normal">(one per line → gold bullets)</span>
-                      </Label>
+                      <Label className="text-[10px] text-muted-foreground">Highlights <span className="text-muted-foreground/40">(one per line → gold bullets)</span></Label>
                       <Textarea
                         value={vars.bodyCopy}
                         onChange={v("bodyCopy")}
-                        className="text-xs mt-1 min-h-[120px] resize-none leading-relaxed"
-                        placeholder={"Park-facing homes overlooking green space\nPTT Exemption eligible for first-time buyers\nCo-op commission available — call for details"}
+                        className="text-xs mt-0.5 min-h-[100px] resize-none leading-relaxed"
+                        placeholder={"Park-facing homes\nPTT Exemption eligible\nCo-op commission available"}
                       />
                     </div>
                   </div>
                 </div>
 
-                <Separator />
-
-                {/* KEY STATS */}
-                <div>
+                {/* SECTION: Key Stats */}
+                <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
                   <div className="flex items-center gap-1.5 mb-2.5">
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Key Stats</span>
-                    <span className="text-[9px] text-muted-foreground/50 font-normal">(shown in email price block)</span>
+                    <div className="h-1 w-1 rounded-full bg-primary" />
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Key Stats</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div>
-                      <Label className="text-[10px] text-muted-foreground block mb-1">Starting Price</Label>
-                      <Input
-                        value={vars.startingPrice}
-                        onChange={v("startingPrice")}
-                        className="h-8 text-xs"
-                        placeholder="$789,900"
-                      />
-                      <p className="text-[9px] text-muted-foreground/50 mt-0.5">+ GST</p>
-                    </div>
-                    <div>
-                      <Label className="text-[10px] text-muted-foreground block mb-1">Deposit</Label>
-                      <Input
-                        value={vars.deposit}
-                        onChange={v("deposit")}
-                        className="h-8 text-xs"
-                        placeholder="5% on signing"
-                      />
-                      <p className="text-[9px] text-muted-foreground/50 mt-0.5">to secure</p>
-                    </div>
-                    <div>
-                      <Label className="text-[10px] text-muted-foreground block mb-1">Completion</Label>
-                      <Input
-                        value={vars.completion}
-                        onChange={v("completion")}
-                        className="h-8 text-xs"
-                        placeholder="Summer 2026"
-                      />
-                      <p className="text-[9px] text-muted-foreground/50 mt-0.5">est. date</p>
-                    </div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      { key: "startingPrice" as keyof TemplateVars, label: "Starting Price", hint: "+ GST", placeholder: "$789,900" },
+                      { key: "deposit" as keyof TemplateVars, label: "Deposit", hint: "to secure", placeholder: "5% on signing" },
+                      { key: "completion" as keyof TemplateVars, label: "Completion", hint: "est. date", placeholder: "Summer 2026" },
+                    ].map(({ key, label, hint, placeholder }) => (
+                      <div key={key} className={cn("rounded-lg border p-2 transition-all", vars[key] ? "border-primary/30 bg-primary/3" : "border-border bg-muted/10")}>
+                        <Label className="text-[9px] text-muted-foreground uppercase tracking-wide block mb-1">{label}</Label>
+                        <Input value={vars[key]} onChange={v(key)} className="h-7 text-xs border-0 bg-transparent p-0 focus-visible:ring-0 font-medium" placeholder={placeholder} />
+                        <p className="text-[9px] text-muted-foreground/40 mt-0.5">{hint}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                <Separator />
-
-                <div>
+                {/* SECTION: CTA Buttons */}
+                <div className="px-4 pt-3.5 pb-3">
                   <button
-                    className="flex items-center justify-between w-full mb-2.5 group"
+                    className="flex items-center justify-between w-full mb-2.5"
                     onClick={() => setCtaSectionOpen(!ctaSectionOpen)}
                   >
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">CTA Buttons</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-1 w-1 rounded-full bg-primary" />
+                      <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">CTA Buttons</span>
+                    </div>
                     {ctaSectionOpen
-                      ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground/50" />
-                      : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground/40" />
+                      : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/40" />
                     }
                   </button>
                   {ctaSectionOpen && (
-                    <div className="space-y-1.5 rounded-lg bg-muted/20 p-3">
+                    <div className="space-y-1">
                       {(
                         [
-                          { key: "floorplan" as keyof CtaToggles, label: "View Floorplans & Pricing", url: vars.floorplanUrl, primary: true },
-                          { key: "brochure" as keyof CtaToggles, label: "Download Brochure", url: vars.brochureUrl, primary: true },
-                          { key: "pricing" as keyof CtaToggles, label: "Request Pricing", url: vars.pricingUrl, primary: false },
-                          { key: "viewProject" as keyof CtaToggles, label: "View Full Project", url: vars.projectUrl, primary: false },
-                          { key: "bookConsult" as keyof CtaToggles, label: "Book a Private Tour", url: vars.bookUrl, primary: false },
+                          { key: "floorplan" as keyof CtaToggles, label: "Floor Plans & Pricing", url: vars.floorplanUrl, style: "primary" },
+                          { key: "brochure" as keyof CtaToggles, label: "Download Brochure", url: vars.brochureUrl, style: "primary" },
+                          { key: "pricing" as keyof CtaToggles, label: "Request Pricing", url: vars.pricingUrl, style: "secondary" },
+                          { key: "viewProject" as keyof CtaToggles, label: "View Full Project", url: vars.projectUrl, style: "secondary" },
+                          { key: "bookConsult" as keyof CtaToggles, label: "Book a Private Tour", url: vars.bookUrl, style: "secondary" },
                         ]
-                      ).map(({ key, label, url, primary }) => (
+                      ).map(({ key, label, url, style }) => (
                         <div key={key} className={cn(
-                          "flex items-center justify-between gap-2 rounded-md px-2.5 py-1.5 transition-colors",
-                          cta[key] ? "bg-card border border-border" : "opacity-50"
+                          "flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 border transition-all",
+                          cta[key] && url ? "border-border bg-card" : "border-border/40 bg-muted/10 opacity-60"
                         )}>
                           <div className="flex items-center gap-2 min-w-0">
                             <Switch
                               checked={cta[key]}
                               onCheckedChange={(val) => setCta((prev) => ({ ...prev, [key]: val }))}
                               disabled={!url}
-                              className="scale-75 origin-left"
+                              className="scale-[0.7] origin-left"
                             />
                             <div className="min-w-0">
                               <span className="text-[11px] font-medium text-foreground truncate block">{label}</span>
-                              {primary && <span className="text-[9px] text-primary font-semibold uppercase tracking-wide">Primary</span>}
+                              <span className={cn("text-[9px] font-semibold uppercase tracking-wide", style === "primary" ? "text-primary" : "text-muted-foreground/50")}>{style}</span>
                             </div>
                           </div>
-                          {!url && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="text-[9px] text-muted-foreground/40 shrink-0 cursor-help border border-dashed border-muted-foreground/20 rounded px-1 py-0.5">no URL</span>
-                              </TooltipTrigger>
-                              <TooltipContent>Add a URL in the URLs tab to enable this button</TooltipContent>
-                            </Tooltip>
+                          {!url ? (
+                            <span className="text-[9px] text-muted-foreground/30 shrink-0 border border-dashed border-muted-foreground/20 rounded px-1">no url</span>
+                          ) : (
+                            <div className={cn("h-1.5 w-1.5 rounded-full shrink-0", cta[key] ? "bg-emerald-500" : "bg-muted-foreground/20")} />
                           )}
                         </div>
                       ))}
@@ -1540,98 +1491,82 @@ export default function AdminEmailBuilder() {
               </TabsContent>
 
               {/* PROJECT TAB */}
-              <TabsContent value="project" className="mt-0 px-4 pb-4 space-y-3">
-                <div className="pt-3">
-                  {selectedProject?.featured_image && (
-                    <div className="mb-3 rounded-lg overflow-hidden border border-border">
-                      <img src={selectedProject.featured_image} alt={selectedProject.name} className="w-full h-28 object-cover" />
-                      <div className="px-2.5 py-1.5 bg-muted/30">
-                        <p className="text-[10px] text-muted-foreground">Hero image · auto-filled from project</p>
-                      </div>
+              <TabsContent value="project" className="mt-0 px-4 pb-4 pt-3 space-y-2">
+                {selectedProject?.featured_image && (
+                  <div className="rounded-lg overflow-hidden border border-border mb-3">
+                    <img src={selectedProject.featured_image} alt={selectedProject.name} className="w-full h-24 object-cover" />
+                    <div className="px-2.5 py-1 bg-muted/30 border-t border-border">
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Hero image · auto-filled</p>
                     </div>
-                  )}
-                  <div className="space-y-2">
-                    {(
-                      [
-                        { key: "projectName" as keyof TemplateVars, label: "Project Name" },
-                        { key: "developerName" as keyof TemplateVars, label: "Developer" },
-                        { key: "address" as keyof TemplateVars, label: "Address" },
-                        { key: "city" as keyof TemplateVars, label: "City" },
-                        { key: "neighborhood" as keyof TemplateVars, label: "Neighborhood" },
-                        { key: "completion" as keyof TemplateVars, label: "Est. Completion" },
-                        { key: "startingPrice" as keyof TemplateVars, label: "Starting Price" },
-                        { key: "deposit" as keyof TemplateVars, label: "Deposit to Secure" },
-                      ]
-                    ).map(({ key, label }) => (
-                      <div key={key}>
-                        <Label className="text-[11px] text-muted-foreground">{label}</Label>
-                        <Input value={vars[key]} onChange={v(key)} className="h-8 text-xs mt-0.5" />
-                      </div>
-                    ))}
                   </div>
-                </div>
-              </TabsContent>
-
-              {/* URLS TAB */}
-              <TabsContent value="urls" className="mt-0 px-4 pb-4 space-y-2">
-                <div className="pt-3">
-                  <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
-                    URLs are auto-filled from the selected project. Override any field below.
-                  </p>
+                )}
+                <div className="space-y-1.5">
                   {(
                     [
-                      { key: "featuredImage" as keyof TemplateVars, label: "Hero Image URL", icon: "🖼️" },
-                      { key: "brochureUrl" as keyof TemplateVars, label: "Brochure PDF URL", icon: "📄" },
-                      { key: "floorplanUrl" as keyof TemplateVars, label: "Floor Plan PDF URL", icon: "📐" },
-                      { key: "pricingUrl" as keyof TemplateVars, label: "Pricing Sheet URL", icon: "💰" },
-                      { key: "projectUrl" as keyof TemplateVars, label: "Project Page URL", icon: "🔗" },
-                      { key: "bookUrl" as keyof TemplateVars, label: "Booking / Tour URL", icon: "📅" },
+                      { key: "projectName" as keyof TemplateVars, label: "Project Name" },
+                      { key: "developerName" as keyof TemplateVars, label: "Developer" },
+                      { key: "address" as keyof TemplateVars, label: "Address" },
+                      { key: "city" as keyof TemplateVars, label: "City" },
+                      { key: "neighborhood" as keyof TemplateVars, label: "Neighborhood" },
+                      { key: "completion" as keyof TemplateVars, label: "Est. Completion" },
+                      { key: "startingPrice" as keyof TemplateVars, label: "Starting Price" },
+                      { key: "deposit" as keyof TemplateVars, label: "Deposit to Secure" },
                     ]
-                  ).map(({ key, label, icon }) => (
+                  ).map(({ key, label }) => (
                     <div key={key}>
-                      <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
-                        <span>{icon}</span> {label}
-                      </Label>
-                      <div className="relative mt-0.5">
-                        <Input
-                          value={vars[key]}
-                          onChange={v(key)}
-                          className={cn(
-                            "h-8 text-[11px] font-mono pr-8",
-                            vars[key] && "border-emerald-500/40 bg-emerald-500/5"
-                          )}
-                          placeholder="https://"
-                        />
-                        {vars[key] && (
-                          <CheckCircle2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-500" />
-                        )}
-                      </div>
+                      <Label className="text-[10px] text-muted-foreground">{label}</Label>
+                      <Input value={vars[key]} onChange={v(key)} className="h-7 text-xs mt-0.5" />
                     </div>
                   ))}
                 </div>
               </TabsContent>
+
+              {/* URLS TAB */}
+              <TabsContent value="urls" className="mt-0 px-4 pb-4 pt-3 space-y-1.5">
+                <p className="text-[10px] text-muted-foreground mb-2">Auto-filled from project. Override any field below.</p>
+                {(
+                  [
+                    { key: "featuredImage" as keyof TemplateVars, label: "Hero Image", icon: "🖼️" },
+                    { key: "brochureUrl" as keyof TemplateVars, label: "Brochure PDF", icon: "📄" },
+                    { key: "floorplanUrl" as keyof TemplateVars, label: "Floor Plan PDF", icon: "📐" },
+                    { key: "pricingUrl" as keyof TemplateVars, label: "Pricing Sheet", icon: "💰" },
+                    { key: "projectUrl" as keyof TemplateVars, label: "Project Page", icon: "🔗" },
+                    { key: "bookUrl" as keyof TemplateVars, label: "Booking / Tour", icon: "📅" },
+                  ]
+                ).map(({ key, label, icon }) => (
+                  <div key={key}>
+                    <Label className="text-[10px] text-muted-foreground flex items-center gap-1">{icon} {label}</Label>
+                    <div className="relative mt-0.5">
+                      <Input
+                        value={vars[key]}
+                        onChange={v(key)}
+                        className={cn("h-7 text-[11px] font-mono pr-7", vars[key] && "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400")}
+                        placeholder="https://"
+                      />
+                      {vars[key] && <CheckCircle2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-emerald-500" />}
+                    </div>
+                  </div>
+                ))}
+              </TabsContent>
             </div>
           </Tabs>
 
-          <div className="px-4 pb-4 pt-3 border-t border-border shrink-0 bg-muted/10">
+          {/* Bottom action bar */}
+          <div className="px-3 pb-3 pt-2.5 border-t border-border shrink-0 bg-muted/5">
             <Button
               className={cn(
-                "w-full h-10 gap-2 font-semibold text-sm transition-all duration-200",
-                copied
-                  ? "bg-emerald-600 hover:bg-emerald-600 text-white"
-                  : "bg-primary text-primary-foreground hover:bg-primary/90"
+                "w-full h-9 gap-2 font-semibold text-sm transition-all duration-200",
+                copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"
               )}
               onClick={handleCopy}
             >
               {copied ? (
-                <><CheckCircle2 className="h-4 w-4" /> Copied! Paste into Mailchimp</>
+                <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Mailchimp</>
               ) : (
-                <><Copy className="h-4 w-4" /> Copy HTML for Mailchimp</>
+                <><Copy className="h-3.5 w-3.5" /> Copy HTML</>
               )}
             </Button>
-            <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-              All variables resolved · Inline CSS · Mailchimp-ready
-            </p>
+            <p className="text-[9px] text-muted-foreground/40 text-center mt-1.5 uppercase tracking-wide">Inline CSS · Mailchimp-ready</p>
           </div>
         </div>
 
