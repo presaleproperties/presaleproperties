@@ -228,19 +228,19 @@ const FONT_PAIRINGS: FontPairing[] = [
 
 const HEADLINE_PRESETS = [
   {
-    label: "The Moment",
-    headline: "The Moment Has Arrived",
-    body: "A rare opportunity to own in one of the most sought-after communities. Limited homes available — register before public launch to secure preferred pricing and first access to floorplan selection.",
+    label: "Found Something For You",
+    headline: "I Found Something Worth Your Attention",
+    body: "You signed up because you're serious about getting into a new home — and I take that seriously. I personally vetted this project and I think it lines up with what you're looking for. I'm here to walk you through it, answer every question, and make sure you have all the information before making any decision.",
   },
   {
-    label: "Exclusive Access",
-    headline: "Exclusive VIP Access — Before the Public",
-    body: "Your clients deserve first access. Before this goes public, we're offering a select group of realtors priority pricing, co-op commissions, and dedicated support from contract to keys.",
+    label: "Before It Goes Public",
+    headline: "Before This Goes to the Public",
+    body: "As a presale specialist, I get early access to new projects before they're widely advertised. I'm reaching out to you first because you registered your interest with us. There's no obligation — I just want to make sure you have the chance to see this before it's gone.",
   },
   {
-    label: "Your Next Investment",
-    headline: "The Investment Your Clients Have Been Waiting For",
-    body: "Strong rental yields. Appreciation-driven location. Developer-backed incentives. This is precisely the presale opportunity serious investors have been positioning for — and it won't last long.",
+    label: "Your Investment",
+    headline: "This One Checks a Lot of Boxes",
+    body: "Strong location. Solid developer track record. Pricing that still makes sense before appreciation kicks in. I've looked at a lot of projects and this one genuinely stands out. Let me show you why — no pressure, just a conversation.",
   },
 ];
 
@@ -340,7 +340,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           ${vars.developerName ? `
           <td class="stat-col" valign="top" style="padding:18px 20px; width:33%;">
             <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:24px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.developerName}</div>
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">D E V E L O P E R</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">B U I L T &nbsp; B Y</div>
           </td>
           <td class="stat-divider" width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
           ${vars.city ? `
@@ -436,7 +436,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
 <body style="margin:0; padding:0; background-color:#f4f4f0; word-spacing:normal;">
 
   <div style="display:none; font-size:1px; line-height:1px; max-height:0px; max-width:0px; opacity:0; overflow:hidden; mso-hide:all; font-family:sans-serif;">
-    ${vars.previewText || `Exclusive presale opportunity \u2014 ${vars.projectName || "Now Available"}`}&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
+    ${vars.previewText || `I found a presale project I think you'll want to see \u2014 ${vars.projectName || "details inside"}`}&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
   </div>
 
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f4f4f0; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
@@ -454,7 +454,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                   <td valign="bottom">
                     <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E &nbsp; P R O P E R T I E S</div>
                     <div style="font-family:${font.display}; font-size:42px; font-weight:400; color:#ffffff; line-height:1; margin-bottom:10px; mso-line-height-rule:exactly;">${vars.projectName || "New Release"}</div>
-                    <div style="font-family:${font.body}; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Presented by Presale Properties${vars.developerName ? ` &middot; ${vars.developerName}` : ""}</div>
+                    <div style="font-family:${font.body}; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Your Presale Specialist &nbsp;&middot;&nbsp; presaleproperties.ca</div>
                     <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0;">&nbsp;</div>
                   </td>
                   ${(vars.neighborhood || vars.city) ? `
@@ -506,9 +506,9 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
               }
 
               <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:20px; mso-line-height-rule:exactly;">
-                We're bringing you an exclusive first look at <strong style="font-weight:500; color:#111111;">${vars.projectName || "this opportunity"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}. ${vars.startingPrice ? `Starting from <strong style="font-weight:500;">${vars.startingPrice}</strong> &mdash; ` : ""}this is your chance to secure preferred pricing before public launch. Limited units available.
+                I wanted to personally reach out about <strong style="font-weight:500; color:#111111;">${vars.projectName || "this project"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}. ${vars.startingPrice ? `Homes start from <strong style="font-weight:500;">${vars.startingPrice}</strong> &mdash; ` : ""}and as a presale specialist, I can get you access to pricing, floorplans, and availability before this is widely marketed.
               </div>
-              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">Your clients have been waiting for this. This is it.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">I work for you, not the developer &mdash; my job is to make sure you have the full picture.</div>
 
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:28px;">
                 <tr><td height="1" bgcolor="#efefef" style="font-size:0; line-height:0; background-color:#efefef;">&nbsp;</td></tr>
@@ -538,8 +538,8 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td valign="middle">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#4a2e00; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.4;">P R I V A T E &nbsp; S H O W I N G S &nbsp; A V A I L A B L E</div>
-                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#0d1f18; mso-line-height-rule:exactly; line-height:1.2;">Book Your Showing Today</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#4a2e00; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.4;">N O &nbsp; O B L I G A T I O N &nbsp;&middot;&nbsp; F R E E &nbsp; C O N S U L T A T I O N</div>
+                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#0d1f18; mso-line-height-rule:exactly; line-height:1.2;">Let's Talk — I'll Walk You Through It</div>
                   </td>
                   <td align="right" valign="middle" style="padding-left:20px;">
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0">
@@ -558,7 +558,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           </tr>
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 8px 40px; background-color:#ffffff;">
-              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">Reach out directly &mdash; I'll walk your clients through everything, from floorplan selection to contract review. No pressure, just expert guidance.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">Happy to hop on a quick call, answer your questions, or send over the floorplans and pricing sheet. I represent you, not the developer &mdash; so you'll always get an honest take.</div>
             </td>
           </tr>` : ""}
 
@@ -624,7 +624,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
             <td class="legal-td" bgcolor="#f8f7f4" style="padding:24px 40px 28px 40px; background-color:#f8f7f4; border-top:1px solid #e8e8e4;">
               <div style="font-family:'DM Sans', Arial, sans-serif; font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#555555; margin-bottom:12px; mso-line-height-rule:exactly; line-height:1.4;">L E G A L &nbsp; D I S C L A I M E R</div>
               <div style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; line-height:1.8; margin-bottom:12px; mso-line-height-rule:exactly;">
-                This communication is prepared by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties, for real estate professionals and prospective purchasers only. This is <strong style="font-weight:500; color:#666666;">not an offering for sale</strong>. An offering may only be made after filing a Disclosure Statement under REDMA. Prices, availability and incentives subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E. Presale Properties complies with the Real Estate Services Act (BCFSA).
+                This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer's agents &mdash; we represent <strong style="font-weight:500; color:#666666;">you</strong>, not the developer. This is <strong style="font-weight:500; color:#666666;">not an offering for sale</strong>. An offering can only be made after a Disclosure Statement is filed under REDMA. Prices, availability, and incentives are subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions are subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E. Presale Properties complies with the Real Estate Services Act (BCFSA).
               </div>
               <div style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; line-height:1.8; margin-bottom:18px; mso-line-height-rule:exactly;">
                 You are receiving this because you opted in to presale updates from Presale Properties. Per Canada's Anti-Spam Legislation (CASL), you may withdraw consent at any time.
