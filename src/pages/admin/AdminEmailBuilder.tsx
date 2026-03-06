@@ -49,6 +49,25 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// ─── Agent presets (shared with Campaign Builder) ─────────────────────────────
+const PRESET_AGENTS = [
+  {
+    name: "Uzair Muhammad", title: "Founder & Presale Strategist",
+    phone: "778-231-3592", email: "info@presaleproperties.com",
+    photo: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769974057981-u5d1e1f.jpg",
+  },
+  {
+    name: "Sarb Grewal", title: "Presale Expert",
+    phone: "+1 (778) 846-7065", email: "sarb@presaleproperties.com",
+    photo: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769973843032-qlc6fc.png",
+  },
+  {
+    name: "Ravish Passy", title: "Presale Expert",
+    phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com",
+    photo: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769973742728-csckvf.png",
+  },
+];
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Project {
   id: string;
@@ -139,7 +158,7 @@ const DEFAULT_CTA: CtaToggles = {
 // • Mailchimp merge tags: *|UNSUB|*, *|UPDATE_PROFILE|*, *|FNAME|*
 // • No JavaScript, no Flash, no forms, no iframes
 // • <div> inside <td> for text (not bare text nodes) for Outlook compatibility
-function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
+function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESET_AGENTS[0]): string {
   const locationTag = [vars.neighborhood, vars.city ? vars.city.toUpperCase() : ""]
     .filter(Boolean).join("&nbsp;&nbsp;·&nbsp;&nbsp;").toUpperCase();
 
@@ -401,16 +420,28 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
 
           <!-- ╔═══════════ SIGNATURE ═══════════╗ -->
           <tr>
-            <td class="mobile-pad" bgcolor="#ffffff" style="padding:36px 40px 32px 40px; background-color:#ffffff; border-top:1px solid #efefef;">
-              <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:28px; font-weight:400; color:#111111; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.2;">Uzair Muhammad</div>
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">Presale Specialist &nbsp;&middot;&nbsp; Presale Properties</div>
+            <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px; background-color:#ffffff; border-top:1px solid #efefef;">
+              <!-- Agent photo + info side by side -->
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="padding-right:28px; padding-bottom:6px;">
-                    <a href="tel:+16041234567" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#555555; text-decoration:none;">&#128222; 604.XXX.XXXX</a>
-                  </td>
-                  <td style="padding-bottom:6px;">
-                    <a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#C9A55A; text-decoration:none;">&#127760; presaleproperties.ca</a>
+                  ${agent.photo ? `
+                  <td valign="top" style="padding-right:18px; vertical-align:top;">
+                    <img src="${agent.photo}" alt="${agent.name}" width="72" height="72" border="0"
+                         style="display:block; width:72px; height:72px; border-radius:50%; border:2px solid #C9A55A; object-fit:cover; -ms-interpolation-mode:bicubic;" />
+                  </td>` : ""}
+                  <td valign="middle" style="vertical-align:middle;">
+                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#111111; margin-bottom:3px; mso-line-height-rule:exactly; line-height:1.2;">${agent.name}</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:12px; mso-line-height-rule:exactly; line-height:1.5;">${agent.title} &nbsp;&middot;&nbsp; Presale Properties</div>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="padding-right:24px; padding-bottom:4px;">
+                          <a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#555555; text-decoration:none;">&#128222; ${agent.phone}</a>
+                        </td>
+                        <td style="padding-bottom:4px;">
+                          <a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#C9A55A; text-decoration:none;">&#127760; presaleproperties.ca</a>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
@@ -476,6 +507,7 @@ export default function AdminEmailBuilder() {
 
   const [vars, setVars] = useState<TemplateVars>({ ...EMPTY_VARS });
   const [cta, setCta] = useState<CtaToggles>({ ...DEFAULT_CTA });
+  const [agentIdx, setAgentIdx] = useState(0);
 
   // Fetch projects (all, admin context)
   useEffect(() => {
@@ -549,7 +581,7 @@ export default function AdminEmailBuilder() {
     setUseCustomHtml(false);
   }, [selectedProjectId, projects]);
 
-  const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(vars, cta);
+  const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(vars, cta, PRESET_AGENTS[agentIdx]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -910,7 +942,39 @@ export default function AdminEmailBuilder() {
               {/* ── CONTENT TAB ── */}
               <TabsContent value="content" className="mt-0 px-4 pb-4 space-y-4">
 
-                {/* Inbox section */}
+                {/* Agent selector */}
+                <div className="pt-3">
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Sender / Signature</span>
+                  </div>
+                  <div className="flex gap-2">
+                    {PRESET_AGENTS.map((a, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setAgentIdx(i)}
+                        className={cn(
+                          "flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all flex-1",
+                          agentIdx === i
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border bg-background hover:border-primary/30"
+                        )}
+                      >
+                        <img
+                          src={a.photo}
+                          alt={a.name}
+                          className="w-8 h-8 rounded-full object-cover border border-border shrink-0"
+                          style={{ objectPosition: "center 15%" }}
+                        />
+                        <div className="min-w-0">
+                          <div className="text-[11px] font-medium text-foreground truncate">{a.name.split(" ")[0]}</div>
+                          <div className="text-[10px] text-muted-foreground truncate">{a.title.split(" ")[0]}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
                 <div className="pt-3">
                   <div className="flex items-center gap-1.5 mb-2.5">
                     <Mail className="h-3 w-3 text-muted-foreground" />
