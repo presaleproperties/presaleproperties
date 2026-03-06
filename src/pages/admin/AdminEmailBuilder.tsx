@@ -50,6 +50,10 @@ import {
   FolderOpen,
   Trash2,
   Save,
+  Wand2,
+  Loader2,
+  PlusCircle,
+  CheckCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
