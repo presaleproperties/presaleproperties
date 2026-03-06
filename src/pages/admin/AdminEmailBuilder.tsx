@@ -826,6 +826,70 @@ export default function AdminEmailBuilder() {
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
   const [ctaSectionOpen, setCtaSectionOpen] = useState(true);
 
+  // ── Template save/load ───────────────────────────────────────────────────────
+  const [savedTemplates, setSavedTemplates] = useState<SavedEmailTemplate[]>([]);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [savingTemplate, setSavingTemplate] = useState(false);
+
+  const loadSavedTemplates = useCallback(async () => {
+    const { data } = await supabase
+      .from("campaign_templates")
+      .select("id, name, project_name, form_data, created_at, updated_at")
+      .order("updated_at", { ascending: false });
+    if (data) setSavedTemplates(data as SavedEmailTemplate[]);
+  }, []);
+
+  useEffect(() => { loadSavedTemplates(); }, [loadSavedTemplates]);
+
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) { toast.error("Please enter a template name."); return; }
+    setSavingTemplate(true);
+    try {
+      const form_data = {
+        vars,
+        cta,
+        fontIdx,
+        agentId: selectedAgent?.id,
+      };
+      const { error } = await supabase.from("campaign_templates").insert({
+        name: templateName.trim(),
+        project_name: vars.projectName || "Untitled",
+        form_data,
+      });
+      if (error) throw error;
+      toast.success("Template saved!");
+      setSaveDialogOpen(false);
+      setTemplateName("");
+      loadSavedTemplates();
+    } catch (e) {
+      toast.error("Failed to save template.");
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  const handleLoadTemplate = (tpl: SavedEmailTemplate) => {
+    const fd = tpl.form_data;
+    if (fd.vars) setVars({ ...EMPTY_VARS, ...fd.vars } as TemplateVars);
+    if (fd.cta) setCta({ ...DEFAULT_CTA, ...fd.cta } as CtaToggles);
+    if (typeof fd.fontIdx === "number") setFontIdx(fd.fontIdx);
+    if (fd.agentId) {
+      const a = agents.find((ag) => ag.id === fd.agentId);
+      if (a) setSelectedAgent(a);
+    }
+    setUseCustomHtml(false);
+    setTemplatesOpen(false);
+    toast.success(`Loaded: ${tpl.name}`);
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    await supabase.from("campaign_templates").delete().eq("id", id);
+    loadSavedTemplates();
+    toast.success("Template deleted.");
+  };
+
   return (
     <TooltipProvider>
     <AdminLayout>
