@@ -225,23 +225,36 @@ export function ProjectLeadForm({
           </div>
         </div>
 
-        <div className="p-5 space-y-4">
-          <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/15 rounded-xl">
-            <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-foreground">Check your inbox shortly</p>
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Full details for <strong>{projectName}</strong> will be emailed to you. One of our agents will follow up within <strong>24 hours</strong>.
-              </p>
+        <div className="p-5 space-y-3">
+          {hasBrochure ? (
+            <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl">
+              <a href={brochureUrl!} target="_blank" rel="noopener noreferrer">
+                <FileText className="h-4 w-4 mr-2" />
+                {isGoogleDriveLink(brochureUrl!) ? "View Brochure" : "Download Brochure"}
+                {isGoogleDriveLink(brochureUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
+              </a>
+            </Button>
+          ) : (
+            <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/15 rounded-xl">
+              <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-foreground">Check your inbox shortly</p>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  Full details for <strong>{projectName}</strong> will be emailed to you. One of our agents will follow up within <strong>24 hours</strong>.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
-          <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Chat Now on WhatsApp
-            </a>
-          </Button>
+          <div className={hasBrochure ? "pt-2 border-t border-border/40" : ""}>
+            {hasBrochure && <p className="text-[11px] text-muted-foreground text-center mb-2.5">Want to talk to an agent right now?</p>}
+            <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Chat Now on WhatsApp
+              </a>
+            </Button>
+          </div>
 
           <p className="text-center text-[11px] text-muted-foreground">
             We're available 7 days a week to answer your questions.
