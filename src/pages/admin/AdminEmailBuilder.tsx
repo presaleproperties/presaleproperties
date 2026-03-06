@@ -538,8 +538,8 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td valign="middle">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#4a2e00; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.4;">P R I V A T E &nbsp; S H O W I N G S &nbsp; A V A I L A B L E</div>
-                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#0d1f18; mso-line-height-rule:exactly; line-height:1.2;">Book Your Showing Today</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#4a2e00; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.4;">N O &nbsp; O B L I G A T I O N &nbsp;&middot;&nbsp; F R E E &nbsp; C O N S U L T A T I O N</div>
+                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#0d1f18; mso-line-height-rule:exactly; line-height:1.2;">Let's Talk — I'll Walk You Through It</div>
                   </td>
                   <td align="right" valign="middle" style="padding-left:20px;">
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0">
