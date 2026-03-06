@@ -55,7 +55,7 @@ export default function About() {
         <meta property="og:url" content="https://presaleproperties.com/about" />
         <meta property="og:title" content="About Presale Properties Group - New Construction Experts" />
         <meta property="og:description" content="Specialized team for new condos, townhomes, duplexes & single-family homes. 400+ homes sold. Free expert guidance." />
-        <meta property="og:image" content="https://presaleproperties.com/og-about.png" />
+        <meta property="og:image" content="https://presaleproperties.com/og-image.png" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="About Presale Properties Group" />
