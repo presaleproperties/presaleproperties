@@ -1361,11 +1361,6 @@ export default function AdminEmailBuilder() {
                       <Label className="text-[10px] text-muted-foreground">Preview Text <span className="text-muted-foreground/40 font-normal">(shown in inbox)</span></Label>
                       <Input value={vars.previewText} onChange={v("previewText")} className="h-8 text-xs mt-0.5" placeholder="From $599K · Surrey · Limited units" />
                     </div>
-                    <div>
-                      <Label className="text-[10px] text-muted-foreground">Greeting</Label>
-                      <Input value={vars.greeting} onChange={v("greeting")} className="h-8 text-xs mt-0.5" placeholder="Hi *|FNAME|*," />
-                      <p className="text-[9px] text-muted-foreground/40 mt-0.5">Mailchimp: *|FNAME|* · Klaviyo: {'{{ first_name }}'}</p>
-                    </div>
                   </div>
                 </div>
 
