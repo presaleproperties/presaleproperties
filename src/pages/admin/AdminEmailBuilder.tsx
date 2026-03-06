@@ -560,7 +560,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           </tr>
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 8px 40px; background-color:#ffffff;">
-              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">The floorplans and pricing are already in this email &mdash; but there's more I can share on a call. Things like which units hold value best, what the developer is offering right now, and whether this actually fits your situation. Give me a call &mdash; no pressure, just honest advice.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">I don't do hard sells. You registered interest, I'm following up. If after this email you have questions, want to compare it to something else, or just want a straight opinion &mdash; call me. That's what I'm here for.</div>
             </td>
           </tr>` : ""}
 
