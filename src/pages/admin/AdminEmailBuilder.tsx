@@ -336,21 +336,21 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           style="border-collapse:collapse; border-top:1px solid #efefef; border-bottom:1px solid #efefef; margin-bottom:36px;">
         <tr>
           ${vars.startingPrice ? `
-          <td class="stat-col" valign="top" style="padding:18px 20px 18px 0; width:33%;">
-            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:34px; font-weight:400; color:#111111; line-height:1; mso-line-height-rule:exactly;">${vars.startingPrice}</div>
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">S T A R T I N G &nbsp; F R O M &nbsp; + &nbsp; G S T</div>
+          <td class="stat-col" valign="top" style="padding:18px 16px 18px 0; width:33%;">
+            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:32px; font-weight:400; color:#111111; line-height:1; mso-line-height-rule:exactly;">${vars.startingPrice}</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:1px; text-transform:uppercase; color:#aaaaaa; margin-top:6px; white-space:nowrap;">Starting + GST</div>
           </td>
           <td class="stat-divider" width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
           ${vars.deposit ? `
-          <td class="stat-col" valign="top" style="padding:18px 20px; width:33%;">
+          <td class="stat-col" valign="top" style="padding:18px 16px; width:33%;">
             <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:24px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.deposit}</div>
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">D E P O S I T &nbsp; T O &nbsp; S E C U R E</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:1px; text-transform:uppercase; color:#aaaaaa; margin-top:6px; white-space:nowrap;">Deposit to Secure</div>
           </td>
           <td class="stat-divider" width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
           ${vars.completion ? `
-          <td class="stat-col" valign="top" style="padding:18px 0 18px 20px; width:33%;">
+          <td class="stat-col" valign="top" style="padding:18px 0 18px 16px; width:33%;">
             <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:24px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.completion}</div>
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">E S T . &nbsp; C O M P L E T I O N</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:1px; text-transform:uppercase; color:#aaaaaa; margin-top:6px; white-space:nowrap;">Est. Completion</div>
           </td>` : ""}
         </tr>
       </table>`
