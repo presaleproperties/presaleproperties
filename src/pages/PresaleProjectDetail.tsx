@@ -308,6 +308,12 @@ export default function PresaleProjectDetail() {
       month: "long"
     });
   };
+  const completionDisplay = project
+    ? project.occupancy_estimate
+      || (project.completion_month && project.completion_year
+        ? `${getMonthName(project.completion_month)} ${project.completion_year}`
+        : project.completion_year ? String(project.completion_year) : null)
+    : null;
   const handleShare = async () => {
     // Use OG meta proxy for sharing - serves property image to bots, redirects humans
     const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-property-meta?projectSlug=${project?.slug}`;
@@ -655,7 +661,7 @@ export default function PresaleProjectDetail() {
       {/* Mobile/Tablet Scroll-Up Sticky Header */}
       <PropertyStickyHeader
         price={project.starting_price ? formatPrice(project.starting_price) : "Contact for pricing"}
-        specs={`${project.project_type === "condo" ? "Condos" : project.project_type === "townhome" ? "Townhomes" : project.project_type === "mixed" ? "Mixed" : project.project_type === "duplex" ? "Duplexes" : "Homes"} • ${project.neighborhood} • ${project.completion_year || "TBD"}`}
+        specs={`${project.project_type === "condo" ? "Condos" : project.project_type === "townhome" ? "Townhomes" : project.project_type === "mixed" ? "Mixed" : project.project_type === "duplex" ? "Duplexes" : "Homes"} • ${project.neighborhood} • ${completionDisplay || "TBD"}`}
         onShare={handleShare}
         backPath="/presale-projects"
       />
@@ -753,12 +759,10 @@ export default function PresaleProjectDetail() {
                       <span className="text-muted-foreground">Developer:</span>
                       <span className="font-semibold truncate">{project.developer_name}</span>
                     </div>}
-                  {project.completion_year && <div className="flex items-center gap-2.5 text-sm lg:text-base">
+                  {completionDisplay && <div className="flex items-center gap-2.5 text-sm lg:text-base">
                       <Calendar className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Completion:</span>
-                      <span className="font-semibold">
-                        {project.completion_month ? `${getMonthName(project.completion_month)} ` : ""}{project.completion_year}
-                      </span>
+                      <span className="font-semibold">{completionDisplay}</span>
                     </div>}
                   {project.unit_mix && <div className="flex items-center gap-2.5 text-sm lg:text-base">
                       <Home className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
