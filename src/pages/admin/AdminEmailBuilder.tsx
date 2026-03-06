@@ -71,6 +71,101 @@ const PRESET_AGENTS = [
 const LOGO_EMAIL_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
 
 // ─── Premium headline presets ─────────────────────────────────────────────────
+// ─── Font pairings ────────────────────────────────────────────────────────────
+interface FontPairing {
+  id: string;
+  label: string;
+  tag: string; // short descriptor shown in card
+  display: string; // CSS font-family string for headlines
+  body: string;    // CSS font-family string for body
+  googleUrl: string;
+  fallbackDisplay: string;
+  fallbackBody: string;
+}
+
+const FONT_PAIRINGS: FontPairing[] = [
+  {
+    id: "cormorant-dm",
+    label: "Cormorant + DM Sans",
+    tag: "Classic Luxury",
+    display: "'Cormorant Garamond', Georgia, 'Times New Roman', serif",
+    body: "'DM Sans', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "playfair-lato",
+    label: "Playfair Display + Lato",
+    tag: "Editorial",
+    display: "'Playfair Display', Georgia, 'Times New Roman', serif",
+    body: "'Lato', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "bodoni-jost",
+    label: "Bodoni Moda + Jost",
+    tag: "High Fashion",
+    display: "'Bodoni Moda', Georgia, 'Times New Roman', serif",
+    body: "'Jost', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "cinzel-raleway",
+    label: "Cinzel + Raleway",
+    tag: "Architectural",
+    display: "'Cinzel', Georgia, 'Times New Roman', serif",
+    body: "'Raleway', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Raleway:wght@300;400;500&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "spectral-inter",
+    label: "Spectral + Inter",
+    tag: "Modern Serif",
+    display: "'Spectral', Georgia, 'Times New Roman', serif",
+    body: "'Inter', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "crimson-nunito",
+    label: "Crimson Pro + Nunito",
+    tag: "Warm Classic",
+    display: "'Crimson Pro', Georgia, 'Times New Roman', serif",
+    body: "'Nunito Sans', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Nunito+Sans:wght@300;400;600&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "eb-garamond-montserrat",
+    label: "EB Garamond + Montserrat",
+    tag: "Prestige",
+    display: "'EB Garamond', Georgia, 'Times New Roman', serif",
+    body: "'Montserrat', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@300;400;500&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "libre-source",
+    label: "Libre Baskerville + Source Sans",
+    tag: "Timeless",
+    display: "'Libre Baskerville', Georgia, 'Times New Roman', serif",
+    body: "'Source Sans 3', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+];
+
 const HEADLINE_PRESETS = [
   {
     label: "The Moment",
@@ -167,7 +262,7 @@ const DEFAULT_CTA: CtaToggles = {
 };
 
 // ─── Template builder ─────────────────────────────────────────────────────────
-function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESET_AGENTS[0]): string {
+function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESET_AGENTS[0], font: FontPairing = FONT_PAIRINGS[0]): string {
   const locationTag = [vars.projectName, vars.city, vars.neighborhood]
     .filter(Boolean).map(s => s!.toUpperCase()).join("&nbsp;&nbsp;&middot;&nbsp;&nbsp;");
 
@@ -256,7 +351,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
   <!--[if mso]>
   <noscript><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
   <![endif]-->
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" type="text/css" />
+  <link href="${font.googleUrl}" rel="stylesheet" type="text/css" />
   <style type="text/css">
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse !important; }
@@ -298,13 +393,13 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
                 <tr>
                   <td valign="bottom">
                     <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E &nbsp; P R O P E R T I E S</div>
-                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:42px; font-weight:400; color:#ffffff; line-height:1; margin-bottom:10px; mso-line-height-rule:exactly;">${vars.projectName || "New Release"}</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Presented by Presale Properties${vars.developerName ? ` &middot; ${vars.developerName}` : ""}</div>
+                    <div style="font-family:${font.display}; font-size:42px; font-weight:400; color:#ffffff; line-height:1; margin-bottom:10px; mso-line-height-rule:exactly;">${vars.projectName || "New Release"}</div>
+                    <div style="font-family:${font.body}; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Presented by Presale Properties${vars.developerName ? ` &middot; ${vars.developerName}` : ""}</div>
                     <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0;">&nbsp;</div>
                   </td>
                   ${(vars.neighborhood || vars.city) ? `
                   <td align="right" valign="top" style="padding-left:16px; white-space:nowrap;">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#8aaa96; text-align:right; line-height:2.2; mso-line-height-rule:exactly;">
+                    <div style="font-family:${font.body}; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#8aaa96; text-align:right; line-height:2.2; mso-line-height-rule:exactly;">
                       ${vars.city ? `${vars.city.toUpperCase()}<br/>` : ""}${vars.neighborhood ? vars.neighborhood.toUpperCase() : ""}
                     </div>
                   </td>` : ""}
@@ -342,18 +437,18 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff" style="padding:40px 40px 32px 40px; background-color:#ffffff;">
 
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#888888; margin-bottom:18px; mso-line-height-rule:exactly; line-height:1.5;">Hi *|FNAME|*,</div>
+              <div style="font-family:${font.body}; font-size:14px; font-weight:300; color:#888888; margin-bottom:18px; mso-line-height-rule:exactly; line-height:1.5;">Hi *|FNAME|*,</div>
 
-              <div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:48px; font-weight:400; color:#111111; line-height:1.05; margin-bottom:0; mso-line-height-rule:exactly;">${vars.projectName || "The Moment"}</div>
+              <div class="hero-headline" style="font-family:${font.display}; font-size:48px; font-weight:400; color:#111111; line-height:1.05; margin-bottom:0; mso-line-height-rule:exactly;">${vars.projectName || "The Moment"}</div>
               ${vars.headline
-                ? `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:48px; font-weight:300; font-style:italic; color:#C9A55A; line-height:1.05; margin-bottom:28px; mso-line-height-rule:exactly;">${vars.headline}.</div>`
+                ? `<div class="hero-headline" style="font-family:${font.display}; font-size:48px; font-weight:300; font-style:italic; color:#C9A55A; line-height:1.05; margin-bottom:28px; mso-line-height-rule:exactly;">${vars.headline}.</div>`
                 : `<div style="margin-bottom:28px;"></div>`
               }
 
-              <div class="body-text" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:15px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:20px; mso-line-height-rule:exactly;">
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:20px; mso-line-height-rule:exactly;">
                 We're bringing you an exclusive first look at <strong style="font-weight:500; color:#111111;">${vars.projectName || "this opportunity"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}. ${vars.startingPrice ? `Starting from <strong style="font-weight:500;">${vars.startingPrice}</strong> &mdash; ` : ""}this is your chance to secure preferred pricing before public launch. Limited units available.
               </div>
-              <div class="body-text" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">Your clients have been waiting for this. This is it.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">Your clients have been waiting for this. This is it.</div>
 
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:28px;">
                 <tr><td height="1" bgcolor="#efefef" style="font-size:0; line-height:0; background-color:#efefef;">&nbsp;</td></tr>
@@ -369,7 +464,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
           <!-- HIGHLIGHTS -->
           <tr>
             <td class="mobile-pad" bgcolor="#f8f7f4" style="padding:32px 40px; background-color:#f8f7f4; border-top:1px solid #efefef; border-bottom:1px solid #efefef;">
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">H I G H L I G H T S</div>
+              <div style="font-family:${font.body}; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">H I G H L I G H T S</div>
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 ${highlightsList}
               </table>
@@ -403,7 +498,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
           </tr>
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 8px 40px; background-color:#ffffff;">
-              <div class="body-text" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">Reach out directly &mdash; I'll walk your clients through everything, from floorplan selection to contract review. No pressure, just expert guidance.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">Reach out directly &mdash; I'll walk your clients through everything, from floorplan selection to contract review. No pressure, just expert guidance.</div>
             </td>
           </tr>` : ""}
 
@@ -427,9 +522,9 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
                       <img src="${agent.photo}" alt="${agent.name}" width="88" height="88" border="0"
                            style="display:block; width:88px; height:88px; border-radius:50%; object-fit:cover; object-position:center 10%; border:2px solid #C9A55A; -ms-interpolation-mode:bicubic;" />
                     </div>` : ""}
-                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:30px; font-weight:400; color:#111111; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.2;">${agent.name}</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.5;">P R E S A L E &nbsp; R E A L &nbsp; E S T A T E &nbsp; S P E C I A L I S T</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; margin-bottom:16px; mso-line-height-rule:exactly; line-height:1.4;">PREC &mdash; Licensed with eXp Realty</div>
+                    <div style="font-family:${font.display}; font-size:30px; font-weight:400; color:#111111; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.2;">${agent.name}</div>
+                    <div style="font-family:${font.body}; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.5;">P R E S A L E &nbsp; R E A L &nbsp; E S T A T E &nbsp; S P E C I A L I S T</div>
+                    <div style="font-family:${font.body}; font-size:12px; font-weight:300; color:#888888; margin-bottom:16px; mso-line-height-rule:exactly; line-height:1.4;">PREC &mdash; Licensed with eXp Realty</div>
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                       <tr>
                         <td style="padding-bottom:7px; padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#128222;</div></td>
@@ -515,6 +610,7 @@ export default function AdminEmailBuilder() {
   const [cta, setCta] = useState<CtaToggles>({ ...DEFAULT_CTA });
   const [agentIdx, setAgentIdx] = useState(0);
   const [headlinePresetIdx, setHeadlinePresetIdx] = useState<number | null>(null);
+  const [fontIdx, setFontIdx] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -586,7 +682,7 @@ export default function AdminEmailBuilder() {
     setUseCustomHtml(false);
   }, [selectedProjectId, projects]);
 
-  const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(vars, cta, PRESET_AGENTS[agentIdx]);
+  const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(vars, cta, PRESET_AGENTS[agentIdx], FONT_PAIRINGS[fontIdx]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -942,6 +1038,33 @@ export default function AdminEmailBuilder() {
                           <div className="text-[11px] font-medium text-foreground truncate">{a.name.split(" ")[0]}</div>
                           <div className="text-[10px] text-muted-foreground truncate">{a.title.split(" ")[0]}</div>
                         </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Font Pairing Selector */}
+                <div className="pt-3">
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Typography</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {FONT_PAIRINGS.map((fp, i) => (
+                      <button
+                        key={fp.id}
+                        onClick={() => setFontIdx(i)}
+                        className={cn(
+                          "text-left rounded-lg border px-2.5 py-2 transition-all",
+                          fontIdx === i
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border bg-background hover:border-primary/30"
+                        )}
+                      >
+                        <div className="text-[11px] font-medium text-foreground leading-tight truncate">{fp.label.split(" + ")[0]}</div>
+                        <div className="text-[9px] text-muted-foreground truncate">+ {fp.label.split(" + ")[1]}</div>
+                        <div className="text-[9px] text-primary/70 mt-0.5 font-medium">{fp.tag}</div>
                       </button>
                     ))}
                   </div>
