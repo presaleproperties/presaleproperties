@@ -573,42 +573,38 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
 
           <!-- SIGNATURE -->
           <tr>
-            <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 40px 40px; background-color:#ffffff;">
+            <td bgcolor="#fafaf8" style="padding:0; background-color:#fafaf8; border-top:2px solid #C9A55A;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
-                  <td valign="top" style="vertical-align:top;">
-                    ${agent.photo ? `
-                    <div style="margin-bottom:16px; line-height:0; font-size:0;">
-                      <img src="${agent.photo}" alt="${agent.name}" width="88" height="88" border="0"
-                           style="display:block; width:88px; height:88px; border-radius:50%; object-fit:cover; object-position:center 10%; border:2px solid #C9A55A; -ms-interpolation-mode:bicubic;" />
-                    </div>` : ""}
-                    <div style="font-family:${font.display}; font-size:30px; font-weight:400; color:#111111; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.2;">${agent.name}</div>
-                    <div style="font-family:${font.body}; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.5;">P R E S A L E &nbsp; R E A L &nbsp; E S T A T E &nbsp; S P E C I A L I S T</div>
-                    <div style="font-family:${font.body}; font-size:12px; font-weight:300; color:#888888; margin-bottom:16px; mso-line-height-rule:exactly; line-height:1.4;">PREC &mdash; Licensed with eXp Realty</div>
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                  <!-- Left: photo -->
+                  ${agent.photo_url ? `
+                  <td width="120" valign="middle" style="padding:28px 0 28px 32px; vertical-align:middle; line-height:0; font-size:0;">
+                    <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" border="0"
+                         style="display:block; width:80px; height:80px; border-radius:50%; object-fit:cover; object-position:center top; border:2px solid #C9A55A; -ms-interpolation-mode:bicubic;" />
+                  </td>` : ""}
+                  <!-- Middle: info -->
+                  <td valign="middle" style="padding:28px 16px 28px ${agent.photo_url ? "16px" : "32px"}; vertical-align:middle;">
+                    <div style="font-family:${font.display}; font-size:22px; font-weight:400; color:#111111; line-height:1.15; mso-line-height-rule:exactly; margin-bottom:3px;">${agent.full_name}</div>
+                    <div style="font-family:${font.body}; font-size:10px; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; mso-line-height-rule:exactly; line-height:1.5; margin-bottom:10px;">${agent.title}</div>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                      ${agent.phone ? `<tr>
+                        <td style="padding-bottom:5px; padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#128222;</td>
+                        <td style="padding-bottom:5px; vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">${agent.phone}</a></td>
+                      </tr>` : ""}
+                      ${agent.email ? `<tr>
+                        <td style="padding-bottom:5px; padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#9993;</td>
+                        <td style="padding-bottom:5px; vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">${agent.email}</a></td>
+                      </tr>` : ""}
                       <tr>
-                        <td style="padding-bottom:7px; padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#128222;</div></td>
-                        <td style="padding-bottom:7px; vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:'DM Sans', Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">${agent.phone}</a></td>
-                      </tr>
-                      <tr>
-                        <td style="padding-bottom:7px; padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#9993;</div></td>
-                        <td style="padding-bottom:7px; vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:'DM Sans', Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">${agent.email}</a></td>
-                      </tr>
-                      <tr>
-                        <td style="padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#127760;</div></td>
-                        <td style="vertical-align:middle;"><a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">presaleproperties.ca</a></td>
+                        <td style="padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#127760;</td>
+                        <td style="vertical-align:middle;"><a href="https://presaleproperties.ca" target="_blank" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">presaleproperties.ca</a></td>
                       </tr>
                     </table>
                   </td>
-                  <td align="right" valign="top" style="padding-left:24px; vertical-align:top;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:16px 20px; text-align:center;">
-                          <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="160" border="0"
-                               style="display:block; width:160px; max-width:160px; height:auto; -ms-interpolation-mode:bicubic;" />
-                        </td>
-                      </tr>
-                    </table>
+                  <!-- Right: logo -->
+                  <td align="right" valign="middle" style="padding:28px 32px 28px 16px; vertical-align:middle;">
+                    <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="140" border="0"
+                         style="display:block; width:140px; max-width:140px; height:auto; -ms-interpolation-mode:bicubic;" />
                   </td>
                 </tr>
               </table>
