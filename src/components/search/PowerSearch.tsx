@@ -259,12 +259,16 @@ export function PowerSearch({
         // Only add if there are multiple results for this city and query closely matches city name
         const cityCount = searchResults.filter(r => r.meta?.city === city).length;
         if (cityCount >= 2 && city.toLowerCase().startsWith(qLower.slice(0, 3))) {
+          const citySlug = city.toLowerCase().replace(/\s+/g, "-");
+          const cityUrl = mode === "resale"
+            ? `/properties/${citySlug}`
+            : `/${citySlug}-presale-condos`;
           cityResults.push({
             id: `city-${city}`,
             type: "city",
             title: city,
             subtitle: `${cityCount} properties`,
-            url: `/map-search?city=${encodeURIComponent(city)}`,
+            url: cityUrl,
           });
         }
       });
