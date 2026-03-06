@@ -170,10 +170,9 @@ export function ProjectMobileCTA({
     }
   };
 
-  const whatsappMsg = encodeURIComponent(`Hi! I'm interested in ${projectName}. Can you send me more information?`);
+  const whatsappMsg = encodeURIComponent(`Hello! Can I get more details about "${projectName}"?`);
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMsg}` : null;
-  const successWhatsappMsg = encodeURIComponent(`Hi! I just requested info for ${projectName} and would love to learn more.`);
-  const successWhatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${successWhatsappMsg}` : null;
+  const successWhatsappLink = whatsappLink;
 
   return (
     <>
