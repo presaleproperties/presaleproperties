@@ -996,6 +996,65 @@ export default function AdminEmailBuilder() {
     toast.success("Incentive section updated!");
   };
 
+  // ── Pricing sheet PDF extraction ─────────────────────────────────────────────
+  const handlePricingFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      toast.error("Please upload a PDF file.");
+      return;
+    }
+    setExtractingPricing(true);
+    try {
+      // Extract text from PDF
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = "";
+      for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const pageText = content.items
+          .map((item: any) => item.str)
+          .join(" ");
+        fullText += pageText + "\n";
+      }
+      if (!fullText.trim()) {
+        toast.error("Could not extract text from this PDF. It may be image-based.");
+        return;
+      }
+      // Send to AI for summarization
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/summarize-pricing-sheet`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            pricingText: fullText,
+            projectName: vars.projectName,
+            city: vars.city,
+          }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "AI pricing summary failed");
+        return;
+      }
+      setPricingData(data.pricing || null);
+      toast.success("Pricing sheet summarized and added to email!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to process pricing sheet. Please try again.");
+    } finally {
+      setExtractingPricing(false);
+      if (pricingFileRef.current) pricingFileRef.current.value = "";
+    }
+  };
+
+
   const v =
     (key: keyof TemplateVars) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
