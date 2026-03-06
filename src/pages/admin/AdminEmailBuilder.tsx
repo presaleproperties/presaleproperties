@@ -560,7 +560,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           </tr>
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 8px 40px; background-color:#ffffff;">
-              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">I don't do hard sells. You registered interest, I'm following up. If after this email you have questions, want to compare it to something else, or just want a straight opinion &mdash; call me. That's what I'm here for.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">If you have questions or want to see what's still available, just give me a call. Happy to help.</div>
             </td>
           </tr>` : ""}
 
