@@ -759,12 +759,10 @@ export default function PresaleProjectDetail() {
                       <span className="text-muted-foreground">Developer:</span>
                       <span className="font-semibold truncate">{project.developer_name}</span>
                     </div>}
-                  {project.completion_year && <div className="flex items-center gap-2.5 text-sm lg:text-base">
+                  {completionDisplay && <div className="flex items-center gap-2.5 text-sm lg:text-base">
                       <Calendar className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Completion:</span>
-                      <span className="font-semibold">
-                        {project.completion_month ? `${getMonthName(project.completion_month)} ` : ""}{project.completion_year}
-                      </span>
+                      <span className="font-semibold">{completionDisplay}</span>
                     </div>}
                   {project.unit_mix && <div className="flex items-center gap-2.5 text-sm lg:text-base">
                       <Home className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
