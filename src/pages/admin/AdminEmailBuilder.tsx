@@ -448,7 +448,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
     p { margin: 0; padding: 0; }
     @media only screen and (max-width: 620px) {
       .outer-td { padding: 0 !important; }
-      .email-container { width: 100% !important; max-width: 100% !important; }
+      .email-container { width: 100% !important; max-width: 100% !important; border-radius: 0 !important; }
       .hero-img { width: 100% !important; max-width: 100% !important; height: auto !important; display: block !important; }
       .mobile-pad { padding: 28px 20px !important; }
       .header-td { padding: 22px 20px 18px 20px !important; }
@@ -468,6 +468,13 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
       .booking-right { display: block !important; width: 100% !important; text-align: center !important; padding-left: 0 !important; }
       .booking-btn td { width: 100% !important; text-align: center !important; padding: 14px 20px !important; display: block !important; }
       .booking-title { font-size: 22px !important; }
+      /* Signature: stack photo + info side by side in a compact row, hide logo */
+      .sig-outer-td { padding: 20px 20px !important; }
+      .sig-photo-td { width: 64px !important; padding: 0 12px 0 0 !important; vertical-align: middle !important; }
+      .sig-photo-td img { width: 60px !important; height: 60px !important; }
+      .sig-info-td { padding: 0 !important; vertical-align: middle !important; }
+      .sig-name { font-size: 17px !important; }
+      .sig-contact-row td { padding-bottom: 3px !important; font-size: 11px !important; }
     }
   </style>
 </head>
@@ -616,24 +623,24 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                 <tr>
                   <!-- Left: photo -->
                   ${agent.photo_url ? `
-                  <td width="120" valign="middle" style="padding:28px 0 28px 32px; vertical-align:middle; line-height:0; font-size:0;">
+                  <td class="sig-photo-td" width="110" valign="middle" style="padding:28px 0 28px 32px; vertical-align:middle; line-height:0; font-size:0;">
                     <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" border="0"
                          style="display:block; width:80px; height:80px; border-radius:50%; object-fit:cover; object-position:center top; border:2px solid #C9A55A; -ms-interpolation-mode:bicubic;" />
                   </td>` : ""}
                   <!-- Middle: info -->
-                  <td valign="middle" style="padding:28px 16px 28px ${agent.photo_url ? "16px" : "32px"}; vertical-align:middle;">
-                    <div style="font-family:${font.display}; font-size:22px; font-weight:400; color:#111111; line-height:1.15; mso-line-height-rule:exactly; margin-bottom:3px;">${agent.full_name}</div>
+                  <td class="sig-info-td" valign="middle" style="padding:28px 16px 28px ${agent.photo_url ? "0" : "32px"}; vertical-align:middle;">
+                    <div class="sig-name" style="font-family:${font.display}; font-size:22px; font-weight:400; color:#111111; line-height:1.15; mso-line-height-rule:exactly; margin-bottom:3px;">${agent.full_name}</div>
                     <div style="font-family:${font.body}; font-size:10px; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; mso-line-height-rule:exactly; line-height:1.5; margin-bottom:10px;">${agent.title}</div>
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
-                      ${agent.phone ? `<tr>
+                      ${agent.phone ? `<tr class="sig-contact-row">
                         <td style="padding-bottom:5px; padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#128222;</td>
                         <td style="padding-bottom:5px; vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">${agent.phone}</a></td>
                       </tr>` : ""}
-                      ${agent.email ? `<tr>
+                      ${agent.email ? `<tr class="sig-contact-row">
                         <td style="padding-bottom:5px; padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#9993;</td>
                         <td style="padding-bottom:5px; vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">${agent.email}</a></td>
                       </tr>` : ""}
-                      <tr>
+                      <tr class="sig-contact-row">
                         <td style="padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#127760;</td>
                         <td style="vertical-align:middle;"><a href="https://presaleproperties.com" target="_blank" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">presaleproperties.com</a></td>
                       </tr>
