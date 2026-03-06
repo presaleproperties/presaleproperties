@@ -448,9 +448,9 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
                   <td align="right" valign="top" style="padding-left:24px; vertical-align:top;">
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                       <tr>
-                        <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:20px 24px; text-align:center;">
-                          <div style="font-family:'DM Sans', Arial, sans-serif; font-size:8px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E</div>
-                          <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:20px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#ffffff; mso-line-height-rule:exactly; line-height:1.1;">PROPERTIES</div>
+                        <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:16px 20px; text-align:center;">
+                          <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="160" border="0"
+                               style="display:block; width:160px; max-width:160px; height:auto; -ms-interpolation-mode:bicubic;" />
                         </td>
                       </tr>
                     </table>
