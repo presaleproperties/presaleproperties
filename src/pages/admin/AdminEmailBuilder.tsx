@@ -723,7 +723,7 @@ export default function AdminEmailBuilder() {
     const brochureUrl = p.brochure_files?.[0] ?? "";
     const floorplanUrl = p.floorplan_files?.[0] ?? "";
     const pricingUrl = p.pricing_sheets?.[0] ?? "";
-    const projectUrl = `https://presaleproperties.ca/presale/${p.slug}`;
+    const projectUrl = `https://presaleproperties.com/presale/${p.slug}`;
 
     setCta((prev) => ({
       ...prev,
