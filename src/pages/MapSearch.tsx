@@ -839,10 +839,13 @@ export default function MapSearch() {
       for (const l of all) byId.set(l.id, l);
       let results = Array.from(byId.values());
       
-      // Client-side filtering for multi-select property types
-      if (selectedPropertyTypes.length > 0) {
+      // Client-side filtering for multi-select property types (or legacy single-select)
+      const typesToFilter = selectedPropertyTypes.length > 0 
+        ? selectedPropertyTypes 
+        : (filters.propertyType && filters.propertyType !== "any" ? [filters.propertyType] : []);
+      if (typesToFilter.length > 0) {
         results = results.filter(l => {
-          return selectedPropertyTypes.some(type => 
+          return typesToFilter.some(type => 
             l.property_type?.toLowerCase().includes(type.toLowerCase()) ||
             l.property_sub_type?.toLowerCase().includes(type.toLowerCase())
           );
