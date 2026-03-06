@@ -228,19 +228,19 @@ const FONT_PAIRINGS: FontPairing[] = [
 
 const HEADLINE_PRESETS = [
   {
-    label: "Quick Follow-Up",
-    headline: "Quick Follow-Up on Your Interest",
-    body: "You registered on our site, so I wanted to reach out personally. I've pulled together the floorplans and pricing for this project — it's all in this email. But before you go through it, I'd love to spend 10 minutes with you on the phone. There are a few things about this one that are worth knowing upfront, and I'd rather tell you now than have you figure it out later.",
+    label: "Worth Your Time",
+    headline: "Worth a Few Minutes of Your Time",
+    body: "If you've been looking at [city/area], this one is worth a look. I've pulled the key info together below — the quick breakdown, floorplans, and pricing. Go through it, and if anything catches your eye or you have questions, just give me a call. I work exclusively with buyers on presale, so I know these projects inside out.",
   },
   {
-    label: "Here's the Info",
-    headline: "Everything You Need Is Right Here",
-    body: "You asked about this project, so I put it all together for you — floorplans, pricing, the full picture. Scroll down and take a look. Once you've had a chance to review it, give me a call. I can tell you which units I'd go for, what the developer is currently offering, and whether the timing makes sense for your situation.",
+    label: "Final Phase",
+    headline: "The Final Phase Just Opened",
+    body: "This is the last opportunity to buy into this community. Once it's gone, it's gone. I've put together everything you need below — home sizes, pricing, and what makes this project stand out in [city]. My job is to get you the right information and the right floorplan. Give me a call and let's figure out if this is the right fit.",
   },
   {
-    label: "Saw Your Registration",
-    headline: "I Saw Your Registration Come Through",
-    body: "I wanted to personally follow up. A lot of people register and never hear back — that's not how I operate. I've included everything you need in this email. When you're ready, let's get on a call. I'll give you my honest read on this project, what I'd watch out for, and whether it's the right fit.",
+    label: "Homes Are Moving",
+    headline: "Homes Are Moving — Here's the Breakdown",
+    body: "You registered interest, so I wanted to get this in front of you before inventory tightens up. Everything is below — pricing, floorplans, and the highlights. I work exclusively with buyers, not developers, so you'll always get a straight answer from me. Questions? Just call.",
   },
 ];
 
