@@ -566,17 +566,17 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           <!-- BOOKING BANNER -->
           ${(cta.bookConsult && vars.bookUrl) ? `
           <tr>
-            <td bgcolor="#C9A55A" style="padding:22px 40px; background-color:#C9A55A;">
+            <td class="booking-td" bgcolor="#C9A55A" style="padding:22px 40px; background-color:#C9A55A;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
-                  <td valign="middle">
+                  <td class="booking-left" valign="middle">
                     <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#4a2e00; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.4;">P R I V A T E &nbsp; S H O W I N G S &nbsp; A V A I L A B L E</div>
-                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#0d1f18; mso-line-height-rule:exactly; line-height:1.2;">Book Your Showing Today</div>
+                    <div class="booking-title" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#0d1f18; mso-line-height-rule:exactly; line-height:1.2;">Book Your Showing Today</div>
                   </td>
-                  <td align="right" valign="middle" style="padding-left:20px;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                  <td class="booking-right" align="right" valign="middle" style="padding-left:20px;">
+                    <table class="booking-btn" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                       <tr>
-                        <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:14px 22px;">
+                        <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:14px 22px; text-align:center;">
                           <!--[if !mso]><!-->
                           <a href="${vars.bookUrl}" target="_blank" style="font-family:'DM Sans', Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; white-space:nowrap;">&#128197;&nbsp; BOOK NOW</a>
                           <!--<![endif]-->
