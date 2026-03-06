@@ -49,7 +49,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Agent presets (shared with Campaign Builder) ─────────────────────────────
+// ─── Agent presets ─────────────────────────────────────────────────────────────
 const PRESET_AGENTS = [
   {
     name: "Uzair Muhammad", title: "Founder & Presale Strategist",
@@ -146,88 +146,44 @@ const DEFAULT_CTA: CtaToggles = {
 };
 
 // ─── Template builder ─────────────────────────────────────────────────────────
-// Mailchimp compliance notes applied:
-// • Width ≤ 600px (hard max)
-// • All CSS inline — no reliance on <head> styles (Gmail/Yahoo strip them)
-// • @media queries kept in <style> for supported clients; inline fallbacks for all others
-// • Google Fonts loaded via <link> (more reliable than @import in email)
-// • Tables-based layout: role="presentation" cellpadding="0" cellspacing="0" border="0" on every table
-// • Images: absolute URLs, width attribute set, border="0", display:block
-// • Background on wrapper <table>, not <body> (webmail strips <body> styles)
-// • Preheader text with zero-width space padding to prevent body text bleed-through
-// • Mailchimp merge tags: *|UNSUB|*, *|UPDATE_PROFILE|*, *|FNAME|*
-// • No JavaScript, no Flash, no forms, no iframes
-// • <div> inside <td> for text (not bare text nodes) for Outlook compatibility
 function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESET_AGENTS[0]): string {
-  const locationTag = [vars.neighborhood, vars.city ? vars.city.toUpperCase() : ""]
-    .filter(Boolean).join("&nbsp;&nbsp;·&nbsp;&nbsp;").toUpperCase();
-
-  // ── Hero image ─────────────────────────────────────────────────────────────
-  // FULL-BLEED: td has padding:0, mso-line-height-rule:exactly, font-size:0 to kill any gap
-  // img: width="600" + width:100% ensures true full-width on all clients
-  const heroImg = vars.featuredImage
-    ? `<tr>
-        <td align="center" valign="top" style="padding:0; margin:0; font-size:0; line-height:0; mso-line-height-rule:exactly; border-collapse:collapse;">
-          <img class="hero-img" src="${vars.featuredImage}" alt="${vars.projectName || "Presale Property"}" width="600" border="0"
-               style="display:block; width:600px; max-width:600px; height:auto; border:0 none; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic; margin:0; padding:0;" />
-        </td>
-      </tr>`
-    : `<tr>
-        <td align="center" valign="middle" bgcolor="#1a1a1a"
-            style="padding:60px 0; background-color:#1a1a1a; text-align:center; vertical-align:middle;">
-          <div style="font-family:Georgia, 'Times New Roman', serif; font-size:12px; letter-spacing:4px; text-transform:uppercase; color:#C9A55A;">
-            ADD HERO IMAGE URL IN THE URLS TAB
-          </div>
-        </td>
-      </tr>`;
-
-  // ── Location bar ────────────────────────────────────────────────────────────
-  const locationBar = locationTag
-    ? `<tr>
-        <td class="location-td" bgcolor="#C9A55A" style="padding:14px 40px; background-color:#C9A55A;">
-          <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#ffffff; mso-line-height-rule:exactly; line-height:1.5;">
-            ${locationTag}${vars.completion ? `&nbsp;&nbsp;·&nbsp;&nbsp;EST. COMPLETION ${vars.completion.toUpperCase()}` : ""}
-          </div>
-        </td>
-      </tr>`
-    : "";
+  const locationTag = [vars.projectName, vars.city, vars.neighborhood]
+    .filter(Boolean).map(s => s!.toUpperCase()).join("&nbsp;&nbsp;&middot;&nbsp;&nbsp;");
 
   // ── Stats row ───────────────────────────────────────────────────────────────
-  // Use nested table for reliable multi-column layout across all email clients
   const statsRow = (vars.startingPrice || vars.developerName || vars.city)
     ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
           style="border-collapse:collapse; border-top:1px solid #efefef; border-bottom:1px solid #efefef; margin-bottom:36px;">
         <tr>
           ${vars.startingPrice ? `
-          <td valign="top" width="33%" style="padding:18px 24px 18px 0;">
-            <div style="font-family:Georgia, 'Times New Roman', serif; font-size:34px; font-weight:400; color:#111111; line-height:1; mso-line-height-rule:exactly;">${vars.startingPrice}</div>
-            <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">Starting From + GST</div>
+          <td class="stat-col" valign="top" style="padding:18px 20px 18px 0; width:33%;">
+            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:34px; font-weight:400; color:#111111; line-height:1; mso-line-height-rule:exactly;">${vars.startingPrice}</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">S T A R T I N G &nbsp; F R O M &nbsp; + &nbsp; G S T</div>
           </td>
-          <td width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
+          <td class="stat-divider" width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
           ${vars.developerName ? `
-          <td valign="top" width="33%" style="padding:18px 16px;">
-            <div style="font-family:Georgia, 'Times New Roman', serif; font-size:22px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.developerName}</div>
-            <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">Developer</div>
+          <td class="stat-col" valign="top" style="padding:18px 20px; width:33%;">
+            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:24px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.developerName}</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">D E V E L O P E R</div>
           </td>
-          <td width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
+          <td class="stat-divider" width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
           ${vars.city ? `
-          <td valign="top" width="33%" style="padding:18px 0 18px 16px;">
-            <div style="font-family:Georgia, 'Times New Roman', serif; font-size:22px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.city}, BC</div>
-            <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">Location</div>
+          <td class="stat-col" valign="top" style="padding:18px 0 18px 20px; width:33%;">
+            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:24px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.city}, BC</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">L O C A T I O N</div>
           </td>` : ""}
         </tr>
       </table>`
     : "";
 
   // ── CTA buttons ─────────────────────────────────────────────────────────────
-  // Bulletproof buttons: nested table so background renders in ALL clients incl. Outlook
   const primaryCta = (href: string, label: string) =>
     href
       ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
           <tr>
-            <td bgcolor="#111111" style="background-color:#111111; padding:16px 40px; mso-padding-alt:16px 40px;">
+            <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:16px 40px; mso-padding-alt:16px 40px;">
               <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block;">${label} &rarr;</a><![endif]-->
-              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block; white-space:nowrap;">${label}&nbsp;&rarr;</a><!--<![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block; white-space:nowrap;">${label}&nbsp;&rarr;</a><!--<![endif]-->
             </td>
           </tr>
         </table>`
@@ -237,19 +193,19 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
     href
       ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
           <tr>
-            <td style="border:1px solid #C9A55A; padding:15px 40px; mso-padding-alt:15px 40px;">
+            <td style="border:1.5px solid #C9A55A; padding:15px 40px; mso-padding-alt:15px 40px;">
               <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block;">${label}</a><![endif]-->
-              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block; white-space:nowrap;">${label}</a><!--<![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block; white-space:nowrap;">&#128222;&nbsp; ${label}</a><!--<![endif]-->
             </td>
           </tr>
         </table>`
       : "";
 
   const ctaSection = [
-    cta.floorplan && vars.floorplanUrl ? primaryCta(vars.floorplanUrl, "View Floor Plans &amp; Pricing") : "",
+    cta.floorplan && vars.floorplanUrl ? primaryCta(vars.floorplanUrl, "View Brochure &amp; Floorplans") : "",
     cta.brochure && vars.brochureUrl ? primaryCta(vars.brochureUrl, "Download Brochure") : "",
     cta.pricing && vars.pricingUrl ? primaryCta(vars.pricingUrl, "View Pricing") : "",
-    cta.bookConsult && vars.bookUrl ? secondaryCta(vars.bookUrl, "Book a Private Tour") : "",
+    cta.bookConsult && vars.bookUrl ? secondaryCta(vars.bookUrl, "Call Now &mdash; Book a Showing") : "",
     cta.viewProject && vars.projectUrl ? secondaryCta(vars.projectUrl, "View Full Project") : "",
   ].filter(Boolean).join("\n");
 
@@ -258,16 +214,15 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
     ? vars.bodyCopy.split("\n").filter(Boolean).map((line) =>
         `<tr>
           <td valign="top" width="14" style="padding-bottom:14px; padding-right:12px; vertical-align:top;">
-            <div style="width:5px; height:5px; background-color:#C9A55A; margin-top:8px; font-size:0; line-height:0;">&nbsp;</div>
+            <div style="width:6px; height:6px; background-color:#C9A55A; margin-top:7px; font-size:0; line-height:0;">&nbsp;</div>
           </td>
           <td valign="top" style="padding-bottom:14px; vertical-align:top;">
-            <div style="font-family:Helvetica, Arial, sans-serif; font-size:13px; font-weight:400; color:#444444; line-height:1.75; mso-line-height-rule:exactly;">${line}</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#444444; line-height:1.75; mso-line-height-rule:exactly;">${line}</div>
           </td>
         </tr>`
       ).join("\n")
     : "";
 
-  // ── Full HTML ───────────────────────────────────────────────────────────────
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
 <head>
@@ -278,167 +233,203 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
   <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
   <title>${vars.subjectLine || vars.projectName || "Presale Properties"}</title>
   <!--[if mso]>
-  <noscript>
-    <xml>
-      <o:OfficeDocumentSettings>
-        <o:AllowPNG/>
-        <o:PixelsPerInch>96</o:PixelsPerInch>
-      </o:OfficeDocumentSettings>
-    </xml>
-  </noscript>
+  <noscript><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
   <![endif]-->
-  <!-- Google Fonts: <link> is more reliable than @import in email clients that support it -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" type="text/css" />
   <style type="text/css">
-    /* Reset */
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse !important; }
     img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
     p { margin: 0; padding: 0; }
-    /* Mobile responsive — only clients supporting media queries use this */
     @media only screen and (max-width: 620px) {
-      /* Remove outer padding so email is full-width on mobile */
       .outer-td { padding: 0 !important; }
-      /* Email container spans full screen width */
       .email-container { width: 100% !important; max-width: 100% !important; }
-      /* Hero image: force full width, no gaps */
       .hero-img { width: 100% !important; max-width: 100% !important; height: auto !important; display: block !important; }
-      /* Reduce side padding on mobile */
       .mobile-pad { padding: 28px 20px !important; }
-      .header-td { padding: 24px 20px 20px 20px !important; }
-      .location-td { padding: 12px 20px !important; }
-      .footer-td { padding: 24px 20px !important; }
-      .legal-td { padding: 16px 20px 20px 20px !important; }
-      /* Larger headline on mobile */
-      .hero-headline { font-size: 36px !important; line-height: 42px !important; }
-      /* Bigger body text */
-      .body-text { font-size: 15px !important; line-height: 1.9 !important; }
-      /* Stats: stack vertically on mobile */
+      .header-td { padding: 22px 20px 18px 20px !important; }
+      .location-td { padding: 11px 20px !important; }
+      .footer-td { padding: 20px 20px !important; }
+      .legal-td { padding: 20px 20px 24px 20px !important; }
+      .hero-headline { font-size: 36px !important; line-height: 1.1 !important; }
+      .body-text { font-size: 15px !important; line-height: 1.85 !important; }
       .stat-col { display: block !important; width: 100% !important; padding: 14px 0 !important; border-bottom: 1px solid #efefef !important; }
       .stat-divider { display: none !important; }
-      /* Buttons full-width on mobile */
-      .btn-td { width: 100% !important; text-align: center !important; padding: 16px 20px !important; display: block !important; }
-      .btn-table { width: 100% !important; }
     }
   </style>
 </head>
-<!-- background-color on body is a fallback only; webmail clients (Gmail, Yahoo) strip this -->
 <body style="margin:0; padding:0; background-color:#f4f4f0; word-spacing:normal;">
 
-  <!-- PREHEADER: hidden text shown in inbox snippet after subject line -->
-  <!-- Padding with zero-width non-joiners prevents body text from bleeding into snippet -->
   <div style="display:none; font-size:1px; line-height:1px; max-height:0px; max-width:0px; opacity:0; overflow:hidden; mso-hide:all; font-family:sans-serif;">
-    ${vars.previewText || `Exclusive presale opportunity \u2014 ${vars.projectName || "Now Available"}`}&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
+    ${vars.previewText || `Exclusive presale opportunity \u2014 ${vars.projectName || "Now Available"}`}&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       OUTER WRAPPER — background-color here works in webmail (not on body)
-       ═══════════════════════════════════════════════════════════ -->
-  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
-         style="background-color:#f4f4f0; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f4f4f0; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
     <tr>
-      <!-- outer-td: has padding on desktop, stripped to 0 on mobile so email is full-width -->
       <td class="outer-td" align="center" valign="top" style="padding:32px 12px;">
         <!--[if mso]><table role="presentation" align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td><![endif]-->
-
-        <!-- ═══════════════════════════════════════════════════
-             MAIN CONTAINER — max 600px per Mailchimp guidelines
-             ═══════════════════════════════════════════════════ -->
         <table class="email-container" role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" align="center"
                style="max-width:600px; width:100%; background-color:#ffffff; border-collapse:collapse;">
 
-          <!-- ╔═══════════ HEADER ═══════════╗ -->
+          <!-- HEADER -->
           <tr>
-            <td class="header-td" bgcolor="#1a1a1a" style="padding:28px 40px 24px 40px; background-color:#1a1a1a; border-bottom:3px solid #C9A55A;">
+            <td class="header-td" bgcolor="#0d1f18" style="padding:28px 40px 26px 40px; background-color:#0d1f18;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td valign="bottom">
-                    <!-- "P R E S A L E" label -->
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:6px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E</div>
-                    <!-- "PROPERTIES" wordmark — Cormorant Garamond with Georgia fallback -->
-                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:42px; font-weight:300; letter-spacing:6px; text-transform:uppercase; color:#ffffff; line-height:1; mso-line-height-rule:exactly;">PROPERTIES</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E &nbsp; P R O P E R T I E S</div>
+                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:42px; font-weight:400; color:#ffffff; line-height:1; margin-bottom:10px; mso-line-height-rule:exactly;">${vars.projectName || "New Release"}</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Presented by Presale Properties${vars.developerName ? ` &middot; ${vars.developerName}` : ""}</div>
+                    <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0;">&nbsp;</div>
                   </td>
-                  <td align="right" valign="bottom">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; letter-spacing:2px; text-transform:uppercase; color:#999999; line-height:1.9; text-align:right; mso-line-height-rule:exactly;">S U R R E Y &nbsp;&middot;&nbsp; L A N G L E Y<br />M E T R O &nbsp; V A N C O U V E R</div>
-                  </td>
+                  ${(vars.neighborhood || vars.city) ? `
+                  <td align="right" valign="top" style="padding-left:16px; white-space:nowrap;">
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#8aaa96; text-align:right; line-height:2.2; mso-line-height-rule:exactly;">
+                      ${vars.city ? `${vars.city.toUpperCase()}<br/>` : ""}${vars.neighborhood ? vars.neighborhood.toUpperCase() : ""}
+                    </div>
+                  </td>` : ""}
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- ╔═══════════ HERO IMAGE ═══════════╗ -->
-          ${heroImg}
+          <!-- HERO IMAGE -->
+          ${vars.featuredImage
+            ? `<tr>
+                <td align="center" valign="top" style="padding:0; margin:0; font-size:0; line-height:0; mso-line-height-rule:exactly;">
+                  <img class="hero-img" src="${vars.featuredImage}" alt="${vars.projectName || "Presale Property"}" width="600" border="0"
+                       style="display:block; width:600px; max-width:600px; height:auto; -ms-interpolation-mode:bicubic; margin:0; padding:0;" />
+                </td>
+              </tr>`
+            : `<tr>
+                <td align="center" valign="middle" bgcolor="#1a2e24" style="padding:60px 0; background-color:#1a2e24; text-align:center;">
+                  <div style="font-family:'DM Sans', sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#C9A55A;">ADD HERO IMAGE URL IN THE URLS TAB</div>
+                </td>
+              </tr>`
+          }
 
-          <!-- ╔═══════════ LOCATION TAG ═══════════╗ -->
-          ${locationBar}
+          <!-- LOCATION BAR -->
+          ${locationTag
+            ? `<tr>
+                <td class="location-td" bgcolor="#C9A55A" style="padding:13px 40px; background-color:#C9A55A;">
+                  <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#ffffff; mso-line-height-rule:exactly; line-height:1.5;">${locationTag}</div>
+                </td>
+              </tr>`
+            : ""
+          }
 
-          <!-- ╔═══════════ MAIN CONTENT ═══════════╗ -->
+          <!-- MAIN CONTENT -->
           <tr>
-            <td class="mobile-pad" bgcolor="#ffffff"
-                style="padding:40px 40px 32px 40px; background-color:#ffffff;">
+            <td class="mobile-pad" bgcolor="#ffffff" style="padding:40px 40px 32px 40px; background-color:#ffffff;">
 
-              <!-- Greeting — uses Mailchimp merge tag *|FNAME|* for personalization -->
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#888888; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">Hi *|FNAME|*,</div>
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#888888; margin-bottom:18px; mso-line-height-rule:exactly; line-height:1.5;">Hi *|FNAME|*,</div>
 
-              <!-- Headline -->
+              <div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:48px; font-weight:400; color:#111111; line-height:1.05; margin-bottom:0; mso-line-height-rule:exactly;">${vars.projectName || "The Moment"}</div>
               ${vars.headline
-                ? `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:48px; font-weight:400; color:#111111; line-height:1.1; margin-bottom:28px; mso-line-height-rule:exactly;">${vars.headline}</div>`
-                : `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:48px; font-weight:400; color:#111111; line-height:1.1; margin-bottom:0; mso-line-height-rule:exactly;">${vars.projectName || "The Moment"}</div>
-                   <div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:48px; font-weight:400; font-style:italic; color:#C9A55A; line-height:1.1; margin-bottom:28px; mso-line-height-rule:exactly;">is Now.</div>`
+                ? `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:48px; font-weight:300; font-style:italic; color:#C9A55A; line-height:1.05; margin-bottom:28px; mso-line-height-rule:exactly;">${vars.headline}.</div>`
+                : `<div style="margin-bottom:28px;"></div>`
               }
 
-              <!-- Body paragraph -->
-              <div class="body-text" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:15px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:36px; mso-line-height-rule:exactly;">
+              <div class="body-text" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:15px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:20px; mso-line-height-rule:exactly;">
                 We're bringing you an exclusive first look at <strong style="font-weight:500; color:#111111;">${vars.projectName || "this opportunity"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}. ${vars.startingPrice ? `Starting from <strong style="font-weight:500;">${vars.startingPrice}</strong> &mdash; ` : ""}this is your chance to secure preferred pricing before public launch. Limited units available.
               </div>
+              <div class="body-text" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">Your clients have been waiting for this. This is it.</div>
 
-              <!-- Thin divider -->
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:32px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:28px;">
                 <tr><td height="1" bgcolor="#efefef" style="font-size:0; line-height:0; background-color:#efefef;">&nbsp;</td></tr>
               </table>
 
-              <!-- Stats Row -->
               ${statsRow}
-
-              <!-- CTA Buttons -->
               ${ctaSection}
 
             </td>
           </tr>
 
           ${highlightsList ? `
-          <!-- ╔═══════════ WHY THIS PROJECT ═══════════╗ -->
+          <!-- HIGHLIGHTS -->
           <tr>
-            <td class="mobile-pad" bgcolor="#fafaf8"
-                style="padding:32px 40px; background-color:#fafaf8; border-top:1px solid #efefef; border-bottom:1px solid #efefef;">
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">W H Y &nbsp; T H I S &nbsp; P R O J E C T</div>
+            <td class="mobile-pad" bgcolor="#f8f7f4" style="padding:32px 40px; background-color:#f8f7f4; border-top:1px solid #efefef; border-bottom:1px solid #efefef;">
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">H I G H L I G H T S</div>
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 ${highlightsList}
               </table>
             </td>
           </tr>` : ""}
 
-          <!-- ╔═══════════ SIGNATURE ═══════════╗ -->
+          <!-- BOOKING BANNER -->
+          ${(cta.bookConsult && vars.bookUrl) ? `
           <tr>
-            <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px; background-color:#ffffff; border-top:1px solid #efefef;">
-              <!-- Agent photo + info side by side -->
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+            <td bgcolor="#C9A55A" style="padding:22px 40px; background-color:#C9A55A;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
-                  ${agent.photo ? `
-                  <td valign="top" style="padding-right:18px; vertical-align:top;">
-                    <img src="${agent.photo}" alt="${agent.name}" width="72" height="72" border="0"
-                         style="display:block; width:72px; height:72px; border-radius:50%; border:2px solid #C9A55A; object-fit:cover; -ms-interpolation-mode:bicubic;" />
-                  </td>` : ""}
-                  <td valign="middle" style="vertical-align:middle;">
-                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#111111; margin-bottom:3px; mso-line-height-rule:exactly; line-height:1.2;">${agent.name}</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:12px; mso-line-height-rule:exactly; line-height:1.5;">${agent.title} &nbsp;&middot;&nbsp; Presale Properties</div>
+                  <td valign="middle">
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#4a2e00; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.4;">P R I V A T E &nbsp; S H O W I N G S &nbsp; A V A I L A B L E</div>
+                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#0d1f18; mso-line-height-rule:exactly; line-height:1.2;">Book Your Showing Today</div>
+                  </td>
+                  <td align="right" valign="middle" style="padding-left:20px;">
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                       <tr>
-                        <td style="padding-right:24px; padding-bottom:4px;">
-                          <a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#555555; text-decoration:none;">&#128222; ${agent.phone}</a>
+                        <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:14px 22px;">
+                          <!--[if !mso]><!-->
+                          <a href="${vars.bookUrl}" target="_blank" style="font-family:'DM Sans', Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; white-space:nowrap;">&#128222;&nbsp; CALL NOW</a>
+                          <!--<![endif]-->
                         </td>
-                        <td style="padding-bottom:4px;">
-                          <a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#C9A55A; text-decoration:none;">&#127760; presaleproperties.ca</a>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 8px 40px; background-color:#ffffff;">
+              <div class="body-text" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">Reach out directly &mdash; I'll walk your clients through everything, from floorplan selection to contract review. No pressure, just expert guidance.</div>
+            </td>
+          </tr>` : ""}
+
+          <!-- DIVIDER -->
+          <tr>
+            <td style="padding:24px 40px 0 40px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr><td height="1" bgcolor="#efefef" style="font-size:0; line-height:0;">&nbsp;</td></tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- SIGNATURE -->
+          <tr>
+            <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 40px 40px; background-color:#ffffff;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td valign="top" style="vertical-align:top;">
+                    ${agent.photo ? `
+                    <div style="margin-bottom:16px; line-height:0; font-size:0;">
+                      <img src="${agent.photo}" alt="${agent.name}" width="88" height="88" border="0"
+                           style="display:block; width:88px; height:88px; border-radius:50%; object-fit:cover; object-position:center 10%; border:2px solid #C9A55A; -ms-interpolation-mode:bicubic;" />
+                    </div>` : ""}
+                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:30px; font-weight:400; color:#111111; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.2;">${agent.name}</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.5;">P R E S A L E &nbsp; R E A L &nbsp; E S T A T E &nbsp; S P E C I A L I S T</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; margin-bottom:16px; mso-line-height-rule:exactly; line-height:1.4;">PREC &mdash; Licensed with eXp Realty</div>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="padding-bottom:7px; padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#128222;</div></td>
+                        <td style="padding-bottom:7px; vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:'DM Sans', Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">${agent.phone}</a></td>
+                      </tr>
+                      <tr>
+                        <td style="padding-bottom:7px; padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#9993;</div></td>
+                        <td style="padding-bottom:7px; vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:'DM Sans', Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">${agent.email}</a></td>
+                      </tr>
+                      <tr>
+                        <td style="padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#127760;</div></td>
+                        <td style="vertical-align:middle;"><a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">presaleproperties.ca</a></td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td align="right" valign="top" style="padding-left:24px; vertical-align:top;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:20px 24px; text-align:center;">
+                          <div style="font-family:'DM Sans', Arial, sans-serif; font-size:8px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E</div>
+                          <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:20px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#ffffff; mso-line-height-rule:exactly; line-height:1.1;">PROPERTIES</div>
                         </td>
                       </tr>
                     </table>
@@ -448,33 +439,30 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
             </td>
           </tr>
 
-          <!-- ╔═══════════ FOOTER ═══════════╗ -->
+          <!-- FOOTER -->
           <tr>
-            <td class="footer-td" bgcolor="#111111" style="padding:28px 40px; background-color:#111111; border-top:3px solid #C9A55A;">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-                <tr>
-                  <td valign="top">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#888888; line-height:1.9; mso-line-height-rule:exactly;">presaleproperties.com &nbsp;|&nbsp; Vancouver, BC</div>
-                  </td>
-                  ${vars.projectUrl ? `<td align="right" valign="bottom">
-                    <a href="${vars.projectUrl}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; text-decoration:none;">View Project &rarr;</a>
-                  </td>` : ""}
-                </tr>
-              </table>
+            <td class="footer-td" bgcolor="#0d1f18" style="padding:22px 40px; background-color:#0d1f18;">
+              <div style="font-family:'DM Sans', Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; margin-bottom:6px; mso-line-height-rule:exactly; line-height:1.5;">PRESALE PROPERTIES &nbsp;&middot;&nbsp; ${vars.city ? `${vars.city.toUpperCase()}, BC` : "VANCOUVER, BC"}</div>
+              <div style="font-family:'DM Sans', Arial, sans-serif; font-size:12px; font-weight:300; color:#8aaa96; mso-line-height-rule:exactly; line-height:1.6;">presaleproperties.ca &nbsp;&middot;&nbsp; ${agent.phone}</div>
             </td>
           </tr>
 
-          <!-- ╔═══════════ LEGAL + UNSUBSCRIBE ═══════════╗ -->
-          <!-- *|UNSUB|* and *|UPDATE_PROFILE|* are required Mailchimp merge tags -->
+          <!-- LEGAL + UNSUBSCRIBE -->
           <tr>
-            <td class="legal-td" bgcolor="#0d0d0d" style="padding:20px 40px 24px 40px; background-color:#0d0d0d;">
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:300; color:#555555; line-height:1.75; margin-bottom:14px; mso-line-height-rule:exactly;">
-                *Prices exclude taxes and are subject to availability at the time of inquiry and/or change without notice. This is not an offering for sale. Any such offering can only be made with a Disclosure Statement. E.&amp;O.E.
+            <td class="legal-td" bgcolor="#f8f7f4" style="padding:24px 40px 28px 40px; background-color:#f8f7f4; border-top:1px solid #e8e8e4;">
+              <div style="font-family:'DM Sans', Arial, sans-serif; font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#555555; margin-bottom:12px; mso-line-height-rule:exactly; line-height:1.4;">L E G A L &nbsp; D I S C L A I M E R</div>
+              <div style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; line-height:1.8; margin-bottom:12px; mso-line-height-rule:exactly;">
+                This communication is prepared by ${agent.name}, a licensed REALTOR&reg; with Presale Properties, for real estate professionals and prospective purchasers only. This is <strong style="font-weight:500; color:#666666;">not an offering for sale</strong>. An offering may only be made after filing a Disclosure Statement under REDMA. Prices, availability and incentives subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E. Presale Properties complies with the Real Estate Services Act (BCFSA).
+              </div>
+              <div style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; line-height:1.8; margin-bottom:18px; mso-line-height-rule:exactly;">
+                You are receiving this because you opted in to presale updates from Presale Properties. Per Canada's Anti-Spam Legislation (CASL), you may withdraw consent at any time.
               </div>
               <div>
-                <a href="*|UNSUB|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#777777; text-decoration:underline;">Unsubscribe</a>
-                <span style="color:#444444; margin:0 8px;">&nbsp;&middot;&nbsp;</span>
-                <a href="*|UPDATE_PROFILE|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#777777; text-decoration:underline;">Update Preferences</a>
+                <a href="*|UNSUB|*" style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; text-decoration:underline;">Unsubscribe</a>
+                <span style="color:#cccccc; margin:0 10px;">&middot;</span>
+                <a href="*|UPDATE_PROFILE|*" style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; text-decoration:underline;">Update Preferences</a>
+                <span style="color:#cccccc; margin:0 10px;">&middot;</span>
+                <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; text-decoration:underline;">View in Browser</a>
               </div>
             </td>
           </tr>
@@ -488,7 +476,6 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
 </body>
 </html>`;
 }
-
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function AdminEmailBuilder() {
@@ -507,7 +494,6 @@ export default function AdminEmailBuilder() {
   const [cta, setCta] = useState<CtaToggles>({ ...DEFAULT_CTA });
   const [agentIdx, setAgentIdx] = useState(0);
 
-  // Fetch projects (all, admin context)
   useEffect(() => {
     const load = async () => {
       setLoadingProjects(true);
@@ -523,7 +509,6 @@ export default function AdminEmailBuilder() {
     load();
   }, []);
 
-  // When project is selected, populate vars
   useEffect(() => {
     if (!selectedProjectId) return;
     const p = projects.find((x) => x.id === selectedProjectId);
@@ -622,11 +607,7 @@ export default function AdminEmailBuilder() {
   return (
     <TooltipProvider>
     <AdminLayout>
-      {/* ════════════════════════════════════════════════
-          TOP BAR — project picker + actions
-          ════════════════════════════════════════════════ */}
       <div className="flex items-center justify-between gap-4 mb-4">
-        {/* Left: title + project picker */}
         <div className="flex items-center gap-4 min-w-0">
           <div className="shrink-0">
             <h1 className="text-lg font-bold text-foreground tracking-tight leading-tight">Email Builder</h1>
@@ -635,7 +616,6 @@ export default function AdminEmailBuilder() {
 
           <Separator orientation="vertical" className="h-8" />
 
-          {/* Project selector — prominent */}
           <div className="flex items-center gap-2 min-w-0">
             <Building2 className="h-4 w-4 text-primary shrink-0" />
             <Select value={selectedProjectId} onValueChange={setSelectedProjectId} disabled={loadingProjects}>
@@ -682,7 +662,6 @@ export default function AdminEmailBuilder() {
           </div>
         </div>
 
-        {/* Right: actions */}
         <div className="flex items-center gap-2 shrink-0">
           {useCustomHtml && (
             <Badge variant="outline" className="text-[10px] h-7 px-2.5 border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/5">
@@ -758,9 +737,7 @@ export default function AdminEmailBuilder() {
         </div>
       </div>
 
-      {/* ════════════════════════════════════════════════
-          INBOX PREVIEW BAR
-          ════════════════════════════════════════════════ */}
+      {/* INBOX PREVIEW BAR */}
       <div className="mb-4 rounded-lg border border-border bg-card px-4 py-2.5">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 shrink-0">
@@ -789,28 +766,22 @@ export default function AdminEmailBuilder() {
         </div>
       </div>
 
-      {/* ════════════════════════════════════════════════
-          MAIN 2-PANEL LAYOUT
-          ════════════════════════════════════════════════ */}
+      {/* MAIN 2-PANEL LAYOUT */}
       <div className="grid grid-cols-[1fr_340px] gap-4 h-[calc(100vh-230px)] min-h-[600px]">
 
-        {/* ── LEFT: Email preview (dominant) ── */}
+        {/* LEFT: Email preview */}
         <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-
-          {/* Preview toolbar */}
           <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/20 shrink-0">
             <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
               <Button
-                variant="ghost"
-                size="sm"
+                variant="ghost" size="sm"
                 className={cn("h-7 px-3 text-xs gap-1.5 rounded-md transition-all", previewMode === "preview" && "bg-card shadow-sm text-foreground font-medium")}
                 onClick={() => setPreviewMode("preview")}
               >
                 <Eye className="h-3 w-3" /> Preview
               </Button>
               <Button
-                variant="ghost"
-                size="sm"
+                variant="ghost" size="sm"
                 className={cn("h-7 px-3 text-xs gap-1.5 rounded-md transition-all", previewMode === "code" && "bg-card shadow-sm text-foreground font-medium")}
                 onClick={() => setPreviewMode("code")}
               >
@@ -823,8 +794,7 @@ export default function AdminEmailBuilder() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      variant="ghost" size="sm"
                       className={cn("h-7 w-8 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm")}
                       onClick={() => setPreviewDevice("desktop")}
                     >
@@ -836,8 +806,7 @@ export default function AdminEmailBuilder() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      variant="ghost" size="sm"
                       className={cn("h-7 w-8 p-0 rounded-md transition-all", previewDevice === "mobile" && "bg-card shadow-sm")}
                       onClick={() => setPreviewDevice("mobile")}
                     >
@@ -856,12 +825,7 @@ export default function AdminEmailBuilder() {
                 </span>
               )}
               {previewMode === "code" && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs gap-1"
-                  onClick={handleCopy}
-                >
+                <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1" onClick={handleCopy}>
                   <Copy className="h-3 w-3" />
                   {copied ? "Copied!" : "Copy"}
                 </Button>
@@ -869,7 +833,6 @@ export default function AdminEmailBuilder() {
             </div>
           </div>
 
-          {/* Preview area */}
           {previewMode === "preview" ? (
             <div className={cn(
               "flex-1 overflow-auto",
@@ -899,27 +862,19 @@ export default function AdminEmailBuilder() {
           )}
         </div>
 
-        {/* ── RIGHT: Editor panel ── */}
+        {/* RIGHT: Editor panel */}
         <div className="flex flex-col gap-0 rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-
-          {/* Editor header */}
           <div className="px-4 pt-4 pb-3 border-b border-border bg-muted/10 shrink-0">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">Email Editor</h2>
               {useCustomHtml && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 text-[11px] px-2 text-amber-600 hover:text-amber-700"
-                  onClick={() => setUseCustomHtml(false)}
-                >
+                <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2 text-amber-600 hover:text-amber-700" onClick={() => setUseCustomHtml(false)}>
                   ← Use template
                 </Button>
               )}
             </div>
           </div>
 
-          {/* Tabs */}
           <Tabs defaultValue="content" className="flex flex-col flex-1 overflow-hidden">
             <div className="px-3 pt-2 shrink-0">
               <TabsList className="w-full h-8 text-xs grid grid-cols-3">
@@ -937,10 +892,8 @@ export default function AdminEmailBuilder() {
 
             <div className={cn("flex-1 overflow-y-auto", useCustomHtml && "opacity-40 pointer-events-none select-none")}>
 
-              {/* ── CONTENT TAB ── */}
+              {/* CONTENT TAB */}
               <TabsContent value="content" className="mt-0 px-4 pb-4 space-y-4">
-
-                {/* Agent selector */}
                 <div className="pt-3">
                   <div className="flex items-center gap-1.5 mb-2.5">
                     <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Sender / Signature</span>
@@ -961,7 +914,7 @@ export default function AdminEmailBuilder() {
                           src={a.photo}
                           alt={a.name}
                           className="w-8 h-8 rounded-full object-cover border border-border shrink-0"
-                          style={{ objectPosition: "center 15%" }}
+                          style={{ objectPosition: "center 10%" }}
                         />
                         <div className="min-w-0">
                           <div className="text-[11px] font-medium text-foreground truncate">{a.name.split(" ")[0]}</div>
@@ -981,21 +934,11 @@ export default function AdminEmailBuilder() {
                   <div className="space-y-2">
                     <div>
                       <Label className="text-[11px] text-muted-foreground">Subject Line</Label>
-                      <Input
-                        value={vars.subjectLine}
-                        onChange={v("subjectLine")}
-                        className="h-8 text-xs mt-1"
-                        placeholder="🏙️ Exclusive Access: Project Name — City"
-                      />
+                      <Input value={vars.subjectLine} onChange={v("subjectLine")} className="h-8 text-xs mt-1" placeholder="🏙️ Exclusive Access: Project Name — City" />
                     </div>
                     <div>
                       <Label className="text-[11px] text-muted-foreground">Preview Text</Label>
-                      <Input
-                        value={vars.previewText}
-                        onChange={v("previewText")}
-                        className="h-8 text-xs mt-1"
-                        placeholder="From $599K · Surrey · Limited units"
-                      />
+                      <Input value={vars.previewText} onChange={v("previewText")} className="h-8 text-xs mt-1" placeholder="From $599K · Surrey · Limited units" />
                       <p className="text-[10px] text-muted-foreground/60 mt-1">Shown after subject line in inbox</p>
                     </div>
                   </div>
@@ -1003,7 +946,6 @@ export default function AdminEmailBuilder() {
 
                 <Separator />
 
-                {/* Headline */}
                 <div>
                   <div className="flex items-center gap-1.5 mb-2.5">
                     <Sparkles className="h-3 w-3 text-muted-foreground" />
@@ -1011,13 +953,8 @@ export default function AdminEmailBuilder() {
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <Label className="text-[11px] text-muted-foreground">Headline</Label>
-                      <Input
-                        value={vars.headline}
-                        onChange={v("headline")}
-                        className="h-8 text-xs mt-1"
-                        placeholder="Introducing Project Name…"
-                      />
+                      <Label className="text-[11px] text-muted-foreground">Headline (italic gold subhead)</Label>
+                      <Input value={vars.headline} onChange={v("headline")} className="h-8 text-xs mt-1" placeholder="Final Phase" />
                     </div>
                     <div>
                       <Label className="text-[11px] text-muted-foreground">
@@ -1036,7 +973,6 @@ export default function AdminEmailBuilder() {
 
                 <Separator />
 
-                {/* CTA toggles */}
                 <div>
                   <button
                     className="flex items-center justify-between w-full mb-2.5 group"
@@ -1090,16 +1026,12 @@ export default function AdminEmailBuilder() {
                 </div>
               </TabsContent>
 
-              {/* ── PROJECT TAB ── */}
+              {/* PROJECT TAB */}
               <TabsContent value="project" className="mt-0 px-4 pb-4 space-y-3">
                 <div className="pt-3">
                   {selectedProject?.featured_image && (
                     <div className="mb-3 rounded-lg overflow-hidden border border-border">
-                      <img
-                        src={selectedProject.featured_image}
-                        alt={selectedProject.name}
-                        className="w-full h-28 object-cover"
-                      />
+                      <img src={selectedProject.featured_image} alt={selectedProject.name} className="w-full h-28 object-cover" />
                       <div className="px-2.5 py-1.5 bg-muted/30">
                         <p className="text-[10px] text-muted-foreground">Hero image · auto-filled from project</p>
                       </div>
@@ -1126,7 +1058,7 @@ export default function AdminEmailBuilder() {
                 </div>
               </TabsContent>
 
-              {/* ── URLS TAB ── */}
+              {/* URLS TAB */}
               <TabsContent value="urls" className="mt-0 px-4 pb-4 space-y-2">
                 <div className="pt-3">
                   <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
@@ -1167,7 +1099,6 @@ export default function AdminEmailBuilder() {
             </div>
           </Tabs>
 
-          {/* Bottom copy button — always visible */}
           <div className="px-4 pb-4 pt-3 border-t border-border shrink-0 bg-muted/10">
             <Button
               className={cn(
