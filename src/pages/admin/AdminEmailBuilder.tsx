@@ -273,6 +273,7 @@ interface TemplateVars {
   neighborhood: string;
   completion: string;
   startingPrice: string;
+  deposit: string;
   featuredImage: string;
   brochureUrl: string;
   floorplanUrl: string;
