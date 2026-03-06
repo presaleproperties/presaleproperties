@@ -668,6 +668,28 @@ export default function AdminEmailBuilder() {
   const [headlinePresetIdx, setHeadlinePresetIdx] = useState<number | null>(null);
   const [fontIdx, setFontIdx] = useState(0);
 
+  // ── Agent list from DB ───────────────────────────────────────────────────────
+  const [agents, setAgents] = useState<AgentProfile[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<AgentProfile | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("team_members_public")
+      .select("id, full_name, title, photo_url")
+      .eq("is_active", true)
+      .order("sort_order")
+      .then(({ data }) => {
+        if (!data?.length) return;
+        const enriched: AgentProfile[] = data.map((m) => {
+          const firstName = (m.full_name ?? "").split(" ")[0];
+          const contact = AGENT_CONTACTS[firstName] ?? { phone: "", email: "" };
+          return { id: m.id, full_name: m.full_name ?? "", title: m.title ?? "Presale Expert", photo_url: m.photo_url, ...contact };
+        });
+        setAgents(enriched);
+        setSelectedAgent(enriched[0]);
+      });
+  }, []);
+
   useEffect(() => {
     const load = async () => {
       setLoadingProjects(true);
