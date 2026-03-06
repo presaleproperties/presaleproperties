@@ -510,6 +510,9 @@ export default function AdminEmailBuilder() {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setVars((prev) => ({ ...prev, [key]: e.target.value }));
 
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
+  const [ctaSectionOpen, setCtaSectionOpen] = useState(true);
+
   return (
     <AdminLayout>
       {/* ── Page header ── */}
