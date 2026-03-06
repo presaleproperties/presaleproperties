@@ -127,66 +127,87 @@ const DEFAULT_CTA: CtaToggles = {
 };
 
 // ─── Template builder ─────────────────────────────────────────────────────────
+// Mailchimp compliance notes applied:
+// • Width ≤ 600px (hard max)
+// • All CSS inline — no reliance on <head> styles (Gmail/Yahoo strip them)
+// • @media queries kept in <style> for supported clients; inline fallbacks for all others
+// • Google Fonts loaded via <link> (more reliable than @import in email)
+// • Tables-based layout: role="presentation" cellpadding="0" cellspacing="0" border="0" on every table
+// • Images: absolute URLs, width attribute set, border="0", display:block
+// • Background on wrapper <table>, not <body> (webmail strips <body> styles)
+// • Preheader text with zero-width space padding to prevent body text bleed-through
+// • Mailchimp merge tags: *|UNSUB|*, *|UPDATE_PROFILE|*, *|FNAME|*
+// • No JavaScript, no Flash, no forms, no iframes
+// • <div> inside <td> for text (not bare text nodes) for Outlook compatibility
 function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
-  const locationTag = [vars.neighborhood, vars.city ? vars.city.toUpperCase() : ""].filter(Boolean).join("&nbsp;&nbsp;·&nbsp;&nbsp;").toUpperCase();
+  const locationTag = [vars.neighborhood, vars.city ? vars.city.toUpperCase() : ""]
+    .filter(Boolean).join("&nbsp;&nbsp;·&nbsp;&nbsp;").toUpperCase();
 
-  // Hero image — full-bleed, no border radius
+  // ── Hero image ─────────────────────────────────────────────────────────────
+  // Images MUST have: absolute src, width attribute, border="0", display:block
   const heroImg = vars.featuredImage
     ? `<tr>
-        <td style="padding:0; margin:0; line-height:0; font-size:0;">
-          <img src="${vars.featuredImage}" alt="${vars.projectName}" width="600"
-               style="display:block; width:100%; max-width:600px; height:auto; min-height:300px; object-fit:cover; border:0;" />
+        <td style="padding:0; margin:0; line-height:0; font-size:0; mso-line-height-rule:exactly;">
+          <img src="${vars.featuredImage}" alt="${vars.projectName || "Presale Property"}" width="600" border="0"
+               style="display:block; width:100%; max-width:600px; height:auto; border:0; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;" />
         </td>
       </tr>`
     : `<tr>
-        <td style="padding:0; margin:0; line-height:0; font-size:0; background-color:#1a1a1a; height:300px; text-align:center; vertical-align:middle;">
-          <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:14px; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; padding:120px 0;">NO IMAGE — ADD HERO IMAGE URL</div>
+        <td height="200" valign="middle" align="center" bgcolor="#1a1a1a"
+            style="padding:0; background-color:#1a1a1a; height:200px; text-align:center; vertical-align:middle;">
+          <div style="font-family:Georgia, 'Times New Roman', serif; font-size:12px; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; padding:80px 0;">
+            ADD HERO IMAGE URL IN THE URLS TAB
+          </div>
         </td>
       </tr>`;
 
-  // Gold location tag bar below hero
+  // ── Location bar ────────────────────────────────────────────────────────────
   const locationBar = locationTag
     ? `<tr>
-        <td style="padding:14px 48px; background-color:#ffffff; border-bottom:1px solid #efefef;">
-          <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3.5px; text-transform:uppercase; color:#999999;">
+        <td bgcolor="#ffffff" style="padding:14px 48px; background-color:#ffffff; border-bottom:1px solid #efefef;">
+          <div style="font-family:Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3.5px; text-transform:uppercase; color:#999999; mso-line-height-rule:exactly; line-height:1.4;">
             ${locationTag}${vars.completion ? `&nbsp;&nbsp;·&nbsp;&nbsp;EST. COMPLETION ${vars.completion.toUpperCase()}` : ""}
           </div>
         </td>
       </tr>`
     : "";
 
-  // Stats row — price, bedrooms range, open date styled like the reference
+  // ── Stats row ───────────────────────────────────────────────────────────────
+  // Use nested table for reliable multi-column layout across all email clients
   const statsRow = (vars.startingPrice || vars.developerName || vars.city)
-    ? `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-top:1px solid #efefef; border-bottom:1px solid #efefef; margin-bottom:40px;">
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+          style="border-collapse:collapse; border-top:1px solid #efefef; border-bottom:1px solid #efefef; margin-bottom:36px;">
         <tr>
           ${vars.startingPrice ? `
-          <td valign="top" style="padding:20px 0; padding-right:32px; width:33%;">
-            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:36px; font-weight:400; color:#111111; line-height:1;">${vars.startingPrice}</div>
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; margin-top:7px;">Starting From + GST</div>
+          <td valign="top" width="33%" style="padding:18px 24px 18px 0;">
+            <div style="font-family:Georgia, 'Times New Roman', serif; font-size:34px; font-weight:400; color:#111111; line-height:1; mso-line-height-rule:exactly;">${vars.startingPrice}</div>
+            <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">Starting From + GST</div>
           </td>
-          <td style="width:1px; padding:0; background:#efefef;">&nbsp;</td>` : ""}
+          <td width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
           ${vars.developerName ? `
-          <td valign="top" style="padding:20px 16px; width:33%;">
-            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:26px; font-weight:400; color:#111111; line-height:1.15;">${vars.developerName}</div>
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; margin-top:7px;">Developer</div>
+          <td valign="top" width="33%" style="padding:18px 16px;">
+            <div style="font-family:Georgia, 'Times New Roman', serif; font-size:22px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.developerName}</div>
+            <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">Developer</div>
           </td>
-          <td style="width:1px; padding:0; background:#efefef;">&nbsp;</td>` : ""}
+          <td width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
           ${vars.city ? `
-          <td valign="top" style="padding:20px 0 20px 16px; width:33%;">
-            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:26px; font-weight:400; color:#111111; line-height:1.15;">${vars.city}, BC</div>
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; margin-top:7px;">Location</div>
+          <td valign="top" width="33%" style="padding:18px 0 18px 16px;">
+            <div style="font-family:Georgia, 'Times New Roman', serif; font-size:22px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.city}, BC</div>
+            <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">Location</div>
           </td>` : ""}
         </tr>
       </table>`
     : "";
 
-  // CTA buttons — primary dark fill, secondary outlined
+  // ── CTA buttons ─────────────────────────────────────────────────────────────
+  // Bulletproof buttons: nested table so background renders in ALL clients incl. Outlook
   const primaryCta = (href: string, label: string) =>
     href
-      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:10px;">
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
           <tr>
-            <td style="background-color:#111111; padding:17px 44px;">
-              <a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; white-space:nowrap; display:block;">${label}&nbsp;&nbsp;&rarr;</a>
+            <td bgcolor="#111111" style="background-color:#111111; padding:16px 40px; mso-padding-alt:16px 40px;">
+              <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block;">${label} &rarr;</a><![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block; white-space:nowrap;">${label}&nbsp;&rarr;</a><!--<![endif]-->
             </td>
           </tr>
         </table>`
@@ -194,10 +215,11 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
 
   const secondaryCta = (href: string, label: string) =>
     href
-      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:10px;">
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
           <tr>
-            <td style="border:1px solid #C9A55A; padding:16px 44px;">
-              <a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; white-space:nowrap; display:block;">${label}</a>
+            <td style="border:1px solid #C9A55A; padding:15px 40px; mso-padding-alt:15px 40px;">
+              <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block;">${label}</a><![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block; white-space:nowrap;">${label}</a><!--<![endif]-->
             </td>
           </tr>
         </table>`
@@ -211,105 +233,131 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
     cta.viewProject && vars.projectUrl ? secondaryCta(vars.projectUrl, "View Full Project") : "",
   ].filter(Boolean).join("\n");
 
-  // Highlights list — gold bullet squares
+  // ── Highlights ──────────────────────────────────────────────────────────────
   const highlightsList = vars.bodyCopy
     ? vars.bodyCopy.split("\n").filter(Boolean).map((line) =>
         `<tr>
-          <td valign="top" style="padding-bottom:14px; padding-right:14px; width:12px;">
-            <div style="width:5px; height:5px; background-color:#C9A55A; margin-top:7px;"></div>
+          <td valign="top" width="14" style="padding-bottom:14px; padding-right:12px; vertical-align:top;">
+            <div style="width:5px; height:5px; background-color:#C9A55A; margin-top:8px; font-size:0; line-height:0;">&nbsp;</div>
           </td>
-          <td valign="top" style="padding-bottom:14px;">
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#444444; line-height:1.75;">${line}</div>
+          <td valign="top" style="padding-bottom:14px; vertical-align:top;">
+            <div style="font-family:Helvetica, Arial, sans-serif; font-size:13px; font-weight:400; color:#444444; line-height:1.75; mso-line-height-rule:exactly;">${line}</div>
           </td>
         </tr>`
       ).join("\n")
     : "";
 
-  return `<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+  // ── Full HTML ───────────────────────────────────────────────────────────────
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="x-apple-disable-message-reformatting">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
   <title>${vars.subjectLine || vars.projectName || "Presale Properties"}</title>
   <!--[if mso]>
-  <noscript><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
   <![endif]-->
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap');
-    * { margin: 0; padding: 0; }
-    body { margin: 0 !important; padding: 0 !important; background-color: #f4f4f0; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; display: block; }
-    a { text-decoration: none; }
+  <!-- Google Fonts: <link> is more reliable than @import in email clients that support it -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" type="text/css" />
+  <style type="text/css">
+    /* Reset */
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse !important; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    /* Outlook line-height fix */
+    p { margin: 0; padding: 0; }
+    /* Mobile responsive — only clients that support media queries will use this */
     @media only screen and (max-width: 620px) {
-      .email-container { width: 100% !important; }
+      .email-container { width: 100% !important; max-width: 100% !important; }
       .mobile-pad { padding: 32px 24px !important; }
-      .hero-text { font-size: 38px !important; line-height: 44px !important; }
-      .stats-cell { display: block !important; width: 100% !important; padding: 14px 0 !important; }
+      .hero-headline { font-size: 38px !important; line-height: 44px !important; }
+      .stat-col { display: block !important; width: 100% !important; }
     }
   </style>
 </head>
-<body style="margin:0; padding:0; background-color:#f4f4f0; font-family:'DM Sans', Helvetica, Arial, sans-serif;">
+<!-- background-color on body is a fallback only; webmail clients (Gmail, Yahoo) strip this -->
+<body style="margin:0; padding:0; background-color:#f4f4f0; word-spacing:normal;">
 
-  <!-- PREHEADER (hidden) -->
-  <div style="display:none; max-height:0; overflow:hidden; color:#f4f4f0; font-size:1px; line-height:1px;">
-    ${vars.previewText || `Exclusive presale opportunity — ${vars.projectName || "Now Available"}`}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
+  <!-- PREHEADER: hidden text shown in inbox snippet after subject line -->
+  <!-- Padding with zero-width non-joiners prevents body text from bleeding into snippet -->
+  <div style="display:none; font-size:1px; line-height:1px; max-height:0px; max-width:0px; opacity:0; overflow:hidden; mso-hide:all; font-family:sans-serif;">
+    ${vars.previewText || `Exclusive presale opportunity \u2014 ${vars.projectName || "Now Available"}`}&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
   </div>
 
-  <!-- EMAIL WRAPPER -->
-  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f4f4f0;">
+  <!-- ═══════════════════════════════════════════════════════════
+       OUTER WRAPPER — background-color here works in webmail (not on body)
+       ═══════════════════════════════════════════════════════════ -->
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+         style="background-color:#f4f4f0; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
     <tr>
       <td align="center" valign="top" style="padding:32px 16px;">
+        <!--[if mso]><table role="presentation" align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td><![endif]-->
 
-        <!-- MAIN CONTAINER -->
-        <table class="email-container" role="presentation" cellpadding="0" cellspacing="0" width="600" style="max-width:600px; background-color:#ffffff;">
+        <!-- ═══════════════════════════════════════════════════
+             MAIN CONTAINER — max 600px per Mailchimp guidelines
+             ═══════════════════════════════════════════════════ -->
+        <table class="email-container" role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" align="center"
+               style="max-width:600px; width:100%; background-color:#ffffff; border-collapse:collapse;">
 
-          <!-- ═══════════ HEADER ═══════════ -->
+          <!-- ╔═══════════ HEADER ═══════════╗ -->
           <tr>
-            <td style="padding:36px 48px 28px 48px; background-color:#ffffff; border-bottom:1px solid #efefef;">
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+            <td bgcolor="#ffffff" style="padding:36px 48px 28px 48px; background-color:#ffffff; border-bottom:1px solid #efefef;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td valign="bottom">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#999999; margin-bottom:4px;">P R E S A L E</div>
-                    <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:44px; font-weight:300; letter-spacing:6px; text-transform:uppercase; color:#111111; line-height:1;">PROPERTIES</div>
+                    <!-- "P R E S A L E" label -->
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#999999; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E</div>
+                    <!-- "PROPERTIES" wordmark — Cormorant Garamond with Georgia fallback -->
+                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:44px; font-weight:300; letter-spacing:6px; text-transform:uppercase; color:#111111; line-height:1; mso-line-height-rule:exactly;">PROPERTIES</div>
                   </td>
                   <td align="right" valign="bottom">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; line-height:1.8; text-align:right;">S U R R E Y &nbsp;·&nbsp; L A N G L E Y<br>M E T R O &nbsp; V A N C O U V E R</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; line-height:1.8; text-align:right; mso-line-height-rule:exactly;">S U R R E Y &nbsp;&middot;&nbsp; L A N G L E Y<br />M E T R O &nbsp; V A N C O U V E R</div>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- ═══════════ HERO IMAGE ═══════════ -->
+          <!-- ╔═══════════ HERO IMAGE ═══════════╗ -->
           ${heroImg}
 
-          <!-- ═══════════ LOCATION TAG ═══════════ -->
+          <!-- ╔═══════════ LOCATION TAG ═══════════╗ -->
           ${locationBar}
 
-          <!-- ═══════════ MAIN CONTENT ═══════════ -->
+          <!-- ╔═══════════ MAIN CONTENT ═══════════╗ -->
           <tr>
-            <td class="mobile-pad" style="padding:44px 48px 36px 48px; background-color:#ffffff;">
+            <td class="mobile-pad" bgcolor="#ffffff"
+                style="padding:44px 48px 36px 48px; background-color:#ffffff;">
 
-              <!-- Greeting -->
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#888888; margin-bottom:20px;">Hi [First Name],</div>
+              <!-- Greeting — uses Mailchimp merge tag *|FNAME|* for personalization -->
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#888888; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">Hi *|FNAME|*,</div>
 
-              <!-- Headline: "The Moment is Now." style -->
+              <!-- Headline -->
               ${vars.headline
-                ? `<div class="hero-text" style="font-family:'Cormorant Garamond', Georgia, serif; font-size:52px; font-weight:300; color:#111111; line-height:1.05; margin-bottom:28px; letter-spacing:-0.5px;">${vars.headline}</div>`
-                : `<div class="hero-text" style="font-family:'Cormorant Garamond', Georgia, serif; font-size:52px; font-weight:300; color:#111111; line-height:1.05; margin-bottom:0; letter-spacing:-0.5px;">${vars.projectName || "The Moment"}</div>
-                   <div class="hero-text" style="font-family:'Cormorant Garamond', Georgia, serif; font-size:52px; font-weight:300; font-style:italic; color:#C9A55A; line-height:1.05; margin-bottom:28px; letter-spacing:-0.5px;">is Now.</div>`
+                ? `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:52px; font-weight:300; color:#111111; line-height:1.05; margin-bottom:28px; letter-spacing:-0.5px; mso-line-height-rule:exactly;">${vars.headline}</div>`
+                : `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:52px; font-weight:300; color:#111111; line-height:1.05; margin-bottom:0; letter-spacing:-0.5px; mso-line-height-rule:exactly;">${vars.projectName || "The Moment"}</div>
+                   <div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:52px; font-weight:300; font-style:italic; color:#C9A55A; line-height:1.05; margin-bottom:28px; letter-spacing:-0.5px; mso-line-height-rule:exactly;">is Now.</div>`
               }
 
               <!-- Body paragraph -->
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:36px;">
-                We're bringing you an exclusive first look at <strong style="font-weight:500; color:#111111;">${vars.projectName || "this opportunity"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}. ${vars.startingPrice ? `Starting from <strong style="font-weight:500;">${vars.startingPrice}</strong> — ` : ""}this is your chance to secure preferred pricing before public launch. Limited units available.
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:36px; mso-line-height-rule:exactly;">
+                We're bringing you an exclusive first look at <strong style="font-weight:500; color:#111111;">${vars.projectName || "this opportunity"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}. ${vars.startingPrice ? `Starting from <strong style="font-weight:500;">${vars.startingPrice}</strong> &mdash; ` : ""}this is your chance to secure preferred pricing before public launch. Limited units available.
               </div>
 
               <!-- Thin divider -->
-              <div style="width:100%; height:1px; background-color:#efefef; margin-bottom:36px;"></div>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:36px;">
+                <tr><td height="1" bgcolor="#efefef" style="font-size:0; line-height:0; background-color:#efefef;">&nbsp;</td></tr>
+              </table>
 
               <!-- Stats Row -->
               ${statsRow}
@@ -321,67 +369,70 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
           </tr>
 
           ${highlightsList ? `
-          <!-- ═══════════ WHY THIS PROJECT ═══════════ -->
+          <!-- ╔═══════════ WHY THIS PROJECT ═══════════╗ -->
           <tr>
-            <td style="padding:36px 48px 36px 48px; background-color:#fafaf8; border-top:1px solid #efefef; border-bottom:1px solid #efefef;">
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px;">W H Y &nbsp; T H I S &nbsp; P R O J E C T</div>
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+            <td bgcolor="#fafaf8"
+                style="padding:36px 48px; background-color:#fafaf8; border-top:1px solid #efefef; border-bottom:1px solid #efefef;">
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.4;">W H Y &nbsp; T H I S &nbsp; P R O J E C T</div>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 ${highlightsList}
               </table>
             </td>
           </tr>` : ""}
 
-          <!-- ═══════════ SIGNATURE ═══════════ -->
+          <!-- ╔═══════════ SIGNATURE ═══════════╗ -->
           <tr>
-            <td style="padding:40px 48px 36px 48px; background-color:#ffffff;">
-              <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:26px; font-weight:400; color:#111111; margin-bottom:4px;">Uzair Muhammad</div>
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px;">Presale Specialist &nbsp;·&nbsp; Presale Properties</div>
-              <table role="presentation" cellpadding="0" cellspacing="0">
+            <td bgcolor="#ffffff" style="padding:40px 48px 36px 48px; background-color:#ffffff;">
+              <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#111111; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.2;">Uzair Muhammad</div>
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.4;">Presale Specialist &nbsp;&middot;&nbsp; Presale Properties</div>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="padding-right:28px;">
-                    <a href="tel:+16041234567" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#555555; text-decoration:none;">📞 604.XXX.XXXX</a>
+                    <a href="tel:+16041234567" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#555555; text-decoration:none;">&#128222; 604.XXX.XXXX</a>
                   </td>
                   <td>
-                    <a href="https://presaleproperties.ca" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#C9A55A; text-decoration:none;">🌐 presaleproperties.ca</a>
+                    <a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#C9A55A; text-decoration:none;">&#127760; presaleproperties.ca</a>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- ═══════════ FOOTER ═══════════ -->
+          <!-- ╔═══════════ FOOTER ═══════════╗ -->
           <tr>
-            <td style="padding:28px 48px; background-color:#111111; border-top:3px solid #C9A55A;">
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+            <td bgcolor="#111111" style="padding:28px 48px; background-color:#111111; border-top:3px solid #C9A55A;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td valign="top">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px;">Display &amp; Presentation Centre</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; line-height:1.8;">#108 2350 165 Street, Surrey BC</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; line-height:1.8;">Open Daily 12–5pm &nbsp;|&nbsp; Closed Thu &amp; Fri</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px; mso-line-height-rule:exactly; line-height:1.4;">Display &amp; Presentation Centre</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; line-height:1.8; mso-line-height-rule:exactly;">#108 2350 165 Street, Surrey BC</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; line-height:1.8; mso-line-height-rule:exactly;">Open Daily 12&ndash;5pm &nbsp;|&nbsp; Closed Thu &amp; Fri</div>
                   </td>
                   ${vars.projectUrl ? `<td align="right" valign="bottom">
-                    <a href="${vars.projectUrl}" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; text-decoration:none;">View Project &rarr;</a>
+                    <a href="${vars.projectUrl}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; text-decoration:none;">View Project &rarr;</a>
                   </td>` : ""}
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- ═══════════ LEGAL ═══════════ -->
+          <!-- ╔═══════════ LEGAL + UNSUBSCRIBE ═══════════╗ -->
+          <!-- *|UNSUB|* and *|UPDATE_PROFILE|* are required Mailchimp merge tags -->
           <tr>
-            <td style="padding:20px 48px 24px 48px; background-color:#0d0d0d;">
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#555555; line-height:1.7; margin-bottom:12px;">
+            <td bgcolor="#0d0d0d" style="padding:20px 48px 24px 48px; background-color:#0d0d0d;">
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#555555; line-height:1.7; margin-bottom:12px; mso-line-height-rule:exactly;">
                 *Prices exclude taxes and are subject to availability at the time of inquiry and/or change without notice. This is not an offering for sale. Any such offering can only be made with a Disclosure Statement. E.&amp;O.E.
               </div>
               <div>
-                <a href="*|UNSUB|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#444444; text-decoration:underline;">Unsubscribe</a>
-                <span style="color:#333333; margin:0 8px;">·</span>
-                <a href="*|UPDATE_PROFILE|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#444444; text-decoration:underline;">Update Preferences</a>
+                <a href="*|UNSUB|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#555555; text-decoration:underline;">Unsubscribe</a>
+                <span style="color:#333333; margin:0 8px;">&nbsp;&middot;&nbsp;</span>
+                <a href="*|UPDATE_PROFILE|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#555555; text-decoration:underline;">Update Preferences</a>
               </div>
             </td>
           </tr>
 
         </table>
+        <!--[if mso]></td></tr></table><![endif]-->
       </td>
     </tr>
   </table>
@@ -389,7 +440,6 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
 </body>
 </html>`;
 }
-
 
 
 // ─── Component ────────────────────────────────────────────────────────────────
