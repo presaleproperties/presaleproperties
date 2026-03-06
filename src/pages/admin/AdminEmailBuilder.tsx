@@ -228,19 +228,19 @@ const FONT_PAIRINGS: FontPairing[] = [
 
 const HEADLINE_PRESETS = [
   {
-    label: "You Showed Interest",
-    headline: "You Asked About This One",
-    body: "I saw your registration come through and I wanted to personally follow up. I've attached the floorplans and pricing below — but the real value is in a quick call where I can walk you through what's worth knowing before you make any decisions. No pressure at all.",
+    label: "Quick Follow-Up",
+    headline: "Quick Follow-Up on Your Interest",
+    body: "You registered on our site, so I wanted to reach out personally. I've pulled together the floorplans and pricing for this project — it's all in this email. But before you go through it, I'd love to spend 10 minutes with you on the phone. There are a few things about this one that are worth knowing upfront, and I'd rather tell you now than have you figure it out later.",
   },
   {
-    label: "Here's What I Found",
-    headline: "Here's Everything You Need",
-    body: "You registered interest and I pulled together everything — pricing, floorplans, and my honest take on whether this project makes sense right now. I'd rather give you 10 minutes of real information than have you make a decision without it. Give me a call.",
+    label: "Here's the Info",
+    headline: "Everything You Need Is Right Here",
+    body: "You asked about this project, so I put it all together for you — floorplans, pricing, the full picture. Scroll down and take a look. Once you've had a chance to review it, give me a call. I can tell you which units I'd go for, what the developer is currently offering, and whether the timing makes sense for your situation.",
   },
   {
-    label: "Worth a Conversation",
-    headline: "This Project Is Worth a Conversation",
-    body: "The floorplans and pricing are below. But there are a few things about this project that are easier to explain over the phone — incentives, the developer's track record, and how the pricing compares to what's around it. Happy to jump on a quick call whenever works for you.",
+    label: "Saw Your Registration",
+    headline: "I Saw Your Registration Come Through",
+    body: "I wanted to personally follow up. A lot of people register and never hear back — that's not how I operate. I've included everything you need in this email. When you're ready, let's get on a call. I'll give you my honest read on this project, what I'd watch out for, and whether it's the right fit.",
   },
 ];
 
