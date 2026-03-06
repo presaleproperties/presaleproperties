@@ -46,8 +46,27 @@ import {
   Smartphone,
   ChevronDown,
   ChevronUp,
+  BookMarked,
+  FolderOpen,
+  Trash2,
+  Save,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// ─── Saved Template type ──────────────────────────────────────────────────────
+interface SavedEmailTemplate {
+  id: string;
+  name: string;
+  project_name: string;
+  form_data: {
+    vars: Record<string, string>;
+    cta: Record<string, boolean>;
+    fontIdx: number;
+    agentId?: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
 
 // ─── Agent type ───────────────────────────────────────────────────────────────
 interface AgentProfile {
