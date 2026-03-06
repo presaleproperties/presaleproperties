@@ -524,7 +524,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff" style="padding:40px 40px 32px 40px; background-color:#ffffff;">
 
-              <div style="font-family:${font.body}; font-size:14px; font-weight:300; color:#888888; margin-bottom:18px; mso-line-height-rule:exactly; line-height:1.5;">${vars.greeting || "Hi,"}</div>
+              
 
               <div class="hero-headline" style="font-family:${font.display}; font-size:48px; font-weight:400; color:#111111; line-height:1.05; margin-bottom:0; mso-line-height-rule:exactly;">${vars.projectName || "The Moment"}</div>
               ${vars.headline
@@ -1360,11 +1360,6 @@ export default function AdminEmailBuilder() {
                     <div>
                       <Label className="text-[10px] text-muted-foreground">Preview Text <span className="text-muted-foreground/40 font-normal">(shown in inbox)</span></Label>
                       <Input value={vars.previewText} onChange={v("previewText")} className="h-8 text-xs mt-0.5" placeholder="From $599K · Surrey · Limited units" />
-                    </div>
-                    <div>
-                      <Label className="text-[10px] text-muted-foreground">Greeting</Label>
-                      <Input value={vars.greeting} onChange={v("greeting")} className="h-8 text-xs mt-0.5" placeholder="Hi *|FNAME|*," />
-                      <p className="text-[9px] text-muted-foreground/40 mt-0.5">Mailchimp: *|FNAME|* · Klaviyo: {'{{ first_name }}'}</p>
                     </div>
                   </div>
                 </div>
