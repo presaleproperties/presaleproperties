@@ -1194,6 +1194,11 @@ export default function AdminEmailBuilder() {
                   </div>
                   <div className="space-y-2">
                     <div>
+                      <Label className="text-[11px] text-muted-foreground">Greeting / Opening Line</Label>
+                      <Input value={vars.greeting} onChange={v("greeting")} className="h-8 text-xs mt-1" placeholder="Hi *|FNAME|*," />
+                      <p className="text-[10px] text-muted-foreground/60 mt-1">Use your platform's merge tag: Mailchimp = *|FNAME|*, Klaviyo = {'{{ first_name }}'}, etc.</p>
+                    </div>
+                    <div>
                       <Label className="text-[11px] text-muted-foreground">Subject Line</Label>
                       <Input value={vars.subjectLine} onChange={v("subjectLine")} className="h-8 text-xs mt-1" placeholder="🏙️ Exclusive Access: Project Name — City" />
                     </div>
