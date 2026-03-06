@@ -422,9 +422,9 @@ export function MobileMapFilters({
             <label className="text-sm font-medium text-foreground">Popular</label>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: "First-time Buyer", desc: "Under $800K, 1-2 beds", action: () => { onPriceRangeChange([0, 800000]); onBedsChange("1"); } },
-                { label: "Family Home", desc: "3+ beds, House/Townhouse", action: () => { onBedsChange("3"); onPropertyTypeChange("Townhouse"); } },
-                { label: "Investment", desc: "Under $600K, Condo", action: () => { onPriceRangeChange([0, 600000]); onPropertyTypeChange("Apartment/Condo"); } },
+                { label: "First-time Buyer", desc: "Under $600K, 1-2 beds", action: () => { onPriceRangeChange([0, 600000]); onBedsChange("1"); } },
+                { label: "Townhomes Under $850K", desc: "All cities, any beds", action: () => { onPriceRangeChange([0, 850000]); onPropertyTypeChange("Townhouse"); onCitiesChange([]); } },
+                { label: "Investment Condo", desc: "Under $500K, Condo", action: () => { onPriceRangeChange([0, 500000]); onPropertyTypeChange("Apartment/Condo"); } },
                 { label: "Luxury", desc: "$2M+, Any type", action: () => { onPriceRangeChange([2000000, maxPrice]); } },
               ].map((preset) => (
                 <button
