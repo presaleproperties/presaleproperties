@@ -866,6 +866,7 @@ export default function AdminEmailBuilder() {
         cta,
         fontIdx,
         agentId: selectedAgent?.id,
+        selectedProjectId: selectedProjectId || null,
       };
       const { error } = await supabase.from("campaign_templates").insert([{
         name: templateName.trim(),
