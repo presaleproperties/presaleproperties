@@ -78,7 +78,7 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
     if (type === "city") {
       const citySlug = value.toLowerCase().replace(/\s+/g, "-");
       if (activeTab === "projects") {
-        navigate(`/presale-condos/${citySlug}`);
+        navigate(`/${citySlug}-presale-condos`);
       } else {
         navigate(`/properties/${citySlug}`);
       }
