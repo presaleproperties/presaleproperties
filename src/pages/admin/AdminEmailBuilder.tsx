@@ -522,9 +522,9 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
                       <img src="${agent.photo}" alt="${agent.name}" width="88" height="88" border="0"
                            style="display:block; width:88px; height:88px; border-radius:50%; object-fit:cover; object-position:center 10%; border:2px solid #C9A55A; -ms-interpolation-mode:bicubic;" />
                     </div>` : ""}
-                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:30px; font-weight:400; color:#111111; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.2;">${agent.name}</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.5;">P R E S A L E &nbsp; R E A L &nbsp; E S T A T E &nbsp; S P E C I A L I S T</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; margin-bottom:16px; mso-line-height-rule:exactly; line-height:1.4;">PREC &mdash; Licensed with eXp Realty</div>
+                    <div style="font-family:${font.display}; font-size:30px; font-weight:400; color:#111111; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.2;">${agent.name}</div>
+                    <div style="font-family:${font.body}; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.5;">P R E S A L E &nbsp; R E A L &nbsp; E S T A T E &nbsp; S P E C I A L I S T</div>
+                    <div style="font-family:${font.body}; font-size:12px; font-weight:300; color:#888888; margin-bottom:16px; mso-line-height-rule:exactly; line-height:1.4;">PREC &mdash; Licensed with eXp Realty</div>
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                       <tr>
                         <td style="padding-bottom:7px; padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#128222;</div></td>
