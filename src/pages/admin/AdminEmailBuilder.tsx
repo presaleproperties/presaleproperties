@@ -158,7 +158,7 @@ const DEFAULT_CTA: CtaToggles = {
 // • Mailchimp merge tags: *|UNSUB|*, *|UPDATE_PROFILE|*, *|FNAME|*
 // • No JavaScript, no Flash, no forms, no iframes
 // • <div> inside <td> for text (not bare text nodes) for Outlook compatibility
-function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
+function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESET_AGENTS[0]): string {
   const locationTag = [vars.neighborhood, vars.city ? vars.city.toUpperCase() : ""]
     .filter(Boolean).join("&nbsp;&nbsp;·&nbsp;&nbsp;").toUpperCase();
 
