@@ -1697,49 +1697,6 @@ export default function MapSearch() {
           }}
           activeFilterCount={activeFilterCount}
         />
-          open={mobileFiltersOpen}
-          onOpenChange={setMobileFiltersOpen}
-          cities={CITIES}
-          selectedCities={selectedCities}
-          onCitiesChange={(cities) => updateMultiFilter("cities", cities)}
-          priceRange={priceRange}
-          onPriceRangeChange={(range) => {
-            setPriceRange(range);
-            // Apply immediately on change for better UX
-            const newParams = new URLSearchParams(searchParams);
-            if (range[0] > MIN_PRICE) {
-              newParams.set("priceMin", range[0].toString());
-            } else {
-              newParams.delete("priceMin");
-            }
-            if (range[1] < MAX_PRICE) {
-              newParams.set("priceMax", range[1].toString());
-            } else {
-              newParams.delete("priceMax");
-            }
-            setSearchParams(newParams, { replace: true });
-          }}
-          minPrice={MIN_PRICE}
-          maxPrice={MAX_PRICE}
-          yearBuiltMin={filters.yearBuiltMin}
-          yearBuiltMax={filters.yearBuiltMax}
-          onYearBuiltChange={handleYearBuiltChange}
-          sqftMin={filters.sqftMin}
-          sqftMax={filters.sqftMax}
-          onSqftChange={handleSqftChange}
-          propertyTypes={PROPERTY_TYPES}
-          selectedPropertyType={filters.propertyType || "any"}
-          onPropertyTypeChange={(type) => updateFilter("type", type)}
-          bedOptions={BED_OPTIONS}
-          bathOptions={BATH_OPTIONS}
-          selectedBeds={filters.beds}
-          selectedBaths={filters.baths}
-          onBedsChange={(beds) => updateFilter("beds", beds)}
-          onBathsChange={(baths) => updateFilter("baths", baths)}
-          onClearAll={handleClearAllFilters}
-          onApply={() => setMobileFiltersOpen(false)}
-          activeFilterCount={activeFilterCount}
-        />
 
         {/* Main Content - Map + Floating Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
