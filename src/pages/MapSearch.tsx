@@ -721,17 +721,29 @@ export default function MapSearch() {
   // Selected price ranges
   const selectedPriceRanges = filters.priceRanges;
 
-  // Price slider state
+  // Price slider state - sync from URL params so preset buttons update the slider
   const [priceRange, setPriceRange] = useState<[number, number]>([
     filters.priceMin ? parseInt(filters.priceMin) : MIN_PRICE,
     filters.priceMax ? parseInt(filters.priceMax) : MAX_PRICE,
   ]);
 
+  // Keep priceRange local state in sync with URL params (preset buttons update URL directly)
+  useEffect(() => {
+    const urlMin = filters.priceMin ? parseInt(filters.priceMin) : MIN_PRICE;
+    const urlMax = filters.priceMax ? parseInt(filters.priceMax) : MAX_PRICE;
+    setPriceRange(prev => {
+      if (prev[0] !== urlMin || prev[1] !== urlMax) {
+        return [urlMin, urlMax];
+      }
+      return prev;
+    });
+  }, [filters.priceMin, filters.priceMax]);
+
   // Fetch resale listings (2024+ builds only - move-in ready new construction)
   // IMPORTANT: this page is frequently used right after admins change the enabled-city scope.
   // We intentionally keep this query “hot” so the count and markers update immediately.
   const { data: resaleListings, isLoading: resaleLoading } = useQuery<MLSListing[]>({
-    queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities],
+    queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, filters.propertyType, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings_safe")
@@ -827,10 +839,13 @@ export default function MapSearch() {
       for (const l of all) byId.set(l.id, l);
       let results = Array.from(byId.values());
       
-      // Client-side filtering for multi-select property types
-      if (selectedPropertyTypes.length > 0) {
+      // Client-side filtering for multi-select property types (or legacy single-select)
+      const typesToFilter = selectedPropertyTypes.length > 0 
+        ? selectedPropertyTypes 
+        : (filters.propertyType && filters.propertyType !== "any" ? [filters.propertyType] : []);
+      if (typesToFilter.length > 0) {
         results = results.filter(l => {
-          return selectedPropertyTypes.some(type => 
+          return typesToFilter.some(type => 
             l.property_type?.toLowerCase().includes(type.toLowerCase()) ||
             l.property_sub_type?.toLowerCase().includes(type.toLowerCase())
           );
@@ -927,65 +942,14 @@ export default function MapSearch() {
   const { data: assignments, isLoading: assignmentsLoading } = useQuery<Assignment[]>({
     queryKey: ["unified-map-assignments", selectedCities, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths],
     queryFn: async () => {
-      let query = (supabase as any)
-        .from("listings")
-        .select("id, title, project_name, city, neighborhood, assignment_price, beds, baths, interior_sqft, map_lat, map_lng, status")
-        .eq("status", "published")
-        .not("map_lat", "is", null)
-        .not("map_lng", "is", null);
-
-      // City filter
-      if (selectedCities.length > 0) {
-        query = query.in("city", selectedCities);
-      }
-
-      // Beds filter
-      if (filters.beds && filters.beds !== "any") {
-        const bedsNum = parseInt(filters.beds);
-        if (bedsNum === 5) {
-          query = query.gte("beds", 5);
-        } else {
-          query = query.eq("beds", bedsNum);
-        }
-      }
-
-      // Baths filter
-      if (filters.baths && filters.baths !== "any") {
-        const bathsNum = parseInt(filters.baths);
-        if (bathsNum === 4) {
-          query = query.gte("baths", 4);
-        } else {
-          query = query.gte("baths", bathsNum);
-        }
-      }
-
-      const { data, error } = await query.limit(500);
-      if (error) throw error;
-      
-      let results = data || [];
-      
-      // Client-side filtering for price ranges (assignments use assignment_price)
-      if (selectedPriceRanges.length > 0) {
-        results = results.filter(a => priceMatchesRanges(a.assignment_price, selectedPriceRanges));
-      } else {
-        // Legacy single-value price filter support
-        const legacyPriceMin = filters.priceMin ? parseInt(filters.priceMin) : null;
-        const legacyPriceMax = filters.priceMax ? parseInt(filters.priceMax) : null;
-        if (legacyPriceMin !== null || legacyPriceMax !== null) {
-          results = results.filter(a => {
-            if (legacyPriceMin !== null && a.assignment_price < legacyPriceMin) return false;
-            if (legacyPriceMax !== null && a.assignment_price > legacyPriceMax) return false;
-            return true;
-          });
-        }
-      }
-      
-      return results;
+      // NOTE: The listings (assignments) table does not have map_lat/map_lng columns,
+      // so assignments cannot be plotted on the map. Return empty array to avoid DB errors.
+      return [];
     },
     staleTime: 3 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    retry: false, // listings table may not exist — don't block map loading
+    retry: false,
   });
 
   // Only show loading if we have NO data yet - use cached data immediately on back navigation
@@ -1411,7 +1375,8 @@ export default function MapSearch() {
 
   const activeFilterCount = [
     selectedCities.length > 0,
-    selectedPropertyTypes.length > 0,
+    // Check both multi-select (types) and legacy single-select (type)
+    selectedPropertyTypes.length > 0 || (filters.propertyType && filters.propertyType !== "any"),
     selectedPriceRanges.length > 0,
     filters.beds !== "any",
     filters.baths !== "any",
