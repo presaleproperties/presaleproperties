@@ -72,8 +72,17 @@ export function PowerSearch({
   const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
+
+  // Update dropdown position when open
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      setDropdownRect(containerRef.current.getBoundingClientRect());
+    }
+  }, [isOpen, query]);
 
   // Debounce search query
   useEffect(() => {
@@ -89,7 +98,10 @@ export function PowerSearch({
   // Close on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const inContainer = containerRef.current?.contains(target);
+      const inDropdown = dropdownRef.current?.contains(target);
+      if (!inContainer && !inDropdown) {
         setIsOpen(false);
       }
     };
@@ -471,16 +483,26 @@ export function PowerSearch({
 
       {/* Results Dropdown */}
       {isOpen && (displayResults.length > 0 || (query.length >= 2 && !isLoading)) && (() => {
+        const rect = dropdownRect;
+        const useFixed = !!(dropdownContainer || isHero);
+        
         const dropdown = (
           <div
+            ref={dropdownRef}
             className={cn(
-            "absolute left-0 right-0 z-[9999] overflow-hidden",
+            useFixed ? "fixed z-[99999] overflow-hidden" : "absolute left-0 right-0 z-[9999] overflow-hidden",
             "bg-white dark:bg-card",
             "border border-border/40",
             "shadow-[0_16px_48px_-8px_rgba(0,0,0,0.22)]",
             "animate-in fade-in-0 slide-in-from-top-2 duration-200 ease-out",
-            isHero ? "rounded-2xl top-[calc(100%+10px)]" : "rounded-xl top-[calc(100%+6px)]"
+            isHero ? "rounded-2xl" : "rounded-xl",
+            !useFixed && (isHero ? "top-[calc(100%+10px)]" : "top-[calc(100%+6px)]")
             )}
+            style={useFixed && rect ? {
+              top: rect.bottom + 10,
+              left: rect.left,
+              width: rect.width,
+            } : undefined}
           >
             {/* Section label for recent */}
             {query.length < 2 && recentSearches.length > 0 && (
@@ -566,8 +588,9 @@ export function PowerSearch({
           </div>
         );
 
-        return dropdownContainer?.current
-          ? createPortal(dropdown, dropdownContainer.current)
+        // Always portal to body when using fixed positioning to avoid clipping
+        return useFixed
+          ? createPortal(dropdown, document.body)
           : dropdown;
       })()}
     </div>
