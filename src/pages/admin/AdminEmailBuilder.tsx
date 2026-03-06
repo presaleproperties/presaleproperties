@@ -292,6 +292,18 @@ interface Project {
   project_type: string;
 }
 
+interface PricingUnit {
+  type: string;
+  sqft?: string;
+  price?: string;
+}
+
+interface PricingSummaryData {
+  summary?: string;
+  units?: PricingUnit[];
+  highlights?: string[];
+}
+
 interface TemplateVars {
   projectName: string;
   developerName: string;
