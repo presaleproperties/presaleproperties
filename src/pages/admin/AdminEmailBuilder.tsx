@@ -569,7 +569,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           </tr>` : ""}
 
           <!-- BOOKING BANNER -->
-          ${(cta.bookConsult && vars.bookUrl) ? `
+          ${cta.bookConsult ? `
           <tr>
             <td class="booking-td" bgcolor="#C9A55A" style="padding:22px 40px; background-color:#C9A55A;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -583,7 +583,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                       <tr>
                         <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:14px 22px; text-align:center;">
                           <!--[if !mso]><!-->
-                          <a href="${vars.bookUrl}" target="_blank" style="font-family:'DM Sans', Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; white-space:nowrap;">&#128197;&nbsp; BOOK NOW</a>
+                          <a href="${whatsappHref}" target="_blank" style="font-family:'DM Sans', Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; white-space:nowrap;">&#128197;&nbsp; BOOK NOW</a>
                           <!--<![endif]-->
                         </td>
                       </tr>
