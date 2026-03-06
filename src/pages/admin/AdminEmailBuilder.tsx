@@ -853,11 +853,11 @@ export default function AdminEmailBuilder() {
         fontIdx,
         agentId: selectedAgent?.id,
       };
-      const { error } = await supabase.from("campaign_templates").insert({
+      const { error } = await supabase.from("campaign_templates").insert([{
         name: templateName.trim(),
         project_name: vars.projectName || "Untitled",
-        form_data,
-      });
+        form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
+      }]);
       if (error) throw error;
       toast.success("Template saved!");
       setSaveDialogOpen(false);
