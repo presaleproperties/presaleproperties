@@ -228,19 +228,19 @@ const FONT_PAIRINGS: FontPairing[] = [
 
 const HEADLINE_PRESETS = [
   {
-    label: "Quick Follow-Up",
-    headline: "Quick Follow-Up on Your Interest",
-    body: "You registered on our site, so I wanted to reach out personally. I've pulled together the floorplans and pricing for this project — it's all in this email. But before you go through it, I'd love to spend 10 minutes with you on the phone. There are a few things about this one that are worth knowing upfront, and I'd rather tell you now than have you figure it out later.",
+    label: "Worth Your Time",
+    headline: "Worth a Few Minutes of Your Time",
+    body: "If you've been looking at [city/area], this one is worth a look. I've pulled the key info together below — the quick breakdown, floorplans, and pricing. Go through it, and if anything catches your eye or you have questions, just give me a call. I work exclusively with buyers on presale, so I know these projects inside out.",
   },
   {
-    label: "Here's the Info",
-    headline: "Everything You Need Is Right Here",
-    body: "You asked about this project, so I put it all together for you — floorplans, pricing, the full picture. Scroll down and take a look. Once you've had a chance to review it, give me a call. I can tell you which units I'd go for, what the developer is currently offering, and whether the timing makes sense for your situation.",
+    label: "Final Phase",
+    headline: "The Final Phase Just Opened",
+    body: "This is the last opportunity to buy into this community. Once it's gone, it's gone. I've put together everything you need below — home sizes, pricing, and what makes this project stand out in [city]. My job is to get you the right information and the right floorplan. Give me a call and let's figure out if this is the right fit.",
   },
   {
-    label: "Saw Your Registration",
-    headline: "I Saw Your Registration Come Through",
-    body: "I wanted to personally follow up. A lot of people register and never hear back — that's not how I operate. I've included everything you need in this email. When you're ready, let's get on a call. I'll give you my honest read on this project, what I'd watch out for, and whether it's the right fit.",
+    label: "Homes Are Moving",
+    headline: "Homes Are Moving — Here's the Breakdown",
+    body: "You registered interest, so I wanted to get this in front of you before inventory tightens up. Everything is below — pricing, floorplans, and the highlights. I work exclusively with buyers, not developers, so you'll always get a straight answer from me. Questions? Just call.",
   },
 ];
 
@@ -508,9 +508,9 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
               }
 
               <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:20px; mso-line-height-rule:exactly;">
-                You registered interest in <strong style="font-weight:500; color:#111111;">${vars.projectName || "this project"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}, so I wanted to follow up directly. ${vars.startingPrice ? `Pricing starts from <strong style="font-weight:500;">${vars.startingPrice}</strong>. ` : ""}I've included the floorplans and full pricing breakdown below — go through them at your own pace. But I want you to know: the most useful thing I can do for you is a quick call. I can tell you things about this project that aren't in any brochure.
+                If you've been looking at ${vars.city ? `<strong style="font-weight:500; color:#111111;">${vars.city}</strong>` : "this area"}, <strong style="font-weight:500; color:#111111;">${vars.projectName || "this project"}</strong>${vars.neighborhood ? ` in ${vars.neighborhood}` : ""} is worth a few minutes of your time. ${vars.startingPrice ? `Homes start from <strong style="font-weight:500;">${vars.startingPrice}</strong> + GST. ` : ""}I've pulled the key details together below — home sizes, pricing, and what makes this one stand out. Go through it at your own pace. Once it's gone, it's gone.
               </div>
-              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">I'm here to help you make the right call &mdash; not just a call.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">I work exclusively with buyers on presale &mdash; so I know these projects inside out. My job is to get you the right information, the right floorplan, and make the process easy from start to finish.</div>
 
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:28px;">
                 <tr><td height="1" bgcolor="#efefef" style="font-size:0; line-height:0; background-color:#efefef;">&nbsp;</td></tr>
@@ -560,7 +560,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           </tr>
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 8px 40px; background-color:#ffffff;">
-              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">I don't do hard sells. You registered interest, I'm following up. If after this email you have questions, want to compare it to something else, or just want a straight opinion &mdash; call me. That's what I'm here for.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">If you have questions or want to see what's still available, just give me a call. Happy to help.</div>
             </td>
           </tr>` : ""}
 
