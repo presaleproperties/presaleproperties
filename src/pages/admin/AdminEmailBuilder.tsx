@@ -378,11 +378,11 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
   // ── CTA buttons ─────────────────────────────────────────────────────────────
   const primaryCta = (href: string, label: string) =>
     href
-      ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
+      ? `<table class="cta-btn" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:10px; max-width:320px;">
           <tr>
-            <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:16px 40px; mso-padding-alt:16px 40px;">
+            <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:16px 40px; mso-padding-alt:16px 40px; text-align:center;">
               <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block;">${label} &rarr;</a><![endif]-->
-              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block; white-space:nowrap;">${label}&nbsp;&rarr;</a><!--<![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block;">${label}&nbsp;&rarr;</a><!--<![endif]-->
             </td>
           </tr>
         </table>`
@@ -390,11 +390,11 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
 
   const secondaryCta = (href: string, label: string) =>
     href
-      ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
+      ? `<table class="cta-btn" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:10px; max-width:320px;">
           <tr>
-            <td style="border:1.5px solid #C9A55A; padding:15px 40px; mso-padding-alt:15px 40px;">
+            <td style="border:1.5px solid #C9A55A; padding:15px 40px; mso-padding-alt:15px 40px; text-align:center;">
               <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block;">${label}</a><![endif]-->
-              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block; white-space:nowrap;">&#128222;&nbsp; ${label}</a><!--<![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block;">&#128222;&nbsp; ${label}</a><!--<![endif]-->
             </td>
           </tr>
         </table>`
