@@ -597,7 +597,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                       </tr>` : ""}
                       <tr>
                         <td style="padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#127760;</td>
-                        <td style="vertical-align:middle;"><a href="https://presaleproperties.ca" target="_blank" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">presaleproperties.ca</a></td>
+                        <td style="vertical-align:middle;"><a href="https://presaleproperties.com" target="_blank" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">presaleproperties.com</a></td>
                       </tr>
                     </table>
                   </td>
