@@ -75,6 +75,24 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
       return;
     }
 
+    if (type === "city") {
+      const citySlug = value.toLowerCase().replace(/\s+/g, "-");
+      if (activeTab === "projects") {
+        navigate(`/presale-condos/${citySlug}`);
+      } else {
+        navigate(`/properties/${citySlug}`);
+      }
+      onOpenChange(false);
+      return;
+    }
+
+    if (type === "neighborhood") {
+      const basePath = activeTab === "projects" ? "/presale-projects" : "/properties";
+      navigate(`${basePath}?q=${encodeURIComponent(value)}`);
+      onOpenChange(false);
+      return;
+    }
+
     const basePath = activeTab === "projects" ? "/presale-projects" : "/properties";
     navigate(`${basePath}?q=${encodeURIComponent(value)}`);
     onOpenChange(false);
