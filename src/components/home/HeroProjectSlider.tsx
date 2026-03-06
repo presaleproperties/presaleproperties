@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Download, ExternalLink, MapPin, Calendar, Building2, Home, Warehouse } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { FloorPlanModal } from "@/components/projects/FloorPlanModal";
 
 const formatPrice = (price: number | null) => {
   if (!price) return null;
