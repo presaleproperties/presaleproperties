@@ -437,11 +437,11 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
   const incentiveLines = vars.incentiveText
     ? vars.incentiveText.split("\n").filter(Boolean).map((line) =>
         `<tr>
-          <td valign="top" width="20" style="padding-bottom:13px; padding-right:10px; vertical-align:top;">
-            <div style="width:7px; height:7px; border-radius:50%; background-color:#5aaa7a; margin-top:5px; font-size:0; line-height:0;">&nbsp;</div>
+          <td valign="top" width="20" style="padding-bottom:12px; padding-right:10px; vertical-align:top;">
+            <div style="width:6px; height:6px; background-color:#C9A55A; margin-top:6px; font-size:0; line-height:0;">&nbsp;</div>
           </td>
-          <td valign="top" style="padding-bottom:13px; vertical-align:top;">
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:400; color:#e8f5ee; line-height:1.75; mso-line-height-rule:exactly;">${line}</div>
+          <td valign="top" style="padding-bottom:12px; vertical-align:top;">
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#c8d8cc; line-height:1.75; mso-line-height-rule:exactly;">${line}</div>
           </td>
         </tr>`
       ).join("\n")
