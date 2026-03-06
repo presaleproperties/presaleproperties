@@ -49,6 +49,25 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// ─── Agent presets (shared with Campaign Builder) ─────────────────────────────
+const PRESET_AGENTS = [
+  {
+    name: "Uzair Muhammad", title: "Founder & Presale Strategist",
+    phone: "778-231-3592", email: "info@presaleproperties.com",
+    photo: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769974057981-u5d1e1f.jpg",
+  },
+  {
+    name: "Sarb Grewal", title: "Presale Expert",
+    phone: "+1 (778) 846-7065", email: "sarb@presaleproperties.com",
+    photo: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769973843032-qlc6fc.png",
+  },
+  {
+    name: "Ravish Passy", title: "Presale Expert",
+    phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com",
+    photo: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769973742728-csckvf.png",
+  },
+];
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Project {
   id: string;
