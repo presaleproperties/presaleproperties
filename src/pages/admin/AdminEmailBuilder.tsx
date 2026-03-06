@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +56,10 @@ import {
   CheckCheck,
   DollarSign,
   TableProperties,
+  Clock,
+  RotateCcw,
+  CloudOff,
+  Cloud,
 } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
@@ -1007,6 +1011,10 @@ export default function AdminEmailBuilder() {
     setImportHtml("");
     setVars({ ...EMPTY_VARS });
     setCta({ ...DEFAULT_CTA });
+    setOverwriteId(null);
+    setTemplateName("");
+    clearDraft();
+    toast.success("Builder reset — draft cleared.");
   };
 
   const handleImport = () => {
@@ -1137,6 +1145,77 @@ export default function AdminEmailBuilder() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
   const [savingTemplate, setSavingTemplate] = useState(false);
+  const [overwriteId, setOverwriteId] = useState<string | null>(null);
+
+  // ── Draft persistence ─────────────────────────────────────────────────────────
+  const DRAFT_KEY = "email_builder_draft_v2";
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
+  const [draftRestored, setDraftRestoredFlag] = useState(false);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Restore draft on mount (once, before project is chosen)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (draft.vars) setVars({ ...EMPTY_VARS, ...draft.vars });
+      if (draft.cta) setCta({ ...DEFAULT_CTA, ...draft.cta });
+      if (typeof draft.fontIdx === "number") setFontIdx(draft.fontIdx);
+      if (draft.savedAt) setDraftSavedAt(new Date(draft.savedAt));
+      setDraftRestoredFlag(true);
+    } catch { /* corrupt draft — ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Show restoration toast once agents are loaded
+  useEffect(() => {
+    if (draftRestored && agents.length > 0) {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      try {
+        const draft = JSON.parse(raw);
+        if (draft.agentId) {
+          const a = agents.find((ag) => ag.id === draft.agentId);
+          if (a) setSelectedAgent(a);
+        }
+      } catch { /* ignore */ }
+      const when = draftSavedAt
+        ? `Last edited ${draftSavedAt.toLocaleString("en-CA", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`
+        : "Unsaved draft found";
+      toast.success(`✏️ Draft restored — ${when}`, { duration: 4000 });
+      setDraftRestoredFlag(false); // only toast once
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftRestored, agents]);
+
+  // Auto-save draft to localStorage whenever state changes (debounced 1.5s)
+  const scheduleDraftSave = useCallback(() => {
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      try {
+        const draft = {
+          vars,
+          cta,
+          fontIdx,
+          agentId: selectedAgent?.id,
+          savedAt: new Date().toISOString(),
+        };
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        setDraftSavedAt(new Date());
+      } catch { /* storage full — ignore */ }
+    }, 1500);
+  }, [vars, cta, fontIdx, selectedAgent]);
+
+  useEffect(() => {
+    scheduleDraftSave();
+    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
+  }, [scheduleDraftSave]);
+
+  const clearDraft = useCallback(() => {
+    localStorage.removeItem(DRAFT_KEY);
+    setDraftSavedAt(null);
+  }, []);
 
   const loadSavedTemplates = useCallback(async () => {
     const { data } = await supabase
@@ -1158,15 +1237,27 @@ export default function AdminEmailBuilder() {
         fontIdx,
         agentId: selectedAgent?.id,
       };
-      const { error } = await supabase.from("campaign_templates").insert([{
-        name: templateName.trim(),
-        project_name: vars.projectName || "Untitled",
-        form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
-      }]);
-      if (error) throw error;
-      toast.success("Template saved!");
+      if (overwriteId) {
+        // Update existing template
+        const { error } = await supabase.from("campaign_templates").update({
+          name: templateName.trim(),
+          project_name: vars.projectName || "Untitled",
+          form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
+        }).eq("id", overwriteId);
+        if (error) throw error;
+        toast.success("Template updated!");
+      } else {
+        const { error } = await supabase.from("campaign_templates").insert([{
+          name: templateName.trim(),
+          project_name: vars.projectName || "Untitled",
+          form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
+        }]);
+        if (error) throw error;
+        toast.success("Template saved!");
+      }
       setSaveDialogOpen(false);
       setTemplateName("");
+      setOverwriteId(null);
       loadSavedTemplates();
     } catch (e) {
       toast.error("Failed to save template.");
@@ -1186,11 +1277,15 @@ export default function AdminEmailBuilder() {
     }
     setUseCustomHtml(false);
     setTemplatesOpen(false);
+    // Pre-fill save dialog with this template's name for easy overwrite
+    setTemplateName(tpl.name);
+    setOverwriteId(tpl.id);
     toast.success(`Loaded: ${tpl.name}`);
   };
 
   const handleDeleteTemplate = async (id: string) => {
     await supabase.from("campaign_templates").delete().eq("id", id);
+    if (overwriteId === id) setOverwriteId(null);
     loadSavedTemplates();
     toast.success("Template deleted.");
   };
@@ -1351,23 +1446,31 @@ export default function AdminEmailBuilder() {
           </Dialog>
 
           {/* SAVE TEMPLATE */}
-          <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+          <Dialog open={saveDialogOpen} onOpenChange={(open) => {
+            setSaveDialogOpen(open);
+            // If opening fresh (no loaded template), clear overwrite
+            if (open && !overwriteId) setTemplateName("");
+          }}>
             <DialogTrigger asChild>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1.5 h-9 px-3">
+                  <Button
+                    variant={overwriteId ? "default" : "outline"}
+                    size="sm"
+                    className={cn("gap-1.5 h-9 px-3", overwriteId && "bg-primary/90 text-primary-foreground")}
+                  >
                     <Save className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Save</span>
+                    <span className="hidden sm:inline">{overwriteId ? "Update" : "Save"}</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Save current state as a template</TooltipContent>
+                <TooltipContent>{overwriteId ? `Update "${templateName}"` : "Save current state as a template"}</TooltipContent>
               </Tooltip>
             </DialogTrigger>
             <DialogContent className="max-w-sm">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <BookMarked className="h-4 w-4 text-primary" />
-                  Save Email Template
+                  {overwriteId ? "Update Template" : "Save Email Template"}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-3">
@@ -1382,16 +1485,41 @@ export default function AdminEmailBuilder() {
                     autoFocus
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">Saves all content, CTAs, font, and agent. You can load it later from Templates.</p>
+                {overwriteId && (
+                  <div className="flex items-center gap-2 rounded-md bg-primary/5 border border-primary/20 px-3 py-2">
+                    <RotateCcw className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <p className="text-xs text-muted-foreground">Will overwrite the previously loaded template.</p>
+                    <button
+                      className="text-[10px] text-muted-foreground underline shrink-0 ml-auto"
+                      onClick={() => { setOverwriteId(null); setTemplateName(""); }}
+                    >Save as new</button>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">Saves all content, CTAs, font, and agent. Accessible from <strong>Templates</strong>.</p>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
                   <Button onClick={handleSaveTemplate} disabled={savingTemplate} className="gap-1.5">
-                    {savingTemplate ? "Saving…" : <><Save className="h-3.5 w-3.5" /> Save Template</>}
+                    {savingTemplate ? "Saving…" : <><Save className="h-3.5 w-3.5" /> {overwriteId ? "Update" : "Save Template"}</>}
                   </Button>
                 </div>
               </div>
             </DialogContent>
           </Dialog>
+
+          {/* Auto-save indicator */}
+          {draftSavedAt && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="hidden lg:flex items-center gap-1 text-[10px] text-muted-foreground/50 shrink-0 cursor-default select-none">
+                  <Cloud className="h-3 w-3" />
+                  <span>Draft saved</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                Auto-saved locally at {draftSavedAt.toLocaleTimeString("en-CA", { hour: "2-digit", minute: "2-digit" })}. Use <strong>Save</strong> to persist to the cloud.
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -1399,7 +1527,7 @@ export default function AdminEmailBuilder() {
                 <RefreshCw className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Reset everything</TooltipContent>
+            <TooltipContent>Reset everything & clear draft</TooltipContent>
           </Tooltip>
 
           <Button
