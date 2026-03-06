@@ -32,6 +32,7 @@ export function ProjectHighlights({
   unitMix,
   completionMonth,
   completionYear,
+  occupancyEstimate,
   city,
   neighborhood,
   depositStructure,
