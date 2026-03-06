@@ -356,25 +356,25 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
           <!-- ╔═══════════ MAIN CONTENT ═══════════╗ -->
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff"
-                style="padding:44px 48px 36px 48px; background-color:#ffffff;">
+                style="padding:40px 40px 32px 40px; background-color:#ffffff;">
 
               <!-- Greeting — uses Mailchimp merge tag *|FNAME|* for personalization -->
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#888888; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">Hi *|FNAME|*,</div>
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#888888; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">Hi *|FNAME|*,</div>
 
               <!-- Headline -->
               ${vars.headline
-                ? `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:52px; font-weight:300; color:#111111; line-height:1.05; margin-bottom:28px; letter-spacing:-0.5px; mso-line-height-rule:exactly;">${vars.headline}</div>`
-                : `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:52px; font-weight:300; color:#111111; line-height:1.05; margin-bottom:0; letter-spacing:-0.5px; mso-line-height-rule:exactly;">${vars.projectName || "The Moment"}</div>
-                   <div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:52px; font-weight:300; font-style:italic; color:#C9A55A; line-height:1.05; margin-bottom:28px; letter-spacing:-0.5px; mso-line-height-rule:exactly;">is Now.</div>`
+                ? `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:48px; font-weight:400; color:#111111; line-height:1.1; margin-bottom:28px; mso-line-height-rule:exactly;">${vars.headline}</div>`
+                : `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:48px; font-weight:400; color:#111111; line-height:1.1; margin-bottom:0; mso-line-height-rule:exactly;">${vars.projectName || "The Moment"}</div>
+                   <div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:48px; font-weight:400; font-style:italic; color:#C9A55A; line-height:1.1; margin-bottom:28px; mso-line-height-rule:exactly;">is Now.</div>`
               }
 
               <!-- Body paragraph -->
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:36px; mso-line-height-rule:exactly;">
+              <div class="body-text" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:15px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:36px; mso-line-height-rule:exactly;">
                 We're bringing you an exclusive first look at <strong style="font-weight:500; color:#111111;">${vars.projectName || "this opportunity"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}. ${vars.startingPrice ? `Starting from <strong style="font-weight:500;">${vars.startingPrice}</strong> &mdash; ` : ""}this is your chance to secure preferred pricing before public launch. Limited units available.
               </div>
 
               <!-- Thin divider -->
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:36px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:32px;">
                 <tr><td height="1" bgcolor="#efefef" style="font-size:0; line-height:0; background-color:#efefef;">&nbsp;</td></tr>
               </table>
 
@@ -390,9 +390,9 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
           ${highlightsList ? `
           <!-- ╔═══════════ WHY THIS PROJECT ═══════════╗ -->
           <tr>
-            <td bgcolor="#fafaf8"
-                style="padding:36px 48px; background-color:#fafaf8; border-top:1px solid #efefef; border-bottom:1px solid #efefef;">
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.4;">W H Y &nbsp; T H I S &nbsp; P R O J E C T</div>
+            <td class="mobile-pad" bgcolor="#fafaf8"
+                style="padding:32px 40px; background-color:#fafaf8; border-top:1px solid #efefef; border-bottom:1px solid #efefef;">
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">W H Y &nbsp; T H I S &nbsp; P R O J E C T</div>
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 ${highlightsList}
               </table>
@@ -401,16 +401,16 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
 
           <!-- ╔═══════════ SIGNATURE ═══════════╗ -->
           <tr>
-            <td bgcolor="#ffffff" style="padding:40px 48px 36px 48px; background-color:#ffffff;">
-              <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#111111; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.2;">Uzair Muhammad</div>
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.4;">Presale Specialist &nbsp;&middot;&nbsp; Presale Properties</div>
+            <td class="mobile-pad" bgcolor="#ffffff" style="padding:36px 40px 32px 40px; background-color:#ffffff; border-top:1px solid #efefef;">
+              <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:28px; font-weight:400; color:#111111; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.2;">Uzair Muhammad</div>
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">Presale Specialist &nbsp;&middot;&nbsp; Presale Properties</div>
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="padding-right:28px;">
-                    <a href="tel:+16041234567" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#555555; text-decoration:none;">&#128222; 604.XXX.XXXX</a>
+                  <td style="padding-right:28px; padding-bottom:6px;">
+                    <a href="tel:+16041234567" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#555555; text-decoration:none;">&#128222; 604.XXX.XXXX</a>
                   </td>
-                  <td>
-                    <a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#C9A55A; text-decoration:none;">&#127760; presaleproperties.ca</a>
+                  <td style="padding-bottom:6px;">
+                    <a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#C9A55A; text-decoration:none;">&#127760; presaleproperties.ca</a>
                   </td>
                 </tr>
               </table>
@@ -419,16 +419,16 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
 
           <!-- ╔═══════════ FOOTER ═══════════╗ -->
           <tr>
-            <td bgcolor="#111111" style="padding:28px 48px; background-color:#111111; border-top:3px solid #C9A55A;">
+            <td class="footer-td" bgcolor="#111111" style="padding:28px 40px; background-color:#111111; border-top:3px solid #C9A55A;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td valign="top">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px; mso-line-height-rule:exactly; line-height:1.4;">Display &amp; Presentation Centre</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; line-height:1.8; mso-line-height-rule:exactly;">#108 2350 165 Street, Surrey BC</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; line-height:1.8; mso-line-height-rule:exactly;">Open Daily 12&ndash;5pm &nbsp;|&nbsp; Closed Thu &amp; Fri</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; margin-bottom:10px; mso-line-height-rule:exactly; line-height:1.5;">Display &amp; Presentation Centre</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#888888; line-height:1.9; mso-line-height-rule:exactly;">#108 2350 165 Street, Surrey BC</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#888888; line-height:1.9; mso-line-height-rule:exactly;">Open Daily 12&ndash;5pm &nbsp;|&nbsp; Closed Thu &amp; Fri</div>
                   </td>
                   ${vars.projectUrl ? `<td align="right" valign="bottom">
-                    <a href="${vars.projectUrl}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; text-decoration:none;">View Project &rarr;</a>
+                    <a href="${vars.projectUrl}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; text-decoration:none;">View Project &rarr;</a>
                   </td>` : ""}
                 </tr>
               </table>
@@ -438,14 +438,14 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
           <!-- ╔═══════════ LEGAL + UNSUBSCRIBE ═══════════╗ -->
           <!-- *|UNSUB|* and *|UPDATE_PROFILE|* are required Mailchimp merge tags -->
           <tr>
-            <td bgcolor="#0d0d0d" style="padding:20px 48px 24px 48px; background-color:#0d0d0d;">
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#555555; line-height:1.7; margin-bottom:12px; mso-line-height-rule:exactly;">
+            <td class="legal-td" bgcolor="#0d0d0d" style="padding:20px 40px 24px 40px; background-color:#0d0d0d;">
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:300; color:#555555; line-height:1.75; margin-bottom:14px; mso-line-height-rule:exactly;">
                 *Prices exclude taxes and are subject to availability at the time of inquiry and/or change without notice. This is not an offering for sale. Any such offering can only be made with a Disclosure Statement. E.&amp;O.E.
               </div>
               <div>
-                <a href="*|UNSUB|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#555555; text-decoration:underline;">Unsubscribe</a>
-                <span style="color:#333333; margin:0 8px;">&nbsp;&middot;&nbsp;</span>
-                <a href="*|UPDATE_PROFILE|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#555555; text-decoration:underline;">Update Preferences</a>
+                <a href="*|UNSUB|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#777777; text-decoration:underline;">Unsubscribe</a>
+                <span style="color:#444444; margin:0 8px;">&nbsp;&middot;&nbsp;</span>
+                <a href="*|UPDATE_PROFILE|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#777777; text-decoration:underline;">Update Preferences</a>
               </div>
             </td>
           </tr>
