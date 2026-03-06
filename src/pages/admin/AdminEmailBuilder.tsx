@@ -796,6 +796,74 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
 </html>`;
 }
 
+// ─── StepSection accordion component ─────────────────────────────────────────
+interface StepSectionProps {
+  step: number;
+  title: string;
+  icon: React.ReactNode;
+  done?: boolean;
+  doneLabel?: string;
+  accent?: "gold" | "green" | "default";
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}
+
+function StepSection({ step, title, icon, done, doneLabel, accent = "default", defaultOpen = false, children }: StepSectionProps) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  const accentColor = accent === "gold"
+    ? "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20"
+    : accent === "green"
+    ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+    : "text-primary bg-primary/10 border-primary/20";
+
+  return (
+    <div className="border-b border-border/60 last:border-b-0">
+      <button
+        onClick={() => setOpen(!open)}
+        className={cn(
+          "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30",
+          open && "bg-muted/20"
+        )}
+      >
+        {/* Step number badge */}
+        <div className={cn(
+          "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 border transition-all",
+          done
+            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+            : open
+            ? "bg-primary/10 text-primary border-primary/30"
+            : "bg-muted/50 text-muted-foreground border-border"
+        )}>
+          {done ? <CheckCircle2 className="h-3 w-3" /> : step}
+        </div>
+
+        {/* Title row */}
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <span className={cn(
+            "text-[11px] font-semibold uppercase tracking-wider",
+            open ? "text-foreground" : "text-muted-foreground"
+          )}>{title}</span>
+          {done && doneLabel && !open && (
+            <span className="text-[10px] text-muted-foreground/60 truncate max-w-[120px]">— {doneLabel}</span>
+          )}
+        </div>
+
+        {/* Chevron */}
+        <div className={cn("transition-transform duration-200 shrink-0", open && "rotate-180")}>
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/40" />
+        </div>
+      </button>
+
+      {open && (
+        <div className="px-4 pb-3.5 pt-0">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function AdminEmailBuilder() {
   const [projects, setProjects] = useState<Project[]>([]);
