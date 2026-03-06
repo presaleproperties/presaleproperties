@@ -304,6 +304,7 @@ interface TemplateVars {
   projectUrl: string;
   headline: string;
   bodyCopy: string;
+  incentiveText: string;
   bookUrl: string;
   subjectLine: string;
   previewText: string;
