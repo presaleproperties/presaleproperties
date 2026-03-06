@@ -610,6 +610,7 @@ export default function AdminEmailBuilder() {
   const [cta, setCta] = useState<CtaToggles>({ ...DEFAULT_CTA });
   const [agentIdx, setAgentIdx] = useState(0);
   const [headlinePresetIdx, setHeadlinePresetIdx] = useState<number | null>(null);
+  const [fontIdx, setFontIdx] = useState(0);
 
   useEffect(() => {
     const load = async () => {
