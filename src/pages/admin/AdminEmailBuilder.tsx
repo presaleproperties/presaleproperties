@@ -760,7 +760,11 @@ export default function AdminEmailBuilder() {
     setUseCustomHtml(false);
   }, [selectedProjectId, projects]);
 
-  const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(vars, cta, PRESET_AGENTS[agentIdx], FONT_PAIRINGS[fontIdx]);
+  const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(
+    vars, cta,
+    selectedAgent ?? { id: "", full_name: "Your Name", title: "Presale Expert", photo_url: null, phone: "", email: "" },
+    FONT_PAIRINGS[fontIdx]
+  );
 
   const handleCopy = useCallback(async () => {
     try {
