@@ -308,12 +308,20 @@ export default function PresaleProjectDetail() {
       month: "long"
     });
   };
-  const completionDisplay = project
-    ? project.occupancy_estimate
-      || (project.completion_month && project.completion_year
-        ? `${getMonthName(project.completion_month)} ${project.completion_year}`
-        : project.completion_year ? String(project.completion_year) : null)
-    : null;
+  const completionDisplay = (() => {
+    if (!project) return null;
+    const occ = project.occupancy_estimate;
+    const yr = project.completion_year;
+    const mo = project.completion_month;
+    // If occupancy_estimate contains a 4-digit year, use it as-is ("Spring 2026")
+    if (occ && /\d{4}/.test(occ)) return occ;
+    // If occupancy_estimate is just a season word, append the year
+    if (occ && yr) return `${occ} ${yr}`;
+    // Fall back to month + year or just year
+    if (mo && yr) return `${getMonthName(mo)} ${yr}`;
+    if (yr) return String(yr);
+    return null;
+  })();
   const handleShare = async () => {
     // Use OG meta proxy for sharing - serves property image to bots, redirects humans
     const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-property-meta?projectSlug=${project?.slug}`;
