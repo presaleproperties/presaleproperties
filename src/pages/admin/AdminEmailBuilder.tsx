@@ -63,6 +63,7 @@ interface SavedEmailTemplate {
     cta: Record<string, boolean>;
     fontIdx: number;
     agentId?: string;
+    selectedProjectId?: string | null;
   };
   created_at: string;
   updated_at: string;
