@@ -1446,23 +1446,31 @@ export default function AdminEmailBuilder() {
           </Dialog>
 
           {/* SAVE TEMPLATE */}
-          <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+          <Dialog open={saveDialogOpen} onOpenChange={(open) => {
+            setSaveDialogOpen(open);
+            // If opening fresh (no loaded template), clear overwrite
+            if (open && !overwriteId) setTemplateName("");
+          }}>
             <DialogTrigger asChild>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1.5 h-9 px-3">
+                  <Button
+                    variant={overwriteId ? "default" : "outline"}
+                    size="sm"
+                    className={cn("gap-1.5 h-9 px-3", overwriteId && "bg-primary/90 text-primary-foreground")}
+                  >
                     <Save className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Save</span>
+                    <span className="hidden sm:inline">{overwriteId ? "Update" : "Save"}</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Save current state as a template</TooltipContent>
+                <TooltipContent>{overwriteId ? `Update "${templateName}"` : "Save current state as a template"}</TooltipContent>
               </Tooltip>
             </DialogTrigger>
             <DialogContent className="max-w-sm">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <BookMarked className="h-4 w-4 text-primary" />
-                  Save Email Template
+                  {overwriteId ? "Update Template" : "Save Email Template"}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-3">
@@ -1477,16 +1485,41 @@ export default function AdminEmailBuilder() {
                     autoFocus
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">Saves all content, CTAs, font, and agent. You can load it later from Templates.</p>
+                {overwriteId && (
+                  <div className="flex items-center gap-2 rounded-md bg-primary/5 border border-primary/20 px-3 py-2">
+                    <RotateCcw className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <p className="text-xs text-muted-foreground">Will overwrite the previously loaded template.</p>
+                    <button
+                      className="text-[10px] text-muted-foreground underline shrink-0 ml-auto"
+                      onClick={() => { setOverwriteId(null); setTemplateName(""); }}
+                    >Save as new</button>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">Saves all content, CTAs, font, and agent. Accessible from <strong>Templates</strong>.</p>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
                   <Button onClick={handleSaveTemplate} disabled={savingTemplate} className="gap-1.5">
-                    {savingTemplate ? "Saving…" : <><Save className="h-3.5 w-3.5" /> Save Template</>}
+                    {savingTemplate ? "Saving…" : <><Save className="h-3.5 w-3.5" /> {overwriteId ? "Update" : "Save Template"}</>}
                   </Button>
                 </div>
               </div>
             </DialogContent>
           </Dialog>
+
+          {/* Auto-save indicator */}
+          {draftSavedAt && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="hidden lg:flex items-center gap-1 text-[10px] text-muted-foreground/50 shrink-0 cursor-default select-none">
+                  <Cloud className="h-3 w-3" />
+                  <span>Draft saved</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                Auto-saved locally at {draftSavedAt.toLocaleTimeString("en-CA", { hour: "2-digit", minute: "2-digit" })}. Use <strong>Save</strong> to persist to the cloud.
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -1494,7 +1527,7 @@ export default function AdminEmailBuilder() {
                 <RefreshCw className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Reset everything</TooltipContent>
+            <TooltipContent>Reset everything & clear draft</TooltipContent>
           </Tooltip>
 
           <Button
