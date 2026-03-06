@@ -433,6 +433,20 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
       ).join("\n")
     : "";
 
+  // ── Incentives ──────────────────────────────────────────────────────────────
+  const incentiveLines = vars.incentiveText
+    ? vars.incentiveText.split("\n").filter(Boolean).map((line) =>
+        `<tr>
+          <td valign="top" width="20" style="padding-bottom:13px; padding-right:10px; vertical-align:top;">
+            <div style="width:7px; height:7px; border-radius:50%; background-color:#5aaa7a; margin-top:5px; font-size:0; line-height:0;">&nbsp;</div>
+          </td>
+          <td valign="top" style="padding-bottom:13px; vertical-align:top;">
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:400; color:#e8f5ee; line-height:1.75; mso-line-height-rule:exactly;">${line}</div>
+          </td>
+        </tr>`
+      ).join("\n")
+    : "";
+
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
 <head>
