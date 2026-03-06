@@ -84,6 +84,7 @@ const AdminClientSearches = lazy(() => import("./pages/admin/AdminClientSearches
 const AdminClientForm = lazy(() => import("./pages/admin/AdminClientForm"));
 const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
 const AdminCampaignBuilder = lazy(() => import("./pages/admin/AdminCampaignBuilder"));
+const AdminEmailBuilder = lazy(() => import("./pages/admin/AdminEmailBuilder"));
 const AdminCampaignHub = lazy(() => import("./pages/admin/AdminCampaignHub"));
 const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
