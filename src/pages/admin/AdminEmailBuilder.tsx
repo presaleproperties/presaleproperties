@@ -495,6 +495,7 @@ export default function AdminEmailBuilder() {
 
   const [vars, setVars] = useState<TemplateVars>({ ...EMPTY_VARS });
   const [cta, setCta] = useState<CtaToggles>({ ...DEFAULT_CTA });
+  const [agentIdx, setAgentIdx] = useState(0);
 
   // Fetch projects (all, admin context)
   useEffect(() => {
