@@ -144,18 +144,19 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
     .filter(Boolean).join("&nbsp;&nbsp;·&nbsp;&nbsp;").toUpperCase();
 
   // ── Hero image ─────────────────────────────────────────────────────────────
-  // Images MUST have: absolute src, width attribute, border="0", display:block
+  // FULL-BLEED: td has padding:0, mso-line-height-rule:exactly, font-size:0 to kill any gap
+  // img: width="600" + width:100% ensures true full-width on all clients
   const heroImg = vars.featuredImage
     ? `<tr>
-        <td style="padding:0; margin:0; line-height:0; font-size:0; mso-line-height-rule:exactly;">
-          <img src="${vars.featuredImage}" alt="${vars.projectName || "Presale Property"}" width="600" border="0"
-               style="display:block; width:100%; max-width:600px; height:auto; border:0; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;" />
+        <td align="center" valign="top" style="padding:0; margin:0; font-size:0; line-height:0; mso-line-height-rule:exactly; border-collapse:collapse;">
+          <img class="hero-img" src="${vars.featuredImage}" alt="${vars.projectName || "Presale Property"}" width="600" border="0"
+               style="display:block; width:600px; max-width:600px; height:auto; border:0 none; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic; margin:0; padding:0;" />
         </td>
       </tr>`
     : `<tr>
-        <td height="200" valign="middle" align="center" bgcolor="#1a1a1a"
-            style="padding:0; background-color:#1a1a1a; height:200px; text-align:center; vertical-align:middle;">
-          <div style="font-family:Georgia, 'Times New Roman', serif; font-size:12px; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; padding:80px 0;">
+        <td align="center" valign="middle" bgcolor="#1a1a1a"
+            style="padding:60px 0; background-color:#1a1a1a; text-align:center; vertical-align:middle;">
+          <div style="font-family:Georgia, 'Times New Roman', serif; font-size:12px; letter-spacing:4px; text-transform:uppercase; color:#C9A55A;">
             ADD HERO IMAGE URL IN THE URLS TAB
           </div>
         </td>
@@ -164,8 +165,8 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
   // ── Location bar ────────────────────────────────────────────────────────────
   const locationBar = locationTag
     ? `<tr>
-        <td bgcolor="#ffffff" style="padding:14px 48px; background-color:#ffffff; border-bottom:1px solid #efefef;">
-          <div style="font-family:Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3.5px; text-transform:uppercase; color:#999999; mso-line-height-rule:exactly; line-height:1.4;">
+        <td class="location-td" bgcolor="#C9A55A" style="padding:14px 40px; background-color:#C9A55A;">
+          <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#ffffff; mso-line-height-rule:exactly; line-height:1.5;">
             ${locationTag}${vars.completion ? `&nbsp;&nbsp;·&nbsp;&nbsp;EST. COMPLETION ${vars.completion.toUpperCase()}` : ""}
           </div>
         </td>
