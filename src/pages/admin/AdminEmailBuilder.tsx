@@ -437,11 +437,11 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
   const incentiveLines = vars.incentiveText
     ? vars.incentiveText.split("\n").filter(Boolean).map((line) =>
         `<tr>
-          <td valign="top" width="20" style="padding-bottom:13px; padding-right:10px; vertical-align:top;">
-            <div style="width:7px; height:7px; border-radius:50%; background-color:#5aaa7a; margin-top:5px; font-size:0; line-height:0;">&nbsp;</div>
+          <td valign="top" width="20" style="padding-bottom:12px; padding-right:10px; vertical-align:top;">
+            <div style="width:6px; height:6px; background-color:#C9A55A; margin-top:6px; font-size:0; line-height:0;">&nbsp;</div>
           </td>
-          <td valign="top" style="padding-bottom:13px; vertical-align:top;">
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:400; color:#e8f5ee; line-height:1.75; mso-line-height-rule:exactly;">${line}</div>
+          <td valign="top" style="padding-bottom:12px; vertical-align:top;">
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#c8d8cc; line-height:1.75; mso-line-height-rule:exactly;">${line}</div>
           </td>
         </tr>`
       ).join("\n")
@@ -595,22 +595,13 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           ${incentiveLines ? `
           <!-- INCENTIVES -->
           <tr>
-            <td class="mobile-pad" style="padding:28px 40px; background-color:#0d1f18; border-top:1px solid #1e3a2a;">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:4px;">
-                <tr>
-                  <td style="padding-right:12px; vertical-align:middle; width:28px;">
-                    <div style="width:28px; height:2px; background-color:#5aaa7a; font-size:0; line-height:0;">&nbsp;</div>
-                  </td>
-                  <td valign="middle">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:#5aaa7a; mso-line-height-rule:exactly; line-height:1.5;">LIMITED INCENTIVES &amp; PROMOTIONS</div>
-                  </td>
-                </tr>
-              </table>
-              <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:22px; font-weight:400; color:#ffffff; line-height:1.2; margin-top:10px; margin-bottom:18px; mso-line-height-rule:exactly;">Exclusive Offers for Early Buyers</div>
+            <td class="mobile-pad" bgcolor="#0d1f18" style="padding:28px 40px; background-color:#0d1f18; border-top:1px solid #1a3028;">
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px; mso-line-height-rule:exactly; line-height:1.4;">INCENTIVES &amp; PROMOTIONS</div>
+              <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:26px; font-weight:400; color:#ffffff; line-height:1.15; margin-bottom:6px; mso-line-height-rule:exactly;">Exclusive Offers for Early Buyers</div>
+              <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0; margin-bottom:20px;">&nbsp;</div>
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 ${incentiveLines}
               </table>
-              <div style="margin-top:6px; height:1px; background-color:#1e3a2a; font-size:0; line-height:0;">&nbsp;</div>
             </td>
           </tr>` : ""}
 
