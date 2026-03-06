@@ -61,6 +61,7 @@ interface TemplateVars {
   developerName: string;
   address: string;
   city: string;
+  neighborhood: string;
   completion: string;
   startingPrice: string;
   featuredImage: string;
