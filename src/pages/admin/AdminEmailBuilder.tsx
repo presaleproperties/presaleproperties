@@ -71,6 +71,101 @@ const PRESET_AGENTS = [
 const LOGO_EMAIL_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
 
 // ─── Premium headline presets ─────────────────────────────────────────────────
+// ─── Font pairings ────────────────────────────────────────────────────────────
+interface FontPairing {
+  id: string;
+  label: string;
+  tag: string; // short descriptor shown in card
+  display: string; // CSS font-family string for headlines
+  body: string;    // CSS font-family string for body
+  googleUrl: string;
+  fallbackDisplay: string;
+  fallbackBody: string;
+}
+
+const FONT_PAIRINGS: FontPairing[] = [
+  {
+    id: "cormorant-dm",
+    label: "Cormorant + DM Sans",
+    tag: "Classic Luxury",
+    display: "'Cormorant Garamond', Georgia, 'Times New Roman', serif",
+    body: "'DM Sans', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "playfair-lato",
+    label: "Playfair Display + Lato",
+    tag: "Editorial",
+    display: "'Playfair Display', Georgia, 'Times New Roman', serif",
+    body: "'Lato', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "bodoni-jost",
+    label: "Bodoni Moda + Jost",
+    tag: "High Fashion",
+    display: "'Bodoni Moda', Georgia, 'Times New Roman', serif",
+    body: "'Jost', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "cinzel-raleway",
+    label: "Cinzel + Raleway",
+    tag: "Architectural",
+    display: "'Cinzel', Georgia, 'Times New Roman', serif",
+    body: "'Raleway', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Raleway:wght@300;400;500&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "spectral-inter",
+    label: "Spectral + Inter",
+    tag: "Modern Serif",
+    display: "'Spectral', Georgia, 'Times New Roman', serif",
+    body: "'Inter', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "crimson-nunito",
+    label: "Crimson Pro + Nunito",
+    tag: "Warm Classic",
+    display: "'Crimson Pro', Georgia, 'Times New Roman', serif",
+    body: "'Nunito Sans', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Nunito+Sans:wght@300;400;600&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "eb-garamond-montserrat",
+    label: "EB Garamond + Montserrat",
+    tag: "Prestige",
+    display: "'EB Garamond', Georgia, 'Times New Roman', serif",
+    body: "'Montserrat', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@300;400;500&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+  {
+    id: "libre-source",
+    label: "Libre Baskerville + Source Sans",
+    tag: "Timeless",
+    display: "'Libre Baskerville', Georgia, 'Times New Roman', serif",
+    body: "'Source Sans 3', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap",
+    fallbackDisplay: "Georgia, serif",
+    fallbackBody: "Arial, sans-serif",
+  },
+];
+
 const HEADLINE_PRESETS = [
   {
     label: "The Moment",
