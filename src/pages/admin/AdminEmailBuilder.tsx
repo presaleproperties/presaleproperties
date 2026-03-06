@@ -308,7 +308,7 @@ const EMPTY_VARS: TemplateVars = {
   projectUrl: "",
   headline: "",
   bodyCopy: "",
-  bookUrl: "https://presaleproperties.ca/book",
+  bookUrl: "https://presaleproperties.com/book",
   subjectLine: "",
   previewText: "",
 };
