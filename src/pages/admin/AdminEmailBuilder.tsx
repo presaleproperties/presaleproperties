@@ -68,6 +68,27 @@ const PRESET_AGENTS = [
   },
 ];
 
+const LOGO_EMAIL_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
+
+// ─── Premium headline presets ─────────────────────────────────────────────────
+const HEADLINE_PRESETS = [
+  {
+    label: "The Moment",
+    headline: "The Moment Has Arrived",
+    body: "A rare opportunity to own in one of the most sought-after communities. Limited homes available — register before public launch to secure preferred pricing and first access to floorplan selection.",
+  },
+  {
+    label: "Exclusive Access",
+    headline: "Exclusive VIP Access — Before the Public",
+    body: "Your clients deserve first access. Before this goes public, we're offering a select group of realtors priority pricing, co-op commissions, and dedicated support from contract to keys.",
+  },
+  {
+    label: "Your Next Investment",
+    headline: "The Investment Your Clients Have Been Waiting For",
+    body: "Strong rental yields. Appreciation-driven location. Developer-backed incentives. This is precisely the presale opportunity serious investors have been positioning for — and it won't last long.",
+  },
+];
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Project {
   id: string;
@@ -427,9 +448,9 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
                   <td align="right" valign="top" style="padding-left:24px; vertical-align:top;">
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                       <tr>
-                        <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:20px 24px; text-align:center;">
-                          <div style="font-family:'DM Sans', Arial, sans-serif; font-size:8px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E</div>
-                          <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:20px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#ffffff; mso-line-height-rule:exactly; line-height:1.1;">PROPERTIES</div>
+                        <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:16px 20px; text-align:center;">
+                          <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="160" border="0"
+                               style="display:block; width:160px; max-width:160px; height:auto; -ms-interpolation-mode:bicubic;" />
                         </td>
                       </tr>
                     </table>
@@ -493,6 +514,7 @@ export default function AdminEmailBuilder() {
   const [vars, setVars] = useState<TemplateVars>({ ...EMPTY_VARS });
   const [cta, setCta] = useState<CtaToggles>({ ...DEFAULT_CTA });
   const [agentIdx, setAgentIdx] = useState(0);
+  const [headlinePresetIdx, setHeadlinePresetIdx] = useState<number | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -951,6 +973,29 @@ export default function AdminEmailBuilder() {
                     <Sparkles className="h-3 w-3 text-muted-foreground" />
                     <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Email Body</span>
                   </div>
+                  {/* Premium text presets */}
+                  <div className="mb-3 space-y-2">
+                    <Label className="text-[11px] text-muted-foreground">Premium Text Presets</Label>
+                    {HEADLINE_PRESETS.map((preset, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          setHeadlinePresetIdx(i);
+                          setVars((prev) => ({ ...prev, headline: preset.headline, bodyCopy: prev.bodyCopy || preset.body }));
+                        }}
+                        className={cn(
+                          "w-full text-left rounded-lg border px-3 py-2.5 transition-all",
+                          headlinePresetIdx === i
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border bg-background hover:border-primary/30"
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold text-foreground mb-0.5">{preset.label}</div>
+                        <div className="text-[10px] text-muted-foreground italic leading-relaxed line-clamp-2">"{preset.headline}"</div>
+                      </button>
+                    ))}
+                  </div>
+
                   <div className="space-y-2">
                     <div>
                       <Label className="text-[11px] text-muted-foreground">Headline (italic gold subhead)</Label>
