@@ -1,126 +1,44 @@
 
-## Email Builder — Full Plan
+## Assessment: Assignment Detail Page — Public-Facing State
 
-### What exists today
-- `AdminEmailTemplates.tsx` — manages raw HTML email templates in DB (CRUD + toggle active)
-- `AdminEmailWorkflows.tsx` — automated drip sequences, triggered by events
-- `AdminCampaignBuilder.tsx` — visual one-pager / PDF builder for print collateral
-- `presale_projects` table has: `brochure_files[]`, `floorplan_files[]`, `pricing_sheets[]`, `gallery_images[]`, `featured_image`, `name`, `address`, `city`, `developer_name`, `starting_price`, `completion_year`, `slug`
+The current `AssignmentDetail.tsx` has the right bones but is missing several important elements that match the quality of the presale project detail pages. Here's what needs to be improved:
 
-### What the user wants
-A new **Email Builder** page inside the admin portal that:
-1. Select a project → auto-pulls all its data
-2. Has a fixed branded HTML email template (dark header, gold accents, property CTA buttons)
-3. Lets them customize: headline, body copy, which CTAs to show (brochure link, floor plan link, project page link)
-4. Live preview panel
-5. "Copy HTML" button to copy the final rendered code for Mailchimp paste
+### What's Currently Missing / Weak
 
-No sending. Pure design + export tool.
+1. **No Expert Advisory Card** — The sidebar has a pricing card, deposit info, and key dates, but no `ExpertAdvisoryCard` (which exists and is used on resale/presale pages). The "Inquire About This Unit" button goes nowhere — it has no `onClick` handler and no lead form wired up.
 
----
+2. **No lead capture / inquiry form** — The CTA button renders but does nothing. There's no `AboutContactForm` connected to it. Leads from assignment pages are not being captured.
 
-### Architecture
+3. **No document download section on the sidebar** — Documents (floor plan, brochure, one-pager) are only shown in the left column mid-page. They should also have a prominent download bundle section, especially for verified agent visitors.
 
-**New file:** `src/pages/admin/AdminEmailBuilder.tsx`
+4. **No agent-gate UX** — The route in `App.tsx` shows `/assignments/:id` is accessible to anyone, but the map restricts non-verified agents from clicking through. The detail page itself has no verification check — a non-agent who navigates directly sees full pricing and details with no lead capture.
 
-**New nav entry** in `AdminLayout.tsx` under "Content" section → `Email Builder` with a `Mail` icon at `/admin/email-builder`
+5. **SEO is set to `noindex, nofollow`** — This is intentional for agent-gated content, which is fine.
 
-**New route** in `App.tsx`
+6. **"Inquire About This Unit" sends no context** — When wired up, it should pre-fill the listing title/project/price into the contact form.
 
 ---
 
-### Page Layout (3-panel, left-center-right)
+### Plan
 
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  Email Builder                              [Copy HTML] [Reset] │
-├──────────────┬──────────────────────────┬───────────────────────┤
-│              │                          │                       │
-│  LEFT PANEL  │    CENTER: LIVE PREVIEW  │   RIGHT: QUICK EDIT   │
-│              │                          │                       │
-│ 1. Project   │  Rendered email HTML     │ Subject line          │
-│    Selector  │  (iframe or div)         │ Headline text         │
-│              │                          │ Body copy             │
-│ 2. Template  │                          │ CTA toggles:          │
-│    Picker    │                          │  ☑ Brochure button    │
-│    (preset   │                          │  ☑ Floor Plans button │
-│    layouts)  │                          │  ☑ Book Consult btn   │
-│              │                          │  ☑ View Project btn   │
-│              │                          │                       │
-│              │                          │ Paste-in HTML upload  │
-└──────────────┴──────────────────────────┴───────────────────────┘
-```
+**1. Wire up the "Inquire About This Unit" CTA**
+- Import `AboutContactForm` into `AssignmentDetail.tsx`
+- Add `formOpen` state and connect the button's `onClick`
+- Pass `selectedAgentName` as `listing.title` so the form is pre-contextualized
 
----
+**2. Add `ExpertAdvisoryCard` to the right sidebar**
+- Place it below the pricing card in the right column
+- This adds trust signals and a second conversion path (same pattern as presale/resale pages)
 
-### Template Design (branded, inline CSS for Mailchimp)
+**3. Prominent Documents Download section in the sidebar**
+- Add a dedicated "Downloads" card in the right sidebar showing floor plan, brochure, and a note about the one-pager being available on request
+- Keep the existing documents section in the left column too, but the sidebar version is more visible for agents
 
-Single built-in template with these sections:
-- **Header**: Dark `#111` background, white logo text, gold accent bar
-- **Hero**: Project featured image (full width), project name overlay
-- **Property Info Bar**: Address | Type | Completion (3 columns, dark bg, gold labels)
-- **Body Copy**: Editable headline + paragraph text
-- **CTA Buttons section**: Each button individually toggleable
-  - "Download Brochure" → links to `brochure_files[0]`
-  - "View Floor Plans" → links to `floorplan_files[0]`
-  - "View Project" → links to `https://presaleproperties.com/presale/{slug}`
-  - "Book a Consultation" → links to `/book` page
-- **Footer**: Address, unsubscribe placeholder, logo
+**4. Non-verified agent soft gate**
+- If the user is not a verified agent (using `useVerifiedAgent` hook), show a blurred/locked overlay on the pricing card with a CTA to verify — consistent with how the map already handles it
+- This creates a lead capture moment instead of a dead end
 
-All styles are **inline** (no external CSS) for Mailchimp compatibility.
+**Files to edit:**
+- `src/pages/AssignmentDetail.tsx` — primary changes (CTA form, expert card, sidebar downloads, agent gate)
 
----
-
-### User-uploaded HTML (Claude paste-in)
-
-A "Import HTML" button opens a textarea where the user can paste custom HTML from Claude. The builder then:
-- Sets that as the current HTML content in the editor
-- Still allows the quick-edit panel to override subject/headline if `{{variable}}` tokens are present
-
----
-
-### Data flow
-
-1. User picks a project from dropdown (fetches `presale_projects`)
-2. Builder populates template variables:
-   - `{{project_name}}`, `{{address}}`, `{{city}}`, `{{developer}}`, `{{completion}}`, `{{starting_price}}`
-   - `{{brochure_url}}` = first item in `brochure_files[]` (or empty → hides button)
-   - `{{floorplan_url}}` = first item in `floorplan_files[]`
-   - `{{project_url}}` = constructed from slug
-   - `{{featured_image}}` = `featured_image` column
-3. User edits copy in right panel → preview updates live
-4. "Copy HTML" → copies fully rendered HTML to clipboard (all variables replaced with real values, no `{{...}}` tokens remain)
-
----
-
-### Files to create/edit
-
-1. **Create** `src/pages/admin/AdminEmailBuilder.tsx` — the main builder page
-2. **Edit** `src/components/admin/AdminLayout.tsx` — add nav link under Content section
-3. **Edit** `src/App.tsx` — add lazy import + route for `/admin/email-builder`
-
----
-
-### Key implementation details
-
-- Preview rendered inside a sandboxed `<iframe srcDoc={...}>` so email styles don't leak into admin UI
-- "Copy HTML" uses `navigator.clipboard.writeText(finalHtml)`
-- CTA buttons hidden (removed from HTML string) when their URL is empty
-- "Import HTML" textarea replaces the template's `html_content` state
-- Project dropdown uses existing `presale_projects` table with `supabase.from("presale_projects").select("id, name, slug, city, featured_image, brochure_files, floorplan_files, pricing_sheets, address, developer_name, starting_price, completion_year, completion_month")`
-- No DB writes needed — this is a pure client-side tool
-- The built-in template is stored as a TypeScript string function `buildTemplate(vars)` that returns full inline-CSS HTML
-
----
-
-### Template variable tokens used in built-in template
-
-```
-{{project_name}}     {{developer_name}}   {{address}}
-{{city}}             {{completion}}       {{starting_price}}
-{{featured_image}}   {{brochure_url}}     {{floorplan_url}}
-{{project_url}}      {{headline}}         {{body_copy}}
-{{book_url}}
-```
-
-No new database tables or migrations required.
+This is a single-file change with no DB migrations needed.
