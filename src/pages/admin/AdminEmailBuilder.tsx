@@ -283,6 +283,7 @@ interface TemplateVars {
   bookUrl: string;
   subjectLine: string;
   previewText: string;
+  greeting: string;
 }
 
 interface CtaToggles {
@@ -311,6 +312,7 @@ const EMPTY_VARS: TemplateVars = {
   bookUrl: "https://presaleproperties.com/book",
   subjectLine: "",
   previewText: "",
+  greeting: "Hi *|FNAME|*,",
 };
 
 const DEFAULT_CTA: CtaToggles = {
@@ -497,7 +499,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff" style="padding:40px 40px 32px 40px; background-color:#ffffff;">
 
-              <div style="font-family:${font.body}; font-size:14px; font-weight:300; color:#888888; margin-bottom:18px; mso-line-height-rule:exactly; line-height:1.5;">Hi *|FNAME|*,</div>
+              <div style="font-family:${font.body}; font-size:14px; font-weight:300; color:#888888; margin-bottom:18px; mso-line-height-rule:exactly; line-height:1.5;">${vars.greeting || "Hi,"}</div>
 
               <div class="hero-headline" style="font-family:${font.display}; font-size:48px; font-weight:400; color:#111111; line-height:1.05; margin-bottom:0; mso-line-height-rule:exactly;">${vars.projectName || "The Moment"}</div>
               ${vars.headline
@@ -1191,6 +1193,11 @@ export default function AdminEmailBuilder() {
                     <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Inbox</span>
                   </div>
                   <div className="space-y-2">
+                    <div>
+                      <Label className="text-[11px] text-muted-foreground">Greeting / Opening Line</Label>
+                      <Input value={vars.greeting} onChange={v("greeting")} className="h-8 text-xs mt-1" placeholder="Hi *|FNAME|*," />
+                      <p className="text-[10px] text-muted-foreground/60 mt-1">Use your platform's merge tag: Mailchimp = *|FNAME|*, Klaviyo = {'{{ first_name }}'}, etc.</p>
+                    </div>
                     <div>
                       <Label className="text-[11px] text-muted-foreground">Subject Line</Label>
                       <Input value={vars.subjectLine} onChange={v("subjectLine")} className="h-8 text-xs mt-1" placeholder="🏙️ Exclusive Access: Project Name — City" />
