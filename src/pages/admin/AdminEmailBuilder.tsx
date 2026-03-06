@@ -228,19 +228,19 @@ const FONT_PAIRINGS: FontPairing[] = [
 
 const HEADLINE_PRESETS = [
   {
-    label: "Worth Your Time",
-    headline: "Worth a Few Minutes of Your Time",
-    body: "If you've been looking at [city/area], this one is worth a look. I've pulled the key info together below — the quick breakdown, floorplans, and pricing. Go through it, and if anything catches your eye or you have questions, just give me a call. I work exclusively with buyers on presale, so I know these projects inside out.",
+    label: "Thank You — Here's the Info",
+    headline: "Thank You for Your Interest",
+    body: "I appreciate you taking the time to register. I've put together everything you need on this project below — the key details, floorplans, and pricing. Take a look, and when you're ready, give me a call. I'm here to make this easy for you.",
   },
   {
-    label: "Final Phase",
-    headline: "The Final Phase Just Opened",
-    body: "This is the last opportunity to buy into this community. Once it's gone, it's gone. I've put together everything you need below — home sizes, pricing, and what makes this project stand out in [city]. My job is to get you the right information and the right floorplan. Give me a call and let's figure out if this is the right fit.",
+    label: "You Registered — Let's Talk",
+    headline: "You Registered — Here's What to Know",
+    body: "Thanks for signing up. I wanted to personally follow up with the full details on this project. I've included the pricing and floorplans below. Once you've had a chance to review, I'd love to hop on a quick call and walk you through it. No pressure — just honest information.",
   },
   {
-    label: "Homes Are Moving",
-    headline: "Homes Are Moving — Here's the Breakdown",
-    body: "You registered interest, so I wanted to get this in front of you before inventory tightens up. Everything is below — pricing, floorplans, and the highlights. I work exclusively with buyers, not developers, so you'll always get a straight answer from me. Questions? Just call.",
+    label: "Here's Your Info",
+    headline: "Here's the Information You Requested",
+    body: "Thanks for reaching out. Below you'll find the key details on this project — home sizes, pricing, deposit structure, and estimated completion. I work exclusively with buyers, so my job is to make sure you have everything you need to make the right decision. Give me a call whenever you're ready.",
   },
 ];
 
@@ -273,6 +273,7 @@ interface TemplateVars {
   neighborhood: string;
   completion: string;
   startingPrice: string;
+  deposit: string;
   featuredImage: string;
   brochureUrl: string;
   floorplanUrl: string;
@@ -302,6 +303,7 @@ const EMPTY_VARS: TemplateVars = {
   neighborhood: "",
   completion: "",
   startingPrice: "",
+  deposit: "",
   featuredImage: "",
   brochureUrl: "",
   floorplanUrl: "",
@@ -329,7 +331,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
     .filter(Boolean).map(s => s!.toUpperCase()).join("&nbsp;&nbsp;&middot;&nbsp;&nbsp;");
 
   // ── Stats row ───────────────────────────────────────────────────────────────
-  const statsRow = (vars.startingPrice || vars.developerName || vars.city)
+  const statsRow = (vars.startingPrice || vars.deposit || vars.completion)
     ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
           style="border-collapse:collapse; border-top:1px solid #efefef; border-bottom:1px solid #efefef; margin-bottom:36px;">
         <tr>
@@ -339,16 +341,16 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
             <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">S T A R T I N G &nbsp; F R O M &nbsp; + &nbsp; G S T</div>
           </td>
           <td class="stat-divider" width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
-          ${vars.developerName ? `
+          ${vars.deposit ? `
           <td class="stat-col" valign="top" style="padding:18px 20px; width:33%;">
-            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:24px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.developerName}</div>
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">B U I L T &nbsp; B Y</div>
+            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:24px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.deposit}</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">D E P O S I T &nbsp; T O &nbsp; S E C U R E</div>
           </td>
           <td class="stat-divider" width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
-          ${vars.city ? `
+          ${vars.completion ? `
           <td class="stat-col" valign="top" style="padding:18px 0 18px 20px; width:33%;">
-            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:24px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.city}, BC</div>
-            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">L O C A T I O N</div>
+            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:24px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.completion}</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">E S T . &nbsp; C O M P L E T I O N</div>
           </td>` : ""}
         </tr>
       </table>`
@@ -508,9 +510,9 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
               }
 
               <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:20px; mso-line-height-rule:exactly;">
-                If you've been looking at ${vars.city ? `<strong style="font-weight:500; color:#111111;">${vars.city}</strong>` : "this area"}, <strong style="font-weight:500; color:#111111;">${vars.projectName || "this project"}</strong>${vars.neighborhood ? ` in ${vars.neighborhood}` : ""} is worth a few minutes of your time. ${vars.startingPrice ? `Homes start from <strong style="font-weight:500;">${vars.startingPrice}</strong> + GST. ` : ""}I've pulled the key details together below — home sizes, pricing, and what makes this one stand out. Go through it at your own pace. Once it's gone, it's gone.
+                Thank you for your interest in <strong style="font-weight:500; color:#111111;">${vars.projectName || "this project"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}. I've put together everything you need below — pricing${vars.deposit ? `, deposit to secure (${vars.deposit})` : ""}${vars.completion ? `, and estimated completion (${vars.completion})` : ""}. ${vars.startingPrice ? `Homes start from <strong style="font-weight:500;">${vars.startingPrice}</strong> + GST. ` : ""}Go through the details at your own pace, and give me a call when you're ready — I'm here to help.
               </div>
-              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">I work exclusively with buyers on presale &mdash; so I know these projects inside out. My job is to get you the right information, the right floorplan, and make the process easy from start to finish.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">I work exclusively with buyers &mdash; not developers. My job is to get you the right information, the right floorplan, and make this process easy from start to finish.</div>
 
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:28px;">
                 <tr><td height="1" bgcolor="#efefef" style="font-size:0; line-height:0; background-color:#efefef;">&nbsp;</td></tr>
@@ -1336,6 +1338,7 @@ export default function AdminEmailBuilder() {
                         { key: "neighborhood" as keyof TemplateVars, label: "Neighborhood" },
                         { key: "completion" as keyof TemplateVars, label: "Est. Completion" },
                         { key: "startingPrice" as keyof TemplateVars, label: "Starting Price" },
+                        { key: "deposit" as keyof TemplateVars, label: "Deposit to Secure" },
                       ]
                     ).map(({ key, label }) => (
                       <div key={key}>
