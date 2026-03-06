@@ -228,19 +228,19 @@ const FONT_PAIRINGS: FontPairing[] = [
 
 const HEADLINE_PRESETS = [
   {
-    label: "Found Something For You",
-    headline: "I Found Something Worth Your Attention",
-    body: "You signed up because you're serious about getting into a new home — and I take that seriously. I personally vetted this project and I think it lines up with what you're looking for. I'm here to walk you through it, answer every question, and make sure you have all the information before making any decision.",
+    label: "You Showed Interest",
+    headline: "You Asked About This One",
+    body: "I saw your registration come through and I wanted to personally follow up. I've attached the floorplans and pricing below — but the real value is in a quick call where I can walk you through what's worth knowing before you make any decisions. No pressure at all.",
   },
   {
-    label: "Before It Goes Public",
-    headline: "Before This Goes to the Public",
-    body: "As a presale specialist, I get early access to new projects before they're widely advertised. I'm reaching out to you first because you registered your interest with us. There's no obligation — I just want to make sure you have the chance to see this before it's gone.",
+    label: "Here's What I Found",
+    headline: "Here's Everything You Need",
+    body: "You registered interest and I pulled together everything — pricing, floorplans, and my honest take on whether this project makes sense right now. I'd rather give you 10 minutes of real information than have you make a decision without it. Give me a call.",
   },
   {
-    label: "Your Investment",
-    headline: "This One Checks a Lot of Boxes",
-    body: "Strong location. Solid developer track record. Pricing that still makes sense before appreciation kicks in. I've looked at a lot of projects and this one genuinely stands out. Let me show you why — no pressure, just a conversation.",
+    label: "Worth a Conversation",
+    headline: "This Project Is Worth a Conversation",
+    body: "The floorplans and pricing are below. But there are a few things about this project that are easier to explain over the phone — incentives, the developer's track record, and how the pricing compares to what's around it. Happy to jump on a quick call whenever works for you.",
   },
 ];
 
@@ -508,9 +508,9 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
               }
 
               <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:20px; mso-line-height-rule:exactly;">
-                I wanted to personally reach out about <strong style="font-weight:500; color:#111111;">${vars.projectName || "this project"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}. ${vars.startingPrice ? `Homes start from <strong style="font-weight:500;">${vars.startingPrice}</strong> &mdash; ` : ""}and as a presale specialist, I can get you access to pricing, floorplans, and availability before this is widely marketed.
+                You showed interest in <strong style="font-weight:500; color:#111111;">${vars.projectName || "this project"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""} — so I put together everything you need to evaluate it properly. ${vars.startingPrice ? `Homes here start from <strong style="font-weight:500;">${vars.startingPrice}</strong>. ` : ""}I've included the floorplans and pricing below. Take a look, and if anything stands out — or if you have questions — just give me a call.
               </div>
-              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">I work for you, not the developer &mdash; my job is to make sure you have the full picture.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:600; color:#111111; line-height:1.6; margin-bottom:32px; mso-line-height-rule:exactly;">A 10-minute call is all it takes &mdash; I'll tell you exactly what I'd do if I were in your shoes.</div>
 
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:28px;">
                 <tr><td height="1" bgcolor="#efefef" style="font-size:0; line-height:0; background-color:#efefef;">&nbsp;</td></tr>
@@ -560,7 +560,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           </tr>
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 8px 40px; background-color:#ffffff;">
-              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">Happy to hop on a quick call, answer your questions, or send over the floorplans and pricing sheet. I represent you, not the developer &mdash; so you'll always get an honest take.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">The floorplans and pricing are already in this email &mdash; but there's more I can share on a call. Things like which units hold value best, what the developer is offering right now, and whether this actually fits your situation. Give me a call &mdash; no pressure, just honest advice.</div>
             </td>
           </tr>` : ""}
 
