@@ -2417,10 +2417,8 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                 </div>
               </CardContent>
             </Card>
-              <CardContent className="space-y-4">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="occupancy_season">Season</Label>
+
+            {/* Content */}
                     <select
                       id="occupancy_season"
                       value={formData.occupancy_estimate.split(" ")[0] || ""}
