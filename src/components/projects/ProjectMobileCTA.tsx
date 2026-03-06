@@ -214,66 +214,27 @@ export function ProjectMobileCTA({
 
               {submitted ? (
                 /* ── SUCCESS ── */
-                hasAnyDocuments ? (
-                  <div className="p-5 space-y-2.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                      {projectName} — Available Documents
-                    </p>
-                    {hasFloorplan && (
-                      <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl">
-                        <a href={floorplanUrl!} target="_blank" rel="noopener noreferrer">
-                          <LayoutGrid className="h-4 w-4 mr-2" />
-                          {isGoogleDriveLink(floorplanUrl!) ? "View Floor Plans" : "Download Floor Plans"}
-                          {isGoogleDriveLink(floorplanUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
-                        </a>
-                      </Button>
-                    )}
-                    {hasPricing && (
-                      <Button asChild size="lg" variant={hasFloorplan ? "outline" : "default"} className="w-full h-12 text-sm font-semibold rounded-xl">
-                        <a href={pricingUrl!} target="_blank" rel="noopener noreferrer">
-                          <DollarSign className="h-4 w-4 mr-2" />
-                          {isGoogleDriveLink(pricingUrl!) ? "View Pricing Sheet" : "Download Pricing"}
-                          {isGoogleDriveLink(pricingUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
-                        </a>
-                      </Button>
-                    )}
-                    {hasBrochure && (
-                      <Button asChild size="lg" variant="outline" className="w-full h-12 text-sm font-semibold rounded-xl">
-                        <a href={brochureUrl!} target="_blank" rel="noopener noreferrer">
-                          <FileText className="h-4 w-4 mr-2" />
-                          {isGoogleDriveLink(brochureUrl!) ? "View Brochure" : "Download Brochure"}
-                          {isGoogleDriveLink(brochureUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
-                        </a>
-                      </Button>
-                    )}
-                    {successWhatsappLink && (
-                      <Button asChild size="lg" variant="secondary" className="w-full h-11 text-sm font-semibold rounded-xl">
-                        <a href={successWhatsappLink} target="_blank" rel="noopener noreferrer">
-                          <MessageCircle className="h-4 w-4 mr-2" />Chat with an Agent
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="p-5 space-y-4 pb-8">
-                    <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/15 rounded-xl">
-                      <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">We're updating this project</p>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          We're gathering the latest floor plans and pricing for <strong>{projectName}</strong>. One of our agents will send everything to you within <strong>24 hours</strong>.
-                        </p>
-                      </div>
+                <div className="p-5 space-y-4 pb-8">
+                  <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/15 rounded-xl">
+                    <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Check your inbox shortly</p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                        Full details for <strong>{projectName}</strong> will be emailed to you. One of our agents will follow up within <strong>24 hours</strong>.
+                      </p>
                     </div>
-                    {successWhatsappLink && (
-                      <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl">
-                        <a href={successWhatsappLink} target="_blank" rel="noopener noreferrer">
-                          <MessageCircle className="h-4 w-4 mr-2" />Chat with an Agent Now
-                        </a>
-                      </Button>
-                    )}
                   </div>
-                )
+                  {successWhatsappLink && (
+                    <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
+                      <a href={successWhatsappLink} target="_blank" rel="noopener noreferrer">
+                        <MessageCircle className="h-4 w-4 mr-2" />Chat Now on WhatsApp
+                      </a>
+                    </Button>
+                  )}
+                  <p className="text-center text-[11px] text-muted-foreground">
+                    We're available 7 days a week to answer your questions.
+                  </p>
+                </div>
               ) : (
                 /* ── FORM ── */
                 <div className="p-5 pb-8">
