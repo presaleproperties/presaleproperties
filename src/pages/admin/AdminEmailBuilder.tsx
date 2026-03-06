@@ -643,7 +643,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                     </table>
                   </td>
                   <!-- Right: logo -->
-                  <td class="sig-logo-td" align="right" valign="middle" style="padding:32px 36px 32px 16px; vertical-align:middle;">
+                  <td class="sig-logo-td" align="right" valign="middle" style="padding:44px 36px 44px 16px; vertical-align:middle;">
                     <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="130" border="0"
                          style="display:block; width:130px; max-width:130px; height:auto; -ms-interpolation-mode:bicubic;" />
                   </td>
