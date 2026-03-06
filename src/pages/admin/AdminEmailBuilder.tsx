@@ -389,7 +389,6 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
 </body>
 </html>`;
 }
-  const locationLine = [vars.neighborhood, vars.city].filter(Boolean).join(" · ").toUpperCase();
 
   const heroImg = vars.featuredImage
     ? `<tr>
