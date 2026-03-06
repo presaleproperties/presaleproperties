@@ -745,12 +745,12 @@ export default function AdminEmailBuilder() {
                   <Input value={vars.headline} onChange={v("headline")} className="h-8 text-xs mt-1" placeholder="Introducing Project Name…" />
                 </div>
                 <div>
-                  <Label className="text-[11px] text-muted-foreground">Body Copy</Label>
+                  <Label className="text-[11px] text-muted-foreground">Highlights (one per line → gold bullet points)</Label>
                   <Textarea
                     value={vars.bodyCopy}
                     onChange={v("bodyCopy")}
-                    className="text-xs mt-1 min-h-[110px] resize-none"
-                    placeholder="Write your email body here…"
+                    className="text-xs mt-1 min-h-[130px] resize-none"
+                    placeholder={"Park-facing homes with green space views\nPTT Exemption eligible for first-time buyers\nCo-op commission available"}
                   />
                 </div>
               </div>
