@@ -457,6 +457,11 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
       .sig-logo-td { display: none !important; }
       .cta-btn { width: 100% !important; display: block !important; text-align: center !important; }
       .cta-btn a { display: block !important; width: 100% !important; box-sizing: border-box !important; }
+      .booking-td { padding: 22px 20px !important; }
+      .booking-left { display: block !important; width: 100% !important; padding-bottom: 16px !important; }
+      .booking-right { display: block !important; width: 100% !important; text-align: center !important; padding-left: 0 !important; }
+      .booking-btn td { width: 100% !important; text-align: center !important; padding: 14px 20px !important; display: block !important; }
+      .booking-title { font-size: 22px !important; }
     }
   </style>
 </head>
