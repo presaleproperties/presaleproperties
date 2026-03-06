@@ -449,6 +449,10 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse !important; }
     img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
     p { margin: 0; padding: 0; }
+    /* Prevent email clients from auto-detecting and re-styling links */
+    a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+    u + #body a { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+    #MessageViewBody a { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
     @media only screen and (max-width: 620px) {
       .outer-td { padding: 0 !important; }
       .email-container { width: 100% !important; max-width: 100% !important; }
