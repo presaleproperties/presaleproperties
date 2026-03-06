@@ -449,6 +449,10 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse !important; }
     img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
     p { margin: 0; padding: 0; }
+    /* Prevent email clients from auto-detecting and re-styling links */
+    a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+    u + #body a { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+    #MessageViewBody a { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
     @media only screen and (max-width: 620px) {
       .outer-td { padding: 0 !important; }
       .email-container { width: 100% !important; max-width: 100% !important; }
@@ -495,7 +499,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                   <td valign="bottom">
                     <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px; mso-line-height-rule:exactly; line-height:1.4;">PRESALE PROPERTIES</div>
                     <div style="font-family:${font.display}; font-size:42px; font-weight:400; color:#ffffff; line-height:1; margin-bottom:10px; mso-line-height-rule:exactly;">${vars.projectName || "New Release"}</div>
-                    <div style="font-family:${font.body}; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Your Presale Specialist &nbsp;&middot;&nbsp; presaleproperties.com</div>
+                    <div style="font-family:${font.body}; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Your Presale Specialist &nbsp;&middot;&nbsp; <a href="https://presaleproperties.com" style="color:#8aaa96; text-decoration:none;">presaleproperties.com</a></div>
                     <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0;">&nbsp;</div>
                   </td>
                   ${(vars.neighborhood || vars.city) ? `
@@ -652,7 +656,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
           <tr>
             <td class="footer-td" bgcolor="#0d1f18" style="padding:22px 40px; background-color:#0d1f18;">
               <div style="font-family:'DM Sans', Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; margin-bottom:6px; mso-line-height-rule:exactly; line-height:1.5;">PRESALE PROPERTIES &nbsp;&middot;&nbsp; ${vars.city ? `${vars.city.toUpperCase()}, BC` : "VANCOUVER, BC"}</div>
-              <div style="font-family:'DM Sans', Arial, sans-serif; font-size:12px; font-weight:300; color:#8aaa96; mso-line-height-rule:exactly; line-height:1.6;">presaleproperties.com &nbsp;&middot;&nbsp; ${agent.phone}</div>
+              <div style="font-family:'DM Sans', Arial, sans-serif; font-size:12px; font-weight:300; color:#8aaa96; mso-line-height-rule:exactly; line-height:1.6;"><a href="https://presaleproperties.com" style="color:#8aaa96; text-decoration:none;">presaleproperties.com</a> &nbsp;&middot;&nbsp; ${agent.phone}</div>
             </td>
           </tr>
 
