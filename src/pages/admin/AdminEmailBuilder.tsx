@@ -505,11 +505,6 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
 </html>`;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-    ? `<tr>
-        <td align="center" valign="top" style="padding:0; margin:0; font-size:0; line-height:0; mso-line-height-rule:exactly; border-collapse:collapse;">
-          <img class="hero-img" src="${vars.featuredImage}" alt="${vars.projectName || "Presale Property"}" width="600" border="0"
-               style="display:block; width:600px; max-width:600px; height:auto; border:0 none; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic; margin:0; padding:0;" />
         </td>
       </tr>`
     : `<tr>
