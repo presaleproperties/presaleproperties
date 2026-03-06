@@ -95,11 +95,23 @@ export function ProjectHighlights({
     return typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1);
   };
 
-  const completionValue = completionYear
-    ? completionMonth
-      ? `${getMonthName(completionMonth)} ${completionYear}`
-      : completionYear.toString()
-    : null;
+  const completionValue = (() => {
+    if (occupancyEstimate) {
+      const seasonMatch = occupancyEstimate.match(/\b(Spring|Summer|Fall|Winter)\b/i);
+      const yearMatch = occupancyEstimate.match(/\b(\d{4})\b/);
+      const season = seasonMatch ? seasonMatch[1] : null;
+      const occYear = yearMatch ? yearMatch[1] : null;
+      if (season && occYear) return `${season} ${occYear}`;
+      if (season && completionYear) return `${season} ${completionYear}`;
+      if (occYear) return occYear;
+    }
+    if (completionYear) {
+      return completionMonth
+        ? `${getMonthName(completionMonth)} ${completionYear}`
+        : completionYear.toString();
+    }
+    return null;
+  })();
 
   // Standard tiles (excluding completion and developer - they get special treatment)
   const standardTiles = [
