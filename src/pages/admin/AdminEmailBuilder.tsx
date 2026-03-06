@@ -448,7 +448,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
     p { margin: 0; padding: 0; }
     @media only screen and (max-width: 620px) {
       .outer-td { padding: 0 !important; }
-      .email-container { width: 100% !important; max-width: 100% !important; }
+      .email-container { width: 100% !important; max-width: 100% !important; border-radius: 0 !important; }
       .hero-img { width: 100% !important; max-width: 100% !important; height: auto !important; display: block !important; }
       .mobile-pad { padding: 28px 20px !important; }
       .header-td { padding: 22px 20px 18px 20px !important; }
@@ -468,6 +468,13 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
       .booking-right { display: block !important; width: 100% !important; text-align: center !important; padding-left: 0 !important; }
       .booking-btn td { width: 100% !important; text-align: center !important; padding: 14px 20px !important; display: block !important; }
       .booking-title { font-size: 22px !important; }
+      /* Signature: stack photo + info side by side in a compact row, hide logo */
+      .sig-outer-td { padding: 20px 20px !important; }
+      .sig-photo-td { width: 64px !important; padding: 0 12px 0 0 !important; vertical-align: middle !important; }
+      .sig-photo-td img { width: 60px !important; height: 60px !important; }
+      .sig-info-td { padding: 0 !important; vertical-align: middle !important; }
+      .sig-name { font-size: 17px !important; }
+      .sig-contact-row td { padding-bottom: 3px !important; font-size: 11px !important; }
     }
   </style>
 </head>
