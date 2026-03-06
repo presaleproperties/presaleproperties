@@ -875,14 +875,14 @@ export default function AdminEmailBuilder() {
 
   const appendPromoToHighlights = () => {
     if (!promoSnippet.trim()) return;
-    const current = vars.bodyCopy.trim();
+    const current = vars.incentiveText.trim();
     setVars((prev) => ({
       ...prev,
-      bodyCopy: current ? `${current}\n${promoSnippet}` : promoSnippet,
+      incentiveText: current ? `${current}\n${promoSnippet}` : promoSnippet,
     }));
     setPromoNotes("");
     setPromoSnippet("");
-    toast.success("Snippet added to highlights!");
+    toast.success("Incentive section updated!");
   };
 
   const v =
