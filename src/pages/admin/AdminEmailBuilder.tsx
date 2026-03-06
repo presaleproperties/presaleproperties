@@ -592,6 +592,28 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
             </td>
           </tr>` : ""}
 
+          ${incentiveLines ? `
+          <!-- INCENTIVES -->
+          <tr>
+            <td class="mobile-pad" style="padding:28px 40px; background-color:#0d1f18; border-top:1px solid #1e3a2a;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:4px;">
+                <tr>
+                  <td style="padding-right:12px; vertical-align:middle; width:28px;">
+                    <div style="width:28px; height:2px; background-color:#5aaa7a; font-size:0; line-height:0;">&nbsp;</div>
+                  </td>
+                  <td valign="middle">
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:#5aaa7a; mso-line-height-rule:exactly; line-height:1.5;">LIMITED INCENTIVES &amp; PROMOTIONS</div>
+                  </td>
+                </tr>
+              </table>
+              <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:22px; font-weight:400; color:#ffffff; line-height:1.2; margin-top:10px; margin-bottom:18px; mso-line-height-rule:exactly;">Exclusive Offers for Early Buyers</div>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                ${incentiveLines}
+              </table>
+              <div style="margin-top:6px; height:1px; background-color:#1e3a2a; font-size:0; line-height:0;">&nbsp;</div>
+            </td>
+          </tr>` : ""}
+
           <!-- BOOKING BANNER -->
           ${cta.bookConsult ? `
           <tr>
