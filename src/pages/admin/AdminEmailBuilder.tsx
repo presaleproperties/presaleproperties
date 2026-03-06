@@ -453,24 +453,24 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
       .outer-td { padding: 0 !important; }
       .email-container { width: 100% !important; max-width: 100% !important; }
       .hero-img { width: 100% !important; max-width: 100% !important; height: auto !important; display: block !important; }
-      .mobile-pad { padding: 28px 20px !important; }
-      .header-td { padding: 22px 20px 18px 20px !important; }
-      .location-td { padding: 11px 20px !important; }
-      .footer-td { padding: 20px 20px !important; }
-      .legal-td { padding: 20px 20px 24px 20px !important; }
-      .hero-headline { font-size: 28px !important; line-height: 1.15 !important; }
+      .mobile-pad { padding: 18px 14px !important; }
+      .header-td { padding: 14px 14px 12px 14px !important; }
+      .location-td { padding: 8px 14px !important; }
+      .footer-td { padding: 14px 14px !important; }
+      .legal-td { padding: 14px 14px 18px 14px !important; }
+      .hero-headline { font-size: 26px !important; line-height: 1.15 !important; }
       .body-text { font-size: 14px !important; line-height: 1.8 !important; }
-      .stat-col { display: block !important; width: 100% !important; padding: 12px 0 !important; border-bottom: 1px solid #efefef !important; }
+      .stat-col { display: block !important; width: 100% !important; padding: 10px 0 !important; border-bottom: 1px solid #efefef !important; }
       .stat-divider { display: none !important; }
       .header-city { display: none !important; }
       .sig-logo-td { display: none !important; }
       .cta-btn { width: 100% !important; display: block !important; text-align: center !important; }
       .cta-btn a { display: block !important; width: 100% !important; box-sizing: border-box !important; }
-      .booking-td { padding: 22px 20px !important; }
-      .booking-left { display: block !important; width: 100% !important; padding-bottom: 16px !important; }
+      .booking-td { padding: 16px 14px !important; }
+      .booking-left { display: block !important; width: 100% !important; padding-bottom: 12px !important; }
       .booking-right { display: block !important; width: 100% !important; text-align: center !important; padding-left: 0 !important; }
-      .booking-btn td { width: 100% !important; text-align: center !important; padding: 14px 20px !important; display: block !important; }
-      .booking-title { font-size: 22px !important; }
+      .booking-btn td { width: 100% !important; text-align: center !important; padding: 12px 14px !important; display: block !important; }
+      .booking-title { font-size: 20px !important; }
     }
   </style>
 </head>
