@@ -420,16 +420,28 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
 
           <!-- ╔═══════════ SIGNATURE ═══════════╗ -->
           <tr>
-            <td class="mobile-pad" bgcolor="#ffffff" style="padding:36px 40px 32px 40px; background-color:#ffffff; border-top:1px solid #efefef;">
-              <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:28px; font-weight:400; color:#111111; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.2;">Uzair Muhammad</div>
-              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">Presale Specialist &nbsp;&middot;&nbsp; Presale Properties</div>
+            <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px; background-color:#ffffff; border-top:1px solid #efefef;">
+              <!-- Agent photo + info side by side -->
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="padding-right:28px; padding-bottom:6px;">
-                    <a href="tel:+16041234567" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#555555; text-decoration:none;">&#128222; 604.XXX.XXXX</a>
-                  </td>
-                  <td style="padding-bottom:6px;">
-                    <a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#C9A55A; text-decoration:none;">&#127760; presaleproperties.ca</a>
+                  ${agent.photo ? `
+                  <td valign="top" style="padding-right:18px; vertical-align:top;">
+                    <img src="${agent.photo}" alt="${agent.name}" width="72" height="72" border="0"
+                         style="display:block; width:72px; height:72px; border-radius:50%; border:2px solid #C9A55A; object-fit:cover; -ms-interpolation-mode:bicubic;" />
+                  </td>` : ""}
+                  <td valign="middle" style="vertical-align:middle;">
+                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#111111; margin-bottom:3px; mso-line-height-rule:exactly; line-height:1.2;">${agent.name}</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:12px; mso-line-height-rule:exactly; line-height:1.5;">${agent.title} &nbsp;&middot;&nbsp; Presale Properties</div>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="padding-right:24px; padding-bottom:4px;">
+                          <a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#555555; text-decoration:none;">&#128222; ${agent.phone}</a>
+                        </td>
+                        <td style="padding-bottom:4px;">
+                          <a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#C9A55A; text-decoration:none;">&#127760; presaleproperties.ca</a>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
