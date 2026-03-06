@@ -1141,6 +1141,77 @@ export default function AdminEmailBuilder() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
   const [savingTemplate, setSavingTemplate] = useState(false);
+  const [overwriteId, setOverwriteId] = useState<string | null>(null);
+
+  // ── Draft persistence ─────────────────────────────────────────────────────────
+  const DRAFT_KEY = "email_builder_draft_v2";
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
+  const [draftRestored, setDraftRestoredFlag] = useState(false);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Restore draft on mount (once, before project is chosen)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (draft.vars) setVars({ ...EMPTY_VARS, ...draft.vars });
+      if (draft.cta) setCta({ ...DEFAULT_CTA, ...draft.cta });
+      if (typeof draft.fontIdx === "number") setFontIdx(draft.fontIdx);
+      if (draft.savedAt) setDraftSavedAt(new Date(draft.savedAt));
+      setDraftRestoredFlag(true);
+    } catch { /* corrupt draft — ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Show restoration toast once agents are loaded
+  useEffect(() => {
+    if (draftRestored && agents.length > 0) {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      try {
+        const draft = JSON.parse(raw);
+        if (draft.agentId) {
+          const a = agents.find((ag) => ag.id === draft.agentId);
+          if (a) setSelectedAgent(a);
+        }
+      } catch { /* ignore */ }
+      const when = draftSavedAt
+        ? `Last edited ${draftSavedAt.toLocaleString("en-CA", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`
+        : "Unsaved draft found";
+      toast.success(`✏️ Draft restored — ${when}`, { duration: 4000 });
+      setDraftRestoredFlag(false); // only toast once
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftRestored, agents]);
+
+  // Auto-save draft to localStorage whenever state changes (debounced 1.5s)
+  const scheduleDraftSave = useCallback(() => {
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      try {
+        const draft = {
+          vars,
+          cta,
+          fontIdx,
+          agentId: selectedAgent?.id,
+          savedAt: new Date().toISOString(),
+        };
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        setDraftSavedAt(new Date());
+      } catch { /* storage full — ignore */ }
+    }, 1500);
+  }, [vars, cta, fontIdx, selectedAgent]);
+
+  useEffect(() => {
+    scheduleDraftSave();
+    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
+  }, [scheduleDraftSave]);
+
+  const clearDraft = useCallback(() => {
+    localStorage.removeItem(DRAFT_KEY);
+    setDraftSavedAt(null);
+  }, []);
 
   const loadSavedTemplates = useCallback(async () => {
     const { data } = await supabase
@@ -1162,15 +1233,27 @@ export default function AdminEmailBuilder() {
         fontIdx,
         agentId: selectedAgent?.id,
       };
-      const { error } = await supabase.from("campaign_templates").insert([{
-        name: templateName.trim(),
-        project_name: vars.projectName || "Untitled",
-        form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
-      }]);
-      if (error) throw error;
-      toast.success("Template saved!");
+      if (overwriteId) {
+        // Update existing template
+        const { error } = await supabase.from("campaign_templates").update({
+          name: templateName.trim(),
+          project_name: vars.projectName || "Untitled",
+          form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
+        }).eq("id", overwriteId);
+        if (error) throw error;
+        toast.success("Template updated!");
+      } else {
+        const { error } = await supabase.from("campaign_templates").insert([{
+          name: templateName.trim(),
+          project_name: vars.projectName || "Untitled",
+          form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
+        }]);
+        if (error) throw error;
+        toast.success("Template saved!");
+      }
       setSaveDialogOpen(false);
       setTemplateName("");
+      setOverwriteId(null);
       loadSavedTemplates();
     } catch (e) {
       toast.error("Failed to save template.");
@@ -1190,11 +1273,15 @@ export default function AdminEmailBuilder() {
     }
     setUseCustomHtml(false);
     setTemplatesOpen(false);
+    // Pre-fill save dialog with this template's name for easy overwrite
+    setTemplateName(tpl.name);
+    setOverwriteId(tpl.id);
     toast.success(`Loaded: ${tpl.name}`);
   };
 
   const handleDeleteTemplate = async (id: string) => {
     await supabase.from("campaign_templates").delete().eq("id", id);
+    if (overwriteId === id) setOverwriteId(null);
     loadSavedTemplates();
     toast.success("Template deleted.");
   };
