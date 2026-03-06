@@ -449,10 +449,14 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
       .location-td { padding: 11px 20px !important; }
       .footer-td { padding: 20px 20px !important; }
       .legal-td { padding: 20px 20px 24px 20px !important; }
-      .hero-headline { font-size: 36px !important; line-height: 1.1 !important; }
-      .body-text { font-size: 15px !important; line-height: 1.85 !important; }
-      .stat-col { display: block !important; width: 100% !important; padding: 14px 0 !important; border-bottom: 1px solid #efefef !important; }
+      .hero-headline { font-size: 28px !important; line-height: 1.15 !important; }
+      .body-text { font-size: 14px !important; line-height: 1.8 !important; }
+      .stat-col { display: block !important; width: 100% !important; padding: 12px 0 !important; border-bottom: 1px solid #efefef !important; }
       .stat-divider { display: none !important; }
+      .header-city { display: none !important; }
+      .sig-logo-td { display: none !important; }
+      .cta-btn { width: 100% !important; display: block !important; text-align: center !important; }
+      .cta-btn a { display: block !important; width: 100% !important; box-sizing: border-box !important; }
     }
   </style>
 </head>
