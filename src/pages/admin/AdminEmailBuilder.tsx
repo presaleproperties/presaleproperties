@@ -505,10 +505,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
 </html>`;
 }
 
-  // ── Hero image ─────────────────────────────────────────────────────────────
-  // FULL-BLEED: td has padding:0, mso-line-height-rule:exactly, font-size:0 to kill any gap
-  // img: width="600" + width:100% ensures true full-width on all clients
-  const heroImg = vars.featuredImage
+// ─── Component ────────────────────────────────────────────────────────────────
     ? `<tr>
         <td align="center" valign="top" style="padding:0; margin:0; font-size:0; line-height:0; mso-line-height-rule:exactly; border-collapse:collapse;">
           <img class="hero-img" src="${vars.featuredImage}" alt="${vars.projectName || "Presale Property"}" width="600" border="0"
