@@ -49,24 +49,23 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Agent presets ─────────────────────────────────────────────────────────────
-const PRESET_AGENTS = [
-  {
-    name: "Uzair Muhammad", title: "Founder & Presale Strategist",
-    phone: "778-231-3592", email: "info@presaleproperties.com",
-    photo: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769974057981-u5d1e1f.jpg",
-  },
-  {
-    name: "Sarb Grewal", title: "Presale Expert",
-    phone: "+1 (778) 846-7065", email: "sarb@presaleproperties.com",
-    photo: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769973843032-qlc6fc.png",
-  },
-  {
-    name: "Ravish Passy", title: "Presale Expert",
-    phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com",
-    photo: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769973742728-csckvf.png",
-  },
-];
+// ─── Agent type ───────────────────────────────────────────────────────────────
+interface AgentProfile {
+  id: string;
+  full_name: string;
+  title: string;
+  photo_url: string | null;
+  // editable overrides (not in DB view)
+  phone: string;
+  email: string;
+}
+
+// Fallback contact info keyed by first name (until DB has phone/email)
+const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
+  "Uzair":  { phone: "778-231-3592",      email: "info@presaleproperties.com" },
+  "Sarb":   { phone: "+1 (778) 846-7065", email: "sarb@presaleproperties.com"  },
+  "Ravish": { phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com" },
+};
 
 const LOGO_EMAIL_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
 
@@ -323,7 +322,7 @@ const DEFAULT_CTA: CtaToggles = {
 };
 
 // ─── Template builder ─────────────────────────────────────────────────────────
-function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESET_AGENTS[0], font: FontPairing = FONT_PAIRINGS[0]): string {
+function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile, font: FontPairing = FONT_PAIRINGS[0]): string {
   const locationTag = [vars.projectName, vars.city, vars.neighborhood]
     .filter(Boolean).map(s => s!.toUpperCase()).join("&nbsp;&nbsp;&middot;&nbsp;&nbsp;");
 
@@ -574,42 +573,38 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
 
           <!-- SIGNATURE -->
           <tr>
-            <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 40px 40px; background-color:#ffffff;">
+            <td bgcolor="#fafaf8" style="padding:0; background-color:#fafaf8; border-top:2px solid #C9A55A;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
-                  <td valign="top" style="vertical-align:top;">
-                    ${agent.photo ? `
-                    <div style="margin-bottom:16px; line-height:0; font-size:0;">
-                      <img src="${agent.photo}" alt="${agent.name}" width="88" height="88" border="0"
-                           style="display:block; width:88px; height:88px; border-radius:50%; object-fit:cover; object-position:center 10%; border:2px solid #C9A55A; -ms-interpolation-mode:bicubic;" />
-                    </div>` : ""}
-                    <div style="font-family:${font.display}; font-size:30px; font-weight:400; color:#111111; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.2;">${agent.name}</div>
-                    <div style="font-family:${font.body}; font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:5px; mso-line-height-rule:exactly; line-height:1.5;">P R E S A L E &nbsp; R E A L &nbsp; E S T A T E &nbsp; S P E C I A L I S T</div>
-                    <div style="font-family:${font.body}; font-size:12px; font-weight:300; color:#888888; margin-bottom:16px; mso-line-height-rule:exactly; line-height:1.4;">PREC &mdash; Licensed with eXp Realty</div>
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                  <!-- Left: photo -->
+                  ${agent.photo_url ? `
+                  <td width="120" valign="middle" style="padding:28px 0 28px 32px; vertical-align:middle; line-height:0; font-size:0;">
+                    <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" border="0"
+                         style="display:block; width:80px; height:80px; border-radius:50%; object-fit:cover; object-position:center top; border:2px solid #C9A55A; -ms-interpolation-mode:bicubic;" />
+                  </td>` : ""}
+                  <!-- Middle: info -->
+                  <td valign="middle" style="padding:28px 16px 28px ${agent.photo_url ? "16px" : "32px"}; vertical-align:middle;">
+                    <div style="font-family:${font.display}; font-size:22px; font-weight:400; color:#111111; line-height:1.15; mso-line-height-rule:exactly; margin-bottom:3px;">${agent.full_name}</div>
+                    <div style="font-family:${font.body}; font-size:10px; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; mso-line-height-rule:exactly; line-height:1.5; margin-bottom:10px;">${agent.title}</div>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                      ${agent.phone ? `<tr>
+                        <td style="padding-bottom:5px; padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#128222;</td>
+                        <td style="padding-bottom:5px; vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">${agent.phone}</a></td>
+                      </tr>` : ""}
+                      ${agent.email ? `<tr>
+                        <td style="padding-bottom:5px; padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#9993;</td>
+                        <td style="padding-bottom:5px; vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">${agent.email}</a></td>
+                      </tr>` : ""}
                       <tr>
-                        <td style="padding-bottom:7px; padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#128222;</div></td>
-                        <td style="padding-bottom:7px; vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:'DM Sans', Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">${agent.phone}</a></td>
-                      </tr>
-                      <tr>
-                        <td style="padding-bottom:7px; padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#9993;</div></td>
-                        <td style="padding-bottom:7px; vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:'DM Sans', Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">${agent.email}</a></td>
-                      </tr>
-                      <tr>
-                        <td style="padding-right:8px; width:18px; vertical-align:middle;"><div style="font-size:14px; line-height:1;">&#127760;</div></td>
-                        <td style="vertical-align:middle;"><a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">presaleproperties.ca</a></td>
+                        <td style="padding-right:7px; vertical-align:middle; font-size:11px; color:#888888; line-height:1;">&#127760;</td>
+                        <td style="vertical-align:middle;"><a href="https://presaleproperties.ca" target="_blank" style="font-family:${font.body}; font-size:12px; font-weight:400; color:#444444; text-decoration:none;">presaleproperties.ca</a></td>
                       </tr>
                     </table>
                   </td>
-                  <td align="right" valign="top" style="padding-left:24px; vertical-align:top;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:16px 20px; text-align:center;">
-                          <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="160" border="0"
-                               style="display:block; width:160px; max-width:160px; height:auto; -ms-interpolation-mode:bicubic;" />
-                        </td>
-                      </tr>
-                    </table>
+                  <!-- Right: logo -->
+                  <td align="right" valign="middle" style="padding:28px 32px 28px 16px; vertical-align:middle;">
+                    <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="140" border="0"
+                         style="display:block; width:140px; max-width:140px; height:auto; -ms-interpolation-mode:bicubic;" />
                   </td>
                 </tr>
               </table>
@@ -629,7 +624,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
             <td class="legal-td" bgcolor="#f8f7f4" style="padding:24px 40px 28px 40px; background-color:#f8f7f4; border-top:1px solid #e8e8e4;">
               <div style="font-family:'DM Sans', Arial, sans-serif; font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#555555; margin-bottom:12px; mso-line-height-rule:exactly; line-height:1.4;">L E G A L &nbsp; D I S C L A I M E R</div>
               <div style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; line-height:1.8; margin-bottom:12px; mso-line-height-rule:exactly;">
-                This communication is prepared by ${agent.name}, a licensed REALTOR&reg; with Presale Properties, for real estate professionals and prospective purchasers only. This is <strong style="font-weight:500; color:#666666;">not an offering for sale</strong>. An offering may only be made after filing a Disclosure Statement under REDMA. Prices, availability and incentives subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E. Presale Properties complies with the Real Estate Services Act (BCFSA).
+                This communication is prepared by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties, for real estate professionals and prospective purchasers only. This is <strong style="font-weight:500; color:#666666;">not an offering for sale</strong>. An offering may only be made after filing a Disclosure Statement under REDMA. Prices, availability and incentives subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E. Presale Properties complies with the Real Estate Services Act (BCFSA).
               </div>
               <div style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; line-height:1.8; margin-bottom:18px; mso-line-height-rule:exactly;">
                 You are receiving this because you opted in to presale updates from Presale Properties. Per Canada's Anti-Spam Legislation (CASL), you may withdraw consent at any time.
@@ -669,9 +664,30 @@ export default function AdminEmailBuilder() {
 
   const [vars, setVars] = useState<TemplateVars>({ ...EMPTY_VARS });
   const [cta, setCta] = useState<CtaToggles>({ ...DEFAULT_CTA });
-  const [agentIdx, setAgentIdx] = useState(0);
   const [headlinePresetIdx, setHeadlinePresetIdx] = useState<number | null>(null);
   const [fontIdx, setFontIdx] = useState(0);
+
+  // ── Agent list from DB ───────────────────────────────────────────────────────
+  const [agents, setAgents] = useState<AgentProfile[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<AgentProfile | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("team_members_public")
+      .select("id, full_name, title, photo_url")
+      .eq("is_active", true)
+      .order("sort_order")
+      .then(({ data }) => {
+        if (!data?.length) return;
+        const enriched: AgentProfile[] = data.map((m) => {
+          const firstName = (m.full_name ?? "").split(" ")[0];
+          const contact = AGENT_CONTACTS[firstName] ?? { phone: "", email: "" };
+          return { id: m.id, full_name: m.full_name ?? "", title: m.title ?? "Presale Expert", photo_url: m.photo_url, ...contact };
+        });
+        setAgents(enriched);
+        setSelectedAgent(enriched[0]);
+      });
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -743,7 +759,11 @@ export default function AdminEmailBuilder() {
     setUseCustomHtml(false);
   }, [selectedProjectId, projects]);
 
-  const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(vars, cta, PRESET_AGENTS[agentIdx], FONT_PAIRINGS[fontIdx]);
+  const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(
+    vars, cta,
+    selectedAgent ?? { id: "", full_name: "Your Name", title: "Presale Expert", photo_url: null, phone: "", email: "" },
+    FONT_PAIRINGS[fontIdx]
+  );
 
   const handleCopy = useCallback(async () => {
     try {
@@ -1073,35 +1093,68 @@ export default function AdminEmailBuilder() {
 
               {/* CONTENT TAB */}
               <TabsContent value="content" className="mt-0 px-4 pb-4 space-y-4">
-                <div className="pt-3">
-                  <div className="flex items-center gap-1.5 mb-2.5">
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Sender / Signature</span>
-                  </div>
-                  <div className="flex gap-2">
-                    {PRESET_AGENTS.map((a, i) => (
+                <div className="pt-3 space-y-3">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Sender / Signature</span>
+
+                  {/* Agent picker */}
+                  <div className="flex gap-1.5 flex-wrap">
+                    {agents.map((a) => (
                       <button
-                        key={i}
-                        onClick={() => setAgentIdx(i)}
+                        key={a.id}
+                        onClick={() => setSelectedAgent({ ...a })}
                         className={cn(
-                          "flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all flex-1",
-                          agentIdx === i
+                          "flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all",
+                          selectedAgent?.id === a.id
                             ? "border-primary bg-primary/5 shadow-sm"
                             : "border-border bg-background hover:border-primary/30"
                         )}
                       >
-                        <img
-                          src={a.photo}
-                          alt={a.name}
-                          className="w-8 h-8 rounded-full object-cover border border-border shrink-0"
-                          style={{ objectPosition: "center 10%" }}
-                        />
+                        {a.photo_url ? (
+                          <img src={a.photo_url} alt={a.full_name}
+                            className="w-9 h-9 rounded-full object-cover object-top border border-border shrink-0" />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
+                            {a.full_name.charAt(0)}
+                          </div>
+                        )}
                         <div className="min-w-0">
-                          <div className="text-[11px] font-medium text-foreground truncate">{a.name.split(" ")[0]}</div>
-                          <div className="text-[10px] text-muted-foreground truncate">{a.title.split(" ")[0]}</div>
+                          <div className="text-[11px] font-semibold text-foreground truncate">{a.full_name.split(" ")[0]}</div>
+                          <div className="text-[9px] text-muted-foreground truncate leading-tight">{a.title}</div>
                         </div>
                       </button>
                     ))}
                   </div>
+
+                  {/* Editable signature fields */}
+                  {selectedAgent && (
+                    <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        {selectedAgent.photo_url && (
+                          <img src={selectedAgent.photo_url} alt={selectedAgent.full_name}
+                            className="w-10 h-10 rounded-full object-cover object-top border-2 border-primary/40 shrink-0" />
+                        )}
+                        <div>
+                          <div className="text-[11px] font-semibold text-foreground">{selectedAgent.full_name}</div>
+                          <div className="text-[10px] text-muted-foreground">Edit signature details below</div>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Title</Label>
+                        <Input value={selectedAgent.title} onChange={(e) => setSelectedAgent({ ...selectedAgent, title: e.target.value })}
+                          className="h-7 text-xs mt-0.5" />
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Phone</Label>
+                        <Input value={selectedAgent.phone} onChange={(e) => setSelectedAgent({ ...selectedAgent, phone: e.target.value })}
+                          className="h-7 text-xs mt-0.5" placeholder="778-000-0000" />
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Email</Label>
+                        <Input value={selectedAgent.email} onChange={(e) => setSelectedAgent({ ...selectedAgent, email: e.target.value })}
+                          className="h-7 text-xs mt-0.5" placeholder="name@presaleproperties.com" />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <Separator />
