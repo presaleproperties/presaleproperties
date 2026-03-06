@@ -680,6 +680,8 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
             </td>
           </tr>` : ""}
 
+          ${pricingCardHtml}
+
           <!-- BOOKING BANNER -->
           ${cta.bookConsult ? `
           <tr>
