@@ -274,14 +274,31 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse !important; }
     img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
-    /* Outlook line-height fix */
     p { margin: 0; padding: 0; }
-    /* Mobile responsive — only clients that support media queries will use this */
+    /* Mobile responsive — only clients supporting media queries use this */
     @media only screen and (max-width: 620px) {
+      /* Remove outer padding so email is full-width on mobile */
+      .outer-td { padding: 0 !important; }
+      /* Email container spans full screen width */
       .email-container { width: 100% !important; max-width: 100% !important; }
-      .mobile-pad { padding: 32px 24px !important; }
-      .hero-headline { font-size: 38px !important; line-height: 44px !important; }
-      .stat-col { display: block !important; width: 100% !important; }
+      /* Hero image: force full width, no gaps */
+      .hero-img { width: 100% !important; max-width: 100% !important; height: auto !important; display: block !important; }
+      /* Reduce side padding on mobile */
+      .mobile-pad { padding: 28px 20px !important; }
+      .header-td { padding: 24px 20px 20px 20px !important; }
+      .location-td { padding: 12px 20px !important; }
+      .footer-td { padding: 24px 20px !important; }
+      .legal-td { padding: 16px 20px 20px 20px !important; }
+      /* Larger headline on mobile */
+      .hero-headline { font-size: 36px !important; line-height: 42px !important; }
+      /* Bigger body text */
+      .body-text { font-size: 15px !important; line-height: 1.9 !important; }
+      /* Stats: stack vertically on mobile */
+      .stat-col { display: block !important; width: 100% !important; padding: 14px 0 !important; border-bottom: 1px solid #efefef !important; }
+      .stat-divider { display: none !important; }
+      /* Buttons full-width on mobile */
+      .btn-td { width: 100% !important; text-align: center !important; padding: 16px 20px !important; display: block !important; }
+      .btn-table { width: 100% !important; }
     }
   </style>
 </head>
