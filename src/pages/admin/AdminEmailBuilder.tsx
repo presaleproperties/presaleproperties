@@ -1464,450 +1464,417 @@ export default function AdminEmailBuilder() {
           )}
         </div>
 
-        {/* RIGHT: Editor panel */}
+        {/* RIGHT: Editor panel — numbered step flow */}
         <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+
           {/* Panel header */}
-          <div className="px-4 pt-3 pb-2.5 border-b border-border bg-gradient-to-r from-muted/30 to-transparent shrink-0">
+          <div className="px-4 pt-3 pb-2.5 border-b border-border bg-gradient-to-r from-primary/5 to-transparent shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-5 w-5 rounded bg-primary/10 flex items-center justify-center">
                   <Sparkles className="h-3 w-3 text-primary" />
                 </div>
-                <span className="text-sm font-semibold text-foreground">Email Editor</span>
+                <span className="text-sm font-semibold text-foreground">Build Your Email</span>
+                {vars.projectName && (
+                  <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/20 text-primary/70 font-normal">
+                    {vars.projectName}
+                  </Badge>
+                )}
               </div>
-              {useCustomHtml ? (
+              {useCustomHtml && (
                 <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2 text-amber-500 hover:text-amber-600" onClick={() => setUseCustomHtml(false)}>
                   ← Back to template
                 </Button>
-              ) : vars.projectName ? (
-                <span className="text-[10px] text-muted-foreground truncate max-w-[120px]">{vars.projectName}</span>
-              ) : null}
+              )}
             </div>
           </div>
 
-          <Tabs defaultValue="content" className="flex flex-col flex-1 overflow-hidden">
-            <div className="px-3 pt-2.5 pb-1.5 shrink-0 border-b border-border bg-muted/5">
-              <TabsList className="w-full h-8 text-xs grid grid-cols-3 p-0.5">
-                <TabsTrigger value="content" className="text-xs gap-1 h-7 rounded-md">
-                  <Sparkles className="h-3 w-3" /> Content
-                </TabsTrigger>
-                <TabsTrigger value="project" className="text-xs gap-1 h-7 rounded-md">
-                  <Building2 className="h-3 w-3" /> Project
-                </TabsTrigger>
-                <TabsTrigger value="urls" className="text-xs gap-1 h-7 rounded-md">
-                  <Link2 className="h-3 w-3" /> URLs
-                </TabsTrigger>
-              </TabsList>
-            </div>
+          <div className={cn("flex-1 overflow-y-auto", useCustomHtml && "opacity-40 pointer-events-none select-none")}>
 
-            <div className={cn("flex-1 overflow-y-auto scrollbar-thin", useCustomHtml && "opacity-40 pointer-events-none select-none")}>
-
-              {/* CONTENT TAB */}
-              <TabsContent value="content" className="mt-0 pb-4 space-y-0">
-
-                {/* SECTION: Agent / Sender */}
-                <div className="px-4 pt-4 pb-3 border-b border-border/60">
-                  <div className="flex items-center gap-1.5 mb-3">
-                    <div className="h-1 w-1 rounded-full bg-primary" />
-                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Sender</span>
-                  </div>
-                  <div className="flex gap-1.5 flex-wrap mb-2">
-                    {agents.map((a) => (
-                      <button
-                        key={a.id}
-                        onClick={() => setSelectedAgent({ ...a })}
-                        className={cn(
-                          "flex items-center gap-2 px-2 py-1.5 rounded-lg border text-left transition-all",
-                          selectedAgent?.id === a.id
-                            ? "border-primary bg-primary/8 shadow-sm"
-                            : "border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/40"
-                        )}
-                      >
-                        {a.photo_url ? (
-                          <img src={a.photo_url} alt={a.full_name} className="w-7 h-7 rounded-full object-cover object-top border border-border shrink-0" />
-                        ) : (
-                          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
-                            {a.full_name.charAt(0)}
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <div className="text-[11px] font-semibold text-foreground">{a.full_name.split(" ")[0]}</div>
-                          <div className="text-[9px] text-muted-foreground leading-tight">{a.title.split(" ").slice(0,2).join(" ")}</div>
-                        </div>
-                        {selectedAgent?.id === a.id && <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />}
-                      </button>
-                    ))}
-                  </div>
-                  {selectedAgent && (
-                    <div className="grid grid-cols-2 gap-1.5">
-                      <div>
-                        <Label className="text-[9px] text-muted-foreground uppercase tracking-wide">Phone</Label>
-                        <Input value={selectedAgent.phone} onChange={(e) => setSelectedAgent({ ...selectedAgent, phone: e.target.value })}
-                          className="h-7 text-xs mt-0.5" placeholder="778-000-0000" />
-                      </div>
-                      <div>
-                        <Label className="text-[9px] text-muted-foreground uppercase tracking-wide">Email</Label>
-                        <Input value={selectedAgent.email} onChange={(e) => setSelectedAgent({ ...selectedAgent, email: e.target.value })}
-                          className="h-7 text-xs mt-0.5" placeholder="name@…" />
-                      </div>
-                    </div>
-                  )}
+            {/* ── STEP 1: PROJECT ─────────────────────────────────────────── */}
+            <StepSection
+              step={1}
+              title="Project"
+              icon={<Building2 className="h-3.5 w-3.5" />}
+              done={!!vars.projectName}
+              doneLabel={vars.projectName}
+              defaultOpen={!vars.projectName}
+            >
+              {selectedProject?.featured_image && (
+                <div className="rounded-md overflow-hidden border border-border mb-3">
+                  <img src={selectedProject.featured_image} alt={selectedProject.name} className="w-full h-20 object-cover" />
                 </div>
+              )}
+              <div className="grid grid-cols-2 gap-1.5 mb-1.5">
+                {([
+                  { key: "projectName" as keyof TemplateVars, label: "Project Name", span: 2 },
+                  { key: "developerName" as keyof TemplateVars, label: "Developer", span: 2 },
+                  { key: "city" as keyof TemplateVars, label: "City", span: 1 },
+                  { key: "neighborhood" as keyof TemplateVars, label: "Neighborhood", span: 1 },
+                  { key: "address" as keyof TemplateVars, label: "Address", span: 2 },
+                ] as Array<{ key: keyof TemplateVars; label: string; span: number }>).map(({ key, label, span }) => (
+                  <div key={key} className={span === 2 ? "col-span-2" : ""}>
+                    <Label className="text-[10px] text-muted-foreground">{label}</Label>
+                    <Input value={vars[key]} onChange={v(key)} className="h-7 text-xs mt-0.5" />
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 mt-2">
+                {([
+                  { key: "startingPrice" as keyof TemplateVars, label: "From Price", hint: "+ GST", placeholder: "$789,900" },
+                  { key: "deposit" as keyof TemplateVars, label: "Deposit", hint: "to secure", placeholder: "5% signing" },
+                  { key: "completion" as keyof TemplateVars, label: "Completion", hint: "est. date", placeholder: "Summer 2026" },
+                ] as Array<{ key: keyof TemplateVars; label: string; hint: string; placeholder: string }>).map(({ key, label, hint, placeholder }) => (
+                  <div key={key} className={cn("rounded-lg border p-2 transition-all", vars[key] ? "border-primary/40 bg-primary/5" : "border-border bg-muted/10")}>
+                    <Label className="text-[9px] text-muted-foreground uppercase tracking-wide block mb-1">{label}</Label>
+                    <Input value={vars[key]} onChange={v(key)} className="h-6 text-xs border-0 bg-transparent p-0 focus-visible:ring-0 font-semibold" placeholder={placeholder} />
+                    <p className="text-[9px] text-muted-foreground/40 mt-0.5">{hint}</p>
+                  </div>
+                ))}
+              </div>
+            </StepSection>
 
-                {/* SECTION: Typography */}
-                <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
-                  <div className="flex items-center gap-1.5 mb-2.5">
-                    <div className="h-1 w-1 rounded-full bg-primary" />
-                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Typography</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {FONT_PAIRINGS.map((fp, i) => (
-                      <button
-                        key={fp.id}
-                        onClick={() => setFontIdx(i)}
-                        className={cn(
-                          "text-left rounded-lg border px-2.5 py-2 transition-all",
-                          fontIdx === i
-                            ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-border bg-muted/10 hover:border-primary/30"
-                        )}
-                      >
-                        <div className="text-[11px] font-semibold text-foreground leading-tight truncate">{fp.label.split(" + ")[0]}</div>
-                        <div className="text-[9px] text-muted-foreground/70 truncate">+ {fp.label.split(" + ")[1]}</div>
-                        <div className={cn("text-[9px] mt-0.5 font-medium", fontIdx === i ? "text-primary" : "text-muted-foreground/50")}>{fp.tag}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* SECTION: Inbox */}
-                <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
-                  <div className="flex items-center gap-1.5 mb-2.5">
-                    <div className="h-1 w-1 rounded-full bg-primary" />
-                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Inbox</span>
-                  </div>
-                  <div className="space-y-2">
-                    <div>
-                      <Label className="text-[10px] text-muted-foreground">Subject Line</Label>
-                      <Input value={vars.subjectLine} onChange={v("subjectLine")} className="h-8 text-xs mt-0.5" placeholder="🏙️ Exclusive Access: Project — City" />
-                    </div>
-                    <div>
-                      <Label className="text-[10px] text-muted-foreground">Preview Text <span className="text-muted-foreground/40 font-normal">(shown in inbox)</span></Label>
-                      <Input value={vars.previewText} onChange={v("previewText")} className="h-8 text-xs mt-0.5" placeholder="From $599K · Surrey · Limited units" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* SECTION: Email Body */}
-                <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
-                  <div className="flex items-center gap-1.5 mb-2.5">
-                    <div className="h-1 w-1 rounded-full bg-primary" />
-                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Email Body</span>
-                  </div>
-                  <div className="space-y-2 mb-3">
-                    {HEADLINE_PRESETS.map((preset, i) => (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          setHeadlinePresetIdx(i);
-                          setVars((prev) => ({ ...prev, headline: preset.headline, bodyCopy: prev.bodyCopy || preset.body }));
-                        }}
-                        className={cn(
-                          "w-full text-left rounded-lg border px-3 py-2 transition-all",
-                          headlinePresetIdx === i
-                            ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-border/60 bg-muted/10 hover:border-primary/30"
-                        )}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="text-[11px] font-semibold text-foreground">{preset.label}</div>
-                          {headlinePresetIdx === i && <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />}
-                        </div>
-                        <div className="text-[10px] text-muted-foreground italic mt-0.5 line-clamp-1">"{preset.headline}"</div>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="space-y-2">
-                    <div>
-                      <Label className="text-[10px] text-muted-foreground">Subheadline <span className="text-muted-foreground/40">(italic gold)</span></Label>
-                      <Input value={vars.headline} onChange={v("headline")} className="h-8 text-xs mt-0.5" placeholder="Thank You for Your Interest" />
-                    </div>
-                    <div>
-                      <Label className="text-[10px] text-muted-foreground">Highlights <span className="text-muted-foreground/40">(one per line → gold bullets)</span></Label>
-                      <Textarea
-                        value={vars.bodyCopy}
-                        onChange={v("bodyCopy")}
-                        className="text-xs mt-0.5 min-h-[100px] resize-none leading-relaxed"
-                        placeholder={"Park-facing homes\nPTT Exemption eligible\nCo-op commission available"}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* SECTION: AI Promo Snippet */}
-                <div className="px-4 pt-3.5 pb-4 border-b border-border/60 bg-muted/30">
-                  <div className="flex items-center gap-1.5 mb-2.5">
-                    <div className="h-1 w-1 rounded-full bg-primary" />
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">AI Promo Snippet</span>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mb-2 leading-relaxed">
-                    Paste raw notes about a new release, promo, or special offer — AI will rewrite it into polished bullet lines.
-                  </p>
-                  <Textarea
-                    value={promoNotes}
-                    onChange={(e) => setPromoNotes(e.target.value)}
-                    className="text-xs min-h-[72px] resize-none leading-relaxed mb-2"
-                    placeholder={"e.g. New phase just released, limited 2bds left, PTT exempt, free storage locker promotion ends Friday"}
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full h-8 text-xs gap-1.5 border-primary/40 text-primary hover:bg-primary/5"
-                    onClick={handleRewritePromo}
-                    disabled={rewritingPromo || !promoNotes.trim()}
+            {/* ── STEP 2: SENDER ──────────────────────────────────────────── */}
+            <StepSection
+              step={2}
+              title="Sender / Agent"
+              icon={<Mail className="h-3.5 w-3.5" />}
+              done={!!selectedAgent}
+              doneLabel={selectedAgent?.full_name}
+              defaultOpen={false}
+            >
+              <div className="flex gap-1.5 flex-wrap mb-2.5">
+                {agents.map((a) => (
+                  <button
+                    key={a.id}
+                    onClick={() => setSelectedAgent({ ...a })}
+                    className={cn(
+                      "flex items-center gap-2 px-2 py-1.5 rounded-lg border text-left transition-all flex-1 min-w-[120px]",
+                      selectedAgent?.id === a.id
+                        ? "border-primary bg-primary/8 shadow-sm"
+                        : "border-border bg-muted/20 hover:border-primary/40"
+                    )}
                   >
-                    {rewritingPromo
-                      ? <><Loader2 className="h-3 w-3 animate-spin" /> Rewriting…</>
-                      : <><Wand2 className="h-3 w-3" /> Rewrite with AI</>
-                    }
-                  </Button>
-
-                  {promoSnippet && (
-                    <div className="mt-3 rounded-md border border-primary/20 bg-primary/5 p-3 space-y-2">
-                      <p className="text-[10px] font-medium text-primary uppercase tracking-wider">AI Result</p>
-                      <p className="text-xs text-foreground leading-relaxed whitespace-pre-line">{promoSnippet}</p>
-                      <div className="flex gap-1.5 pt-1">
-                        <Button
-                          size="sm"
-                          className="h-7 text-xs flex-1 gap-1"
-                          onClick={appendPromoToHighlights}
-                         >
-                           <PlusCircle className="h-3 w-3" /> Add to Incentives
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 text-xs px-2"
-                          onClick={() => { setPromoSnippet(""); setPromoNotes(""); }}
-                        >
-                          Clear
-                        </Button>
+                    {a.photo_url ? (
+                      <img src={a.photo_url} alt={a.full_name} className="w-8 h-8 rounded-full object-cover object-top border border-border shrink-0" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
+                        {a.full_name.charAt(0)}
                       </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[11px] font-semibold text-foreground truncate">{a.full_name}</div>
+                      <div className="text-[9px] text-muted-foreground">{a.title.split(" ").slice(0,2).join(" ")}</div>
                     </div>
-                  )}
-                  <div className="mt-3">
-                    <Label className="text-[10px] text-muted-foreground">Incentives section <span className="text-muted-foreground/40">(one per line → green bullets)</span></Label>
-                    <Textarea
-                      value={vars.incentiveText}
-                      onChange={v("incentiveText")}
-                      className="text-xs mt-0.5 min-h-[80px] resize-none leading-relaxed"
-                      placeholder={"PTT exemption available\nFree storage locker — limited units\nExtended deposit structure"}
-                    />
+                    {selectedAgent?.id === a.id && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+                  </button>
+                ))}
+              </div>
+              {selectedAgent && (
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div>
+                    <Label className="text-[9px] text-muted-foreground uppercase tracking-wide">Phone override</Label>
+                    <Input value={selectedAgent.phone} onChange={(e) => setSelectedAgent({ ...selectedAgent, phone: e.target.value })}
+                      className="h-7 text-xs mt-0.5" placeholder="778-000-0000" />
+                  </div>
+                  <div>
+                    <Label className="text-[9px] text-muted-foreground uppercase tracking-wide">Email override</Label>
+                    <Input value={selectedAgent.email} onChange={(e) => setSelectedAgent({ ...selectedAgent, email: e.target.value })}
+                      className="h-7 text-xs mt-0.5" placeholder="name@…" />
                   </div>
                 </div>
+              )}
+            </StepSection>
 
-                {/* SECTION: Pricing Sheet Upload */}
-                <div className="px-4 pt-3.5 pb-4 border-b border-border/60">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className="h-1 w-1 rounded-full bg-primary" />
-                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Pricing Sheet</span>
-                    {pricingData && (
-                      <span className="ml-auto text-[9px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide flex items-center gap-1">
-                        <CheckCircle2 className="h-3 w-3" /> Active
-                      </span>
+            {/* ── STEP 3: INBOX (Subject + Preview) ───────────────────────── */}
+            <StepSection
+              step={3}
+              title="Inbox Line"
+              icon={<Mail className="h-3.5 w-3.5" />}
+              done={!!vars.subjectLine}
+              doneLabel={vars.subjectLine ? `"${vars.subjectLine.slice(0, 32)}…"` : undefined}
+              defaultOpen={false}
+            >
+              <div className="space-y-2">
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Subject Line <span className="text-muted-foreground/50 font-normal">· shown in inbox</span></Label>
+                  <Input value={vars.subjectLine} onChange={v("subjectLine")} className="h-8 text-xs mt-0.5" placeholder="🏙️ Exclusive Access: Lumina — Surrey Presale" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Preview Text <span className="text-muted-foreground/50 font-normal">· shown after subject</span></Label>
+                  <Input value={vars.previewText} onChange={v("previewText")} className="h-8 text-xs mt-0.5" placeholder="From $599K · Surrey · Limited units" />
+                </div>
+              </div>
+            </StepSection>
+
+            {/* ── STEP 4: EMAIL BODY ───────────────────────────────────────── */}
+            <StepSection
+              step={4}
+              title="Email Body"
+              icon={<FileText className="h-3.5 w-3.5" />}
+              done={!!vars.headline}
+              doneLabel={vars.headline ? `"${vars.headline.slice(0,30)}…"` : undefined}
+              defaultOpen={false}
+            >
+              {/* Presets */}
+              <div className="space-y-1.5 mb-3">
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Quick Presets</p>
+                {HEADLINE_PRESETS.map((preset, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setHeadlinePresetIdx(i);
+                      setVars((prev) => ({ ...prev, headline: preset.headline, bodyCopy: prev.bodyCopy || preset.body }));
+                    }}
+                    className={cn(
+                      "w-full text-left rounded-lg border px-2.5 py-2 transition-all",
+                      headlinePresetIdx === i
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border/60 bg-muted/10 hover:border-primary/30"
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="text-[11px] font-semibold text-foreground">{preset.label}</div>
+                      {headlinePresetIdx === i && <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground italic mt-0.5 line-clamp-1">"{preset.headline}"</div>
+                  </button>
+                ))}
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Subheadline <span className="text-muted-foreground/40">(italic gold)</span></Label>
+                  <Input value={vars.headline} onChange={v("headline")} className="h-8 text-xs mt-0.5" placeholder="Thank You for Your Interest" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Highlights <span className="text-muted-foreground/40">— one per line, gold bullets</span></Label>
+                  <Textarea
+                    value={vars.bodyCopy}
+                    onChange={v("bodyCopy")}
+                    className="text-xs mt-0.5 min-h-[90px] resize-none leading-relaxed"
+                    placeholder={"Park-facing homes\nPTT Exemption eligible\nCo-op commission available"}
+                  />
+                </div>
+              </div>
+            </StepSection>
+
+            {/* ── STEP 5: INCENTIVES ──────────────────────────────────────── */}
+            <StepSection
+              step={5}
+              title="Incentives"
+              icon={<Sparkles className="h-3.5 w-3.5" />}
+              done={!!vars.incentiveText}
+              doneLabel={vars.incentiveText ? `${vars.incentiveText.split("\n").filter(Boolean).length} line(s)` : undefined}
+              accent="gold"
+              defaultOpen={false}
+            >
+              <p className="text-[10px] text-muted-foreground mb-2 leading-relaxed">
+                Paste raw notes — AI rewrites them into polished bullet lines for a premium green section.
+              </p>
+              <Textarea
+                value={promoNotes}
+                onChange={(e) => setPromoNotes(e.target.value)}
+                className="text-xs min-h-[60px] resize-none leading-relaxed mb-2"
+                placeholder="New phase released, PTT exempt, free locker, ends Friday…"
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full h-8 text-xs gap-1.5 border-primary/40 text-primary hover:bg-primary/5 mb-2"
+                onClick={handleRewritePromo}
+                disabled={rewritingPromo || !promoNotes.trim()}
+              >
+                {rewritingPromo
+                  ? <><Loader2 className="h-3 w-3 animate-spin" /> Rewriting…</>
+                  : <><Wand2 className="h-3 w-3" /> Rewrite with AI</>
+                }
+              </Button>
+              {promoSnippet && (
+                <div className="mb-2 rounded-md border border-primary/20 bg-primary/5 p-2.5 space-y-1.5">
+                  <p className="text-[10px] font-medium text-primary uppercase tracking-wider">AI Result</p>
+                  <p className="text-xs text-foreground leading-relaxed whitespace-pre-line">{promoSnippet}</p>
+                  <div className="flex gap-1.5 pt-0.5">
+                    <Button size="sm" className="h-7 text-xs flex-1 gap-1" onClick={appendPromoToHighlights}>
+                      <PlusCircle className="h-3 w-3" /> Add to Incentives
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => { setPromoSnippet(""); setPromoNotes(""); }}>
+                      Clear
+                    </Button>
+                  </div>
+                </div>
+              )}
+              <div>
+                <Label className="text-[10px] text-muted-foreground">Incentives <span className="text-muted-foreground/40">— one per line → green bullets</span></Label>
+                <Textarea
+                  value={vars.incentiveText}
+                  onChange={v("incentiveText")}
+                  className="text-xs mt-0.5 min-h-[70px] resize-none leading-relaxed"
+                  placeholder={"PTT exemption available\nFree storage locker — limited\nExtended deposit structure"}
+                />
+              </div>
+            </StepSection>
+
+            {/* ── STEP 6: PRICING SHEET ───────────────────────────────────── */}
+            <StepSection
+              step={6}
+              title="Pricing Sheet"
+              icon={<DollarSign className="h-3.5 w-3.5" />}
+              done={!!pricingData}
+              doneLabel={pricingData?.units?.length ? `${pricingData.units.length} unit type(s)` : pricingData ? "Loaded" : undefined}
+              accent="green"
+              defaultOpen={false}
+            >
+              <p className="text-[10px] text-muted-foreground mb-2.5 leading-relaxed">
+                Upload a PDF — AI extracts unit types, sq ft &amp; prices into a dark green pricing card in the email.
+              </p>
+              <input ref={pricingFileRef} type="file" accept="application/pdf" className="hidden" onChange={handlePricingFileUpload} />
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full h-8 text-xs gap-1.5 border-primary/40 text-primary hover:bg-primary/5"
+                onClick={() => pricingFileRef.current?.click()}
+                disabled={extractingPricing}
+              >
+                {extractingPricing
+                  ? <><Loader2 className="h-3 w-3 animate-spin" /> Extracting pricing…</>
+                  : <><DollarSign className="h-3 w-3" /> Upload Pricing Sheet PDF</>
+                }
+              </Button>
+              {pricingData && (
+                <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                      <TableProperties className="h-3 w-3" /> Pricing Summary
+                    </p>
+                    <button onClick={() => setPricingData(null)} className="text-[9px] text-muted-foreground hover:text-destructive transition-colors">Remove</button>
+                  </div>
+                  {pricingData.summary && <p className="text-xs text-foreground/80 leading-relaxed">{pricingData.summary}</p>}
+                  {(pricingData.units ?? []).length > 0 && (
+                    <div className="rounded border border-border overflow-hidden">
+                      <table className="w-full text-[10px]">
+                        <thead>
+                          <tr className="bg-muted/50">
+                            <th className="text-left px-2 py-1 text-muted-foreground font-medium">Type</th>
+                            <th className="text-center px-2 py-1 text-muted-foreground font-medium">Sq Ft</th>
+                            <th className="text-right px-2 py-1 text-muted-foreground font-medium">From</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(pricingData.units ?? []).map((u, i) => (
+                            <tr key={i} className="border-t border-border/50">
+                              <td className="px-2 py-1 text-foreground font-medium">{u.type}</td>
+                              <td className="px-2 py-1 text-muted-foreground text-center">{u.sqft ?? "—"}</td>
+                              <td className="px-2 py-1 text-primary font-semibold text-right">{u.price ?? "—"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  {(pricingData.highlights ?? []).length > 0 && (
+                    <ul className="space-y-0.5">
+                      {(pricingData.highlights ?? []).map((h, i) => (
+                        <li key={i} className="flex items-start gap-1.5 text-[10px] text-muted-foreground">
+                          <span className="text-primary mt-0.5">·</span> {h}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </StepSection>
+
+            {/* ── STEP 7: CTA BUTTONS ─────────────────────────────────────── */}
+            <StepSection
+              step={7}
+              title="CTA Buttons"
+              icon={<Link2 className="h-3.5 w-3.5" />}
+              done={Object.values(cta).some(Boolean)}
+              doneLabel={`${Object.values(cta).filter(Boolean).length} active`}
+              defaultOpen={false}
+            >
+              <div className="space-y-1">
+                {([
+                  { key: "floorplan" as keyof CtaToggles, label: "Floor Plans & Pricing", url: vars.floorplanUrl, style: "primary" },
+                  { key: "brochure" as keyof CtaToggles, label: "Download Brochure", url: vars.brochureUrl, style: "primary" },
+                  { key: "pricing" as keyof CtaToggles, label: "Request Pricing", url: vars.pricingUrl, style: "secondary" },
+                  { key: "viewProject" as keyof CtaToggles, label: "View Full Project", url: vars.projectUrl, style: "secondary" },
+                  { key: "bookConsult" as keyof CtaToggles, label: "Book a Private Tour", url: vars.bookUrl, style: "secondary" },
+                ] as Array<{ key: keyof CtaToggles; label: string; url: string; style: string }>).map(({ key, label, url, style }) => (
+                  <div key={key} className={cn(
+                    "flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 border transition-all",
+                    cta[key] && url ? "border-border bg-card" : "border-border/40 bg-muted/10 opacity-60"
+                  )}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Switch
+                        checked={cta[key]}
+                        onCheckedChange={(val) => setCta((prev) => ({ ...prev, [key]: val }))}
+                        disabled={!url}
+                        className="scale-[0.7] origin-left"
+                      />
+                      <div className="min-w-0">
+                        <span className="text-[11px] font-medium text-foreground truncate block">{label}</span>
+                        <span className={cn("text-[9px] font-semibold uppercase tracking-wide", style === "primary" ? "text-primary" : "text-muted-foreground/50")}>{style}</span>
+                      </div>
+                    </div>
+                    {!url ? (
+                      <span className="text-[9px] text-muted-foreground/30 shrink-0 border border-dashed border-muted-foreground/20 rounded px-1">no url</span>
+                    ) : (
+                      <div className={cn("h-1.5 w-1.5 rounded-full shrink-0", cta[key] ? "bg-emerald-500" : "bg-muted-foreground/20")} />
                     )}
                   </div>
-                  <p className="text-[10px] text-muted-foreground mb-2.5 leading-relaxed">
-                    Upload a pricing sheet PDF — AI extracts unit types, sizes &amp; prices into a premium card in the email.
-                  </p>
-                  <input
-                    ref={pricingFileRef}
-                    type="file"
-                    accept="application/pdf"
-                    className="hidden"
-                    onChange={handlePricingFileUpload}
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full h-8 text-xs gap-1.5 border-primary/40 text-primary hover:bg-primary/5"
-                    onClick={() => pricingFileRef.current?.click()}
-                    disabled={extractingPricing}
-                  >
-                    {extractingPricing
-                      ? <><Loader2 className="h-3 w-3 animate-spin" /> Extracting pricing…</>
-                      : <><DollarSign className="h-3 w-3" /> Upload Pricing Sheet PDF</>
-                    }
-                  </Button>
+                ))}
+              </div>
+            </StepSection>
 
-                  {pricingData && (
-                    <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
-                          <TableProperties className="h-3 w-3" /> Pricing Summary
-                        </p>
-                        <button
-                          onClick={() => setPricingData(null)}
-                          className="text-[9px] text-muted-foreground hover:text-destructive transition-colors"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                      {pricingData.summary && (
-                        <p className="text-xs text-foreground/80 leading-relaxed">{pricingData.summary}</p>
-                      )}
-                      {(pricingData.units ?? []).length > 0 && (
-                        <div className="rounded border border-border overflow-hidden">
-                          <table className="w-full text-[10px]">
-                            <thead>
-                              <tr className="bg-muted/50">
-                                <th className="text-left px-2 py-1 text-muted-foreground font-medium">Type</th>
-                                <th className="text-center px-2 py-1 text-muted-foreground font-medium">Sq Ft</th>
-                                <th className="text-right px-2 py-1 text-muted-foreground font-medium">From</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {(pricingData.units ?? []).map((u, i) => (
-                                <tr key={i} className="border-t border-border/50">
-                                  <td className="px-2 py-1 text-foreground font-medium">{u.type}</td>
-                                  <td className="px-2 py-1 text-muted-foreground text-center">{u.sqft ?? "—"}</td>
-                                  <td className="px-2 py-1 text-primary font-semibold text-right">{u.price ?? "—"}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                      {(pricingData.highlights ?? []).length > 0 && (
-                        <ul className="space-y-0.5">
-                          {(pricingData.highlights ?? []).map((h, i) => (
-                            <li key={i} className="flex items-start gap-1.5 text-[10px] text-muted-foreground">
-                              <span className="text-primary mt-0.5">·</span> {h}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
-                  <div className="flex items-center gap-1.5 mb-2.5">
-                    <div className="h-1 w-1 rounded-full bg-primary" />
-                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Key Stats</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {[
-                      { key: "startingPrice" as keyof TemplateVars, label: "Starting Price", hint: "+ GST", placeholder: "$789,900" },
-                      { key: "deposit" as keyof TemplateVars, label: "Deposit", hint: "to secure", placeholder: "5% on signing" },
-                      { key: "completion" as keyof TemplateVars, label: "Completion", hint: "est. date", placeholder: "Summer 2026" },
-                    ].map(({ key, label, hint, placeholder }) => (
-                      <div key={key} className={cn("rounded-lg border p-2 transition-all", vars[key] ? "border-primary/30 bg-primary/3" : "border-border bg-muted/10")}>
-                        <Label className="text-[9px] text-muted-foreground uppercase tracking-wide block mb-1">{label}</Label>
-                        <Input value={vars[key]} onChange={v(key)} className="h-7 text-xs border-0 bg-transparent p-0 focus-visible:ring-0 font-medium" placeholder={placeholder} />
-                        <p className="text-[9px] text-muted-foreground/40 mt-0.5">{hint}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* SECTION: CTA Buttons */}
-                <div className="px-4 pt-3.5 pb-3">
+            {/* ── STEP 8: TYPOGRAPHY & STYLE ──────────────────────────────── */}
+            <StepSection
+              step={8}
+              title="Typography"
+              icon={<FileText className="h-3.5 w-3.5" />}
+              done={fontIdx > 0}
+              doneLabel={FONT_PAIRINGS[fontIdx]?.tag}
+              defaultOpen={false}
+            >
+              <div className="grid grid-cols-2 gap-1.5">
+                {FONT_PAIRINGS.map((fp, i) => (
                   <button
-                    className="flex items-center justify-between w-full mb-2.5"
-                    onClick={() => setCtaSectionOpen(!ctaSectionOpen)}
+                    key={fp.id}
+                    onClick={() => setFontIdx(i)}
+                    className={cn(
+                      "text-left rounded-lg border px-2.5 py-2 transition-all",
+                      fontIdx === i
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border bg-muted/10 hover:border-primary/30"
+                    )}
                   >
-                    <div className="flex items-center gap-1.5">
-                      <div className="h-1 w-1 rounded-full bg-primary" />
-                      <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">CTA Buttons</span>
-                    </div>
-                    {ctaSectionOpen
-                      ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground/40" />
-                      : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/40" />
-                    }
+                    <div className="text-[11px] font-semibold text-foreground leading-tight truncate">{fp.label.split(" + ")[0]}</div>
+                    <div className="text-[9px] text-muted-foreground/70 truncate">+ {fp.label.split(" + ")[1] || fp.label}</div>
+                    <div className={cn("text-[9px] mt-0.5 font-medium", fontIdx === i ? "text-primary" : "text-muted-foreground/50")}>{fp.tag}</div>
                   </button>
-                  {ctaSectionOpen && (
-                    <div className="space-y-1">
-                      {(
-                        [
-                          { key: "floorplan" as keyof CtaToggles, label: "Floor Plans & Pricing", url: vars.floorplanUrl, style: "primary" },
-                          { key: "brochure" as keyof CtaToggles, label: "Download Brochure", url: vars.brochureUrl, style: "primary" },
-                          { key: "pricing" as keyof CtaToggles, label: "Request Pricing", url: vars.pricingUrl, style: "secondary" },
-                          { key: "viewProject" as keyof CtaToggles, label: "View Full Project", url: vars.projectUrl, style: "secondary" },
-                          { key: "bookConsult" as keyof CtaToggles, label: "Book a Private Tour", url: vars.bookUrl, style: "secondary" },
-                        ]
-                      ).map(({ key, label, url, style }) => (
-                        <div key={key} className={cn(
-                          "flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 border transition-all",
-                          cta[key] && url ? "border-border bg-card" : "border-border/40 bg-muted/10 opacity-60"
-                        )}>
-                          <div className="flex items-center gap-2 min-w-0">
-                            <Switch
-                              checked={cta[key]}
-                              onCheckedChange={(val) => setCta((prev) => ({ ...prev, [key]: val }))}
-                              disabled={!url}
-                              className="scale-[0.7] origin-left"
-                            />
-                            <div className="min-w-0">
-                              <span className="text-[11px] font-medium text-foreground truncate block">{label}</span>
-                              <span className={cn("text-[9px] font-semibold uppercase tracking-wide", style === "primary" ? "text-primary" : "text-muted-foreground/50")}>{style}</span>
-                            </div>
-                          </div>
-                          {!url ? (
-                            <span className="text-[9px] text-muted-foreground/30 shrink-0 border border-dashed border-muted-foreground/20 rounded px-1">no url</span>
-                          ) : (
-                            <div className={cn("h-1.5 w-1.5 rounded-full shrink-0", cta[key] ? "bg-emerald-500" : "bg-muted-foreground/20")} />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
+                ))}
+              </div>
+            </StepSection>
 
-              {/* PROJECT TAB */}
-              <TabsContent value="project" className="mt-0 px-4 pb-4 pt-3 space-y-2">
-                {selectedProject?.featured_image && (
-                  <div className="rounded-lg overflow-hidden border border-border mb-3">
-                    <img src={selectedProject.featured_image} alt={selectedProject.name} className="w-full h-24 object-cover" />
-                    <div className="px-2.5 py-1 bg-muted/30 border-t border-border">
-                      <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Hero image · auto-filled</p>
-                    </div>
-                  </div>
-                )}
-                <div className="space-y-1.5">
-                  {(
-                    [
-                      { key: "projectName" as keyof TemplateVars, label: "Project Name" },
-                      { key: "developerName" as keyof TemplateVars, label: "Developer" },
-                      { key: "address" as keyof TemplateVars, label: "Address" },
-                      { key: "city" as keyof TemplateVars, label: "City" },
-                      { key: "neighborhood" as keyof TemplateVars, label: "Neighborhood" },
-                      { key: "completion" as keyof TemplateVars, label: "Est. Completion" },
-                      { key: "startingPrice" as keyof TemplateVars, label: "Starting Price" },
-                      { key: "deposit" as keyof TemplateVars, label: "Deposit to Secure" },
-                    ]
-                  ).map(({ key, label }) => (
-                    <div key={key}>
-                      <Label className="text-[10px] text-muted-foreground">{label}</Label>
-                      <Input value={vars[key]} onChange={v(key)} className="h-7 text-xs mt-0.5" />
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-
-              {/* URLS TAB */}
-              <TabsContent value="urls" className="mt-0 px-4 pb-4 pt-3 space-y-1.5">
-                <p className="text-[10px] text-muted-foreground mb-2">Auto-filled from project. Override any field below.</p>
-                {(
-                  [
-                    { key: "featuredImage" as keyof TemplateVars, label: "Hero Image", icon: "🖼️" },
-                    { key: "brochureUrl" as keyof TemplateVars, label: "Brochure PDF", icon: "📄" },
-                    { key: "floorplanUrl" as keyof TemplateVars, label: "Floor Plan PDF", icon: "📐" },
-                    { key: "pricingUrl" as keyof TemplateVars, label: "Pricing Sheet", icon: "💰" },
-                    { key: "projectUrl" as keyof TemplateVars, label: "Project Page", icon: "🔗" },
-                    { key: "bookUrl" as keyof TemplateVars, label: "Booking / Tour", icon: "📅" },
-                  ]
-                ).map(({ key, label, icon }) => (
+            {/* ── STEP 9: URLS (override) ──────────────────────────────────── */}
+            <StepSection
+              step={9}
+              title="URLs & Links"
+              icon={<Link2 className="h-3.5 w-3.5" />}
+              done={!!(vars.featuredImage || vars.brochureUrl || vars.floorplanUrl)}
+              doneLabel="Auto-filled"
+              defaultOpen={false}
+            >
+              <p className="text-[10px] text-muted-foreground mb-2">Auto-filled from project. Override any field here.</p>
+              <div className="space-y-1.5">
+                {([
+                  { key: "featuredImage" as keyof TemplateVars, label: "Hero Image", icon: "🖼️" },
+                  { key: "brochureUrl" as keyof TemplateVars, label: "Brochure PDF", icon: "📄" },
+                  { key: "floorplanUrl" as keyof TemplateVars, label: "Floor Plan PDF", icon: "📐" },
+                  { key: "pricingUrl" as keyof TemplateVars, label: "Pricing Sheet", icon: "💰" },
+                  { key: "projectUrl" as keyof TemplateVars, label: "Project Page", icon: "🔗" },
+                  { key: "bookUrl" as keyof TemplateVars, label: "Booking / Tour", icon: "📅" },
+                ] as Array<{ key: keyof TemplateVars; label: string; icon: string }>).map(({ key, label, icon }) => (
                   <div key={key}>
                     <Label className="text-[10px] text-muted-foreground flex items-center gap-1">{icon} {label}</Label>
                     <div className="relative mt-0.5">
@@ -1921,9 +1888,11 @@ export default function AdminEmailBuilder() {
                     </div>
                   </div>
                 ))}
-              </TabsContent>
-            </div>
-          </Tabs>
+              </div>
+            </StepSection>
+
+            <div className="h-4" />
+          </div>
 
           {/* Bottom action bar */}
           <div className="px-3 pb-3 pt-2.5 border-t border-border shrink-0 bg-muted/5">
