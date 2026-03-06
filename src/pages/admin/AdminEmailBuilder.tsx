@@ -463,6 +463,65 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
       ).join("\n")
     : "";
 
+  // ── Pricing Card ─────────────────────────────────────────────────────────────
+  const pricingUnitsRows = (pricingData?.units ?? []).map((u) =>
+    `<tr>
+      <td style="padding:10px 14px; border-bottom:1px solid #1e3028; font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:13px; color:#e8f0ea; font-weight:400;">${u.type}</td>
+      <td style="padding:10px 14px; border-bottom:1px solid #1e3028; font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:12px; color:#8aaa96; text-align:center;">${u.sqft ?? "&mdash;"}</td>
+      <td style="padding:10px 14px; border-bottom:1px solid #1e3028; font-family:'Cormorant Garamond',Georgia,serif; font-size:18px; color:#C9A55A; font-weight:400; text-align:right; white-space:nowrap;">${u.price ?? "&mdash;"}</td>
+    </tr>`
+  ).join("\n");
+
+  const pricingHighlightRows = (pricingData?.highlights ?? []).map((h) =>
+    `<tr>
+      <td valign="top" width="16" style="padding-bottom:10px; padding-right:10px; vertical-align:top;">
+        <div style="width:5px; height:5px; background-color:#C9A55A; margin-top:6px; font-size:0; line-height:0;">&nbsp;</div>
+      </td>
+      <td valign="top" style="padding-bottom:10px; vertical-align:top;">
+        <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:13px; color:#c8d8cc; line-height:1.7;">${h}</div>
+      </td>
+    </tr>`
+  ).join("\n");
+
+  const pricingCardHtml = pricingData
+    ? `
+          <!-- PRICING CARD -->
+          <tr>
+            <td class="mobile-pad" bgcolor="#0f2419" style="padding:0; background-color:#0f2419; border-top:1px solid #1a3028;">
+              <!-- header row -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td style="padding:24px 40px 16px 40px; background-color:#0f2419;">
+                    <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; margin-bottom:6px; line-height:1.4;">PRICING OVERVIEW</div>
+                    <div style="font-family:'Cormorant Garamond',Georgia,serif; font-size:28px; font-weight:400; color:#ffffff; line-height:1.1; margin-bottom:6px;">${vars.projectName || "Pricing"}</div>
+                    <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0; margin-bottom:14px;">&nbsp;</div>
+                    ${pricingData.summary ? `<div style="font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:13px; font-weight:300; color:#8aaa96; line-height:1.7; margin-bottom:4px;">${pricingData.summary}</div>` : ""}
+                  </td>
+                </tr>
+              </table>
+              ${pricingUnitsRows ? `
+              <!-- unit table -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse; border-top:1px solid #1e3028; margin-bottom:0;">
+                <tr>
+                  <th style="padding:8px 14px; background-color:#0a1a10; font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#5a7a66; text-align:left; font-weight:500;">Unit Type</th>
+                  <th style="padding:8px 14px; background-color:#0a1a10; font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#5a7a66; text-align:center; font-weight:500;">Sq Ft</th>
+                  <th style="padding:8px 14px; background-color:#0a1a10; font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#5a7a66; text-align:right; font-weight:500;">From</th>
+                </tr>
+                ${pricingUnitsRows}
+              </table>` : ""}
+              ${pricingHighlightRows ? `
+              <!-- highlights -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="padding:20px 40px 24px 40px;">
+                <tr><td colspan="2" style="padding:20px 40px 8px 40px; padding-top:20px;">
+                  <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#5a7a66; margin-bottom:12px;">Key Details</div>
+                </td></tr>
+                ${pricingHighlightRows.split("<tr>").slice(1).map(r => `<tr style="margin:0;"><td style="padding:0 40px;" colspan="2"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>${r}</table></td></tr>`).join("")}
+              </table>` : ""}
+            </td>
+          </tr>`
+    : "";
+
+
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
 <head>
