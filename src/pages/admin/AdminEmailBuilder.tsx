@@ -46,8 +46,27 @@ import {
   Smartphone,
   ChevronDown,
   ChevronUp,
+  BookMarked,
+  FolderOpen,
+  Trash2,
+  Save,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// ─── Saved Template type ──────────────────────────────────────────────────────
+interface SavedEmailTemplate {
+  id: string;
+  name: string;
+  project_name: string;
+  form_data: {
+    vars: Record<string, string>;
+    cta: Record<string, boolean>;
+    fontIdx: number;
+    agentId?: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
 
 // ─── Agent type ───────────────────────────────────────────────────────────────
 interface AgentProfile {
@@ -359,11 +378,11 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
   // ── CTA buttons ─────────────────────────────────────────────────────────────
   const primaryCta = (href: string, label: string) =>
     href
-      ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
+      ? `<table class="cta-btn" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:10px; max-width:320px;">
           <tr>
-            <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:16px 40px; mso-padding-alt:16px 40px;">
+            <td bgcolor="#0d1f18" style="background-color:#0d1f18; padding:16px 40px; mso-padding-alt:16px 40px; text-align:center;">
               <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block;">${label} &rarr;</a><![endif]-->
-              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block; white-space:nowrap;">${label}&nbsp;&rarr;</a><!--<![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block;">${label}&nbsp;&rarr;</a><!--<![endif]-->
             </td>
           </tr>
         </table>`
@@ -371,11 +390,11 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
 
   const secondaryCta = (href: string, label: string) =>
     href
-      ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
+      ? `<table class="cta-btn" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:10px; max-width:320px;">
           <tr>
-            <td style="border:1.5px solid #C9A55A; padding:15px 40px; mso-padding-alt:15px 40px;">
+            <td style="border:1.5px solid #C9A55A; padding:15px 40px; mso-padding-alt:15px 40px; text-align:center;">
               <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block;">${label}</a><![endif]-->
-              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block; white-space:nowrap;">&#128222;&nbsp; ${label}</a><!--<![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block;">&#128222;&nbsp; ${label}</a><!--<![endif]-->
             </td>
           </tr>
         </table>`
@@ -430,10 +449,14 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
       .location-td { padding: 11px 20px !important; }
       .footer-td { padding: 20px 20px !important; }
       .legal-td { padding: 20px 20px 24px 20px !important; }
-      .hero-headline { font-size: 36px !important; line-height: 1.1 !important; }
-      .body-text { font-size: 15px !important; line-height: 1.85 !important; }
-      .stat-col { display: block !important; width: 100% !important; padding: 14px 0 !important; border-bottom: 1px solid #efefef !important; }
+      .hero-headline { font-size: 28px !important; line-height: 1.15 !important; }
+      .body-text { font-size: 14px !important; line-height: 1.8 !important; }
+      .stat-col { display: block !important; width: 100% !important; padding: 12px 0 !important; border-bottom: 1px solid #efefef !important; }
       .stat-divider { display: none !important; }
+      .header-city { display: none !important; }
+      .sig-logo-td { display: none !important; }
+      .cta-btn { width: 100% !important; display: block !important; text-align: center !important; }
+      .cta-btn a { display: block !important; width: 100% !important; box-sizing: border-box !important; }
     }
   </style>
 </head>
@@ -462,7 +485,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                     <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0;">&nbsp;</div>
                   </td>
                   ${(vars.neighborhood || vars.city) ? `
-                  <td align="right" valign="top" style="padding-left:16px; white-space:nowrap;">
+                  <td class="header-city" align="right" valign="top" style="padding-left:16px; white-space:nowrap;">
                     <div style="font-family:${font.body}; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#8aaa96; text-align:right; line-height:2.2; mso-line-height-rule:exactly;">
                       ${vars.city ? `${vars.city.toUpperCase()}<br/>` : ""}${vars.neighborhood ? vars.neighborhood.toUpperCase() : ""}
                     </div>
@@ -606,7 +629,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                     </table>
                   </td>
                   <!-- Right: logo -->
-                  <td align="right" valign="middle" style="padding:28px 32px 28px 16px; vertical-align:middle;">
+                  <td class="sig-logo-td" align="right" valign="middle" style="padding:28px 32px 28px 16px; vertical-align:middle;">
                     <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="140" border="0"
                          style="display:block; width:140px; max-width:140px; height:auto; -ms-interpolation-mode:bicubic;" />
                   </td>
@@ -807,6 +830,70 @@ export default function AdminEmailBuilder() {
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
   const [ctaSectionOpen, setCtaSectionOpen] = useState(true);
 
+  // ── Template save/load ───────────────────────────────────────────────────────
+  const [savedTemplates, setSavedTemplates] = useState<SavedEmailTemplate[]>([]);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [savingTemplate, setSavingTemplate] = useState(false);
+
+  const loadSavedTemplates = useCallback(async () => {
+    const { data } = await supabase
+      .from("campaign_templates")
+      .select("id, name, project_name, form_data, created_at, updated_at")
+      .order("updated_at", { ascending: false });
+    if (data) setSavedTemplates(data as SavedEmailTemplate[]);
+  }, []);
+
+  useEffect(() => { loadSavedTemplates(); }, [loadSavedTemplates]);
+
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) { toast.error("Please enter a template name."); return; }
+    setSavingTemplate(true);
+    try {
+      const form_data = {
+        vars,
+        cta,
+        fontIdx,
+        agentId: selectedAgent?.id,
+      };
+      const { error } = await supabase.from("campaign_templates").insert([{
+        name: templateName.trim(),
+        project_name: vars.projectName || "Untitled",
+        form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
+      }]);
+      if (error) throw error;
+      toast.success("Template saved!");
+      setSaveDialogOpen(false);
+      setTemplateName("");
+      loadSavedTemplates();
+    } catch (e) {
+      toast.error("Failed to save template.");
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  const handleLoadTemplate = (tpl: SavedEmailTemplate) => {
+    const fd = tpl.form_data;
+    if (fd.vars) setVars({ ...EMPTY_VARS, ...fd.vars } as TemplateVars);
+    if (fd.cta) setCta({ ...DEFAULT_CTA, ...fd.cta } as CtaToggles);
+    if (typeof fd.fontIdx === "number") setFontIdx(fd.fontIdx);
+    if (fd.agentId) {
+      const a = agents.find((ag) => ag.id === fd.agentId);
+      if (a) setSelectedAgent(a);
+    }
+    setUseCustomHtml(false);
+    setTemplatesOpen(false);
+    toast.success(`Loaded: ${tpl.name}`);
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    await supabase.from("campaign_templates").delete().eq("id", id);
+    loadSavedTemplates();
+    toast.success("Template deleted.");
+  };
+
   return (
     <TooltipProvider>
     <AdminLayout>
@@ -906,6 +993,99 @@ export default function AdminEmailBuilder() {
                   <Button variant="outline" onClick={() => setImportOpen(false)}>Cancel</Button>
                   <Button onClick={handleImport} className="gap-1.5">
                     <Sparkles className="h-3.5 w-3.5" /> Use This HTML
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* LOAD TEMPLATES */}
+          <Dialog open={templatesOpen} onOpenChange={setTemplatesOpen}>
+            <DialogTrigger asChild>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5 h-9 px-3">
+                    <FolderOpen className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Templates</span>
+                    {savedTemplates.length > 0 && (
+                      <Badge className="h-4 min-w-4 px-1 text-[10px] rounded-full">{savedTemplates.length}</Badge>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Load a saved template</TooltipContent>
+              </Tooltip>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <BookMarked className="h-4 w-4 text-primary" />
+                  Saved Email Templates
+                </DialogTitle>
+              </DialogHeader>
+              {savedTemplates.length === 0 ? (
+                <div className="py-8 text-center text-sm text-muted-foreground">
+                  No saved templates yet. Build an email and click <strong>Save Template</strong>.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                  {savedTemplates.map((tpl) => (
+                    <div key={tpl.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-3 py-2.5 hover:border-primary/30 transition-colors">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-foreground truncate">{tpl.name}</div>
+                        <div className="text-xs text-muted-foreground truncate">{tpl.project_name} · {new Date(tpl.updated_at).toLocaleDateString()}</div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs gap-1" onClick={() => handleLoadTemplate(tpl)}>
+                          <FolderOpen className="h-3 w-3" /> Load
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteTemplate(tpl.id)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* SAVE TEMPLATE */}
+          <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+            <DialogTrigger asChild>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5 h-9 px-3">
+                    <Save className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Save</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Save current state as a template</TooltipContent>
+              </Tooltip>
+            </DialogTrigger>
+            <DialogContent className="max-w-sm">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <BookMarked className="h-4 w-4 text-primary" />
+                  Save Email Template
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-sm">Template Name</Label>
+                  <Input
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    className="mt-1"
+                    placeholder={`${vars.projectName || "My Email"} — Thank You`}
+                    onKeyDown={(e) => e.key === "Enter" && handleSaveTemplate()}
+                    autoFocus
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">Saves all content, CTAs, font, and agent. You can load it later from Templates.</p>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleSaveTemplate} disabled={savingTemplate} className="gap-1.5">
+                    {savingTemplate ? "Saving…" : <><Save className="h-3.5 w-3.5" /> Save Template</>}
                   </Button>
                 </div>
               </div>
