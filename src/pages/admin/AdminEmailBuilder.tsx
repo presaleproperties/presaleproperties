@@ -1094,35 +1094,68 @@ export default function AdminEmailBuilder() {
 
               {/* CONTENT TAB */}
               <TabsContent value="content" className="mt-0 px-4 pb-4 space-y-4">
-                <div className="pt-3">
-                  <div className="flex items-center gap-1.5 mb-2.5">
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Sender / Signature</span>
-                  </div>
-                  <div className="flex gap-2">
-                    {PRESET_AGENTS.map((a, i) => (
+                <div className="pt-3 space-y-3">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Sender / Signature</span>
+
+                  {/* Agent picker */}
+                  <div className="flex gap-1.5 flex-wrap">
+                    {agents.map((a) => (
                       <button
-                        key={i}
-                        onClick={() => setAgentIdx(i)}
+                        key={a.id}
+                        onClick={() => setSelectedAgent({ ...a })}
                         className={cn(
-                          "flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all flex-1",
-                          agentIdx === i
+                          "flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all",
+                          selectedAgent?.id === a.id
                             ? "border-primary bg-primary/5 shadow-sm"
                             : "border-border bg-background hover:border-primary/30"
                         )}
                       >
-                        <img
-                          src={a.photo}
-                          alt={a.name}
-                          className="w-8 h-8 rounded-full object-cover border border-border shrink-0"
-                          style={{ objectPosition: "center 10%" }}
-                        />
+                        {a.photo_url ? (
+                          <img src={a.photo_url} alt={a.full_name}
+                            className="w-9 h-9 rounded-full object-cover object-top border border-border shrink-0" />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
+                            {a.full_name.charAt(0)}
+                          </div>
+                        )}
                         <div className="min-w-0">
-                          <div className="text-[11px] font-medium text-foreground truncate">{a.name.split(" ")[0]}</div>
-                          <div className="text-[10px] text-muted-foreground truncate">{a.title.split(" ")[0]}</div>
+                          <div className="text-[11px] font-semibold text-foreground truncate">{a.full_name.split(" ")[0]}</div>
+                          <div className="text-[9px] text-muted-foreground truncate leading-tight">{a.title}</div>
                         </div>
                       </button>
                     ))}
                   </div>
+
+                  {/* Editable signature fields */}
+                  {selectedAgent && (
+                    <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        {selectedAgent.photo_url && (
+                          <img src={selectedAgent.photo_url} alt={selectedAgent.full_name}
+                            className="w-10 h-10 rounded-full object-cover object-top border-2 border-primary/40 shrink-0" />
+                        )}
+                        <div>
+                          <div className="text-[11px] font-semibold text-foreground">{selectedAgent.full_name}</div>
+                          <div className="text-[10px] text-muted-foreground">Edit signature details below</div>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Title</Label>
+                        <Input value={selectedAgent.title} onChange={(e) => setSelectedAgent({ ...selectedAgent, title: e.target.value })}
+                          className="h-7 text-xs mt-0.5" />
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Phone</Label>
+                        <Input value={selectedAgent.phone} onChange={(e) => setSelectedAgent({ ...selectedAgent, phone: e.target.value })}
+                          className="h-7 text-xs mt-0.5" placeholder="778-000-0000" />
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Email</Label>
+                        <Input value={selectedAgent.email} onChange={(e) => setSelectedAgent({ ...selectedAgent, email: e.target.value })}
+                          className="h-7 text-xs mt-0.5" placeholder="name@presaleproperties.com" />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <Separator />
