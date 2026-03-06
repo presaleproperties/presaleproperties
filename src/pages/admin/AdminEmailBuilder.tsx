@@ -911,10 +911,11 @@ export default function AdminEmailBuilder() {
 
   const appendPromoToHighlights = () => {
     if (!promoSnippet.trim()) return;
-    const current = vars.incentiveText.trim();
     setVars((prev) => ({
       ...prev,
-      incentiveText: current ? `${current}\n${promoSnippet}` : promoSnippet,
+      incentiveText: prev.incentiveText.trim()
+        ? `${prev.incentiveText.trim()}\n${promoSnippet.trim()}`
+        : promoSnippet.trim(),
     }));
     setPromoNotes("");
     setPromoSnippet("");
@@ -1561,6 +1562,15 @@ export default function AdminEmailBuilder() {
                       </div>
                     </div>
                   )}
+                  <div className="mt-3">
+                    <Label className="text-[10px] text-muted-foreground">Incentives section <span className="text-muted-foreground/40">(one per line → green bullets)</span></Label>
+                    <Textarea
+                      value={vars.incentiveText}
+                      onChange={v("incentiveText")}
+                      className="text-xs mt-0.5 min-h-[80px] resize-none leading-relaxed"
+                      placeholder={"PTT exemption available\nFree storage locker — limited units\nExtended deposit structure"}
+                    />
+                  </div>
                 </div>
 
                 {/* SECTION: Key Stats */}
