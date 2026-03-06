@@ -283,6 +283,7 @@ interface TemplateVars {
   bookUrl: string;
   subjectLine: string;
   previewText: string;
+  greeting: string;
 }
 
 interface CtaToggles {
