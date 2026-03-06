@@ -1614,7 +1614,6 @@ export default function MapSearch() {
           priceRange={priceRange}
           onPriceRangeChange={(range) => {
             setPriceRange(range);
-            // Apply immediately on change for better UX
             const newParams = new URLSearchParams(searchParams);
             if (range[0] > MIN_PRICE) {
               newParams.set("priceMin", range[0].toString());
@@ -1647,6 +1646,55 @@ export default function MapSearch() {
           onBathsChange={(baths) => updateFilter("baths", baths)}
           onClearAll={handleClearAllFilters}
           onApply={() => setMobileFiltersOpen(false)}
+          onApplyPreset={(preset) => {
+            // Apply ALL preset changes atomically in ONE setSearchParams call
+            // This avoids the stale-closure race condition where sequential
+            // setSearchParams calls overwrite each other.
+            const newParams = new URLSearchParams(searchParams);
+            // Price
+            if (preset.priceMin !== undefined && preset.priceMin > MIN_PRICE) {
+              newParams.set("priceMin", preset.priceMin.toString());
+            } else {
+              newParams.delete("priceMin");
+            }
+            if (preset.priceMax !== undefined && preset.priceMax < MAX_PRICE) {
+              newParams.set("priceMax", preset.priceMax.toString());
+            } else {
+              newParams.delete("priceMax");
+            }
+            // Property type
+            if (preset.propertyType !== undefined) {
+              if (preset.propertyType === "any" || preset.propertyType === "") {
+                newParams.delete("type");
+              } else {
+                newParams.set("type", preset.propertyType);
+              }
+            }
+            // Cities
+            if (preset.cities !== undefined) {
+              if (preset.cities.length === 0) {
+                newParams.delete("cities");
+                newParams.delete("city");
+              } else {
+                newParams.set("cities", preset.cities.join(","));
+                newParams.delete("city");
+              }
+            }
+            // Beds
+            if (preset.beds !== undefined) {
+              if (preset.beds === "any" || preset.beds === "") {
+                newParams.delete("beds");
+              } else {
+                newParams.set("beds", preset.beds);
+              }
+            }
+            // Update local price slider state too
+            setPriceRange([
+              preset.priceMin ?? MIN_PRICE,
+              preset.priceMax ?? MAX_PRICE,
+            ]);
+            setSearchParams(newParams, { replace: true });
+          }}
           activeFilterCount={activeFilterCount}
         />
 

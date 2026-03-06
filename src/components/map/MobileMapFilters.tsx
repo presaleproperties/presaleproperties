@@ -24,6 +24,14 @@ interface SimpleOption {
   label: string;
 }
 
+export interface PresetConfig {
+  priceMin?: number;
+  priceMax?: number;
+  propertyType?: string;
+  cities?: string[];
+  beds?: string;
+}
+
 interface MobileMapFiltersProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -58,6 +66,8 @@ interface MobileMapFiltersProps {
   // Actions
   onClearAll: () => void;
   onApply: () => void;
+  // Atomic preset application - applies all changes in one URL update
+  onApplyPreset: (preset: PresetConfig) => void;
   activeFilterCount: number;
 }
 
@@ -388,6 +398,7 @@ export function MobileMapFilters({
   onBathsChange,
   onClearAll,
   onApply,
+  onApplyPreset,
   activeFilterCount,
 }: MobileMapFiltersProps) {
   return (
@@ -422,18 +433,34 @@ export function MobileMapFilters({
             <label className="text-sm font-medium text-foreground">Popular</label>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: "First-time Buyer", desc: "Under $600K, 1-2 beds", action: () => { onPriceRangeChange([0, 600000]); onBedsChange("1"); } },
-                { label: "Townhomes Under $850K", desc: "All cities, any beds", action: () => { onPriceRangeChange([0, 850000]); onPropertyTypeChange("Townhouse"); onCitiesChange([]); } },
-                { label: "Investment Condo", desc: "Under $500K, Condo", action: () => { onPriceRangeChange([0, 500000]); onPropertyTypeChange("Apartment/Condo"); } },
-                { label: "Luxury", desc: "$2M+, Any type", action: () => { onPriceRangeChange([2000000, maxPrice]); } },
-              ].map((preset) => (
+                {
+                  label: "First-time Buyer",
+                  desc: "Under $600K, 1+ beds",
+                  preset: { priceMin: 0, priceMax: 600000, beds: "1" },
+                },
+                {
+                  label: "Townhomes Under $850K",
+                  desc: "All cities, any beds",
+                  preset: { priceMin: 0, priceMax: 850000, propertyType: "Townhouse", cities: [] },
+                },
+                {
+                  label: "Investment Condo",
+                  desc: "Under $500K, Condo",
+                  preset: { priceMin: 0, priceMax: 500000, propertyType: "Apartment/Condo" },
+                },
+                {
+                  label: "Luxury",
+                  desc: "$2M+, Any type",
+                  preset: { priceMin: 2000000, priceMax: maxPrice },
+                },
+              ].map((item) => (
                 <button
-                  key={preset.label}
-                  onClick={preset.action}
+                  key={item.label}
+                  onClick={() => onApplyPreset(item.preset)}
                   className="flex flex-col items-start p-3 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
                 >
-                  <span className="text-sm font-medium text-foreground">{preset.label}</span>
-                  <span className="text-[11px] text-muted-foreground">{preset.desc}</span>
+                  <span className="text-sm font-medium text-foreground">{item.label}</span>
+                  <span className="text-[11px] text-muted-foreground">{item.desc}</span>
                 </button>
               ))}
             </div>
