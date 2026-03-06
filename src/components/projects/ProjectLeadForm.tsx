@@ -204,7 +204,7 @@ export function ProjectLeadForm({
     }
   };
 
-  const whatsappMessage = encodeURIComponent(`Hi! I just requested info for ${projectName} and would love to learn more.`);
+  const whatsappMessage = encodeURIComponent(`Hello! Can I get more details about "${projectName}"?`);
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
   // ─── SUCCESS STATE ───────────────────────────────────────────
@@ -214,7 +214,7 @@ export function ProjectLeadForm({
         <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
 
         {hasAnyDocuments ? (
-          /* Has documents — show download buttons */
+          /* Has documents — show download buttons then WhatsApp CTA */
           <>
             <div className="bg-foreground px-5 py-5">
               <div className="flex items-center gap-3">
@@ -222,8 +222,8 @@ export function ProjectLeadForm({
                   <CheckCircle className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-background leading-tight">Access Unlocked</h3>
-                  <p className="text-xs text-background/50 mt-0.5">Your documents are ready below.</p>
+                  <h3 className="text-lg font-bold text-background leading-tight">You're All Set!</h3>
+                  <p className="text-xs text-background/50 mt-0.5">An email with full details will be sent to you shortly.</p>
                 </div>
               </div>
             </div>
@@ -261,18 +261,19 @@ export function ProjectLeadForm({
                 </Button>
               )}
 
-              <div className="pt-1">
-                <Button asChild size="lg" variant="secondary" className="w-full h-11 text-sm font-semibold rounded-xl">
+              <div className="pt-2 border-t border-border/40 mt-3">
+                <p className="text-[11px] text-muted-foreground text-center mb-2.5">Want to talk to an agent right now?</p>
+                <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
                   <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="h-4 w-4 mr-2" />
-                    Chat with an Agent
+                    Chat Now on WhatsApp
                   </a>
                 </Button>
               </div>
             </div>
           </>
         ) : (
-          /* No documents — "updating soon" message */
+          /* No documents — email confirmation + WhatsApp CTA */
           <>
             <div className="bg-foreground px-5 py-5">
               <div className="flex items-center gap-3">
@@ -290,22 +291,22 @@ export function ProjectLeadForm({
               <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/15 rounded-xl">
                 <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-foreground">We're updating this project</p>
+                  <p className="text-sm font-semibold text-foreground">Check your inbox shortly</p>
                   <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                    We're currently gathering the latest brochures, floor plans and pricing for <strong>{projectName}</strong>. One of our agents will send everything directly to you within <strong>24 hours</strong>.
+                    An email with the full details for <strong>{projectName}</strong> will be sent to you shortly. One of our agents will follow up within <strong>24 hours</strong>.
                   </p>
                 </div>
               </div>
 
-              <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl">
+              <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
                 <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  Chat with an Agent Now
+                  Chat Now on WhatsApp
                 </a>
               </Button>
 
               <p className="text-center text-[11px] text-muted-foreground">
-                Have questions? We're available 7 days a week.
+                We're available 7 days a week to answer your questions.
               </p>
             </div>
           </>
