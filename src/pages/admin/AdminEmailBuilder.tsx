@@ -335,6 +335,7 @@ const EMPTY_VARS: TemplateVars = {
   projectUrl: "",
   headline: "",
   bodyCopy: "",
+  incentiveText: "",
   bookUrl: "https://presaleproperties.com/book",
   subjectLine: "",
   previewText: "",
