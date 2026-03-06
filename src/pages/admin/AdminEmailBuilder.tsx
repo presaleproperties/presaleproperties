@@ -835,6 +835,50 @@ export default function AdminEmailBuilder() {
     toast.success("Custom HTML imported — live preview updated.");
   };
 
+  const handleRewritePromo = async () => {
+    if (!promoNotes.trim()) return;
+    setRewritingPromo(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/rewrite-promo`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            rawNotes: promoNotes,
+            projectName: vars.projectName,
+            city: vars.city,
+          }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "AI rewrite failed");
+        return;
+      }
+      setPromoSnippet(data.snippet || "");
+    } catch (e) {
+      toast.error("Failed to reach AI. Please try again.");
+    } finally {
+      setRewritingPromo(false);
+    }
+  };
+
+  const appendPromoToHighlights = () => {
+    if (!promoSnippet.trim()) return;
+    const current = vars.bodyCopy.trim();
+    setVars((prev) => ({
+      ...prev,
+      bodyCopy: current ? `${current}\n${promoSnippet}` : promoSnippet,
+    }));
+    setPromoNotes("");
+    setPromoSnippet("");
+    toast.success("Snippet added to highlights!");
+  };
+
   const v =
     (key: keyof TemplateVars) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
