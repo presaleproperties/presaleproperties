@@ -703,6 +703,9 @@ export default function AdminEmailBuilder() {
   const [cta, setCta] = useState<CtaToggles>({ ...DEFAULT_CTA });
   const [headlinePresetIdx, setHeadlinePresetIdx] = useState<number | null>(null);
   const [fontIdx, setFontIdx] = useState(0);
+  const [promoNotes, setPromoNotes] = useState("");
+  const [promoSnippet, setPromoSnippet] = useState("");
+  const [rewritingPromo, setRewritingPromo] = useState(false);
 
   // ── Agent list from DB ───────────────────────────────────────────────────────
   const [agents, setAgents] = useState<AgentProfile[]>([]);
