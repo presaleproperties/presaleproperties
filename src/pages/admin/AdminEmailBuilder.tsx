@@ -54,7 +54,11 @@ import {
   Loader2,
   PlusCircle,
   CheckCheck,
+  DollarSign,
+  TableProperties,
 } from "lucide-react";
+import * as pdfjsLib from "pdfjs-dist";
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 import { cn } from "@/lib/utils";
 
 // ─── Saved Template type ──────────────────────────────────────────────────────
@@ -288,6 +292,18 @@ interface Project {
   project_type: string;
 }
 
+interface PricingUnit {
+  type: string;
+  sqft?: string;
+  price?: string;
+}
+
+interface PricingSummaryData {
+  summary?: string;
+  units?: PricingUnit[];
+  highlights?: string[];
+}
+
 interface TemplateVars {
   projectName: string;
   developerName: string;
@@ -351,7 +367,7 @@ const DEFAULT_CTA: CtaToggles = {
 };
 
 // ─── Template builder ─────────────────────────────────────────────────────────
-function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile, font: FontPairing = FONT_PAIRINGS[0]): string {
+function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile, font: FontPairing = FONT_PAIRINGS[0], pricingData?: PricingSummaryData | null): string {
   const locationTag = [vars.projectName, vars.city, vars.neighborhood]
     .filter(Boolean).map(s => s!.toUpperCase()).join("&nbsp;&nbsp;&middot;&nbsp;&nbsp;");
 
@@ -446,6 +462,65 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
         </tr>`
       ).join("\n")
     : "";
+
+  // ── Pricing Card ─────────────────────────────────────────────────────────────
+  const pricingUnitsRows = (pricingData?.units ?? []).map((u) =>
+    `<tr>
+      <td style="padding:10px 14px; border-bottom:1px solid #1e3028; font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:13px; color:#e8f0ea; font-weight:400;">${u.type}</td>
+      <td style="padding:10px 14px; border-bottom:1px solid #1e3028; font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:12px; color:#8aaa96; text-align:center;">${u.sqft ?? "&mdash;"}</td>
+      <td style="padding:10px 14px; border-bottom:1px solid #1e3028; font-family:'Cormorant Garamond',Georgia,serif; font-size:18px; color:#C9A55A; font-weight:400; text-align:right; white-space:nowrap;">${u.price ?? "&mdash;"}</td>
+    </tr>`
+  ).join("\n");
+
+  const pricingHighlightRows = (pricingData?.highlights ?? []).map((h) =>
+    `<tr>
+      <td valign="top" width="16" style="padding-bottom:10px; padding-right:10px; vertical-align:top;">
+        <div style="width:5px; height:5px; background-color:#C9A55A; margin-top:6px; font-size:0; line-height:0;">&nbsp;</div>
+      </td>
+      <td valign="top" style="padding-bottom:10px; vertical-align:top;">
+        <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:13px; color:#c8d8cc; line-height:1.7;">${h}</div>
+      </td>
+    </tr>`
+  ).join("\n");
+
+  const pricingCardHtml = pricingData
+    ? `
+          <!-- PRICING CARD -->
+          <tr>
+            <td class="mobile-pad" bgcolor="#0f2419" style="padding:0; background-color:#0f2419; border-top:1px solid #1a3028;">
+              <!-- header row -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td style="padding:24px 40px 16px 40px; background-color:#0f2419;">
+                    <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; margin-bottom:6px; line-height:1.4;">PRICING OVERVIEW</div>
+                    <div style="font-family:'Cormorant Garamond',Georgia,serif; font-size:28px; font-weight:400; color:#ffffff; line-height:1.1; margin-bottom:6px;">${vars.projectName || "Pricing"}</div>
+                    <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0; margin-bottom:14px;">&nbsp;</div>
+                    ${pricingData.summary ? `<div style="font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:13px; font-weight:300; color:#8aaa96; line-height:1.7; margin-bottom:4px;">${pricingData.summary}</div>` : ""}
+                  </td>
+                </tr>
+              </table>
+              ${pricingUnitsRows ? `
+              <!-- unit table -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse; border-top:1px solid #1e3028; margin-bottom:0;">
+                <tr>
+                  <th style="padding:8px 14px; background-color:#0a1a10; font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#5a7a66; text-align:left; font-weight:500;">Unit Type</th>
+                  <th style="padding:8px 14px; background-color:#0a1a10; font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#5a7a66; text-align:center; font-weight:500;">Sq Ft</th>
+                  <th style="padding:8px 14px; background-color:#0a1a10; font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#5a7a66; text-align:right; font-weight:500;">From</th>
+                </tr>
+                ${pricingUnitsRows}
+              </table>` : ""}
+              ${pricingHighlightRows ? `
+              <!-- highlights -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="padding:20px 40px 24px 40px;">
+                <tr><td colspan="2" style="padding:20px 40px 8px 40px; padding-top:20px;">
+                  <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#5a7a66; margin-bottom:12px;">Key Details</div>
+                </td></tr>
+                ${pricingHighlightRows.split("<tr>").slice(1).map(r => `<tr style="margin:0;"><td style="padding:0 40px;" colspan="2"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>${r}</table></td></tr>`).join("")}
+              </table>` : ""}
+            </td>
+          </tr>`
+    : "";
+
 
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
@@ -605,6 +680,8 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
             </td>
           </tr>` : ""}
 
+          ${pricingCardHtml}
+
           <!-- BOOKING BANNER -->
           ${cta.bookConsult ? `
           <tr>
@@ -740,6 +817,11 @@ export default function AdminEmailBuilder() {
   const [promoSnippet, setPromoSnippet] = useState("");
   const [rewritingPromo, setRewritingPromo] = useState(false);
 
+  // ── Pricing sheet state ──────────────────────────────────────────────────────
+  const [pricingData, setPricingData] = useState<PricingSummaryData | null>(null);
+  const [extractingPricing, setExtractingPricing] = useState(false);
+  const pricingFileRef = useRef<HTMLInputElement>(null);
+
   // ── Agent list from DB ───────────────────────────────────────────────────────
   const [agents, setAgents] = useState<AgentProfile[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<AgentProfile | null>(null);
@@ -835,7 +917,8 @@ export default function AdminEmailBuilder() {
   const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(
     vars, cta,
     selectedAgent ?? { id: "", full_name: "Your Name", title: "Presale Expert", photo_url: null, phone: "", email: "" },
-    FONT_PAIRINGS[fontIdx]
+    FONT_PAIRINGS[fontIdx],
+    pricingData
   );
 
   const handleCopy = useCallback(async () => {
@@ -912,6 +995,65 @@ export default function AdminEmailBuilder() {
     setPromoSnippet("");
     toast.success("Incentive section updated!");
   };
+
+  // ── Pricing sheet PDF extraction ─────────────────────────────────────────────
+  const handlePricingFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      toast.error("Please upload a PDF file.");
+      return;
+    }
+    setExtractingPricing(true);
+    try {
+      // Extract text from PDF
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = "";
+      for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const pageText = content.items
+          .map((item: any) => item.str)
+          .join(" ");
+        fullText += pageText + "\n";
+      }
+      if (!fullText.trim()) {
+        toast.error("Could not extract text from this PDF. It may be image-based.");
+        return;
+      }
+      // Send to AI for summarization
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/summarize-pricing-sheet`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            pricingText: fullText,
+            projectName: vars.projectName,
+            city: vars.city,
+          }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "AI pricing summary failed");
+        return;
+      }
+      setPricingData(data.pricing || null);
+      toast.success("Pricing sheet summarized and added to email!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to process pricing sheet. Please try again.");
+    } finally {
+      setExtractingPricing(false);
+      if (pricingFileRef.current) pricingFileRef.current.value = "";
+    }
+  };
+
 
   const v =
     (key: keyof TemplateVars) =>
@@ -1564,7 +1706,90 @@ export default function AdminEmailBuilder() {
                   </div>
                 </div>
 
-                {/* SECTION: Key Stats */}
+                {/* SECTION: Pricing Sheet Upload */}
+                <div className="px-4 pt-3.5 pb-4 border-b border-border/60">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="h-1 w-1 rounded-full bg-primary" />
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Pricing Sheet</span>
+                    {pricingData && (
+                      <span className="ml-auto text-[9px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> Active
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mb-2.5 leading-relaxed">
+                    Upload a pricing sheet PDF — AI extracts unit types, sizes &amp; prices into a premium card in the email.
+                  </p>
+                  <input
+                    ref={pricingFileRef}
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={handlePricingFileUpload}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full h-8 text-xs gap-1.5 border-primary/40 text-primary hover:bg-primary/5"
+                    onClick={() => pricingFileRef.current?.click()}
+                    disabled={extractingPricing}
+                  >
+                    {extractingPricing
+                      ? <><Loader2 className="h-3 w-3 animate-spin" /> Extracting pricing…</>
+                      : <><DollarSign className="h-3 w-3" /> Upload Pricing Sheet PDF</>
+                    }
+                  </Button>
+
+                  {pricingData && (
+                    <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                          <TableProperties className="h-3 w-3" /> Pricing Summary
+                        </p>
+                        <button
+                          onClick={() => setPricingData(null)}
+                          className="text-[9px] text-muted-foreground hover:text-destructive transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      {pricingData.summary && (
+                        <p className="text-xs text-foreground/80 leading-relaxed">{pricingData.summary}</p>
+                      )}
+                      {(pricingData.units ?? []).length > 0 && (
+                        <div className="rounded border border-border overflow-hidden">
+                          <table className="w-full text-[10px]">
+                            <thead>
+                              <tr className="bg-muted/50">
+                                <th className="text-left px-2 py-1 text-muted-foreground font-medium">Type</th>
+                                <th className="text-center px-2 py-1 text-muted-foreground font-medium">Sq Ft</th>
+                                <th className="text-right px-2 py-1 text-muted-foreground font-medium">From</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {(pricingData.units ?? []).map((u, i) => (
+                                <tr key={i} className="border-t border-border/50">
+                                  <td className="px-2 py-1 text-foreground font-medium">{u.type}</td>
+                                  <td className="px-2 py-1 text-muted-foreground text-center">{u.sqft ?? "—"}</td>
+                                  <td className="px-2 py-1 text-primary font-semibold text-right">{u.price ?? "—"}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                      {(pricingData.highlights ?? []).length > 0 && (
+                        <ul className="space-y-0.5">
+                          {(pricingData.highlights ?? []).map((h, i) => (
+                            <li key={i} className="flex items-start gap-1.5 text-[10px] text-muted-foreground">
+                              <span className="text-primary mt-0.5">·</span> {h}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
                   <div className="flex items-center gap-1.5 mb-2.5">
                     <div className="h-1 w-1 rounded-full bg-primary" />
