@@ -312,6 +312,7 @@ const EMPTY_VARS: TemplateVars = {
   bookUrl: "https://presaleproperties.com/book",
   subjectLine: "",
   previewText: "",
+  greeting: "Hi *|FNAME|*,",
 };
 
 const DEFAULT_CTA: CtaToggles = {
