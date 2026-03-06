@@ -616,7 +616,7 @@ export function REWPhotoGallery({
             
             {/* Floating CTA - Mobile only */}
             {(onScheduleShowing || onGalleryCTA) && (
-              <div className="fixed bottom-0 left-0 right-0 px-4 pt-3 bg-gradient-to-t from-black/90 to-transparent md:hidden z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 6px)' }}>
+              <div className="fixed bottom-0 left-0 right-0 px-4 pt-3 pb-4 bg-gradient-to-t from-black/90 to-transparent md:hidden z-50" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
                 <Button 
                   onClick={() => {
                     setIsOpen(false);
