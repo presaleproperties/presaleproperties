@@ -1264,6 +1264,48 @@ export default function AdminEmailBuilder() {
 
                 <Separator />
 
+                {/* KEY STATS */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Key Stats</span>
+                    <span className="text-[9px] text-muted-foreground/50 font-normal">(shown in email price block)</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <Label className="text-[10px] text-muted-foreground block mb-1">Starting Price</Label>
+                      <Input
+                        value={vars.startingPrice}
+                        onChange={v("startingPrice")}
+                        className="h-8 text-xs"
+                        placeholder="$789,900"
+                      />
+                      <p className="text-[9px] text-muted-foreground/50 mt-0.5">+ GST</p>
+                    </div>
+                    <div>
+                      <Label className="text-[10px] text-muted-foreground block mb-1">Deposit</Label>
+                      <Input
+                        value={vars.deposit}
+                        onChange={v("deposit")}
+                        className="h-8 text-xs"
+                        placeholder="5% on signing"
+                      />
+                      <p className="text-[9px] text-muted-foreground/50 mt-0.5">to secure</p>
+                    </div>
+                    <div>
+                      <Label className="text-[10px] text-muted-foreground block mb-1">Completion</Label>
+                      <Input
+                        value={vars.completion}
+                        onChange={v("completion")}
+                        className="h-8 text-xs"
+                        placeholder="Summer 2026"
+                      />
+                      <p className="text-[9px] text-muted-foreground/50 mt-0.5">est. date</p>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
                 <div>
                   <button
                     className="flex items-center justify-between w-full mb-2.5 group"
