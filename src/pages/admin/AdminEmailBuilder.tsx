@@ -1263,9 +1263,9 @@ export default function AdminEmailBuilder() {
                 className="border-0 h-full"
                 style={previewDevice === "mobile" ? {
                   width: "600px",
-                  transform: "scale(0.625)",
+                  transform: "scale(0.8)",
                   transformOrigin: "top center",
-                  marginBottom: "-37.5%",
+                  marginBottom: "-20%",
                 } : { width: "100%" }}
                 sandbox="allow-same-origin"
                 title="Email Preview"
