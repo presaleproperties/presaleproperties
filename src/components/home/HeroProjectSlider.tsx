@@ -29,6 +29,7 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { data: projects } = useQuery({
