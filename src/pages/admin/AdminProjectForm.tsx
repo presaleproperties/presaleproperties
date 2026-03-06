@@ -562,7 +562,7 @@ Neighborhood: ${formData.neighborhood || ''}
 Starting Price: ${formData.starting_price ? `$${parseInt(formData.starting_price).toLocaleString()}` : 'TBD'}
 Unit Mix: ${formData.unit_mix || ''}
 Developer: ${formData.developer_name || ''}
-Completion: ${formData.completion_year ? `${formData.completion_month ? new Date(2000, Number(formData.completion_month) - 1).toLocaleString('default', { month: 'short' }) + ' ' : ''}${formData.completion_year}` : 'TBD'}
+Completion: ${formData.occupancy_estimate || (formData.completion_year ? `${formData.completion_month ? new Date(2000, Number(formData.completion_month) - 1).toLocaleString('default', { month: 'short' }) + ' ' : ''}${formData.completion_year}` : 'TBD')}
 Highlights: ${formData.highlights.join(', ') || 'N/A'}
       `.trim();
       
