@@ -317,7 +317,8 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
          style="background-color:#f4f4f0; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
     <tr>
-      <td align="center" valign="top" style="padding:32px 16px;">
+      <!-- outer-td: has padding on desktop, stripped to 0 on mobile so email is full-width -->
+      <td class="outer-td" align="center" valign="top" style="padding:32px 12px;">
         <!--[if mso]><table role="presentation" align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td><![endif]-->
 
         <!-- ═══════════════════════════════════════════════════
@@ -328,17 +329,17 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
 
           <!-- ╔═══════════ HEADER ═══════════╗ -->
           <tr>
-            <td bgcolor="#ffffff" style="padding:36px 48px 28px 48px; background-color:#ffffff; border-bottom:1px solid #efefef;">
+            <td class="header-td" bgcolor="#1a1a1a" style="padding:28px 40px 24px 40px; background-color:#1a1a1a; border-bottom:3px solid #C9A55A;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td valign="bottom">
                     <!-- "P R E S A L E" label -->
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#999999; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:6px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E</div>
                     <!-- "PROPERTIES" wordmark — Cormorant Garamond with Georgia fallback -->
-                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:44px; font-weight:300; letter-spacing:6px; text-transform:uppercase; color:#111111; line-height:1; mso-line-height-rule:exactly;">PROPERTIES</div>
+                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:42px; font-weight:300; letter-spacing:6px; text-transform:uppercase; color:#ffffff; line-height:1; mso-line-height-rule:exactly;">PROPERTIES</div>
                   </td>
                   <td align="right" valign="bottom">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; line-height:1.8; text-align:right; mso-line-height-rule:exactly;">S U R R E Y &nbsp;&middot;&nbsp; L A N G L E Y<br />M E T R O &nbsp; V A N C O U V E R</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; letter-spacing:2px; text-transform:uppercase; color:#999999; line-height:1.9; text-align:right; mso-line-height-rule:exactly;">S U R R E Y &nbsp;&middot;&nbsp; L A N G L E Y<br />M E T R O &nbsp; V A N C O U V E R</div>
                   </td>
                 </tr>
               </table>
