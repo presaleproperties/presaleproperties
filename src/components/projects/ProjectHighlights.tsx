@@ -8,6 +8,7 @@ interface ProjectHighlightsProps {
   unitMix?: string | null;
   completionMonth?: number | null;
   completionYear?: number | null;
+  occupancyEstimate?: string | null;
   city?: string | null;
   neighborhood?: string | null;
   depositStructure?: string | null;
