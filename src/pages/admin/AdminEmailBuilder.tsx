@@ -393,13 +393,13 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
                 <tr>
                   <td valign="bottom">
                     <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E &nbsp; P R O P E R T I E S</div>
-                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:42px; font-weight:400; color:#ffffff; line-height:1; margin-bottom:10px; mso-line-height-rule:exactly;">${vars.projectName || "New Release"}</div>
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Presented by Presale Properties${vars.developerName ? ` &middot; ${vars.developerName}` : ""}</div>
+                    <div style="font-family:${font.display}; font-size:42px; font-weight:400; color:#ffffff; line-height:1; margin-bottom:10px; mso-line-height-rule:exactly;">${vars.projectName || "New Release"}</div>
+                    <div style="font-family:${font.body}; font-size:13px; font-weight:300; color:#8aaa96; margin-bottom:14px; mso-line-height-rule:exactly; line-height:1.4;">Presented by Presale Properties${vars.developerName ? ` &middot; ${vars.developerName}` : ""}</div>
                     <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0;">&nbsp;</div>
                   </td>
                   ${(vars.neighborhood || vars.city) ? `
                   <td align="right" valign="top" style="padding-left:16px; white-space:nowrap;">
-                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#8aaa96; text-align:right; line-height:2.2; mso-line-height-rule:exactly;">
+                    <div style="font-family:${font.body}; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#8aaa96; text-align:right; line-height:2.2; mso-line-height-rule:exactly;">
                       ${vars.city ? `${vars.city.toUpperCase()}<br/>` : ""}${vars.neighborhood ? vars.neighborhood.toUpperCase() : ""}
                     </div>
                   </td>` : ""}
