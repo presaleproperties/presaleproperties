@@ -143,14 +143,14 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
             <div className="flex items-center gap-1.5 shrink-0">
           {hasAnyDoc ? (
                 <>
-                  {/* All sizes: link to project page where docs are gated behind lead form */}
-                  <Link
-                    to={`/presale/${project.slug}`}
+                  {/* All sizes: open lead form modal to gate document access */}
+                  <button
+                    onClick={() => setModalOpen(true)}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 backdrop-blur-md text-white border border-white/25 active:scale-95 transition-all text-xs font-bold whitespace-nowrap"
                   >
                     <Download className="h-3 w-3 text-primary shrink-0" />
                     {hasFloorplan ? "Floor Plans" : hasPricing ? "Pricing" : "Brochure"}
-                  </Link>
+                  </button>
                 </>
               ) : (
                 /* Mobile: no docs — show Details button */
@@ -172,6 +172,16 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
           </div>
         </div>
       </div>
+
+      {/* Lead form modal — gated doc access */}
+      <FloorPlanModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        projectId={project.id}
+        projectName={project.name}
+        status={project.status as "coming_soon" | "registering" | "active" | "sold_out"}
+        brochureUrl={project.brochure_files?.[0] ?? null}
+      />
 
       {/* Navigation arrows — tablet+ only */}
       {total > 1 && (
