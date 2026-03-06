@@ -318,10 +318,10 @@ const EMPTY_VARS: TemplateVars = {
 };
 
 const DEFAULT_CTA: CtaToggles = {
-  brochure: true,
+  brochure: false,
   floorplan: true,
   pricing: false,
-  viewProject: true,
+  viewProject: false,
   bookConsult: true,
 };
 
