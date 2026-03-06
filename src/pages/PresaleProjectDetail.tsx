@@ -313,11 +313,15 @@ export default function PresaleProjectDetail() {
     const occ = project.occupancy_estimate;
     const yr = project.completion_year;
     const mo = project.completion_month;
-    // If occupancy_estimate contains a 4-digit year, use it as-is ("Spring 2026")
-    if (occ && /\d{4}/.test(occ)) return occ;
-    // If occupancy_estimate is just a season word, append the year
-    if (occ && yr) return `${occ} ${yr}`;
-    // Fall back to month + year or just year
+    if (occ) {
+      const seasonMatch = occ.match(/\b(Spring|Summer|Fall|Winter)\b/i);
+      const yearMatch = occ.match(/\b(\d{4})\b/);
+      const season = seasonMatch ? seasonMatch[1] : null;
+      const occYear = yearMatch ? yearMatch[1] : null;
+      if (season && occYear) return `${season} ${occYear}`;
+      if (season && yr) return `${season} ${yr}`;
+      if (occYear) return occYear;
+    }
     if (mo && yr) return `${getMonthName(mo)} ${yr}`;
     if (yr) return String(yr);
     return null;
@@ -818,7 +822,7 @@ export default function PresaleProjectDetail() {
         {/* Mobile-only Project Highlights Section - edge-to-edge */}
         <section className="border-t md:hidden">
           <div className="px-4 py-4">
-            <ProjectHighlights projectType={project.project_type} unitMix={project.unit_mix} completionMonth={project.completion_month} completionYear={project.completion_year} city={project.city} neighborhood={project.neighborhood} depositStructure={project.deposit_structure} incentives={project.incentives} developerId={project.developer_id} developerName={project.developer_name} strataFees={project.strata_fees} assignmentFees={project.assignment_fees} />
+            <ProjectHighlights projectType={project.project_type} unitMix={project.unit_mix} completionMonth={project.completion_month} completionYear={project.completion_year} occupancyEstimate={project.occupancy_estimate} city={project.city} neighborhood={project.neighborhood} depositStructure={project.deposit_structure} incentives={project.incentives} developerId={project.developer_id} developerName={project.developer_name} strataFees={project.strata_fees} assignmentFees={project.assignment_fees} />
           </div>
         </section>
 
