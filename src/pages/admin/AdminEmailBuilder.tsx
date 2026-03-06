@@ -1011,6 +1011,10 @@ export default function AdminEmailBuilder() {
     setImportHtml("");
     setVars({ ...EMPTY_VARS });
     setCta({ ...DEFAULT_CTA });
+    setOverwriteId(null);
+    setTemplateName("");
+    clearDraft();
+    toast.success("Builder reset — draft cleared.");
   };
 
   const handleImport = () => {
