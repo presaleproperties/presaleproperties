@@ -939,65 +939,14 @@ export default function MapSearch() {
   const { data: assignments, isLoading: assignmentsLoading } = useQuery<Assignment[]>({
     queryKey: ["unified-map-assignments", selectedCities, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths],
     queryFn: async () => {
-      let query = (supabase as any)
-        .from("listings")
-        .select("id, title, project_name, city, neighborhood, assignment_price, beds, baths, interior_sqft, map_lat, map_lng, status")
-        .eq("status", "published")
-        .not("map_lat", "is", null)
-        .not("map_lng", "is", null);
-
-      // City filter
-      if (selectedCities.length > 0) {
-        query = query.in("city", selectedCities);
-      }
-
-      // Beds filter
-      if (filters.beds && filters.beds !== "any") {
-        const bedsNum = parseInt(filters.beds);
-        if (bedsNum === 5) {
-          query = query.gte("beds", 5);
-        } else {
-          query = query.eq("beds", bedsNum);
-        }
-      }
-
-      // Baths filter
-      if (filters.baths && filters.baths !== "any") {
-        const bathsNum = parseInt(filters.baths);
-        if (bathsNum === 4) {
-          query = query.gte("baths", 4);
-        } else {
-          query = query.gte("baths", bathsNum);
-        }
-      }
-
-      const { data, error } = await query.limit(500);
-      if (error) throw error;
-      
-      let results = data || [];
-      
-      // Client-side filtering for price ranges (assignments use assignment_price)
-      if (selectedPriceRanges.length > 0) {
-        results = results.filter(a => priceMatchesRanges(a.assignment_price, selectedPriceRanges));
-      } else {
-        // Legacy single-value price filter support
-        const legacyPriceMin = filters.priceMin ? parseInt(filters.priceMin) : null;
-        const legacyPriceMax = filters.priceMax ? parseInt(filters.priceMax) : null;
-        if (legacyPriceMin !== null || legacyPriceMax !== null) {
-          results = results.filter(a => {
-            if (legacyPriceMin !== null && a.assignment_price < legacyPriceMin) return false;
-            if (legacyPriceMax !== null && a.assignment_price > legacyPriceMax) return false;
-            return true;
-          });
-        }
-      }
-      
-      return results;
+      // NOTE: The listings (assignments) table does not have map_lat/map_lng columns,
+      // so assignments cannot be plotted on the map. Return empty array to avoid DB errors.
+      return [];
     },
     staleTime: 3 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    retry: false, // listings table may not exist — don't block map loading
+    retry: false,
   });
 
   // Only show loading if we have NO data yet - use cached data immediately on back navigation
