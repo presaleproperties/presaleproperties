@@ -569,7 +569,7 @@ export default function AdminEmailBuilder() {
     setUseCustomHtml(false);
   }, [selectedProjectId, projects]);
 
-  const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(vars, cta);
+  const finalHtml = useCustomHtml ? importHtml : buildEmailHtml(vars, cta, PRESET_AGENTS[agentIdx]);
 
   const handleCopy = useCallback(async () => {
     try {
