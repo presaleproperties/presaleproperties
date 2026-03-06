@@ -213,104 +213,40 @@ export function ProjectLeadForm({
       <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium">
         <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
 
-        {hasAnyDocuments ? (
-          /* Has documents — show download buttons then WhatsApp CTA */
-          <>
-            <div className="bg-foreground px-5 py-5">
-              <div className="flex items-center gap-3">
-                <div className="inline-flex items-center justify-center w-11 h-11 bg-primary/15 rounded-xl shrink-0">
-                  <CheckCircle className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-background leading-tight">You're All Set!</h3>
-                  <p className="text-xs text-background/50 mt-0.5">An email with full details will be sent to you shortly.</p>
-                </div>
-              </div>
+        <div className="bg-foreground px-5 py-5">
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center justify-center w-11 h-11 bg-primary/15 rounded-xl shrink-0">
+              <CheckCircle className="h-5 w-5 text-primary" />
             </div>
-
-            <div className="p-5 space-y-2.5">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                {projectName} — Available Documents
-              </p>
-
-              {hasFloorplan && (
-                <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl">
-                  <a href={floorplanUrl!} target="_blank" rel="noopener noreferrer">
-                    <LayoutGrid className="h-4 w-4 mr-2" />
-                    {isGoogleDriveLink(floorplanUrl!) ? "View Floor Plans" : "Download Floor Plans"}
-                    {isGoogleDriveLink(floorplanUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
-                  </a>
-                </Button>
-              )}
-              {hasPricing && (
-                <Button asChild size="lg" variant={hasFloorplan ? "outline" : "default"} className="w-full h-12 text-sm font-semibold rounded-xl">
-                  <a href={pricingUrl!} target="_blank" rel="noopener noreferrer">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    {isGoogleDriveLink(pricingUrl!) ? "View Pricing Sheet" : "Download Pricing"}
-                    {isGoogleDriveLink(pricingUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
-                  </a>
-                </Button>
-              )}
-              {hasBrochure && (
-                <Button asChild size="lg" variant="outline" className="w-full h-12 text-sm font-semibold rounded-xl">
-                  <a href={brochureUrl!} target="_blank" rel="noopener noreferrer">
-                    <FileText className="h-4 w-4 mr-2" />
-                    {isGoogleDriveLink(brochureUrl!) ? "View Brochure" : "Download Brochure"}
-                    {isGoogleDriveLink(brochureUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
-                  </a>
-                </Button>
-              )}
-
-              <div className="pt-2 border-t border-border/40 mt-3">
-                <p className="text-[11px] text-muted-foreground text-center mb-2.5">Want to talk to an agent right now?</p>
-                <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
-                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Chat Now on WhatsApp
-                  </a>
-                </Button>
-              </div>
+            <div>
+              <h3 className="text-lg font-bold text-background leading-tight">You're All Set!</h3>
+              <p className="text-xs text-background/50 mt-0.5">An email with full details will be sent to you shortly.</p>
             </div>
-          </>
-        ) : (
-          /* No documents — email confirmation + WhatsApp CTA */
-          <>
-            <div className="bg-foreground px-5 py-5">
-              <div className="flex items-center gap-3">
-                <div className="inline-flex items-center justify-center w-11 h-11 bg-primary/15 rounded-xl shrink-0">
-                  <CheckCircle className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-background leading-tight">Thank You!</h3>
-                  <p className="text-xs text-background/50 mt-0.5">We've received your request.</p>
-                </div>
-              </div>
-            </div>
+          </div>
+        </div>
 
-            <div className="p-5 space-y-4">
-              <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/15 rounded-xl">
-                <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Check your inbox shortly</p>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                    An email with the full details for <strong>{projectName}</strong> will be sent to you shortly. One of our agents will follow up within <strong>24 hours</strong>.
-                  </p>
-                </div>
-              </div>
-
-              <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Chat Now on WhatsApp
-                </a>
-              </Button>
-
-              <p className="text-center text-[11px] text-muted-foreground">
-                We're available 7 days a week to answer your questions.
+        <div className="p-5 space-y-4">
+          <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/15 rounded-xl">
+            <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Check your inbox shortly</p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Full details for <strong>{projectName}</strong> will be emailed to you. One of our agents will follow up within <strong>24 hours</strong>.
               </p>
             </div>
-          </>
-        )}
+          </div>
+
+          <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Chat Now on WhatsApp
+            </a>
+          </Button>
+
+          <p className="text-center text-[11px] text-muted-foreground">
+            We're available 7 days a week to answer your questions.
+          </p>
+        </div>
       </div>
     );
   }
