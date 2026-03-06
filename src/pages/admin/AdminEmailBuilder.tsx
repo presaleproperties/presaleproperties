@@ -228,19 +228,19 @@ const FONT_PAIRINGS: FontPairing[] = [
 
 const HEADLINE_PRESETS = [
   {
-    label: "The Moment",
-    headline: "The Moment Has Arrived",
-    body: "A rare opportunity to own in one of the most sought-after communities. Limited homes available — register before public launch to secure preferred pricing and first access to floorplan selection.",
+    label: "Found Something For You",
+    headline: "I Found Something Worth Your Attention",
+    body: "You signed up because you're serious about getting into a new home — and I take that seriously. I personally vetted this project and I think it lines up with what you're looking for. I'm here to walk you through it, answer every question, and make sure you have all the information before making any decision.",
   },
   {
-    label: "Exclusive Access",
-    headline: "Exclusive VIP Access — Before the Public",
-    body: "Your clients deserve first access. Before this goes public, we're offering a select group of realtors priority pricing, co-op commissions, and dedicated support from contract to keys.",
+    label: "Before It Goes Public",
+    headline: "Before This Goes to the Public",
+    body: "As a presale specialist, I get early access to new projects before they're widely advertised. I'm reaching out to you first because you registered your interest with us. There's no obligation — I just want to make sure you have the chance to see this before it's gone.",
   },
   {
-    label: "Your Next Investment",
-    headline: "The Investment Your Clients Have Been Waiting For",
-    body: "Strong rental yields. Appreciation-driven location. Developer-backed incentives. This is precisely the presale opportunity serious investors have been positioning for — and it won't last long.",
+    label: "Your Investment",
+    headline: "This One Checks a Lot of Boxes",
+    body: "Strong location. Solid developer track record. Pricing that still makes sense before appreciation kicks in. I've looked at a lot of projects and this one genuinely stands out. Let me show you why — no pressure, just a conversation.",
   },
 ];
 
