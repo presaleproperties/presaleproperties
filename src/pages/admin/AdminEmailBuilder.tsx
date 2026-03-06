@@ -498,7 +498,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: typeof PRESE
           </tr>
           <tr>
             <td class="mobile-pad" bgcolor="#ffffff" style="padding:32px 40px 8px 40px; background-color:#ffffff;">
-              <div class="body-text" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">Reach out directly &mdash; I'll walk your clients through everything, from floorplan selection to contract review. No pressure, just expert guidance.</div>
+              <div class="body-text" style="font-family:${font.body}; font-size:15px; font-weight:300; color:#444444; line-height:1.85; mso-line-height-rule:exactly;">Reach out directly &mdash; I'll walk your clients through everything, from floorplan selection to contract review. No pressure, just expert guidance.</div>
             </td>
           </tr>` : ""}
 
