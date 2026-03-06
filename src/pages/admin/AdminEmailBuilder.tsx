@@ -1256,16 +1256,17 @@ export default function AdminEmailBuilder() {
           </div>
 
           {previewMode === "preview" ? (
-            <div className="flex-1 overflow-auto bg-[#e8e5e0] flex justify-center">
+            <div className={cn(
+              "flex-1 overflow-auto",
+              previewDevice === "mobile" ? "bg-[#e8e5e0] flex justify-center" : "bg-[#e8e5e0]"
+            )}>
               <iframe
                 ref={iframeRef}
                 srcDoc={finalHtml}
                 className="border-0 h-full"
                 style={previewDevice === "mobile" ? {
-                  width: "600px",
-                  transform: "scale(0.8)",
-                  transformOrigin: "top center",
-                  marginBottom: "-20%",
+                  width: "375px",
+                  minHeight: "100%",
                 } : { width: "100%" }}
                 sandbox="allow-same-origin"
                 title="Email Preview"
