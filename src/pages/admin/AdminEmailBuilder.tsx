@@ -995,6 +995,99 @@ export default function AdminEmailBuilder() {
             </DialogContent>
           </Dialog>
 
+          {/* LOAD TEMPLATES */}
+          <Dialog open={templatesOpen} onOpenChange={setTemplatesOpen}>
+            <DialogTrigger asChild>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5 h-9 px-3">
+                    <FolderOpen className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Templates</span>
+                    {savedTemplates.length > 0 && (
+                      <Badge className="h-4 min-w-4 px-1 text-[10px] rounded-full">{savedTemplates.length}</Badge>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Load a saved template</TooltipContent>
+              </Tooltip>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <BookMarked className="h-4 w-4 text-primary" />
+                  Saved Email Templates
+                </DialogTitle>
+              </DialogHeader>
+              {savedTemplates.length === 0 ? (
+                <div className="py-8 text-center text-sm text-muted-foreground">
+                  No saved templates yet. Build an email and click <strong>Save Template</strong>.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                  {savedTemplates.map((tpl) => (
+                    <div key={tpl.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-3 py-2.5 hover:border-primary/30 transition-colors">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-foreground truncate">{tpl.name}</div>
+                        <div className="text-xs text-muted-foreground truncate">{tpl.project_name} · {new Date(tpl.updated_at).toLocaleDateString()}</div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs gap-1" onClick={() => handleLoadTemplate(tpl)}>
+                          <FolderOpen className="h-3 w-3" /> Load
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteTemplate(tpl.id)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* SAVE TEMPLATE */}
+          <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+            <DialogTrigger asChild>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5 h-9 px-3">
+                    <Save className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Save</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Save current state as a template</TooltipContent>
+              </Tooltip>
+            </DialogTrigger>
+            <DialogContent className="max-w-sm">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <BookMarked className="h-4 w-4 text-primary" />
+                  Save Email Template
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-sm">Template Name</Label>
+                  <Input
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    className="mt-1"
+                    placeholder={`${vars.projectName || "My Email"} — Thank You`}
+                    onKeyDown={(e) => e.key === "Enter" && handleSaveTemplate()}
+                    autoFocus
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">Saves all content, CTAs, font, and agent. You can load it later from Templates.</p>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleSaveTemplate} disabled={savingTemplate} className="gap-1.5">
+                    {savingTemplate ? "Saving…" : <><Save className="h-3.5 w-3.5" /> Save Template</>}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline" size="sm" className="h-9 w-9 p-0" onClick={handleReset}>
