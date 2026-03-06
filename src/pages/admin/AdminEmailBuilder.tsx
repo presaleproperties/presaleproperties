@@ -63,6 +63,7 @@ interface SavedEmailTemplate {
     cta: Record<string, boolean>;
     fontIdx: number;
     agentId?: string;
+    selectedProjectId?: string | null;
   };
   created_at: string;
   updated_at: string;
@@ -866,6 +867,7 @@ export default function AdminEmailBuilder() {
         cta,
         fontIdx,
         agentId: selectedAgent?.id,
+        selectedProjectId: selectedProjectId || null,
       };
       const { error } = await supabase.from("campaign_templates").insert([{
         name: templateName.trim(),
@@ -892,6 +894,9 @@ export default function AdminEmailBuilder() {
     if (fd.agentId) {
       const a = agents.find((ag) => ag.id === fd.agentId);
       if (a) setSelectedAgent(a);
+    }
+    if (fd.selectedProjectId) {
+      setSelectedProjectId(fd.selectedProjectId as string);
     }
     setUseCustomHtml(false);
     setTemplatesOpen(false);
