@@ -127,7 +127,319 @@ const DEFAULT_CTA: CtaToggles = {
 };
 
 // ─── Template builder ─────────────────────────────────────────────────────────
+// Mailchimp compliance notes applied:
+// • Width ≤ 600px (hard max)
+// • All CSS inline — no reliance on <head> styles (Gmail/Yahoo strip them)
+// • @media queries kept in <style> for supported clients; inline fallbacks for all others
+// • Google Fonts loaded via <link> (more reliable than @import in email)
+// • Tables-based layout: role="presentation" cellpadding="0" cellspacing="0" border="0" on every table
+// • Images: absolute URLs, width attribute set, border="0", display:block
+// • Background on wrapper <table>, not <body> (webmail strips <body> styles)
+// • Preheader text with zero-width space padding to prevent body text bleed-through
+// • Mailchimp merge tags: *|UNSUB|*, *|UPDATE_PROFILE|*, *|FNAME|*
+// • No JavaScript, no Flash, no forms, no iframes
+// • <div> inside <td> for text (not bare text nodes) for Outlook compatibility
 function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
+  const locationTag = [vars.neighborhood, vars.city ? vars.city.toUpperCase() : ""]
+    .filter(Boolean).join("&nbsp;&nbsp;·&nbsp;&nbsp;").toUpperCase();
+
+  // ── Hero image ─────────────────────────────────────────────────────────────
+  // Images MUST have: absolute src, width attribute, border="0", display:block
+  const heroImg = vars.featuredImage
+    ? `<tr>
+        <td style="padding:0; margin:0; line-height:0; font-size:0; mso-line-height-rule:exactly;">
+          <img src="${vars.featuredImage}" alt="${vars.projectName || "Presale Property"}" width="600" border="0"
+               style="display:block; width:100%; max-width:600px; height:auto; border:0; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;" />
+        </td>
+      </tr>`
+    : `<tr>
+        <td height="200" valign="middle" align="center" bgcolor="#1a1a1a"
+            style="padding:0; background-color:#1a1a1a; height:200px; text-align:center; vertical-align:middle;">
+          <div style="font-family:Georgia, 'Times New Roman', serif; font-size:12px; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; padding:80px 0;">
+            ADD HERO IMAGE URL IN THE URLS TAB
+          </div>
+        </td>
+      </tr>`;
+
+  // ── Location bar ────────────────────────────────────────────────────────────
+  const locationBar = locationTag
+    ? `<tr>
+        <td bgcolor="#ffffff" style="padding:14px 48px; background-color:#ffffff; border-bottom:1px solid #efefef;">
+          <div style="font-family:Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3.5px; text-transform:uppercase; color:#999999; mso-line-height-rule:exactly; line-height:1.4;">
+            ${locationTag}${vars.completion ? `&nbsp;&nbsp;·&nbsp;&nbsp;EST. COMPLETION ${vars.completion.toUpperCase()}` : ""}
+          </div>
+        </td>
+      </tr>`
+    : "";
+
+  // ── Stats row ───────────────────────────────────────────────────────────────
+  // Use nested table for reliable multi-column layout across all email clients
+  const statsRow = (vars.startingPrice || vars.developerName || vars.city)
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+          style="border-collapse:collapse; border-top:1px solid #efefef; border-bottom:1px solid #efefef; margin-bottom:36px;">
+        <tr>
+          ${vars.startingPrice ? `
+          <td valign="top" width="33%" style="padding:18px 24px 18px 0;">
+            <div style="font-family:Georgia, 'Times New Roman', serif; font-size:34px; font-weight:400; color:#111111; line-height:1; mso-line-height-rule:exactly;">${vars.startingPrice}</div>
+            <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">Starting From + GST</div>
+          </td>
+          <td width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
+          ${vars.developerName ? `
+          <td valign="top" width="33%" style="padding:18px 16px;">
+            <div style="font-family:Georgia, 'Times New Roman', serif; font-size:22px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.developerName}</div>
+            <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">Developer</div>
+          </td>
+          <td width="1" style="background-color:#efefef; padding:0; font-size:0; line-height:0;">&nbsp;</td>` : ""}
+          ${vars.city ? `
+          <td valign="top" width="33%" style="padding:18px 0 18px 16px;">
+            <div style="font-family:Georgia, 'Times New Roman', serif; font-size:22px; font-weight:400; color:#111111; line-height:1.2; mso-line-height-rule:exactly;">${vars.city}, BC</div>
+            <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#aaaaaa; margin-top:6px;">Location</div>
+          </td>` : ""}
+        </tr>
+      </table>`
+    : "";
+
+  // ── CTA buttons ─────────────────────────────────────────────────────────────
+  // Bulletproof buttons: nested table so background renders in ALL clients incl. Outlook
+  const primaryCta = (href: string, label: string) =>
+    href
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
+          <tr>
+            <td bgcolor="#111111" style="background-color:#111111; padding:16px 40px; mso-padding-alt:16px 40px;">
+              <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block;">${label} &rarr;</a><![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; display:inline-block; white-space:nowrap;">${label}&nbsp;&rarr;</a><!--<![endif]-->
+            </td>
+          </tr>
+        </table>`
+      : "";
+
+  const secondaryCta = (href: string, label: string) =>
+    href
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
+          <tr>
+            <td style="border:1px solid #C9A55A; padding:15px 40px; mso-padding-alt:15px 40px;">
+              <!--[if mso]><a href="${href}" style="font-family:Arial,sans-serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block;">${label}</a><![endif]-->
+              <!--[if !mso]><!--><a href="${href}" target="_blank" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; display:inline-block; white-space:nowrap;">${label}</a><!--<![endif]-->
+            </td>
+          </tr>
+        </table>`
+      : "";
+
+  const ctaSection = [
+    cta.floorplan && vars.floorplanUrl ? primaryCta(vars.floorplanUrl, "View Floor Plans &amp; Pricing") : "",
+    cta.brochure && vars.brochureUrl ? primaryCta(vars.brochureUrl, "Download Brochure") : "",
+    cta.pricing && vars.pricingUrl ? primaryCta(vars.pricingUrl, "View Pricing") : "",
+    cta.bookConsult && vars.bookUrl ? secondaryCta(vars.bookUrl, "Book a Private Tour") : "",
+    cta.viewProject && vars.projectUrl ? secondaryCta(vars.projectUrl, "View Full Project") : "",
+  ].filter(Boolean).join("\n");
+
+  // ── Highlights ──────────────────────────────────────────────────────────────
+  const highlightsList = vars.bodyCopy
+    ? vars.bodyCopy.split("\n").filter(Boolean).map((line) =>
+        `<tr>
+          <td valign="top" width="14" style="padding-bottom:14px; padding-right:12px; vertical-align:top;">
+            <div style="width:5px; height:5px; background-color:#C9A55A; margin-top:8px; font-size:0; line-height:0;">&nbsp;</div>
+          </td>
+          <td valign="top" style="padding-bottom:14px; vertical-align:top;">
+            <div style="font-family:Helvetica, Arial, sans-serif; font-size:13px; font-weight:400; color:#444444; line-height:1.75; mso-line-height-rule:exactly;">${line}</div>
+          </td>
+        </tr>`
+      ).join("\n")
+    : "";
+
+  // ── Full HTML ───────────────────────────────────────────────────────────────
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+  <title>${vars.subjectLine || vars.projectName || "Presale Properties"}</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <!-- Google Fonts: <link> is more reliable than @import in email clients that support it -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" type="text/css" />
+  <style type="text/css">
+    /* Reset */
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse !important; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    /* Outlook line-height fix */
+    p { margin: 0; padding: 0; }
+    /* Mobile responsive — only clients that support media queries will use this */
+    @media only screen and (max-width: 620px) {
+      .email-container { width: 100% !important; max-width: 100% !important; }
+      .mobile-pad { padding: 32px 24px !important; }
+      .hero-headline { font-size: 38px !important; line-height: 44px !important; }
+      .stat-col { display: block !important; width: 100% !important; }
+    }
+  </style>
+</head>
+<!-- background-color on body is a fallback only; webmail clients (Gmail, Yahoo) strip this -->
+<body style="margin:0; padding:0; background-color:#f4f4f0; word-spacing:normal;">
+
+  <!-- PREHEADER: hidden text shown in inbox snippet after subject line -->
+  <!-- Padding with zero-width non-joiners prevents body text from bleeding into snippet -->
+  <div style="display:none; font-size:1px; line-height:1px; max-height:0px; max-width:0px; opacity:0; overflow:hidden; mso-hide:all; font-family:sans-serif;">
+    ${vars.previewText || `Exclusive presale opportunity \u2014 ${vars.projectName || "Now Available"}`}&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       OUTER WRAPPER — background-color here works in webmail (not on body)
+       ═══════════════════════════════════════════════════════════ -->
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+         style="background-color:#f4f4f0; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+    <tr>
+      <td align="center" valign="top" style="padding:32px 16px;">
+        <!--[if mso]><table role="presentation" align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td><![endif]-->
+
+        <!-- ═══════════════════════════════════════════════════
+             MAIN CONTAINER — max 600px per Mailchimp guidelines
+             ═══════════════════════════════════════════════════ -->
+        <table class="email-container" role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" align="center"
+               style="max-width:600px; width:100%; background-color:#ffffff; border-collapse:collapse;">
+
+          <!-- ╔═══════════ HEADER ═══════════╗ -->
+          <tr>
+            <td bgcolor="#ffffff" style="padding:36px 48px 28px 48px; background-color:#ffffff; border-bottom:1px solid #efefef;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td valign="bottom">
+                    <!-- "P R E S A L E" label -->
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:4px; text-transform:uppercase; color:#999999; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.4;">P R E S A L E</div>
+                    <!-- "PROPERTIES" wordmark — Cormorant Garamond with Georgia fallback -->
+                    <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:44px; font-weight:300; letter-spacing:6px; text-transform:uppercase; color:#111111; line-height:1; mso-line-height-rule:exactly;">PROPERTIES</div>
+                  </td>
+                  <td align="right" valign="bottom">
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; line-height:1.8; text-align:right; mso-line-height-rule:exactly;">S U R R E Y &nbsp;&middot;&nbsp; L A N G L E Y<br />M E T R O &nbsp; V A N C O U V E R</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ╔═══════════ HERO IMAGE ═══════════╗ -->
+          ${heroImg}
+
+          <!-- ╔═══════════ LOCATION TAG ═══════════╗ -->
+          ${locationBar}
+
+          <!-- ╔═══════════ MAIN CONTENT ═══════════╗ -->
+          <tr>
+            <td class="mobile-pad" bgcolor="#ffffff"
+                style="padding:44px 48px 36px 48px; background-color:#ffffff;">
+
+              <!-- Greeting — uses Mailchimp merge tag *|FNAME|* for personalization -->
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#888888; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.5;">Hi *|FNAME|*,</div>
+
+              <!-- Headline -->
+              ${vars.headline
+                ? `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:52px; font-weight:300; color:#111111; line-height:1.05; margin-bottom:28px; letter-spacing:-0.5px; mso-line-height-rule:exactly;">${vars.headline}</div>`
+                : `<div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:52px; font-weight:300; color:#111111; line-height:1.05; margin-bottom:0; letter-spacing:-0.5px; mso-line-height-rule:exactly;">${vars.projectName || "The Moment"}</div>
+                   <div class="hero-headline" style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:52px; font-weight:300; font-style:italic; color:#C9A55A; line-height:1.05; margin-bottom:28px; letter-spacing:-0.5px; mso-line-height-rule:exactly;">is Now.</div>`
+              }
+
+              <!-- Body paragraph -->
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#444444; line-height:1.85; margin-bottom:36px; mso-line-height-rule:exactly;">
+                We're bringing you an exclusive first look at <strong style="font-weight:500; color:#111111;">${vars.projectName || "this opportunity"}</strong>${vars.neighborhood ? ` in <strong style="font-weight:500; color:#111111;">${vars.neighborhood}</strong>` : ""}${vars.city ? `, ${vars.city}` : ""}. ${vars.startingPrice ? `Starting from <strong style="font-weight:500;">${vars.startingPrice}</strong> &mdash; ` : ""}this is your chance to secure preferred pricing before public launch. Limited units available.
+              </div>
+
+              <!-- Thin divider -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:36px;">
+                <tr><td height="1" bgcolor="#efefef" style="font-size:0; line-height:0; background-color:#efefef;">&nbsp;</td></tr>
+              </table>
+
+              <!-- Stats Row -->
+              ${statsRow}
+
+              <!-- CTA Buttons -->
+              ${ctaSection}
+
+            </td>
+          </tr>
+
+          ${highlightsList ? `
+          <!-- ╔═══════════ WHY THIS PROJECT ═══════════╗ -->
+          <tr>
+            <td bgcolor="#fafaf8"
+                style="padding:36px 48px; background-color:#fafaf8; border-top:1px solid #efefef; border-bottom:1px solid #efefef;">
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:500; letter-spacing:3.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.4;">W H Y &nbsp; T H I S &nbsp; P R O J E C T</div>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                ${highlightsList}
+              </table>
+            </td>
+          </tr>` : ""}
+
+          <!-- ╔═══════════ SIGNATURE ═══════════╗ -->
+          <tr>
+            <td bgcolor="#ffffff" style="padding:40px 48px 36px 48px; background-color:#ffffff;">
+              <div style="font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; font-weight:400; color:#111111; margin-bottom:4px; mso-line-height-rule:exactly; line-height:1.2;">Uzair Muhammad</div>
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:20px; mso-line-height-rule:exactly; line-height:1.4;">Presale Specialist &nbsp;&middot;&nbsp; Presale Properties</div>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="padding-right:28px;">
+                    <a href="tel:+16041234567" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#555555; text-decoration:none;">&#128222; 604.XXX.XXXX</a>
+                  </td>
+                  <td>
+                    <a href="https://presaleproperties.ca" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:300; color:#C9A55A; text-decoration:none;">&#127760; presaleproperties.ca</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ╔═══════════ FOOTER ═══════════╗ -->
+          <tr>
+            <td bgcolor="#111111" style="padding:28px 48px; background-color:#111111; border-top:3px solid #C9A55A;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td valign="top">
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; margin-bottom:8px; mso-line-height-rule:exactly; line-height:1.4;">Display &amp; Presentation Centre</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; line-height:1.8; mso-line-height-rule:exactly;">#108 2350 165 Street, Surrey BC</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#888888; line-height:1.8; mso-line-height-rule:exactly;">Open Daily 12&ndash;5pm &nbsp;|&nbsp; Closed Thu &amp; Fri</div>
+                  </td>
+                  ${vars.projectUrl ? `<td align="right" valign="bottom">
+                    <a href="${vars.projectUrl}" target="_blank" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:9px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase; color:#C9A55A; text-decoration:none;">View Project &rarr;</a>
+                  </td>` : ""}
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ╔═══════════ LEGAL + UNSUBSCRIBE ═══════════╗ -->
+          <!-- *|UNSUB|* and *|UPDATE_PROFILE|* are required Mailchimp merge tags -->
+          <tr>
+            <td bgcolor="#0d0d0d" style="padding:20px 48px 24px 48px; background-color:#0d0d0d;">
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#555555; line-height:1.7; margin-bottom:12px; mso-line-height-rule:exactly;">
+                *Prices exclude taxes and are subject to availability at the time of inquiry and/or change without notice. This is not an offering for sale. Any such offering can only be made with a Disclosure Statement. E.&amp;O.E.
+              </div>
+              <div>
+                <a href="*|UNSUB|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#555555; text-decoration:underline;">Unsubscribe</a>
+                <span style="color:#333333; margin:0 8px;">&nbsp;&middot;&nbsp;</span>
+                <a href="*|UPDATE_PROFILE|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#555555; text-decoration:underline;">Update Preferences</a>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+        <!--[if mso]></td></tr></table><![endif]-->
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`;
+}
   const locationTag = [vars.neighborhood, vars.city ? vars.city.toUpperCase() : ""].filter(Boolean).join("&nbsp;&nbsp;·&nbsp;&nbsp;").toUpperCase();
 
   // Hero image — full-bleed, no border radius
