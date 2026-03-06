@@ -485,7 +485,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                     <div style="width:44px; height:2px; background-color:#C9A55A; font-size:0; line-height:0;">&nbsp;</div>
                   </td>
                   ${(vars.neighborhood || vars.city) ? `
-                  <td align="right" valign="top" style="padding-left:16px; white-space:nowrap;">
+                  <td class="header-city" align="right" valign="top" style="padding-left:16px; white-space:nowrap;">
                     <div style="font-family:${font.body}; font-size:9px; font-weight:300; letter-spacing:2.5px; text-transform:uppercase; color:#8aaa96; text-align:right; line-height:2.2; mso-line-height-rule:exactly;">
                       ${vars.city ? `${vars.city.toUpperCase()}<br/>` : ""}${vars.neighborhood ? vars.neighborhood.toUpperCase() : ""}
                     </div>
