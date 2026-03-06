@@ -661,7 +661,7 @@ export default function PresaleProjectDetail() {
       {/* Mobile/Tablet Scroll-Up Sticky Header */}
       <PropertyStickyHeader
         price={project.starting_price ? formatPrice(project.starting_price) : "Contact for pricing"}
-        specs={`${project.project_type === "condo" ? "Condos" : project.project_type === "townhome" ? "Townhomes" : project.project_type === "mixed" ? "Mixed" : project.project_type === "duplex" ? "Duplexes" : "Homes"} • ${project.neighborhood} • ${project.completion_year || "TBD"}`}
+        specs={`${project.project_type === "condo" ? "Condos" : project.project_type === "townhome" ? "Townhomes" : project.project_type === "mixed" ? "Mixed" : project.project_type === "duplex" ? "Duplexes" : "Homes"} • ${project.neighborhood} • ${completionDisplay || "TBD"}`}
         onShare={handleShare}
         backPath="/presale-projects"
       />
