@@ -400,11 +400,16 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
         </table>`
       : "";
 
+  const callNowHref = agent.phone ? `tel:${agent.phone.replace(/\D/g, "")}` : "";
+  const whatsappNumber = "16722581100";
+  const whatsappMsg = encodeURIComponent(`Hi! I got your email and I'm interested in seeing the showhome for ${vars.projectName || "this project"}. When is a good time?`);
+  const whatsappHref = `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`;
+
   const ctaSection = [
     cta.floorplan && vars.floorplanUrl ? primaryCta(vars.floorplanUrl, "View Brochure &amp; Floorplans") : "",
     cta.brochure && vars.brochureUrl ? primaryCta(vars.brochureUrl, "Download Brochure") : "",
     cta.pricing && vars.pricingUrl ? primaryCta(vars.pricingUrl, "View Pricing") : "",
-    cta.bookConsult && vars.bookUrl ? secondaryCta(vars.bookUrl, "&#128222;&nbsp; CALL NOW") : "",
+    cta.bookConsult && callNowHref ? secondaryCta(callNowHref, "&#128222;&nbsp; CALL NOW") : "",
     cta.viewProject && vars.projectUrl ? secondaryCta(vars.projectUrl, "View Full Project") : "",
   ].filter(Boolean).join("\n");
 
