@@ -308,6 +308,12 @@ export default function PresaleProjectDetail() {
       month: "long"
     });
   };
+  const completionDisplay = project
+    ? project.occupancy_estimate
+      || (project.completion_month && project.completion_year
+        ? `${getMonthName(project.completion_month)} ${project.completion_year}`
+        : project.completion_year ? String(project.completion_year) : null)
+    : null;
   const handleShare = async () => {
     // Use OG meta proxy for sharing - serves property image to bots, redirects humans
     const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-property-meta?projectSlug=${project?.slug}`;
