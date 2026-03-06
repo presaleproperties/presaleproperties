@@ -1467,6 +1467,59 @@ export default function AdminEmailBuilder() {
                   </div>
                 </div>
 
+                {/* SECTION: AI Promo Snippet */}
+                <div className="px-4 pt-3.5 pb-4 border-b border-border/60 bg-muted/30">
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <div className="h-1 w-1 rounded-full bg-primary" />
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">AI Promo Snippet</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mb-2 leading-relaxed">
+                    Paste raw notes about a new release, promo, or special offer — AI will rewrite it into polished bullet lines.
+                  </p>
+                  <Textarea
+                    value={promoNotes}
+                    onChange={(e) => setPromoNotes(e.target.value)}
+                    className="text-xs min-h-[72px] resize-none leading-relaxed mb-2"
+                    placeholder={"e.g. New phase just released, limited 2bds left, PTT exempt, free storage locker promotion ends Friday"}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full h-8 text-xs gap-1.5 border-primary/40 text-primary hover:bg-primary/5"
+                    onClick={handleRewritePromo}
+                    disabled={rewritingPromo || !promoNotes.trim()}
+                  >
+                    {rewritingPromo
+                      ? <><Loader2 className="h-3 w-3 animate-spin" /> Rewriting…</>
+                      : <><Wand2 className="h-3 w-3" /> Rewrite with AI</>
+                    }
+                  </Button>
+
+                  {promoSnippet && (
+                    <div className="mt-3 rounded-md border border-primary/20 bg-primary/5 p-3 space-y-2">
+                      <p className="text-[10px] font-medium text-primary uppercase tracking-wider">AI Result</p>
+                      <p className="text-xs text-foreground leading-relaxed whitespace-pre-line">{promoSnippet}</p>
+                      <div className="flex gap-1.5 pt-1">
+                        <Button
+                          size="sm"
+                          className="h-7 text-xs flex-1 gap-1"
+                          onClick={appendPromoToHighlights}
+                        >
+                          <PlusCircle className="h-3 w-3" /> Add to Highlights
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-xs px-2"
+                          onClick={() => { setPromoSnippet(""); setPromoNotes(""); }}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* SECTION: Key Stats */}
                 <div className="px-4 pt-3.5 pb-3 border-b border-border/60">
                   <div className="flex items-center gap-1.5 mb-2.5">
