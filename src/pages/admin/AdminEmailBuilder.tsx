@@ -514,7 +514,549 @@ export default function AdminEmailBuilder() {
   const [ctaSectionOpen, setCtaSectionOpen] = useState(true);
 
   return (
+    <TooltipProvider>
     <AdminLayout>
+      {/* ════════════════════════════════════════════════
+          TOP BAR — project picker + actions
+          ════════════════════════════════════════════════ */}
+      <div className="flex items-center justify-between gap-4 mb-4">
+        {/* Left: title + project picker */}
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="shrink-0">
+            <h1 className="text-lg font-bold text-foreground tracking-tight leading-tight">Email Builder</h1>
+            <p className="text-xs text-muted-foreground">Mailchimp-ready HTML · No code needed</p>
+          </div>
+
+          <Separator orientation="vertical" className="h-8" />
+
+          {/* Project selector — prominent */}
+          <div className="flex items-center gap-2 min-w-0">
+            <Building2 className="h-4 w-4 text-primary shrink-0" />
+            <Select value={selectedProjectId} onValueChange={setSelectedProjectId} disabled={loadingProjects}>
+              <SelectTrigger className="h-9 w-[260px] text-sm font-medium">
+                <SelectValue placeholder={loadingProjects ? "Loading projects…" : "Choose a project to start →"} />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map((p) => (
+                  <SelectItem key={p.id} value={p.id} className="text-sm">
+                    <span className="font-medium">{p.name}</span>
+                    <span className="text-muted-foreground ml-1.5 text-xs">· {p.city}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedProject && (
+              <div className="flex items-center gap-1">
+                {selectedProject.brochure_files?.[0] && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge className="text-[10px] h-5 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 cursor-default">PDF</Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>Brochure attached</TooltipContent>
+                  </Tooltip>
+                )}
+                {selectedProject.floorplan_files?.[0] && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge className="text-[10px] h-5 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 cursor-default">FP</Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>Floor plans attached</TooltipContent>
+                  </Tooltip>
+                )}
+                {selectedProject.pricing_sheets?.[0] && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge className="text-[10px] h-5 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 cursor-default">$$</Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>Pricing sheet attached</TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: actions */}
+        <div className="flex items-center gap-2 shrink-0">
+          {useCustomHtml && (
+            <Badge variant="outline" className="text-[10px] h-7 px-2.5 border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/5">
+              Custom HTML
+            </Badge>
+          )}
+
+          <Dialog open={importOpen} onOpenChange={setImportOpen}>
+            <DialogTrigger asChild>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5 h-9 px-3">
+                    <Upload className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Import HTML</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Paste HTML from Claude or any source</TooltipContent>
+              </Tooltip>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Upload className="h-4 w-4 text-primary" />
+                  Import Custom HTML
+                </DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                Paste HTML from Claude or any source. The quick-edit panel will be disabled while using custom HTML.
+              </p>
+              <Textarea
+                value={importHtml}
+                onChange={(e) => setImportHtml(e.target.value)}
+                placeholder="<!DOCTYPE html>…"
+                className="font-mono text-xs min-h-[320px] bg-muted/30"
+              />
+              <div className="flex justify-between items-center gap-2 mt-1">
+                <p className="text-xs text-muted-foreground">{importHtml.length.toLocaleString()} characters</p>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setImportOpen(false)}>Cancel</Button>
+                  <Button onClick={handleImport} className="gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5" /> Use This HTML
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9 w-9 p-0" onClick={handleReset}>
+                <RefreshCw className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Reset everything</TooltipContent>
+          </Tooltip>
+
+          <Button
+            size="sm"
+            className={cn(
+              "gap-2 h-9 px-4 font-semibold transition-all duration-200",
+              copied
+                ? "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
+            )}
+            onClick={handleCopy}
+          >
+            {copied ? (
+              <><CheckCircle2 className="h-3.5 w-3.5" /> Copied to Clipboard</>
+            ) : (
+              <><Copy className="h-3.5 w-3.5" /> Copy HTML</>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════════
+          INBOX PREVIEW BAR
+          ════════════════════════════════════════════════ */}
+      <div className="mb-4 rounded-lg border border-border bg-card px-4 py-2.5">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="h-2 w-2 rounded-full bg-red-400" />
+            <div className="h-2 w-2 rounded-full bg-amber-400" />
+            <div className="h-2 w-2 rounded-full bg-green-400" />
+          </div>
+          <Separator orientation="vertical" className="h-5" />
+          <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <div className="flex items-center gap-1.5 min-w-0 flex-1 text-sm">
+            <span className="font-semibold text-foreground shrink-0 text-xs">PresaleProperties</span>
+            <span className="text-muted-foreground/30 shrink-0">·</span>
+            <span className={cn("font-medium truncate text-xs", !vars.subjectLine && "text-muted-foreground italic")}>
+              {vars.subjectLine || "Your subject line will appear here"}
+            </span>
+            {vars.previewText && (
+              <>
+                <span className="text-muted-foreground/30 shrink-0 hidden md:inline">—</span>
+                <span className="text-muted-foreground text-xs truncate hidden md:inline">{vars.previewText}</span>
+              </>
+            )}
+          </div>
+          <Badge variant="outline" className="shrink-0 text-[10px] py-0 h-5 text-muted-foreground">
+            Gmail preview
+          </Badge>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════════
+          MAIN 2-PANEL LAYOUT
+          ════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-[1fr_340px] gap-4 h-[calc(100vh-230px)] min-h-[600px]">
+
+        {/* ── LEFT: Email preview (dominant) ── */}
+        <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+
+          {/* Preview toolbar */}
+          <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/20 shrink-0">
+            <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn("h-7 px-3 text-xs gap-1.5 rounded-md transition-all", previewMode === "preview" && "bg-card shadow-sm text-foreground font-medium")}
+                onClick={() => setPreviewMode("preview")}
+              >
+                <Eye className="h-3 w-3" /> Preview
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn("h-7 px-3 text-xs gap-1.5 rounded-md transition-all", previewMode === "code" && "bg-card shadow-sm text-foreground font-medium")}
+                onClick={() => setPreviewMode("code")}
+              >
+                <Code2 className="h-3 w-3" /> HTML Code
+              </Button>
+            </div>
+
+            {previewMode === "preview" && (
+              <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn("h-7 w-8 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm")}
+                      onClick={() => setPreviewDevice("desktop")}
+                    >
+                      <Monitor className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Desktop view</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn("h-7 w-8 p-0 rounded-md transition-all", previewDevice === "mobile" && "bg-card shadow-sm")}
+                      onClick={() => setPreviewDevice("mobile")}
+                    >
+                      <Smartphone className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Mobile view</TooltipContent>
+                </Tooltip>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              {previewMode === "preview" && (
+                <span className="text-[11px] text-muted-foreground hidden lg:block">
+                  {previewDevice === "desktop" ? "600px email width" : "375px mobile width"}
+                </span>
+              )}
+              {previewMode === "code" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs gap-1"
+                  onClick={handleCopy}
+                >
+                  <Copy className="h-3 w-3" />
+                  {copied ? "Copied!" : "Copy"}
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Preview area */}
+          {previewMode === "preview" ? (
+            <div className={cn(
+              "flex-1 overflow-auto",
+              previewDevice === "desktop" ? "bg-[#e8e5e0]" : "bg-[#e8e5e0] flex items-start justify-center pt-4 pb-4"
+            )}>
+              <iframe
+                ref={iframeRef}
+                srcDoc={finalHtml}
+                className={cn(
+                  "border-0",
+                  previewDevice === "desktop" ? "w-full h-full" : "w-[375px] h-full min-h-[800px] shadow-2xl rounded-sm"
+                )}
+                sandbox="allow-same-origin"
+                title="Email Preview"
+              />
+            </div>
+          ) : (
+            <div className="flex-1 overflow-auto" style={{ background: "#0d1117" }}>
+              <div className="p-4 pb-2 flex items-center justify-between border-b border-white/5">
+                <span className="text-[11px] font-mono text-emerald-400">email.html</span>
+                <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars · Mailchimp-compatible</span>
+              </div>
+              <pre className="p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed" style={{ color: "#e6edf3" }}>
+                {finalHtml}
+              </pre>
+            </div>
+          )}
+        </div>
+
+        {/* ── RIGHT: Editor panel ── */}
+        <div className="flex flex-col gap-0 rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+
+          {/* Editor header */}
+          <div className="px-4 pt-4 pb-3 border-b border-border bg-muted/10 shrink-0">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-foreground">Email Editor</h2>
+              {useCustomHtml && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-[11px] px-2 text-amber-600 hover:text-amber-700"
+                  onClick={() => setUseCustomHtml(false)}
+                >
+                  ← Use template
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <Tabs defaultValue="content" className="flex flex-col flex-1 overflow-hidden">
+            <div className="px-3 pt-2 shrink-0">
+              <TabsList className="w-full h-8 text-xs grid grid-cols-3">
+                <TabsTrigger value="content" className="text-xs gap-1.5">
+                  <FileText className="h-3 w-3" /> Content
+                </TabsTrigger>
+                <TabsTrigger value="project" className="text-xs gap-1.5">
+                  <Building2 className="h-3 w-3" /> Project
+                </TabsTrigger>
+                <TabsTrigger value="urls" className="text-xs gap-1.5">
+                  <Link2 className="h-3 w-3" /> URLs
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <div className={cn("flex-1 overflow-y-auto", useCustomHtml && "opacity-40 pointer-events-none select-none")}>
+
+              {/* ── CONTENT TAB ── */}
+              <TabsContent value="content" className="mt-0 px-4 pb-4 space-y-4">
+
+                {/* Inbox section */}
+                <div className="pt-3">
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <Mail className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Inbox</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <Label className="text-[11px] text-muted-foreground">Subject Line</Label>
+                      <Input
+                        value={vars.subjectLine}
+                        onChange={v("subjectLine")}
+                        className="h-8 text-xs mt-1"
+                        placeholder="🏙️ Exclusive Access: Project Name — City"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[11px] text-muted-foreground">Preview Text</Label>
+                      <Input
+                        value={vars.previewText}
+                        onChange={v("previewText")}
+                        className="h-8 text-xs mt-1"
+                        placeholder="From $599K · Surrey · Limited units"
+                      />
+                      <p className="text-[10px] text-muted-foreground/60 mt-1">Shown after subject line in inbox</p>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Headline */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <Sparkles className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Email Body</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <Label className="text-[11px] text-muted-foreground">Headline</Label>
+                      <Input
+                        value={vars.headline}
+                        onChange={v("headline")}
+                        className="h-8 text-xs mt-1"
+                        placeholder="Introducing Project Name…"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[11px] text-muted-foreground">
+                        Highlights
+                        <span className="ml-1 text-muted-foreground/50 font-normal">(one per line → gold bullets)</span>
+                      </Label>
+                      <Textarea
+                        value={vars.bodyCopy}
+                        onChange={v("bodyCopy")}
+                        className="text-xs mt-1 min-h-[120px] resize-none leading-relaxed"
+                        placeholder={"Park-facing homes overlooking green space\nPTT Exemption eligible for first-time buyers\nCo-op commission available — call for details"}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* CTA toggles */}
+                <div>
+                  <button
+                    className="flex items-center justify-between w-full mb-2.5 group"
+                    onClick={() => setCtaSectionOpen(!ctaSectionOpen)}
+                  >
+                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">CTA Buttons</span>
+                    {ctaSectionOpen
+                      ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/50" />
+                    }
+                  </button>
+                  {ctaSectionOpen && (
+                    <div className="space-y-1.5 rounded-lg bg-muted/20 p-3">
+                      {(
+                        [
+                          { key: "floorplan" as keyof CtaToggles, label: "View Floorplans & Pricing", url: vars.floorplanUrl, primary: true },
+                          { key: "brochure" as keyof CtaToggles, label: "Download Brochure", url: vars.brochureUrl, primary: true },
+                          { key: "pricing" as keyof CtaToggles, label: "Request Pricing", url: vars.pricingUrl, primary: false },
+                          { key: "viewProject" as keyof CtaToggles, label: "View Full Project", url: vars.projectUrl, primary: false },
+                          { key: "bookConsult" as keyof CtaToggles, label: "Book a Private Tour", url: vars.bookUrl, primary: false },
+                        ]
+                      ).map(({ key, label, url, primary }) => (
+                        <div key={key} className={cn(
+                          "flex items-center justify-between gap-2 rounded-md px-2.5 py-1.5 transition-colors",
+                          cta[key] ? "bg-card border border-border" : "opacity-50"
+                        )}>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Switch
+                              checked={cta[key]}
+                              onCheckedChange={(val) => setCta((prev) => ({ ...prev, [key]: val }))}
+                              disabled={!url}
+                              className="scale-75 origin-left"
+                            />
+                            <div className="min-w-0">
+                              <span className="text-[11px] font-medium text-foreground truncate block">{label}</span>
+                              {primary && <span className="text-[9px] text-primary font-semibold uppercase tracking-wide">Primary</span>}
+                            </div>
+                          </div>
+                          {!url && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="text-[9px] text-muted-foreground/40 shrink-0 cursor-help border border-dashed border-muted-foreground/20 rounded px-1 py-0.5">no URL</span>
+                              </TooltipTrigger>
+                              <TooltipContent>Add a URL in the URLs tab to enable this button</TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              {/* ── PROJECT TAB ── */}
+              <TabsContent value="project" className="mt-0 px-4 pb-4 space-y-3">
+                <div className="pt-3">
+                  {selectedProject?.featured_image && (
+                    <div className="mb-3 rounded-lg overflow-hidden border border-border">
+                      <img
+                        src={selectedProject.featured_image}
+                        alt={selectedProject.name}
+                        className="w-full h-28 object-cover"
+                      />
+                      <div className="px-2.5 py-1.5 bg-muted/30">
+                        <p className="text-[10px] text-muted-foreground">Hero image · auto-filled from project</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    {(
+                      [
+                        { key: "projectName" as keyof TemplateVars, label: "Project Name" },
+                        { key: "developerName" as keyof TemplateVars, label: "Developer" },
+                        { key: "address" as keyof TemplateVars, label: "Address" },
+                        { key: "city" as keyof TemplateVars, label: "City" },
+                        { key: "neighborhood" as keyof TemplateVars, label: "Neighborhood" },
+                        { key: "completion" as keyof TemplateVars, label: "Est. Completion" },
+                        { key: "startingPrice" as keyof TemplateVars, label: "Starting Price" },
+                      ]
+                    ).map(({ key, label }) => (
+                      <div key={key}>
+                        <Label className="text-[11px] text-muted-foreground">{label}</Label>
+                        <Input value={vars[key]} onChange={v(key)} className="h-8 text-xs mt-0.5" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* ── URLS TAB ── */}
+              <TabsContent value="urls" className="mt-0 px-4 pb-4 space-y-2">
+                <div className="pt-3">
+                  <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+                    URLs are auto-filled from the selected project. Override any field below.
+                  </p>
+                  {(
+                    [
+                      { key: "featuredImage" as keyof TemplateVars, label: "Hero Image URL", icon: "🖼️" },
+                      { key: "brochureUrl" as keyof TemplateVars, label: "Brochure PDF URL", icon: "📄" },
+                      { key: "floorplanUrl" as keyof TemplateVars, label: "Floor Plan PDF URL", icon: "📐" },
+                      { key: "pricingUrl" as keyof TemplateVars, label: "Pricing Sheet URL", icon: "💰" },
+                      { key: "projectUrl" as keyof TemplateVars, label: "Project Page URL", icon: "🔗" },
+                      { key: "bookUrl" as keyof TemplateVars, label: "Booking / Tour URL", icon: "📅" },
+                    ]
+                  ).map(({ key, label, icon }) => (
+                    <div key={key}>
+                      <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                        <span>{icon}</span> {label}
+                      </Label>
+                      <div className="relative mt-0.5">
+                        <Input
+                          value={vars[key]}
+                          onChange={v(key)}
+                          className={cn(
+                            "h-8 text-[11px] font-mono pr-8",
+                            vars[key] && "border-emerald-500/40 bg-emerald-500/5"
+                          )}
+                          placeholder="https://"
+                        />
+                        {vars[key] && (
+                          <CheckCircle2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-500" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </div>
+          </Tabs>
+
+          {/* Bottom copy button — always visible */}
+          <div className="px-4 pb-4 pt-3 border-t border-border shrink-0 bg-muted/10">
+            <Button
+              className={cn(
+                "w-full h-10 gap-2 font-semibold text-sm transition-all duration-200",
+                copied
+                  ? "bg-emerald-600 hover:bg-emerald-600 text-white"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90"
+              )}
+              onClick={handleCopy}
+            >
+              {copied ? (
+                <><CheckCircle2 className="h-4 w-4" /> Copied! Paste into Mailchimp</>
+              ) : (
+                <><Copy className="h-4 w-4" /> Copy HTML for Mailchimp</>
+              )}
+            </Button>
+            <p className="text-[10px] text-muted-foreground text-center mt-1.5">
+              All variables resolved · Inline CSS · Mailchimp-ready
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </AdminLayout>
+    </TooltipProvider>
+  );
+}
       {/* ── Page header ── */}
       <div className="flex items-center justify-between mb-5">
         <div>
