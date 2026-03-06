@@ -973,6 +973,29 @@ export default function AdminEmailBuilder() {
                     <Sparkles className="h-3 w-3 text-muted-foreground" />
                     <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Email Body</span>
                   </div>
+                  {/* Premium text presets */}
+                  <div className="mb-3 space-y-2">
+                    <Label className="text-[11px] text-muted-foreground">Premium Text Presets</Label>
+                    {HEADLINE_PRESETS.map((preset, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          setHeadlinePresetIdx(i);
+                          setVars((prev) => ({ ...prev, headline: preset.headline, bodyCopy: prev.bodyCopy || preset.body }));
+                        }}
+                        className={cn(
+                          "w-full text-left rounded-lg border px-3 py-2.5 transition-all",
+                          headlinePresetIdx === i
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border bg-background hover:border-primary/30"
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold text-foreground mb-0.5">{preset.label}</div>
+                        <div className="text-[10px] text-muted-foreground italic leading-relaxed line-clamp-2">"{preset.headline}"</div>
+                      </button>
+                    ))}
+                  </div>
+
                   <div className="space-y-2">
                     <div>
                       <Label className="text-[11px] text-muted-foreground">Headline (italic gold subhead)</Label>
