@@ -1575,19 +1575,8 @@ export default function AdminEmailBuilder() {
     </TooltipProvider>
   );
 }
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 shrink-0">
-            <div className="h-2 w-2 rounded-full bg-red-400" />
-            <div className="h-2 w-2 rounded-full bg-amber-400" />
-            <div className="h-2 w-2 rounded-full bg-green-400" />
-          </div>
-          <Separator orientation="vertical" className="h-5" />
-          <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <div className="flex items-center gap-1.5 min-w-0 flex-1 text-sm">
-            <span className="font-semibold text-foreground shrink-0 text-xs">PresaleProperties</span>
-            <span className="text-muted-foreground/30 shrink-0">·</span>
-            <span className={cn("font-medium truncate text-xs", !vars.subjectLine && "text-muted-foreground italic")}>
-              {vars.subjectLine || "Your subject line will appear here"}
+
+
             </span>
             {vars.previewText && (
               <>
