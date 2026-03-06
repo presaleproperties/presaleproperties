@@ -113,234 +113,258 @@ const DEFAULT_CTA: CtaToggles = {
 
 // ─── Template builder ─────────────────────────────────────────────────────────
 function buildEmailHtml(vars: TemplateVars, cta: CtaToggles): string {
-  const ctaBtn = (href: string, label: string, primary = false) =>
+  const locationLine = [vars.neighborhood, vars.city].filter(Boolean).join(" · ").toUpperCase();
+
+  const heroImg = vars.featuredImage
+    ? `<tr>
+        <td style="padding:0; margin:0; line-height:0;">
+          <img src="${vars.featuredImage}" alt="${vars.projectName}" width="600"
+               style="display:block; width:100%; max-width:600px; height:320px; object-fit:cover;" />
+        </td>
+      </tr>`
+    : "";
+
+  const goldBar = `<tr>
+    <td style="background-color:#C9A55A; padding: 14px 48px;">
+      <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#0C1A14;">
+        ${[vars.neighborhood, locationLine ? locationLine : vars.city].filter(Boolean).join(" &nbsp;·&nbsp; ")}${vars.completion ? ` &nbsp;·&nbsp; EST. COMPLETION ${vars.completion.toUpperCase()}` : ""}
+      </div>
+    </td>
+  </tr>`;
+
+  const statsRow = (vars.startingPrice || vars.completion || vars.city)
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:40px;">
+        <tr>
+          ${vars.startingPrice ? `
+          <td width="33%" valign="top" style="padding-right:16px;">
+            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:32px; font-weight:600; color:#0C1A14; line-height:1;">${vars.startingPrice}</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#888; margin-top:6px;">Starting From + GST</div>
+          </td>
+          <td width="1" style="background-color:#E8E4DF; padding:0 1px;">&nbsp;</td>` : ""}
+          ${vars.developerName ? `
+          <td width="33%" valign="top" style="padding: 0 16px;">
+            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:22px; font-weight:600; color:#0C1A14; line-height:1.2;">${vars.developerName}</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#888; margin-top:6px;">Developer</div>
+          </td>
+          <td width="1" style="background-color:#E8E4DF; padding:0 1px;">&nbsp;</td>` : ""}
+          ${vars.city ? `
+          <td width="33%" valign="top" style="padding-left:16px;">
+            <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:22px; font-weight:600; color:#0C1A14; line-height:1.2;">${vars.city}, BC</div>
+            <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#888; margin-top:6px;">Location</div>
+          </td>` : ""}
+        </tr>
+      </table>`
+    : "";
+
+  // Primary CTA (dark fill)
+  const primaryCta = (href: string, label: string) =>
     href
-      ? `<table border="0" cellpadding="0" cellspacing="0" style="margin:8px auto;">
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
           <tr>
-            <td align="center" bgcolor="${primary ? "#C9A84C" : "#1A1A1A"}" style="border-radius:4px;">
-              <a href="${href}" target="_blank"
-                style="display:inline-block;padding:14px 32px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;
-                       color:${primary ? "#111111" : "#FFFFFF"};text-decoration:none;letter-spacing:0.5px;border-radius:4px;
-                       border:2px solid ${primary ? "#C9A84C" : "#444444"};">
-                ${label}
-              </a>
+            <td style="background-color:#0C1A14; padding: 16px 40px;">
+              <a href="${href}" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#FAFAF8; text-decoration:none; white-space:nowrap;">${label} &rarr;</a>
             </td>
           </tr>
         </table>`
       : "";
 
-  const locationLine = [vars.city, vars.neighborhood].filter(Boolean).join(" · ");
+  // Secondary CTA (gold border)
+  const secondaryCta = (href: string, label: string) =>
+    href
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
+          <tr>
+            <td style="border: 1px solid #C9A55A; padding: 14px 40px;">
+              <a href="${href}" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#C9A55A; text-decoration:none; white-space:nowrap;">${label}</a>
+            </td>
+          </tr>
+        </table>`
+      : "";
 
-  const heroSection = vars.featuredImage
-    ? `<tr>
-        <td align="center" style="padding:0;position:relative;">
-          <img src="${vars.featuredImage}" alt="${vars.projectName}" width="600"
-               style="width:100%;max-width:600px;height:280px;object-fit:cover;display:block;border:0;" />
-          <table width="100%" border="0" cellpadding="0" cellspacing="0"
-                 style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.75));padding:0;">
-            <tr>
-              <td style="padding:20px 30px;">
-                <h1 style="margin:0;font-family:Georgia,serif;font-size:28px;font-weight:700;color:#FFFFFF;letter-spacing:-0.5px;">
-                  ${vars.projectName}
-                </h1>
-                ${locationLine ? `<p style="margin:4px 0 0;font-family:Arial,sans-serif;font-size:13px;color:#C9A84C;letter-spacing:1px;text-transform:uppercase;">${locationLine}</p>` : ""}
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>`
-    : `<tr>
-        <td align="center" style="background:#1A1A1A;padding:40px 30px;">
-          <h1 style="margin:0;font-family:Georgia,serif;font-size:32px;font-weight:700;color:#FFFFFF;letter-spacing:-0.5px;">
-            ${vars.projectName || "Your Project Name"}
-          </h1>
-          ${locationLine ? `<p style="margin:8px 0 0;font-family:Arial,sans-serif;font-size:13px;color:#C9A84C;letter-spacing:1.5px;text-transform:uppercase;">${locationLine}</p>` : ""}
-        </td>
-      </tr>`;
+  const ctaSection = [
+    cta.floorplan && vars.floorplanUrl ? primaryCta(vars.floorplanUrl, "View Floorplans &amp; Pricing") : "",
+    cta.brochure && vars.brochureUrl ? primaryCta(vars.brochureUrl, "Download Brochure") : "",
+    cta.pricing && vars.pricingUrl ? primaryCta(vars.pricingUrl, "View Pricing") : "",
+    cta.viewProject && vars.projectUrl ? secondaryCta(vars.projectUrl, "View Full Project") : "",
+    cta.bookConsult && vars.bookUrl ? secondaryCta(vars.bookUrl, "Book a Private Tour") : "",
+  ].filter(Boolean).join("\n");
 
-  const infoBar =
-    vars.address || vars.completion || vars.startingPrice
-      ? `<tr>
-          <td style="background:#111111;padding:0;">
-            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+  const highlightsList = vars.bodyCopy
+    ? vars.bodyCopy.split("\n").filter(Boolean).map((line) =>
+        `<tr>
+          <td valign="top" style="padding-bottom:12px;">
+            <table role="presentation" cellpadding="0" cellspacing="0">
               <tr>
-                ${
-                  vars.address
-                    ? `<td align="center" style="padding:16px 10px;border-right:1px solid #2A2A2A;width:34%;">
-                        <p style="margin:0 0 3px;font-family:Arial,sans-serif;font-size:9px;color:#C9A84C;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">Location</p>
-                        <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;color:#E0E0E0;">${vars.address}</p>
-                      </td>`
-                    : ""
-                }
-                ${
-                  vars.startingPrice
-                    ? `<td align="center" style="padding:16px 10px;border-right:1px solid #2A2A2A;width:33%;">
-                        <p style="margin:0 0 3px;font-family:Arial,sans-serif;font-size:9px;color:#C9A84C;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">Starting From</p>
-                        <p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:#FFFFFF;font-weight:700;">${vars.startingPrice}</p>
-                      </td>`
-                    : ""
-                }
-                ${
-                  vars.completion
-                    ? `<td align="center" style="padding:16px 10px;width:33%;">
-                        <p style="margin:0 0 3px;font-family:Arial,sans-serif;font-size:9px;color:#C9A84C;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">Est. Completion</p>
-                        <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;color:#E0E0E0;">${vars.completion}</p>
-                      </td>`
-                    : ""
-                }
+                <td style="padding-right:14px; padding-top:5px;">
+                  <div style="width:6px; height:6px; background-color:#C9A55A;"></div>
+                </td>
+                <td>
+                  <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:14px; font-weight:300; color:#3A3A3A; line-height:1.7;">${line}</div>
+                </td>
               </tr>
             </table>
           </td>
         </tr>`
-      : "";
-
-  const ctaButtons = [
-    cta.brochure && vars.brochureUrl ? ctaBtn(vars.brochureUrl, "&#x1F4C4; Download Brochure", true) : "",
-    cta.floorplan && vars.floorplanUrl ? ctaBtn(vars.floorplanUrl, "&#x1F3E2; View Floor Plans") : "",
-    cta.pricing && vars.pricingUrl ? ctaBtn(vars.pricingUrl, "&#x1F4B0; Request Pricing") : "",
-    cta.viewProject && vars.projectUrl ? ctaBtn(vars.projectUrl, "&#x1F50D; View Full Project") : "",
-    cta.bookConsult && vars.bookUrl ? ctaBtn(vars.bookUrl, "&#x1F4C5; Book a Free Consultation", true) : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
+      ).join("\n")
+    : "";
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>${vars.subjectLine || vars.projectName}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>${vars.subjectLine || vars.projectName || "Presale Properties"}</title>
+  <!--[if mso]>
+  <noscript><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+  <![endif]-->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { margin: 0 !important; padding: 0 !important; background-color: #F5F2EE; width: 100% !important; }
+    table { border-collapse: collapse; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    a { text-decoration: none; }
+    @media only screen and (max-width: 600px) {
+      .email-container { width: 100% !important; }
+      .mobile-padding { padding: 32px 24px !important; }
+      .hero-text { font-size: 36px !important; line-height: 42px !important; }
+      .sub-text { font-size: 14px !important; }
+      .stat-block { display: block !important; width: 100% !important; text-align: center !important; }
+    }
+  </style>
 </head>
-<body style="margin:0;padding:0;background:#F4F4F0;font-family:Arial,sans-serif;">
+<body style="margin:0; padding:0; background-color:#F5F2EE; font-family:'DM Sans', Helvetica, Arial, sans-serif;">
 
-<!-- Preview text (hidden) -->
-<div style="display:none;max-height:0;overflow:hidden;font-size:1px;color:#F4F4F0;">
-  ${vars.previewText || `Exclusive presale opportunity \u2014 ${vars.projectName}`}&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
-</div>
+  <!-- PREHEADER -->
+  <div style="display:none; max-height:0; overflow:hidden; color:#F5F2EE; font-size:1px;">
+    ${vars.previewText || `Exclusive presale opportunity — ${vars.projectName || "Now Available"}`}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
+  </div>
 
-<!-- Email wrapper -->
-<table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F4F4F0" style="min-height:100vh;">
-  <tr>
-    <td align="center" style="padding:20px 10px;">
+  <!-- EMAIL WRAPPER -->
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color:#F5F2EE;">
+    <tr>
+      <td align="center" valign="top" style="padding: 32px 16px;">
 
-      <!-- Main container -->
-      <table width="600" border="0" cellpadding="0" cellspacing="0"
-             style="max-width:600px;width:100%;background:#FFFFFF;border-radius:4px;overflow:hidden;
-                    box-shadow:0 4px 24px rgba(0,0,0,0.12);">
+        <!-- MAIN CONTAINER -->
+        <table class="email-container" role="presentation" cellpadding="0" cellspacing="0" width="600" style="max-width:600px; background-color:#FAFAF8;">
 
-        <!-- HEADER -->
-        <tr>
-          <td style="background:#111111;padding:0;">
-            <table width="100%" border="0" cellpadding="0" cellspacing="0">
-              <tr>
-                <td style="padding:18px 24px 16px;">
-                  <table width="100%" border="0" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td>
-                        <p style="margin:0;font-family:Georgia,serif;font-size:18px;font-weight:700;color:#FFFFFF;letter-spacing:0.5px;">
-                          PRESALE<span style="color:#C9A84C;">PROPERTIES</span>
-                        </p>
-                        <p style="margin:2px 0 0;font-family:Arial,sans-serif;font-size:10px;color:#888888;letter-spacing:2px;text-transform:uppercase;">
-                          BC's Pre-Construction Experts
-                        </p>
-                      </td>
-                      <td align="right">
-                        <span style="display:inline-block;padding:4px 10px;background:#C9A84C;font-family:Arial,sans-serif;font-size:9px;font-weight:700;color:#111111;letter-spacing:1.5px;text-transform:uppercase;border-radius:2px;">
-                          EXCLUSIVE LISTING
-                        </span>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-              <tr><td style="height:3px;background:linear-gradient(90deg,#C9A84C,#F0D080,#C9A84C);"></td></tr>
-            </table>
-          </td>
-        </tr>
+          <!-- HEADER -->
+          <tr>
+            <td style="background-color:#0C1A14; padding: 36px 48px 32px 48px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td>
+                    <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:#C9A55A; margin-bottom:6px;">PRESALE</div>
+                    <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:46px; font-weight:600; letter-spacing:1px; color:#FAFAF8; line-height:1;">PROPERTIES</div>
+                    <div style="width:40px; height:2px; background-color:#C9A55A; margin-top:14px;"></div>
+                  </td>
+                  <td align="right" valign="bottom">
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; letter-spacing:3px; text-transform:uppercase; color:#888; line-height:1.6;">SURREY · LANGLEY<br>METRO VANCOUVER</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-        <!-- HERO -->
-        ${heroSection}
+          <!-- HERO IMAGE -->
+          ${heroImg}
 
-        <!-- INFO BAR -->
-        ${infoBar}
+          <!-- GOLD ACCENT BAR -->
+          ${goldBar}
 
-        <!-- BODY -->
-        <tr>
-          <td style="padding:36px 36px 28px;background:#FFFFFF;">
-            ${vars.headline ? `<h2 style="margin:0 0 16px;font-family:Georgia,serif;font-size:22px;font-weight:700;color:#111111;line-height:1.3;letter-spacing:-0.3px;">${vars.headline}</h2>` : ""}
-            ${vars.bodyCopy ? `<p style="margin:0 0 20px;font-family:Arial,sans-serif;font-size:15px;color:#444444;line-height:1.7;">${vars.bodyCopy.replace(/\n/g, "<br />")}</p>` : ""}
-          </td>
-        </tr>
+          <!-- MAIN CONTENT -->
+          <tr>
+            <td class="mobile-padding" style="padding: 52px 48px 40px 48px;">
 
-        <!-- CTA BUTTONS -->
-        ${ctaButtons ? `<tr>
-          <td style="background:#F9F7F2;padding:24px 36px 32px;border-top:1px solid #E8E4DB;">
-            <p style="margin:0 0 16px;font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#888888;text-transform:uppercase;letter-spacing:1.5px;text-align:center;">Get Exclusive Access</p>
-            ${ctaButtons}
-          </td>
-        </tr>` : ""}
+              <!-- Greeting -->
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:400; color:#888; letter-spacing:1px; margin-bottom:20px;">Hi [First Name],</div>
 
-        <!-- DEVELOPER ROW -->
-        ${vars.developerName ? `<tr>
-          <td style="padding:20px 36px;background:#FAFAFA;border-top:1px solid #EEEEEE;">
-            <table width="100%" border="0" cellpadding="0" cellspacing="0">
-              <tr>
-                <td>
-                  <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:10px;color:#C9A84C;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">Developer</p>
-                  <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:#333333;font-weight:600;">${vars.developerName}</p>
-                </td>
-                ${vars.city ? `<td align="right">
-                  <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:10px;color:#C9A84C;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;text-align:right;">Market</p>
-                  <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:#333333;font-weight:600;text-align:right;">${vars.city}, BC</p>
-                </td>` : ""}
-              </tr>
-            </table>
-          </td>
-        </tr>` : ""}
+              <!-- Headline -->
+              ${vars.headline
+                ? `<div class="hero-text" style="font-family:'Cormorant Garamond', Georgia, serif; font-size:44px; font-weight:600; color:#0C1A14; line-height:1.1; margin-bottom:32px;">${vars.headline}</div>`
+                : `<div class="hero-text" style="font-family:'Cormorant Garamond', Georgia, serif; font-size:44px; font-weight:600; color:#0C1A14; line-height:1.1; margin-bottom:8px;">${vars.projectName || "New Presale"}</div>
+                   <div class="hero-text" style="font-family:'Cormorant Garamond', Georgia, serif; font-size:44px; font-weight:400; font-style:italic; color:#C9A55A; line-height:1.1; margin-bottom:32px;">is Now Available.</div>`
+              }
 
-        <!-- FOOTER -->
-        <tr>
-          <td style="background:#111111;padding:0;">
-            <table width="100%" border="0" cellpadding="0" cellspacing="0">
-              <tr><td style="height:3px;background:linear-gradient(90deg,#C9A84C,#F0D080,#C9A84C);"></td></tr>
-              <tr>
-                <td style="padding:24px 30px 20px;">
-                  <table width="100%" border="0" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td>
-                        <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:14px;font-weight:700;color:#FFFFFF;">
-                          PRESALE<span style="color:#C9A84C;">PROPERTIES</span>
-                        </p>
-                        <p style="margin:0;font-family:Arial,sans-serif;font-size:11px;color:#666666;">BC's Pre-Construction Specialists</p>
-                      </td>
-                      ${vars.projectUrl ? `<td align="right">
-                        <a href="${vars.projectUrl}" target="_blank" style="font-family:Arial,sans-serif;font-size:11px;color:#C9A84C;text-decoration:none;">View Online &rarr;</a>
-                      </td>` : ""}
-                    </tr>
-                  </table>
-                  <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top:16px;">
-                    <tr>
-                      <td>
-                        <p style="margin:0;font-family:Arial,sans-serif;font-size:10px;color:#555555;line-height:1.6;">
-                          You are receiving this email because you registered interest in presale properties in BC.<br />
-                          <a href="{{unsubscribe_url}}" style="color:#888888;text-decoration:underline;">Unsubscribe</a>
-                          &nbsp;&middot;&nbsp;
-                          <a href="https://presaleproperties.ca/privacy" style="color:#888888;text-decoration:underline;">Privacy Policy</a>
-                        </p>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
+              <!-- Divider -->
+              <div style="width:100%; height:1px; background-color:#E8E4DF; margin-bottom:40px;"></div>
 
-      </table>
-    </td>
-  </tr>
-</table>
+              <!-- Stats Row -->
+              ${statsRow}
+
+              <!-- CTA Buttons -->
+              ${ctaSection}
+
+            </td>
+          </tr>
+
+          ${highlightsList ? `
+          <!-- PROJECT HIGHLIGHTS -->
+          <tr>
+            <td style="background-color:#F0EDE8; padding: 36px 48px;">
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:#888; margin-bottom:16px;">Why This Project</div>
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                ${highlightsList}
+              </table>
+            </td>
+          </tr>` : ""}
+
+          <!-- SIGNATURE -->
+          <tr>
+            <td style="padding: 40px 48px 36px 48px;">
+              <div style="width:100%; height:1px; background-color:#E8E4DF; margin-bottom:28px;"></div>
+              <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:22px; font-weight:600; color:#0C1A14; margin-bottom:4px;">Uzair Muhammad</div>
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:400; letter-spacing:1px; color:#888; margin-bottom:16px; text-transform:uppercase;">Presale Specialist · Presale Properties</div>
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-right:24px;">
+                    <a href="tel:+16041234567" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">📞 604.XXX.XXXX</a>
+                  </td>
+                  <td>
+                    <a href="https://presaleproperties.ca" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:13px; font-weight:400; color:#C9A55A; text-decoration:none;">🌐 presaleproperties.ca</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background-color:#0C1A14; padding: 28px 48px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; margin-bottom:6px;">Display &amp; Presentation Centre</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#AAA; line-height:1.7;">#108 2350 165 Street, Surrey BC</div>
+                    <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:12px; font-weight:300; color:#AAA; line-height:1.7;">Open Daily 12–5pm &nbsp;|&nbsp; Closed Thu &amp; Fri</div>
+                  </td>
+                  ${vars.projectUrl ? `<td align="right" valign="bottom">
+                    <a href="${vars.projectUrl}" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:#C9A55A; text-decoration:none;">View Project &rarr;</a>
+                  </td>` : ""}
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- LEGAL -->
+          <tr>
+            <td style="padding: 20px 48px; background-color:#F0EDE8;">
+              <div style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:300; color:#AAA; line-height:1.6;">
+                *Prices exclude taxes and are subject to availability at the time of inquiry and/or change without notice. This is not an offering for sale. Any such offering can only be made with a Disclosure Statement. E.&amp;O.E.
+              </div>
+              <div style="margin-top:12px;">
+                <a href="*|UNSUB|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; color:#888; text-decoration:underline;">Unsubscribe</a>
+                &nbsp;&nbsp;·&nbsp;&nbsp;
+                <a href="*|UPDATE_PROFILE|*" style="font-family:'DM Sans', Helvetica, Arial, sans-serif; font-size:10px; font-weight:400; color:#888; text-decoration:underline;">Update Preferences</a>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
 
 </body>
 </html>`;
