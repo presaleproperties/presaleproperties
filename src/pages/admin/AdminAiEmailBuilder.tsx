@@ -363,7 +363,7 @@ export default function AdminEmailBuilderPage() {
         projectName, developerName, showProjectName, showDeveloperName, customHeader,
         city, neighborhood, startingPrice, deposit, completion, infoRows,
         subjectLine, previewText, headline, bodyCopy, incentiveText,
-        heroImage, floorPlans, fpHeading, fpSubheading, imageCards,
+        heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion,
       };
@@ -376,7 +376,7 @@ export default function AdminEmailBuilderPage() {
     projectName, developerName, showProjectName, showDeveloperName, customHeader,
     city, neighborhood, startingPrice, deposit, completion, infoRows,
     subjectLine, previewText, headline, bodyCopy, incentiveText,
-    heroImage, floorPlans, fpHeading, fpSubheading, imageCards,
+    heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
   ]);
 
