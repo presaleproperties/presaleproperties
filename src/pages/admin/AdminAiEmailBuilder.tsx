@@ -86,18 +86,35 @@ function buildFinalHtml(
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
 ): string {
-  const base   = buildAiEmailHtml(fields, agent, ctaUrl, font);
+  // When a hero image is present, the headline is shown on the image — suppress it in the body
+  const suppressHeadline = !!heroImage && !!fields.headline;
+  const base   = buildAiEmailHtml(fields, agent, ctaUrl, font, suppressHeadline);
   const ACCENT = "#C9A55A";
   const DARK   = "#0d1f18";
   const bodyFont = font?.body || "'DM Sans', Helvetica, Arial, sans-serif";
+  const displayFont = font?.display || "'Cormorant Garamond', Georgia, serif";
 
+  // When a hero image is present, inject it with the headline overlaid on the image
+  // (inspired by editorial real estate email style — headline sits on the photo, not below it)
   let html = heroImage
     ? base.replace(
         "<!-- ─── HERO STATS BAR",
-        `  <!-- ─── HERO IMAGE ─── -->
-  <tr><td style="padding:0;line-height:0;">
-    <img src="${heroImage}" alt="${fields.projectName || "Project"}" width="600" style="display:block;width:100%;max-width:600px;height:auto;" />
-  </td></tr>
+        `  <!-- ─── HERO IMAGE WITH OVERLAY ─── -->
+  <tr>
+    <td style="padding:0;line-height:0;position:relative;">
+      <!--[if mso]><table><tr><td><![endif]-->
+      <div style="position:relative;line-height:0;font-size:0;">
+        <img src="${heroImage}" alt="${fields.projectName || "Project"}" width="600"
+             style="display:block;width:100%;max-width:600px;height:auto;min-height:280px;object-fit:cover;" />
+        ${fields.headline ? `
+        <!-- Gradient overlay + headline on image -->
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:32px 36px 28px;background:linear-gradient(to top, rgba(10,26,16,0.88) 0%, rgba(10,26,16,0.45) 60%, transparent 100%);">
+          <p style="margin:0;font-family:${displayFont};font-size:34px;font-weight:700;color:#ffffff;line-height:1.15;text-shadow:0 2px 12px rgba(0,0,0,0.4);">${fields.headline}</p>
+        </div>` : ""}
+      </div>
+      <!--[if mso]></td></tr></table><![endif]-->
+    </td>
+  </tr>
   <!-- ─── HERO STATS BAR`,
       )
     : base;
