@@ -59,7 +59,7 @@ UZAIR'S POSITIONING:
 EMAIL STRUCTURE:
 1. Subject line — short, curiosity-driven, no clickbait
 2. Preheader — one line that adds context to the subject
-3. Greeting — "Hi [First Name],"
+3. Greeting — "Hi #lead_first_name#,"
 4. Hook — one or two lines max. Grab attention immediately
 5. Project overview — brief, 2-3 sentences on the project
 6. Key highlights — bullet points, 4-5 max, only the best info
