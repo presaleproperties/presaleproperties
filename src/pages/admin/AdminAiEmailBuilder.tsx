@@ -228,11 +228,11 @@ export default function AdminAiEmailBuilder() {
 
   const currentCopy = useCallback((): AiEmailCopy => ({
     subjectLine, previewText, headline, bodyCopy, incentiveText,
-    projectName: showProjectName ? projectName : "",
+    projectName: showProjectName ? projectName : (customHeader || ""),
     city, neighborhood,
     developerName: showDeveloperName ? developerName : "",
     startingPrice, deposit, completion,
-  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
+  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
 
   const previewHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading);
 
