@@ -434,17 +434,6 @@ export default function AdminAiEmailBuilder() {
                   className="min-h-[72px] text-xs resize-none"
                   disabled={aiLoading}
                 />
-                <div className="space-y-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Examples</p>
-                  <div className="flex flex-col gap-1">
-                    {EXAMPLE_PROMPTS.map((ex, i) => (
-                      <button key={i} onClick={() => setPrompt(ex)} disabled={aiLoading}
-                        className="text-left text-[11px] px-2.5 py-1.5 rounded border border-border bg-muted/30 hover:bg-muted hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground leading-snug">
-                        {ex}
-                      </button>
-                    ))}
-                  </div>
-                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <Label className="text-[10px]">Style</Label>
