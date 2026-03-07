@@ -86,7 +86,9 @@ function buildFinalHtml(
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
 ): string {
-  const base   = buildAiEmailHtml(fields, agent, ctaUrl, font);
+  // When a hero image is present, the headline is shown on the image — suppress it in the body
+  const suppressHeadline = !!heroImage && !!fields.headline;
+  const base   = buildAiEmailHtml(fields, agent, ctaUrl, font, suppressHeadline);
   const ACCENT = "#C9A55A";
   const DARK   = "#0d1f18";
   const bodyFont = font?.body || "'DM Sans', Helvetica, Arial, sans-serif";
