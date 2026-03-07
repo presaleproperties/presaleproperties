@@ -133,7 +133,7 @@ Return only the JSON object with both Version A and Version B fields.`;
           { role: "user", content: userPrompt },
         ],
         temperature: 0.75,
-        max_tokens: 800,
+        max_tokens: 1200,
       }),
     });
 
