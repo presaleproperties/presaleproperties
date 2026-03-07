@@ -177,6 +177,7 @@ export default function AdminAiEmailBuilder() {
   const [developerName, setDevName]   = useState("");
   const [showProjectName, setShowProjectName] = useState(true);
   const [showDeveloperName, setShowDeveloperName] = useState(true);
+  const [customHeader, setCustomHeader] = useState("");
   const [city, setCity]               = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [startingPrice, setStartingPrice] = useState("");
