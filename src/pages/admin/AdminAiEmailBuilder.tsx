@@ -396,6 +396,37 @@ export default function AdminAiEmailBuilder() {
                     </div>
                   </div>
 
+                  {/* Agent */}
+                  {agents.length > 0 && (
+                    <div className="space-y-1">
+                      <Label className="text-[10px]">Agent Signature</Label>
+                      <Select value={selectedAgentId} onValueChange={setSelectedAgentId}>
+                        <SelectTrigger className="h-7 text-[11px]"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {agents.map(a => (
+                            <SelectItem key={a.full_name} value={a.full_name}>
+                              {a.full_name} — {a.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {/* Mini agent preview */}
+                      <div className="flex items-center gap-2 mt-1.5 p-2 rounded-md bg-muted/50 border border-border">
+                        {selectedAgent.photo_url ? (
+                          <img src={selectedAgent.photo_url} alt={selectedAgent.full_name} className="w-8 h-8 rounded-full object-cover object-top border border-border flex-shrink-0" style={{ borderColor: "#C9A55A" }} />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">
+                            {selectedAgent.full_name.charAt(0)}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold truncate">{selectedAgent.full_name}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{selectedAgent.phone}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <Button
                     className="w-full h-9 gap-2 text-white font-semibold text-xs"
                     style={{ background: aiLoading ? undefined : "linear-gradient(135deg,#7c3aed,#5b21b6)" }}
