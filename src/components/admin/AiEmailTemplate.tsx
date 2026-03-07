@@ -199,6 +199,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   </tr>
 
   <!-- ─── AGENT CARD (matches main builder) ─── -->
+  <!-- This comment is used as injection point for floor plans -->
   <tr>
     <td bgcolor="#fafaf8" style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
