@@ -199,6 +199,11 @@ export default function AdminAiEmailBuilder() {
   const selectedAsset = campaignAssets.find(a => a.id === selectedAssetId) ?? null;
   const ctaUrl = directCtaUrl || selectedAsset?.brochure_url || selectedAsset?.pricing_sheet_url || undefined;
 
+  // Typography
+  const savedFontId = savedDraft?.fontId ?? "cormorant-dm";
+  const [selectedFontId, setSelectedFontId] = useState<string>(savedFontId);
+  const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
+
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
