@@ -184,13 +184,15 @@ export default function AdminEmailBuilderPage() {
   const urlPreset   = TEMPLATE_PRESETS[urlTemplate] ?? null;
 
   // ── Restore draft from localStorage ─────────────────────────────────────────
+  // If a URL template preset is specified, skip the saved draft and use preset values
   const savedDraft = useMemo(() => {
+    if (urlPreset) return null; // fresh start when navigating from hub
     try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch { return null; }
-  }, []);
+  }, []); // eslint-disable-line
 
   // AI state
   const [prompt,         setPrompt]         = useState(savedDraft?.prompt         ?? "");
-  const [templateType,   setTemplateType]   = useState(savedDraft?.templateType   ?? "main-project-email");
+  const [templateType,   setTemplateType]   = useState(urlPreset?.templateType ?? savedDraft?.templateType   ?? "main-project-email");
   const [selProjectId,   setSelProjectId]   = useState(savedDraft?.selProjectId   ?? "none");
   const [aiLoading,      setAiLoading]      = useState(false);
   const [boldLoading,    setBoldLoading]    = useState(false);
@@ -208,11 +210,11 @@ export default function AdminEmailBuilderPage() {
   const [startingPrice,     setStartingPrice]      = useState(savedDraft?.startingPrice     ?? "");
   const [deposit,           setDeposit]            = useState(savedDraft?.deposit           ?? "");
   const [completion,        setCompletion]         = useState(savedDraft?.completion        ?? "");
-  const [subjectLine,       setSubjectLine]        = useState(savedDraft?.subjectLine       ?? "");
-  const [previewText,       setPreviewText]        = useState(savedDraft?.previewText       ?? "");
-  const [headline,          setHeadline]           = useState(savedDraft?.headline          ?? "");
-  const [bodyCopy,          setBodyCopy]           = useState(savedDraft?.bodyCopy          ?? "");
-  const [incentiveText,     setIncentiveText]      = useState(savedDraft?.incentiveText     ?? "");
+  const [subjectLine,       setSubjectLine]        = useState(urlPreset?.subjectLine   ?? savedDraft?.subjectLine       ?? "");
+  const [previewText,       setPreviewText]        = useState(urlPreset?.previewText   ?? savedDraft?.previewText       ?? "");
+  const [headline,          setHeadline]           = useState(urlPreset?.headline      ?? savedDraft?.headline          ?? "");
+  const [bodyCopy,          setBodyCopy]           = useState(urlPreset?.bodyCopy      ?? savedDraft?.bodyCopy          ?? "");
+  const [incentiveText,     setIncentiveText]      = useState(urlPreset?.incentiveText ?? savedDraft?.incentiveText     ?? "");
 
   // Media
   const [heroImage,     setHeroImage]     = useState(savedDraft?.heroImage ?? "");
