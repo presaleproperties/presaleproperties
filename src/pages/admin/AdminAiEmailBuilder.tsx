@@ -942,6 +942,54 @@ export default function AdminEmailBuilderPage() {
                 </div>
               </StepSection>
 
+              {/* ── DEPOSIT & OTHER INFO ── */}
+              <StepSection
+                step={3} title="Deposit & Other Info" icon={<FileText className="h-3.5 w-3.5" />}
+                done={infoRows.some(r => r.includes("|"))}
+                doneLabel={infoRows.filter(r => r.includes("|")).length > 0 ? `${infoRows.filter(r => r.includes("|")).length} row${infoRows.filter(r => r.includes("|")).length > 1 ? "s" : ""}` : undefined}
+                defaultOpen={false}
+              >
+                <p className="text-[10px] text-muted-foreground/60 leading-relaxed -mt-1">
+                  Add rows like <span className="font-semibold text-muted-foreground">Deposit Structure | 5% on signing, 5% in 180 days</span>. Each row renders as a label/value table below the stats bar.
+                </p>
+                {infoRows.map((row, idx) => (
+                  <div key={idx} className="flex items-center gap-1.5">
+                    <Input
+                      value={row}
+                      onChange={e => setInfoRows(prev => prev.map((r, i) => i === idx ? e.target.value : r))}
+                      className="h-7 text-xs flex-1"
+                      placeholder="Deposit Structure | 5% on signing"
+                    />
+                    <Button
+                      variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => setInfoRows(prev => prev.filter((_, i) => i !== idx))}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline" size="sm" className="w-full h-7 text-xs gap-1.5 border-dashed"
+                  onClick={() => setInfoRows(prev => [...prev, ""])}
+                >
+                  + Add Row
+                </Button>
+                {infoRows.length === 0 && (
+                  <div className="grid grid-cols-1 gap-1">
+                    {[
+                      "Deposit Structure | 5% on signing, 5% in 180 days",
+                      "Strata Fees | Est. $0.45/sq ft",
+                      "Assignment | Allowed with consent",
+                    ].map(suggestion => (
+                      <button key={suggestion} onClick={() => setInfoRows(prev => [...prev, suggestion])}
+                        className="text-left text-[10px] text-muted-foreground/50 hover:text-primary px-2 py-1 rounded hover:bg-muted/30 transition-colors truncate">
+                        + {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </StepSection>
+
               {/* ── STEP 4: INBOX COPY ── */}
               <StepSection
                 step={4} title="Inbox Copy" icon={<Mail className="h-3.5 w-3.5" />}
