@@ -41,6 +41,7 @@ const SECTIONS: SectionDef[] = [
   { id: "copy",       label: "Email Copy",      icon: FileText   },
   { id: "floorplans", label: "Floor Plans",     icon: LayoutGrid },
   { id: "hero",       label: "Hero Image",      icon: Image      },
+  { id: "assets",     label: "Campaign Assets", icon: Link2      },
 ];
 
 // ─── Accordion wrapper ────────────────────────────────────────────────────────
