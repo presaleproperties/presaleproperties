@@ -15,8 +15,7 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
-  Eye, Code2, Save, X, Upload, LayoutGrid, Link2,
-  ChevronDown, ChevronUp, Monitor, Smartphone, Type,
+  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -162,6 +161,7 @@ export default function AdminAiEmailBuilder() {
   const [templateType,   setTemplateType]   = useState(savedDraft?.templateType   ?? "main-project-email");
   const [selProjectId,   setSelProjectId]   = useState(savedDraft?.selProjectId   ?? "none");
   const [aiLoading,      setAiLoading]      = useState(false);
+  const [boldLoading,    setBoldLoading]    = useState(false);
   const [activeVersion,  setActiveVersion]  = useState<"A" | "B">(savedDraft?.activeVersion ?? "A");
   const [aiResult,       setAiResult]       = useState<Record<string, string> | null>(savedDraft?.aiResult ?? null);
 
@@ -339,6 +339,26 @@ export default function AdminAiEmailBuilder() {
     if (!aiResult) return;
     setActiveVersion(v);
     applyResult(aiResult, v);
+  };
+
+  // ── Bold keywords only ────────────────────────────────────────────────────────
+  const handleBoldKeywords = async () => {
+    if (!bodyCopy.trim() && !headline.trim()) { toast.error("Paste your copy first"); return; }
+    setBoldLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("bold-email-keywords", {
+        body: { bodyCopy: bodyCopy.trim(), headline: headline.trim() },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      if (data?.bodyCopy) setBodyCopy(data.bodyCopy);
+      if (data?.headline) setHeadline(data.headline);
+      toast.success("Keywords bolded ✓");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to bold keywords");
+    } finally {
+      setBoldLoading(false);
+    }
   };
 
   const handleProjectSelect = (id: string) => {
@@ -587,54 +607,94 @@ export default function AdminAiEmailBuilder() {
 
             <div className="flex-1 overflow-y-auto">
 
-              {/* ── STEP 1: AI BRIEF ── */}
+              {/* ── STEP 1: PASTE YOUR COPY ── */}
               <StepSection
-                step={1} title="AI Brief" icon={<Wand2 className="h-3.5 w-3.5" />}
-                done={!!aiResult} doneLabel={aiResult ? "Generated" : undefined}
-                defaultOpen={!aiResult}
+                step={1} title="Paste Your Copy" icon={<FileText className="h-3.5 w-3.5" />}
+                done={!!bodyCopy} doneLabel={bodyCopy ? "Copy ready" : undefined}
+                defaultOpen={true}
               >
-                <Textarea
-                  value={prompt}
-                  onChange={e => setPrompt(e.target.value)}
-                  placeholder="Describe this email: project, city, price, completion date, incentives, tone…"
-                  className="min-h-[72px] text-xs resize-none"
-                  disabled={aiLoading}
-                />
-                <div className="grid grid-cols-2 gap-1.5">
-                  <div>
-                    <Label className="text-[10px] text-muted-foreground">Style</Label>
-                    <Select value={templateType} onValueChange={setTemplateType} disabled={aiLoading}>
-                      <SelectTrigger className="h-7 text-[11px] mt-0.5"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="main-project-email">Main Project</SelectItem>
-                        <SelectItem value="exclusive-offer">Exclusive Offer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-[10px] text-muted-foreground">Project <span className="text-muted-foreground/50">(opt)</span></Label>
-                    <Select value={selProjectId} onValueChange={handleProjectSelect} disabled={aiLoading}>
-                      <SelectTrigger className="h-7 text-[11px] mt-0.5"><SelectValue placeholder="Select…" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
-                        {projects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Headline</Label>
+                  <Input value={headline} onChange={e => setHeadline(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="Introducing Lumina — From $649K in Surrey" />
                 </div>
-                {aiResult && (
-                  <div className="flex gap-1.5">
-                    <button onClick={() => handleVersionSwitch("A")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "A" ? "bg-emerald-600 text-white border-emerald-600" : "border-border text-muted-foreground hover:border-primary/30")}>Version A</button>
-                    {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
-                      <button onClick={() => handleVersionSwitch("B")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "B" ? "bg-amber-500 text-white border-amber-500" : "border-border text-muted-foreground hover:border-amber-300")}>Version B</button>
+                <div>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <Label className="text-[10px] text-muted-foreground">Body Copy <span className="text-muted-foreground/40">— paste your email copy here</span></Label>
+                    {bodyCopy && (
+                      <span className="text-[9px] text-muted-foreground/50">{bodyCopy.split(/\s+/).filter(Boolean).length} words</span>
                     )}
                   </div>
-                )}
-                <Button className="w-full h-8 gap-1.5 text-xs font-semibold"
-                  style={{ background: aiLoading ? undefined : "linear-gradient(135deg,#7c3aed,#5b21b6)", color: "white" }}
-                  onClick={handleGenerate} disabled={aiLoading || !prompt.trim()}>
-                  {aiLoading ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Writing…</> : <><Wand2 className="h-3.5 w-3.5" />{aiResult ? "Regenerate" : "Generate Email"}</>}
+                  <Textarea
+                    value={bodyCopy}
+                    onChange={e => setBodyCopy(e.target.value)}
+                    className="text-xs mt-0.5 min-h-[130px] resize-none leading-relaxed"
+                    placeholder={"Hi [First Name],\n\nPaste your full email copy here. The AI will only bold key phrases — it won't change a single word.\n\nUzair Muhammad"}
+                  />
+                </div>
+                <Button
+                  className="w-full h-8 gap-1.5 text-xs font-semibold"
+                  style={{ background: boldLoading ? undefined : "linear-gradient(135deg,#b8860b,#c9a55a)", color: "white" }}
+                  onClick={handleBoldKeywords}
+                  disabled={boldLoading || (!bodyCopy.trim() && !headline.trim())}
+                >
+                  {boldLoading
+                    ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Bolding keywords…</>
+                    : <><Bold className="h-3.5 w-3.5" /> Bold Key Phrases</>
+                  }
                 </Button>
+                <p className="text-[10px] text-muted-foreground/50 text-center -mt-1">AI highlights keywords only — copy stays untouched</p>
+
+                {/* ── AI Brief (optional / collapsed) ── */}
+                <details className="mt-1 group">
+                  <summary className="cursor-pointer text-[10px] text-muted-foreground/60 hover:text-muted-foreground flex items-center gap-1.5 list-none select-none py-1">
+                    <span className="h-3.5 w-3.5 rounded-full border border-muted-foreground/30 flex items-center justify-center text-[8px] font-bold shrink-0">+</span>
+                    Or generate copy with AI instead
+                  </summary>
+                  <div className="mt-2 space-y-2 border-t border-border pt-2">
+                    <Textarea
+                      value={prompt}
+                      onChange={e => setPrompt(e.target.value)}
+                      placeholder="Describe this email: project, city, price, completion date, incentives, tone…"
+                      className="min-h-[60px] text-xs resize-none"
+                      disabled={aiLoading}
+                    />
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Style</Label>
+                        <Select value={templateType} onValueChange={setTemplateType} disabled={aiLoading}>
+                          <SelectTrigger className="h-7 text-[11px] mt-0.5"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="main-project-email">Main Project</SelectItem>
+                            <SelectItem value="exclusive-offer">Exclusive Offer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Project</Label>
+                        <Select value={selProjectId} onValueChange={handleProjectSelect} disabled={aiLoading}>
+                          <SelectTrigger className="h-7 text-[11px] mt-0.5"><SelectValue placeholder="Select…" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            {projects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    {aiResult && (
+                      <div className="flex gap-1.5">
+                        <button onClick={() => handleVersionSwitch("A")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "A" ? "bg-emerald-600 text-white border-emerald-600" : "border-border text-muted-foreground hover:border-primary/30")}>Version A</button>
+                        {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
+                          <button onClick={() => handleVersionSwitch("B")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "B" ? "bg-amber-500 text-white border-amber-500" : "border-border text-muted-foreground hover:border-amber-300")}>Version B</button>
+                        )}
+                      </div>
+                    )}
+                    <Button className="w-full h-8 gap-1.5 text-xs font-semibold"
+                      style={{ background: aiLoading ? undefined : "linear-gradient(135deg,#7c3aed,#5b21b6)", color: "white" }}
+                      onClick={handleGenerate} disabled={aiLoading || !prompt.trim()}>
+                      {aiLoading ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Writing…</> : <><Wand2 className="h-3.5 w-3.5" />{aiResult ? "Regenerate" : "Generate Email"}</>}
+                    </Button>
+                  </div>
+                </details>
               </StepSection>
 
               {/* ── STEP 2: TYPOGRAPHY ── */}
@@ -747,10 +807,10 @@ export default function AdminAiEmailBuilder() {
                 </div>
               </StepSection>
 
-              {/* ── STEP 4: EMAIL COPY ── */}
+              {/* ── STEP 4: INBOX COPY ── */}
               <StepSection
-                step={4} title="Email Copy" icon={<FileText className="h-3.5 w-3.5" />}
-                done={!!headline} doneLabel={headline ? `"${headline.slice(0, 28)}…"` : undefined}
+                step={4} title="Inbox Copy" icon={<Mail className="h-3.5 w-3.5" />}
+                done={!!subjectLine} doneLabel={subjectLine ? `"${subjectLine.slice(0, 28)}…"` : undefined}
                 defaultOpen={false}
               >
                 <div>
@@ -760,14 +820,6 @@ export default function AdminAiEmailBuilder() {
                 <div>
                   <Label className="text-[10px] text-muted-foreground">Preview Text <span className="text-muted-foreground/50 font-normal">· shown after subject</span></Label>
                   <Input value={previewText} onChange={e => setPreviewText(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="From $649K · limited units" />
-                </div>
-                <div>
-                  <Label className="text-[10px] text-muted-foreground">Headline</Label>
-                  <Input value={headline} onChange={e => setHeadline(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="Introducing Lumina" />
-                </div>
-                <div>
-                  <Label className="text-[10px] text-muted-foreground">Body Copy <span className="text-muted-foreground/40">— each line = paragraph</span></Label>
-                  <Textarea value={bodyCopy} onChange={e => setBodyCopy(e.target.value)} className="text-xs mt-0.5 min-h-[90px] resize-none leading-relaxed" />
                 </div>
                 <div>
                   <Label className="text-[10px] text-muted-foreground">Incentives <span className="text-muted-foreground/40">— one per line, gold bullets</span></Label>
@@ -864,7 +916,7 @@ export default function AdminAiEmailBuilder() {
 
               {/* ── STEP 6: CAMPAIGN ASSETS ── */}
               <StepSection
-                step={6} title="Plans & Pricing CTA" icon={<Link2 className="h-3.5 w-3.5" />}
+                step={6} title="Plans & Pricing CTA" icon={<FileText className="h-3.5 w-3.5" />}
                 done={!!(ctaUrl)} doneLabel={directCtaUrl ? "PDF uploaded" : selectedAsset?.name}
                 defaultOpen={false}
               >
