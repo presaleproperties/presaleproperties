@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -145,20 +145,54 @@ function buildFinalHtml(
 // ─── Main component ───────────────────────────────────────────────────────────
 const DRAFT_KEY = "ai-email-builder-draft";
 
-export default function AdminAiEmailBuilder() {
-  const navigate       = useNavigate();
-  const heroInputRef   = useRef<HTMLInputElement>(null);
-  const fpInputRef     = useRef<HTMLInputElement>(null);
-  const iframeRef      = useRef<HTMLIFrameElement>(null);
+// Template presets from URL ?template= param
+const TEMPLATE_PRESETS: Record<string, Partial<{
+  templateType: string; headline: string; bodyCopy: string;
+  subjectLine: string; previewText: string; incentiveText: string;
+}>> = {
+  "project-email": {
+    templateType: "main-project-email",
+    headline: "Introducing — [Project Name]",
+    subjectLine: "🏙️ Exclusive Access: [Project Name] — [City] Presale",
+    previewText: "From $[Price] · limited units available",
+    bodyCopy: "I wanted to personally reach out with the full details on this opportunity. Below you'll find everything — the pricing, floor plans, deposit structure, and key highlights. I work exclusively with buyers, so my job is to make sure you have everything you need to make the right decision. Give me a call whenever you're ready.\n\nUzair Muhammad",
+    incentiveText: "",
+  },
+  "exclusive-offer": {
+    templateType: "exclusive-offer",
+    headline: "Exclusive Offer — [Time-Sensitive Pricing]",
+    subjectLine: "⚡ VIP-Only Offer: [Project Name] — Act Before [Date]",
+    previewText: "Exclusive savings available for a limited time — see details inside",
+    bodyCopy: "This is one of those rare moments where everything lines up — the right project, the right price, and the right timing. I've been holding this back for our VIP list only. Below are the details. This window is short, so please reach out as soon as you've had a chance to review.\n\nUzair Muhammad",
+    incentiveText: "✦ Extended deposit structure: 5% now, 5% in 180 days\n✦ Developer bonus: $10,000 in upgrades\n✦ Free parking (valued at $35,000)\n✦ Assignment clause included",
+  },
+  "blank": {
+    templateType: "main-project-email",
+    headline: "", bodyCopy: "", subjectLine: "", previewText: "", incentiveText: "",
+  },
+};
+
+export default function AdminEmailBuilderPage() {
+  const navigate        = useNavigate();
+  const [searchParams]  = useSearchParams();
+  const heroInputRef    = useRef<HTMLInputElement>(null);
+  const fpInputRef      = useRef<HTMLInputElement>(null);
+  const iframeRef       = useRef<HTMLIFrameElement>(null);
+
+  // Resolve URL template preset (only on first mount, before reading draft)
+  const urlTemplate = searchParams.get("template") ?? "";
+  const urlPreset   = TEMPLATE_PRESETS[urlTemplate] ?? null;
 
   // ── Restore draft from localStorage ─────────────────────────────────────────
+  // If a URL template preset is specified, skip the saved draft and use preset values
   const savedDraft = useMemo(() => {
+    if (urlPreset) return null; // fresh start when navigating from hub
     try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch { return null; }
-  }, []);
+  }, []); // eslint-disable-line
 
   // AI state
   const [prompt,         setPrompt]         = useState(savedDraft?.prompt         ?? "");
-  const [templateType,   setTemplateType]   = useState(savedDraft?.templateType   ?? "main-project-email");
+  const [templateType,   setTemplateType]   = useState(urlPreset?.templateType ?? savedDraft?.templateType   ?? "main-project-email");
   const [selProjectId,   setSelProjectId]   = useState(savedDraft?.selProjectId   ?? "none");
   const [aiLoading,      setAiLoading]      = useState(false);
   const [boldLoading,    setBoldLoading]    = useState(false);
@@ -176,11 +210,11 @@ export default function AdminAiEmailBuilder() {
   const [startingPrice,     setStartingPrice]      = useState(savedDraft?.startingPrice     ?? "");
   const [deposit,           setDeposit]            = useState(savedDraft?.deposit           ?? "");
   const [completion,        setCompletion]         = useState(savedDraft?.completion        ?? "");
-  const [subjectLine,       setSubjectLine]        = useState(savedDraft?.subjectLine       ?? "");
-  const [previewText,       setPreviewText]        = useState(savedDraft?.previewText       ?? "");
-  const [headline,          setHeadline]           = useState(savedDraft?.headline          ?? "");
-  const [bodyCopy,          setBodyCopy]           = useState(savedDraft?.bodyCopy          ?? "");
-  const [incentiveText,     setIncentiveText]      = useState(savedDraft?.incentiveText     ?? "");
+  const [subjectLine,       setSubjectLine]        = useState(urlPreset?.subjectLine   ?? savedDraft?.subjectLine       ?? "");
+  const [previewText,       setPreviewText]        = useState(urlPreset?.previewText   ?? savedDraft?.previewText       ?? "");
+  const [headline,          setHeadline]           = useState(urlPreset?.headline      ?? savedDraft?.headline          ?? "");
+  const [bodyCopy,          setBodyCopy]           = useState(urlPreset?.bodyCopy      ?? savedDraft?.bodyCopy          ?? "");
+  const [incentiveText,     setIncentiveText]      = useState(urlPreset?.incentiveText ?? savedDraft?.incentiveText     ?? "");
 
   // Media
   const [heroImage,     setHeroImage]     = useState(savedDraft?.heroImage ?? "");
@@ -486,15 +520,19 @@ export default function AdminAiEmailBuilder() {
         {/* ── Top bar ── */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/admin/email-builder-hub")}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/admin/marketing-hub")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-sm">
-              <Sparkles className="h-4 w-4 text-white" />
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-sm">
+              <Mail className="h-4 w-4 text-white" />
             </div>
             <div>
-              <h1 className="text-base font-bold leading-none">AI Email Builder</h1>
-              <p className="text-[11px] text-muted-foreground mt-0.5">Prompt → Generate → Copy HTML</p>
+              <h1 className="text-base font-bold leading-none">
+                Email Builder
+                {urlTemplate === "exclusive-offer" && <span className="ml-2 text-[11px] font-normal text-amber-600">· Exclusive Offer</span>}
+                {urlTemplate === "project-email"   && <span className="ml-2 text-[11px] font-normal text-emerald-600">· Project Email</span>}
+              </h1>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Paste copy → Bold keywords → Copy HTML</p>
             </div>
           </div>
 

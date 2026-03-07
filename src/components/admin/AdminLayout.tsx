@@ -83,8 +83,8 @@ const navSections = [
     items: [
       { href: "/admin/blogs",              label: "Blog Posts",       icon: BookOpen,  color: "text-rose-500",   badgeKey: null },
       { href: "/admin/landing-pages",      label: "Campaigns",        icon: Megaphone, color: "text-orange-500", badgeKey: null },
-      { href: "/admin/campaign-builder",   label: "Campaign Builder", icon: FileStack, color: "text-amber-400",  badgeKey: null },
-      { href: "/admin/email-builder-hub",   label: "Email Builder",    icon: Mail,      color: "text-blue-500",   badgeKey: null },
+      { href: "/admin/marketing-hub",      label: "Marketing Hub",    icon: Mail,      color: "text-emerald-500",badgeKey: null },
+      { href: "/admin/campaign-builder/new",label: "Flyer Builder",   icon: FileStack, color: "text-amber-400",  badgeKey: null },
       { href: "/admin/google-reviews",     label: "Reviews",          icon: Star,      color: "text-yellow-500", badgeKey: null },
     ],
   },

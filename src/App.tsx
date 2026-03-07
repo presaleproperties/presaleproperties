@@ -84,10 +84,8 @@ const AdminClientSearches = lazy(() => import("./pages/admin/AdminClientSearches
 const AdminClientForm = lazy(() => import("./pages/admin/AdminClientForm"));
 const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
 const AdminCampaignBuilder = lazy(() => import("./pages/admin/AdminCampaignBuilder"));
-const AdminEmailBuilder = lazy(() => import("./pages/admin/AdminEmailBuilder"));
-const AdminEmailBuilderHub = lazy(() => import("./pages/admin/AdminEmailBuilderHub"));
 const AdminAiEmailBuilder = lazy(() => import("./pages/admin/AdminAiEmailBuilder"));
-const AdminCampaignHub = lazy(() => import("./pages/admin/AdminCampaignHub"));
+const AdminMarketingHub = lazy(() => import("./pages/admin/AdminMarketingHub"));
 const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
@@ -338,9 +336,13 @@ const App = () => (
             <Route path="/admin/mls-sync" element={<AdminProtectedRoute><AdminMLSSync /></AdminProtectedRoute>} />
             <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
             <Route path="/admin/email-workflows" element={<AdminProtectedRoute><AdminEmailWorkflows /></AdminProtectedRoute>} />
-            <Route path="/admin/email-builder-hub" element={<AdminProtectedRoute><AdminEmailBuilderHub /></AdminProtectedRoute>} />
-            <Route path="/admin/email-builder" element={<AdminProtectedRoute><AdminEmailBuilder /></AdminProtectedRoute>} />
-            <Route path="/admin/ai-email-builder" element={<AdminProtectedRoute><AdminAiEmailBuilder /></AdminProtectedRoute>} />
+            {/* Unified Marketing Hub — replaces old email-builder-hub & campaign-hub */}
+            <Route path="/admin/marketing-hub" element={<AdminProtectedRoute><AdminMarketingHub /></AdminProtectedRoute>} />
+            <Route path="/admin/email-builder" element={<AdminProtectedRoute><AdminAiEmailBuilder /></AdminProtectedRoute>} />
+            {/* Legacy redirects so old bookmarks still work */}
+            <Route path="/admin/email-builder-hub" element={<Navigate to="/admin/marketing-hub" replace />} />
+            <Route path="/admin/ai-email-builder" element={<Navigate to="/admin/email-builder" replace />} />
+            <Route path="/admin/campaign-builder" element={<Navigate to="/admin/marketing-hub" replace />} />
             <Route path="/admin/market-data" element={<AdminProtectedRoute><AdminMarketData /></AdminProtectedRoute>} />
             <Route path="/admin/market-dashboard" element={<AdminProtectedRoute><AdminMarketDashboard /></AdminProtectedRoute>} />
             <Route path="/admin/ai-analytics" element={<AdminProtectedRoute><AdminAIAnalytics /></AdminProtectedRoute>} />
@@ -348,7 +350,6 @@ const App = () => (
             
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
-            <Route path="/admin/campaign-builder" element={<AdminProtectedRoute><AdminCampaignHub /></AdminProtectedRoute>} />
             <Route path="/admin/campaign-builder/new" element={<AdminProtectedRoute><AdminCampaignBuilder /></AdminProtectedRoute>} />
             <Route path="/admin/campaign-builder/:templateId" element={<AdminProtectedRoute><AdminCampaignBuilder /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/edit" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
