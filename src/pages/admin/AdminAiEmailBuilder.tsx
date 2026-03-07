@@ -478,6 +478,17 @@ export default function AdminEmailBuilderPage() {
     if (p.developer_name)  setDevName(p.developer_name);
     if (p.featured_image)  setHeroImage(p.featured_image);
     if (p.incentives)      setIncentiveText(p.incentives);
+    // Auto-populate Loop slideshow from gallery images (up to 6 HQ images)
+    const gallerySlides: string[] = [];
+    if (p.featured_image) gallerySlides.push(p.featured_image);
+    if (p.gallery_images?.length) {
+      for (const img of p.gallery_images) {
+        if (img && !gallerySlides.includes(img) && gallerySlides.length < 6) {
+          gallerySlides.push(img);
+        }
+      }
+    }
+    if (gallerySlides.length > 0) setLoopSlides(gallerySlides);
     // Populate starting price
     const priceStr = p.price_range || (p.starting_price ? `From $${(p.starting_price / 1000).toFixed(0)}K` : "");
     if (priceStr) setStartingPrice(priceStr);
