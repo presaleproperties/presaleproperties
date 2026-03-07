@@ -161,6 +161,7 @@ export default function AdminAiEmailBuilder() {
   const [templateType,   setTemplateType]   = useState(savedDraft?.templateType   ?? "main-project-email");
   const [selProjectId,   setSelProjectId]   = useState(savedDraft?.selProjectId   ?? "none");
   const [aiLoading,      setAiLoading]      = useState(false);
+  const [boldLoading,    setBoldLoading]    = useState(false);
   const [activeVersion,  setActiveVersion]  = useState<"A" | "B">(savedDraft?.activeVersion ?? "A");
   const [aiResult,       setAiResult]       = useState<Record<string, string> | null>(savedDraft?.aiResult ?? null);
 
