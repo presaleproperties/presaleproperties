@@ -74,8 +74,9 @@ function buildFinalHtml(
   floorPlans: FloorPlanEntry[],
   fpHeading: string,
   fpSubheading: string,
+  ctaUrl?: string,
 ): string {
-  const base = buildAiEmailHtml(fields, agent);
+  const base = buildAiEmailHtml(fields, agent, ctaUrl);
   const ACCENT = "#C9A55A";
   const DARK = "#0d1f18";
 
