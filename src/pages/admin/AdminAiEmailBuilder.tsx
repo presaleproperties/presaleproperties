@@ -85,10 +85,12 @@ function StepSection({
 function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
+  font?: EmailFontPairing,
 ): string {
-  const base   = buildAiEmailHtml(fields, agent, ctaUrl);
+  const base   = buildAiEmailHtml(fields, agent, ctaUrl, font);
   const ACCENT = "#C9A55A";
   const DARK   = "#0d1f18";
+  const bodyFont = font?.body || "'DM Sans', Helvetica, Arial, sans-serif";
 
   let html = heroImage
     ? base.replace(
