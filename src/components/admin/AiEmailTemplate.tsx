@@ -9,6 +9,24 @@
  * Cormorant Garamond + DM Sans typography.
  */
 
+const LOGO_EMAIL_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
+
+export interface AgentInfo {
+  full_name: string;
+  title: string;
+  photo_url: string | null;
+  phone: string;
+  email: string;
+}
+
+export const DEFAULT_AGENT: AgentInfo = {
+  full_name: "Uzair Muhammad",
+  title: "Presale Specialist",
+  photo_url: null,
+  phone: "778-231-3592",
+  email: "info@presaleproperties.com",
+};
+
 export interface AiEmailCopy {
   subjectLine?: string;
   previewText?: string;
@@ -34,7 +52,7 @@ function parseIncentives(text: string): string[] {
 }
 
 /** Convert \n-separated body copy paragraphs into HTML */
-function bodyToHtml(text: string, accentColor: string): string {
+function bodyToHtml(text: string): string {
   if (!text) return "";
   const paras = text.split("\n").filter(Boolean);
   return paras
@@ -42,7 +60,7 @@ function bodyToHtml(text: string, accentColor: string): string {
     .join("");
 }
 
-export function buildAiEmailHtml(copy: AiEmailCopy): string {
+export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_AGENT): string {
   const ACCENT = "#C9A55A";
   const DARK = "#0d1f18";
   const incentives = parseIncentives(copy.incentiveText || "");
@@ -129,7 +147,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy): string {
     <td style="padding:36px 36px 28px;">
       ${copy.headline ? `<p style="margin:0 0 20px 0;font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:400;color:#111111;line-height:1.2;">${copy.headline}</p>` : ""}
       <div style="font-family:'DM Sans',Arial,sans-serif;font-size:14px;color:#444444;line-height:1.75;">
-        ${bodyToHtml(copy.bodyCopy || "", ACCENT)}
+        ${bodyToHtml(copy.bodyCopy || "")}
       </div>
     </td>
   </tr>
@@ -180,26 +198,67 @@ export function buildAiEmailHtml(copy: AiEmailCopy): string {
     </td>
   </tr>
 
-  <!-- ─── SIGNATURE ─── -->
+  <!-- ─── AGENT CARD (matches main builder) ─── -->
   <tr>
-    <td style="padding:24px 36px 28px;">
-      <p style="margin:0 0 2px 0;font-family:'DM Sans',Arial,sans-serif;font-size:13px;font-weight:600;color:#111111;">Uzair Muhammad</p>
-      <p style="margin:0 0 1px 0;font-family:'DM Sans',Arial,sans-serif;font-size:12px;color:#888888;">Presale Specialist · Presale Properties</p>
-      <p style="margin:0;font-family:'DM Sans',Arial,sans-serif;font-size:11px;color:${ACCENT};">presaleproperties.com</p>
-      <p style="margin:10px 0 0 0;font-family:'DM Sans',Arial,sans-serif;font-size:10px;color:#aaaaaa;line-height:1.5;">
-        I represent buyers — not developers. My services are at no extra cost to you.<br/>
-        English · Punjabi · Hindi · Urdu
-      </p>
+    <td bgcolor="#fafaf8" style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <!-- Photo -->
+          ${agent.photo_url ? `
+          <td width="90" valign="middle" style="padding:18px 0 18px 24px;vertical-align:middle;line-height:0;font-size:0;">
+            <img src="${agent.photo_url}" alt="${agent.full_name}" width="64" height="64" border="0"
+                 style="display:block;width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+          </td>` : ""}
+          <!-- Info -->
+          <td valign="middle" style="padding:18px 12px 18px ${agent.photo_url ? "12px" : "24px"};vertical-align:middle;">
+            <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:19px;font-weight:400;color:#111111;line-height:1.15;mso-line-height-rule:exactly;margin-bottom:2px;">${agent.full_name}</div>
+            <div style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};mso-line-height-rule:exactly;line-height:1.5;margin-bottom:7px;">${agent.title}</div>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+              ${agent.phone ? `<tr>
+                <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;line-height:1;">&#128222;</td>
+                <td style="padding-bottom:3px;vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:400;color:#444444;text-decoration:none;">${agent.phone}</a></td>
+              </tr>` : ""}
+              ${agent.email ? `<tr>
+                <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;line-height:1;">&#9993;</td>
+                <td style="padding-bottom:3px;vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:400;color:#444444;text-decoration:none;">${agent.email}</a></td>
+              </tr>` : ""}
+            </table>
+          </td>
+          <!-- Logo -->
+          <td align="right" valign="middle" style="padding:18px 24px 18px 12px;vertical-align:middle;">
+            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="120" border="0"
+                 style="display:block;width:120px;max-width:120px;height:auto;-ms-interpolation-mode:bicubic;" />
+          </td>
+        </tr>
+      </table>
     </td>
   </tr>
 
   <!-- ─── FOOTER ─── -->
   <tr>
-    <td style="background:#f7f5f1;border-top:1px solid #e8e3db;padding:16px 36px;">
-      <p style="margin:0;font-family:'DM Sans',Arial,sans-serif;font-size:10px;color:#aaaaaa;line-height:1.6;">
-        You're receiving this because you registered for VIP access or requested information about presale projects in Metro Vancouver and the Fraser Valley. 
-        <a href="#" style="color:#aaaaaa;">Unsubscribe</a>
-      </p>
+    <td bgcolor="${DARK}" style="padding:22px 40px;background-color:${DARK};">
+      <div style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};margin-bottom:6px;mso-line-height-rule:exactly;line-height:1.5;">PRESALE PROPERTIES &nbsp;&middot;&nbsp; ${copy.city ? `${copy.city.toUpperCase()}, BC` : "VANCOUVER, BC"}</div>
+      <div style="font-family:'DM Sans',Arial,sans-serif;font-size:12px;font-weight:300;color:#8aaa96;mso-line-height-rule:exactly;line-height:1.6;"><a href="https://presaleproperties.com" style="color:#8aaa96;text-decoration:none;">presaleproperties.com</a>${agent.phone ? ` &nbsp;&middot;&nbsp; ${agent.phone}` : ""}</div>
+    </td>
+  </tr>
+
+  <!-- ─── LEGAL + UNSUBSCRIBE ─── -->
+  <tr>
+    <td bgcolor="#f8f7f4" style="padding:24px 40px 28px;background-color:#f8f7f4;border-top:1px solid #e8e8e4;">
+      <div style="font-family:'DM Sans',Arial,sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#555555;margin-bottom:12px;mso-line-height-rule:exactly;line-height:1.4;">L E G A L &nbsp; D I S C L A I M E R</div>
+      <div style="font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:300;color:#888888;line-height:1.8;margin-bottom:12px;mso-line-height-rule:exactly;">
+        This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer's agents &mdash; we represent <strong style="font-weight:500;color:#666666;">you</strong>, not the developer. This is <strong style="font-weight:500;color:#666666;">not an offering for sale</strong>. An offering can only be made after a Disclosure Statement is filed under REDMA. Prices, availability, and incentives are subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions are subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E. Presale Properties complies with the Real Estate Services Act (BCFSA).
+      </div>
+      <div style="font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:300;color:#888888;line-height:1.8;margin-bottom:18px;mso-line-height-rule:exactly;">
+        You are receiving this because you opted in to presale updates from Presale Properties. Per Canada's Anti-Spam Legislation (CASL), you may withdraw consent at any time.
+      </div>
+      <div>
+        <a href="*|UNSUB|*" style="font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Unsubscribe</a>
+        <span style="color:#cccccc;margin:0 10px;">&middot;</span>
+        <a href="*|UPDATE_PROFILE|*" style="font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Update Preferences</a>
+        <span style="color:#cccccc;margin:0 10px;">&middot;</span>
+        <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">View in Browser</a>
+      </div>
     </td>
   </tr>
 
