@@ -6,7 +6,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 import logoWhiteAsset from "@/assets/logo-white.png";
 import { useNavigate, useParams } from "react-router-dom";
 import html2canvas from "html2canvas";
-// jsPDF removed — using PNG export instead
+// html2canvas + jsPDF for combined PDF export
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
