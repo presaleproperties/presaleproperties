@@ -419,9 +419,34 @@ export default function AdminAiEmailBuilder() {
   const updateFp = (id: string, field: keyof FloorPlanEntry, val: string) =>
     setFloorPlans(prev => prev.map(fp => fp.id === id ? { ...fp, [field]: val } : fp));
 
+  // ── Edit-in-preview iframe designMode ────────────────────────────────────────
+  const enableIframeEdit = useCallback(() => {
+    const doc = iframeRef.current?.contentDocument;
+    if (!doc) return;
+    doc.designMode = "on";
+    // Inject subtle edit-mode styles
+    const existing = doc.getElementById("__edit-style");
+    if (existing) return;
+    const style = doc.createElement("style");
+    style.id = "__edit-style";
+    style.textContent = `
+      body { outline: none !important; cursor: text; }
+      *:hover { outline: 1.5px dashed rgba(201,165,90,0.45) !important; outline-offset: 2px; }
+      *:focus { outline: 2px solid rgba(201,165,90,0.8) !important; outline-offset: 2px; }
+    `;
+    doc.head?.appendChild(style);
+  }, []);
+
+  const getExportHtml = useCallback((): string => {
+    if (previewMode === "edit" && iframeRef.current?.contentDocument) {
+      return "<!DOCTYPE html>\n" + iframeRef.current.contentDocument.documentElement.outerHTML;
+    }
+    return finalHtml;
+  }, [previewMode, finalHtml]);
+
   // ── Export ────────────────────────────────────────────────────────────────────
   const handleCopy = () => {
-    navigator.clipboard.writeText(finalHtml).then(() => {
+    navigator.clipboard.writeText(getExportHtml()).then(() => {
       setCopied(true);
       toast.success("HTML copied to clipboard");
       setTimeout(() => setCopied(false), 2500);
