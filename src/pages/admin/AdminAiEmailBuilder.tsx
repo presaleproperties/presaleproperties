@@ -720,6 +720,26 @@ export default function AdminEmailBuilderPage() {
 
             <div className="flex-1 overflow-y-auto">
 
+              {/* ── PROJECT SELECTOR (top-level, always visible) ── */}
+              <div className="px-3 py-2.5 border-b border-border bg-muted/20">
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold block mb-1.5">
+                  Select Project <span className="normal-case tracking-normal font-normal text-muted-foreground/50">— auto-fills all fields</span>
+                </Label>
+                <Select value={selProjectId} onValueChange={handleProjectSelect}>
+                  <SelectTrigger className="h-8 text-xs w-full">
+                    <SelectValue placeholder="Choose a project to auto-fill details…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">— Start from scratch —</SelectItem>
+                    {projects.map(p => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name}{p.city ? ` · ${p.city}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* ── STEP 1: PASTE YOUR COPY ── */}
               <StepSection
                 step={1} title="Paste Your Copy" icon={<FileText className="h-3.5 w-3.5" />}
