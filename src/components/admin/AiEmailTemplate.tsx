@@ -314,16 +314,14 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
     const gap = 8;
     return `
   <tr>
-    <td style="padding:0;background:#ffffff;">
-      <table cellpadding="0" cellspacing="${gap}" border="0" width="100%" style="border-collapse:separate;">
+    <td style="padding:0;margin:0;background:#ffffff;line-height:0;font-size:0;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;table-layout:fixed;">
         <tr>
-          ${cards.map(card => `
-          <td style="width:${colWidth};vertical-align:top;padding:${gap}px;">
-            <div style="overflow:hidden;border-radius:2px;line-height:0;font-size:0;">
-              <img src="${card.url}" alt="${card.caption || "Project image"}" width="100%"
-                   style="display:block;width:100%;height:auto;object-fit:cover;" />
-            </div>
-            ${card.caption ? `<p style="margin:6px 0 0 0;font-family:${bodyFont};font-size:10px;color:#999999;text-align:center;letter-spacing:0.5px;">${card.caption}</p>` : ""}
+          ${cards.map((card, i) => `
+          <td style="width:${colWidth};vertical-align:top;padding:0;margin:0;${i > 0 ? "border-left:2px solid #ffffff;" : ""}line-height:0;font-size:0;">
+            <img src="${card.url}" alt="${card.caption || "Project image"}" width="100%"
+                 style="display:block;width:100%;height:auto;object-fit:cover;" />
+            ${card.caption ? `<p style="margin:4px 0 0 0;padding:0 4px;font-family:${bodyFont};font-size:10px;color:#999999;text-align:center;letter-spacing:0.5px;line-height:1.4;">${card.caption}</p>` : ""}
           </td>`).join("")}
         </tr>
       </table>
