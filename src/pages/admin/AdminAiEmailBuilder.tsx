@@ -520,15 +520,19 @@ export default function AdminEmailBuilderPage() {
         {/* ── Top bar ── */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/admin/email-builder-hub")}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/admin/marketing-hub")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-sm">
-              <Sparkles className="h-4 w-4 text-white" />
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-sm">
+              <Mail className="h-4 w-4 text-white" />
             </div>
             <div>
-              <h1 className="text-base font-bold leading-none">AI Email Builder</h1>
-              <p className="text-[11px] text-muted-foreground mt-0.5">Prompt → Generate → Copy HTML</p>
+              <h1 className="text-base font-bold leading-none">
+                Email Builder
+                {urlTemplate === "exclusive-offer" && <span className="ml-2 text-[11px] font-normal text-amber-600">· Exclusive Offer</span>}
+                {urlTemplate === "project-email"   && <span className="ml-2 text-[11px] font-normal text-emerald-600">· Project Email</span>}
+              </h1>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Paste copy → Bold keywords → Copy HTML</p>
             </div>
           </div>
 
