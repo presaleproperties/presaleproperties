@@ -1046,8 +1046,9 @@ export default function AdminEmailBuilderPage() {
                 done={!!(heroImage || floorPlans.length)} doneLabel={[heroImage && "Hero", floorPlans.length && `${floorPlans.length} FP`].filter(Boolean).join(" · ")}
                 defaultOpen={false}
               >
-                <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
-                <input ref={fpInputRef}   type="file" accept="image/*" multiple className="hidden" onChange={handleFpUpload} />
+                <input ref={heroInputRef}     type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
+                <input ref={fpInputRef}       type="file" accept="image/*" multiple className="hidden" onChange={handleFpUpload} />
+                <input ref={imgCardInputRef}  type="file" accept="image/*" multiple className="hidden" onChange={handleImgCardUpload} />
 
                 {/* Hero */}
                 <div>
