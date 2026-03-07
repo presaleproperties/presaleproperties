@@ -216,7 +216,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   <!-- ─── LOCATION BANNER (conditional) ─── -->
   ${locationLine ? `
   <tr>
-    <td style="background:${ACCENT};padding:9px 36px;">
+    <td class="mobile-pad" style="background:${ACCENT};padding:9px 36px;">
       <p style="margin:0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;">${locationLine.toUpperCase()}</p>
     </td>
   </tr>` : ""}
@@ -225,21 +225,21 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   ${(copy.startingPrice || copy.completion || copy.deposit) ? `
   <tr>
     <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" class="mobile-stack">
         <tr>
           ${copy.startingPrice ? `
           <td style="padding:16px 20px 14px;border-right:1px solid #e8e3db;text-align:center;">
-            <p style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.startingPrice}</p>
+            <p class="stat-value" style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.startingPrice}</p>
             <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Starting Price</p>
           </td>` : ""}
           ${copy.deposit ? `
           <td style="padding:16px 20px 14px;border-right:1px solid #e8e3db;text-align:center;">
-            <p style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.deposit}</p>
+            <p class="stat-value" style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.deposit}</p>
             <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Deposit Structure</p>
           </td>` : ""}
           ${copy.completion ? `
           <td style="padding:16px 20px 14px;text-align:center;">
-            <p style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.completion}</p>
+            <p class="stat-value" style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.completion}</p>
             <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Est. Completion</p>
           </td>` : ""}
         </tr>
@@ -250,7 +250,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   <!-- ─── INFO ROWS (conditional) ─── -->
   ${(copy.infoRows && copy.infoRows.filter(r => r.includes("|")).length > 0) ? `
   <tr>
-    <td style="padding:0 36px 20px;">
+    <td class="mobile-pad" style="padding:0 36px 20px;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e8e3db;border-radius:2px;overflow:hidden;">
         ${copy.infoRows.filter(r => r.includes("|")).map((row, i, arr) => {
           const [label, value] = row.split("|").map(s => s.trim());
@@ -270,12 +270,11 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
 
   <!-- ─── BODY COPY ─── -->
   <tr>
-    <td style="padding:36px 36px 28px;">
+    <td class="mobile-pad" style="padding:36px 36px 28px;">
       ${(!suppressHeadlineInBody && copy.headline) ? `
-      <!-- Headline: large, bold, dark green — editorial style -->
-      <p style="margin:0 0 18px 0;font-family:${displayFont};font-size:30px;font-weight:700;color:#0d1f18;line-height:1.2;letter-spacing:-0.3px;">${copy.headline}</p>
+      <p class="body-headline" style="margin:0 0 18px 0;font-family:${displayFont};font-size:30px;font-weight:700;color:#0d1f18;line-height:1.2;letter-spacing:-0.3px;">${copy.headline}</p>
       <div style="width:40px;height:3px;background:${ACCENT};margin-bottom:20px;"></div>` : ""}
-      <div style="font-family:${bodyFont};font-size:14px;color:#444444;line-height:1.75;">
+      <div style="font-family:${bodyFont};font-size:15px;color:#444444;line-height:1.8;">
         ${bodyToHtml(copy.bodyCopy || "")}
       </div>
     </td>
@@ -284,16 +283,16 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   <!-- ─── INCENTIVES (conditional) ─── -->
   ${incentives.length > 0 ? `
   <tr>
-    <td style="background:${DARK};padding:28px 36px 24px;">
+    <td class="mobile-pad" style="background:${DARK};padding:28px 36px 24px;">
       <p style="margin:0 0 16px 0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${incentives.map(item => `
         <tr>
           <td style="padding:0 0 10px 0;vertical-align:top;width:16px;">
-            <div style="width:5px;height:5px;background:${ACCENT};margin-top:6px;"></div>
+            <div style="width:5px;height:5px;background:${ACCENT};margin-top:7px;"></div>
           </td>
           <td style="padding:0 0 10px 12px;vertical-align:top;">
-            <p style="margin:0;font-family:${bodyFont};font-size:13px;color:#c8d8cc;line-height:1.6;">${item}</p>
+            <p style="margin:0;font-family:${bodyFont};font-size:14px;color:#c8d8cc;line-height:1.7;">${item}</p>
           </td>
         </tr>`).join("")}
       </table>
@@ -302,18 +301,18 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
 
   <!-- ─── CTA ─── -->
   <tr>
-    <td style="padding:28px 36px 32px;">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
+    <td class="mobile-pad" style="padding:28px 36px 32px;">
+      <table cellpadding="0" cellspacing="0" border="0" class="mobile-full" style="margin-bottom:12px;">
         <tr>
-          <td style="background:${DARK};padding:14px 36px;">
-            <a href="tel:${(agent.phone || DEFAULT_AGENT.phone).replace(/\D/g,'')}" style="font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">CALL NOW →</a>
+          <td style="background:${DARK};padding:15px 36px;text-align:center;">
+            <a href="tel:${(agent.phone || DEFAULT_AGENT.phone).replace(/\D/g,'')}" style="font-family:${bodyFont};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">CALL NOW →</a>
           </td>
         </tr>
       </table>
-      <table cellpadding="0" cellspacing="0" border="0">
+      <table cellpadding="0" cellspacing="0" border="0" class="mobile-full">
         <tr>
-          <td style="border:1.5px solid ${ACCENT};padding:12px 36px;">
-            <a href="${plansPricingUrl}" style="font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;">VIEW PLANS & PRICING</a>
+          <td style="border:1.5px solid ${ACCENT};padding:13px 36px;text-align:center;">
+            <a href="${plansPricingUrl}" style="font-family:${bodyFont};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;">VIEW PLANS &amp; PRICING</a>
           </td>
         </tr>
       </table>
@@ -327,37 +326,34 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
     </td>
   </tr>
 
-  <!-- ─── AGENT CARD (matches main builder) ─── -->
+  <!-- ─── AGENT CARD ─── -->
   <!-- This comment is used as injection point for floor plans -->
   <tr>
     <td bgcolor="#fafaf8" style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
-          <!-- Photo -->
           ${agent.photo_url ? `
-          <td width="90" valign="middle" style="padding:18px 0 18px 24px;vertical-align:middle;line-height:0;font-size:0;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="64" height="64" border="0"
-                 style="display:block;width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+          <td width="80" valign="middle" style="padding:18px 0 18px 20px;vertical-align:middle;line-height:0;font-size:0;">
+            <img src="${agent.photo_url}" alt="${agent.full_name}" width="60" height="60" border="0" class="agent-photo"
+                 style="display:block;width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
           </td>` : ""}
-          <!-- Info -->
-          <td valign="middle" style="padding:18px 12px 18px ${agent.photo_url ? "12px" : "24px"};vertical-align:middle;">
-            <div style="font-family:${displayFont};font-size:19px;font-weight:600;color:#111111;line-height:1.15;mso-line-height-rule:exactly;margin-bottom:2px;">${agent.full_name}</div>
+          <td valign="middle" style="padding:18px 12px 18px ${agent.photo_url ? "10px" : "20px"};vertical-align:middle;">
+            <div style="font-family:${displayFont};font-size:18px;font-weight:600;color:#111111;line-height:1.15;mso-line-height-rule:exactly;margin-bottom:2px;">${agent.full_name}</div>
             <div style="font-family:${bodyFont};font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};mso-line-height-rule:exactly;line-height:1.5;margin-bottom:7px;">${agent.title}</div>
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
               ${agent.phone ? `<tr>
                 <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;line-height:1;">&#128222;</td>
-                <td style="padding-bottom:3px;vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:${bodyFont};font-size:11px;font-weight:400;color:#444444;text-decoration:none;">${agent.phone}</a></td>
+                <td style="padding-bottom:3px;vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:${bodyFont};font-size:12px;font-weight:400;color:#444444;text-decoration:none;">${agent.phone}</a></td>
               </tr>` : ""}
               ${agent.email ? `<tr>
                 <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;line-height:1;">&#9993;</td>
-                <td style="padding-bottom:3px;vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${bodyFont};font-size:11px;font-weight:400;color:#444444;text-decoration:none;">${agent.email}</a></td>
+                <td style="padding-bottom:3px;vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${bodyFont};font-size:12px;font-weight:400;color:#444444;text-decoration:none;">${agent.email}</a></td>
               </tr>` : ""}
             </table>
           </td>
-          <!-- Logo -->
-          <td align="right" valign="middle" style="padding:18px 24px 18px 12px;vertical-align:middle;">
-            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="120" border="0"
-                 style="display:block;width:120px;max-width:120px;height:auto;-ms-interpolation-mode:bicubic;" />
+          <td align="right" valign="middle" style="padding:18px 20px 18px 12px;vertical-align:middle;">
+            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" border="0" class="agent-logo"
+                 style="display:block;width:110px;max-width:110px;height:auto;-ms-interpolation-mode:bicubic;" />
           </td>
         </tr>
       </table>
@@ -366,7 +362,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
 
   <!-- ─── FOOTER ─── -->
   <tr>
-    <td bgcolor="${DARK}" style="padding:22px 40px;background-color:${DARK};">
+    <td bgcolor="${DARK}" class="mobile-pad" style="padding:22px 36px;background-color:${DARK};">
       <div style="font-family:${bodyFont};font-size:9px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};margin-bottom:6px;mso-line-height-rule:exactly;line-height:1.5;">PRESALE PROPERTIES &nbsp;&middot;&nbsp; ${copy.city ? `${copy.city.toUpperCase()}, BC` : "VANCOUVER, BC"}</div>
       <div style="font-family:${bodyFont};font-size:12px;font-weight:300;color:#8aaa96;mso-line-height-rule:exactly;line-height:1.6;"><a href="https://presaleproperties.com" style="color:#8aaa96;text-decoration:none;">presaleproperties.com</a>${agent.phone ? ` &nbsp;&middot;&nbsp; ${agent.phone}` : ""}</div>
     </td>
@@ -374,7 +370,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
 
   <!-- ─── LEGAL + UNSUBSCRIBE ─── -->
   <tr>
-    <td bgcolor="#f8f7f4" style="padding:24px 40px 28px;background-color:#f8f7f4;border-top:1px solid #e8e8e4;">
+    <td bgcolor="#f8f7f4" class="mobile-pad" style="padding:24px 36px 28px;background-color:#f8f7f4;border-top:1px solid #e8e8e4;">
       <div style="font-family:${bodyFont};font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#555555;margin-bottom:12px;mso-line-height-rule:exactly;line-height:1.4;">L E G A L &nbsp; D I S C L A I M E R</div>
       <div style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888888;line-height:1.8;margin-bottom:12px;mso-line-height-rule:exactly;">
         This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer's agents &mdash; we represent <strong style="font-weight:500;color:#666666;">you</strong>, not the developer. This is <strong style="font-weight:500;color:#666666;">not an offering for sale</strong>. An offering can only be made after a Disclosure Statement is filed under REDMA. Prices, availability, and incentives are subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions are subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E. Presale Properties complies with the Real Estate Services Act (BCFSA).
