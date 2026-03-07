@@ -596,6 +596,34 @@ export default function AdminEmailBuilderHub() {
     });
   };
 
+  // Apply AI-generated copy to the builder
+  const handleAiApply = (copy: Record<string, string>, templateType: string) => {
+    const baseTpl = BUILTIN_TEMPLATES.find(t => t.key === templateType) || BUILTIN_TEMPLATES[0];
+    const draft = {
+      vars: {
+        ...baseTpl.form_data.vars,
+        subjectLine: copy.subjectLine || baseTpl.form_data.vars.subjectLine,
+        previewText: copy.previewText || baseTpl.form_data.vars.previewText,
+        headline: copy.headline || baseTpl.form_data.vars.headline,
+        bodyCopy: copy.bodyCopy || baseTpl.form_data.vars.bodyCopy,
+        incentiveText: copy.incentiveText || baseTpl.form_data.vars.incentiveText,
+        startingPrice: copy.startingPrice || "",
+        deposit: copy.deposit || "",
+        completion: copy.completion || "",
+        projectName: copy.projectName || "",
+        city: copy.city || "",
+        neighborhood: copy.neighborhood || "",
+        developerName: copy.developerName || "",
+      },
+      cta: baseTpl.form_data.cta,
+      fontIdx: baseTpl.form_data.fontIdx,
+      savedAt: new Date().toISOString(),
+    };
+    localStorage.setItem("email_builder_draft_v2", JSON.stringify(draft));
+    navigate("/admin/email-builder");
+    toast.success("AI copy loaded — finish customizing and save!");
+  };
+
   return (
     <AdminLayout>
       {previewModal && (
