@@ -40,6 +40,8 @@ export interface AiEmailCopy {
   startingPrice?: string;
   deposit?: string;
   completion?: string;
+  /** Additional info rows rendered as a secondary stats bar. Each entry: "Label|Value" */
+  infoRows?: string[];
 }
 
 /** Build bullet items from incentiveText (lines starting with ✦ or -) */
