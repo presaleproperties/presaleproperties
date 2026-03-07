@@ -494,6 +494,12 @@ export default function AdminAiEmailBuilder() {
                     </div>
                     <Input value={projectName} onChange={e => setProjectName(e.target.value)} className={cn("h-7 text-xs", !showProjectName && "opacity-40")} placeholder="Lumina" />
                   </div>
+                  {!showProjectName && (
+                    <div className="space-y-1 col-span-2">
+                      <Label className="text-[10px]">Custom Header <span className="text-muted-foreground">(replaces project name)</span></Label>
+                      <Input value={customHeader} onChange={e => setCustomHeader(e.target.value)} className="h-7 text-xs" placeholder="New Presale Release" autoFocus />
+                    </div>
+                  )}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <Label className="text-[10px]">Developer</Label>
