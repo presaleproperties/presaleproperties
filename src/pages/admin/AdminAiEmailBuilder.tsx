@@ -236,6 +236,28 @@ export default function AdminAiEmailBuilder() {
     startingPrice, deposit, completion,
   }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
 
+  // Separate "preview state" — only updates on explicit Apply or AI generation
+  const [previewHtml, setPreviewHtml] = useState(() =>
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl)
+  );
+  const [previewDirty, setPreviewDirty] = useState(false);
+
+  const applyPreview = useCallback(() => {
+    setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl));
+    setPreviewDirty(false);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl]);
+
+  // Mark dirty whenever working state changes (but don't re-render preview)
+  const prevCopyRef = useRef<string>("");
+  useEffect(() => {
+    const key = JSON.stringify({ ...currentCopy(), selAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl });
+    if (key !== prevCopyRef.current) {
+      prevCopyRef.current = key;
+      setPreviewDirty(true);
+    }
+  }, [currentCopy, selAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl]);
+
+  // finalHtml used only for copy/save — always reflects latest state
   const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl);
 
   // ── AI generation ─────────────────────────────────────────────────────────────
