@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -7,13 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  ArrowLeft, ArrowRight, Sparkles, Loader2, Copy, Download, CheckCircle2,
-  Building2, Image, Mail, FileText, Wand2, Eye, Code2, Save, X, Upload,
-  LayoutGrid, Link2, User, Check,
+  ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
+  Building2, Image, Mail, FileText, Wand2,
+  Eye, Code2, Save, X, Upload, LayoutGrid, Link2,
+  ChevronDown, ChevronUp, Monitor, Smartphone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -26,34 +29,64 @@ const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
   "Ravish": { phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com" },
 };
 
-// ─── Step definitions ────────────────────────────────────────────────────────
-const STEPS = [
-  { id: "agent",    label: "Agent",      icon: User       },
-  { id: "brief",    label: "Brief",      icon: Wand2      },
-  { id: "copy",     label: "Copy",       icon: FileText   },
-  { id: "details",  label: "Details",    icon: Building2  },
-  { id: "media",    label: "Media",      icon: Image      },
-  { id: "assets",   label: "Assets",     icon: Link2      },
-  { id: "preview",  label: "Preview",    icon: Eye        },
-] as const;
-
-type StepId = typeof STEPS[number]["id"];
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface FloorPlanEntry { id: string; url: string; label: string; sqft: string }
-interface CampaignAsset { id: string; name: string; project_name: string; brochure_url: string | null; pricing_sheet_url: string | null; thumbnail_url: string | null; }
+interface CampaignAsset {
+  id: string; name: string; project_name: string;
+  brochure_url: string | null; pricing_sheet_url: string | null; thumbnail_url: string | null;
+}
 
-// ─── Build email HTML (hero + floor plans injected) ───────────────────────────
+// ─── Step section (matches manual builder) ───────────────────────────────────
+function StepSection({
+  step, title, icon, done, doneLabel, accent, defaultOpen = true, children,
+}: {
+  step: number; title: string; icon: React.ReactNode;
+  done?: boolean; doneLabel?: string; accent?: "gold" | "green";
+  defaultOpen?: boolean; children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="border-b border-border last:border-b-0">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-muted/30 transition-colors text-left"
+      >
+        {/* Step number */}
+        <div className={cn(
+          "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 transition-colors",
+          done ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
+        )}>
+          {done ? "✓" : step}
+        </div>
+        {/* Icon + Title */}
+        <div className={cn(
+          "shrink-0",
+          accent === "gold" ? "text-amber-500" : accent === "green" ? "text-emerald-500" : "text-primary"
+        )}>
+          {icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className="text-[11px] font-semibold text-foreground">{title}</span>
+          {done && doneLabel && (
+            <span className="text-[10px] text-muted-foreground ml-2 truncate">{doneLabel}</span>
+          )}
+        </div>
+        {open
+          ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+        }
+      </button>
+      {open && <div className="px-3 pb-3 pt-0.5 space-y-2.5">{children}</div>}
+    </div>
+  );
+}
+
+// ─── Build final email HTML ───────────────────────────────────────────────────
 function buildFinalHtml(
-  fields: AiEmailCopy,
-  agent: AgentInfo,
-  heroImage: string,
-  floorPlans: FloorPlanEntry[],
-  fpHeading: string,
-  fpSubheading: string,
-  ctaUrl?: string,
+  fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
+  floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
 ): string {
-  const base = buildAiEmailHtml(fields, agent, ctaUrl);
+  const base   = buildAiEmailHtml(fields, agent, ctaUrl);
   const ACCENT = "#C9A55A";
   const DARK   = "#0d1f18";
 
@@ -61,131 +94,68 @@ function buildFinalHtml(
     ? base.replace(
         "<!-- ─── HERO STATS BAR",
         `  <!-- ─── HERO IMAGE ─── -->
-  <tr>
-    <td style="padding:0;line-height:0;">
-      <img src="${heroImage}" alt="${fields.projectName || "Project"}" width="600" style="display:block;width:100%;max-width:600px;height:auto;" />
-    </td>
-  </tr>
-
+  <tr><td style="padding:0;line-height:0;">
+    <img src="${heroImage}" alt="${fields.projectName || "Project"}" width="600" style="display:block;width:100%;max-width:600px;height:auto;" />
+  </td></tr>
   <!-- ─── HERO STATS BAR`,
       )
     : base;
 
   if (floorPlans.length > 0) {
-    const activePlans = floorPlans.filter(fp => fp.url);
-    if (activePlans.length > 0) {
-      const heading = fpHeading || "Available Floor Plans";
+    const active = floorPlans.filter(fp => fp.url);
+    if (active.length > 0) {
+      const heading = fpHeading  || "Available Floor Plans";
       const sub     = fpSubheading || "Limited units remaining — register now for priority access";
-      const planCells = activePlans.map(fp => `
-        <td style="padding:8px;width:${activePlans.length === 1 ? "100%" : "50%"};vertical-align:top;text-align:center;">
+      const cells   = active.map(fp => `
+        <td style="padding:8px;width:${active.length === 1 ? "100%" : "50%"};vertical-align:top;text-align:center;">
           <div style="border:1px solid #e0dbd3;overflow:hidden;background:#fafaf8;">
             <img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="100%" style="display:block;width:100%;height:auto;" />
-            ${fp.label || fp.sqft ? `
-            <div style="padding:10px 12px 12px;">
+            ${fp.label || fp.sqft ? `<div style="padding:10px 12px 12px;">
               ${fp.label ? `<p style="margin:0 0 3px 0;font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#111;">${fp.label}</p>` : ""}
-              ${fp.sqft  ? `<p style="margin:0;font-family:'DM Sans',Arial,sans-serif;font-size:10px;color:#888;">${fp.sqft}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0;font-family:'DM Sans',Arial,sans-serif;font-size:10px;color:#888;">${fp.sqft}</p>`  : ""}
             </div>` : ""}
           </div>
         </td>`).join("");
-
-      const floorPlanBlock = `
+      const block = `
   <!-- ─── FLOOR PLANS ─── -->
   <tr><td style="background:${DARK};padding:0;"><div style="height:3px;background:${ACCENT};"></div></td></tr>
-  <tr>
-    <td style="background:${DARK};padding:28px 36px 8px;">
-      <p style="margin:0 0 6px 0;font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
-      <p style="margin:0 0 8px 0;font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:400;color:#ffffff;line-height:1.15;">${heading}</p>
-      <p style="margin:0;font-family:'DM Sans',Arial,sans-serif;font-size:12px;color:#8aaa96;line-height:1.6;">${sub}</p>
-    </td>
-  </tr>
-  <tr>
-    <td style="background:${DARK};padding:16px 28px 28px;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>${planCells}</tr></table>
-    </td>
-  </tr>
-  <tr>
-    <td style="background:${DARK};padding:0 36px 28px;">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td style="background:${ACCENT};padding:13px 32px;">
-            <a href="https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${fields.projectName || "this project"}. Can you send me more details?`)}" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>`;
-      html = html.replace("<!-- ─── AGENT CARD", floorPlanBlock + "\n  <!-- ─── AGENT CARD");
+  <tr><td style="background:${DARK};padding:28px 36px 8px;">
+    <p style="margin:0 0 6px 0;font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
+    <p style="margin:0 0 8px 0;font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:400;color:#ffffff;line-height:1.15;">${heading}</p>
+    <p style="margin:0;font-family:'DM Sans',Arial,sans-serif;font-size:12px;color:#8aaa96;line-height:1.6;">${sub}</p>
+  </td></tr>
+  <tr><td style="background:${DARK};padding:16px 28px 28px;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>${cells}</tr></table>
+  </td></tr>
+  <tr><td style="background:${DARK};padding:0 36px 28px;">
+    <table cellpadding="0" cellspacing="0" border="0"><tr>
+      <td style="background:${ACCENT};padding:13px 32px;">
+        <a href="https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${fields.projectName || "this project"}. Can you send me more details?`)}" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
+      </td>
+    </tr></table>
+  </td></tr>`;
+      html = html.replace("<!-- ─── AGENT CARD", block + "\n  <!-- ─── AGENT CARD");
     }
   }
   return html;
 }
 
-// ─── Step progress indicator ──────────────────────────────────────────────────
-function StepBar({ current, onGoto, completed }: {
-  current: number; onGoto: (i: number) => void; completed: Set<number>;
-}) {
-  return (
-    <div className="flex items-center gap-0 overflow-x-auto">
-      {STEPS.map((step, i) => {
-        const Icon     = step.icon;
-        const isActive = i === current;
-        const isDone   = completed.has(i) && i !== current;
-        const canClick = i <= Math.max(...Array.from(completed), current);
-        return (
-          <div key={step.id} className="flex items-center">
-            <button
-              onClick={() => canClick && onGoto(i)}
-              disabled={!canClick}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold transition-all whitespace-nowrap",
-                isActive && "text-foreground border-b-2 border-primary",
-                isDone   && "text-emerald-600 cursor-pointer hover:text-emerald-700",
-                !isActive && !isDone && "text-muted-foreground",
-                !canClick && "opacity-40 cursor-not-allowed",
-              )}
-            >
-              {isDone
-                ? <Check className="h-3 w-3 text-emerald-500 flex-shrink-0" />
-                : <Icon className={cn("h-3 w-3 flex-shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
-              }
-              <span className="hidden sm:inline">{step.label}</span>
-            </button>
-            {i < STEPS.length - 1 && (
-              <div className={cn("h-px w-4 flex-shrink-0", isDone ? "bg-emerald-400/50" : "bg-border")} />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Main page ────────────────────────────────────────────────────────────────
+// ─── Main component ───────────────────────────────────────────────────────────
 export default function AdminAiEmailBuilder() {
-  const navigate = useNavigate();
-  const heroInputRef = useRef<HTMLInputElement>(null);
-  const fpInputRef   = useRef<HTMLInputElement>(null);
+  const navigate       = useNavigate();
+  const heroInputRef   = useRef<HTMLInputElement>(null);
+  const fpInputRef     = useRef<HTMLInputElement>(null);
+  const iframeRef      = useRef<HTMLIFrameElement>(null);
 
-  // Wizard
-  const [currentStep, setCurrentStep] = useState(0);
-  const [completed, setCompleted]     = useState<Set<number>>(new Set());
+  // AI state
+  const [prompt,         setPrompt]         = useState("");
+  const [templateType,   setTemplateType]   = useState("main-project-email");
+  const [selProjectId,   setSelProjectId]   = useState("none");
+  const [aiLoading,      setAiLoading]      = useState(false);
+  const [activeVersion,  setActiveVersion]  = useState<"A" | "B">("A");
+  const [aiResult,       setAiResult]       = useState<Record<string, string> | null>(null);
 
-  const goTo = (i: number) => setCurrentStep(i);
-  const next  = () => {
-    setCompleted(prev => new Set([...prev, currentStep]));
-    setCurrentStep(s => Math.min(s + 1, STEPS.length - 1));
-  };
-  const back  = () => setCurrentStep(s => Math.max(s - 1, 0));
-
-  // AI
-  const [prompt, setPrompt]               = useState("");
-  const [templateType, setTemplateType]   = useState("main-project-email");
-  const [selectedProjectId, setSelProject] = useState("none");
-  const [aiLoading, setAiLoading]         = useState(false);
-  const [activeVersion, setActiveVersion] = useState<"A" | "B">("A");
-  const [aiResult, setAiResult]           = useState<Record<string, string> | null>(null);
-
-  // Copy
+  // Copy fields
   const [projectName,       setProjectName]       = useState("");
   const [developerName,     setDevName]            = useState("");
   const [showProjectName,   setShowProjectName]    = useState(true);
@@ -217,30 +187,35 @@ export default function AdminAiEmailBuilder() {
   const ctaUrl = selectedAsset?.brochure_url || selectedAsset?.pricing_sheet_url || undefined;
 
   // UI
-  const [previewTab, setPreviewTab] = useState<"preview" | "code">("preview");
-  const [copied,     setCopied]     = useState(false);
-  const [saving,     setSaving]     = useState(false);
+  const [previewMode,   setPreviewMode]   = useState<"preview" | "code">("preview");
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
+  const [copied,        setCopied]        = useState(false);
+  const [saving,        setSaving]        = useState(false);
 
   // Data
-  const [agents,    setAgents]    = useState<AgentInfo[]>([]);
-  const [selAgent,  setSelAgent]  = useState("default");
-  const selectedAgent: AgentInfo  = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
-  const [projects,  setProjects]  = useState<Array<{ id: string; name: string; city: string; featured_image?: string | null }>>([]);
+  const [agents,   setAgents]   = useState<AgentInfo[]>([]);
+  const [selAgent, setSelAgent] = useState("default");
+  const selectedAgent: AgentInfo = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
+  const [projects, setProjects] = useState<Array<{ id: string; name: string; city: string; featured_image?: string | null }>>([]);
 
   useEffect(() => {
-    supabase.from("presale_projects").select("id, name, city, featured_image").eq("is_published", true).order("name").limit(50)
+    supabase.from("presale_projects").select("id, name, city, featured_image")
+      .eq("is_published", true).order("name").limit(50)
       .then(({ data }: any) => { if (data) setProjects(data); });
-    supabase.from("team_members_public" as any).select("id, full_name, title, photo_url").eq("is_active", true).order("sort_order")
+
+    supabase.from("team_members_public" as any).select("id, full_name, title, photo_url")
+      .eq("is_active", true).order("sort_order")
       .then(({ data }: any) => {
         if (data) {
           const enriched: AgentInfo[] = data.map((m: any) => {
-            const contact = AGENT_CONTACTS[m.full_name?.split(" ")[0]] ?? { phone: "", email: "" };
-            return { full_name: m.full_name ?? "", title: m.title ?? "Presale Specialist", photo_url: m.photo_url ?? null, ...contact };
+            const c = AGENT_CONTACTS[m.full_name?.split(" ")[0]] ?? { phone: "", email: "" };
+            return { full_name: m.full_name ?? "", title: m.title ?? "Presale Specialist", photo_url: m.photo_url ?? null, ...c };
           });
           setAgents(enriched);
           if (enriched.length > 0) setSelAgent(enriched[0].full_name);
         }
       });
+
     supabase.from("campaign_templates" as any)
       .select("id, name, project_name, brochure_url, pricing_sheet_url, thumbnail_url")
       .order("updated_at", { ascending: false }).limit(50)
@@ -249,6 +224,7 @@ export default function AdminAiEmailBuilder() {
       });
   }, []);
 
+  // ── Derived HTML ─────────────────────────────────────────────────────────────
   const currentCopy = useCallback((): AiEmailCopy => ({
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     projectName: showProjectName ? projectName : (customHeader || ""),
@@ -257,9 +233,9 @@ export default function AdminAiEmailBuilder() {
     startingPrice, deposit, completion,
   }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
 
-  const previewHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl);
+  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl);
 
-  // ── AI generation ──
+  // ── AI generation ─────────────────────────────────────────────────────────────
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
     const b = v === "B";
     setSubjectLine(b ? (result.subjectLineB || result.subjectLine || "") : (result.subjectLine || ""));
@@ -267,8 +243,8 @@ export default function AdminAiEmailBuilder() {
     setHeadline(b   ? (result.headlineB    || result.headline    || "") : (result.headline    || ""));
     setBodyCopy(b   ? (result.bodyCopyB    || result.bodyCopy    || "") : (result.bodyCopy    || ""));
     setIncentiveText(result.incentiveText || "");
-    if (result.projectName) setProjectName(result.projectName);
-    if (result.city)        setCity(result.city);
+    if (result.projectName)  setProjectName(result.projectName);
+    if (result.city)         setCity(result.city);
     if (result.neighborhood) setNeighborhood(result.neighborhood);
     if (result.developerName) setDevName(result.developerName);
     if (result.startingPrice) setStartingPrice(result.startingPrice);
@@ -280,7 +256,7 @@ export default function AdminAiEmailBuilder() {
     if (!prompt.trim()) { toast.error("Enter a brief first"); return; }
     setAiLoading(true);
     try {
-      const project = projects.find(p => p.id === selectedProjectId && selectedProjectId !== "none");
+      const project = projects.find(p => p.id === selProjectId && selProjectId !== "none");
       const { data, error } = await supabase.functions.invoke("generate-email-copy", {
         body: { prompt: prompt.trim(), projectDetails: project ? { name: project.name, city: project.city } : null, templateType },
       });
@@ -290,10 +266,7 @@ export default function AdminAiEmailBuilder() {
       setActiveVersion("A");
       applyResult(data.copy, "A");
       if (project?.featured_image && !heroImage) setHeroImage(project.featured_image);
-      setCompleted(prev => new Set([...prev, 1]));
-      // Advance to copy step
-      setCurrentStep(2);
-      toast.success("Email copy generated — review and refine below");
+      toast.success("Email copy generated ✓");
     } catch (e: any) {
       toast.error(e.message || "Failed to generate");
     } finally {
@@ -308,7 +281,7 @@ export default function AdminAiEmailBuilder() {
   };
 
   const handleProjectSelect = (id: string) => {
-    setSelProject(id);
+    setSelProjectId(id);
     const p = projects.find(proj => proj.id === id);
     if (!p) return;
     setProjectName(p.name);
@@ -316,29 +289,23 @@ export default function AdminAiEmailBuilder() {
     if (p.featured_image) setHeroImage(p.featured_image);
   };
 
-  // ── Upload helpers ──
+  // ── Uploads ──────────────────────────────────────────────────────────────────
   const uploadImage = async (file: File, bucket: string, path: string): Promise<string> => {
     const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true, contentType: file.type });
     if (error) throw error;
-    const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(path);
-    return publicUrl;
+    return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
   };
 
   const handleHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const file = e.target.files?.[0]; if (!file) return;
     setHeroUploading(true);
-    try {
-      const url = await uploadImage(file, "email-assets", `email-hero/${Date.now()}-${file.name}`);
-      setHeroImage(url);
-      toast.success("Hero image uploaded");
-    } catch (err: any) { toast.error("Upload failed: " + err.message); }
+    try { setHeroImage(await uploadImage(file, "email-assets", `email-hero/${Date.now()}-${file.name}`)); toast.success("Hero image uploaded"); }
+    catch (err: any) { toast.error("Upload failed: " + err.message); }
     finally { setHeroUploading(false); e.target.value = ""; }
   };
 
   const handleFpUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
+    const files = Array.from(e.target.files || []); if (!files.length) return;
     setFpUploading(true);
     try {
       const uploaded: FloorPlanEntry[] = [];
@@ -356,9 +323,9 @@ export default function AdminAiEmailBuilder() {
   const updateFp = (id: string, field: keyof FloorPlanEntry, val: string) =>
     setFloorPlans(prev => prev.map(fp => fp.id === id ? { ...fp, [field]: val } : fp));
 
-  // ── Export + Save ──
-  const handleCopyHtml = () => {
-    navigator.clipboard.writeText(previewHtml).then(() => {
+  // ── Export ────────────────────────────────────────────────────────────────────
+  const handleCopy = () => {
+    navigator.clipboard.writeText(finalHtml).then(() => {
       setCopied(true);
       toast.success("HTML copied to clipboard");
       setTimeout(() => setCopied(false), 2500);
@@ -378,494 +345,461 @@ export default function AdminAiEmailBuilder() {
     setSaving(false);
   };
 
-  // ── Step panels ──────────────────────────────────────────────────────────────
-  const stepContent: Record<StepId, React.ReactNode> = {
+  // ─────────────────────────────────────────────────────────────────────────────
+  return (
+    <AdminLayout>
+      <div className="p-4 md:p-6 max-w-[1400px] mx-auto space-y-3">
 
-    // ── STEP 0: Agent ─────────────────────────────────────────────────────────
-    agent: (
-      <StepPanel
-        title="Who's sending this email?"
-        subtitle="Choose the agent signature that will appear at the bottom of the email."
-        onNext={next} nextLabel="Continue"
-      >
-        <div className="grid gap-3">
-          {agents.map(a => (
-            <button
-              key={a.full_name}
-              onClick={() => setSelAgent(a.full_name)}
-              className={cn(
-                "flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left w-full",
-                selAgent === a.full_name
-                  ? "border-primary bg-primary/5 shadow-sm"
-                  : "border-border hover:border-muted-foreground/40 hover:bg-muted/30",
+        {/* ── Top bar ── */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/admin/email-builder-hub")}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-sm">
+              <Sparkles className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold leading-none">AI Email Builder</h1>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Prompt → Generate → Copy HTML</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Version tabs */}
+            {aiResult && (
+              <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
+                <button onClick={() => handleVersionSwitch("A")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "A" ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver A</button>
+                {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
+                  <button onClick={() => handleVersionSwitch("B")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "B" ? "bg-amber-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver B</button>
+                )}
+              </div>
+            )}
+            <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={handleSave} disabled={saving}>
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
+            </Button>
+            <Button size="sm"
+              className={cn("h-9 gap-1.5 font-semibold transition-all duration-200", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
+              onClick={handleCopy}>
+              {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied!</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML</>}
+            </Button>
+          </div>
+        </div>
+
+        {/* ── Inbox preview bar ── */}
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b border-border">
+            <div className="flex items-center gap-1 shrink-0">
+              <div className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+              <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+              <div className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
+            </div>
+            <Separator orientation="vertical" className="h-4 mx-1" />
+            <div className="flex items-center gap-1 flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 shrink-0 bg-muted/50 rounded px-2 py-0.5">
+                <div className="w-3 h-3 rounded-full bg-primary/40 shrink-0" />
+                <span className="text-[10px] font-medium text-foreground">PresaleProperties</span>
+              </div>
+              <span className="text-muted-foreground/40 shrink-0 text-xs">›</span>
+              <span className={cn("text-xs truncate flex-1 min-w-0", subjectLine ? "font-medium text-foreground" : "italic text-muted-foreground")}>
+                {subjectLine || "Your subject line will appear here…"}
+              </span>
+              {previewText && (
+                <span className="text-muted-foreground text-[11px] truncate hidden lg:block shrink-0 max-w-[240px]">— {previewText}</span>
               )}
-            >
-              {a.photo_url
-                ? <img src={a.photo_url} alt={a.full_name} className="w-11 h-11 rounded-full object-cover object-top flex-shrink-0" style={{ border: "2px solid #C9A55A" }} />
-                : <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary flex-shrink-0">{a.full_name.charAt(0)}</div>
-              }
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold">{a.full_name}</p>
-                <p className="text-xs text-muted-foreground">{a.title}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{a.phone}</p>
-              </div>
-              {selAgent === a.full_name && <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />}
-            </button>
-          ))}
-          {agents.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Loading agents…</p>}
+            </div>
+            <Badge variant="outline" className="shrink-0 text-[9px] py-0 h-4 px-1.5 text-muted-foreground/60">Gmail</Badge>
+          </div>
         </div>
-      </StepPanel>
-    ),
 
-    // ── STEP 1: Brief ────────────────────────────────────────────────────────
-    brief: (
-      <StepPanel
-        title="Describe this email"
-        subtitle="Give the AI context about the project, pricing, completion, and any special offers."
-        onNext={handleGenerate}
-        nextLabel={aiLoading ? "Generating…" : aiResult ? "Regenerate" : "Generate Email"}
-        nextIcon={aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-        onBack={back}
-        nextDisabled={!prompt.trim() || aiLoading}
-        nextHighlight
-      >
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Your brief</Label>
-            <Textarea
-              value={prompt}
-              onChange={e => setPrompt(e.target.value)}
-              placeholder="e.g. New presale in Surrey — 1 & 2 beds from $649K, 2027 completion, PTT exempt. Extended deposit. Highlight the location near King George SkyTrain."
-              className="min-h-[120px] text-sm resize-none"
-              disabled={aiLoading}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Email style</Label>
-              <Select value={templateType} onValueChange={setTemplateType} disabled={aiLoading}>
-                <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="main-project-email">Main Project Introduction</SelectItem>
-                  <SelectItem value="exclusive-offer">Exclusive / VIP Offer</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Link project <span className="text-muted-foreground font-normal">(optional)</span></Label>
-              <Select value={selectedProjectId} onValueChange={handleProjectSelect} disabled={aiLoading}>
-                <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select a project…" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No project</SelectItem>
-                  {projects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+        {/* ── Main 2-panel layout ── */}
+        <div className="grid grid-cols-[1fr_360px] gap-3 h-[calc(100vh-220px)] min-h-[600px]">
 
-          {aiResult && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 dark:border-emerald-800 p-4">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Email generated</p>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-500 mt-0.5">Two versions ready — switch between them in the toolbar.</p>
-                  <div className="flex gap-2 mt-2">
-                    <button onClick={() => handleVersionSwitch("A")} className={cn("px-3 py-1 text-xs font-semibold rounded-full border transition-all", activeVersion === "A" ? "bg-emerald-600 text-white border-emerald-600" : "border-emerald-300 text-emerald-600 hover:bg-emerald-50")}>Version A — Detailed</button>
-                    {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
-                      <button onClick={() => handleVersionSwitch("B")} className={cn("px-3 py-1 text-xs font-semibold rounded-full border transition-all", activeVersion === "B" ? "bg-amber-500 text-white border-amber-500" : "border-amber-300 text-amber-600 hover:bg-amber-50")}>Version B — Punchy</button>
-                    )}
-                  </div>
+          {/* ── LEFT: Email preview ── */}
+          <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+            {/* Preview toolbar */}
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/10 shrink-0">
+              <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
+                <Button variant="ghost" size="sm"
+                  className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "preview" && "bg-card shadow-sm text-foreground")}
+                  onClick={() => setPreviewMode("preview")}>
+                  <Eye className="h-3 w-3" /> Preview
+                </Button>
+                <Button variant="ghost" size="sm"
+                  className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "code" && "bg-card shadow-sm text-foreground")}
+                  onClick={() => setPreviewMode("code")}>
+                  <Code2 className="h-3 w-3" /> HTML
+                </Button>
+              </div>
+
+              {previewMode === "preview" && (
+                <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
+                  <Button variant="ghost" size="sm"
+                    className={cn("h-6 w-7 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm text-foreground")}
+                    onClick={() => setPreviewDevice("desktop")}><Monitor className="h-3 w-3" /></Button>
+                  <Button variant="ghost" size="sm"
+                    className={cn("h-6 w-7 p-0 rounded-md transition-all", previewDevice === "mobile" && "bg-card shadow-sm text-foreground")}
+                    onClick={() => setPreviewDevice("mobile")}><Smartphone className="h-3 w-3" /></Button>
                 </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </StepPanel>
-    ),
+              )}
 
-    // ── STEP 2: Copy ────────────────────────────────────────────────────────
-    copy: (
-      <StepPanel
-        title="Review & refine copy"
-        subtitle="Edit the AI-generated copy. Every field maps directly to the email."
-        onNext={next} onBack={back} nextLabel="Looks good"
-      >
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Subject line</Label>
-            <Input value={subjectLine} onChange={e => setSubjectLine(e.target.value)} className="h-9 text-sm" placeholder="🏙️ Exclusive Access: Lumina — Surrey Presale" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Preview text <span className="text-xs text-muted-foreground font-normal">(shown in inbox)</span></Label>
-            <Input value={previewText} onChange={e => setPreviewText(e.target.value)} className="h-9 text-sm" placeholder="From $649K · limited units" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Headline</Label>
-            <Input value={headline} onChange={e => setHeadline(e.target.value)} className="h-9 text-sm" placeholder="Introducing Lumina — Surrey's Next Landmark" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Body copy <span className="text-xs text-muted-foreground font-normal">(each line = paragraph)</span></Label>
-            <Textarea value={bodyCopy} onChange={e => setBodyCopy(e.target.value)} className="min-h-[140px] text-sm resize-none" placeholder="Write conversational copy here…" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Incentives <span className="text-xs text-muted-foreground font-normal">(one per line, optional)</span></Label>
-            <Textarea value={incentiveText} onChange={e => setIncentiveText(e.target.value)} className="min-h-[80px] text-sm resize-none" placeholder={"✦ Extended deposit: 5% now, 5% in 180 days\n✦ Free parking · $35,000 value"} />
-          </div>
-        </div>
-      </StepPanel>
-    ),
-
-    // ── STEP 3: Details ──────────────────────────────────────────────────────
-    details: (
-      <StepPanel
-        title="Project details"
-        subtitle="These populate the pricing stats bar and location banner in the email."
-        onNext={next} onBack={back} nextLabel="Continue"
-      >
-        <div className="space-y-4">
-          {/* Project name */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Project name</Label>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{showProjectName ? "Visible in email" : "Hidden"}</span>
-                <Switch checked={showProjectName} onCheckedChange={setShowProjectName} />
+                <span className="text-[10px] text-muted-foreground/50 hidden lg:block">
+                  {previewMode === "code" ? `${Math.round(finalHtml.length / 1024)}KB` : previewDevice === "desktop" ? "600px" : "375px"}
+                </span>
+                {previewMode === "code" && (
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px] gap-1" onClick={handleCopy}>
+                    <Copy className="h-3 w-3" /> {copied ? "Copied!" : "Copy"}
+                  </Button>
+                )}
               </div>
             </div>
-            <Input value={projectName} onChange={e => setProjectName(e.target.value)} className={cn("h-9 text-sm", !showProjectName && "opacity-40")} placeholder="Lumina" />
-          </div>
-          {!showProjectName && (
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Custom header <span className="text-xs text-muted-foreground font-normal">(replaces project name)</span></Label>
-              <Input value={customHeader} onChange={e => setCustomHeader(e.target.value)} className="h-9 text-sm" placeholder="New Presale Release" />
-            </div>
-          )}
-          {/* Developer */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Developer</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{showDeveloperName ? "Visible" : "Hidden"}</span>
-                <Switch checked={showDeveloperName} onCheckedChange={setShowDeveloperName} />
-              </div>
-            </div>
-            <Input value={developerName} onChange={e => setDevName(e.target.value)} className={cn("h-9 text-sm", !showDeveloperName && "opacity-40")} placeholder="Bosa Properties" />
-          </div>
-          {/* Grid fields */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium">City</Label>
-              <Input value={city} onChange={e => setCity(e.target.value)} className="h-9 text-sm" placeholder="Surrey" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Neighbourhood</Label>
-              <Input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} className="h-9 text-sm" placeholder="Fleetwood" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Starting price</Label>
-              <Input value={startingPrice} onChange={e => setStartingPrice(e.target.value)} className="h-9 text-sm" placeholder="$649K" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Deposit</Label>
-              <Input value={deposit} onChange={e => setDeposit(e.target.value)} className="h-9 text-sm" placeholder="5%" />
-            </div>
-            <div className="space-y-1.5 col-span-2">
-              <Label className="text-sm font-medium">Completion</Label>
-              <Input value={completion} onChange={e => setCompletion(e.target.value)} className="h-9 text-sm" placeholder="2027" />
-            </div>
-          </div>
-        </div>
-      </StepPanel>
-    ),
 
-    // ── STEP 4: Media ────────────────────────────────────────────────────────
-    media: (
-      <StepPanel
-        title="Add images"
-        subtitle="A hero image and floor plans make the email far more engaging."
-        onNext={next} onBack={back} nextLabel="Continue"
-      >
-        <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
-        <input ref={fpInputRef}   type="file" accept="image/*" multiple className="hidden" onChange={handleFpUpload} />
-
-        <div className="space-y-6">
-          {/* Hero */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium flex items-center gap-1.5"><Image className="h-3.5 w-3.5 text-muted-foreground" /> Hero image</Label>
-            {heroImage ? (
-              <div className="relative rounded-xl overflow-hidden border border-border">
-                <img src={heroImage} alt="Hero" className="w-full h-36 object-cover" onError={() => setHeroImage("")} />
-                <button onClick={() => setHeroImage("")} className="absolute top-2 right-2 h-6 w-6 bg-destructive/90 hover:bg-destructive rounded-full flex items-center justify-center shadow">
-                  <X className="h-3.5 w-3.5 text-white" />
-                </button>
+            {previewMode === "preview" ? (
+              <div className={cn("flex-1 overflow-auto", previewDevice === "mobile" ? "bg-[#e8e5e0] flex justify-center" : "bg-[#e8e5e0]")}>
+                <iframe
+                  ref={iframeRef}
+                  srcDoc={finalHtml}
+                  className="border-0 h-full"
+                  style={previewDevice === "mobile" ? { width: "375px", minHeight: "100%" } : { width: "100%" }}
+                  sandbox="allow-same-origin"
+                  title="Email Preview"
+                />
               </div>
             ) : (
-              <button onClick={() => heroInputRef.current?.click()} disabled={heroUploading}
-                className="w-full h-24 rounded-xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all flex flex-col items-center justify-center gap-1.5 text-muted-foreground">
-                {heroUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-                <span className="text-xs font-medium">{heroUploading ? "Uploading…" : "Upload hero image"}</span>
-              </button>
+              <div className="flex-1 overflow-auto" style={{ background: "#0d1117" }}>
+                <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5" style={{ background: "#161b22" }}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-emerald-400">email.html</span>
+                    <Badge className="text-[9px] h-4 px-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Mailchimp-ready</Badge>
+                  </div>
+                  <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars</span>
+                </div>
+                <pre className="p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed" style={{ color: "#e6edf3" }}>{finalHtml}</pre>
+              </div>
             )}
-            {/* Project image picker */}
-            {projects.filter(p => p.featured_image).length > 0 && !heroImage && (
-              <div className="space-y-1.5">
-                <p className="text-xs text-muted-foreground">Or pick from your projects:</p>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {projects.filter(p => p.featured_image).slice(0, 8).map(p => (
-                    <button key={p.id} onClick={() => setHeroImage(p.featured_image!)}
-                      className="relative rounded-lg overflow-hidden border-2 border-transparent hover:border-primary/50 aspect-video transition-all">
-                      <img src={p.featured_image!} alt={p.name} className="w-full h-full object-cover" />
+          </div>
+
+          {/* ── RIGHT: Editor panel ── */}
+          <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+            {/* Panel header */}
+            <div className="px-4 pt-3 pb-2.5 border-b border-border bg-gradient-to-r from-primary/5 to-transparent shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 rounded bg-primary/10 flex items-center justify-center">
+                  <Sparkles className="h-3 w-3 text-primary" />
+                </div>
+                <span className="text-sm font-semibold text-foreground">Build Your Email</span>
+                {projectName && (
+                  <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/20 text-primary/70 font-normal">{projectName}</Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+
+              {/* ── STEP 1: AI BRIEF ── */}
+              <StepSection
+                step={1} title="AI Brief" icon={<Wand2 className="h-3.5 w-3.5" />}
+                done={!!aiResult} doneLabel={aiResult ? "Generated" : undefined}
+                defaultOpen={!aiResult}
+              >
+                <Textarea
+                  value={prompt}
+                  onChange={e => setPrompt(e.target.value)}
+                  placeholder="Describe this email: project, city, price, completion date, incentives, tone…"
+                  className="min-h-[72px] text-xs resize-none"
+                  disabled={aiLoading}
+                />
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground">Style</Label>
+                    <Select value={templateType} onValueChange={setTemplateType} disabled={aiLoading}>
+                      <SelectTrigger className="h-7 text-[11px] mt-0.5"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="main-project-email">Main Project</SelectItem>
+                        <SelectItem value="exclusive-offer">Exclusive Offer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground">Project <span className="text-muted-foreground/50">(opt)</span></Label>
+                    <Select value={selProjectId} onValueChange={handleProjectSelect} disabled={aiLoading}>
+                      <SelectTrigger className="h-7 text-[11px] mt-0.5"><SelectValue placeholder="Select…" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        {projects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {aiResult && (
+                  <div className="flex gap-1.5">
+                    <button onClick={() => handleVersionSwitch("A")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "A" ? "bg-emerald-600 text-white border-emerald-600" : "border-border text-muted-foreground hover:border-primary/30")}>Version A</button>
+                    {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
+                      <button onClick={() => handleVersionSwitch("B")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "B" ? "bg-amber-500 text-white border-amber-500" : "border-border text-muted-foreground hover:border-amber-300")}>Version B</button>
+                    )}
+                  </div>
+                )}
+                <Button className="w-full h-8 gap-1.5 text-xs font-semibold"
+                  style={{ background: aiLoading ? undefined : "linear-gradient(135deg,#7c3aed,#5b21b6)", color: "white" }}
+                  onClick={handleGenerate} disabled={aiLoading || !prompt.trim()}>
+                  {aiLoading ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Writing…</> : <><Wand2 className="h-3.5 w-3.5" />{aiResult ? "Regenerate" : "Generate Email"}</>}
+                </Button>
+              </StepSection>
+
+              {/* ── STEP 2: AGENT ── */}
+              <StepSection
+                step={2} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
+                done={!!selAgent && selAgent !== "default"}
+                doneLabel={selectedAgent.full_name}
+                defaultOpen={false}
+              >
+                <div className="flex gap-1.5 flex-wrap">
+                  {agents.map(a => (
+                    <button key={a.full_name} onClick={() => setSelAgent(a.full_name)}
+                      className={cn(
+                        "flex items-center gap-2 px-2 py-1.5 rounded-lg border text-left transition-all flex-1 min-w-[110px]",
+                        selAgent === a.full_name ? "border-primary bg-primary/8 shadow-sm" : "border-border bg-muted/20 hover:border-primary/40"
+                      )}>
+                      {a.photo_url
+                        ? <img src={a.photo_url} alt={a.full_name} className="w-8 h-8 rounded-full object-cover object-top border border-border shrink-0" />
+                        : <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">{a.full_name.charAt(0)}</div>
+                      }
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[11px] font-semibold truncate">{a.full_name}</div>
+                        <div className="text-[9px] text-muted-foreground">{a.title.split(" ").slice(0, 2).join(" ")}</div>
+                      </div>
+                      {selAgent === a.full_name && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
                     </button>
                   ))}
                 </div>
-              </div>
-            )}
-            {/* Manual URL */}
-            <div className="flex gap-2 items-center">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-[10px] text-muted-foreground">or enter URL</span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
-            <Input value={heroImage} onChange={e => setHeroImage(e.target.value)} className="h-9 text-sm" placeholder="https://…" />
-          </div>
+              </StepSection>
 
-          {/* Floor plans */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium flex items-center gap-1.5"><LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" /> Floor plans <span className="text-xs text-muted-foreground font-normal">(up to 2)</span></Label>
-            {floorPlans.length < 2 && (
-              <button onClick={() => fpInputRef.current?.click()} disabled={fpUploading}
-                className="w-full h-20 rounded-xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all flex flex-col items-center justify-center gap-1.5 text-muted-foreground">
-                {fpUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-                <span className="text-xs font-medium">{fpUploading ? "Uploading…" : `Upload floor plan${floorPlans.length === 1 ? " (1 more allowed)" : "s"}`}</span>
-              </button>
-            )}
-            {floorPlans.map(fp => (
-              <div key={fp.id} className="border border-border rounded-xl overflow-hidden bg-muted/20">
-                <div className="relative">
-                  <img src={fp.url} alt="Floor plan" className="w-full h-32 object-contain bg-white" />
-                  <button onClick={() => removeFp(fp.id)} className="absolute top-2 right-2 h-6 w-6 bg-destructive/90 hover:bg-destructive rounded-full flex items-center justify-center shadow">
-                    <X className="h-3.5 w-3.5 text-white" />
-                  </button>
-                </div>
-                <div className="p-2.5 grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs">Label</Label>
-                    <Input value={fp.label} onChange={e => updateFp(fp.id, "label", e.target.value)} className="h-8 text-xs" placeholder="1 Bed + Den" />
+              {/* ── STEP 3: PROJECT DETAILS ── */}
+              <StepSection
+                step={3} title="Project Details" icon={<Building2 className="h-3.5 w-3.5" />}
+                done={!!projectName} doneLabel={projectName}
+                defaultOpen={false}
+              >
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <Label className="text-[10px] text-muted-foreground">Project Name</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-muted-foreground">{showProjectName ? "Visible" : "Hidden"}</span>
+                        <Switch checked={showProjectName} onCheckedChange={setShowProjectName} className="scale-75 origin-right" />
+                      </div>
+                    </div>
+                    <Input value={projectName} onChange={e => setProjectName(e.target.value)} className={cn("h-7 text-xs", !showProjectName && "opacity-40")} placeholder="Lumina" />
                   </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Size</Label>
-                    <Input value={fp.sqft}  onChange={e => updateFp(fp.id, "sqft",  e.target.value)} className="h-8 text-xs" placeholder="678 sq ft" />
+                  {!showProjectName && (
+                    <div className="col-span-2">
+                      <Label className="text-[10px] text-muted-foreground">Custom Header</Label>
+                      <Input value={customHeader} onChange={e => setCustomHeader(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="New Presale Release" />
+                    </div>
+                  )}
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <Label className="text-[10px] text-muted-foreground">Developer</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-muted-foreground">{showDeveloperName ? "Visible" : "Hidden"}</span>
+                        <Switch checked={showDeveloperName} onCheckedChange={setShowDeveloperName} className="scale-75 origin-right" />
+                      </div>
+                    </div>
+                    <Input value={developerName} onChange={e => setDevName(e.target.value)} className={cn("h-7 text-xs", !showDeveloperName && "opacity-40")} placeholder="Bosa Properties" />
+                  </div>
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground">City</Label>
+                    <Input value={city} onChange={e => setCity(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="Surrey" />
+                  </div>
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground">Neighbourhood</Label>
+                    <Input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="Fleetwood" />
                   </div>
                 </div>
-              </div>
-            ))}
-            {floorPlans.length > 0 && (
-              <div className="space-y-2 pt-1">
-                <div className="space-y-1">
-                  <Label className="text-xs">Section heading</Label>
-                  <Input value={fpHeading}    onChange={e => setFpHeading(e.target.value)}    className="h-8 text-sm" />
+                <div className="grid grid-cols-3 gap-1.5 mt-1">
+                  {([
+                    { val: startingPrice, set: setStartingPrice, label: "From Price", hint: "+ GST",     ph: "$649K"       },
+                    { val: deposit,       set: setDeposit,       label: "Deposit",    hint: "to secure",  ph: "5% signing"  },
+                    { val: completion,    set: setCompletion,    label: "Completion", hint: "est. date",  ph: "2027"        },
+                  ]).map(({ val, set, label, hint, ph }) => (
+                    <div key={label} className={cn("rounded-lg border p-2 transition-all", val ? "border-primary/40 bg-primary/5" : "border-border bg-muted/10")}>
+                      <Label className="text-[9px] text-muted-foreground uppercase tracking-wide block mb-1">{label}</Label>
+                      <Input value={val} onChange={e => set(e.target.value)} className="h-6 text-xs border-0 bg-transparent p-0 focus-visible:ring-0 font-semibold" placeholder={ph} />
+                      <p className="text-[9px] text-muted-foreground/40 mt-0.5">{hint}</p>
+                    </div>
+                  ))}
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Sub-heading</Label>
-                  <Input value={fpSubheading} onChange={e => setFpSubheading(e.target.value)} className="h-8 text-sm" />
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </StepPanel>
-    ),
+              </StepSection>
 
-    // ── STEP 5: Assets ───────────────────────────────────────────────────────
-    assets: (
-      <StepPanel
-        title="Link campaign assets"
-        subtitle='Connect a saved campaign to power the "VIEW PLANS & PRICING" CTA button.'
-        onNext={next} onBack={back} nextLabel="Continue"
-      >
-        {campaignAssets.length === 0 ? (
-          <div className="rounded-xl border border-border bg-muted/30 p-6 text-center space-y-2">
-            <Link2 className="h-8 w-8 text-muted-foreground mx-auto" />
-            <p className="text-sm font-medium text-muted-foreground">No campaign assets yet</p>
-            <p className="text-xs text-muted-foreground">Save a campaign in the Campaign Builder with a brochure or pricing sheet URL — it will appear here.</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <Select value={selectedAssetId} onValueChange={setSelectedAssetId}>
-              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select a campaign…" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None — use default link</SelectItem>
-                {campaignAssets.map(a => (
-                  <SelectItem key={a.id} value={a.id}>{a.name} — {a.project_name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedAsset && (
-              <div className="rounded-xl border border-border bg-muted/20 overflow-hidden">
-                {selectedAsset.thumbnail_url && (
-                  <img src={selectedAsset.thumbnail_url} alt={selectedAsset.name} className="w-full h-28 object-cover" />
+              {/* ── STEP 4: EMAIL COPY ── */}
+              <StepSection
+                step={4} title="Email Copy" icon={<FileText className="h-3.5 w-3.5" />}
+                done={!!headline} doneLabel={headline ? `"${headline.slice(0, 28)}…"` : undefined}
+                defaultOpen={false}
+              >
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Subject Line <span className="text-muted-foreground/50 font-normal">· shown in inbox</span></Label>
+                  <Input value={subjectLine} onChange={e => setSubjectLine(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="🏙️ Exclusive Access: Lumina" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Preview Text <span className="text-muted-foreground/50 font-normal">· shown after subject</span></Label>
+                  <Input value={previewText} onChange={e => setPreviewText(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="From $649K · limited units" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Headline</Label>
+                  <Input value={headline} onChange={e => setHeadline(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="Introducing Lumina" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Body Copy <span className="text-muted-foreground/40">— each line = paragraph</span></Label>
+                  <Textarea value={bodyCopy} onChange={e => setBodyCopy(e.target.value)} className="text-xs mt-0.5 min-h-[90px] resize-none leading-relaxed" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Incentives <span className="text-muted-foreground/40">— one per line, gold bullets</span></Label>
+                  <Textarea value={incentiveText} onChange={e => setIncentiveText(e.target.value)} className="text-xs mt-0.5 min-h-[60px] resize-none leading-relaxed" placeholder={"✦ Extended deposit: 5% now, 5% in 180 days\n✦ Free parking · $35,000 value"} />
+                </div>
+              </StepSection>
+
+              {/* ── STEP 5: IMAGES ── */}
+              <StepSection
+                step={5} title="Images" icon={<Image className="h-3.5 w-3.5" />}
+                done={!!(heroImage || floorPlans.length)} doneLabel={[heroImage && "Hero", floorPlans.length && `${floorPlans.length} FP`].filter(Boolean).join(" · ")}
+                defaultOpen={false}
+              >
+                <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
+                <input ref={fpInputRef}   type="file" accept="image/*" multiple className="hidden" onChange={handleFpUpload} />
+
+                {/* Hero */}
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Hero Image URL</Label>
+                  <div className="flex gap-1.5 mt-0.5">
+                    <Input value={heroImage} onChange={e => setHeroImage(e.target.value)} className="h-7 text-xs flex-1" placeholder="https://… or upload" />
+                    <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => heroInputRef.current?.click()} disabled={heroUploading}>
+                      {heroUploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                    </Button>
+                  </div>
+                </div>
+                {heroImage && (
+                  <div className="relative rounded overflow-hidden border border-border">
+                    <img src={heroImage} alt="Hero" className="w-full h-20 object-cover" onError={() => setHeroImage("")} />
+                    <button onClick={() => setHeroImage("")} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
+                      <X className="h-3 w-3 text-white" />
+                    </button>
+                  </div>
                 )}
-                <div className="p-3 space-y-2">
-                  <p className="text-sm font-semibold">{selectedAsset.name}</p>
-                  <p className="text-xs text-muted-foreground">{selectedAsset.project_name}</p>
-                  {selectedAsset.brochure_url && (
-                    <div className="flex items-center gap-2 text-xs text-emerald-600">
-                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                      Brochure URL linked to CTA button
+                {projects.filter(p => p.featured_image).length > 0 && (
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-1">Pick from projects:</p>
+                    <div className="grid grid-cols-3 gap-1">
+                      {projects.filter(p => p.featured_image).slice(0, 6).map(p => (
+                        <button key={p.id} onClick={() => setHeroImage(p.featured_image!)}
+                          className={cn("relative rounded overflow-hidden border-2 aspect-video transition-all", heroImage === p.featured_image ? "border-primary" : "border-transparent hover:border-muted-foreground/40")}>
+                          <img src={p.featured_image!} alt={p.name} className="w-full h-full object-cover" />
+                          {heroImage === p.featured_image && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-white" /></div>}
+                        </button>
+                      ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Floor plans */}
+                <div className="pt-1">
+                  <Label className="text-[10px] text-muted-foreground">Floor Plans <span className="text-muted-foreground/50">(up to 2)</span></Label>
+                  {floorPlans.length < 2 && (
+                    <button onClick={() => fpInputRef.current?.click()} disabled={fpUploading}
+                      className="w-full mt-1 flex items-center justify-center gap-1.5 h-14 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-muted-foreground text-xs font-medium">
+                      {fpUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {fpUploading ? "Uploading…" : `Upload floor plan${floorPlans.length === 1 ? " (1 more)" : "s"}`}
+                    </button>
                   )}
-                  {selectedAsset.pricing_sheet_url && (
-                    <div className="flex items-center gap-2 text-xs text-amber-600">
-                      <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                      Pricing sheet URL linked to CTA button
+                  {floorPlans.map(fp => (
+                    <div key={fp.id} className="mt-1.5 border border-border rounded-lg overflow-hidden bg-muted/20">
+                      <div className="relative">
+                        <img src={fp.url} alt="Floor plan" className="w-full h-24 object-contain bg-white" />
+                        <button onClick={() => removeFp(fp.id)} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
+                          <X className="h-3 w-3 text-white" />
+                        </button>
+                      </div>
+                      <div className="p-2 grid grid-cols-2 gap-1.5">
+                        <div>
+                          <Label className="text-[9px]">Label</Label>
+                          <Input value={fp.label} onChange={e => updateFp(fp.id, "label", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="1 Bed + Den" />
+                        </div>
+                        <div>
+                          <Label className="text-[9px]">Size</Label>
+                          <Input value={fp.sqft} onChange={e => updateFp(fp.id, "sqft", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="678 sq ft" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {floorPlans.length > 0 && (
+                    <div className="mt-2 space-y-1.5">
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Section Heading</Label>
+                        <Input value={fpHeading} onChange={e => setFpHeading(e.target.value)} className="h-7 text-xs mt-0.5" />
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Sub-heading</Label>
+                        <Input value={fpSubheading} onChange={e => setFpSubheading(e.target.value)} className="h-7 text-xs mt-0.5" />
+                      </div>
                     </div>
                   )}
                 </div>
-              </div>
-            )}
-          </div>
-        )}
-      </StepPanel>
-    ),
+              </StepSection>
 
-    // ── STEP 6: Preview ──────────────────────────────────────────────────────
-    preview: (
-      <div className="flex flex-col h-full min-h-0">
-        {/* Toolbar */}
-        <div className="flex-shrink-0 flex items-center justify-between px-5 py-2.5 border-b border-border bg-muted/20">
-          <div className="flex items-center gap-1 bg-background border border-border rounded-lg p-0.5">
-            <button onClick={() => setPreviewTab("preview")} className={cn("px-2.5 py-1 text-xs font-medium rounded transition-all flex items-center gap-1", previewTab === "preview" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}>
-              <Eye className="h-3 w-3" /> Preview
-            </button>
-            <button onClick={() => setPreviewTab("code")} className={cn("px-2.5 py-1 text-xs font-medium rounded transition-all flex items-center gap-1", previewTab === "code" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}>
-              <Code2 className="h-3 w-3" /> HTML
-            </button>
-          </div>
-          {subjectLine && <span className="hidden md:block text-[11px] text-muted-foreground truncate max-w-sm mx-4"><span className="font-semibold text-foreground">Subject:</span> {subjectLine}</span>}
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={back}>
-              <ArrowLeft className="h-3.5 w-3.5" /> Back
-            </Button>
-            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
-            </Button>
-            <Button size="sm" className="h-8 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleCopyHtml}>
-              {copied ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? "Copied!" : "Copy HTML"}
-            </Button>
-          </div>
-        </div>
-        {/* Preview / Code */}
-        {previewTab === "preview" ? (
-          <div className="flex-1 overflow-y-auto bg-[#f0ede8]" style={{ minHeight: 0 }}>
-            <div style={{ width: "100%", minHeight: "100%", display: "flex", justifyContent: "center", padding: "24px 0 48px" }}>
-              <iframe key={previewHtml.slice(0, 100)} srcDoc={previewHtml} sandbox="allow-same-origin"
-                style={{ border: "none", width: 600, minHeight: 900, flexShrink: 0, background: "#fff" }} />
+              {/* ── STEP 6: CAMPAIGN ASSETS ── */}
+              <StepSection
+                step={6} title="Campaign Assets" icon={<Link2 className="h-3.5 w-3.5" />}
+                done={!!selectedAsset} doneLabel={selectedAsset?.name}
+                defaultOpen={false}
+              >
+                {campaignAssets.length === 0 ? (
+                  <p className="text-[10px] text-muted-foreground leading-relaxed">
+                    No assets found. Save a campaign in the <strong>Campaign Builder</strong> with a brochure or pricing sheet URL to link it here.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-[10px] text-muted-foreground">Links its brochure/pricing sheet to the <span className="font-semibold text-foreground">VIEW PLANS & PRICING</span> button.</p>
+                    <Select value={selectedAssetId} onValueChange={setSelectedAssetId}>
+                      <SelectTrigger className="h-7 text-[11px]"><SelectValue placeholder="Select campaign…" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None (default link)</SelectItem>
+                        {campaignAssets.map(a => (
+                          <SelectItem key={a.id} value={a.id}>{a.name} — {a.project_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedAsset && (
+                      <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1.5">
+                        {selectedAsset.thumbnail_url && <img src={selectedAsset.thumbnail_url} alt={selectedAsset.name} className="w-full h-16 object-cover rounded" />}
+                        <p className="text-[11px] font-semibold truncate">{selectedAsset.name}</p>
+                        {selectedAsset.brochure_url && <div className="flex items-center gap-1.5 text-[10px] text-emerald-600"><div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Brochure linked</div>}
+                        {selectedAsset.pricing_sheet_url && <div className="flex items-center gap-1.5 text-[10px] text-amber-600"><div className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Pricing sheet linked</div>}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </StepSection>
+
+              <div className="h-4" />
+            </div>
+
+            {/* Bottom action bar */}
+            <div className="px-3 pb-3 pt-2.5 border-t border-border shrink-0 bg-muted/5">
+              <Button
+                className={cn("w-full h-9 gap-2 font-semibold text-sm transition-all duration-200",
+                  copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"
+                )}
+                onClick={handleCopy}
+              >
+                {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Mailchimp</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML</>}
+              </Button>
+              <p className="text-[9px] text-muted-foreground/40 text-center mt-1.5 uppercase tracking-wide">Inline CSS · Mailchimp-ready</p>
             </div>
           </div>
-        ) : (
-          <div className="flex-1 overflow-auto bg-muted/30" style={{ minHeight: 0 }}>
-            <pre className="p-5 text-[10px] leading-relaxed font-mono text-muted-foreground whitespace-pre-wrap break-all">{previewHtml}</pre>
-          </div>
-        )}
-      </div>
-    ),
-  };
 
-  const currentStepId = STEPS[currentStep].id;
-
-  return (
-    <AdminLayout>
-      <div className="flex flex-col h-full bg-background">
-
-        {/* ── Top bar ── */}
-        <div className="flex-shrink-0 border-b border-border bg-card px-4 py-2.5 flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => navigate("/admin/email-builder-hub")}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="h-7 w-7 rounded-md bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-sm flex-shrink-0">
-            <Sparkles className="h-3.5 w-3.5 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-sm font-bold leading-none">AI Email Builder</h1>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Step-by-step email generation</p>
-          </div>
-
-          {/* Version tabs (shown when AI result exists) */}
-          {aiResult && currentStepId !== "preview" && (
-            <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
-              <button onClick={() => handleVersionSwitch("A")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "A" ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver A</button>
-              {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
-                <button onClick={() => handleVersionSwitch("B")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "B" ? "bg-amber-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver B</button>
-              )}
-            </div>
-          )}
-
-          {currentStepId !== "preview" && (
-            <Button size="sm" className="h-7 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => { setCompleted(prev => new Set([...prev, ...STEPS.map((_, i) => i)])); setCurrentStep(STEPS.length - 1); }} disabled={!headline && !subjectLine}>
-              <Eye className="h-3 w-3" /> Preview
-            </Button>
-          )}
-        </div>
-
-        {/* ── Step bar ── */}
-        <div className="flex-shrink-0 border-b border-border bg-card px-4">
-          <StepBar current={currentStep} onGoto={goTo} completed={completed} />
-        </div>
-
-        {/* ── Step content ── */}
-        <div className="flex-1 min-h-0 overflow-hidden">
-          {currentStepId === "preview"
-            ? <div className="h-full flex flex-col">{stepContent.preview}</div>
-            : (
-              <div className="h-full overflow-y-auto">
-                <div className="max-w-xl mx-auto px-6 py-8">
-                  {stepContent[currentStepId]}
-                </div>
-              </div>
-            )
-          }
         </div>
       </div>
     </AdminLayout>
-  );
-}
-
-// ─── Reusable step panel wrapper ─────────────────────────────────────────────
-function StepPanel({
-  title, subtitle, children, onNext, onBack, nextLabel = "Continue",
-  nextIcon, nextDisabled = false, nextHighlight = false,
-}: {
-  title: string; subtitle?: string; children: React.ReactNode;
-  onNext?: () => void; onBack?: () => void;
-  nextLabel?: string; nextIcon?: React.ReactNode;
-  nextDisabled?: boolean; nextHighlight?: boolean;
-}) {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold tracking-tight">{title}</h2>
-        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
-      </div>
-      <div>{children}</div>
-      <div className="flex items-center justify-between pt-2">
-        {onBack
-          ? <Button variant="outline" onClick={onBack} className="gap-1.5"><ArrowLeft className="h-3.5 w-3.5" /> Back</Button>
-          : <div />
-        }
-        {onNext && (
-          <Button
-            onClick={onNext}
-            disabled={nextDisabled}
-            className={cn("gap-1.5 min-w-[120px]", nextHighlight && "bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800 text-white")}
-          >
-            {nextIcon}
-            {nextLabel}
-            {!nextIcon && <ArrowRight className="h-3.5 w-3.5" />}
-          </Button>
-        )}
-      </div>
-    </div>
   );
 }
