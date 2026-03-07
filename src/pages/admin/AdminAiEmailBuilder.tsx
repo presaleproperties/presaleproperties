@@ -14,7 +14,7 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, Download, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2, ChevronDown, ChevronUp,
-  Eye, Code2, Save, X, Upload, LayoutGrid,
+  Eye, Code2, Save, X, Upload, LayoutGrid, Link2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -41,6 +41,7 @@ const SECTIONS: SectionDef[] = [
   { id: "copy",       label: "Email Copy",      icon: FileText   },
   { id: "floorplans", label: "Floor Plans",     icon: LayoutGrid },
   { id: "hero",       label: "Hero Image",      icon: Image      },
+  { id: "assets",     label: "Campaign Assets", icon: Link2      },
 ];
 
 // ─── Accordion wrapper ────────────────────────────────────────────────────────
@@ -64,6 +65,7 @@ function Section({ def, open, onToggle, children }: {
 
 // ─── Floor plan image entry ───────────────────────────────────────────────────
 interface FloorPlanEntry { id: string; url: string; label: string; sqft: string }
+interface CampaignAsset { id: string; name: string; project_name: string; brochure_url: string | null; pricing_sheet_url: string | null; thumbnail_url: string | null; }
 
 // ─── Build email HTML (with hero + floor plans injected) ─────────────────────
 function buildFinalHtml(
@@ -73,8 +75,9 @@ function buildFinalHtml(
   floorPlans: FloorPlanEntry[],
   fpHeading: string,
   fpSubheading: string,
+  ctaUrl?: string,
 ): string {
-  const base = buildAiEmailHtml(fields, agent);
+  const base = buildAiEmailHtml(fields, agent, ctaUrl);
   const ACCENT = "#C9A55A";
   const DARK = "#0d1f18";
 
@@ -199,6 +202,12 @@ export default function AdminAiEmailBuilder() {
   const [fpSubheading, setFpSubheading] = useState("Limited units remaining — register now for priority access");
   const [fpUploading, setFpUploading] = useState(false);
 
+  // Campaign assets (from Campaign Builder)
+  const [campaignAssets, setCampaignAssets] = useState<CampaignAsset[]>([]);
+  const [selectedAssetId, setSelectedAssetId] = useState<string>("none");
+  const selectedAsset = campaignAssets.find(a => a.id === selectedAssetId) ?? null;
+  const ctaUrl = selectedAsset?.brochure_url || selectedAsset?.pricing_sheet_url || undefined;
+
   // UI
   const [previewTab, setPreviewTab]   = useState<"preview" | "code">("preview");
   const [copied, setCopied]           = useState(false);
@@ -224,6 +233,14 @@ export default function AdminAiEmailBuilder() {
           if (enriched.length > 0) setSelAgent(enriched[0].full_name);
         }
       });
+    // Load campaign assets (from Campaign Builder) that have brochure or pricing sheet URLs
+    supabase.from("campaign_templates" as any)
+      .select("id, name, project_name, brochure_url, pricing_sheet_url, thumbnail_url")
+      .order("updated_at", { ascending: false })
+      .limit(50)
+      .then(({ data }: any) => {
+        if (data) setCampaignAssets(data.filter((a: any) => a.brochure_url || a.pricing_sheet_url));
+      });
   }, []);
 
   const currentCopy = useCallback((): AiEmailCopy => ({
@@ -234,7 +251,7 @@ export default function AdminAiEmailBuilder() {
     startingPrice, deposit, completion,
   }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
 
-  const previewHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading);
+  const previewHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl);
 
   // ── AI generation ──
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
@@ -645,6 +662,52 @@ export default function AdminAiEmailBuilder() {
                         </button>
                       ))}
                     </div>
+                  </div>
+                )}
+              </Section>
+
+              {/* ── 6. Campaign Assets ── */}
+              <Section def={SECTIONS[5]} open={open.has("assets")} onToggle={() => toggle("assets")}>
+                {campaignAssets.length === 0 ? (
+                  <div className="py-2 space-y-2">
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      No campaign assets found. Save a campaign in the <strong>Campaign Builder</strong> with a brochure or pricing sheet URL — it will appear here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-[10px] text-muted-foreground">Select a campaign to link its brochure/pricing sheet to the <span className="font-semibold text-foreground">VIEW PLANS & PRICING</span> button.</p>
+                    <Select value={selectedAssetId} onValueChange={setSelectedAssetId}>
+                      <SelectTrigger className="h-7 text-[11px]"><SelectValue placeholder="Select campaign…" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None (default link)</SelectItem>
+                        {campaignAssets.map(a => (
+                          <SelectItem key={a.id} value={a.id}>{a.name} — {a.project_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {selectedAsset && (
+                      <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1.5">
+                        {selectedAsset.thumbnail_url && (
+                          <img src={selectedAsset.thumbnail_url} alt={selectedAsset.name} className="w-full h-20 object-cover rounded" />
+                        )}
+                        <p className="text-[11px] font-semibold truncate">{selectedAsset.name}</p>
+                        {selectedAsset.brochure_url && (
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                            <p className="text-[10px] text-muted-foreground truncate">Brochure linked</p>
+                          </div>
+                        )}
+                        {selectedAsset.pricing_sheet_url && (
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-1.5 w-1.5 rounded-full bg-amber-500 flex-shrink-0" />
+                            <p className="text-[10px] text-muted-foreground truncate">Pricing sheet linked</p>
+                          </div>
+                        )}
+                        <p className="text-[9px] text-primary font-medium">CTA → {ctaUrl?.slice(0, 40)}…</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </Section>

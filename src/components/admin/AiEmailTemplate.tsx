@@ -63,10 +63,11 @@ function bodyToHtml(text: string): string {
     .join("");
 }
 
-export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_AGENT): string {
+export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_AGENT, ctaUrl?: string): string {
   const ACCENT = "#C9A55A";
   const DARK = "#0d1f18";
   const incentives = parseIncentives(copy.incentiveText || "");
+  const plansPricingUrl = ctaUrl || "https://presaleproperties.com";
 
   const locationLine = [copy.neighborhood, copy.city].filter(Boolean).join(", ");
   const byLine = copy.developerName ? `by ${copy.developerName}` : "";
@@ -187,7 +188,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td style="border:1.5px solid ${ACCENT};padding:12px 36px;">
-            <a href="https://presaleproperties.com" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;">VIEW PLANS & PRICING</a>
+            <a href="${plansPricingUrl}" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;">VIEW PLANS & PRICING</a>
           </td>
         </tr>
       </table>

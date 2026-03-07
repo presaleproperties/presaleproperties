@@ -362,28 +362,34 @@ export type Database = {
       }
       campaign_templates: {
         Row: {
+          brochure_url: string | null
           created_at: string
           form_data: Json
           id: string
           name: string
+          pricing_sheet_url: string | null
           project_name: string
           thumbnail_url: string | null
           updated_at: string
         }
         Insert: {
+          brochure_url?: string | null
           created_at?: string
           form_data?: Json
           id?: string
           name: string
+          pricing_sheet_url?: string | null
           project_name?: string
           thumbnail_url?: string | null
           updated_at?: string
         }
         Update: {
+          brochure_url?: string | null
           created_at?: string
           form_data?: Json
           id?: string
           name?: string
+          pricing_sheet_url?: string | null
           project_name?: string
           thumbnail_url?: string | null
           updated_at?: string

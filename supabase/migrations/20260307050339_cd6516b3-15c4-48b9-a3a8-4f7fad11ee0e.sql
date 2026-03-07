@@ -1,0 +1,1 @@
+ALTER TABLE public.campaign_templates ADD COLUMN IF NOT EXISTS brochure_url TEXT, ADD COLUMN IF NOT EXISTS pricing_sheet_url TEXT;
