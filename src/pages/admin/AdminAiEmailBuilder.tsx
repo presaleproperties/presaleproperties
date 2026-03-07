@@ -177,6 +177,7 @@ export default function AdminAiEmailBuilder() {
   const [developerName, setDevName]   = useState("");
   const [showProjectName, setShowProjectName] = useState(true);
   const [showDeveloperName, setShowDeveloperName] = useState(true);
+  const [customHeader, setCustomHeader] = useState("");
   const [city, setCity]               = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [startingPrice, setStartingPrice] = useState("");
@@ -227,11 +228,11 @@ export default function AdminAiEmailBuilder() {
 
   const currentCopy = useCallback((): AiEmailCopy => ({
     subjectLine, previewText, headline, bodyCopy, incentiveText,
-    projectName: showProjectName ? projectName : "",
+    projectName: showProjectName ? projectName : (customHeader || ""),
     city, neighborhood,
     developerName: showDeveloperName ? developerName : "",
     startingPrice, deposit, completion,
-  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
+  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
 
   const previewHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading);
 
@@ -493,6 +494,12 @@ export default function AdminAiEmailBuilder() {
                     </div>
                     <Input value={projectName} onChange={e => setProjectName(e.target.value)} className={cn("h-7 text-xs", !showProjectName && "opacity-40")} placeholder="Lumina" />
                   </div>
+                  {!showProjectName && (
+                    <div className="space-y-1 col-span-2">
+                      <Label className="text-[10px]">Custom Header <span className="text-muted-foreground">(replaces project name)</span></Label>
+                      <Input value={customHeader} onChange={e => setCustomHeader(e.target.value)} className="h-7 text-xs" placeholder="New Presale Release" autoFocus />
+                    </div>
+                  )}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <Label className="text-[10px]">Developer</Label>
