@@ -141,7 +141,7 @@ export const EMAIL_FONT_PAIRINGS: EmailFontPairing[] = [
   },
 ];
 
-export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_AGENT, ctaUrl?: string, font?: EmailFontPairing): string {
+export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_AGENT, ctaUrl?: string, font?: EmailFontPairing, suppressHeadlineInBody?: boolean): string {
   const ACCENT = "#C9A55A";
   const DARK = "#0d1f18";
   const incentives = parseIncentives(copy.incentiveText || "");
