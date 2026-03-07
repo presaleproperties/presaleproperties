@@ -79,7 +79,7 @@ Return ONLY a valid JSON object with these exact fields (no markdown, no code fe
   "subjectLineB": "Version B subject line — shorter, punchier",
   "previewTextB": "Version B preheader",
   "headlineB": "Version B headline — more direct",
-  "bodyCopyB": "Version B body copy — tighter, under 100 words. Same structure but stripped back.",
+  "bodyCopyB": "Version B body copy — tighter, under 100 words. Same structure but stripped back. Use **double asterisks** around 1–3 key phrases to bold them.",
   "startingPrice": "extracted price if mentioned (e.g. '$649,900') or empty string",
   "deposit": "extracted deposit structure if mentioned or empty string",
   "completion": "extracted completion date if mentioned (e.g. 'Spring 2027') or empty string",
