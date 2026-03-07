@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Plus, Mail, Clock, Trash2, Copy, Sparkles, ChevronRight,
-  LayoutGrid, FolderOpen, Wand2, Star, FileText, Layers,
-  BookMarked, Download
+  Plus, Mail, Clock, Trash2, Copy, ChevronRight,
+  LayoutGrid, FolderOpen, Wand2, Star, BookMarked,
+  Download, Eye, X, ZoomIn,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,77 @@ interface EmailTemplate {
   updated_at: string;
 }
 
+// ─── Sample email HTML builder for preview ────────────────────────────────────
+function buildPreviewHtml(opts: {
+  headline: string;
+  projectName: string;
+  city: string;
+  price: string;
+  accentColor: string;
+  heroGradient: string;
+  showIncentives: boolean;
+  bodyCopy: string;
+}): string {
+  const { headline, projectName, city, price, accentColor, heroGradient, showIncentives, bodyCopy } = opts;
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>body{margin:0;padding:0;background:#f4f4f0;font-family:'DM Sans',sans-serif;}*{box-sizing:border-box;}</style>
+</head>
+<body>
+<table width="600" align="center" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#fff;">
+  <!-- HEADER -->
+  <tr><td style="padding:24px 36px 22px;background:#0d1f18;">
+    <div style="font-family:'DM Sans',sans-serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:${accentColor};margin-bottom:6px;">PRESALE PROPERTIES</div>
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:36px;font-weight:400;color:#fff;line-height:1;margin-bottom:8px;">${projectName || "New Release"}</div>
+    <div style="font-family:'DM Sans',sans-serif;font-size:11px;color:#8aaa96;">Your Presale Specialist · presaleproperties.com</div>
+    <div style="width:40px;height:2px;background:${accentColor};margin-top:12px;"></div>
+  </td></tr>
+  <!-- HERO -->
+  <tr><td style="padding:0;height:160px;background:${heroGradient};position:relative;">
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+      <div style="text-align:center;">
+        ${city ? `<div style="font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px;">${city.toUpperCase()}</div>` : ""}
+        <div style="font-family:'DM Sans',sans-serif;font-size:8px;letter-spacing:4px;text-transform:uppercase;color:${accentColor};">ADD HERO IMAGE IN BUILDER</div>
+      </div>
+    </div>
+  </td></tr>
+  ${city || projectName ? `<tr><td style="padding:11px 36px;background:${accentColor};"><div style="font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#fff;">${[projectName,city].filter(Boolean).map(s=>s.toUpperCase()).join("  ·  ")}</div></td></tr>` : ""}
+  <!-- BODY -->
+  <tr><td style="padding:32px 36px 24px;background:#fff;">
+    <div style="font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:${accentColor};margin-bottom:10px;">EXCLUSIVE OPPORTUNITY</div>
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:400;color:#111;line-height:1.15;margin-bottom:16px;">${headline}</div>
+    ${price ? `
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #efefef;border-bottom:1px solid #efefef;margin-bottom:20px;">
+      <tr>
+        <td style="padding:14px 0;width:33%;"><div style="font-family:'Cormorant Garamond',serif;font-size:26px;color:#111;">${price}</div><div style="font-family:'DM Sans',sans-serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-top:4px;">Starting + GST</div></td>
+      </tr>
+    </table>` : ""}
+    <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#555;line-height:1.8;">${bodyCopy.split("\n").filter(Boolean).slice(0,3).map(l=>`<div style="margin-bottom:10px;padding-left:16px;border-left:3px solid ${accentColor};">${l}</div>`).join("")}</div>
+  </td></tr>
+  ${showIncentives ? `
+  <tr><td style="padding:24px 36px;background:#0f2419;">
+    <div style="font-family:'DM Sans',sans-serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:${accentColor};margin-bottom:12px;">EXCLUSIVE INCENTIVES</div>
+    ${["Extended deposit structure: 5% now, 5% in 180 days","Developer bonus: $10,000 in upgrades","Free parking (valued at $35,000)"].map(l=>`<div style="display:flex;gap:8px;margin-bottom:8px;"><div style="width:5px;height:5px;background:${accentColor};margin-top:5px;flex-shrink:0;"></div><div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#c8d8cc;">${l}</div></div>`).join("")}
+  </td></tr>` : ""}
+  <!-- CTA -->
+  <tr><td style="padding:24px 36px 28px;">
+    <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
+      <tr><td style="background:#0d1f18;padding:14px 36px;text-align:center;"><a href="#" style="font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#fff;text-decoration:none;">VIEW FLOOR PLANS &amp; BROCHURE →</a></td></tr>
+    </table>
+    <table cellpadding="0" cellspacing="0" border="0">
+      <tr><td style="border:1.5px solid ${accentColor};padding:12px 36px;text-align:center;"><a href="#" style="font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${accentColor};text-decoration:none;">BOOK A PRIVATE CONSULTATION</a></td></tr>
+    </table>
+  </td></tr>
+  <!-- FOOTER -->
+  <tr><td style="padding:20px 36px;background:#0d1f18;border-top:1px solid #1a2e24;">
+    <div style="font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;color:#fff;margin-bottom:2px;">Your Presale Specialist</div>
+    <div style="font-family:'DM Sans',sans-serif;font-size:10px;color:#5a7a66;">Presale Properties · presaleproperties.com</div>
+  </td></tr>
+</table>
+</body></html>`;
+}
+
 // ─── Built-in starter templates ───────────────────────────────────────────────
 const BUILTIN_TEMPLATES = [
   {
@@ -32,6 +103,16 @@ const BUILTIN_TEMPLATES = [
     color: "from-emerald-600 to-emerald-800",
     badge: "Core",
     badgeColor: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
+    preview: {
+      headline: "Introducing — [Project Name]",
+      projectName: "Lumina",
+      city: "Surrey",
+      price: "$749,900",
+      accentColor: "#C9A55A",
+      heroGradient: "linear-gradient(135deg, #0d1f18 0%, #1a3028 50%, #0a1a10 100%)",
+      showIncentives: false,
+      bodyCopy: "Park-facing homes available\nPTT exemption eligible\nCo-op commission available\nLimited units — register now",
+    },
     form_data: {
       vars: {
         headline: "Introducing — [Project Name]",
@@ -67,6 +148,16 @@ const BUILTIN_TEMPLATES = [
     color: "from-amber-500 to-amber-700",
     badge: "Promo",
     badgeColor: "bg-amber-500/15 text-amber-600 border-amber-500/30",
+    preview: {
+      headline: "Exclusive Offer — [Time-Sensitive Pricing]",
+      projectName: "Meridian",
+      city: "Burnaby",
+      price: "$599,900",
+      accentColor: "#e8a020",
+      heroGradient: "linear-gradient(135deg, #1a1000 0%, #2d1f00 50%, #1a1000 100%)",
+      showIncentives: true,
+      bodyCopy: "Extended deposit: 5% now, 5% in 180 days\n$10,000 developer bonus\nFree parking valued at $35,000",
+    },
     form_data: {
       vars: {
         headline: "Exclusive Offer — [Time-Sensitive Pricing]",
@@ -96,11 +187,90 @@ const BUILTIN_TEMPLATES = [
   },
 ];
 
+// ─── Scaled iframe preview component ─────────────────────────────────────────
+function EmailIframePreview({ html, scale = 0.35, height = 280 }: { html: string; scale?: number; height?: number }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeWidth = 600;
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height,
+        overflow: "hidden",
+        position: "relative",
+        borderRadius: "0",
+        background: "#f4f4f0",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          transform: `translateX(-50%) scale(${scale})`,
+          transformOrigin: "top center",
+          width: iframeWidth,
+          height: Math.round(height / scale),
+          pointerEvents: "none",
+        }}
+      >
+        <iframe
+          ref={iframeRef}
+          srcDoc={html}
+          sandbox="allow-same-origin"
+          scrolling="no"
+          style={{
+            border: "none",
+            width: iframeWidth,
+            height: Math.round(height / scale),
+            display: "block",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Full-size preview modal ──────────────────────────────────────────────────
+function PreviewModal({ html, name, onClose }: { html: string; name: string; onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-card rounded-2xl border border-border shadow-2xl overflow-hidden w-full max-w-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-muted/30">
+          <div className="flex items-center gap-2">
+            <Eye className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold">{name}</span>
+            <Badge variant="outline" className="text-[10px]">Preview</Badge>
+          </div>
+          <button onClick={onClose} className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-muted transition-colors">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div style={{ height: 600, overflowY: "auto", background: "#f4f4f0" }}>
+          <iframe
+            srcDoc={html}
+            sandbox="allow-same-origin"
+            style={{ border: "none", width: "100%", height: "1200px", display: "block" }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminEmailBuilderHub() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [previewModal, setPreviewModal] = useState<{ html: string; name: string } | null>(null);
 
   const fetchTemplates = async () => {
     setLoading(true);
@@ -133,7 +303,6 @@ export default function AdminEmailBuilderHub() {
     else { toast.success("Template duplicated"); await fetchTemplates(); }
   };
 
-  // Open a built-in starter by seeding it into localStorage then navigating to builder
   const handleOpenBuiltin = (tpl: typeof BUILTIN_TEMPLATES[0]) => {
     const draft = {
       vars: tpl.form_data.vars,
@@ -145,7 +314,6 @@ export default function AdminEmailBuilderHub() {
     navigate("/admin/email-builder");
   };
 
-  // Load saved template into builder
   const handleOpenSaved = (template: EmailTemplate) => {
     const fd = template.form_data || {};
     const draft = {
@@ -172,8 +340,31 @@ export default function AdminEmailBuilderHub() {
     return "Just now";
   };
 
+  // Generate preview HTML for saved templates
+  const getSavedPreviewHtml = (template: EmailTemplate) => {
+    const vars = template.form_data?.vars || {};
+    return buildPreviewHtml({
+      headline: vars.headline || "New Presale Opportunity",
+      projectName: vars.projectName || template.project_name || "Project",
+      city: vars.city || "",
+      price: vars.startingPrice || "",
+      accentColor: "#C9A55A",
+      heroGradient: "linear-gradient(135deg, #0d1f18 0%, #1a3028 50%, #0a1a10 100%)",
+      showIncentives: !!(vars.incentiveText?.trim()),
+      bodyCopy: vars.bodyCopy || "",
+    });
+  };
+
   return (
     <AdminLayout>
+      {previewModal && (
+        <PreviewModal
+          html={previewModal.html}
+          name={previewModal.name}
+          onClose={() => setPreviewModal(null)}
+        />
+      )}
+
       <div className="flex flex-col h-full bg-background">
 
         {/* ── Header ── */}
@@ -187,38 +378,27 @@ export default function AdminEmailBuilderHub() {
               <p className="text-xs text-muted-foreground">Mailchimp-ready HTML emails in under a minute</p>
             </div>
           </div>
-          <Button
-            onClick={() => navigate("/admin/email-builder")}
-            className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Plus className="h-4 w-4" />
-            New Email
-          </Button>
-        </div>
-
-        {/* ── Stats bar ── */}
-        <div className="border-b border-border bg-muted/30 px-6 py-3 flex items-center gap-6 shrink-0">
-          {[
-            { icon: LayoutGrid, label: "Saved Templates", value: templates.length },
-            { icon: Layers, label: "Starter Templates", value: BUILTIN_TEMPLATES.length },
-            { icon: FolderOpen, label: "This Month", value: templates.filter(t => new Date(t.created_at) > new Date(Date.now() - 30 * 86400000)).length },
-          ].map(({ icon: Icon, label, value }) => (
-            <div key={label} className="flex items-center gap-2">
-              <Icon className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">{label}:</span>
-              <span className="text-sm font-bold">{value}</span>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5"><LayoutGrid className="h-3.5 w-3.5" />{templates.length} saved</span>
+              <span className="flex items-center gap-1.5"><FolderOpen className="h-3.5 w-3.5" />{BUILTIN_TEMPLATES.length} starters</span>
             </div>
-          ))}
+            <Button
+              onClick={() => navigate("/admin/email-builder")}
+              className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Plus className="h-4 w-4" />
+              New Email
+            </Button>
+          </div>
         </div>
 
         {/* ── Main content ── */}
-        <div className="flex-1 overflow-auto p-6 space-y-8">
+        <div className="flex-1 overflow-auto p-6 space-y-10">
 
-          {/* ── Quick Start ── */}
+          {/* ── Quick Start row ── */}
           <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Quick Start</h2>
-            </div>
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Quick Start</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 {
@@ -254,29 +434,36 @@ export default function AdminEmailBuilderHub() {
             </div>
           </section>
 
-          {/* ── Built-in Templates Gallery ── */}
+          {/* ── Starter Templates with LIVE PREVIEW ── */}
           <section>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Starter Templates</h2>
               <Badge variant="outline" className="text-[10px]">{BUILTIN_TEMPLATES.length} templates</Badge>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {BUILTIN_TEMPLATES.map((tpl) => {
                 const Icon = tpl.icon;
+                const previewHtml = buildPreviewHtml(tpl.preview);
                 return (
                   <div
                     key={tpl.key}
-                    className="group relative rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-lg transition-all overflow-hidden"
+                    className="group relative rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-xl transition-all overflow-hidden"
                   >
-                    {/* Visual header */}
-                    <div className={cn("h-24 bg-gradient-to-br relative overflow-hidden", tpl.color)}>
-                      <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                        <Icon className="h-16 w-16 text-white" />
+                    {/* Live email preview thumbnail */}
+                    <div className="relative overflow-hidden border-b border-border" style={{ height: 260 }}>
+                      <EmailIframePreview html={previewHtml} scale={0.43} height={260} />
+
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setPreviewModal({ html: previewHtml, name: tpl.name }); }}
+                          className="bg-card/95 border border-border rounded-lg px-3 py-2 text-xs font-medium flex items-center gap-1.5 shadow-lg hover:bg-card transition-colors"
+                        >
+                          <ZoomIn className="h-3.5 w-3.5" /> Full Preview
+                        </button>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                      <div className="absolute bottom-3 left-4 right-4">
-                        <p className="text-white text-base font-bold">{tpl.name}</p>
-                      </div>
+
+                      {/* Badge */}
                       <div className="absolute top-3 right-3">
                         <Badge className={cn("text-[9px] h-5 border font-semibold", tpl.badgeColor)}>
                           {tpl.badge}
@@ -286,10 +473,22 @@ export default function AdminEmailBuilderHub() {
 
                     {/* Info */}
                     <div className="p-4">
-                      <p className="text-xs text-muted-foreground leading-relaxed">{tpl.desc}</p>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className={cn("h-8 w-8 rounded-lg bg-gradient-to-br flex items-center justify-center shrink-0", tpl.color)}>
+                            <Icon className="h-4 w-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold">{tpl.name}</p>
+                            <p className="text-[11px] text-muted-foreground">{tpl.badge} template</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground leading-relaxed mb-3">{tpl.desc}</p>
 
                       {/* Feature pills */}
-                      <div className="flex flex-wrap gap-1.5 mt-3">
+                      <div className="flex flex-wrap gap-1.5 mb-4">
                         {tpl.key === "main-project-email" && (
                           <>
                             <span className="text-[10px] bg-muted/60 text-muted-foreground rounded-full px-2 py-0.5">Hero Image</span>
@@ -308,13 +507,24 @@ export default function AdminEmailBuilderHub() {
                         )}
                       </div>
 
-                      <Button
-                        size="sm"
-                        className={cn("w-full mt-4 h-9 text-xs gap-1.5 text-white", `bg-gradient-to-r ${tpl.color}`)}
-                        onClick={() => handleOpenBuiltin(tpl)}
-                      >
-                        <Wand2 className="h-3.5 w-3.5" /> Use This Template
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className={cn("flex-1 h-9 text-xs gap-1.5 text-white", `bg-gradient-to-r ${tpl.color}`)}
+                          onClick={() => handleOpenBuiltin(tpl)}
+                        >
+                          <Wand2 className="h-3.5 w-3.5" /> Use This Template
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-9 w-9 p-0 shrink-0"
+                          onClick={() => setPreviewModal({ html: previewHtml, name: tpl.name })}
+                          title="Preview email"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -324,7 +534,7 @@ export default function AdminEmailBuilderHub() {
 
           {/* ── Saved Templates ── */}
           <section>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">My Saved Emails</h2>
               <Badge variant="outline" className="text-[10px]">{templates.length} saved</Badge>
             </div>
@@ -345,29 +555,30 @@ export default function AdminEmailBuilderHub() {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {templates.map(template => {
                   const fd = template.form_data || {};
                   const vars = fd.vars || {};
+                  const previewHtml = getSavedPreviewHtml(template);
                   return (
                     <div
                       key={template.id}
-                      className="group relative rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-lg transition-all overflow-hidden"
+                      className="group relative rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-xl transition-all overflow-hidden"
                     >
-                      {/* Thumbnail strip */}
-                      <div className="h-28 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 relative overflow-hidden">
-                        {vars.featuredImage ? (
-                          <img src={vars.featuredImage} alt="" className="w-full h-full object-cover opacity-50" />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Mail className="h-8 w-8 text-white/15" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                        <div className="absolute bottom-2 left-3 right-3">
-                          <p className="text-white text-sm font-bold truncate">{vars.projectName || template.project_name || "Untitled"}</p>
-                          {vars.city && <p className="text-white/60 text-[10px] truncate">{vars.city}</p>}
+                      {/* Live email preview thumbnail */}
+                      <div className="relative overflow-hidden border-b border-border" style={{ height: 200 }}>
+                        <EmailIframePreview html={previewHtml} scale={0.35} height={200} />
+
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 gap-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setPreviewModal({ html: previewHtml, name: template.name }); }}
+                            className="bg-card/95 border border-border rounded-lg px-2.5 py-1.5 text-xs font-medium flex items-center gap-1 shadow-lg hover:bg-card transition-colors"
+                          >
+                            <ZoomIn className="h-3 w-3" /> Preview
+                          </button>
                         </div>
+
                         <div className="absolute top-2 right-2">
                           <div className="bg-blue-500/90 rounded-full px-2 py-0.5 text-[9px] font-bold text-white">EMAIL</div>
                         </div>
@@ -378,6 +589,10 @@ export default function AdminEmailBuilderHub() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <p className="text-sm font-semibold truncate">{template.name}</p>
+                            <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                              {vars.projectName || template.project_name || "Untitled"}
+                              {vars.city && ` · ${vars.city}`}
+                            </p>
                             <div className="flex items-center gap-1.5 mt-1">
                               <Clock className="h-3 w-3 text-muted-foreground" />
                               <span className="text-[10px] text-muted-foreground">{timeAgo(template.updated_at)}</span>
@@ -385,7 +600,6 @@ export default function AdminEmailBuilderHub() {
                           </div>
                         </div>
 
-                        {/* Subject line preview */}
                         {vars.subjectLine && (
                           <p className="text-[10px] text-muted-foreground mt-1.5 truncate italic">
                             ✉ {vars.subjectLine}
