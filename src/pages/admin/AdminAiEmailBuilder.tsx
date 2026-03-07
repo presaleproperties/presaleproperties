@@ -253,7 +253,7 @@ export default function AdminEmailBuilderPage() {
 
   useEffect(() => {
     supabase.from("presale_projects").select("id, name, city, featured_image")
-      .eq("is_published", true).order("name").limit(50)
+      .order("name").limit(100)
       .then(({ data }: any) => { if (data) setProjects(data); });
 
     supabase.from("team_members_public" as any).select("id, full_name, title, photo_url")
