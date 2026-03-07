@@ -773,11 +773,11 @@ export default function AdminEmailBuilderPage() {
                   disabled={boldLoading || (!bodyCopy.trim() && !headline.trim())}
                 >
                   {boldLoading
-                    ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Bolding keywords…</>
-                    : <><Bold className="h-3.5 w-3.5" /> Bold Key Phrases</>
+                    ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Formatting copy…</>
+                    : <><Wand2 className="h-3.5 w-3.5" /> Format & Polish Copy</>
                   }
                 </Button>
-                <p className="text-[10px] text-muted-foreground/50 text-center -mt-1">AI highlights keywords only — copy stays untouched</p>
+                <p className="text-[10px] text-muted-foreground/50 text-center -mt-1">AI fixes spacing, structure & bolds key phrases — words stay untouched</p>
 
                 {/* ── AI Brief (optional / collapsed) ── */}
                 <details className="mt-1 group">
