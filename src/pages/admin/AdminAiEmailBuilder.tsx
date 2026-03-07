@@ -88,10 +88,14 @@ function buildFinalHtml(
   font?: EmailFontPairing,
   layoutVersion?: "classic" | "loop",
   imageCards?: ImageCardEntry[],
+  loopSlides?: string[],
 ): string {
   // ── LOOP template ──────────────────────────────────────────────────────────
   if (layoutVersion === "loop") {
-    const slides = [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
+    // Prefer project gallery slides; fall back to heroImage + imageCards
+    const slides = (loopSlides && loopSlides.length > 0)
+      ? loopSlides.filter(Boolean)
+      : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
     const base = buildLoopEmailHtml(fields, agent, slides, ctaUrl, font);
     // Inject floor plans if present
     if (floorPlans.length > 0) {
