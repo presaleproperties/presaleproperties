@@ -203,7 +203,6 @@ export default function AdminAiEmailBuilder() {
   const [fpUploading, setFpUploading] = useState(false);
 
   // Campaign assets (from Campaign Builder)
-  interface CampaignAsset { id: string; name: string; project_name: string; brochure_url: string | null; pricing_sheet_url: string | null; thumbnail_url: string | null; }
   const [campaignAssets, setCampaignAssets] = useState<CampaignAsset[]>([]);
   const [selectedAssetId, setSelectedAssetId] = useState<string>("none");
   const selectedAsset = campaignAssets.find(a => a.id === selectedAssetId) ?? null;
