@@ -320,7 +320,7 @@ export default function AdminEmailBuilderPage() {
   useEffect(() => {
     supabase.from("presale_projects")
       .select("id, name, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, incentives")
-      .order("name").limit(100)
+      .order("name")
       .then(({ data }: any) => { if (data) setProjects(data); });
 
     supabase.from("team_members_public" as any).select("id, full_name, title, photo_url")
