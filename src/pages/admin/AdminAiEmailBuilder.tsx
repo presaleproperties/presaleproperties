@@ -181,10 +181,13 @@ export default function AdminAiEmailBuilder() {
   const [fpUploading,   setFpUploading]   = useState(false);
 
   // Campaign assets
-  const [campaignAssets,  setCampaignAssets]  = useState<CampaignAsset[]>([]);
-  const [selectedAssetId, setSelectedAssetId] = useState<string>("none");
+  const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
+  const [selectedAssetId,  setSelectedAssetId]  = useState<string>("none");
+  const [directCtaUrl,     setDirectCtaUrl]     = useState("");
+  const [ctaPdfUploading,  setCtaPdfUploading]  = useState(false);
+  const ctaPdfInputRef = useRef<HTMLInputElement>(null);
   const selectedAsset = campaignAssets.find(a => a.id === selectedAssetId) ?? null;
-  const ctaUrl = selectedAsset?.brochure_url || selectedAsset?.pricing_sheet_url || undefined;
+  const ctaUrl = directCtaUrl || selectedAsset?.brochure_url || selectedAsset?.pricing_sheet_url || undefined;
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "code">("preview");
