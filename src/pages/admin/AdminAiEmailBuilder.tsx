@@ -1170,7 +1170,6 @@ export default function AdminEmailBuilderPage() {
                 done={!!(ctaUrl)} doneLabel={directCtaUrl ? "PDF uploaded" : selectedAsset?.name}
                 defaultOpen={false}
               >
-                <input ref={ctaPdfInputRef} type="file" accept="application/pdf" className="hidden" onChange={handleCtaPdfUpload} />
 
                 {/* Direct PDF upload */}
                 <div>
