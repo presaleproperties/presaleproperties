@@ -141,49 +141,56 @@ function buildFinalHtml(
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
+const DRAFT_KEY = "ai-email-builder-draft";
+
 export default function AdminAiEmailBuilder() {
   const navigate       = useNavigate();
   const heroInputRef   = useRef<HTMLInputElement>(null);
   const fpInputRef     = useRef<HTMLInputElement>(null);
   const iframeRef      = useRef<HTMLIFrameElement>(null);
 
+  // ── Restore draft from localStorage ─────────────────────────────────────────
+  const savedDraft = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch { return null; }
+  }, []);
+
   // AI state
-  const [prompt,         setPrompt]         = useState("");
-  const [templateType,   setTemplateType]   = useState("main-project-email");
-  const [selProjectId,   setSelProjectId]   = useState("none");
+  const [prompt,         setPrompt]         = useState(savedDraft?.prompt         ?? "");
+  const [templateType,   setTemplateType]   = useState(savedDraft?.templateType   ?? "main-project-email");
+  const [selProjectId,   setSelProjectId]   = useState(savedDraft?.selProjectId   ?? "none");
   const [aiLoading,      setAiLoading]      = useState(false);
-  const [activeVersion,  setActiveVersion]  = useState<"A" | "B">("A");
-  const [aiResult,       setAiResult]       = useState<Record<string, string> | null>(null);
+  const [activeVersion,  setActiveVersion]  = useState<"A" | "B">(savedDraft?.activeVersion ?? "A");
+  const [aiResult,       setAiResult]       = useState<Record<string, string> | null>(savedDraft?.aiResult ?? null);
 
   // Copy fields
-  const [projectName,       setProjectName]       = useState("");
-  const [developerName,     setDevName]            = useState("");
-  const [showProjectName,   setShowProjectName]    = useState(true);
-  const [showDeveloperName, setShowDeveloperName]  = useState(true);
-  const [customHeader,      setCustomHeader]       = useState("");
-  const [city,              setCity]               = useState("");
-  const [neighborhood,      setNeighborhood]       = useState("");
-  const [startingPrice,     setStartingPrice]      = useState("");
-  const [deposit,           setDeposit]            = useState("");
-  const [completion,        setCompletion]         = useState("");
-  const [subjectLine,       setSubjectLine]        = useState("");
-  const [previewText,       setPreviewText]        = useState("");
-  const [headline,          setHeadline]           = useState("");
-  const [bodyCopy,          setBodyCopy]           = useState("");
-  const [incentiveText,     setIncentiveText]      = useState("");
+  const [projectName,       setProjectName]       = useState(savedDraft?.projectName       ?? "");
+  const [developerName,     setDevName]            = useState(savedDraft?.developerName     ?? "");
+  const [showProjectName,   setShowProjectName]    = useState(savedDraft?.showProjectName   ?? true);
+  const [showDeveloperName, setShowDeveloperName]  = useState(savedDraft?.showDeveloperName ?? true);
+  const [customHeader,      setCustomHeader]       = useState(savedDraft?.customHeader      ?? "");
+  const [city,              setCity]               = useState(savedDraft?.city              ?? "");
+  const [neighborhood,      setNeighborhood]       = useState(savedDraft?.neighborhood      ?? "");
+  const [startingPrice,     setStartingPrice]      = useState(savedDraft?.startingPrice     ?? "");
+  const [deposit,           setDeposit]            = useState(savedDraft?.deposit           ?? "");
+  const [completion,        setCompletion]         = useState(savedDraft?.completion        ?? "");
+  const [subjectLine,       setSubjectLine]        = useState(savedDraft?.subjectLine       ?? "");
+  const [previewText,       setPreviewText]        = useState(savedDraft?.previewText       ?? "");
+  const [headline,          setHeadline]           = useState(savedDraft?.headline          ?? "");
+  const [bodyCopy,          setBodyCopy]           = useState(savedDraft?.bodyCopy          ?? "");
+  const [incentiveText,     setIncentiveText]      = useState(savedDraft?.incentiveText     ?? "");
 
   // Media
-  const [heroImage,     setHeroImage]     = useState("");
+  const [heroImage,     setHeroImage]     = useState(savedDraft?.heroImage ?? "");
   const [heroUploading, setHeroUploading] = useState(false);
-  const [floorPlans,    setFloorPlans]    = useState<FloorPlanEntry[]>([]);
-  const [fpHeading,     setFpHeading]     = useState("Available Floor Plans");
-  const [fpSubheading,  setFpSubheading]  = useState("Limited units remaining — register now for priority access");
+  const [floorPlans,    setFloorPlans]    = useState<FloorPlanEntry[]>(savedDraft?.floorPlans ?? []);
+  const [fpHeading,     setFpHeading]     = useState(savedDraft?.fpHeading    ?? "Available Floor Plans");
+  const [fpSubheading,  setFpSubheading]  = useState(savedDraft?.fpSubheading ?? "Limited units remaining — register now for priority access");
   const [fpUploading,   setFpUploading]   = useState(false);
 
   // Campaign assets
   const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
-  const [selectedAssetId,  setSelectedAssetId]  = useState<string>("none");
-  const [directCtaUrl,     setDirectCtaUrl]     = useState("");
+  const [selectedAssetId,  setSelectedAssetId]  = useState<string>(savedDraft?.selectedAssetId ?? "none");
+  const [directCtaUrl,     setDirectCtaUrl]     = useState(savedDraft?.directCtaUrl ?? "");
   const [ctaPdfUploading,  setCtaPdfUploading]  = useState(false);
   const ctaPdfInputRef = useRef<HTMLInputElement>(null);
   const selectedAsset = campaignAssets.find(a => a.id === selectedAssetId) ?? null;
@@ -194,10 +201,11 @@ export default function AdminAiEmailBuilder() {
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
   const [copied,        setCopied]        = useState(false);
   const [saving,        setSaving]        = useState(false);
+  const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
   // Data
   const [agents,   setAgents]   = useState<AgentInfo[]>([]);
-  const [selAgent, setSelAgent] = useState("default");
+  const [selAgent, setSelAgent] = useState(savedDraft?.selAgent ?? "default");
   const selectedAgent: AgentInfo = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
   const [projects, setProjects] = useState<Array<{ id: string; name: string; city: string; featured_image?: string | null }>>([]);
 
@@ -215,7 +223,8 @@ export default function AdminAiEmailBuilder() {
             return { full_name: m.full_name ?? "", title: m.title ?? "Presale Specialist", photo_url: m.photo_url ?? null, ...c };
           });
           setAgents(enriched);
-          if (enriched.length > 0) setSelAgent(enriched[0].full_name);
+          // Only set default agent if no draft
+          if (enriched.length > 0 && !savedDraft?.selAgent) setSelAgent(enriched[0].full_name);
         }
       });
 
@@ -227,6 +236,33 @@ export default function AdminAiEmailBuilder() {
       });
   }, []);
 
+  // ── Auto-save draft to localStorage ─────────────────────────────────────────
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      const draft = {
+        _savedAt: new Date().toISOString(),
+        prompt, templateType, selProjectId, activeVersion, aiResult,
+        projectName, developerName, showProjectName, showDeveloperName, customHeader,
+        city, neighborhood, startingPrice, deposit, completion,
+        subjectLine, previewText, headline, bodyCopy, incentiveText,
+        heroImage, floorPlans, fpHeading, fpSubheading,
+        selectedAssetId, directCtaUrl, selAgent,
+      };
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
+      setDraftSavedAt(new Date());
+    }, 1500);
+    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
+  }, [
+    prompt, templateType, selProjectId, activeVersion, aiResult,
+    projectName, developerName, showProjectName, showDeveloperName, customHeader,
+    city, neighborhood, startingPrice, deposit, completion,
+    subjectLine, previewText, headline, bodyCopy, incentiveText,
+    heroImage, floorPlans, fpHeading, fpSubheading,
+    selectedAssetId, directCtaUrl, selAgent,
+  ]);
+
   // ── Derived HTML ─────────────────────────────────────────────────────────────
   const currentCopy = useCallback((): AiEmailCopy => ({
     subjectLine, previewText, headline, bodyCopy, incentiveText,
@@ -236,26 +272,18 @@ export default function AdminAiEmailBuilder() {
     startingPrice, deposit, completion,
   }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
 
-  // Separate "preview state" — only updates on explicit Apply or AI generation
+  // Debounced preview HTML — updates 800ms after last change so iframe doesn't re-render on every keystroke
   const [previewHtml, setPreviewHtml] = useState(() =>
     buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl)
   );
-  const [previewDirty, setPreviewDirty] = useState(false);
-
-  const applyPreview = useCallback(() => {
-    setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl));
-    setPreviewDirty(false);
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl]);
-
-  // Mark dirty whenever working state changes (but don't re-render preview)
-  const prevCopyRef = useRef<string>("");
+  const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    const key = JSON.stringify({ ...currentCopy(), selAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl });
-    if (key !== prevCopyRef.current) {
-      prevCopyRef.current = key;
-      setPreviewDirty(true);
-    }
-  }, [currentCopy, selAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl]);
+    if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
+    previewTimerRef.current = setTimeout(() => {
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl));
+    }, 800);
+    return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl]);
 
   // finalHtml used only for copy/save — always reflects latest state
   const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl);
