@@ -323,11 +323,16 @@ export default function AdminEmailBuilderPage() {
     completion_year?: number | null; completion_month?: number | null;
     featured_image?: string | null; incentives?: string | null;
     gallery_images?: string[] | null;
+    brochure_files?: string[] | null;
+    pricing_sheets?: string[] | null;
+    floorplan_files?: string[] | null;
+    highlights?: string[] | null;
+    short_description?: string | null;
   }>>([]);
 
   useEffect(() => {
     supabase.from("presale_projects")
-      .select("id, name, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, gallery_images, incentives")
+      .select("id, name, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, gallery_images, incentives, brochure_files, pricing_sheets, floorplan_files, highlights, short_description")
       .order("name")
       .then(({ data }: any) => { if (data) setProjects(data); });
 
