@@ -88,10 +88,14 @@ function buildFinalHtml(
   font?: EmailFontPairing,
   layoutVersion?: "classic" | "loop",
   imageCards?: ImageCardEntry[],
+  loopSlides?: string[],
 ): string {
   // ── LOOP template ──────────────────────────────────────────────────────────
   if (layoutVersion === "loop") {
-    const slides = [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
+    // Prefer project gallery slides; fall back to heroImage + imageCards
+    const slides = (loopSlides && loopSlides.length > 0)
+      ? loopSlides.filter(Boolean)
+      : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
     const base = buildLoopEmailHtml(fields, agent, slides, ctaUrl, font);
     // Inject floor plans if present
     if (floorPlans.length > 0) {
@@ -309,17 +313,21 @@ export default function AdminEmailBuilderPage() {
   const [agents,   setAgents]   = useState<AgentInfo[]>([]);
   const [selAgent, setSelAgent] = useState(savedDraft?.selAgent ?? "default");
   const selectedAgent: AgentInfo = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
+  // Loop slideshow images (auto-filled from project gallery)
+  const [loopSlides, setLoopSlides] = useState<string[]>(savedDraft?.loopSlides ?? []);
+
   const [projects, setProjects] = useState<Array<{
     id: string; name: string; city: string; neighborhood?: string | null;
     developer_name?: string | null; starting_price?: number | null; price_range?: string | null;
     deposit_structure?: string | null; deposit_percent?: number | null;
     completion_year?: number | null; completion_month?: number | null;
     featured_image?: string | null; incentives?: string | null;
+    gallery_images?: string[] | null;
   }>>([]);
 
   useEffect(() => {
     supabase.from("presale_projects")
-      .select("id, name, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, incentives")
+      .select("id, name, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, gallery_images, incentives")
       .order("name")
       .then(({ data }: any) => { if (data) setProjects(data); });
 
@@ -355,7 +363,7 @@ export default function AdminEmailBuilderPage() {
         projectName, developerName, showProjectName, showDeveloperName, customHeader,
         city, neighborhood, startingPrice, deposit, completion, infoRows,
         subjectLine, previewText, headline, bodyCopy, incentiveText,
-        heroImage, floorPlans, fpHeading, fpSubheading, imageCards,
+        heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion,
       };
@@ -368,7 +376,7 @@ export default function AdminEmailBuilderPage() {
     projectName, developerName, showProjectName, showDeveloperName, customHeader,
     city, neighborhood, startingPrice, deposit, completion, infoRows,
     subjectLine, previewText, headline, bodyCopy, incentiveText,
-    heroImage, floorPlans, fpHeading, fpSubheading, imageCards,
+    heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
   ]);
 
@@ -385,19 +393,19 @@ export default function AdminEmailBuilderPage() {
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides]);
 
   // finalHtml used only for copy/save — always reflects latest state
-  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards);
+  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides);
 
   // ── AI generation ─────────────────────────────────────────────────────────────
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
@@ -474,6 +482,17 @@ export default function AdminEmailBuilderPage() {
     if (p.developer_name)  setDevName(p.developer_name);
     if (p.featured_image)  setHeroImage(p.featured_image);
     if (p.incentives)      setIncentiveText(p.incentives);
+    // Auto-populate Loop slideshow from gallery images (up to 6 HQ images)
+    const gallerySlides: string[] = [];
+    if (p.featured_image) gallerySlides.push(p.featured_image);
+    if (p.gallery_images?.length) {
+      for (const img of p.gallery_images) {
+        if (img && !gallerySlides.includes(img) && gallerySlides.length < 6) {
+          gallerySlides.push(img);
+        }
+      }
+    }
+    if (gallerySlides.length > 0) setLoopSlides(gallerySlides);
     // Populate starting price
     const priceStr = p.price_range || (p.starting_price ? `From $${(p.starting_price / 1000).toFixed(0)}K` : "");
     if (priceStr) setStartingPrice(priceStr);
