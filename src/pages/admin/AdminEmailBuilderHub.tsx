@@ -301,7 +301,7 @@ function AiEmailModal({
   onApply: (copy: Record<string, string>, templateType: string) => void;
 }) {
   const [prompt, setPrompt] = useState("");
-  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("none");
   const [templateType, setTemplateType] = useState<string>("main-project-email");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Record<string, string> | null>(null);
