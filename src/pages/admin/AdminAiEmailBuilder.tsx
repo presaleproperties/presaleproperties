@@ -231,6 +231,8 @@ export default function AdminEmailBuilderPage() {
   const [fpHeading,     setFpHeading]     = useState(savedDraft?.fpHeading    ?? "Available Floor Plans");
   const [fpSubheading,  setFpSubheading]  = useState(savedDraft?.fpSubheading ?? "Limited units remaining — register now for priority access");
   const [fpUploading,   setFpUploading]   = useState(false);
+  const [imageCards,    setImageCards]    = useState<ImageCardEntry[]>(savedDraft?.imageCards ?? []);
+  const [imgCardUploading, setImgCardUploading] = useState(false);
 
   // Campaign assets
   const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
