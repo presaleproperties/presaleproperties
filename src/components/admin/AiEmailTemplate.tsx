@@ -190,20 +190,20 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#f0ede8;">
+<body style="margin:0;padding:0;background:#f0ede8;" id="body">
 
 <!-- Outer wrapper -->
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0ede8;">
 <tr><td align="center" style="padding:24px 12px;">
 
 <!-- Email container -->
-<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e0dbd3;">
+<table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e0dbd3;">
 
   <!-- ─── HEADER ─── -->
   <tr>
-    <td style="background:${DARK};padding:28px 36px 24px;">
+    <td class="mobile-pad" style="background:${DARK};padding:28px 36px 24px;">
       <p style="margin:0 0 4px 0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES</p>
-      <p style="margin:0 0 10px 0;font-family:${displayFont};font-size:32px;font-weight:600;color:#ffffff;line-height:1.1;">${copy.projectName || "New Presale Release"}</p>
+      <p class="hero-headline" style="margin:0 0 10px 0;font-family:${displayFont};font-size:32px;font-weight:600;color:#ffffff;line-height:1.1;">${copy.projectName || "New Presale Release"}</p>
       ${byLine ? `<p style="margin:0 0 10px 0;font-family:${bodyFont};font-size:11px;color:#7a9a86;">${byLine}</p>` : ""}
       <table cellpadding="0" cellspacing="0" border="0"><tr>
         <td style="width:32px;height:2px;background:${ACCENT};"></td>
