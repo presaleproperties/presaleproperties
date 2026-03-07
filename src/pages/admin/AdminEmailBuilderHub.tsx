@@ -412,7 +412,7 @@ function AiEmailModal({
                   <SelectValue placeholder="Select project…" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No project</SelectItem>
+                  <SelectItem value="none">No project</SelectItem>
                   {projects.map(p => (
                     <SelectItem key={p.id} value={p.id}>{p.name} — {p.city}</SelectItem>
                   ))}
