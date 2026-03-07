@@ -500,18 +500,7 @@ export default function AdminAiEmailBuilder() {
                 </Button>
               </div>
 
-              {/* Apply changes button — only shows when preview is out of sync */}
-              {previewDirty && (
-                <Button
-                  size="sm"
-                  className="h-6 px-2.5 text-[11px] gap-1.5 font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-md animate-pulse"
-                  onClick={applyPreview}
-                >
-                  <Eye className="h-3 w-3" /> Apply Changes
-                </Button>
-              )}
-
-              {previewMode === "preview" && !previewDirty && (
+              {previewMode === "preview" && (
                 <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
                   <Button variant="ghost" size="sm"
                     className={cn("h-6 w-7 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm text-foreground")}
@@ -535,21 +524,11 @@ export default function AdminAiEmailBuilder() {
             </div>
 
             {previewMode === "preview" ? (
-              <div className={cn("flex-1 overflow-auto relative", previewDevice === "mobile" ? "bg-[#e8e5e0] flex justify-center" : "bg-[#e8e5e0]")}>
-                {previewDirty && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-                    <div className="bg-background/80 backdrop-blur-sm rounded-xl border border-border px-5 py-3 shadow-lg pointer-events-auto flex flex-col items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">Changes not applied</span>
-                      <Button size="sm" className="h-7 gap-1.5 text-xs bg-amber-500 hover:bg-amber-600 text-white" onClick={applyPreview}>
-                        <Eye className="h-3 w-3" /> Apply Changes
-                      </Button>
-                    </div>
-                  </div>
-                )}
+              <div className={cn("flex-1 overflow-auto", previewDevice === "mobile" ? "bg-[#e8e5e0] flex justify-center" : "bg-[#e8e5e0]")}>
                 <iframe
                   ref={iframeRef}
                   srcDoc={previewHtml}
-                  className={cn("border-0 h-full transition-opacity", previewDirty && "opacity-40")}
+                  className="border-0 h-full"
                   style={previewDevice === "mobile" ? { width: "375px", minHeight: "100%" } : { width: "100%" }}
                   sandbox="allow-same-origin"
                   title="Email Preview"
