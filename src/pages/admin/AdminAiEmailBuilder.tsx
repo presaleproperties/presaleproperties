@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -18,13 +17,19 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, Download, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2, ChevronDown, ChevronUp,
-  Upload, Eye, Code2, Save, BookMarked,
+  Eye, Code2, Save,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, type AiEmailCopy } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT } from "@/components/admin/AiEmailTemplate";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
+  "Uzair":  { phone: "778-231-3592",      email: "info@presaleproperties.com" },
+  "Sarb":   { phone: "+1 (778) 846-7065", email: "sarb@presaleproperties.com"  },
+  "Ravish": { phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com" },
+};
 
 const EXAMPLE_PROMPTS = [
   "New presale in Burnaby — 1 and 2 beds from $649K, completion 2027, PTT exempt",
@@ -32,8 +37,6 @@ const EXAMPLE_PROMPTS = [
   "Follow-up for clients who attended the open house — remind them about floor plans",
   "Luxury waterfront project in North Van by Bosa Properties, from $1.2M",
 ];
-
-const ACCENT = "#C9A55A";
 
 interface Section {
   id: string;
@@ -50,10 +53,9 @@ const SECTIONS: Section[] = [
 ];
 
 // ── Build the branded email HTML ─────────────────────────────────────────────
-function buildHtml(fields: AiEmailCopy & { heroImage?: string }): string {
-  const base = buildAiEmailHtml(fields);
+function buildHtml(fields: AiEmailCopy & { heroImage?: string }, agent: AgentInfo): string {
+  const base = buildAiEmailHtml(fields, agent);
   if (!fields.heroImage) return base;
-  // Inject hero image into the email after the location banner
   return base.replace(
     "<!-- ─── HERO STATS BAR",
     `  <!-- ─── HERO IMAGE ─── -->
