@@ -710,7 +710,6 @@ export default function AdminEmailBuilderHub() {
         open={aiModalOpen}
         onClose={() => setAiModalOpen(false)}
         projects={projects}
-        onApply={handleAiApply}
       />
 
       <div className="flex flex-col h-full bg-background">
