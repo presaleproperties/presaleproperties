@@ -488,6 +488,26 @@ export default function AdminEmailBuilderPage() {
   const updateFp = (id: string, field: keyof FloorPlanEntry, val: string) =>
     setFloorPlans(prev => prev.map(fp => fp.id === id ? { ...fp, [field]: val } : fp));
 
+  const handleImgCardUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []); if (!files.length) return;
+    setImgCardUploading(true);
+    try {
+      const uploaded: ImageCardEntry[] = [];
+      const remaining = 3 - imageCards.length;
+      for (const file of files.slice(0, remaining)) {
+        const url = await uploadImage(file, "email-assets", `email-imgcards/${Date.now()}-${file.name}`);
+        uploaded.push({ id: crypto.randomUUID(), url, caption: "" });
+      }
+      setImageCards(prev => [...prev, ...uploaded].slice(0, 3));
+      toast.success(`${uploaded.length} image${uploaded.length > 1 ? "s" : ""} added`);
+    } catch (err: any) { toast.error("Upload failed: " + err.message); }
+    finally { setImgCardUploading(false); e.target.value = ""; }
+  };
+
+  const removeImgCard = (id: string) => setImageCards(prev => prev.filter(c => c.id !== id));
+  const updateImgCard = (id: string, caption: string) =>
+    setImageCards(prev => prev.map(c => c.id === id ? { ...c, caption } : c));
+
   // ── Edit-in-preview iframe designMode ────────────────────────────────────────
   const enableIframeEdit = useCallback(() => {
     const doc = iframeRef.current?.contentDocument;
