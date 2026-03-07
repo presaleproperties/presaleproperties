@@ -730,8 +730,8 @@ export default function AdminEmailBuilderHub() {
               <span className="flex items-center gap-1.5"><LayoutGrid className="h-3.5 w-3.5" />{templates.length} saved</span>
               <span className="flex items-center gap-1.5"><FolderOpen className="h-3.5 w-3.5" />{BUILTIN_TEMPLATES.length} starters</span>
             </div>
-            <Button
-              onClick={() => setAiModalOpen(true)}
+          <Button
+              onClick={() => navigate("/admin/ai-email-builder")}
               className="gap-2 bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-700 hover:to-violet-900 text-white"
             >
               <Sparkles className="h-4 w-4" />
