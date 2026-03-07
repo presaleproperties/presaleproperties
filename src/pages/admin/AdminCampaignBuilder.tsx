@@ -1287,7 +1287,13 @@ export default function AdminCampaignBuilder() {
         // Update existing
         const { error } = await supabase
           .from("campaign_templates" as any)
-          .update({ name, project_name: form.projectName, form_data: form })
+          .update({
+            name,
+            project_name: form.projectName,
+            form_data: form,
+            brochure_url: form.brochureUrl || null,
+            pricing_sheet_url: form.pricingSheetUrl || null,
+          })
           .eq("id", templateId);
         if (error) throw error;
         toast.success("Template updated ✓");
@@ -1295,7 +1301,13 @@ export default function AdminCampaignBuilder() {
         // Create new
         const { data, error } = await supabase
           .from("campaign_templates" as any)
-          .insert({ name, project_name: form.projectName, form_data: form })
+          .insert({
+            name,
+            project_name: form.projectName,
+            form_data: form,
+            brochure_url: form.brochureUrl || null,
+            pricing_sheet_url: form.pricingSheetUrl || null,
+          })
           .select("id")
           .single();
         if (error) throw error;
