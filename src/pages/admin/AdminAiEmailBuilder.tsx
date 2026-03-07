@@ -16,11 +16,11 @@ import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
   Eye, Code2, Save, X, Upload, LayoutGrid, Link2,
-  ChevronDown, ChevronUp, Monitor, Smartphone,
+  ChevronDown, ChevronUp, Monitor, Smartphone, Type,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
@@ -85,10 +85,12 @@ function StepSection({
 function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
+  font?: EmailFontPairing,
 ): string {
-  const base   = buildAiEmailHtml(fields, agent, ctaUrl);
+  const base   = buildAiEmailHtml(fields, agent, ctaUrl, font);
   const ACCENT = "#C9A55A";
   const DARK   = "#0d1f18";
+  const bodyFont = font?.body || "'DM Sans', Helvetica, Arial, sans-serif";
 
   let html = heroImage
     ? base.replace(
@@ -111,18 +113,19 @@ function buildFinalHtml(
           <div style="border:1px solid #e0dbd3;overflow:hidden;background:#fafaf8;">
             <img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="100%" style="display:block;width:100%;height:auto;" />
             ${fp.label || fp.sqft ? `<div style="padding:10px 12px 12px;">
-              ${fp.label ? `<p style="margin:0 0 3px 0;font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#111;">${fp.label}</p>` : ""}
-              ${fp.sqft  ? `<p style="margin:0;font-family:'DM Sans',Arial,sans-serif;font-size:10px;color:#888;">${fp.sqft}</p>`  : ""}
+              ${fp.label ? `<p style="margin:0 0 3px 0;font-family:${bodyFont};font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#111;">${fp.label}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0;font-family:${bodyFont};font-size:10px;color:#888;">${fp.sqft}</p>`  : ""}
             </div>` : ""}
           </div>
         </td>`).join("");
+      const displayFont = font?.display || "'Cormorant Garamond', Georgia, serif";
       const block = `
   <!-- ─── FLOOR PLANS ─── -->
   <tr><td style="background:${DARK};padding:0;"><div style="height:3px;background:${ACCENT};"></div></td></tr>
   <tr><td style="background:${DARK};padding:28px 36px 8px;">
-    <p style="margin:0 0 6px 0;font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
-    <p style="margin:0 0 8px 0;font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:400;color:#ffffff;line-height:1.15;">${heading}</p>
-    <p style="margin:0;font-family:'DM Sans',Arial,sans-serif;font-size:12px;color:#8aaa96;line-height:1.6;">${sub}</p>
+    <p style="margin:0 0 6px 0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
+    <p style="margin:0 0 8px 0;font-family:${displayFont};font-size:26px;font-weight:600;color:#ffffff;line-height:1.15;">${heading}</p>
+    <p style="margin:0;font-family:${bodyFont};font-size:12px;color:#8aaa96;line-height:1.6;">${sub}</p>
   </td></tr>
   <tr><td style="background:${DARK};padding:16px 28px 28px;">
     <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>${cells}</tr></table>
@@ -130,7 +133,7 @@ function buildFinalHtml(
   <tr><td style="background:${DARK};padding:0 36px 28px;">
     <table cellpadding="0" cellspacing="0" border="0"><tr>
       <td style="background:${ACCENT};padding:13px 32px;">
-        <a href="https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${fields.projectName || "this project"}. Can you send me more details?`)}" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
+        <a href="https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${fields.projectName || "this project"}. Can you send me more details?`)}" style="font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
       </td>
     </tr></table>
   </td></tr>`;
@@ -196,6 +199,11 @@ export default function AdminAiEmailBuilder() {
   const selectedAsset = campaignAssets.find(a => a.id === selectedAssetId) ?? null;
   const ctaUrl = directCtaUrl || selectedAsset?.brochure_url || selectedAsset?.pricing_sheet_url || undefined;
 
+  // Typography
+  const savedFontId = savedDraft?.fontId ?? "cormorant-dm";
+  const [selectedFontId, setSelectedFontId] = useState<string>(savedFontId);
+  const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
+
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
@@ -248,7 +256,7 @@ export default function AdminAiEmailBuilder() {
         city, neighborhood, startingPrice, deposit, completion,
         subjectLine, previewText, headline, bodyCopy, incentiveText,
         heroImage, floorPlans, fpHeading, fpSubheading,
-        selectedAssetId, directCtaUrl, selAgent,
+        selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -260,7 +268,7 @@ export default function AdminAiEmailBuilder() {
     city, neighborhood, startingPrice, deposit, completion,
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     heroImage, floorPlans, fpHeading, fpSubheading,
-    selectedAssetId, directCtaUrl, selAgent,
+    selectedAssetId, directCtaUrl, selAgent, selectedFontId,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
@@ -274,19 +282,19 @@ export default function AdminAiEmailBuilder() {
 
   // Debounced preview HTML — updates 800ms after last change so iframe doesn't re-render on every keystroke
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont]);
 
   // finalHtml used only for copy/save — always reflects latest state
-  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl);
+  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont);
 
   // ── AI generation ─────────────────────────────────────────────────────────────
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
@@ -629,9 +637,34 @@ export default function AdminAiEmailBuilder() {
                 </Button>
               </StepSection>
 
-              {/* ── STEP 2: AGENT ── */}
+              {/* ── STEP 2: TYPOGRAPHY ── */}
               <StepSection
-                step={2} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
+                step={2} title="Typography" icon={<Type className="h-3.5 w-3.5" />}
+                done={true} doneLabel={selectedFont.label}
+                defaultOpen={false}
+              >
+                <div className="grid grid-cols-2 gap-1.5">
+                  {EMAIL_FONT_PAIRINGS.map(fp => (
+                    <button
+                      key={fp.id}
+                      onClick={() => setSelectedFontId(fp.id)}
+                      className={cn(
+                        "text-left px-2.5 py-2 rounded-lg border transition-all",
+                        selectedFontId === fp.id
+                          ? "border-amber-500 bg-amber-500/8 shadow-sm"
+                          : "border-border bg-muted/10 hover:border-primary/40"
+                      )}
+                    >
+                      <div className="text-[11px] font-semibold truncate text-foreground">{fp.label}</div>
+                      <div className="text-[9px] text-muted-foreground mt-0.5">{fp.tag}</div>
+                    </button>
+                  ))}
+                </div>
+              </StepSection>
+
+              {/* ── STEP 3: AGENT ── */}
+              <StepSection
+                step={3} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
                 done={!!selAgent && selAgent !== "default"}
                 doneLabel={selectedAgent.full_name}
                 defaultOpen={false}
