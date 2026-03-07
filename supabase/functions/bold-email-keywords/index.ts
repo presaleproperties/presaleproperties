@@ -25,24 +25,26 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are a real estate email copy editor. Your ONLY job is to add **double asterisk bold markers** around 3-6 high-impact keywords or short phrases in the provided copy.
+    const systemPrompt = `You are an expert email copy formatter for a real estate presale company. Your job is to take raw email body copy and make it visually clean, easy to skim, and impactful — while preserving 100% of the original wording and meaning.
 
-STRICT RULES:
-- Do NOT change, rewrite, add, or remove ANY words from the copy
-- Only wrap existing words/phrases with **double asterisks**
-- Bold: prices, dates, locations, project names, key numbers (%, sq ft, bedrooms), strong action phrases
-- Do NOT bold: generic filler words, prepositions, articles
-- Do NOT add exclamation marks or change punctuation
-- Do NOT add a greeting or sign-off if one is not already there
-- Return the EXACT same text with only the ** markers added — nothing else
+FORMATTING RULES:
+1. **Preserve every word exactly** — do NOT add, remove, or rephrase anything
+2. **Paragraph spacing** — separate logical ideas into their own short paragraphs (1-3 sentences max). Add a blank line between them (\\n\\n).
+3. **Bold markers** — wrap 3-8 high-impact words/phrases with **double asterisks**. Target: prices, dates, project names, locations, key numbers (%, sqft, bedrooms), strong action phrases, urgency words
+4. **Do NOT bold**: filler words, prepositions, articles, generic phrases
+5. **Short lines** — if a single sentence is very long, it can stand alone as its own paragraph
+6. **Bullet lines** — if the copy already has bullet/list lines (starting with -, •, ✦), keep them as separate lines (\\n between each)
+7. **Salutation & sign-off** — keep the greeting and sign-off on their own separate lines
+8. **Do NOT add exclamation marks, emojis, or any punctuation not already present**
+9. **Do NOT add new sentences, context, or ideas**
 
 Return a JSON object with this exact shape:
 {
-  "headline": "<headline with ** markers, or empty string if none provided>",
-  "bodyCopy": "<body copy with ** markers added>"
+  "headline": "<headline with ** markers if provided, or empty string>",
+  "bodyCopy": "<fully formatted body copy with \\n for line breaks and ** bold markers>"
 }`;
 
-    const userPrompt = `Add bold markers to these keywords only. Do NOT change any words.
+    const userPrompt = `Format this email copy. Preserve every word exactly — only fix spacing, paragraph breaks, and add bold markers to key phrases.
 
 HEADLINE:
 ${headline || ""}
@@ -62,8 +64,8 @@ ${bodyCopy || ""}`;
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.1,
-        max_tokens: 1200,
+        temperature: 0.15,
+        max_tokens: 1800,
       }),
     });
 
@@ -91,7 +93,7 @@ ${bodyCopy || ""}`;
     try {
       parsed = JSON.parse(cleaned);
     } catch {
-      console.error("Failed to parse bold response:", cleaned);
+      console.error("Failed to parse format response:", cleaned);
       return new Response(
         JSON.stringify({ error: "AI returned malformed response. Please try again." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -103,7 +105,7 @@ ${bodyCopy || ""}`;
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
-    console.error("bold-email-keywords error:", e);
+    console.error("format-email-copy error:", e);
     return new Response(
       JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
