@@ -311,7 +311,7 @@ function AiEmailModal({
     setLoading(true);
     setResult(null);
     try {
-      const project = projects.find(p => p.id === selectedProjectId);
+      const project = projects.find(p => p.id === selectedProjectId && selectedProjectId !== "none");
       const { data, error } = await supabase.functions.invoke("generate-email-copy", {
         body: {
           prompt: prompt.trim(),
