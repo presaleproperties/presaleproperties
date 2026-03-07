@@ -484,12 +484,24 @@ export default function AdminAiEmailBuilder() {
               <Section def={SECTIONS[1]} open={open.has("details")} onToggle={() => toggle("details")}>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1 col-span-2">
-                    <Label className="text-[10px]">Project Name</Label>
-                    <Input value={projectName} onChange={e => setProjectName(e.target.value)} className="h-7 text-xs" placeholder="Lumina" />
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[10px]">Project Name</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-muted-foreground">{showProjectName ? "Visible" : "Hidden"}</span>
+                        <Switch checked={showProjectName} onCheckedChange={setShowProjectName} className="scale-75 origin-right" />
+                      </div>
+                    </div>
+                    <Input value={projectName} onChange={e => setProjectName(e.target.value)} className={cn("h-7 text-xs", !showProjectName && "opacity-40")} placeholder="Lumina" />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-[10px]">Developer</Label>
-                    <Input value={developerName} onChange={e => setDevName(e.target.value)} className="h-7 text-xs" placeholder="Bosa Properties" />
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[10px]">Developer</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-muted-foreground">{showDeveloperName ? "Visible" : "Hidden"}</span>
+                        <Switch checked={showDeveloperName} onCheckedChange={setShowDeveloperName} className="scale-75 origin-right" />
+                      </div>
+                    </div>
+                    <Input value={developerName} onChange={e => setDevName(e.target.value)} className={cn("h-7 text-xs", !showDeveloperName && "opacity-40")} placeholder="Bosa Properties" />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[10px]">City</Label>
