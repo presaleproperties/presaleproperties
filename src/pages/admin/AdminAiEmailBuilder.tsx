@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -174,6 +175,8 @@ export default function AdminAiEmailBuilder() {
   // Editable copy fields
   const [projectName, setProjectName] = useState("");
   const [developerName, setDevName]   = useState("");
+  const [showProjectName, setShowProjectName] = useState(true);
+  const [showDeveloperName, setShowDeveloperName] = useState(true);
   const [city, setCity]               = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [startingPrice, setStartingPrice] = useState("");
@@ -224,9 +227,11 @@ export default function AdminAiEmailBuilder() {
 
   const currentCopy = useCallback((): AiEmailCopy => ({
     subjectLine, previewText, headline, bodyCopy, incentiveText,
-    projectName, city, neighborhood, developerName: developerName,
+    projectName: showProjectName ? projectName : "",
+    city, neighborhood,
+    developerName: showDeveloperName ? developerName : "",
     startingPrice, deposit, completion,
-  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, city, neighborhood, developerName, startingPrice, deposit, completion]);
+  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
 
   const previewHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading);
 
@@ -479,12 +484,24 @@ export default function AdminAiEmailBuilder() {
               <Section def={SECTIONS[1]} open={open.has("details")} onToggle={() => toggle("details")}>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1 col-span-2">
-                    <Label className="text-[10px]">Project Name</Label>
-                    <Input value={projectName} onChange={e => setProjectName(e.target.value)} className="h-7 text-xs" placeholder="Lumina" />
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[10px]">Project Name</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-muted-foreground">{showProjectName ? "Visible" : "Hidden"}</span>
+                        <Switch checked={showProjectName} onCheckedChange={setShowProjectName} className="scale-75 origin-right" />
+                      </div>
+                    </div>
+                    <Input value={projectName} onChange={e => setProjectName(e.target.value)} className={cn("h-7 text-xs", !showProjectName && "opacity-40")} placeholder="Lumina" />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-[10px]">Developer</Label>
-                    <Input value={developerName} onChange={e => setDevName(e.target.value)} className="h-7 text-xs" placeholder="Bosa Properties" />
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[10px]">Developer</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-muted-foreground">{showDeveloperName ? "Visible" : "Hidden"}</span>
+                        <Switch checked={showDeveloperName} onCheckedChange={setShowDeveloperName} className="scale-75 origin-right" />
+                      </div>
+                    </div>
+                    <Input value={developerName} onChange={e => setDevName(e.target.value)} className={cn("h-7 text-xs", !showDeveloperName && "opacity-40")} placeholder="Bosa Properties" />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[10px]">City</Label>
