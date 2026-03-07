@@ -14,7 +14,7 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, Download, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2, ChevronDown, ChevronUp,
-  Eye, Code2, Save, X, Upload, LayoutGrid,
+  Eye, Code2, Save, X, Upload, LayoutGrid, Link2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
