@@ -295,7 +295,7 @@ export default function AdminEmailBuilderPage() {
         _savedAt: new Date().toISOString(),
         prompt, templateType, selProjectId, activeVersion, aiResult,
         projectName, developerName, showProjectName, showDeveloperName, customHeader,
-        city, neighborhood, startingPrice, deposit, completion,
+        city, neighborhood, startingPrice, deposit, completion, infoRows,
         subjectLine, previewText, headline, bodyCopy, incentiveText,
         heroImage, floorPlans, fpHeading, fpSubheading,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
