@@ -301,7 +301,7 @@ function AiEmailModal({
   onApply: (copy: Record<string, string>, templateType: string) => void;
 }) {
   const [prompt, setPrompt] = useState("");
-  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("none");
   const [templateType, setTemplateType] = useState<string>("main-project-email");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Record<string, string> | null>(null);
@@ -311,7 +311,7 @@ function AiEmailModal({
     setLoading(true);
     setResult(null);
     try {
-      const project = projects.find(p => p.id === selectedProjectId);
+      const project = projects.find(p => p.id === selectedProjectId && selectedProjectId !== "none");
       const { data, error } = await supabase.functions.invoke("generate-email-copy", {
         body: {
           prompt: prompt.trim(),
@@ -337,7 +337,7 @@ function AiEmailModal({
 
   const handleClose = () => {
     setPrompt("");
-    setSelectedProjectId("");
+    setSelectedProjectId("none");
     setResult(null);
     onClose();
   };
@@ -412,7 +412,7 @@ function AiEmailModal({
                   <SelectValue placeholder="Select project…" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No project</SelectItem>
+                  <SelectItem value="none">No project</SelectItem>
                   {projects.map(p => (
                     <SelectItem key={p.id} value={p.id}>{p.name} — {p.city}</SelectItem>
                   ))}
