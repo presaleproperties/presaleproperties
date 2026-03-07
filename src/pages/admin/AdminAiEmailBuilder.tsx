@@ -623,7 +623,7 @@ export default function AdminAiEmailBuilder() {
                   srcDoc={previewHtml}
                   className="border-0 h-full"
                   style={previewDevice === "mobile" ? { width: "375px", minHeight: "100%" } : { width: "100%" }}
-                  sandbox={previewMode === "edit" ? "allow-same-origin allow-scripts" : "allow-same-origin"}
+                  sandbox="allow-same-origin"
                   title="Email Preview"
                   onLoad={previewMode === "edit" ? enableIframeEdit : undefined}
                 />
