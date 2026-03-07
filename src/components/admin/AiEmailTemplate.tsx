@@ -164,6 +164,107 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
+...
+</body>
+</html>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LOOP TEMPLATE — editorial magazine layout with CSS hero slideshow
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Generate CSS keyframe animation for a hero slideshow of n slides */
+function buildSlideshowCss(n: number, duration = 8): string {
+  if (n <= 1) return "";
+  const total = n * duration;
+  const frames: string[] = [];
+
+  for (let i = 0; i < n; i++) {
+    const startSec   = i * duration;
+    const endSec     = (i + 1) * duration;
+    // as percentages of total cycle
+    const fadeInEnd  = Math.round(((startSec + 1) / total) * 100 * 10) / 10;
+    const holdEnd    = Math.round(((endSec   - 1) / total) * 100 * 10) / 10;
+    const fadeOutEnd = Math.round(( endSec          / total) * 100 * 10) / 10;
+    // loop-back for first slide
+    const loopStart  = Math.round(((total - 1)     / total) * 100 * 10) / 10;
+
+    if (i === 0) {
+      frames.push(`@keyframes pp-s${i}{
+  0%{opacity:1}
+  ${holdEnd}%{opacity:1}
+  ${fadeOutEnd}%{opacity:0}
+  ${loopStart}%{opacity:0}
+  100%{opacity:1}
+}`);
+    } else {
+      const prevFadeOut = Math.round(((startSec) / total) * 100 * 10) / 10;
+      frames.push(`@keyframes pp-s${i}{
+  0%{opacity:0}
+  ${prevFadeOut}%{opacity:0}
+  ${fadeInEnd}%{opacity:1}
+  ${holdEnd}%{opacity:1}
+  ${fadeOutEnd}%{opacity:0}
+  100%{opacity:0}
+}`);
+    }
+  }
+  return frames.join("\n");
+}
+
+export function buildLoopEmailHtml(
+  copy: AiEmailCopy,
+  agent: AgentInfo = DEFAULT_AGENT,
+  heroSlides: string[],
+  ctaUrl?: string,
+  font?: EmailFontPairing,
+): string {
+  const ACCENT      = "#C9A55A";
+  const DARK        = "#0d1f18";
+  const DARK2       = "#152b20";
+  const plansPricingUrl = ctaUrl || "https://presaleproperties.com";
+  const displayFont = font?.display || "'Cormorant Garamond', Georgia, serif";
+  const bodyFont    = font?.body    || "'DM Sans', Helvetica, Arial, sans-serif";
+  const googleFontUrl = font?.googleUrl || "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap";
+
+  const slides      = heroSlides.filter(Boolean);
+  const nSlides     = slides.length;
+  const duration    = 8;
+  const totalDur    = nSlides * duration;
+  const slideCss    = buildSlideshowCss(nSlides, duration);
+
+  const locationLine = [copy.neighborhood, copy.city].filter(Boolean).join(", ");
+  const incentives   = parseIncentives(copy.incentiveText || "");
+
+  // Build hero slideshow HTML
+  const heroHtml = slides.length === 0 ? "" : (() => {
+    if (slides.length === 1) {
+      return `
+  <!-- ─── HERO IMAGE ─── -->
+  <tr>
+    <td style="padding:0;line-height:0;font-size:0;">
+      <img src="${slides[0]}" alt="${copy.projectName || "Project"}" width="600"
+           style="display:block;width:100%;max-width:600px;height:320px;object-fit:cover;" />
+    </td>
+  </tr>`;
+    }
+    // Multi-slide: absolutely stacked with CSS animation
+    const imgTags = slides.map((url, i) => `
+      <img src="${url}" alt="${copy.projectName || "Project"} slide ${i + 1}" width="600"
+           style="display:block;width:100%;height:320px;object-fit:cover;${i === 0 ? "" : "position:absolute;top:0;left:0;"}opacity:${i === 0 ? 1 : 0};animation:pp-s${i} ${totalDur}s infinite;" />`).join("");
+    return `
+  <!-- ─── HERO SLIDESHOW ─── -->
+  <tr>
+    <td style="padding:0;line-height:0;font-size:0;position:relative;height:320px;overflow:hidden;">
+      <div style="position:relative;width:100%;height:320px;overflow:hidden;line-height:0;font-size:0;">${imgTags}
+      </div>
+    </td>
+  </tr>`;
+  })();
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="x-apple-disable-message-reformatting"/>
@@ -176,102 +277,118 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
     img{-ms-interpolation-mode:bicubic;border:0;height:auto;line-height:100%;outline:none;text-decoration:none;}
     body{margin:0!important;padding:0!important;background:#f0ede8;}
     *{box-sizing:border-box;}
-    /* ── Apple Mail / Gmail link colour reset ── */
     a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;}
     u+#body a{color:inherit!important;text-decoration:none!important;}
     #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
-    /* ── Mobile ── */
+    ${slideCss}
     @media only screen and (max-width:620px){
       .email-container{width:100%!important;max-width:100%!important;}
       .mobile-pad{padding-left:20px!important;padding-right:20px!important;}
-      .mobile-pad-sm{padding-left:14px!important;padding-right:14px!important;}
+      .loop-hero{height:220px!important;}
+      .loop-hero img{height:220px!important;}
+      .loop-headline{font-size:26px!important;line-height:1.15!important;}
+      .loop-project{font-size:28px!important;}
+      .loop-stat-val{font-size:20px!important;}
       .mobile-stack td{display:block!important;width:100%!important;text-align:left!important;padding-left:20px!important;padding-right:20px!important;}
       .mobile-stack td:first-child{border-right:none!important;border-bottom:1px solid #e8e3db!important;}
-      .mobile-hero-img{min-height:200px!important;}
-      .hero-headline{font-size:24px!important;}
-      .body-headline{font-size:22px!important;}
-      .stat-value{font-size:22px!important;}
-      .agent-logo{display:none!important;}
       .agent-photo{width:44px!important;height:44px!important;}
       .agent-photo-cell{padding:14px 0 14px 16px!important;width:60px!important;}
       .agent-info-cell{padding:14px 16px!important;}
       .agent-logo-cell{display:none!important;}
-      .fp-cell{display:block!important;width:100%!important;}
-      table.mobile-full{width:100%!important;}
     }
   </style>
 </head>
 <body style="margin:0;padding:0;background:#f0ede8;" id="body">
 
-<!-- Outer wrapper -->
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0ede8;">
 <tr><td align="center" style="padding:24px 12px;">
 
-<!-- Email container -->
+<!-- Loop email container -->
 <table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e0dbd3;">
 
-  <!-- ─── HEADER ─── -->
+  <!-- ─── MASTHEAD ─── -->
   <tr>
-    <td class="mobile-pad" style="background:${DARK};padding:28px 36px 24px;">
-      <p style="margin:0 0 4px 0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES</p>
-      <p class="hero-headline" style="margin:0 0 10px 0;font-family:${displayFont};font-size:32px;font-weight:600;color:#ffffff;line-height:1.1;">${copy.projectName || "New Presale Release"}</p>
-      ${byLine ? `<p style="margin:0 0 10px 0;font-family:${bodyFont};font-size:11px;color:#7a9a86;">${byLine}</p>` : ""}
+    <td class="mobile-pad" style="background:${DARK};padding:20px 36px 18px;border-bottom:1px solid rgba(201,165,90,0.25);">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>
+            <p style="margin:0;font-family:${bodyFont};font-size:9px;letter-spacing:3.5px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES${locationLine ? ` · ${locationLine.toUpperCase()}` : ""}</p>
+          </td>
+          <td align="right">
+            <p style="margin:0;font-family:${bodyFont};font-size:9px;letter-spacing:1.5px;color:rgba(201,165,90,0.4);text-transform:uppercase;">Exclusive Release</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- ─── PROJECT NAMEPLATE ─── -->
+  <tr>
+    <td class="mobile-pad" style="background:${DARK};padding:22px 36px 26px;">
+      ${copy.developerName ? `<p style="margin:0 0 6px 0;font-family:${bodyFont};font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7a9a86;">${copy.developerName}</p>` : ""}
+      <p class="loop-project" style="margin:0 0 12px 0;font-family:${displayFont};font-size:42px;font-weight:600;color:#ffffff;line-height:1.0;letter-spacing:-0.5px;">${copy.projectName || "New Presale Release"}</p>
       <table cellpadding="0" cellspacing="0" border="0"><tr>
-        <td style="width:32px;height:2px;background:${ACCENT};"></td>
+        <td style="width:40px;height:2px;background:${ACCENT};"></td>
         <td style="width:8px;"></td>
-        <td style="width:8px;height:2px;background:${ACCENT};opacity:0.4;"></td>
+        <td style="width:10px;height:2px;background:${ACCENT};opacity:0.35;"></td>
       </tr></table>
     </td>
   </tr>
 
-  <!-- ─── LOCATION BANNER (conditional) ─── -->
-  ${locationLine ? `
-  <tr>
-    <td class="mobile-pad" style="background:${ACCENT};padding:9px 36px;">
-      <p style="margin:0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;">${locationLine.toUpperCase()}</p>
-    </td>
-  </tr>` : ""}
+  ${heroHtml}
 
-  <!-- ─── HERO STATS BAR (conditional) ─── -->
+  <!-- ─── STATS STRIP (conditional) ─── -->
   ${(copy.startingPrice || copy.completion || copy.deposit) ? `
   <tr>
-    <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
+    <td style="background:${DARK2};padding:0;border-top:1px solid rgba(201,165,90,0.2);">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" class="mobile-stack">
         <tr>
           ${copy.startingPrice ? `
-          <td style="padding:16px 20px 14px;border-right:1px solid #e8e3db;text-align:center;">
-            <p class="stat-value" style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.startingPrice}</p>
-            <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Starting Price</p>
+          <td style="padding:14px 20px 12px;border-right:1px solid rgba(255,255,255,0.07);text-align:center;">
+            <p class="loop-stat-val" style="margin:0 0 2px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#ffffff;">${copy.startingPrice}</p>
+            <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,165,90,0.6);">Starting From</p>
           </td>` : ""}
           ${copy.deposit ? `
-          <td style="padding:16px 20px 14px;border-right:1px solid #e8e3db;text-align:center;">
-            <p class="stat-value" style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.deposit}</p>
-            <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Deposit Structure</p>
+          <td style="padding:14px 20px 12px;border-right:1px solid rgba(255,255,255,0.07);text-align:center;">
+            <p class="loop-stat-val" style="margin:0 0 2px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#ffffff;">${copy.deposit}</p>
+            <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,165,90,0.6);">Deposit</p>
           </td>` : ""}
           ${copy.completion ? `
-          <td style="padding:16px 20px 14px;text-align:center;">
-            <p class="stat-value" style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.completion}</p>
-            <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Est. Completion</p>
+          <td style="padding:14px 20px 12px;text-align:center;">
+            <p class="loop-stat-val" style="margin:0 0 2px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#ffffff;">${copy.completion}</p>
+            <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,165,90,0.6);">Completion</p>
           </td>` : ""}
         </tr>
       </table>
     </td>
   </tr>` : ""}
 
-  <!-- ─── INFO ROWS (conditional) ─── -->
+  <!-- ─── BODY COPY ─── -->
+  <tr>
+    <td class="mobile-pad" style="padding:40px 36px 32px;background:#ffffff;">
+      ${copy.headline ? `
+      <p class="loop-headline" style="margin:0 0 16px 0;font-family:${displayFont};font-size:32px;font-weight:600;color:${DARK};line-height:1.2;letter-spacing:-0.3px;">${copy.headline}</p>
+      <div style="width:36px;height:2px;background:${ACCENT};margin-bottom:22px;"></div>` : ""}
+      <div style="font-family:${bodyFont};font-size:15px;color:#444444;line-height:1.85;">
+        ${bodyToHtml(copy.bodyCopy || "")}
+      </div>
+    </td>
+  </tr>
+
+  <!-- ─── INFO TABLE (conditional) ─── -->
   ${(copy.infoRows && copy.infoRows.filter(r => r.includes("|")).length > 0) ? `
   <tr>
-    <td class="mobile-pad" style="padding:0 36px 20px;">
+    <td class="mobile-pad" style="padding:0 36px 28px;background:#ffffff;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e8e3db;border-radius:2px;overflow:hidden;">
         ${copy.infoRows.filter(r => r.includes("|")).map((row, i, arr) => {
           const [label, value] = row.split("|").map(s => s.trim());
           const isLast = i === arr.length - 1;
           return `<tr>
           <td style="padding:10px 16px;background:#f7f5f1;border-right:1px solid #e8e3db;width:40%;${!isLast ? "border-bottom:1px solid #e8e3db;" : ""}">
-            <p style="margin:0;font-family:${bodyFont};font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#999999;">${label}</p>
+            <p style="margin:0;font-family:${bodyFont};font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#999;">${label}</p>
           </td>
           <td style="padding:10px 16px;background:#ffffff;${!isLast ? "border-bottom:1px solid #e8e3db;" : ""}">
-            <p style="margin:0;font-family:${bodyFont};font-size:13px;font-weight:500;color:#222222;">${value}</p>
+            <p style="margin:0;font-family:${bodyFont};font-size:13px;font-weight:500;color:#222;">${value}</p>
           </td>
         </tr>`;
         }).join("")}
@@ -279,94 +396,51 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
     </td>
   </tr>` : ""}
 
-  <!-- ─── BODY COPY ─── -->
-  <tr>
-    <td class="mobile-pad" style="padding:36px 36px 28px;">
-      ${(!suppressHeadlineInBody && copy.headline) ? `
-      <p class="body-headline" style="margin:0 0 18px 0;font-family:${displayFont};font-size:30px;font-weight:700;color:#0d1f18;line-height:1.2;letter-spacing:-0.3px;">${copy.headline}</p>
-      <div style="width:40px;height:3px;background:${ACCENT};margin-bottom:20px;"></div>` : ""}
-      <div style="font-family:${bodyFont};font-size:15px;color:#444444;line-height:1.8;">
-        ${bodyToHtml(copy.bodyCopy || "")}
-      </div>
-    </td>
-  </tr>
-
   <!-- ─── INCENTIVES (conditional) ─── -->
   ${incentives.length > 0 ? `
   <tr>
-    <td class="mobile-pad" style="background:${DARK};padding:28px 36px 24px;">
-      <p style="margin:0 0 16px 0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
+    <td class="mobile-pad" style="background:${DARK};padding:30px 36px 26px;border-top:3px solid ${ACCENT};">
+      <p style="margin:0 0 18px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#ffffff;">What's Included</p>
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${incentives.map(item => `
         <tr>
-          <td style="padding:0 0 10px 0;vertical-align:top;width:16px;">
-            <div style="width:5px;height:5px;background:${ACCENT};margin-top:7px;"></div>
+          <td style="padding:0 0 11px 0;vertical-align:top;width:14px;">
+            <div style="width:4px;height:4px;background:${ACCENT};margin-top:8px;"></div>
           </td>
-          <td style="padding:0 0 10px 12px;vertical-align:top;">
-            <p style="margin:0;font-family:${bodyFont};font-size:14px;color:#c8d8cc;line-height:1.7;">${item}</p>
+          <td style="padding:0 0 11px 12px;vertical-align:top;">
+            <p style="margin:0;font-family:${bodyFont};font-size:14px;color:#c8d8cc;line-height:1.75;">${item}</p>
           </td>
         </tr>`).join("")}
       </table>
     </td>
   </tr>` : ""}
 
-  <!-- ─── IMAGE CARDS (conditional) ─── -->
-  ${(copy.imageCards && copy.imageCards.filter(c => c.url).length > 0) ? (() => {
-    const cards = copy.imageCards!.filter(c => c.url);
-    const colWidth = cards.length === 1 ? "100%" : cards.length === 2 ? "50%" : "33.333%";
-    return `
-  <tr>
-    <td style="padding:0;margin:0;background:#ffffff;line-height:0;font-size:0;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;table-layout:fixed;">
-        <tr>
-          ${cards.map((card, i) => `
-          <td style="width:${colWidth};vertical-align:top;padding:0;margin:0;${i > 0 ? "border-left:2px solid #ffffff;" : ""}line-height:0;font-size:0;">
-            <img src="${card.url}" alt="${card.caption || "Project image"}" width="100%"
-                 style="display:block;width:100%;height:auto;object-fit:cover;" />
-            ${card.caption ? `<p style="margin:4px 0 0 0;padding:0 4px;font-family:${bodyFont};font-size:10px;color:#999999;text-align:center;letter-spacing:0.5px;line-height:1.4;">${card.caption}</p>` : ""}
-          </td>`).join("")}
-        </tr>
-      </table>
-    </td>
-  </tr>`;
-  })() : ""}
-
   <!-- ─── CTA ─── -->
   <tr>
-    <td style="background:#f7f5f1;padding:32px 36px 36px;">
-      <!-- Primary CTA: VIEW PLANS — full gold fill -->
+    <td style="background:#f7f5f1;padding:36px 36px 36px;text-align:center;border-top:1px solid #e8e3db;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
         <tr>
-          <td align="center" style="background:${ACCENT};padding:18px 24px;text-align:center;">
+          <td align="center" style="background:${ACCENT};padding:20px 32px;">
             <a href="${plansPricingUrl}"
-               style="font-family:${bodyFont};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0d1f18;text-decoration:none;display:block;line-height:1;">
+               style="font-family:${bodyFont};font-size:11px;font-weight:700;letter-spacing:3.5px;text-transform:uppercase;color:${DARK};text-decoration:none;display:block;line-height:1;">
               VIEW PLANS &amp; PRICING &nbsp;→
             </a>
           </td>
         </tr>
       </table>
-      <!-- Secondary CTA: CALL NOW — dark green fill -->
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
-          <td align="center" style="background:${DARK};padding:16px 24px;text-align:center;">
-            <a href="tel:${(agent.phone || DEFAULT_AGENT.phone).replace(/\D/g,'')}"
+          <td align="center" style="background:${DARK};padding:16px 24px;">
+            <a href="tel:${(agent.phone || DEFAULT_AGENT.phone).replace(/\D/g,"")}"
                style="font-family:${bodyFont};font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;line-height:1;">
               &#128222;&nbsp; CALL NOW
             </a>
           </td>
         </tr>
       </table>
-      <!-- Agent note -->
-      <p style="margin:16px 0 0 0;font-family:${bodyFont};font-size:11px;color:#999999;text-align:center;line-height:1.5;">
+      <p style="margin:16px 0 0 0;font-family:${bodyFont};font-size:11px;color:#999;text-align:center;line-height:1.5;">
         Questions? Reply to this email or call ${agent.phone || DEFAULT_AGENT.phone} directly.
       </p>
-    </td>
-  </tr>
-
-  <!-- ─── DIVIDER ─── -->
-  <tr>
-    <td style="padding:0 36px;">
-      <div style="height:1px;background:#ece8e0;"></div>
     </td>
   </tr>
 
@@ -382,22 +456,22 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
                  style="display:block;width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
           </td>` : ""}
           <td valign="middle" class="agent-info-cell" style="padding:18px 12px 18px ${agent.photo_url ? "10px" : "20px"};vertical-align:middle;">
-            <div style="font-family:${displayFont};font-size:17px;font-weight:600;color:#111111;line-height:1.15;mso-line-height-rule:exactly;margin-bottom:2px;">${agent.full_name}</div>
-            <div style="font-family:${bodyFont};font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};mso-line-height-rule:exactly;line-height:1.5;margin-bottom:6px;">${agent.title}</div>
+            <div style="font-family:${displayFont};font-size:17px;font-weight:600;color:#111;line-height:1.15;margin-bottom:2px;">${agent.full_name}</div>
+            <div style="font-family:${bodyFont};font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};line-height:1.5;margin-bottom:6px;">${agent.title}</div>
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
               ${agent.phone ? `<tr>
-                <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;line-height:1;">&#128222;</td>
-                <td style="padding-bottom:3px;vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:${bodyFont};font-size:12px;font-weight:400;color:#444444;text-decoration:none;">${agent.phone}</a></td>
+                <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888;line-height:1;">&#128222;</td>
+                <td style="padding-bottom:3px;vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:${bodyFont};font-size:12px;color:#444;text-decoration:none;">${agent.phone}</a></td>
               </tr>` : ""}
               ${agent.email ? `<tr>
-                <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;line-height:1;">&#9993;</td>
-                <td style="padding-bottom:3px;vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${bodyFont};font-size:11px;font-weight:400;color:#444444;text-decoration:none;">${agent.email}</a></td>
+                <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888;line-height:1;">&#9993;</td>
+                <td style="padding-bottom:3px;vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${bodyFont};font-size:11px;color:#444;text-decoration:none;">${agent.email}</a></td>
               </tr>` : ""}
             </table>
           </td>
           <td align="right" valign="middle" class="agent-logo-cell" style="padding:18px 24px 18px 12px;vertical-align:middle;">
             <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="150" border="0" class="agent-logo"
-                 style="display:block;width:150px;max-width:150px;height:auto;-ms-interpolation-mode:bicubic;" />
+                 style="display:block;width:150px;max-width:150px;height:auto;" />
           </td>
         </tr>
       </table>
@@ -407,38 +481,38 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   <!-- ─── FOOTER ─── -->
   <tr>
     <td bgcolor="${DARK}" class="mobile-pad" style="padding:22px 36px;background-color:${DARK};">
-      <div style="font-family:${bodyFont};font-size:9px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};margin-bottom:6px;mso-line-height-rule:exactly;line-height:1.5;">PRESALE PROPERTIES &nbsp;&middot;&nbsp; ${copy.city ? `${copy.city.toUpperCase()}, BC` : "VANCOUVER, BC"}</div>
-      <div style="font-family:${bodyFont};font-size:12px;font-weight:300;color:#8aaa96;mso-line-height-rule:exactly;line-height:1.6;"><a href="https://presaleproperties.com" style="color:#8aaa96;text-decoration:none;">presaleproperties.com</a>${agent.phone ? ` &nbsp;&middot;&nbsp; ${agent.phone}` : ""}</div>
+      <div style="font-family:${bodyFont};font-size:9px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};margin-bottom:6px;line-height:1.5;">PRESALE PROPERTIES &nbsp;&middot;&nbsp; ${copy.city ? `${copy.city.toUpperCase()}, BC` : "VANCOUVER, BC"}</div>
+      <div style="font-family:${bodyFont};font-size:12px;font-weight:300;color:#8aaa96;line-height:1.6;"><a href="https://presaleproperties.com" style="color:#8aaa96;text-decoration:none;">presaleproperties.com</a>${agent.phone ? ` &nbsp;&middot;&nbsp; ${agent.phone}` : ""}</div>
     </td>
   </tr>
 
   <!-- ─── LEGAL + UNSUBSCRIBE ─── -->
   <tr>
     <td bgcolor="#f8f7f4" class="mobile-pad" style="padding:24px 36px 28px;background-color:#f8f7f4;border-top:1px solid #e8e8e4;">
-      <div style="font-family:${bodyFont};font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#555555;margin-bottom:12px;mso-line-height-rule:exactly;line-height:1.4;">L E G A L &nbsp; D I S C L A I M E R</div>
-      <div style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888888;line-height:1.8;margin-bottom:12px;mso-line-height-rule:exactly;">
-        This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer's agents &mdash; we represent <strong style="font-weight:500;color:#666666;">you</strong>, not the developer. This is <strong style="font-weight:500;color:#666666;">not an offering for sale</strong>. An offering can only be made after a Disclosure Statement is filed under REDMA. Prices, availability, and incentives are subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions are subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E. Presale Properties complies with the Real Estate Services Act (BCFSA).
+      <div style="font-family:${bodyFont};font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:12px;line-height:1.4;">L E G A L &nbsp; D I S C L A I M E R</div>
+      <div style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888;line-height:1.8;margin-bottom:12px;">
+        This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer's agents &mdash; we represent <strong style="font-weight:500;color:#666;">you</strong>, not the developer. This is <strong style="font-weight:500;color:#666;">not an offering for sale</strong>. An offering can only be made after a Disclosure Statement is filed under REDMA. Prices, availability, and incentives are subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions are subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E. Presale Properties complies with the Real Estate Services Act (BCFSA).
       </div>
-      <div style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888888;line-height:1.8;margin-bottom:18px;mso-line-height-rule:exactly;">
+      <div style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888;line-height:1.8;margin-bottom:18px;">
         You are receiving this because you opted in to presale updates from Presale Properties. Per Canada's Anti-Spam Legislation (CASL), you may withdraw consent at any time.
       </div>
       <div>
-        <a href="*|UNSUB|*" style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Unsubscribe</a>
-        <span style="color:#cccccc;margin:0 10px;">&middot;</span>
-        <a href="*|UPDATE_PROFILE|*" style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Update Preferences</a>
-        <span style="color:#cccccc;margin:0 10px;">&middot;</span>
-        <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">View in Browser</a>
+        <a href="*|UNSUB|*" style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888;text-decoration:underline;">Unsubscribe</a>
+        <span style="color:#ccc;margin:0 10px;">&middot;</span>
+        <a href="*|UPDATE_PROFILE|*" style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888;text-decoration:underline;">Update Preferences</a>
+        <span style="color:#ccc;margin:0 10px;">&middot;</span>
+        <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888;text-decoration:underline;">View in Browser</a>
       </div>
     </td>
   </tr>
 
 </table>
-<!-- /Email container -->
+<!-- /Loop email container -->
 
 </td></tr>
 </table>
-<!-- /Outer wrapper -->
 
 </body>
 </html>`;
+}
 }
