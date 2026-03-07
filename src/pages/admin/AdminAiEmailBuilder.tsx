@@ -30,6 +30,7 @@ const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface FloorPlanEntry { id: string; url: string; label: string; sqft: string }
+interface ImageCardEntry { id: string; url: string; caption: string }
 interface CampaignAsset {
   id: string; name: string; project_name: string;
   brochure_url: string | null; pricing_sheet_url: string | null; thumbnail_url: string | null;
