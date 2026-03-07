@@ -395,9 +395,9 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
               </tr>` : ""}
             </table>
           </td>
-          <td align="right" valign="middle" style="padding:18px 20px 18px 12px;vertical-align:middle;">
-            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" border="0" class="agent-logo"
-                 style="display:block;width:110px;max-width:110px;height:auto;-ms-interpolation-mode:bicubic;" />
+          <td align="right" valign="middle" style="padding:18px 24px 18px 12px;vertical-align:middle;">
+            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="150" border="0" class="agent-logo"
+                 style="display:block;width:150px;max-width:150px;height:auto;-ms-interpolation-mode:bicubic;" />
           </td>
         </tr>
       </table>
