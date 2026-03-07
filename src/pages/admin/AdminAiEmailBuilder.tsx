@@ -205,7 +205,7 @@ export default function AdminAiEmailBuilder() {
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // UI
-  const [previewMode,   setPreviewMode]   = useState<"preview" | "code">("preview");
+  const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
   const [copied,        setCopied]        = useState(false);
   const [saving,        setSaving]        = useState(false);
