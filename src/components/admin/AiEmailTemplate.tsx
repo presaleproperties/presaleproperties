@@ -307,6 +307,30 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
     </td>
   </tr>` : ""}
 
+  <!-- ─── IMAGE CARDS (conditional) ─── -->
+  ${(copy.imageCards && copy.imageCards.filter(c => c.url).length > 0) ? (() => {
+    const cards = copy.imageCards!.filter(c => c.url);
+    const colWidth = cards.length === 1 ? "100%" : cards.length === 2 ? "50%" : "33.333%";
+    const gap = 8;
+    return `
+  <tr>
+    <td style="padding:0;background:#ffffff;">
+      <table cellpadding="0" cellspacing="${gap}" border="0" width="100%" style="border-collapse:separate;">
+        <tr>
+          ${cards.map(card => `
+          <td style="width:${colWidth};vertical-align:top;padding:${gap}px;">
+            <div style="overflow:hidden;border-radius:2px;line-height:0;font-size:0;">
+              <img src="${card.url}" alt="${card.caption || "Project image"}" width="100%"
+                   style="display:block;width:100%;height:auto;object-fit:cover;" />
+            </div>
+            ${card.caption ? `<p style="margin:6px 0 0 0;font-family:${bodyFont};font-size:10px;color:#999999;text-align:center;letter-spacing:0.5px;">${card.caption}</p>` : ""}
+          </td>`).join("")}
+        </tr>
+      </table>
+    </td>
+  </tr>`;
+  })() : ""}
+
   <!-- ─── CTA ─── -->
   <tr>
     <td style="background:#f7f5f1;padding:32px 36px 36px;">
