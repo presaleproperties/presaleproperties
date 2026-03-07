@@ -436,55 +436,112 @@ function AiEmailModal({
 
           {/* Result preview */}
           {result && (
-            <div className="border border-border rounded-xl overflow-hidden">
-              <div className="bg-muted/40 px-4 py-2.5 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                  <span className="text-sm font-semibold">Copy Generated</span>
+            <div className="space-y-3">
+              {/* Extracted metadata badges */}
+              {(result.startingPrice || result.deposit || result.completion || result.projectName) && (
+                <div className="flex gap-2 flex-wrap">
+                  {result.projectName && <Badge variant="outline" className="text-[10px]">🏙 {result.projectName}</Badge>}
+                  {result.startingPrice && <Badge variant="outline" className="text-[10px]">💰 {result.startingPrice}</Badge>}
+                  {result.deposit && <Badge variant="outline" className="text-[10px]">📋 {result.deposit}</Badge>}
+                  {result.completion && <Badge variant="outline" className="text-[10px]">🏗 {result.completion}</Badge>}
                 </div>
-                <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-[10px] border">Ready to use</Badge>
+              )}
+
+              {/* Version A */}
+              <div className="border border-border rounded-xl overflow-hidden">
+                <div className="bg-muted/40 px-4 py-2.5 border-b border-border flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    <span className="text-sm font-semibold">Version A</span>
+                    <span className="text-[10px] text-muted-foreground">— Detailed</span>
+                  </div>
+                  <Button size="sm" className="h-7 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => onApply(result, templateType)}>
+                    <ArrowRight className="h-3 w-3" /> Use This
+                  </Button>
+                </div>
+                <div className="p-4 space-y-2.5">
+                  {result.subjectLine && (
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Subject Line</p>
+                      <p className="text-xs font-medium bg-muted/50 rounded-lg px-3 py-2">{result.subjectLine}</p>
+                    </div>
+                  )}
+                  {result.previewText && (
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Preheader</p>
+                      <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">{result.previewText}</p>
+                    </div>
+                  )}
+                  {result.headline && (
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Headline</p>
+                      <p className="text-xs font-semibold bg-muted/50 rounded-lg px-3 py-2">{result.headline}</p>
+                    </div>
+                  )}
+                  {result.bodyCopy && (
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Body Copy</p>
+                      <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 leading-relaxed whitespace-pre-line">{result.bodyCopy}</p>
+                    </div>
+                  )}
+                  {result.incentiveText && (
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Incentives</p>
+                      <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 whitespace-pre-line">{result.incentiveText}</p>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="p-4 space-y-3">
-                {result.subjectLine && (
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Subject Line</p>
-                    <p className="text-sm font-medium bg-muted/50 rounded-lg px-3 py-2">{result.subjectLine}</p>
+
+              {/* Version B */}
+              {(result.subjectLineB || result.bodyCopyB) && (
+                <div className="border border-border rounded-xl overflow-hidden">
+                  <div className="bg-muted/40 px-4 py-2.5 border-b border-border flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-amber-500" />
+                      <span className="text-sm font-semibold">Version B</span>
+                      <span className="text-[10px] text-muted-foreground">— Short & Punchy</span>
+                    </div>
+                    <Button size="sm" className="h-7 text-xs gap-1.5 bg-amber-500 hover:bg-amber-600 text-white" onClick={() => {
+                      const versionB = { ...result, subjectLine: result.subjectLineB || result.subjectLine, previewText: result.previewTextB || result.previewText, headline: result.headlineB || result.headline, bodyCopy: result.bodyCopyB || result.bodyCopy };
+                      onApply(versionB, templateType);
+                    }}>
+                      <ArrowRight className="h-3 w-3" /> Use This
+                    </Button>
                   </div>
-                )}
-                {result.headline && (
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Headline</p>
-                    <p className="text-sm font-medium bg-muted/50 rounded-lg px-3 py-2">{result.headline}</p>
+                  <div className="p-4 space-y-2.5">
+                    {result.subjectLineB && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Subject Line</p>
+                        <p className="text-xs font-medium bg-muted/50 rounded-lg px-3 py-2">{result.subjectLineB}</p>
+                      </div>
+                    )}
+                    {result.previewTextB && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Preheader</p>
+                        <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">{result.previewTextB}</p>
+                      </div>
+                    )}
+                    {result.headlineB && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Headline</p>
+                        <p className="text-xs font-semibold bg-muted/50 rounded-lg px-3 py-2">{result.headlineB}</p>
+                      </div>
+                    )}
+                    {result.bodyCopyB && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Body Copy</p>
+                        <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 leading-relaxed whitespace-pre-line">{result.bodyCopyB}</p>
+                      </div>
+                    )}
                   </div>
-                )}
-                {result.bodyCopy && (
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Body Copy</p>
-                    <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 leading-relaxed line-clamp-3">{result.bodyCopy}</p>
-                  </div>
-                )}
-                {result.incentiveText && (
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Incentives</p>
-                    <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 whitespace-pre-line">{result.incentiveText}</p>
-                  </div>
-                )}
-                {(result.startingPrice || result.deposit || result.completion) && (
-                  <div className="flex gap-2 flex-wrap">
-                    {result.startingPrice && <Badge variant="outline" className="text-[10px]">💰 {result.startingPrice}</Badge>}
-                    {result.deposit && <Badge variant="outline" className="text-[10px]">📋 Deposit: {result.deposit}</Badge>}
-                    {result.completion && <Badge variant="outline" className="text-[10px]">🏗 {result.completion}</Badge>}
-                  </div>
-                )}
-              </div>
-              <div className="px-4 pb-4 flex gap-2">
-                <Button className="flex-1 h-10 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleApply}>
-                  <ArrowRight className="h-4 w-4" /> Open in Builder
-                </Button>
-                <Button variant="outline" className="h-10 gap-2" onClick={handleGenerate} disabled={loading}>
-                  <Sparkles className="h-3.5 w-3.5" /> Regenerate
-                </Button>
-              </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <Button variant="outline" className="w-full h-9 text-xs gap-2" onClick={handleGenerate} disabled={loading}>
+                <Sparkles className="h-3.5 w-3.5" /> Regenerate
+              </Button>
             </div>
           )}
         </div>
