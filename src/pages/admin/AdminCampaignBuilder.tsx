@@ -1638,9 +1638,13 @@ export default function AdminCampaignBuilder() {
                       <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">Template Name</Label>
                       <Input value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder={assignmentForm.projectName || "e.g. The Smith – Unit 1204"} className="h-8 text-xs" />
                     </div>
-                    <Button onClick={generatePDF} disabled={pdfGenerating} className="h-8 text-xs gap-1.5 px-3 flex-shrink-0 mt-4">
+                    <Button variant="outline" onClick={generatePDF} disabled={pdfGenerating} className="h-8 text-xs gap-1.5 px-3 flex-shrink-0 mt-4" title="Download each page as separate PNG">
                       {pdfGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
                       PNG
+                    </Button>
+                    <Button onClick={generateCombinedPdf} disabled={pdfGenerating} className="h-8 text-xs gap-1.5 px-3 flex-shrink-0 mt-4" title="Download all pages as a single PDF">
+                      {pdfGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                      PDF
                     </Button>
                     <Button variant="outline" size="sm" onClick={saveTemplate} disabled={saving} className="h-8 text-xs gap-1 px-3 flex-shrink-0 mt-4">
                       {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
