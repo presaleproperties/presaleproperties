@@ -666,6 +666,52 @@ export default function AdminAiEmailBuilder() {
                 )}
               </Section>
 
+              {/* ── 6. Campaign Assets ── */}
+              <Section def={SECTIONS[5]} open={open.has("assets")} onToggle={() => toggle("assets")}>
+                {campaignAssets.length === 0 ? (
+                  <div className="py-2 space-y-2">
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      No campaign assets found. Save a campaign in the <strong>Campaign Builder</strong> with a brochure or pricing sheet URL — it will appear here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-[10px] text-muted-foreground">Select a campaign to link its brochure/pricing sheet to the <span className="font-semibold text-foreground">VIEW PLANS & PRICING</span> button.</p>
+                    <Select value={selectedAssetId} onValueChange={setSelectedAssetId}>
+                      <SelectTrigger className="h-7 text-[11px]"><SelectValue placeholder="Select campaign…" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None (default link)</SelectItem>
+                        {campaignAssets.map(a => (
+                          <SelectItem key={a.id} value={a.id}>{a.name} — {a.project_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {selectedAsset && (
+                      <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1.5">
+                        {selectedAsset.thumbnail_url && (
+                          <img src={selectedAsset.thumbnail_url} alt={selectedAsset.name} className="w-full h-20 object-cover rounded" />
+                        )}
+                        <p className="text-[11px] font-semibold truncate">{selectedAsset.name}</p>
+                        {selectedAsset.brochure_url && (
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                            <p className="text-[10px] text-muted-foreground truncate">Brochure linked</p>
+                          </div>
+                        )}
+                        {selectedAsset.pricing_sheet_url && (
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-1.5 w-1.5 rounded-full bg-amber-500 flex-shrink-0" />
+                            <p className="text-[10px] text-muted-foreground truncate">Pricing sheet linked</p>
+                          </div>
+                        )}
+                        <p className="text-[9px] text-primary font-medium">CTA → {ctaUrl?.slice(0, 40)}…</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Section>
+
             </ScrollArea>
           </div>
 
