@@ -63,11 +63,90 @@ function bodyToHtml(text: string): string {
     .join("");
 }
 
-export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_AGENT, ctaUrl?: string): string {
+export interface EmailFontPairing {
+  id: string;
+  label: string;
+  tag: string;
+  display: string;
+  body: string;
+  googleUrl: string;
+}
+
+export const EMAIL_FONT_PAIRINGS: EmailFontPairing[] = [
+  {
+    id: "cormorant-dm",
+    label: "Cormorant + DM Sans",
+    tag: "Classic Luxury",
+    display: "'Cormorant Garamond', Georgia, serif",
+    body: "'DM Sans', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap",
+  },
+  {
+    id: "playfair-lato",
+    label: "Playfair Display + Lato",
+    tag: "Editorial Bold",
+    display: "'Playfair Display', Georgia, serif",
+    body: "'Lato', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap",
+  },
+  {
+    id: "bodoni-jost",
+    label: "Bodoni Moda + Jost",
+    tag: "High Fashion",
+    display: "'Bodoni Moda', Georgia, serif",
+    body: "'Jost', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap",
+  },
+  {
+    id: "cinzel-raleway",
+    label: "Cinzel + Raleway",
+    tag: "Architectural",
+    display: "'Cinzel', Georgia, serif",
+    body: "'Raleway', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Raleway:wght@300;400;500;700&display=swap",
+  },
+  {
+    id: "montserrat-montserrat",
+    label: "Montserrat",
+    tag: "Bold & Modern",
+    display: "'Montserrat', Helvetica, Arial, sans-serif",
+    body: "'Montserrat', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap",
+  },
+  {
+    id: "jakarta-jakarta",
+    label: "Plus Jakarta Sans",
+    tag: "Clean & Strong",
+    display: "'Plus Jakarta Sans', Helvetica, Arial, sans-serif",
+    body: "'Plus Jakarta Sans', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap",
+  },
+  {
+    id: "eb-garamond-montserrat",
+    label: "EB Garamond + Montserrat",
+    tag: "Prestige",
+    display: "'EB Garamond', Georgia, serif",
+    body: "'Montserrat', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600;700&display=swap",
+  },
+  {
+    id: "raleway-open",
+    label: "Raleway + Open Sans",
+    tag: "Refined Sans",
+    display: "'Raleway', Helvetica, Arial, sans-serif",
+    body: "'Open Sans', Helvetica, Arial, sans-serif",
+    googleUrl: "https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,600;0,700;1,400&family=Open+Sans:wght@300;400;600&display=swap",
+  },
+];
+
+export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_AGENT, ctaUrl?: string, font?: EmailFontPairing): string {
   const ACCENT = "#C9A55A";
   const DARK = "#0d1f18";
   const incentives = parseIncentives(copy.incentiveText || "");
   const plansPricingUrl = ctaUrl || "https://presaleproperties.com";
+  const displayFont = font?.display || "'Cormorant Garamond', Georgia, serif";
+  const bodyFont = font?.body || "'DM Sans', Helvetica, Arial, sans-serif";
+  const googleFontUrl = font?.googleUrl || "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap";
 
   const locationLine = [copy.neighborhood, copy.city].filter(Boolean).join(", ");
   const byLine = copy.developerName ? `by ${copy.developerName}` : "";
