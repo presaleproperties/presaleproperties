@@ -807,10 +807,10 @@ export default function AdminAiEmailBuilder() {
                 </div>
               </StepSection>
 
-              {/* ── STEP 4: EMAIL COPY ── */}
+              {/* ── STEP 4: INBOX COPY ── */}
               <StepSection
-                step={4} title="Email Copy" icon={<FileText className="h-3.5 w-3.5" />}
-                done={!!headline} doneLabel={headline ? `"${headline.slice(0, 28)}…"` : undefined}
+                step={4} title="Inbox Copy" icon={<Mail className="h-3.5 w-3.5" />}
+                done={!!subjectLine} doneLabel={subjectLine ? `"${subjectLine.slice(0, 28)}…"` : undefined}
                 defaultOpen={false}
               >
                 <div>
@@ -820,14 +820,6 @@ export default function AdminAiEmailBuilder() {
                 <div>
                   <Label className="text-[10px] text-muted-foreground">Preview Text <span className="text-muted-foreground/50 font-normal">· shown after subject</span></Label>
                   <Input value={previewText} onChange={e => setPreviewText(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="From $649K · limited units" />
-                </div>
-                <div>
-                  <Label className="text-[10px] text-muted-foreground">Headline</Label>
-                  <Input value={headline} onChange={e => setHeadline(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="Introducing Lumina" />
-                </div>
-                <div>
-                  <Label className="text-[10px] text-muted-foreground">Body Copy <span className="text-muted-foreground/40">— each line = paragraph</span></Label>
-                  <Textarea value={bodyCopy} onChange={e => setBodyCopy(e.target.value)} className="text-xs mt-0.5 min-h-[90px] resize-none leading-relaxed" />
                 </div>
                 <div>
                   <Label className="text-[10px] text-muted-foreground">Incentives <span className="text-muted-foreground/40">— one per line, gold bullets</span></Label>
