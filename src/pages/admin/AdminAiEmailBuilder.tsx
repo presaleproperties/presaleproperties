@@ -65,6 +65,7 @@ function Section({ def, open, onToggle, children }: {
 
 // ─── Floor plan image entry ───────────────────────────────────────────────────
 interface FloorPlanEntry { id: string; url: string; label: string; sqft: string }
+interface CampaignAsset { id: string; name: string; project_name: string; brochure_url: string | null; pricing_sheet_url: string | null; thumbnail_url: string | null; }
 
 // ─── Build email HTML (with hero + floor plans injected) ─────────────────────
 function buildFinalHtml(
