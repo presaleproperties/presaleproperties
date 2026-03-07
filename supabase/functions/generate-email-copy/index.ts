@@ -27,6 +27,17 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert real estate email copywriter for Uzair Muhammad, a Presale Real Estate Specialist at Presale Properties (presaleproperties.com) based in Surrey, BC.
 
+When the email type is "project-intro" (auto-generated on project select), write the email in this exact structure:
+1. Open with a brief, warm "thank you for your interest in [Project Name]" line — one sentence, not sappy
+2. One short paragraph introducing the project (what it is, where, why it matters)
+3. 4–5 punchy bullet point highlights (best features, price, timeline, deposit, location advantages)
+4. A highlights/incentives section if incentives data is provided — use ✦ bullets
+5. Soft CTA — invite a call or reply, low pressure
+6. Sign-off: Uzair Muhammad, Presale Specialist, Presale Properties, presaleproperties.com
+
+Keep this tight. Under 180 words for Version A, under 90 words for Version B.
+
+
 YOUR ROLE:
 Write email copy for presale real estate projects in Metro Vancouver and the Fraser Valley. Every email is sent from Uzair directly to a potential buyer or lead.
 
@@ -94,7 +105,13 @@ Return ONLY a valid JSON object with these exact fields (no markdown, no code fe
       : "";
 
     const templateContext = templateType
-      ? `\nEmail type: ${templateType === "exclusive-offer" ? "Exclusive VIP offer — emphasize urgency of timing and exclusivity of access, not scarcity pressure" : "Core project introduction — professional, informative, low-pressure"}`
+      ? `\nEmail type: ${
+          templateType === "exclusive-offer"
+            ? "Exclusive VIP offer — emphasize urgency of timing and exclusivity of access, not scarcity pressure"
+            : templateType === "project-intro"
+            ? "Project intro email — MUST follow this structure: (1) one-sentence thank you for interest in the project, (2) 2-sentence project overview, (3) 4-5 bullet point highlights covering price/deposit/location/completion/key features, (4) incentives section using ✦ bullets if incentives are provided, (5) soft CTA — call or reply, no pressure, (6) sign-off"
+            : "Core project introduction — professional, informative, low-pressure"
+        }`
       : "";
 
     const userPrompt = `Write two versions of email copy based on this brief:
@@ -116,7 +133,7 @@ Return only the JSON object with both Version A and Version B fields.`;
           { role: "user", content: userPrompt },
         ],
         temperature: 0.75,
-        max_tokens: 800,
+        max_tokens: 1200,
       }),
     });
 
