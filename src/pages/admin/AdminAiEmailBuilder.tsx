@@ -205,7 +205,7 @@ export default function AdminAiEmailBuilder() {
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // UI
-  const [previewMode,   setPreviewMode]   = useState<"preview" | "code">("preview");
+  const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
   const [copied,        setCopied]        = useState(false);
   const [saving,        setSaving]        = useState(false);
@@ -419,9 +419,34 @@ export default function AdminAiEmailBuilder() {
   const updateFp = (id: string, field: keyof FloorPlanEntry, val: string) =>
     setFloorPlans(prev => prev.map(fp => fp.id === id ? { ...fp, [field]: val } : fp));
 
+  // ── Edit-in-preview iframe designMode ────────────────────────────────────────
+  const enableIframeEdit = useCallback(() => {
+    const doc = iframeRef.current?.contentDocument;
+    if (!doc) return;
+    doc.designMode = "on";
+    // Inject subtle edit-mode styles
+    const existing = doc.getElementById("__edit-style");
+    if (existing) return;
+    const style = doc.createElement("style");
+    style.id = "__edit-style";
+    style.textContent = `
+      body { outline: none !important; cursor: text; }
+      *:hover { outline: 1.5px dashed rgba(201,165,90,0.45) !important; outline-offset: 2px; }
+      *:focus { outline: 2px solid rgba(201,165,90,0.8) !important; outline-offset: 2px; }
+    `;
+    doc.head?.appendChild(style);
+  }, []);
+
+  const getExportHtml = useCallback((): string => {
+    if (previewMode === "edit" && iframeRef.current?.contentDocument) {
+      return "<!DOCTYPE html>\n" + iframeRef.current.contentDocument.documentElement.outerHTML;
+    }
+    return finalHtml;
+  }, [previewMode, finalHtml]);
+
   // ── Export ────────────────────────────────────────────────────────────────────
   const handleCopy = () => {
-    navigator.clipboard.writeText(finalHtml).then(() => {
+    navigator.clipboard.writeText(getExportHtml()).then(() => {
       setCopied(true);
       toast.success("HTML copied to clipboard");
       setTimeout(() => setCopied(false), 2500);
@@ -536,13 +561,19 @@ export default function AdminAiEmailBuilder() {
                   <Eye className="h-3 w-3" /> Preview
                 </Button>
                 <Button variant="ghost" size="sm"
+                  className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "edit" && "bg-amber-500/90 shadow-sm text-white")}
+                  onClick={() => setPreviewMode("edit")}
+                  title="Click to edit text directly in the email">
+                  <Bold className="h-3 w-3" /> Edit
+                </Button>
+                <Button variant="ghost" size="sm"
                   className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "code" && "bg-card shadow-sm text-foreground")}
                   onClick={() => setPreviewMode("code")}>
                   <Code2 className="h-3 w-3" /> HTML
                 </Button>
               </div>
 
-              {previewMode === "preview" && (
+              {(previewMode === "preview" || previewMode === "edit") && (
                 <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
                   <Button variant="ghost" size="sm"
                     className={cn("h-6 w-7 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm text-foreground")}
@@ -565,15 +596,24 @@ export default function AdminAiEmailBuilder() {
               </div>
             </div>
 
-            {previewMode === "preview" ? (
+            {/* Edit mode hint bar */}
+            {previewMode === "edit" && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border-b border-amber-500/20 shrink-0">
+                <Bold className="h-3 w-3 text-amber-500 shrink-0" />
+                <span className="text-[10px] text-amber-600 dark:text-amber-400">Click any text in the email to edit it directly. Changes are included when you copy the HTML.</span>
+              </div>
+            )}
+
+            {previewMode === "preview" || previewMode === "edit" ? (
               <div className={cn("flex-1 overflow-auto", previewDevice === "mobile" ? "bg-[#e8e5e0] flex justify-center" : "bg-[#e8e5e0]")}>
                 <iframe
                   ref={iframeRef}
                   srcDoc={previewHtml}
                   className="border-0 h-full"
                   style={previewDevice === "mobile" ? { width: "375px", minHeight: "100%" } : { width: "100%" }}
-                  sandbox="allow-same-origin"
+                  sandbox={previewMode === "edit" ? "allow-same-origin allow-scripts" : "allow-same-origin"}
                   title="Email Preview"
+                  onLoad={previewMode === "edit" ? enableIframeEdit : undefined}
                 />
               </div>
             ) : (
