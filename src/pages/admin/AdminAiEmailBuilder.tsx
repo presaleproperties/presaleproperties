@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -18,13 +17,19 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, Download, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2, ChevronDown, ChevronUp,
-  Upload, Eye, Code2, Save, BookMarked,
+  Eye, Code2, Save,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, type AiEmailCopy } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT } from "@/components/admin/AiEmailTemplate";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
+  "Uzair":  { phone: "778-231-3592",      email: "info@presaleproperties.com" },
+  "Sarb":   { phone: "+1 (778) 846-7065", email: "sarb@presaleproperties.com"  },
+  "Ravish": { phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com" },
+};
 
 const EXAMPLE_PROMPTS = [
   "New presale in Burnaby — 1 and 2 beds from $649K, completion 2027, PTT exempt",
@@ -32,8 +37,6 @@ const EXAMPLE_PROMPTS = [
   "Follow-up for clients who attended the open house — remind them about floor plans",
   "Luxury waterfront project in North Van by Bosa Properties, from $1.2M",
 ];
-
-const ACCENT = "#C9A55A";
 
 interface Section {
   id: string;
@@ -50,10 +53,9 @@ const SECTIONS: Section[] = [
 ];
 
 // ── Build the branded email HTML ─────────────────────────────────────────────
-function buildHtml(fields: AiEmailCopy & { heroImage?: string }): string {
-  const base = buildAiEmailHtml(fields);
+function buildHtml(fields: AiEmailCopy & { heroImage?: string }, agent: AgentInfo): string {
+  const base = buildAiEmailHtml(fields, agent);
   if (!fields.heroImage) return base;
-  // Inject hero image into the email after the location banner
   return base.replace(
     "<!-- ─── HERO STATS BAR",
     `  <!-- ─── HERO IMAGE ─── -->
@@ -135,6 +137,11 @@ export default function AdminAiEmailBuilder() {
   const [copied, setCopied]                   = useState(false);
   const [saving, setSaving]                   = useState(false);
 
+  // Agent
+  const [agents, setAgents] = useState<AgentInfo[]>([]);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("default");
+  const selectedAgent: AgentInfo = agents.find(a => a.full_name === selectedAgentId) ?? DEFAULT_AGENT;
+
   // Projects list
   const [projects, setProjects] = useState<Array<{ id: string; name: string; city: string; featured_image?: string | null }>>([]);
 
@@ -146,6 +153,23 @@ export default function AdminAiEmailBuilder() {
       .order("name")
       .limit(50)
       .then(({ data }: { data: any }) => { if (data) setProjects(data); });
+
+    supabase
+      .from("team_members_public" as any)
+      .select("id, full_name, title, photo_url")
+      .eq("is_active", true)
+      .order("sort_order")
+      .then(({ data }: { data: any }) => {
+        if (data) {
+          const enriched: AgentInfo[] = data.map((m: any) => {
+            const firstName = (m.full_name ?? "").split(" ")[0];
+            const contact = AGENT_CONTACTS[firstName] ?? { phone: "", email: "" };
+            return { full_name: m.full_name ?? "", title: m.title ?? "Presale Specialist", photo_url: m.photo_url ?? null, ...contact };
+          });
+          setAgents(enriched);
+          if (enriched.length > 0) setSelectedAgentId(enriched[0].full_name);
+        }
+      });
   }, []);
 
   // Build the current copy object
@@ -165,7 +189,7 @@ export default function AdminAiEmailBuilder() {
     heroImage: heroImage || undefined,
   }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, city, neighborhood, developerName, startingPrice, deposit, completion, heroImage]);
 
-  const previewHtml = buildHtml(currentCopy());
+  const previewHtml = buildHtml(currentCopy(), selectedAgent);
 
   // When AI generates copy, populate fields
   const applyAiResult = (result: Record<string, string>, version: "A" | "B") => {
@@ -371,6 +395,37 @@ export default function AdminAiEmailBuilder() {
                       </Select>
                     </div>
                   </div>
+
+                  {/* Agent */}
+                  {agents.length > 0 && (
+                    <div className="space-y-1">
+                      <Label className="text-[10px]">Agent Signature</Label>
+                      <Select value={selectedAgentId} onValueChange={setSelectedAgentId}>
+                        <SelectTrigger className="h-7 text-[11px]"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {agents.map(a => (
+                            <SelectItem key={a.full_name} value={a.full_name}>
+                              {a.full_name} — {a.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {/* Mini agent preview */}
+                      <div className="flex items-center gap-2 mt-1.5 p-2 rounded-md bg-muted/50 border border-border">
+                        {selectedAgent.photo_url ? (
+                          <img src={selectedAgent.photo_url} alt={selectedAgent.full_name} className="w-8 h-8 rounded-full object-cover object-top border border-border flex-shrink-0" style={{ borderColor: "#C9A55A" }} />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">
+                            {selectedAgent.full_name.charAt(0)}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold truncate">{selectedAgent.full_name}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{selectedAgent.phone}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <Button
                     className="w-full h-9 gap-2 text-white font-semibold text-xs"
