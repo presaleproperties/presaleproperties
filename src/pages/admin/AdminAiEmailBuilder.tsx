@@ -140,7 +140,7 @@ function buildFinalHtml(
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td style="background:${ACCENT};padding:13px 32px;">
-            <a href="https://presaleproperties.com/book" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">REGISTER FOR FLOOR PLAN ACCESS →</a>
+            <a href="https://presaleproperties.com/book" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
           </td>
         </tr>
       </table>
