@@ -251,8 +251,8 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   <!-- ─── BODY COPY ─── -->
   <tr>
     <td style="padding:36px 36px 28px;">
-      ${copy.headline ? `
-      <!-- Headline styled like reference: large, bold, dark green — stands out before body -->
+      ${(!suppressHeadlineInBody && copy.headline) ? `
+      <!-- Headline: large, bold, dark green — editorial style -->
       <p style="margin:0 0 18px 0;font-family:${displayFont};font-size:30px;font-weight:700;color:#0d1f18;line-height:1.2;letter-spacing:-0.3px;">${copy.headline}</p>
       <div style="width:40px;height:3px;background:${ACCENT};margin-bottom:20px;"></div>` : ""}
       <div style="font-family:${bodyFont};font-size:14px;color:#444444;line-height:1.75;">
