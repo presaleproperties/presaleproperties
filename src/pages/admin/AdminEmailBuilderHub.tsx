@@ -565,7 +565,7 @@ function AiEmailModal({
   );
 }
 
-const EXAMPLE_PROMPTS = [
+
   "New project in Burnaby — 1 and 2 beds starting from $649K, completion 2027, PTT exempt",
   "Exclusive VIP offer for Lumina Surrey — extended deposit, free parking, limited units left",
   "Follow-up email for clients who registered at the open house — remind them about floor plans",
