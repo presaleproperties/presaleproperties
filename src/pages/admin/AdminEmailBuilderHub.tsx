@@ -756,7 +756,7 @@ export default function AdminEmailBuilderHub() {
             <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Quick Start</h2>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <button
-                onClick={() => setAiModalOpen(true)}
+                onClick={() => navigate("/admin/ai-email-builder")}
                 className="group flex items-center gap-4 p-4 rounded-xl border-2 border-violet-500/40 bg-violet-500/5 hover:border-violet-500/70 hover:bg-violet-500/10 hover:shadow-md transition-all text-left"
               >
                 <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
