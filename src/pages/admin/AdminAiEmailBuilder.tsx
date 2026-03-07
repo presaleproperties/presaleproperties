@@ -863,7 +863,7 @@ export default function AdminAiEmailBuilder() {
 
               {/* ── STEP 6: CAMPAIGN ASSETS ── */}
               <StepSection
-                step={6} title="Plans & Pricing CTA" icon={<Link2 className="h-3.5 w-3.5" />}
+                step={6} title="Plans & Pricing CTA" icon={<FileText className="h-3.5 w-3.5" />}
                 done={!!(ctaUrl)} doneLabel={directCtaUrl ? "PDF uploaded" : selectedAsset?.name}
                 defaultOpen={false}
               >
