@@ -40,6 +40,8 @@ export interface AiEmailCopy {
   startingPrice?: string;
   deposit?: string;
   completion?: string;
+  /** Additional info rows rendered as a secondary stats bar. Each entry: "Label|Value" */
+  infoRows?: string[];
 }
 
 /** Build bullet items from incentiveText (lines starting with ✦ or -) */
@@ -221,6 +223,27 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
             <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Est. Completion</p>
           </td>` : ""}
         </tr>
+      </table>
+    </td>
+  </tr>` : ""}
+
+  <!-- ─── INFO ROWS (conditional) ─── -->
+  ${(copy.infoRows && copy.infoRows.filter(r => r.includes("|")).length > 0) ? `
+  <tr>
+    <td style="padding:0 36px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e8e3db;border-radius:2px;overflow:hidden;">
+        ${copy.infoRows.filter(r => r.includes("|")).map((row, i, arr) => {
+          const [label, value] = row.split("|").map(s => s.trim());
+          const isLast = i === arr.length - 1;
+          return `<tr>
+          <td style="padding:10px 16px;background:#f7f5f1;border-right:1px solid #e8e3db;width:40%;${!isLast ? "border-bottom:1px solid #e8e3db;" : ""}">
+            <p style="margin:0;font-family:${bodyFont};font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#999999;">${label}</p>
+          </td>
+          <td style="padding:10px 16px;background:#ffffff;${!isLast ? "border-bottom:1px solid #e8e3db;" : ""}">
+            <p style="margin:0;font-family:${bodyFont};font-size:13px;font-weight:500;color:#222222;">${value}</p>
+          </td>
+        </tr>`;
+        }).join("")}
       </table>
     </td>
   </tr>` : ""}
