@@ -311,7 +311,6 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   ${(copy.imageCards && copy.imageCards.filter(c => c.url).length > 0) ? (() => {
     const cards = copy.imageCards!.filter(c => c.url);
     const colWidth = cards.length === 1 ? "100%" : cards.length === 2 ? "50%" : "33.333%";
-    const gap = 8;
     return `
   <tr>
     <td style="padding:0;margin:0;background:#ffffff;line-height:0;font-size:0;">
