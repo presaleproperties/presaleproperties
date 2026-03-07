@@ -176,3 +176,12 @@ verify_jwt = false
 
 [functions.parse-snapstats-pdf]
 verify_jwt = false
+
+[functions.generate-email-copy]
+verify_jwt = false
+
+[functions.rewrite-promo]
+verify_jwt = false
+
+[functions.summarize-pricing-sheet]
+verify_jwt = false

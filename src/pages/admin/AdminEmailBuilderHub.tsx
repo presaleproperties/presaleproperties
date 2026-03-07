@@ -1,13 +1,29 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Plus, Mail, Clock, Trash2, Copy, ChevronRight,
   LayoutGrid, FolderOpen, Wand2, Star, BookMarked,
-  Download, Eye, X, ZoomIn,
+  Download, Eye, X, ZoomIn, Sparkles, Loader2,
+  Building2, CheckCircle2, ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -265,12 +281,226 @@ function PreviewModal({ html, name, onClose }: { html: string; name: string; onC
   );
 }
 
+// ─── AI Email Copy Generator Modal ───────────────────────────────────────────
+const EXAMPLE_PROMPTS = [
+  "New project in Burnaby — 1 and 2 beds starting from $649K, completion 2027, PTT exempt",
+  "Exclusive VIP offer for Lumina Surrey — extended deposit, free parking, limited units left",
+  "Follow-up email for clients who registered at the open house — remind them about floor plans",
+  "Introducing a luxury waterfront project in North Van — developer is Bosa, from $1.2M",
+];
+
+function AiEmailModal({
+  open,
+  onClose,
+  projects,
+  onApply,
+}: {
+  open: boolean;
+  onClose: () => void;
+  projects: Array<{ id: string; name: string; city: string }>;
+  onApply: (copy: Record<string, string>, templateType: string) => void;
+}) {
+  const [prompt, setPrompt] = useState("");
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+  const [templateType, setTemplateType] = useState<string>("main-project-email");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<Record<string, string> | null>(null);
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) { toast.error("Please enter a brief prompt first"); return; }
+    setLoading(true);
+    setResult(null);
+    try {
+      const project = projects.find(p => p.id === selectedProjectId);
+      const { data, error } = await supabase.functions.invoke("generate-email-copy", {
+        body: {
+          prompt: prompt.trim(),
+          projectDetails: project ? { name: project.name, city: project.city } : null,
+          templateType,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      setResult(data.copy);
+    } catch (e: any) {
+      toast.error(e.message || "Failed to generate copy");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApply = () => {
+    if (!result) return;
+    onApply(result, templateType);
+    onClose();
+  };
+
+  const handleClose = () => {
+    setPrompt("");
+    setSelectedProjectId("");
+    setResult(null);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+        {/* Header */}
+        <div className="sticky top-0 z-10 bg-card border-b border-border px-6 py-4">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-sm">
+                <Sparkles className="h-4.5 w-4.5 text-white h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-base font-bold">AI Email Writer</div>
+                <div className="text-xs text-muted-foreground font-normal">Describe your email — AI writes the copy</div>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+
+        <div className="p-6 space-y-5">
+          {/* Prompt area */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">What's this email about?</Label>
+            <Textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="e.g. New presale in Burnaby — 1 and 2 beds from $649K, completion 2027. PTT exempt. Highlight the extended deposit structure."
+              className="min-h-[100px] text-sm resize-none"
+              disabled={loading}
+            />
+            <p className="text-[11px] text-muted-foreground">Be as brief or detailed as you like — include price, location, incentives, tone, or anything relevant.</p>
+          </div>
+
+          {/* Example prompts */}
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Quick examples</p>
+            <div className="flex flex-col gap-1.5">
+              {EXAMPLE_PROMPTS.map((ex, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPrompt(ex)}
+                  disabled={loading}
+                  className="text-left text-xs px-3 py-2 rounded-lg border border-border bg-muted/40 hover:bg-muted hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground"
+                >
+                  {ex}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Options row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Template Style</Label>
+              <Select value={templateType} onValueChange={setTemplateType} disabled={loading}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="main-project-email">Main Project Email</SelectItem>
+                  <SelectItem value="exclusive-offer">Exclusive Offer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Link to Project <span className="text-muted-foreground">(optional)</span></Label>
+              <Select value={selectedProjectId} onValueChange={setSelectedProjectId} disabled={loading}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Select project…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No project</SelectItem>
+                  {projects.map(p => (
+                    <SelectItem key={p.id} value={p.id}>{p.name} — {p.city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Generate button */}
+          <Button
+            className="w-full h-11 gap-2 bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-700 hover:to-violet-900 text-white font-semibold"
+            onClick={handleGenerate}
+            disabled={loading || !prompt.trim()}
+          >
+            {loading ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Writing your email copy…</>
+            ) : (
+              <><Sparkles className="h-4 w-4" /> Generate Email Copy</>
+            )}
+          </Button>
+
+          {/* Result preview */}
+          {result && (
+            <div className="border border-border rounded-xl overflow-hidden">
+              <div className="bg-muted/40 px-4 py-2.5 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  <span className="text-sm font-semibold">Copy Generated</span>
+                </div>
+                <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-[10px] border">Ready to use</Badge>
+              </div>
+              <div className="p-4 space-y-3">
+                {result.subjectLine && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Subject Line</p>
+                    <p className="text-sm font-medium bg-muted/50 rounded-lg px-3 py-2">{result.subjectLine}</p>
+                  </div>
+                )}
+                {result.headline && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Headline</p>
+                    <p className="text-sm font-medium bg-muted/50 rounded-lg px-3 py-2">{result.headline}</p>
+                  </div>
+                )}
+                {result.bodyCopy && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Body Copy</p>
+                    <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 leading-relaxed line-clamp-3">{result.bodyCopy}</p>
+                  </div>
+                )}
+                {result.incentiveText && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Incentives</p>
+                    <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 whitespace-pre-line">{result.incentiveText}</p>
+                  </div>
+                )}
+                {(result.startingPrice || result.deposit || result.completion) && (
+                  <div className="flex gap-2 flex-wrap">
+                    {result.startingPrice && <Badge variant="outline" className="text-[10px]">💰 {result.startingPrice}</Badge>}
+                    {result.deposit && <Badge variant="outline" className="text-[10px]">📋 Deposit: {result.deposit}</Badge>}
+                    {result.completion && <Badge variant="outline" className="text-[10px]">🏗 {result.completion}</Badge>}
+                  </div>
+                )}
+              </div>
+              <div className="px-4 pb-4 flex gap-2">
+                <Button className="flex-1 h-10 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleApply}>
+                  <ArrowRight className="h-4 w-4" /> Open in Builder
+                </Button>
+                <Button variant="outline" className="h-10 gap-2" onClick={handleGenerate} disabled={loading}>
+                  <Sparkles className="h-3.5 w-3.5" /> Regenerate
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function AdminEmailBuilderHub() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [previewModal, setPreviewModal] = useState<{ html: string; name: string } | null>(null);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [projects, setProjects] = useState<Array<{ id: string; name: string; city: string }>>([]);
 
   const fetchTemplates = async () => {
     setLoading(true);
@@ -283,6 +513,17 @@ export default function AdminEmailBuilderHub() {
   };
 
   useEffect(() => { fetchTemplates(); }, []);
+
+  // Fetch projects for AI modal context
+  useEffect(() => {
+    supabase
+      .from("presale_projects" as any)
+      .select("id, name, city")
+      .eq("is_active", true)
+      .order("name")
+      .limit(50)
+      .then(({ data }: { data: any }) => { if (data) setProjects(data as Array<{ id: string; name: string; city: string }>); });
+  }, []);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete template "${name}"? This cannot be undone.`)) return;
@@ -355,6 +596,34 @@ export default function AdminEmailBuilderHub() {
     });
   };
 
+  // Apply AI-generated copy to the builder
+  const handleAiApply = (copy: Record<string, string>, templateType: string) => {
+    const baseTpl = BUILTIN_TEMPLATES.find(t => t.key === templateType) || BUILTIN_TEMPLATES[0];
+    const draft = {
+      vars: {
+        ...baseTpl.form_data.vars,
+        subjectLine: copy.subjectLine || baseTpl.form_data.vars.subjectLine,
+        previewText: copy.previewText || baseTpl.form_data.vars.previewText,
+        headline: copy.headline || baseTpl.form_data.vars.headline,
+        bodyCopy: copy.bodyCopy || baseTpl.form_data.vars.bodyCopy,
+        incentiveText: copy.incentiveText || baseTpl.form_data.vars.incentiveText,
+        startingPrice: copy.startingPrice || "",
+        deposit: copy.deposit || "",
+        completion: copy.completion || "",
+        projectName: copy.projectName || "",
+        city: copy.city || "",
+        neighborhood: copy.neighborhood || "",
+        developerName: copy.developerName || "",
+      },
+      cta: baseTpl.form_data.cta,
+      fontIdx: baseTpl.form_data.fontIdx,
+      savedAt: new Date().toISOString(),
+    };
+    localStorage.setItem("email_builder_draft_v2", JSON.stringify(draft));
+    navigate("/admin/email-builder");
+    toast.success("AI copy loaded — finish customizing and save!");
+  };
+
   return (
     <AdminLayout>
       {previewModal && (
@@ -364,6 +633,13 @@ export default function AdminEmailBuilderHub() {
           onClose={() => setPreviewModal(null)}
         />
       )}
+
+      <AiEmailModal
+        open={aiModalOpen}
+        onClose={() => setAiModalOpen(false)}
+        projects={projects}
+        onApply={handleAiApply}
+      />
 
       <div className="flex flex-col h-full bg-background">
 
@@ -384,11 +660,19 @@ export default function AdminEmailBuilderHub() {
               <span className="flex items-center gap-1.5"><FolderOpen className="h-3.5 w-3.5" />{BUILTIN_TEMPLATES.length} starters</span>
             </div>
             <Button
+              onClick={() => setAiModalOpen(true)}
+              className="gap-2 bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-700 hover:to-violet-900 text-white"
+            >
+              <Sparkles className="h-4 w-4" />
+              Write with AI
+            </Button>
+            <Button
               onClick={() => navigate("/admin/email-builder")}
-              className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+              variant="outline"
+              className="gap-2"
             >
               <Plus className="h-4 w-4" />
-              New Email
+              Blank
             </Button>
           </div>
         </div>
@@ -399,13 +683,26 @@ export default function AdminEmailBuilderHub() {
           {/* ── Quick Start row ── */}
           <section>
             <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Quick Start</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <button
+                onClick={() => setAiModalOpen(true)}
+                className="group flex items-center gap-4 p-4 rounded-xl border-2 border-violet-500/40 bg-violet-500/5 hover:border-violet-500/70 hover:bg-violet-500/10 hover:shadow-md transition-all text-left"
+              >
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                  <Sparkles className="h-5 w-5 text-white" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold">Write with AI</div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">Describe it — AI writes the copy</div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-violet-500 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
               {[
                 {
                   icon: Wand2,
                   title: "Blank Email",
                   desc: "Start from scratch with a clean slate",
-                  color: "from-violet-500 to-violet-700",
+                  color: "from-slate-500 to-slate-700",
                   action: () => navigate("/admin/email-builder"),
                 },
                 ...BUILTIN_TEMPLATES.map(t => ({
@@ -433,6 +730,7 @@ export default function AdminEmailBuilderHub() {
               ))}
             </div>
           </section>
+
 
           {/* ── Starter Templates with LIVE PREVIEW ── */}
           <section>
