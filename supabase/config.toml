@@ -185,3 +185,6 @@ verify_jwt = false
 
 [functions.summarize-pricing-sheet]
 verify_jwt = false
+
+[functions.bold-email-keywords]
+verify_jwt = false
