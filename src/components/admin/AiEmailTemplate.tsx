@@ -177,12 +177,12 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
       .email-container{width:100%!important;max-width:100%!important;}
       .mobile-pad{padding-left:20px!important;padding-right:20px!important;}
       .mobile-pad-sm{padding-left:14px!important;padding-right:14px!important;}
-      .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;}
+      .mobile-stack td{display:block!important;width:100%!important;text-align:left!important;padding-left:20px!important;padding-right:20px!important;}
       .mobile-stack td:first-child{border-right:none!important;border-bottom:1px solid #e8e3db!important;}
       .mobile-hero-img{min-height:200px!important;}
       .hero-headline{font-size:24px!important;}
       .body-headline{font-size:22px!important;}
-      .stat-value{font-size:18px!important;}
+      .stat-value{font-size:22px!important;}
       .agent-logo{width:90px!important;}
       .agent-photo{width:52px!important;height:52px!important;}
       .fp-cell{display:block!important;width:100%!important;}
