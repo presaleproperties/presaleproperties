@@ -251,7 +251,7 @@ export default function AdminAiEmailBuilder() {
     startingPrice, deposit, completion,
   }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
 
-  const previewHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading);
+  const previewHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl);
 
   // ── AI generation ──
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
