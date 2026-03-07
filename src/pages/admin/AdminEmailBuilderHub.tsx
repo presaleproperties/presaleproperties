@@ -634,6 +634,13 @@ export default function AdminEmailBuilderHub() {
         />
       )}
 
+      <AiEmailModal
+        open={aiModalOpen}
+        onClose={() => setAiModalOpen(false)}
+        projects={projects}
+        onApply={handleAiApply}
+      />
+
       <div className="flex flex-col h-full bg-background">
 
         {/* ── Header ── */}
@@ -653,11 +660,19 @@ export default function AdminEmailBuilderHub() {
               <span className="flex items-center gap-1.5"><FolderOpen className="h-3.5 w-3.5" />{BUILTIN_TEMPLATES.length} starters</span>
             </div>
             <Button
+              onClick={() => setAiModalOpen(true)}
+              className="gap-2 bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-700 hover:to-violet-900 text-white"
+            >
+              <Sparkles className="h-4 w-4" />
+              Write with AI
+            </Button>
+            <Button
               onClick={() => navigate("/admin/email-builder")}
-              className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+              variant="outline"
+              className="gap-2"
             >
               <Plus className="h-4 w-4" />
-              New Email
+              Blank
             </Button>
           </div>
         </div>
@@ -668,13 +683,26 @@ export default function AdminEmailBuilderHub() {
           {/* ── Quick Start row ── */}
           <section>
             <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Quick Start</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <button
+                onClick={() => setAiModalOpen(true)}
+                className="group flex items-center gap-4 p-4 rounded-xl border-2 border-violet-500/40 bg-violet-500/5 hover:border-violet-500/70 hover:bg-violet-500/10 hover:shadow-md transition-all text-left"
+              >
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                  <Sparkles className="h-5 w-5 text-white" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold">Write with AI</div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">Describe it — AI writes the copy</div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-violet-500 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
               {[
                 {
                   icon: Wand2,
                   title: "Blank Email",
                   desc: "Start from scratch with a clean slate",
-                  color: "from-violet-500 to-violet-700",
+                  color: "from-slate-500 to-slate-700",
                   action: () => navigate("/admin/email-builder"),
                 },
                 ...BUILTIN_TEMPLATES.map(t => ({
@@ -702,6 +730,7 @@ export default function AdminEmailBuilderHub() {
               ))}
             </div>
           </section>
+
 
           {/* ── Starter Templates with LIVE PREVIEW ── */}
           <section>
