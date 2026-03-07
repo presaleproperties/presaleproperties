@@ -233,6 +233,14 @@ export default function AdminAiEmailBuilder() {
           if (enriched.length > 0) setSelAgent(enriched[0].full_name);
         }
       });
+    // Load campaign assets (from Campaign Builder) that have brochure or pricing sheet URLs
+    supabase.from("campaign_templates" as any)
+      .select("id, name, project_name, brochure_url, pricing_sheet_url, thumbnail_url")
+      .order("updated_at", { ascending: false })
+      .limit(50)
+      .then(({ data }: any) => {
+        if (data) setCampaignAssets(data.filter((a: any) => a.brochure_url || a.pricing_sheet_url));
+      });
   }, []);
 
   const currentCopy = useCallback((): AiEmailCopy => ({
