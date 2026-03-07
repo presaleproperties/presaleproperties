@@ -137,6 +137,11 @@ export default function AdminAiEmailBuilder() {
   const [copied, setCopied]                   = useState(false);
   const [saving, setSaving]                   = useState(false);
 
+  // Agent
+  const [agents, setAgents] = useState<AgentInfo[]>([]);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("default");
+  const selectedAgent: AgentInfo = agents.find(a => a.full_name === selectedAgentId) ?? DEFAULT_AGENT;
+
   // Projects list
   const [projects, setProjects] = useState<Array<{ id: string; name: string; city: string; featured_image?: string | null }>>([]);
 
@@ -148,6 +153,23 @@ export default function AdminAiEmailBuilder() {
       .order("name")
       .limit(50)
       .then(({ data }: { data: any }) => { if (data) setProjects(data); });
+
+    supabase
+      .from("team_members_public" as any)
+      .select("id, full_name, title, photo_url")
+      .eq("is_active", true)
+      .order("sort_order")
+      .then(({ data }: { data: any }) => {
+        if (data) {
+          const enriched: AgentInfo[] = data.map((m: any) => {
+            const firstName = (m.full_name ?? "").split(" ")[0];
+            const contact = AGENT_CONTACTS[firstName] ?? { phone: "", email: "" };
+            return { full_name: m.full_name ?? "", title: m.title ?? "Presale Specialist", photo_url: m.photo_url ?? null, ...contact };
+          });
+          setAgents(enriched);
+          if (enriched.length > 0) setSelectedAgentId(enriched[0].full_name);
+        }
+      });
   }, []);
 
   // Build the current copy object
@@ -167,7 +189,7 @@ export default function AdminAiEmailBuilder() {
     heroImage: heroImage || undefined,
   }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, city, neighborhood, developerName, startingPrice, deposit, completion, heroImage]);
 
-  const previewHtml = buildHtml(currentCopy());
+  const previewHtml = buildHtml(currentCopy(), selectedAgent);
 
   // When AI generates copy, populate fields
   const applyAiResult = (result: Record<string, string>, version: "A" | "B") => {
