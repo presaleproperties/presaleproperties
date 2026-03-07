@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
 import * as pdfjsLib from "pdfjs-dist";
+import jsPDF from "jspdf";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 import logoWhiteAsset from "@/assets/logo-white.png";
