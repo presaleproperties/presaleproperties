@@ -51,12 +51,15 @@ function parseIncentives(text: string): string[] {
     .filter(Boolean);
 }
 
-/** Convert \n-separated body copy paragraphs into HTML */
+/** Convert \n-separated body copy paragraphs into HTML, rendering **bold** markers */
 function bodyToHtml(text: string): string {
   if (!text) return "";
   const paras = text.split("\n").filter(Boolean);
   return paras
-    .map(p => `<p style="margin:0 0 14px 0;font-family:'DM Sans',Arial,sans-serif;font-size:14px;color:#444444;line-height:1.75;">${p}</p>`)
+    .map(p => {
+      const withBold = p.replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:600;color:#222222;">$1</strong>');
+      return `<p style="margin:0 0 14px 0;font-family:'DM Sans',Arial,sans-serif;font-size:14px;color:#444444;line-height:1.75;">${withBold}</p>`;
+    })
     .join("");
 }
 
