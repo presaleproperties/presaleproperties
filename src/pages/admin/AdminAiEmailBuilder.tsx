@@ -767,33 +767,71 @@ export default function AdminAiEmailBuilder() {
 
               {/* ── STEP 6: CAMPAIGN ASSETS ── */}
               <StepSection
-                step={6} title="Campaign Assets" icon={<Link2 className="h-3.5 w-3.5" />}
-                done={!!selectedAsset} doneLabel={selectedAsset?.name}
+                step={6} title="Plans & Pricing CTA" icon={<Link2 className="h-3.5 w-3.5" />}
+                done={!!(ctaUrl)} doneLabel={directCtaUrl ? "PDF uploaded" : selectedAsset?.name}
                 defaultOpen={false}
               >
-                {campaignAssets.length === 0 ? (
-                  <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    No assets found. Save a campaign in the <strong>Campaign Builder</strong> with a brochure or pricing sheet URL to link it here.
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-[10px] text-muted-foreground">Links its brochure/pricing sheet to the <span className="font-semibold text-foreground">VIEW PLANS & PRICING</span> button.</p>
-                    <Select value={selectedAssetId} onValueChange={setSelectedAssetId}>
-                      <SelectTrigger className="h-7 text-[11px]"><SelectValue placeholder="Select campaign…" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">None (default link)</SelectItem>
-                        {campaignAssets.map(a => (
-                          <SelectItem key={a.id} value={a.id}>{a.name} — {a.project_name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {selectedAsset && (
-                      <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1.5">
-                        {selectedAsset.thumbnail_url && <img src={selectedAsset.thumbnail_url} alt={selectedAsset.name} className="w-full h-16 object-cover rounded" />}
-                        <p className="text-[11px] font-semibold truncate">{selectedAsset.name}</p>
-                        {selectedAsset.brochure_url && <div className="flex items-center gap-1.5 text-[10px] text-emerald-600"><div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Brochure linked</div>}
-                        {selectedAsset.pricing_sheet_url && <div className="flex items-center gap-1.5 text-[10px] text-amber-600"><div className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Pricing sheet linked</div>}
+                <input ref={ctaPdfInputRef} type="file" accept="application/pdf" className="hidden" onChange={handleCtaPdfUpload} />
+
+                {/* Direct PDF upload */}
+                <div>
+                  <Label className="text-[10px] text-muted-foreground mb-1 block">Upload PDF <span className="text-muted-foreground/50 font-normal">· pricing sheet or brochure</span></Label>
+                  {directCtaUrl ? (
+                    <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-2">
+                      <FileText className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-semibold text-emerald-700 truncate">PDF linked to CTA ✓</p>
+                        <p className="text-[9px] text-muted-foreground truncate">{directCtaUrl.split("/").pop()}</p>
                       </div>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
+                        onClick={() => setDirectCtaUrl("")}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setSelectedAssetId("none"); ctaPdfInputRef.current?.click(); }}
+                      disabled={ctaPdfUploading}
+                      className="w-full flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-muted-foreground text-xs font-medium"
+                    >
+                      {ctaPdfUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {ctaPdfUploading ? "Uploading…" : "Upload pricing sheet / brochure PDF"}
+                    </button>
+                  )}
+                </div>
+
+                {/* Or pick from campaign */}
+                {!directCtaUrl && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-px bg-border" />
+                      <span className="text-[9px] text-muted-foreground uppercase tracking-wider">or link campaign asset</span>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+                    {campaignAssets.length === 0 ? (
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        No assets found. Save a campaign in the <strong>Campaign Builder</strong> with a brochure or pricing sheet.
+                      </p>
+                    ) : (
+                      <>
+                        <Select value={selectedAssetId} onValueChange={id => { setSelectedAssetId(id); setDirectCtaUrl(""); }}>
+                          <SelectTrigger className="h-7 text-[11px]"><SelectValue placeholder="Select campaign…" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            {campaignAssets.map(a => (
+                              <SelectItem key={a.id} value={a.id}>{a.name} — {a.project_name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {selectedAsset && (
+                          <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1.5">
+                            {selectedAsset.thumbnail_url && <img src={selectedAsset.thumbnail_url} alt={selectedAsset.name} className="w-full h-16 object-cover rounded" />}
+                            <p className="text-[11px] font-semibold truncate">{selectedAsset.name}</p>
+                            {selectedAsset.brochure_url && <div className="flex items-center gap-1.5 text-[10px] text-emerald-600"><div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Brochure linked</div>}
+                            {selectedAsset.pricing_sheet_url && <div className="flex items-center gap-1.5 text-[10px] text-amber-600"><div className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Pricing sheet linked</div>}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
