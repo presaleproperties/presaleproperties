@@ -287,6 +287,8 @@ export default function AdminEmailBuilderHub() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [previewModal, setPreviewModal] = useState<{ html: string; name: string } | null>(null);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [projects, setProjects] = useState<Array<{ id: string; name: string; city: string }>>([]);
 
   const fetchTemplates = async () => {
     setLoading(true);
