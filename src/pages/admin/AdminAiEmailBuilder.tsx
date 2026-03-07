@@ -828,6 +828,42 @@ export default function AdminEmailBuilderPage() {
                 </Select>
               </div>
 
+              {/* ── LAYOUT VERSION TOGGLE ── */}
+              <div className="px-3 py-2.5 border-b border-border bg-muted/10">
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold block mb-2">Layout</Label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    onClick={() => setLayoutVersion("classic")}
+                    className={cn(
+                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                      layoutVersion === "classic"
+                        ? "border-primary bg-primary/8 shadow-sm"
+                        : "border-border bg-muted/10 hover:border-primary/40"
+                    )}
+                  >
+                    <div className="text-[11px] font-semibold text-foreground">Classic</div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Header · Stats · Body · CTA</div>
+                    {layoutVersion === "classic" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-primary" />}
+                  </button>
+                  <button
+                    onClick={() => setLayoutVersion("loop")}
+                    className={cn(
+                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                      layoutVersion === "loop"
+                        ? "border-amber-500 bg-amber-500/8 shadow-sm"
+                        : "border-border bg-muted/10 hover:border-amber-400/50"
+                    )}
+                  >
+                    <div className="text-[11px] font-semibold text-foreground">The Loop</div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Slideshow hero · Editorial</div>
+                    {layoutVersion === "loop" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-amber-500" />}
+                  </button>
+                </div>
+                {layoutVersion === "loop" && (
+                  <p className="text-[9px] text-amber-600/70 mt-1.5 leading-relaxed">Hero + Image Cards cycle as a CSS slideshow. Add images in the Images step below.</p>
+                )}
+              </div>
+
               {/* ── STEP 1: PASTE YOUR COPY ── */}
               <StepSection
                 step={1} title="Paste Your Copy" icon={<FileText className="h-3.5 w-3.5" />}
