@@ -302,6 +302,17 @@ export default function AdminEmailBuilderHub() {
 
   useEffect(() => { fetchTemplates(); }, []);
 
+  // Fetch projects for AI modal context
+  useEffect(() => {
+    supabase
+      .from("presale_projects")
+      .select("id, name, city")
+      .eq("is_active", true)
+      .order("name")
+      .limit(50)
+      .then(({ data }) => { if (data) setProjects(data); });
+  }, []);
+
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete template "${name}"? This cannot be undone.`)) return;
     setDeleting(id);
