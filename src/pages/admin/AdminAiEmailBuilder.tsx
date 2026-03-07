@@ -1052,7 +1052,6 @@ export default function AdminEmailBuilderPage() {
                 done={!!(heroImage || floorPlans.length)} doneLabel={[heroImage && "Hero", floorPlans.length && `${floorPlans.length} FP`].filter(Boolean).join(" · ")}
                 defaultOpen={false}
               >
-                {/* Hidden file inputs — mounted outside collapsible content via portal-less workaround */}
 
                 {/* Hero */}
                 <div>
