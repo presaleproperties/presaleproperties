@@ -472,40 +472,82 @@ export default function AdminEmailBuilderPage() {
     }
   };
 
-  const handleProjectSelect = (id: string) => {
+  const handleProjectSelect = async (id: string) => {
     setSelProjectId(id);
     const p = projects.find(proj => proj.id === id);
     if (!p) return;
+
+    // ── Populate all fields from project data ──────────────────────────────────
     setProjectName(p.name);
     setCity(p.city);
     if (p.neighborhood)    setNeighborhood(p.neighborhood);
     if (p.developer_name)  setDevName(p.developer_name);
     if (p.featured_image)  setHeroImage(p.featured_image);
-    if (p.incentives)      setIncentiveText(p.incentives);
+
     // Auto-populate Loop slideshow from gallery images (up to 6 HQ images)
     const gallerySlides: string[] = [];
     if (p.featured_image) gallerySlides.push(p.featured_image);
     if (p.gallery_images?.length) {
       for (const img of p.gallery_images) {
-        if (img && !gallerySlides.includes(img) && gallerySlides.length < 6) {
-          gallerySlides.push(img);
-        }
+        if (img && !gallerySlides.includes(img) && gallerySlides.length < 6) gallerySlides.push(img);
       }
     }
     if (gallerySlides.length > 0) setLoopSlides(gallerySlides);
-    // Populate starting price
-    const priceStr = p.price_range || (p.starting_price ? `From $${(p.starting_price / 1000).toFixed(0)}K` : "");
+
+    // Populate price / deposit / completion
+    const priceStr = p.price_range || (p.starting_price ? `From $${p.starting_price.toLocaleString()}` : "");
     if (priceStr) setStartingPrice(priceStr);
-    // Populate deposit
     const depositStr = p.deposit_structure || (p.deposit_percent ? `${p.deposit_percent}%` : "");
     if (depositStr) setDeposit(depositStr);
-    // Populate completion
     if (p.completion_year) {
       const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       const monthStr = p.completion_month ? `${MONTHS[p.completion_month - 1]} ` : "";
       setCompletion(`${monthStr}${p.completion_year}`);
     }
-    toast.success(`Loaded: ${p.name}`);
+
+    // ── Auto-generate email copy ───────────────────────────────────────────────
+    toast.info(`Writing copy for ${p.name}…`);
+    setAiLoading(true);
+    try {
+      const autoPrompt = [
+        `Project: ${p.name}`,
+        `City: ${p.city}${p.neighborhood ? `, ${p.neighborhood}` : ""}`,
+        p.developer_name ? `Developer: ${p.developer_name}` : "",
+        priceStr ? `Starting price: ${priceStr}` : "",
+        depositStr ? `Deposit: ${depositStr}` : "",
+        p.completion_year ? `Completion: ${p.completion_month ? ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][p.completion_month-1]+" " : ""}${p.completion_year}` : "",
+        p.incentives ? `Incentives: ${p.incentives}` : "",
+      ].filter(Boolean).join("\n");
+
+      const projectDetails = {
+        name: p.name, city: p.city, neighborhood: p.neighborhood,
+        developer_name: p.developer_name, starting_price: p.starting_price,
+        price_range: p.price_range, deposit_structure: p.deposit_structure,
+        deposit_percent: p.deposit_percent, completion_year: p.completion_year,
+        completion_month: p.completion_month, incentives: p.incentives,
+      };
+
+      const { data, error } = await supabase.functions.invoke("generate-email-copy", {
+        body: {
+          prompt: `Write a "thank you for your interest" email introducing ${p.name} to a buyer lead. Include a brief project intro, 4–5 highlight bullet points (price, deposit, location, completion, key features), and a highlights/incentives section if applicable.\n\n${autoPrompt}`,
+          projectDetails,
+          templateType: "project-intro",
+        },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      setAiResult(data.copy);
+      setActiveVersion("A");
+      applyResult(data.copy, "A");
+      // Preserve incentives from project if AI didn't produce them
+      if (!data.copy?.incentiveText && p.incentives) setIncentiveText(p.incentives);
+      toast.success(`Copy ready for ${p.name} ✓`);
+    } catch (e: any) {
+      toast.error("Auto-copy failed: " + (e.message || "Unknown error"));
+      toast.info(`Fields loaded for ${p.name}`);
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   // ── Uploads ──────────────────────────────────────────────────────────────────
