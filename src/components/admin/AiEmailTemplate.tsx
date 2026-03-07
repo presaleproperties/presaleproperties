@@ -301,21 +301,33 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
 
   <!-- ─── CTA ─── -->
   <tr>
-    <td class="mobile-pad" style="padding:28px 36px 32px;">
-      <table cellpadding="0" cellspacing="0" border="0" class="mobile-full" style="margin-bottom:12px;">
+    <td style="background:#f7f5f1;padding:32px 36px 36px;">
+      <!-- Primary CTA: VIEW PLANS — full gold fill -->
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
         <tr>
-          <td style="background:${DARK};padding:15px 36px;text-align:center;">
-            <a href="tel:${(agent.phone || DEFAULT_AGENT.phone).replace(/\D/g,'')}" style="font-family:${bodyFont};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">CALL NOW →</a>
+          <td align="center" style="background:${ACCENT};padding:18px 24px;text-align:center;">
+            <a href="${plansPricingUrl}"
+               style="font-family:${bodyFont};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0d1f18;text-decoration:none;display:block;line-height:1;">
+              VIEW PLANS &amp; PRICING &nbsp;→
+            </a>
           </td>
         </tr>
       </table>
-      <table cellpadding="0" cellspacing="0" border="0" class="mobile-full">
+      <!-- Secondary CTA: CALL NOW — dark green fill -->
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
-          <td style="border:1.5px solid ${ACCENT};padding:13px 36px;text-align:center;">
-            <a href="${plansPricingUrl}" style="font-family:${bodyFont};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;">VIEW PLANS &amp; PRICING</a>
+          <td align="center" style="background:${DARK};padding:16px 24px;text-align:center;">
+            <a href="tel:${(agent.phone || DEFAULT_AGENT.phone).replace(/\D/g,'')}"
+               style="font-family:${bodyFont};font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;line-height:1;">
+              &#128222;&nbsp; CALL NOW
+            </a>
           </td>
         </tr>
       </table>
+      <!-- Agent note -->
+      <p style="margin:16px 0 0 0;font-family:${bodyFont};font-size:11px;color:#999999;text-align:center;line-height:1.5;">
+        Questions? Reply to this email or call ${agent.phone || DEFAULT_AGENT.phone} directly.
+      </p>
     </td>
   </tr>
 
