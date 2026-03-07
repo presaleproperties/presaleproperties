@@ -180,7 +180,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
       <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
         <tr>
           <td style="background:${DARK};padding:14px 36px;">
-            <a href="tel:${agent.phone.replace(/\D/g,'')}" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">CALL NOW →</a>
+            <a href="tel:${(agent.phone || DEFAULT_AGENT.phone).replace(/\D/g,'')}" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">CALL NOW →</a>
           </td>
         </tr>
       </table>
