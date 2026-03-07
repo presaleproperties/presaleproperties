@@ -422,7 +422,7 @@ export default function AdminAiEmailBuilder() {
   // ── Edit-in-preview iframe designMode ────────────────────────────────────────
   const enableIframeEdit = useCallback(() => {
     const doc = iframeRef.current?.contentDocument;
-    if (!doc) return;
+    if (!doc || !doc.body) return;
     doc.designMode = "on";
     // Inject subtle edit-mode styles
     const existing = doc.getElementById("__edit-style");
@@ -431,11 +431,23 @@ export default function AdminAiEmailBuilder() {
     style.id = "__edit-style";
     style.textContent = `
       body { outline: none !important; cursor: text; }
-      *:hover { outline: 1.5px dashed rgba(201,165,90,0.45) !important; outline-offset: 2px; }
-      *:focus { outline: 2px solid rgba(201,165,90,0.8) !important; outline-offset: 2px; }
+      td:hover, p:hover, div:hover, a:hover, span:hover {
+        outline: 1.5px dashed rgba(201,165,90,0.5) !important;
+        outline-offset: 1px;
+      }
     `;
     doc.head?.appendChild(style);
   }, []);
+
+  // When user switches to edit mode, enable designMode immediately (iframe is already loaded)
+  useEffect(() => {
+    if (previewMode === "edit") {
+      // Try immediately, then retry after short delay in case of timing
+      enableIframeEdit();
+      const t = setTimeout(enableIframeEdit, 150);
+      return () => clearTimeout(t);
+    }
+  }, [previewMode, enableIframeEdit]);
 
   const getExportHtml = useCallback((): string => {
     if (previewMode === "edit" && iframeRef.current?.contentDocument) {
