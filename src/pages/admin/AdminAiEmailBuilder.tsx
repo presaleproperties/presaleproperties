@@ -30,6 +30,7 @@ const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface FloorPlanEntry { id: string; url: string; label: string; sqft: string }
+interface ImageCardEntry { id: string; url: string; caption: string }
 interface CampaignAsset {
   id: string; name: string; project_name: string;
   brochure_url: string | null; pricing_sheet_url: string | null; thumbnail_url: string | null;
@@ -182,6 +183,7 @@ export default function AdminEmailBuilderPage() {
   const [searchParams]  = useSearchParams();
   const heroInputRef    = useRef<HTMLInputElement>(null);
   const fpInputRef      = useRef<HTMLInputElement>(null);
+  const imgCardInputRef = useRef<HTMLInputElement>(null);
   const iframeRef       = useRef<HTMLIFrameElement>(null);
 
   // Resolve URL template preset (only on first mount, before reading draft)
@@ -229,6 +231,8 @@ export default function AdminEmailBuilderPage() {
   const [fpHeading,     setFpHeading]     = useState(savedDraft?.fpHeading    ?? "Available Floor Plans");
   const [fpSubheading,  setFpSubheading]  = useState(savedDraft?.fpSubheading ?? "Limited units remaining — register now for priority access");
   const [fpUploading,   setFpUploading]   = useState(false);
+  const [imageCards,    setImageCards]    = useState<ImageCardEntry[]>(savedDraft?.imageCards ?? []);
+  const [imgCardUploading, setImgCardUploading] = useState(false);
 
   // Campaign assets
   const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
@@ -302,7 +306,7 @@ export default function AdminEmailBuilderPage() {
         projectName, developerName, showProjectName, showDeveloperName, customHeader,
         city, neighborhood, startingPrice, deposit, completion, infoRows,
         subjectLine, previewText, headline, bodyCopy, incentiveText,
-        heroImage, floorPlans, fpHeading, fpSubheading,
+        heroImage, floorPlans, fpHeading, fpSubheading, imageCards,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
@@ -314,7 +318,7 @@ export default function AdminEmailBuilderPage() {
     projectName, developerName, showProjectName, showDeveloperName, customHeader,
     city, neighborhood, startingPrice, deposit, completion, infoRows,
     subjectLine, previewText, headline, bodyCopy, incentiveText,
-    heroImage, floorPlans, fpHeading, fpSubheading,
+    heroImage, floorPlans, fpHeading, fpSubheading, imageCards,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId,
   ]);
 
@@ -326,7 +330,8 @@ export default function AdminEmailBuilderPage() {
     developerName: showDeveloperName ? developerName : "",
     startingPrice, deposit, completion,
     infoRows: infoRows.filter(r => r.includes("|")),
-  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, infoRows]);
+    imageCards: imageCards.filter(c => c.url),
+  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, infoRows, imageCards]);
 
   // Debounced preview HTML — updates 800ms after last change so iframe doesn't re-render on every keystroke
   const [previewHtml, setPreviewHtml] = useState(() =>
@@ -482,6 +487,26 @@ export default function AdminEmailBuilderPage() {
   const removeFp = (id: string) => setFloorPlans(prev => prev.filter(fp => fp.id !== id));
   const updateFp = (id: string, field: keyof FloorPlanEntry, val: string) =>
     setFloorPlans(prev => prev.map(fp => fp.id === id ? { ...fp, [field]: val } : fp));
+
+  const handleImgCardUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []); if (!files.length) return;
+    setImgCardUploading(true);
+    try {
+      const uploaded: ImageCardEntry[] = [];
+      const remaining = 3 - imageCards.length;
+      for (const file of files.slice(0, remaining)) {
+        const url = await uploadImage(file, "email-assets", `email-imgcards/${Date.now()}-${file.name}`);
+        uploaded.push({ id: crypto.randomUUID(), url, caption: "" });
+      }
+      setImageCards(prev => [...prev, ...uploaded].slice(0, 3));
+      toast.success(`${uploaded.length} image${uploaded.length > 1 ? "s" : ""} added`);
+    } catch (err: any) { toast.error("Upload failed: " + err.message); }
+    finally { setImgCardUploading(false); e.target.value = ""; }
+  };
+
+  const removeImgCard = (id: string) => setImageCards(prev => prev.filter(c => c.id !== id));
+  const updateImgCard = (id: string, caption: string) =>
+    setImageCards(prev => prev.map(c => c.id === id ? { ...c, caption } : c));
 
   // ── Edit-in-preview iframe designMode ────────────────────────────────────────
   const enableIframeEdit = useCallback(() => {
@@ -1021,8 +1046,9 @@ export default function AdminEmailBuilderPage() {
                 done={!!(heroImage || floorPlans.length)} doneLabel={[heroImage && "Hero", floorPlans.length && `${floorPlans.length} FP`].filter(Boolean).join(" · ")}
                 defaultOpen={false}
               >
-                <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
-                <input ref={fpInputRef}   type="file" accept="image/*" multiple className="hidden" onChange={handleFpUpload} />
+                <input ref={heroInputRef}     type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
+                <input ref={fpInputRef}       type="file" accept="image/*" multiple className="hidden" onChange={handleFpUpload} />
+                <input ref={imgCardInputRef}  type="file" accept="image/*" multiple className="hidden" onChange={handleImgCardUpload} />
 
                 {/* Hero */}
                 <div>
@@ -1100,6 +1126,38 @@ export default function AdminEmailBuilderPage() {
                     </div>
                   )}
                 </div>
+              </StepSection>
+
+              {/* ── IMAGE CARDS (below What's Included) ── */}
+              <StepSection
+                step={5} title="Image Cards" icon={<Image className="h-3.5 w-3.5" />}
+                done={imageCards.length > 0} doneLabel={imageCards.length > 0 ? `${imageCards.length} card${imageCards.length > 1 ? "s" : ""}` : undefined}
+                defaultOpen={false}
+              >
+                <p className="text-[10px] text-muted-foreground leading-relaxed mb-2">
+                  Add up to 3 images that appear below "What's Included". Great for project renders, amenities, or lifestyle shots.
+                </p>
+                {imageCards.length < 3 && (
+                  <button onClick={() => imgCardInputRef.current?.click()} disabled={imgCardUploading}
+                    className="w-full flex items-center justify-center gap-1.5 h-14 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-muted-foreground text-xs font-medium">
+                    {imgCardUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    {imgCardUploading ? "Uploading…" : `Upload image${imageCards.length > 0 ? ` (${3 - imageCards.length} more)` : "s"}`}
+                  </button>
+                )}
+                {imageCards.map(card => (
+                  <div key={card.id} className="mt-2 border border-border rounded-lg overflow-hidden bg-muted/20">
+                    <div className="relative">
+                      <img src={card.url} alt="Card" className="w-full h-24 object-cover bg-white" />
+                      <button onClick={() => removeImgCard(card.id)} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
+                        <X className="h-3 w-3 text-white" />
+                      </button>
+                    </div>
+                    <div className="p-2">
+                      <Label className="text-[9px]">Caption <span className="text-muted-foreground/50 font-normal">(optional)</span></Label>
+                      <Input value={card.caption} onChange={e => updateImgCard(card.id, e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="Rooftop terrace · 5,000 sq ft" />
+                    </div>
+                  </div>
+                ))}
               </StepSection>
 
               {/* ── STEP 6: CAMPAIGN ASSETS ── */}
