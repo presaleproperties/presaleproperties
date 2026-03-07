@@ -1053,6 +1053,57 @@ export default function AdminCampaignBuilder() {
     }
   }, [form, assignmentForm, campaignType, screenshotEl]);
 
+  // Download ALL pages combined into a single PDF
+  const generateCombinedPdf = useCallback(async () => {
+    setPdfGenerating(true);
+    try {
+      const slug = (campaignType === "assignment" ? (assignmentForm.projectName || "assignment") : (form.projectName || "campaign")).toLowerCase().replace(/\s+/g, "-");
+      const pageEls = Array.from(document.querySelectorAll<HTMLElement>("[data-page-export]"));
+      if (pageEls.length === 0) { toast.error("No pages found to export"); return; }
+
+      const SCALE = 3;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = pdf.internal.pageSize.getHeight();
+
+      for (let i = 0; i < pageEls.length; i++) {
+        const el = pageEls[i];
+        el.scrollIntoView({ block: "start" });
+        await new Promise<void>(r => setTimeout(r, 120));
+        const imgs = Array.from(el.querySelectorAll<HTMLImageElement>("img"));
+        await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise<void>(r => { img.onload = img.onerror = () => r(); })));
+        await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+
+        const rect = el.getBoundingClientRect();
+        const canvas = await html2canvas(el, {
+          scale: SCALE, useCORS: true, allowTaint: false, logging: false,
+          backgroundColor: "#ffffff",
+          width: Math.round(rect.width), height: Math.round(rect.height),
+          x: 0, y: 0, scrollX: 0, scrollY: 0,
+          windowWidth: Math.round(rect.width), windowHeight: Math.round(rect.height),
+        });
+
+        if (i > 0) pdf.addPage();
+        const imgData = canvas.toDataURL("image/png");
+        // Fit image to PDF page while preserving aspect ratio
+        const ratio = Math.min(pdfW / canvas.width, pdfH / canvas.height);
+        const imgW = canvas.width * ratio;
+        const imgH = canvas.height * ratio;
+        const xOff = (pdfW - imgW) / 2;
+        const yOff = (pdfH - imgH) / 2;
+        pdf.addImage(imgData, "PNG", xOff, yOff, imgW, imgH);
+      }
+
+      pdf.save(`${slug}-campaign.pdf`);
+      toast.success(`Downloaded ${slug}-campaign.pdf`);
+    } catch (e) {
+      console.error(e);
+      toast.error("PDF export failed");
+    } finally {
+      setPdfGenerating(false);
+    }
+  }, [form, assignmentForm, campaignType]);
+
   // Screenshot a single page by index (for per-page button)
   const screenshotPage = useCallback(async (pageIndex: number) => {
     setScreenshottingPage(pageIndex);
