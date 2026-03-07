@@ -1799,12 +1799,23 @@ export default function AdminCampaignBuilder() {
                     />
                   </div>
                   <Button
+                    variant="outline"
                     onClick={generatePDF}
                     disabled={pdfGenerating}
                     className="h-8 text-xs gap-1.5 px-3 flex-shrink-0"
+                    title="Download each page as a separate PNG"
                   >
                     {pdfGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-                    {pdfGenerating ? "Generating…" : "PNG"}
+                    PNG
+                  </Button>
+                  <Button
+                    onClick={generateCombinedPdf}
+                    disabled={pdfGenerating}
+                    className="h-8 text-xs gap-1.5 px-3 flex-shrink-0"
+                    title="Download all pages combined into a single PDF"
+                  >
+                    {pdfGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                    PDF
                   </Button>
                   <Button
                     variant="outline"
