@@ -113,18 +113,19 @@ function buildFinalHtml(
           <div style="border:1px solid #e0dbd3;overflow:hidden;background:#fafaf8;">
             <img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="100%" style="display:block;width:100%;height:auto;" />
             ${fp.label || fp.sqft ? `<div style="padding:10px 12px 12px;">
-              ${fp.label ? `<p style="margin:0 0 3px 0;font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#111;">${fp.label}</p>` : ""}
-              ${fp.sqft  ? `<p style="margin:0;font-family:'DM Sans',Arial,sans-serif;font-size:10px;color:#888;">${fp.sqft}</p>`  : ""}
+              ${fp.label ? `<p style="margin:0 0 3px 0;font-family:${bodyFont};font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#111;">${fp.label}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0;font-family:${bodyFont};font-size:10px;color:#888;">${fp.sqft}</p>`  : ""}
             </div>` : ""}
           </div>
         </td>`).join("");
+      const displayFont = font?.display || "'Cormorant Garamond', Georgia, serif";
       const block = `
   <!-- ─── FLOOR PLANS ─── -->
   <tr><td style="background:${DARK};padding:0;"><div style="height:3px;background:${ACCENT};"></div></td></tr>
   <tr><td style="background:${DARK};padding:28px 36px 8px;">
-    <p style="margin:0 0 6px 0;font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
-    <p style="margin:0 0 8px 0;font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:400;color:#ffffff;line-height:1.15;">${heading}</p>
-    <p style="margin:0;font-family:'DM Sans',Arial,sans-serif;font-size:12px;color:#8aaa96;line-height:1.6;">${sub}</p>
+    <p style="margin:0 0 6px 0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
+    <p style="margin:0 0 8px 0;font-family:${displayFont};font-size:26px;font-weight:600;color:#ffffff;line-height:1.15;">${heading}</p>
+    <p style="margin:0;font-family:${bodyFont};font-size:12px;color:#8aaa96;line-height:1.6;">${sub}</p>
   </td></tr>
   <tr><td style="background:${DARK};padding:16px 28px 28px;">
     <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>${cells}</tr></table>
@@ -132,7 +133,7 @@ function buildFinalHtml(
   <tr><td style="background:${DARK};padding:0 36px 28px;">
     <table cellpadding="0" cellspacing="0" border="0"><tr>
       <td style="background:${ACCENT};padding:13px 32px;">
-        <a href="https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${fields.projectName || "this project"}. Can you send me more details?`)}" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
+        <a href="https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${fields.projectName || "this project"}. Can you send me more details?`)}" style="font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
       </td>
     </tr></table>
   </td></tr>`;
