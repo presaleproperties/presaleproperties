@@ -574,9 +574,9 @@ export default function AdminEmailBuilderHub() {
   // Fetch projects for AI modal context
   useEffect(() => {
     supabase
-      .from("presale_projects" as any)
+      .from("presale_projects")
       .select("id, name, city")
-      .eq("is_active", true)
+      .eq("is_published", true)
       .order("name")
       .limit(50)
       .then(({ data }: { data: any }) => { if (data) setProjects(data as Array<{ id: string; name: string; city: string }>); });
