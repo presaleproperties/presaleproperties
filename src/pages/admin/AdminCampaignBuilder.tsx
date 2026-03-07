@@ -1486,9 +1486,9 @@ export default function AdminCampaignBuilder() {
             <div className="p-4 border-b border-border">
               <div className="flex items-center gap-3 mb-3">
                 <button
-                  onClick={() => navigate("/admin/campaign-builder")}
+                  onClick={() => navigate("/admin/marketing-hub")}
                   className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center hover:bg-muted transition-colors shrink-0"
-                  title="Back to Campaign Hub"
+                  title="Back to Marketing Hub"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                 </button>
@@ -1500,11 +1500,11 @@ export default function AdminCampaignBuilder() {
                     {templateId && templateId !== "new" ? (templateName || form.projectName || "Edit Campaign") : "New Campaign"}
                   </h1>
                   <button
-                    onClick={() => navigate("/admin/campaign-builder")}
+                    onClick={() => navigate("/admin/marketing-hub")}
                     className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors"
                   >
                     <LayoutGrid className="h-2.5 w-2.5" />
-                    Campaign Hub
+                    Marketing Hub
                   </button>
                 </div>
               </div>
