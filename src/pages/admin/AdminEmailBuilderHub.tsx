@@ -305,12 +305,12 @@ export default function AdminEmailBuilderHub() {
   // Fetch projects for AI modal context
   useEffect(() => {
     supabase
-      .from("presale_projects")
+      .from("presale_projects" as any)
       .select("id, name, city")
       .eq("is_active", true)
       .order("name")
       .limit(50)
-      .then(({ data }) => { if (data) setProjects(data); });
+      .then(({ data }: { data: any }) => { if (data) setProjects(data as Array<{ id: string; name: string; city: string }>); });
   }, []);
 
   const handleDelete = async (id: string, name: string) => {
