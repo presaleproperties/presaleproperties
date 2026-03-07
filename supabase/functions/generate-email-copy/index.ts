@@ -105,7 +105,13 @@ Return ONLY a valid JSON object with these exact fields (no markdown, no code fe
       : "";
 
     const templateContext = templateType
-      ? `\nEmail type: ${templateType === "exclusive-offer" ? "Exclusive VIP offer — emphasize urgency of timing and exclusivity of access, not scarcity pressure" : "Core project introduction — professional, informative, low-pressure"}`
+      ? `\nEmail type: ${
+          templateType === "exclusive-offer"
+            ? "Exclusive VIP offer — emphasize urgency of timing and exclusivity of access, not scarcity pressure"
+            : templateType === "project-intro"
+            ? "Project intro email — MUST follow this structure: (1) one-sentence thank you for interest in the project, (2) 2-sentence project overview, (3) 4-5 bullet point highlights covering price/deposit/location/completion/key features, (4) incentives section using ✦ bullets if incentives are provided, (5) soft CTA — call or reply, no pressure, (6) sign-off"
+            : "Core project introduction — professional, informative, low-pressure"
+        }`
       : "";
 
     const userPrompt = `Write two versions of email copy based on this brief:
