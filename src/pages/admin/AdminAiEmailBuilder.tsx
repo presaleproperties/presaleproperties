@@ -210,6 +210,7 @@ export default function AdminEmailBuilderPage() {
   const [startingPrice,     setStartingPrice]      = useState(savedDraft?.startingPrice     ?? "");
   const [deposit,           setDeposit]            = useState(savedDraft?.deposit           ?? "");
   const [completion,        setCompletion]         = useState(savedDraft?.completion        ?? "");
+  const [infoRows,          setInfoRows]           = useState<string[]>(savedDraft?.infoRows ?? []);
   const [subjectLine,       setSubjectLine]        = useState(urlPreset?.subjectLine   ?? savedDraft?.subjectLine       ?? "");
   const [previewText,       setPreviewText]        = useState(urlPreset?.previewText   ?? savedDraft?.previewText       ?? "");
   const [headline,          setHeadline]           = useState(urlPreset?.headline      ?? savedDraft?.headline          ?? "");
