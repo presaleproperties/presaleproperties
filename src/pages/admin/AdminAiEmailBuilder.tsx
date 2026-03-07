@@ -249,10 +249,17 @@ export default function AdminEmailBuilderPage() {
   const [agents,   setAgents]   = useState<AgentInfo[]>([]);
   const [selAgent, setSelAgent] = useState(savedDraft?.selAgent ?? "default");
   const selectedAgent: AgentInfo = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
-  const [projects, setProjects] = useState<Array<{ id: string; name: string; city: string; featured_image?: string | null }>>([]);
+  const [projects, setProjects] = useState<Array<{
+    id: string; name: string; city: string; neighborhood?: string | null;
+    developer_name?: string | null; starting_price?: number | null; price_range?: string | null;
+    deposit_structure?: string | null; deposit_percent?: number | null;
+    completion_year?: number | null; completion_month?: number | null;
+    featured_image?: string | null; incentives?: string | null;
+  }>>([]);
 
   useEffect(() => {
-    supabase.from("presale_projects").select("id, name, city, featured_image")
+    supabase.from("presale_projects")
+      .select("id, name, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, incentives")
       .order("name").limit(100)
       .then(({ data }: any) => { if (data) setProjects(data); });
 
