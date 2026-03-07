@@ -320,7 +320,8 @@ export default function AdminEmailBuilderPage() {
     city, neighborhood,
     developerName: showDeveloperName ? developerName : "",
     startingPrice, deposit, completion,
-  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
+    infoRows: infoRows.filter(r => r.includes("|")),
+  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, infoRows]);
 
   // Debounced preview HTML — updates 800ms after last change so iframe doesn't re-render on every keystroke
   const [previewHtml, setPreviewHtml] = useState(() =>
