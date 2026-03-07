@@ -1302,7 +1302,16 @@ export default function AdminEmailBuilder() {
       <div className="flex items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-4 min-w-0">
           <div className="shrink-0">
-            <h1 className="text-lg font-bold text-foreground tracking-tight leading-tight">Email Builder</h1>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate("/admin/email-builder-hub")}
+                className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-xs"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Hub
+              </button>
+              <span className="text-muted-foreground/40 text-xs">/</span>
+              <h1 className="text-lg font-bold text-foreground tracking-tight leading-tight">Email Builder</h1>
+            </div>
             <p className="text-xs text-muted-foreground">Mailchimp-ready HTML · No code needed</p>
           </div>
 
