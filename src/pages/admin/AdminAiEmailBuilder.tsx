@@ -434,6 +434,20 @@ export default function AdminAiEmailBuilder() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Draft saved indicator */}
+            {draftSavedAt && (
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                <span>Draft saved {draftSavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                <button
+                  onClick={() => { localStorage.removeItem(DRAFT_KEY); window.location.reload(); }}
+                  className="ml-1 text-muted-foreground/50 hover:text-destructive transition-colors"
+                  title="Clear draft & start fresh"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
             {/* Version tabs */}
             {aiResult && (
               <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
@@ -444,7 +458,7 @@ export default function AdminAiEmailBuilder() {
               </div>
             )}
             <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save to Hub
             </Button>
             <Button size="sm"
               className={cn("h-9 gap-1.5 font-semibold transition-all duration-200", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
