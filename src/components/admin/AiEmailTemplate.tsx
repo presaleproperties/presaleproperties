@@ -192,7 +192,10 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
       .body-headline{font-size:22px!important;}
       .stat-value{font-size:22px!important;}
       .agent-logo{display:none!important;}
-      .agent-photo{width:52px!important;height:52px!important;}
+      .agent-photo{width:44px!important;height:44px!important;}
+      .agent-photo-cell{padding:14px 0 14px 16px!important;width:60px!important;}
+      .agent-info-cell{padding:14px 16px!important;}
+      .agent-logo-cell{display:none!important;}
       .fp-cell{display:block!important;width:100%!important;}
       table.mobile-full{width:100%!important;}
     }
@@ -374,13 +377,13 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
           ${agent.photo_url ? `
-          <td width="80" valign="middle" style="padding:18px 0 18px 20px;vertical-align:middle;line-height:0;font-size:0;">
+          <td width="80" valign="middle" class="agent-photo-cell" style="padding:18px 0 18px 20px;vertical-align:middle;line-height:0;font-size:0;">
             <img src="${agent.photo_url}" alt="${agent.full_name}" width="60" height="60" border="0" class="agent-photo"
                  style="display:block;width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
           </td>` : ""}
-          <td valign="middle" style="padding:18px 12px 18px ${agent.photo_url ? "10px" : "20px"};vertical-align:middle;">
-            <div style="font-family:${displayFont};font-size:18px;font-weight:600;color:#111111;line-height:1.15;mso-line-height-rule:exactly;margin-bottom:2px;">${agent.full_name}</div>
-            <div style="font-family:${bodyFont};font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};mso-line-height-rule:exactly;line-height:1.5;margin-bottom:7px;">${agent.title}</div>
+          <td valign="middle" class="agent-info-cell" style="padding:18px 12px 18px ${agent.photo_url ? "10px" : "20px"};vertical-align:middle;">
+            <div style="font-family:${displayFont};font-size:17px;font-weight:600;color:#111111;line-height:1.15;mso-line-height-rule:exactly;margin-bottom:2px;">${agent.full_name}</div>
+            <div style="font-family:${bodyFont};font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};mso-line-height-rule:exactly;line-height:1.5;margin-bottom:6px;">${agent.title}</div>
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
               ${agent.phone ? `<tr>
                 <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;line-height:1;">&#128222;</td>
@@ -388,11 +391,11 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
               </tr>` : ""}
               ${agent.email ? `<tr>
                 <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;line-height:1;">&#9993;</td>
-                <td style="padding-bottom:3px;vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${bodyFont};font-size:12px;font-weight:400;color:#444444;text-decoration:none;">${agent.email}</a></td>
+                <td style="padding-bottom:3px;vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${bodyFont};font-size:11px;font-weight:400;color:#444444;text-decoration:none;">${agent.email}</a></td>
               </tr>` : ""}
             </table>
           </td>
-          <td align="right" valign="middle" style="padding:18px 24px 18px 12px;vertical-align:middle;">
+          <td align="right" valign="middle" class="agent-logo-cell" style="padding:18px 24px 18px 12px;vertical-align:middle;">
             <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="150" border="0" class="agent-logo"
                  style="display:block;width:150px;max-width:150px;height:auto;-ms-interpolation-mode:bicubic;" />
           </td>
