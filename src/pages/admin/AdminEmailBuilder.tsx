@@ -1163,6 +1163,9 @@ export default function AdminEmailBuilder() {
       if (draft.cta) setCta({ ...DEFAULT_CTA, ...draft.cta });
       if (typeof draft.fontIdx === "number") setFontIdx(draft.fontIdx);
       if (draft.savedAt) setDraftSavedAt(new Date(draft.savedAt));
+      // Support loading from hub (overwrite context)
+      if (draft._overwriteId) { setOverwriteId(draft._overwriteId); }
+      if (draft._templateName) { setTemplateName(draft._templateName); }
       setDraftRestoredFlag(true);
     } catch { /* corrupt draft — ignore */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
