@@ -63,10 +63,11 @@ function bodyToHtml(text: string): string {
     .join("");
 }
 
-export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_AGENT): string {
+export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_AGENT, ctaUrl?: string): string {
   const ACCENT = "#C9A55A";
   const DARK = "#0d1f18";
   const incentives = parseIncentives(copy.incentiveText || "");
+  const plansPricingUrl = ctaUrl || "https://presaleproperties.com";
 
   const locationLine = [copy.neighborhood, copy.city].filter(Boolean).join(", ");
   const byLine = copy.developerName ? `by ${copy.developerName}` : "";
