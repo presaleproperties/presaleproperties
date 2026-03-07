@@ -307,6 +307,21 @@ export default function AdminAiEmailBuilder() {
     finally { setHeroUploading(false); e.target.value = ""; }
   };
 
+  const handleCtaPdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    setCtaPdfUploading(true);
+    try {
+      const path = `email-cta-pdfs/${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage.from("listing-files").upload(path, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      const url = supabase.storage.from("listing-files").getPublicUrl(path).data.publicUrl;
+      setDirectCtaUrl(url);
+      setSelectedAssetId("none");
+      toast.success("PDF uploaded & linked to CTA ✓");
+    } catch (err: any) { toast.error("Upload failed: " + err.message); }
+    finally { setCtaPdfUploading(false); e.target.value = ""; }
+  };
+
   const handleFpUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []); if (!files.length) return;
     setFpUploading(true);
