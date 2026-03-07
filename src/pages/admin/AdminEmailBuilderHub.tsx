@@ -337,7 +337,7 @@ function AiEmailModal({
 
   const handleClose = () => {
     setPrompt("");
-    setSelectedProjectId("");
+    setSelectedProjectId("none");
     setResult(null);
     onClose();
   };
