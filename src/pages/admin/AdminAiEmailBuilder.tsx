@@ -295,6 +295,9 @@ export default function AdminEmailBuilderPage() {
   const [selectedFontId, setSelectedFontId] = useState<string>(savedFontId);
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
+  // Layout version
+  const [layoutVersion, setLayoutVersion] = useState<"classic" | "loop">(savedDraft?.layoutVersion ?? "classic");
+
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
@@ -329,7 +332,6 @@ export default function AdminEmailBuilderPage() {
             return { full_name: m.full_name ?? "", title: m.title ?? "Presale Specialist", photo_url: m.photo_url ?? null, ...c };
           });
           setAgents(enriched);
-          // Only set default agent if no draft
           if (enriched.length > 0 && !savedDraft?.selAgent) setSelAgent(enriched[0].full_name);
         }
       });
@@ -355,6 +357,7 @@ export default function AdminEmailBuilderPage() {
         subjectLine, previewText, headline, bodyCopy, incentiveText,
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
+        layoutVersion,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -366,7 +369,7 @@ export default function AdminEmailBuilderPage() {
     city, neighborhood, startingPrice, deposit, completion, infoRows,
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards,
-    selectedAssetId, directCtaUrl, selAgent, selectedFontId,
+    selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
@@ -380,21 +383,21 @@ export default function AdminEmailBuilderPage() {
     imageCards: imageCards.filter(c => c.url),
   }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, infoRows, imageCards]);
 
-  // Debounced preview HTML — updates 800ms after last change so iframe doesn't re-render on every keystroke
+  // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards]);
 
   // finalHtml used only for copy/save — always reflects latest state
-  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont);
+  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards);
 
   // ── AI generation ─────────────────────────────────────────────────────────────
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
