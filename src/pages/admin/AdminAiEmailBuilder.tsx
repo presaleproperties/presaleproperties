@@ -309,12 +309,16 @@ export default function AdminEmailBuilderPage() {
   const [agents,   setAgents]   = useState<AgentInfo[]>([]);
   const [selAgent, setSelAgent] = useState(savedDraft?.selAgent ?? "default");
   const selectedAgent: AgentInfo = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
+  // Loop slideshow images (auto-filled from project gallery)
+  const [loopSlides, setLoopSlides] = useState<string[]>(savedDraft?.loopSlides ?? []);
+
   const [projects, setProjects] = useState<Array<{
     id: string; name: string; city: string; neighborhood?: string | null;
     developer_name?: string | null; starting_price?: number | null; price_range?: string | null;
     deposit_structure?: string | null; deposit_percent?: number | null;
     completion_year?: number | null; completion_month?: number | null;
     featured_image?: string | null; incentives?: string | null;
+    gallery_images?: string[] | null;
   }>>([]);
 
   useEffect(() => {
