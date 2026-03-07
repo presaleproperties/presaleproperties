@@ -292,6 +292,8 @@ export default function AdminAiEmailBuilder() {
       applyResult(data.copy, "A");
       if (project?.featured_image && !heroImage) setHeroImage(project.featured_image);
       toast.success("Email copy generated ✓");
+      // Auto-apply preview after AI generation
+      setTimeout(() => applyPreview(), 50);
     } catch (e: any) {
       toast.error(e.message || "Failed to generate");
     } finally {
