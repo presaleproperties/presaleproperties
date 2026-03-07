@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { buildAiEmailHtml, type AiEmailCopy } from "@/components/admin/AiEmailTemplate";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -289,22 +290,43 @@ const EXAMPLE_PROMPTS = [
   "Introducing a luxury waterfront project in North Van — developer is Bosa, from $1.2M",
 ];
 
+function copyCombined(r: Record<string, string>, versionB = false): AiEmailCopy {
+  return {
+    subjectLine:   versionB ? (r.subjectLineB  || r.subjectLine)  : r.subjectLine,
+    previewText:   versionB ? (r.previewTextB  || r.previewText)  : r.previewText,
+    headline:      versionB ? (r.headlineB     || r.headline)     : r.headline,
+    bodyCopy:      versionB ? (r.bodyCopyB     || r.bodyCopy)     : r.bodyCopy,
+    incentiveText: r.incentiveText,
+    projectName:   r.projectName,
+    city:          r.city,
+    neighborhood:  r.neighborhood,
+    developerName: r.developerName,
+    startingPrice: r.startingPrice,
+    deposit:       r.deposit,
+    completion:    r.completion,
+  };
+}
+
 function AiEmailModal({
   open,
   onClose,
   projects,
-  onApply,
 }: {
   open: boolean;
   onClose: () => void;
   projects: Array<{ id: string; name: string; city: string }>;
-  onApply: (copy: Record<string, string>, templateType: string) => void;
 }) {
   const [prompt, setPrompt] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState<string>("none");
   const [templateType, setTemplateType] = useState<string>("main-project-email");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Record<string, string> | null>(null);
+  const [activeVersion, setActiveVersion] = useState<"A" | "B">("A");
+  const [tab, setTab] = useState<"compose" | "preview">("compose");
+  const [copied, setCopied] = useState(false);
+
+  const activeCopy = result ? copyCombined(result, activeVersion === "B") : null;
+  const previewHtml = activeCopy ? buildAiEmailHtml(activeCopy) : "";
 
   const handleGenerate = async () => {
     if (!prompt.trim()) { toast.error("Please enter a brief prompt first"); return; }
@@ -313,15 +335,13 @@ function AiEmailModal({
     try {
       const project = projects.find(p => p.id === selectedProjectId && selectedProjectId !== "none");
       const { data, error } = await supabase.functions.invoke("generate-email-copy", {
-        body: {
-          prompt: prompt.trim(),
-          projectDetails: project ? { name: project.name, city: project.city } : null,
-          templateType,
-        },
+        body: { prompt: prompt.trim(), projectDetails: project ? { name: project.name, city: project.city } : null, templateType },
       });
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
       setResult(data.copy);
+      setActiveVersion("A");
+      setTab("preview");
     } catch (e: any) {
       toast.error(e.message || "Failed to generate copy");
     } finally {
@@ -329,227 +349,222 @@ function AiEmailModal({
     }
   };
 
-  const handleApply = () => {
-    if (!result) return;
-    onApply(result, templateType);
-    onClose();
+  const handleCopyHtml = () => {
+    if (!previewHtml) return;
+    navigator.clipboard.writeText(previewHtml).then(() => {
+      setCopied(true);
+      toast.success("HTML copied to clipboard");
+      setTimeout(() => setCopied(false), 2500);
+    });
   };
 
   const handleClose = () => {
     setPrompt("");
     setSelectedProjectId("none");
     setResult(null);
+    setTab("compose");
     onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-card border-b border-border px-6 py-4">
+      <DialogContent className="max-w-5xl max-h-[94vh] overflow-hidden p-0 flex flex-col">
+        {/* ── Header ── */}
+        <div className="flex-shrink-0 bg-card border-b border-border px-6 py-4">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-sm">
-                <Sparkles className="h-4.5 w-4.5 text-white h-5 w-5" />
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-sm flex-shrink-0">
+                <Sparkles className="h-5 w-5 text-white" />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <div className="text-base font-bold">AI Email Writer</div>
-                <div className="text-xs text-muted-foreground font-normal">Describe your email — AI writes the copy</div>
+                <div className="text-xs text-muted-foreground font-normal">Trained on Uzair's voice · Writes Version A & B automatically</div>
               </div>
+              {/* Tab switcher */}
+              {result && (
+                <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5 ml-auto">
+                  <button
+                    onClick={() => setTab("compose")}
+                    className={cn("px-3 py-1.5 text-xs font-medium rounded-md transition-all", tab === "compose" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+                  >
+                    Compose
+                  </button>
+                  <button
+                    onClick={() => setTab("preview")}
+                    className={cn("px-3 py-1.5 text-xs font-medium rounded-md transition-all", tab === "preview" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+                  >
+                    Preview
+                  </button>
+                </div>
+              )}
             </DialogTitle>
           </DialogHeader>
         </div>
 
-        <div className="p-6 space-y-5">
-          {/* Prompt area */}
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold">What's this email about?</Label>
-            <Textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g. New presale in Burnaby — 1 and 2 beds from $649K, completion 2027. PTT exempt. Highlight the extended deposit structure."
-              className="min-h-[100px] text-sm resize-none"
-              disabled={loading}
-            />
-            <p className="text-[11px] text-muted-foreground">Be as brief or detailed as you like — include price, location, incentives, tone, or anything relevant.</p>
-          </div>
+        {/* ── Body ── */}
+        <div className="flex flex-1 min-h-0">
 
-          {/* Example prompts */}
-          <div className="space-y-1.5">
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Quick examples</p>
-            <div className="flex flex-col gap-1.5">
-              {EXAMPLE_PROMPTS.map((ex, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPrompt(ex)}
+          {/* ── LEFT: Compose panel ── */}
+          <div className={cn("flex flex-col overflow-y-auto", result ? "w-[380px] flex-shrink-0 border-r border-border" : "w-full")}>
+            <div className="p-5 space-y-4">
+              {/* Prompt */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">What's this email about?</Label>
+                <Textarea
+                  value={prompt}
+                  onChange={e => setPrompt(e.target.value)}
+                  placeholder="e.g. New presale in Burnaby — 1 and 2 beds from $649K, completion 2027. PTT exempt. Highlight the extended deposit structure."
+                  className="min-h-[90px] text-sm resize-none"
                   disabled={loading}
-                  className="text-left text-xs px-3 py-2 rounded-lg border border-border bg-muted/40 hover:bg-muted hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground"
-                >
-                  {ex}
-                </button>
-              ))}
-            </div>
-          </div>
+                />
+                <p className="text-[11px] text-muted-foreground">Include price, location, incentives, audience, or tone — the more detail, the better.</p>
+              </div>
 
-          {/* Options row */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Template Style</Label>
-              <Select value={templateType} onValueChange={setTemplateType} disabled={loading}>
-                <SelectTrigger className="h-9 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="main-project-email">Main Project Email</SelectItem>
-                  <SelectItem value="exclusive-offer">Exclusive Offer</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Link to Project <span className="text-muted-foreground">(optional)</span></Label>
-              <Select value={selectedProjectId} onValueChange={setSelectedProjectId} disabled={loading}>
-                <SelectTrigger className="h-9 text-xs">
-                  <SelectValue placeholder="Select project…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No project</SelectItem>
-                  {projects.map(p => (
-                    <SelectItem key={p.id} value={p.id}>{p.name} — {p.city}</SelectItem>
+              {/* Examples */}
+              <div className="space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Quick examples</p>
+                <div className="flex flex-col gap-1">
+                  {EXAMPLE_PROMPTS.map((ex, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setPrompt(ex)}
+                      disabled={loading}
+                      className="text-left text-xs px-3 py-2 rounded-lg border border-border bg-muted/40 hover:bg-muted hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground"
+                    >
+                      {ex}
+                    </button>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+                </div>
+              </div>
 
-          {/* Generate button */}
-          <Button
-            className="w-full h-11 gap-2 bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-700 hover:to-violet-900 text-white font-semibold"
-            onClick={handleGenerate}
-            disabled={loading || !prompt.trim()}
-          >
-            {loading ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> Writing your email copy…</>
-            ) : (
-              <><Sparkles className="h-4 w-4" /> Generate Email Copy</>
-            )}
-          </Button>
+              {/* Options */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">Template style</Label>
+                  <Select value={templateType} onValueChange={setTemplateType} disabled={loading}>
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="main-project-email">Main Project Email</SelectItem>
+                      <SelectItem value="exclusive-offer">Exclusive Offer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">Link to project <span className="text-muted-foreground">(optional)</span></Label>
+                  <Select value={selectedProjectId} onValueChange={setSelectedProjectId} disabled={loading}>
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Select project…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No project</SelectItem>
+                      {projects.map(p => (
+                        <SelectItem key={p.id} value={p.id}>{p.name} — {p.city}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-          {/* Result preview */}
-          {result && (
-            <div className="space-y-3">
-              {/* Extracted metadata badges */}
-              {(result.startingPrice || result.deposit || result.completion || result.projectName) && (
-                <div className="flex gap-2 flex-wrap">
+              {/* Generate */}
+              <Button
+                className="w-full h-10 gap-2 font-semibold text-white"
+                style={{ background: "linear-gradient(135deg, #7c3aed, #5b21b6)" }}
+                onClick={handleGenerate}
+                disabled={loading || !prompt.trim()}
+              >
+                {loading ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Writing your email…</>
+                ) : (
+                  <><Sparkles className="h-4 w-4" /> {result ? "Regenerate" : "Generate Email Copy"}</>
+                )}
+              </Button>
+
+              {/* Metadata badges */}
+              {result && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
                   {result.projectName && <Badge variant="outline" className="text-[10px]">🏙 {result.projectName}</Badge>}
+                  {result.city && <Badge variant="outline" className="text-[10px]">📍 {result.city}</Badge>}
                   {result.startingPrice && <Badge variant="outline" className="text-[10px]">💰 {result.startingPrice}</Badge>}
                   {result.deposit && <Badge variant="outline" className="text-[10px]">📋 {result.deposit}</Badge>}
                   {result.completion && <Badge variant="outline" className="text-[10px]">🏗 {result.completion}</Badge>}
                 </div>
               )}
+            </div>
+          </div>
 
-              {/* Version A */}
-              <div className="border border-border rounded-xl overflow-hidden">
-                <div className="bg-muted/40 px-4 py-2.5 border-b border-border flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm font-semibold">Version A</span>
-                    <span className="text-[10px] text-muted-foreground">— Detailed</span>
-                  </div>
-                  <Button size="sm" className="h-7 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => onApply(result, templateType)}>
-                    <ArrowRight className="h-3 w-3" /> Use This
-                  </Button>
+          {/* ── RIGHT: Preview / copy panel ── */}
+          {result && (
+            <div className="flex-1 flex flex-col min-w-0 min-h-0">
+              {/* Version tabs + actions */}
+              <div className="flex-shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/20">
+                <div className="flex items-center bg-background border border-border rounded-lg p-0.5 gap-0.5">
+                  <button
+                    onClick={() => setActiveVersion("A")}
+                    className={cn("px-3 py-1 text-xs font-semibold rounded transition-all", activeVersion === "A" ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                  >
+                    Version A — Detailed
+                  </button>
+                  {(result.subjectLineB || result.bodyCopyB) && (
+                    <button
+                      onClick={() => setActiveVersion("B")}
+                      className={cn("px-3 py-1 text-xs font-semibold rounded transition-all", activeVersion === "B" ? "bg-amber-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                    >
+                      Version B — Punchy
+                    </button>
+                  )}
                 </div>
-                <div className="p-4 space-y-2.5">
-                  {result.subjectLine && (
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Subject Line</p>
-                      <p className="text-xs font-medium bg-muted/50 rounded-lg px-3 py-2">{result.subjectLine}</p>
-                    </div>
-                  )}
-                  {result.previewText && (
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Preheader</p>
-                      <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">{result.previewText}</p>
-                    </div>
-                  )}
-                  {result.headline && (
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Headline</p>
-                      <p className="text-xs font-semibold bg-muted/50 rounded-lg px-3 py-2">{result.headline}</p>
-                    </div>
-                  )}
-                  {result.bodyCopy && (
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Body Copy</p>
-                      <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 leading-relaxed whitespace-pre-line">{result.bodyCopy}</p>
-                    </div>
-                  )}
-                  {result.incentiveText && (
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Incentives</p>
-                      <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 whitespace-pre-line">{result.incentiveText}</p>
-                    </div>
-                  )}
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" className="h-7 text-xs gap-1.5" onClick={handleCopyHtml}>
+                    {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> : <Download className="h-3.5 w-3.5" />}
+                    {copied ? "Copied!" : "Copy HTML"}
+                  </Button>
                 </div>
               </div>
 
-              {/* Version B */}
-              {(result.subjectLineB || result.bodyCopyB) && (
-                <div className="border border-border rounded-xl overflow-hidden">
-                  <div className="bg-muted/40 px-4 py-2.5 border-b border-border flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-amber-500" />
-                      <span className="text-sm font-semibold">Version B</span>
-                      <span className="text-[10px] text-muted-foreground">— Short & Punchy</span>
+              {/* Subject + preheader bar */}
+              {activeCopy && (
+                <div className="flex-shrink-0 px-4 py-2.5 border-b border-border bg-muted/10 space-y-1">
+                  {activeCopy.subjectLine && (
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground w-16 flex-shrink-0">Subject</span>
+                      <span className="text-xs font-semibold truncate">{activeCopy.subjectLine}</span>
                     </div>
-                    <Button size="sm" className="h-7 text-xs gap-1.5 bg-amber-500 hover:bg-amber-600 text-white" onClick={() => {
-                      const versionB = { ...result, subjectLine: result.subjectLineB || result.subjectLine, previewText: result.previewTextB || result.previewText, headline: result.headlineB || result.headline, bodyCopy: result.bodyCopyB || result.bodyCopy };
-                      onApply(versionB, templateType);
-                    }}>
-                      <ArrowRight className="h-3 w-3" /> Use This
-                    </Button>
-                  </div>
-                  <div className="p-4 space-y-2.5">
-                    {result.subjectLineB && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Subject Line</p>
-                        <p className="text-xs font-medium bg-muted/50 rounded-lg px-3 py-2">{result.subjectLineB}</p>
-                      </div>
-                    )}
-                    {result.previewTextB && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Preheader</p>
-                        <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">{result.previewTextB}</p>
-                      </div>
-                    )}
-                    {result.headlineB && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Headline</p>
-                        <p className="text-xs font-semibold bg-muted/50 rounded-lg px-3 py-2">{result.headlineB}</p>
-                      </div>
-                    )}
-                    {result.bodyCopyB && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Body Copy</p>
-                        <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 leading-relaxed whitespace-pre-line">{result.bodyCopyB}</p>
-                      </div>
-                    )}
-                  </div>
+                  )}
+                  {activeCopy.previewText && (
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground w-16 flex-shrink-0">Preview</span>
+                      <span className="text-xs text-muted-foreground truncate">{activeCopy.previewText}</span>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Actions */}
-              <Button variant="outline" className="w-full h-9 text-xs gap-2" onClick={handleGenerate} disabled={loading}>
-                <Sparkles className="h-3.5 w-3.5" /> Regenerate
-              </Button>
+              {/* Email preview iframe */}
+              <div className="flex-1 overflow-y-auto bg-[#f0ede8]" style={{ minHeight: 0 }}>
+                <div style={{ width: "100%", minHeight: "100%", display: "flex", justifyContent: "center", padding: "16px 0" }}>
+                  <iframe
+                    key={previewHtml.slice(0, 60)}
+                    srcDoc={previewHtml}
+                    sandbox="allow-same-origin"
+                    style={{ border: "none", width: 600, height: 900, flexShrink: 0, background: "#fff" }}
+                  />
+                </div>
+              </div>
             </div>
+          )}
+
+          {/* ── Empty state when no result ── */}
+          {!result && !loading && (
+            <div className="hidden" />
           )}
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-
+  
 export default function AdminEmailBuilderHub() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
@@ -695,7 +710,6 @@ export default function AdminEmailBuilderHub() {
         open={aiModalOpen}
         onClose={() => setAiModalOpen(false)}
         projects={projects}
-        onApply={handleAiApply}
       />
 
       <div className="flex flex-col h-full bg-background">
