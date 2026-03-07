@@ -74,7 +74,7 @@ Return ONLY a valid JSON object with these exact fields (no markdown, no code fe
   "subjectLine": "Version A subject line (max 60 chars)",
   "previewText": "Version A preheader text (max 90 chars)",
   "headline": "Version A headline for the email body (8-14 words, can use em dash)",
-  "bodyCopy": "Version A full body copy. Greeting → hook → project overview → bullet highlights → soft CTA → sign-off. Use \\n for line breaks between sections. Keep under 200 words.",
+  "bodyCopy": "Version A full body copy. Greeting → hook → project overview → bullet highlights → soft CTA → sign-off. Use \\n for line breaks between sections. Keep under 200 words. Use **double asterisks** around 2–4 key phrases per version to bold them in the email (e.g. prices, dates, locations, key benefits).",
   "incentiveText": "if incentives mentioned: 3-5 bullet lines starting with ✦, one per line. Empty string if none.",
   "subjectLineB": "Version B subject line — shorter, punchier",
   "previewTextB": "Version B preheader",
