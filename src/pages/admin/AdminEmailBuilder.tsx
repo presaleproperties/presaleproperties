@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,6 +61,7 @@ import {
   RotateCcw,
   CloudOff,
   Cloud,
+  ArrowLeft,
 } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
@@ -870,6 +872,7 @@ function StepSection({ step, title, icon, done, doneLabel, accent = "default", d
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function AdminEmailBuilder() {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -1163,6 +1166,9 @@ export default function AdminEmailBuilder() {
       if (draft.cta) setCta({ ...DEFAULT_CTA, ...draft.cta });
       if (typeof draft.fontIdx === "number") setFontIdx(draft.fontIdx);
       if (draft.savedAt) setDraftSavedAt(new Date(draft.savedAt));
+      // Support loading from hub (overwrite context)
+      if (draft._overwriteId) { setOverwriteId(draft._overwriteId); }
+      if (draft._templateName) { setTemplateName(draft._templateName); }
       setDraftRestoredFlag(true);
     } catch { /* corrupt draft — ignore */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1296,7 +1302,16 @@ export default function AdminEmailBuilder() {
       <div className="flex items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-4 min-w-0">
           <div className="shrink-0">
-            <h1 className="text-lg font-bold text-foreground tracking-tight leading-tight">Email Builder</h1>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate("/admin/email-builder-hub")}
+                className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-xs"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Hub
+              </button>
+              <span className="text-muted-foreground/40 text-xs">/</span>
+              <h1 className="text-lg font-bold text-foreground tracking-tight leading-tight">Email Builder</h1>
+            </div>
             <p className="text-xs text-muted-foreground">Mailchimp-ready HTML · No code needed</p>
           </div>
 
