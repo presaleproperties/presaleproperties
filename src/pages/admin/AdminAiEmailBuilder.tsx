@@ -341,6 +341,26 @@ export default function AdminAiEmailBuilder() {
     applyResult(aiResult, v);
   };
 
+  // ── Bold keywords only ────────────────────────────────────────────────────────
+  const handleBoldKeywords = async () => {
+    if (!bodyCopy.trim() && !headline.trim()) { toast.error("Paste your copy first"); return; }
+    setBoldLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("bold-email-keywords", {
+        body: { bodyCopy: bodyCopy.trim(), headline: headline.trim() },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      if (data?.bodyCopy) setBodyCopy(data.bodyCopy);
+      if (data?.headline) setHeadline(data.headline);
+      toast.success("Keywords bolded ✓");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to bold keywords");
+    } finally {
+      setBoldLoading(false);
+    }
+  };
+
   const handleProjectSelect = (id: string) => {
     setSelProjectId(id);
     const p = projects.find(proj => proj.id === id);
