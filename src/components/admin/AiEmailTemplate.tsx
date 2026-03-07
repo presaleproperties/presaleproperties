@@ -27,6 +27,12 @@ export const DEFAULT_AGENT: AgentInfo = {
   email: "info@presaleproperties.com",
 };
 
+export interface ImageCardEntry {
+  id: string;
+  url: string;
+  caption?: string;
+}
+
 export interface AiEmailCopy {
   subjectLine?: string;
   previewText?: string;
@@ -42,6 +48,8 @@ export interface AiEmailCopy {
   completion?: string;
   /** Additional info rows rendered as a secondary stats bar. Each entry: "Label|Value" */
   infoRows?: string[];
+  /** Image cards rendered below the What's Included section */
+  imageCards?: ImageCardEntry[];
 }
 
 /** Build bullet items from incentiveText (lines starting with ✦ or -) */
