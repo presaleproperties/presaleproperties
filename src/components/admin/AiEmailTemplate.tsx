@@ -192,7 +192,10 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
       .body-headline{font-size:22px!important;}
       .stat-value{font-size:22px!important;}
       .agent-logo{display:none!important;}
-      .agent-photo{width:52px!important;height:52px!important;}
+      .agent-photo{width:44px!important;height:44px!important;}
+      .agent-photo-cell{padding:14px 0 14px 16px!important;width:60px!important;}
+      .agent-info-cell{padding:14px 16px!important;}
+      .agent-logo-cell{display:none!important;}
       .fp-cell{display:block!important;width:100%!important;}
       table.mobile-full{width:100%!important;}
     }
