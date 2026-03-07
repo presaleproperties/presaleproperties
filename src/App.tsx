@@ -86,6 +86,7 @@ const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
 const AdminCampaignBuilder = lazy(() => import("./pages/admin/AdminCampaignBuilder"));
 const AdminEmailBuilder = lazy(() => import("./pages/admin/AdminEmailBuilder"));
 const AdminEmailBuilderHub = lazy(() => import("./pages/admin/AdminEmailBuilderHub"));
+const AdminAiEmailBuilder = lazy(() => import("./pages/admin/AdminAiEmailBuilder"));
 const AdminCampaignHub = lazy(() => import("./pages/admin/AdminCampaignHub"));
 const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -339,6 +340,7 @@ const App = () => (
             <Route path="/admin/email-workflows" element={<AdminProtectedRoute><AdminEmailWorkflows /></AdminProtectedRoute>} />
             <Route path="/admin/email-builder-hub" element={<AdminProtectedRoute><AdminEmailBuilderHub /></AdminProtectedRoute>} />
             <Route path="/admin/email-builder" element={<AdminProtectedRoute><AdminEmailBuilder /></AdminProtectedRoute>} />
+            <Route path="/admin/ai-email-builder" element={<AdminProtectedRoute><AdminAiEmailBuilder /></AdminProtectedRoute>} />
             <Route path="/admin/market-data" element={<AdminProtectedRoute><AdminMarketData /></AdminProtectedRoute>} />
             <Route path="/admin/market-dashboard" element={<AdminProtectedRoute><AdminMarketDashboard /></AdminProtectedRoute>} />
             <Route path="/admin/ai-analytics" element={<AdminProtectedRoute><AdminAIAnalytics /></AdminProtectedRoute>} />
