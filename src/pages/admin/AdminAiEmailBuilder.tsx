@@ -570,6 +570,11 @@ export default function AdminEmailBuilderPage() {
   // ─────────────────────────────────────────────────────────────────────────────
   return (
     <AdminLayout>
+      {/* Hidden file inputs — always mounted so refs are never null */}
+      <input ref={heroInputRef}     type="file" accept="image/*"        className="hidden" onChange={handleHeroUpload} />
+      <input ref={fpInputRef}       type="file" accept="image/*" multiple className="hidden" onChange={handleFpUpload} />
+      <input ref={imgCardInputRef}  type="file" accept="image/*" multiple className="hidden" onChange={handleImgCardUpload} />
+
       <div className="p-4 md:p-6 max-w-[1400px] mx-auto space-y-3">
 
         {/* ── Top bar ── */}
