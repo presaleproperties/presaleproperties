@@ -249,10 +249,17 @@ export default function AdminEmailBuilderPage() {
   const [agents,   setAgents]   = useState<AgentInfo[]>([]);
   const [selAgent, setSelAgent] = useState(savedDraft?.selAgent ?? "default");
   const selectedAgent: AgentInfo = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
-  const [projects, setProjects] = useState<Array<{ id: string; name: string; city: string; featured_image?: string | null }>>([]);
+  const [projects, setProjects] = useState<Array<{
+    id: string; name: string; city: string; neighborhood?: string | null;
+    developer_name?: string | null; starting_price?: number | null; price_range?: string | null;
+    deposit_structure?: string | null; deposit_percent?: number | null;
+    completion_year?: number | null; completion_month?: number | null;
+    featured_image?: string | null; incentives?: string | null;
+  }>>([]);
 
   useEffect(() => {
-    supabase.from("presale_projects").select("id, name, city, featured_image")
+    supabase.from("presale_projects")
+      .select("id, name, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, incentives")
       .order("name").limit(100)
       .then(({ data }: any) => { if (data) setProjects(data); });
 
@@ -401,7 +408,23 @@ export default function AdminEmailBuilderPage() {
     if (!p) return;
     setProjectName(p.name);
     setCity(p.city);
-    if (p.featured_image) setHeroImage(p.featured_image);
+    if (p.neighborhood)    setNeighborhood(p.neighborhood);
+    if (p.developer_name)  setDevName(p.developer_name);
+    if (p.featured_image)  setHeroImage(p.featured_image);
+    if (p.incentives)      setIncentiveText(p.incentives);
+    // Populate starting price
+    const priceStr = p.price_range || (p.starting_price ? `From $${(p.starting_price / 1000).toFixed(0)}K` : "");
+    if (priceStr) setStartingPrice(priceStr);
+    // Populate deposit
+    const depositStr = p.deposit_structure || (p.deposit_percent ? `${p.deposit_percent}%` : "");
+    if (depositStr) setDeposit(depositStr);
+    // Populate completion
+    if (p.completion_year) {
+      const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const monthStr = p.completion_month ? `${MONTHS[p.completion_month - 1]} ` : "";
+      setCompletion(`${monthStr}${p.completion_year}`);
+    }
+    toast.success(`Loaded: ${p.name}`);
   };
 
   // ── Uploads ──────────────────────────────────────────────────────────────────
@@ -696,6 +719,26 @@ export default function AdminEmailBuilderPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto">
+
+              {/* ── PROJECT SELECTOR (top-level, always visible) ── */}
+              <div className="px-3 py-2.5 border-b border-border bg-muted/20">
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold block mb-1.5">
+                  Select Project <span className="normal-case tracking-normal font-normal text-muted-foreground/50">— auto-fills all fields</span>
+                </Label>
+                <Select value={selProjectId} onValueChange={handleProjectSelect}>
+                  <SelectTrigger className="h-8 text-xs w-full">
+                    <SelectValue placeholder="Choose a project to auto-fill details…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">— Start from scratch —</SelectItem>
+                    {projects.map(p => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name}{p.city ? ` · ${p.city}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* ── STEP 1: PASTE YOUR COPY ── */}
               <StepSection
