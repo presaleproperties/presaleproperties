@@ -515,4 +515,3 @@ export function buildLoopEmailHtml(
 </body>
 </html>`;
 }
-}
