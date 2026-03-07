@@ -306,7 +306,7 @@ export default function AdminEmailBuilderPage() {
         projectName, developerName, showProjectName, showDeveloperName, customHeader,
         city, neighborhood, startingPrice, deposit, completion, infoRows,
         subjectLine, previewText, headline, bodyCopy, incentiveText,
-        heroImage, floorPlans, fpHeading, fpSubheading,
+        heroImage, floorPlans, fpHeading, fpSubheading, imageCards,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
@@ -318,7 +318,7 @@ export default function AdminEmailBuilderPage() {
     projectName, developerName, showProjectName, showDeveloperName, customHeader,
     city, neighborhood, startingPrice, deposit, completion, infoRows,
     subjectLine, previewText, headline, bodyCopy, incentiveText,
-    heroImage, floorPlans, fpHeading, fpSubheading,
+    heroImage, floorPlans, fpHeading, fpSubheading, imageCards,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId,
   ]);
 
@@ -330,7 +330,8 @@ export default function AdminEmailBuilderPage() {
     developerName: showDeveloperName ? developerName : "",
     startingPrice, deposit, completion,
     infoRows: infoRows.filter(r => r.includes("|")),
-  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, infoRows]);
+    imageCards: imageCards.filter(c => c.url),
+  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, infoRows, imageCards]);
 
   // Debounced preview HTML — updates 800ms after last change so iframe doesn't re-render on every keystroke
   const [previewHtml, setPreviewHtml] = useState(() =>
