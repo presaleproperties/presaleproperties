@@ -281,6 +281,218 @@ function PreviewModal({ html, name, onClose }: { html: string; name: string; onC
   );
 }
 
+// ─── AI Email Copy Generator Modal ───────────────────────────────────────────
+const EXAMPLE_PROMPTS = [
+  "New project in Burnaby — 1 and 2 beds starting from $649K, completion 2027, PTT exempt",
+  "Exclusive VIP offer for Lumina Surrey — extended deposit, free parking, limited units left",
+  "Follow-up email for clients who registered at the open house — remind them about floor plans",
+  "Introducing a luxury waterfront project in North Van — developer is Bosa, from $1.2M",
+];
+
+function AiEmailModal({
+  open,
+  onClose,
+  projects,
+  onApply,
+}: {
+  open: boolean;
+  onClose: () => void;
+  projects: Array<{ id: string; name: string; city: string }>;
+  onApply: (copy: Record<string, string>, templateType: string) => void;
+}) {
+  const [prompt, setPrompt] = useState("");
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+  const [templateType, setTemplateType] = useState<string>("main-project-email");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<Record<string, string> | null>(null);
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) { toast.error("Please enter a brief prompt first"); return; }
+    setLoading(true);
+    setResult(null);
+    try {
+      const project = projects.find(p => p.id === selectedProjectId);
+      const { data, error } = await supabase.functions.invoke("generate-email-copy", {
+        body: {
+          prompt: prompt.trim(),
+          projectDetails: project ? { name: project.name, city: project.city } : null,
+          templateType,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      setResult(data.copy);
+    } catch (e: any) {
+      toast.error(e.message || "Failed to generate copy");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApply = () => {
+    if (!result) return;
+    onApply(result, templateType);
+    onClose();
+  };
+
+  const handleClose = () => {
+    setPrompt("");
+    setSelectedProjectId("");
+    setResult(null);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+        {/* Header */}
+        <div className="sticky top-0 z-10 bg-card border-b border-border px-6 py-4">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-sm">
+                <Sparkles className="h-4.5 w-4.5 text-white h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-base font-bold">AI Email Writer</div>
+                <div className="text-xs text-muted-foreground font-normal">Describe your email — AI writes the copy</div>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+
+        <div className="p-6 space-y-5">
+          {/* Prompt area */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">What's this email about?</Label>
+            <Textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="e.g. New presale in Burnaby — 1 and 2 beds from $649K, completion 2027. PTT exempt. Highlight the extended deposit structure."
+              className="min-h-[100px] text-sm resize-none"
+              disabled={loading}
+            />
+            <p className="text-[11px] text-muted-foreground">Be as brief or detailed as you like — include price, location, incentives, tone, or anything relevant.</p>
+          </div>
+
+          {/* Example prompts */}
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Quick examples</p>
+            <div className="flex flex-col gap-1.5">
+              {EXAMPLE_PROMPTS.map((ex, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPrompt(ex)}
+                  disabled={loading}
+                  className="text-left text-xs px-3 py-2 rounded-lg border border-border bg-muted/40 hover:bg-muted hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground"
+                >
+                  {ex}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Options row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Template Style</Label>
+              <Select value={templateType} onValueChange={setTemplateType} disabled={loading}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="main-project-email">Main Project Email</SelectItem>
+                  <SelectItem value="exclusive-offer">Exclusive Offer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Link to Project <span className="text-muted-foreground">(optional)</span></Label>
+              <Select value={selectedProjectId} onValueChange={setSelectedProjectId} disabled={loading}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Select project…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No project</SelectItem>
+                  {projects.map(p => (
+                    <SelectItem key={p.id} value={p.id}>{p.name} — {p.city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Generate button */}
+          <Button
+            className="w-full h-11 gap-2 bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-700 hover:to-violet-900 text-white font-semibold"
+            onClick={handleGenerate}
+            disabled={loading || !prompt.trim()}
+          >
+            {loading ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Writing your email copy…</>
+            ) : (
+              <><Sparkles className="h-4 w-4" /> Generate Email Copy</>
+            )}
+          </Button>
+
+          {/* Result preview */}
+          {result && (
+            <div className="border border-border rounded-xl overflow-hidden">
+              <div className="bg-muted/40 px-4 py-2.5 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  <span className="text-sm font-semibold">Copy Generated</span>
+                </div>
+                <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-[10px] border">Ready to use</Badge>
+              </div>
+              <div className="p-4 space-y-3">
+                {result.subjectLine && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Subject Line</p>
+                    <p className="text-sm font-medium bg-muted/50 rounded-lg px-3 py-2">{result.subjectLine}</p>
+                  </div>
+                )}
+                {result.headline && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Headline</p>
+                    <p className="text-sm font-medium bg-muted/50 rounded-lg px-3 py-2">{result.headline}</p>
+                  </div>
+                )}
+                {result.bodyCopy && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Body Copy</p>
+                    <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 leading-relaxed line-clamp-3">{result.bodyCopy}</p>
+                  </div>
+                )}
+                {result.incentiveText && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Incentives</p>
+                    <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 whitespace-pre-line">{result.incentiveText}</p>
+                  </div>
+                )}
+                {(result.startingPrice || result.deposit || result.completion) && (
+                  <div className="flex gap-2 flex-wrap">
+                    {result.startingPrice && <Badge variant="outline" className="text-[10px]">💰 {result.startingPrice}</Badge>}
+                    {result.deposit && <Badge variant="outline" className="text-[10px]">📋 Deposit: {result.deposit}</Badge>}
+                    {result.completion && <Badge variant="outline" className="text-[10px]">🏗 {result.completion}</Badge>}
+                  </div>
+                )}
+              </div>
+              <div className="px-4 pb-4 flex gap-2">
+                <Button className="flex-1 h-10 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleApply}>
+                  <ArrowRight className="h-4 w-4" /> Open in Builder
+                </Button>
+                <Button variant="outline" className="h-10 gap-2" onClick={handleGenerate} disabled={loading}>
+                  <Sparkles className="h-3.5 w-3.5" /> Regenerate
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function AdminEmailBuilderHub() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
