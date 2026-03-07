@@ -637,9 +637,34 @@ export default function AdminAiEmailBuilder() {
                 </Button>
               </StepSection>
 
-              {/* ── STEP 2: AGENT ── */}
+              {/* ── STEP 2: TYPOGRAPHY ── */}
               <StepSection
-                step={2} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
+                step={2} title="Typography" icon={<Type className="h-3.5 w-3.5" />}
+                done={true} doneLabel={selectedFont.label}
+                defaultOpen={false}
+              >
+                <div className="grid grid-cols-2 gap-1.5">
+                  {EMAIL_FONT_PAIRINGS.map(fp => (
+                    <button
+                      key={fp.id}
+                      onClick={() => setSelectedFontId(fp.id)}
+                      className={cn(
+                        "text-left px-2.5 py-2 rounded-lg border transition-all",
+                        selectedFontId === fp.id
+                          ? "border-amber-500 bg-amber-500/8 shadow-sm"
+                          : "border-border bg-muted/10 hover:border-primary/40"
+                      )}
+                    >
+                      <div className="text-[11px] font-semibold truncate text-foreground">{fp.label}</div>
+                      <div className="text-[9px] text-muted-foreground mt-0.5">{fp.tag}</div>
+                    </button>
+                  ))}
+                </div>
+              </StepSection>
+
+              {/* ── STEP 3: AGENT ── */}
+              <StepSection
+                step={3} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
                 done={!!selAgent && selAgent !== "default"}
                 doneLabel={selectedAgent.full_name}
                 defaultOpen={false}
