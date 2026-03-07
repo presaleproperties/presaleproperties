@@ -145,11 +145,43 @@ function buildFinalHtml(
 // ─── Main component ───────────────────────────────────────────────────────────
 const DRAFT_KEY = "ai-email-builder-draft";
 
-export default function AdminAiEmailBuilder() {
-  const navigate       = useNavigate();
-  const heroInputRef   = useRef<HTMLInputElement>(null);
-  const fpInputRef     = useRef<HTMLInputElement>(null);
-  const iframeRef      = useRef<HTMLIFrameElement>(null);
+// Template presets from URL ?template= param
+const TEMPLATE_PRESETS: Record<string, Partial<{
+  templateType: string; headline: string; bodyCopy: string;
+  subjectLine: string; previewText: string; incentiveText: string;
+}>> = {
+  "project-email": {
+    templateType: "main-project-email",
+    headline: "Introducing — [Project Name]",
+    subjectLine: "🏙️ Exclusive Access: [Project Name] — [City] Presale",
+    previewText: "From $[Price] · limited units available",
+    bodyCopy: "I wanted to personally reach out with the full details on this opportunity. Below you'll find everything — the pricing, floor plans, deposit structure, and key highlights. I work exclusively with buyers, so my job is to make sure you have everything you need to make the right decision. Give me a call whenever you're ready.\n\nUzair Muhammad",
+    incentiveText: "",
+  },
+  "exclusive-offer": {
+    templateType: "exclusive-offer",
+    headline: "Exclusive Offer — [Time-Sensitive Pricing]",
+    subjectLine: "⚡ VIP-Only Offer: [Project Name] — Act Before [Date]",
+    previewText: "Exclusive savings available for a limited time — see details inside",
+    bodyCopy: "This is one of those rare moments where everything lines up — the right project, the right price, and the right timing. I've been holding this back for our VIP list only. Below are the details. This window is short, so please reach out as soon as you've had a chance to review.\n\nUzair Muhammad",
+    incentiveText: "✦ Extended deposit structure: 5% now, 5% in 180 days\n✦ Developer bonus: $10,000 in upgrades\n✦ Free parking (valued at $35,000)\n✦ Assignment clause included",
+  },
+  "blank": {
+    templateType: "main-project-email",
+    headline: "", bodyCopy: "", subjectLine: "", previewText: "", incentiveText: "",
+  },
+};
+
+export default function AdminEmailBuilderPage() {
+  const navigate        = useNavigate();
+  const [searchParams]  = useSearchParams();
+  const heroInputRef    = useRef<HTMLInputElement>(null);
+  const fpInputRef      = useRef<HTMLInputElement>(null);
+  const iframeRef       = useRef<HTMLIFrameElement>(null);
+
+  // Resolve URL template preset (only on first mount, before reading draft)
+  const urlTemplate = searchParams.get("template") ?? "";
+  const urlPreset   = TEMPLATE_PRESETS[urlTemplate] ?? null;
 
   // ── Restore draft from localStorage ─────────────────────────────────────────
   const savedDraft = useMemo(() => {
