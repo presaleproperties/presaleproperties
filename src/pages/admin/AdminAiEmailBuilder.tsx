@@ -183,6 +183,7 @@ export default function AdminEmailBuilderPage() {
   const [searchParams]  = useSearchParams();
   const heroInputRef    = useRef<HTMLInputElement>(null);
   const fpInputRef      = useRef<HTMLInputElement>(null);
+  const imgCardInputRef = useRef<HTMLInputElement>(null);
   const iframeRef       = useRef<HTMLIFrameElement>(null);
 
   // Resolve URL template preset (only on first mount, before reading draft)
