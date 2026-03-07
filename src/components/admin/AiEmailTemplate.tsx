@@ -168,6 +168,26 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
     img{-ms-interpolation-mode:bicubic;border:0;height:auto;line-height:100%;outline:none;text-decoration:none;}
     body{margin:0!important;padding:0!important;background:#f0ede8;}
     *{box-sizing:border-box;}
+    /* ── Apple Mail / Gmail link colour reset ── */
+    a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;}
+    u+#body a{color:inherit!important;text-decoration:none!important;}
+    #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
+    /* ── Mobile ── */
+    @media only screen and (max-width:620px){
+      .email-container{width:100%!important;max-width:100%!important;}
+      .mobile-pad{padding-left:20px!important;padding-right:20px!important;}
+      .mobile-pad-sm{padding-left:14px!important;padding-right:14px!important;}
+      .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;}
+      .mobile-stack td:first-child{border-right:none!important;border-bottom:1px solid #e8e3db!important;}
+      .mobile-hero-img{min-height:200px!important;}
+      .hero-headline{font-size:24px!important;}
+      .body-headline{font-size:22px!important;}
+      .stat-value{font-size:18px!important;}
+      .agent-logo{width:90px!important;}
+      .agent-photo{width:52px!important;height:52px!important;}
+      .fp-cell{display:block!important;width:100%!important;}
+      table.mobile-full{width:100%!important;}
+    }
   </style>
 </head>
 <body style="margin:0;padding:0;background:#f0ede8;">
