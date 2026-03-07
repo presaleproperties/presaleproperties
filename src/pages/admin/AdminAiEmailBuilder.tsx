@@ -140,7 +140,7 @@ function buildFinalHtml(
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td style="background:${ACCENT};padding:13px 32px;">
-            <a href="https://presaleproperties.com/book" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
+            <a href="https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${fields.projectName || "this project"}. Can you send me more details?`)}" style="font-family:'DM Sans',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
           </td>
         </tr>
       </table>
