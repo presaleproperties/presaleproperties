@@ -499,6 +499,26 @@ export default function AdminEmailBuilderPage() {
     }
     if (gallerySlides.length > 0) setLoopSlides(gallerySlides);
 
+    // ── Auto-set CTA URL: brochure → pricing sheet → first floor plan ──────────
+    const ctaDocUrl =
+      p.brochure_files?.find(f => f) ||
+      p.pricing_sheets?.find(f => f) ||
+      p.floorplan_files?.find(f => f) ||
+      "";
+    if (ctaDocUrl) {
+      setDirectCtaUrl(ctaDocUrl);
+      setSelectedAssetId("none");
+    }
+
+    // Auto-populate floor plans from project floorplan_files
+    if (p.floorplan_files?.length) {
+      const autoFloorPlans: FloorPlanEntry[] = p.floorplan_files
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(url => ({ id: crypto.randomUUID(), url, label: "", sqft: "" }));
+      setFloorPlans(autoFloorPlans);
+    }
+
     // Populate price / deposit / completion
     const priceStr = p.price_range || (p.starting_price ? `From $${p.starting_price.toLocaleString()}` : "");
     if (priceStr) setStartingPrice(priceStr);
@@ -521,6 +541,8 @@ export default function AdminEmailBuilderPage() {
         priceStr ? `Starting price: ${priceStr}` : "",
         depositStr ? `Deposit: ${depositStr}` : "",
         p.completion_year ? `Completion: ${p.completion_month ? ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][p.completion_month-1]+" " : ""}${p.completion_year}` : "",
+        p.highlights?.length ? `Key highlights: ${p.highlights.slice(0,5).join(", ")}` : "",
+        p.short_description ? `About: ${p.short_description}` : "",
         p.incentives ? `Incentives: ${p.incentives}` : "",
       ].filter(Boolean).join("\n");
 
@@ -530,6 +552,7 @@ export default function AdminEmailBuilderPage() {
         price_range: p.price_range, deposit_structure: p.deposit_structure,
         deposit_percent: p.deposit_percent, completion_year: p.completion_year,
         completion_month: p.completion_month, incentives: p.incentives,
+        highlights: p.highlights, short_description: p.short_description,
       };
 
       const { data, error } = await supabase.functions.invoke("generate-email-copy", {
