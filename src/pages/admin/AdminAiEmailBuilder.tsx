@@ -236,6 +236,28 @@ export default function AdminAiEmailBuilder() {
     startingPrice, deposit, completion,
   }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion]);
 
+  // Separate "preview state" — only updates on explicit Apply or AI generation
+  const [previewHtml, setPreviewHtml] = useState(() =>
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl)
+  );
+  const [previewDirty, setPreviewDirty] = useState(false);
+
+  const applyPreview = useCallback(() => {
+    setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl));
+    setPreviewDirty(false);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl]);
+
+  // Mark dirty whenever working state changes (but don't re-render preview)
+  const prevCopyRef = useRef<string>("");
+  useEffect(() => {
+    const key = JSON.stringify({ ...currentCopy(), selAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl });
+    if (key !== prevCopyRef.current) {
+      prevCopyRef.current = key;
+      setPreviewDirty(true);
+    }
+  }, [currentCopy, selAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl]);
+
+  // finalHtml used only for copy/save — always reflects latest state
   const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl);
 
   // ── AI generation ─────────────────────────────────────────────────────────────
@@ -270,6 +292,8 @@ export default function AdminAiEmailBuilder() {
       applyResult(data.copy, "A");
       if (project?.featured_image && !heroImage) setHeroImage(project.featured_image);
       toast.success("Email copy generated ✓");
+      // Auto-apply preview after AI generation
+      setTimeout(() => applyPreview(), 50);
     } catch (e: any) {
       toast.error(e.message || "Failed to generate");
     } finally {
@@ -450,7 +474,18 @@ export default function AdminAiEmailBuilder() {
                 </Button>
               </div>
 
-              {previewMode === "preview" && (
+              {/* Apply changes button — only shows when preview is out of sync */}
+              {previewDirty && (
+                <Button
+                  size="sm"
+                  className="h-6 px-2.5 text-[11px] gap-1.5 font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-md animate-pulse"
+                  onClick={applyPreview}
+                >
+                  <Eye className="h-3 w-3" /> Apply Changes
+                </Button>
+              )}
+
+              {previewMode === "preview" && !previewDirty && (
                 <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
                   <Button variant="ghost" size="sm"
                     className={cn("h-6 w-7 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm text-foreground")}
@@ -474,11 +509,21 @@ export default function AdminAiEmailBuilder() {
             </div>
 
             {previewMode === "preview" ? (
-              <div className={cn("flex-1 overflow-auto", previewDevice === "mobile" ? "bg-[#e8e5e0] flex justify-center" : "bg-[#e8e5e0]")}>
+              <div className={cn("flex-1 overflow-auto relative", previewDevice === "mobile" ? "bg-[#e8e5e0] flex justify-center" : "bg-[#e8e5e0]")}>
+                {previewDirty && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                    <div className="bg-background/80 backdrop-blur-sm rounded-xl border border-border px-5 py-3 shadow-lg pointer-events-auto flex flex-col items-center gap-2">
+                      <span className="text-sm font-semibold text-foreground">Changes not applied</span>
+                      <Button size="sm" className="h-7 gap-1.5 text-xs bg-amber-500 hover:bg-amber-600 text-white" onClick={applyPreview}>
+                        <Eye className="h-3 w-3" /> Apply Changes
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 <iframe
                   ref={iframeRef}
-                  srcDoc={finalHtml}
-                  className="border-0 h-full"
+                  srcDoc={previewHtml}
+                  className={cn("border-0 h-full transition-opacity", previewDirty && "opacity-40")}
                   style={previewDevice === "mobile" ? { width: "375px", minHeight: "100%" } : { width: "100%" }}
                   sandbox="allow-same-origin"
                   title="Email Preview"
