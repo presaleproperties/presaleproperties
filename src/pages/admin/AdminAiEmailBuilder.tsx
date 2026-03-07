@@ -408,7 +408,23 @@ export default function AdminEmailBuilderPage() {
     if (!p) return;
     setProjectName(p.name);
     setCity(p.city);
-    if (p.featured_image) setHeroImage(p.featured_image);
+    if (p.neighborhood)    setNeighborhood(p.neighborhood);
+    if (p.developer_name)  setDevName(p.developer_name);
+    if (p.featured_image)  setHeroImage(p.featured_image);
+    if (p.incentives)      setIncentiveText(p.incentives);
+    // Populate starting price
+    const priceStr = p.price_range || (p.starting_price ? `From $${(p.starting_price / 1000).toFixed(0)}K` : "");
+    if (priceStr) setStartingPrice(priceStr);
+    // Populate deposit
+    const depositStr = p.deposit_structure || (p.deposit_percent ? `${p.deposit_percent}%` : "");
+    if (depositStr) setDeposit(depositStr);
+    // Populate completion
+    if (p.completion_year) {
+      const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const monthStr = p.completion_month ? `${MONTHS[p.completion_month - 1]} ` : "";
+      setCompletion(`${monthStr}${p.completion_year}`);
+    }
+    toast.success(`Loaded: ${p.name}`);
   };
 
   // ── Uploads ──────────────────────────────────────────────────────────────────
