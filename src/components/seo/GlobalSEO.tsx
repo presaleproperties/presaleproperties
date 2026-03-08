@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSeoRobots } from "@/hooks/useSeoRobots";
@@ -23,7 +22,6 @@ export function GlobalSEO() {
   
   // Clean path without trailing slashes
   const cleanPath = location.pathname.replace(/\/+$/, '') || '/';
-  const hasQueryParams = searchParams.toString().length > 0;
   
   // For filter pages, canonical should point to base URL without params
   const effectiveCanonicalUrl = isFilterPage 
