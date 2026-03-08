@@ -188,14 +188,14 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
         <>
           <button
             onClick={prev}
-            className="hidden md:flex absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-[4] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-black/30 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/50 active:scale-95 transition-all"
+            className="hidden md:flex absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-[6] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-black/30 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/50 active:scale-95 transition-all"
             aria-label="Previous project"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={next}
-            className="hidden md:flex absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-[4] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-black/30 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/50 active:scale-95 transition-all"
+            className="hidden md:flex absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-[6] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-black/30 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/50 active:scale-95 transition-all"
             aria-label="Next project"
           >
             <ChevronRight className="h-4 w-4" />
