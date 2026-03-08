@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSeoRobots } from "@/hooks/useSeoRobots";
@@ -23,7 +22,6 @@ export function GlobalSEO() {
   
   // Clean path without trailing slashes
   const cleanPath = location.pathname.replace(/\/+$/, '') || '/';
-  const hasQueryParams = searchParams.toString().length > 0;
   
   // For filter pages, canonical should point to base URL without params
   const effectiveCanonicalUrl = isFilterPage 
@@ -43,8 +41,8 @@ export function GlobalSEO() {
       {/* Robots meta - critical for preventing duplicate content */}
       <meta name="robots" content={robotsContent} />
       
-      {/* Prevent search engines from caching filter/param pages */}
-      {hasQueryParams && (
+      {/* Only noindex via googlebot for coordinate/UI-specific params (not pagination) */}
+      {(searchParams.has("lat") || searchParams.has("lng") || searchParams.has("zoom") || searchParams.has("mode")) && (
         <meta name="googlebot" content="noindex, follow" />
       )}
     </Helmet>

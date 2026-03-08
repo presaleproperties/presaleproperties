@@ -22,14 +22,16 @@ import { useMemo } from "react";
 const SITE_URL = "https://presaleproperties.com";
 
 // Query params that trigger noindex
+// NOTE: "page", "city", "neighborhood", "developer" removed — these are valid filter params
+// that have canonical city/hub pages; pagination shouldn't blanket-noindex.
 const NOINDEX_PARAMS = [
-  "lat", "lng", "zoom", "project", "sort", "view", 
-  "page", "beds", "baths", "price", "type", "deposit", 
+  "lat", "lng", "zoom", "project", "sort", "view",
+  "beds", "baths", "price", "type", "deposit",
   "year", "status", "filter", "q", "search", "mode",
-  "city", "neighborhood", "developer"
 ];
 
 // Routes that should ALWAYS be noindexed (regardless of params)
+// IMPORTANT: Only auth, admin, private, and true utility routes
 const NOINDEX_ROUTES = [
   "/map-search",
   "/admin",
@@ -42,13 +44,8 @@ const NOINDEX_ROUTES = [
   "/campaign",
   "/vip-access",
   "/404",
-  "/resale",
-  "/blogs",
-  "/market-report",
-  "/guide",
-  "/privacy",
-  "/deposit",
-  "/investment-presale-properties",
+  // NOTE: /resale, /blogs, /market-report, /guide, /privacy, /deposit, /investment-presale-properties
+  // removed — these are either redirect sources (handled by App.tsx) or indexable content pages.
 ];
 
 // Routes that should noindex when they have query params, canonical to base

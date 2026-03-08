@@ -223,19 +223,13 @@ Deno.serve(async (req) => {
     });
 
     // ==========================================
-    // 7. DEVELOPER DIRECTORY PAGES
+    // 7. DEVELOPER DIRECTORY PAGE (top-level only)
     // ==========================================
-    const { data: developers } = await supabase
-      .from("developers")
-      .select("slug, updated_at")
-      .eq("is_active", true);
-
-    const developerPages = (developers || []).map(d => ({
-      url: `/developers/${d.slug}`,
-      lastmod: d.updated_at?.split("T")[0] || now,
-      priority: "0.7",
-      changefreq: "monthly"
-    }));
+    // NOTE: /developers/:slug pages are redirected to /developers in App.tsx.
+    // Individual developer slugs are intentionally excluded from the sitemap
+    // to prevent "Page with redirect" errors in Google Search Console.
+    const developerPages: { url: string; lastmod: string; priority: string; changefreq: string }[] = [];
+    // Only the /developers hub is included in staticPages above.
 
     // ==========================================
     // BUILD CONTROLLED SITEMAP
