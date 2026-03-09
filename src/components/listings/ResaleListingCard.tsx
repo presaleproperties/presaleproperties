@@ -280,7 +280,6 @@ export function ResaleListingCard({
                   className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform backface-visibility-hidden"
                   loading="lazy"
                   decoding="async"
-                  fetchPriority="auto"
                   style={{ transform: 'translateZ(0)', contentVisibility: 'auto' }}
                 />
 
