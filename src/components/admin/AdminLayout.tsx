@@ -359,7 +359,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="min-h-screen flex bg-[hsl(220,14%,96%)]">
+      <div className="min-h-screen flex bg-muted/40">
 
         {/* ── Desktop Sidebar ────────────────────────────────────── */}
         <aside className={cn(
