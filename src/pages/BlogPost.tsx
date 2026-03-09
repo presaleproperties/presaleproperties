@@ -5,13 +5,10 @@ import DOMPurify from "dompurify";
 import { marked } from "marked";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ArticleSchema } from "@/components/seo/ArticleSchema";
 import { supabase } from "@/integrations/supabase/client";
-import { 
+import {
   ChevronLeft,
   Calendar,
   Clock,
@@ -19,20 +16,17 @@ import {
   Loader2,
   ArrowRight,
   Tag,
-  BookOpen,
-  Share2
+  Share2,
+  User,
+  ExternalLink,
 } from "lucide-react";
 
-// Configure marked for proper rendering
-marked.setOptions({
-  gfm: true,
-  breaks: false,
-});
+// Configure marked
+marked.setOptions({ gfm: true, breaks: false });
 
-// Calculate reading time based on word count (average 200 wpm)
 function getReadingTime(content: string): number {
-  const text = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-  const wordCount = text.split(' ').filter(word => word.length > 0).length;
+  const text = content.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  const wordCount = text.split(" ").filter((w) => w.length > 0).length;
   return Math.max(1, Math.ceil(wordCount / 200));
 }
 
@@ -57,6 +51,7 @@ type RelatedPost = {
   featured_image: string | null;
   category: string | null;
   publish_date: string | null;
+  excerpt: string | null;
 };
 
 export default function BlogPost() {
@@ -66,9 +61,7 @@ export default function BlogPost() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (slug) {
-      fetchPost();
-    }
+    if (slug) fetchPost();
   }, [slug]);
 
   const fetchPost = async () => {
@@ -83,59 +76,64 @@ export default function BlogPost() {
       if (error) throw error;
       setPost(data);
 
-      // Fetch related posts
       if (data) {
         const { data: related } = await supabase
           .from("blog_posts")
-          .select("id, title, slug, featured_image, category, publish_date")
+          .select("id, title, slug, featured_image, category, publish_date, excerpt")
           .eq("is_published", true)
           .neq("id", data.id)
           .limit(3);
-        
         setRelatedPosts(related || []);
       }
-    } catch (error) {
-      console.error("Error fetching post:", error);
+    } catch (err) {
+      console.error("Error fetching post:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
-  };
 
   const handleShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: post?.title,
-          url: window.location.href,
-        });
+        await navigator.share({ title: post?.title, url: window.location.href });
       } catch {}
     } else {
       navigator.clipboard.writeText(window.location.href);
     }
   };
 
-  // Parse content - supports both HTML and Markdown with XSS protection
   const parsedContent = useMemo(() => {
     if (!post?.content) return null;
-    
     const isHtml = /<[a-z][\s\S]*>/i.test(post.content);
-    const rawHtml = isHtml ? post.content : marked.parse(post.content) as string;
-    
+    const rawHtml = isHtml ? post.content : (marked.parse(post.content) as string);
     return DOMPurify.sanitize(rawHtml, {
-      ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'br', 'div', 'span', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'img', 'blockquote', 'code', 'pre', 'hr'],
-      ALLOWED_ATTR: ['href', 'class', 'target', 'rel', 'src', 'alt', 'title', 'width', 'height', 'id'],
-      ADD_ATTR: ['target'],
-      FORCE_BODY: true
+      ALLOWED_TAGS: [
+        "h1","h2","h3","h4","h5","h6","p","strong","em","ul","ol","li","a",
+        "br","div","span","table","thead","tbody","tr","th","td","img",
+        "blockquote","code","pre","hr",
+      ],
+      ALLOWED_ATTR: ["href","class","target","rel","src","alt","title","width","height","id"],
+      ADD_ATTR: ["target"],
+      FORCE_BODY: true,
     });
   }, [post?.content]);
+
+  // Auto-generate hero image URL if no featured image
+  const heroImageUrl = useMemo(() => {
+    if (post?.featured_image) return post.featured_image;
+    if (!post?.title) return null;
+    const encoded = encodeURIComponent(
+      `${post.title} Surrey BC real estate presale condo`
+    );
+    return `https://image.pollinations.ai/prompt/${encoded}?width=1400&height=600&nologo=true`;
+  }, [post?.featured_image, post?.title]);
 
   if (loading) {
     return (
@@ -154,13 +152,11 @@ export default function BlogPost() {
       (window as any).prerenderReady = true;
       (window as any).prerenderStatusCode = 404;
     }
-    
     return (
       <>
         <Helmet>
           <title>Article Not Found | PresaleProperties.com</title>
           <meta name="robots" content="noindex, nofollow" />
-          <meta name="prerender-status-code" content="404" />
         </Helmet>
         <ConversionHeader />
         <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
@@ -169,11 +165,12 @@ export default function BlogPost() {
           <p className="text-muted-foreground mb-6">
             The article you're looking for doesn't exist or is no longer available.
           </p>
-          <Link to="/blog">
-            <Button>
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Back to Guides
-            </Button>
+          <Link
+            to="/blog"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to Guides
           </Link>
         </div>
         <Footer />
@@ -194,7 +191,7 @@ export default function BlogPost() {
         <meta property="og:title" content={post.seo_title || post.title} />
         <meta property="og:description" content={post.seo_description || post.excerpt || ""} />
         <meta property="og:url" content={canonicalUrl} />
-        {post.featured_image && <meta property="og:image" content={post.featured_image} />}
+        {heroImageUrl && <meta property="og:image" content={heroImageUrl} />}
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
@@ -202,7 +199,7 @@ export default function BlogPost() {
         title={post.title}
         description={post.seo_description || post.excerpt || post.title}
         url={canonicalUrl}
-        image={post.featured_image || undefined}
+        image={heroImageUrl || undefined}
         datePublished={post.publish_date || undefined}
         category={post.category || undefined}
       />
@@ -210,228 +207,255 @@ export default function BlogPost() {
       <ConversionHeader />
 
       <main className="min-h-screen bg-background">
-        {/* Breadcrumb - subtle top bar */}
-        <div className="border-b border-border/60">
-          <div className="container py-3">
-            <Breadcrumbs 
-              items={[
-                { label: "Guides", href: "/blog" },
-                { label: post.title }
-              ]} 
+
+        {/* ── HERO: Full-bleed image with overlay ── */}
+        <div className="relative w-full h-[500px] md:h-[600px] overflow-hidden">
+          {/* Image */}
+          {heroImageUrl ? (
+            <img
+              src={heroImageUrl}
+              alt={post.title}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="eager"
             />
+          ) : (
+            <div className="absolute inset-0 bg-foreground/90" />
+          )}
+
+          {/* Dark gradient overlay bottom-heavy */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
+
+          {/* Breadcrumb top-left */}
+          <div className="absolute top-0 inset-x-0 z-10 pt-4 px-4 md:px-8">
+            <div className="max-w-4xl mx-auto">
+              <nav className="flex items-center gap-2 text-xs text-white/70">
+                <Link to="/blog" className="hover:text-white transition-colors flex items-center gap-1">
+                  <ChevronLeft className="h-3 w-3" />
+                  Guides
+                </Link>
+                <span>/</span>
+                <span className="text-white/50 line-clamp-1">{post.title}</span>
+              </nav>
+            </div>
+          </div>
+
+          {/* Overlay content — bottom of hero */}
+          <div className="absolute bottom-0 inset-x-0 z-10 pb-8 md:pb-12 px-4 md:px-8">
+            <div className="max-w-4xl mx-auto">
+              {/* Category badge */}
+              {post.category && (
+                <span className="inline-block mb-4 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest bg-primary text-primary-foreground">
+                  {post.category}
+                </span>
+              )}
+
+              {/* Title */}
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold leading-[1.1] tracking-tight text-white mb-4 max-w-3xl drop-shadow-lg">
+                {post.title}
+              </h1>
+
+              {/* Meta row */}
+              <div className="flex flex-wrap items-center gap-4">
+                {post.publish_date && (
+                  <span className="flex items-center gap-1.5 text-xs text-white/80">
+                    <Calendar className="h-3.5 w-3.5" />
+                    {formatDate(post.publish_date)}
+                  </span>
+                )}
+                {readingTime > 0 && (
+                  <span className="flex items-center gap-1.5 text-xs text-white/80">
+                    <Clock className="h-3.5 w-3.5" />
+                    {readingTime} min read
+                  </span>
+                )}
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-1.5 text-xs text-white/80 hover:text-primary transition-colors ml-auto"
+                >
+                  <Share2 className="h-3.5 w-3.5" />
+                  Share
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <article>
-          {/* ── Cinematic Hero Section ── */}
-          <div className="relative overflow-hidden">
-            {/* Background gradient wash */}
-            <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.03] via-transparent to-transparent pointer-events-none" />
-            
-            <header className="relative py-10 md:py-16 lg:py-20">
-              <div className="container max-w-4xl px-4 md:px-6">
-                {/* Meta bar */}
-                <div className="flex items-center gap-3 flex-wrap mb-5 md:mb-6">
-                  {post.category && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider">
-                      <BookOpen className="h-3 w-3" />
-                      {post.category}
-                    </span>
-                  )}
-                  {post.publish_date && (
-                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {formatDate(post.publish_date)}
-                    </span>
-                  )}
-                  {readingTime > 0 && (
-                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Clock className="h-3.5 w-3.5" />
-                      {readingTime} min read
-                    </span>
-                  )}
-                </div>
+        {/* ── ARTICLE BODY ── */}
+        <div className="bg-[hsl(30,20%,98%)]">
+          <div className="max-w-[800px] mx-auto px-4 md:px-6 py-12 md:py-16">
 
-                {/* Title */}
-                <h1 className="text-3xl sm:text-4xl md:text-[2.75rem] lg:text-5xl font-extrabold leading-[1.1] tracking-tight mb-5 md:mb-6 text-foreground">
-                  {post.title}
-                </h1>
+            {/* Excerpt / intro */}
+            {post.excerpt && (
+              <p className="text-lg md:text-xl font-medium text-primary mb-10 leading-relaxed border-l-4 border-primary pl-5">
+                {post.excerpt}
+              </p>
+            )}
 
-                {/* Excerpt */}
-                {post.excerpt && (
-                  <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl">
-                    {post.excerpt}
-                  </p>
-                )}
+            {/* Article content with premium prose styling */}
+            {parsedContent ? (
+              <div
+                className="blog-prose"
+                dangerouslySetInnerHTML={{ __html: parsedContent }}
+              />
+            ) : (
+              <p className="text-muted-foreground">No content available.</p>
+            )}
 
-                {/* Gold accent line */}
-                <div className="mt-6 md:mt-8 flex items-center gap-3">
-                  <div className="h-[2px] w-16 rounded-full bg-gradient-to-r from-primary to-primary/30" />
-                  <button
-                    onClick={handleShare}
-                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    <Share2 className="h-3.5 w-3.5" />
-                    Share
-                  </button>
-                </div>
-              </div>
-            </header>
-          </div>
-
-          {/* ── Featured Image ── */}
-          {post.featured_image && (
-            <div className="container max-w-4xl px-4 md:px-6 pb-2">
-              <div className="relative rounded-xl md:rounded-2xl overflow-hidden shadow-lg shadow-black/[0.04]">
-                <img
-                  src={post.featured_image}
-                  alt={post.title}
-                  className="w-full aspect-[16/9] object-cover"
-                  loading="eager"
-                />
-                {/* Subtle bottom fade for blending into content */}
-                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background/60 to-transparent" />
-              </div>
-            </div>
-          )}
-
-          {/* ── Article Body ── */}
-          <div className="container max-w-4xl px-4 md:px-6 py-8 md:py-12">
-            <div
-              className={[
-                "prose prose-sm sm:prose-base md:prose-lg max-w-none",
-                // Headings
-                "prose-headings:font-extrabold prose-headings:tracking-tight prose-headings:text-foreground",
-                "prose-h2:text-xl sm:prose-h2:text-2xl md:prose-h2:text-[1.75rem] prose-h2:mt-10 md:prose-h2:mt-14 prose-h2:mb-4 md:prose-h2:mb-5",
-                "prose-h3:text-lg sm:prose-h3:text-xl prose-h3:mt-7 md:prose-h3:mt-9 prose-h3:mb-3",
-                // Body
-                "prose-p:text-muted-foreground prose-p:leading-[1.8] prose-p:mb-4 md:prose-p:mb-5",
-                "prose-strong:text-foreground prose-strong:font-bold",
-                // Links  
-                "prose-a:text-primary prose-a:font-medium prose-a:underline-offset-2 hover:prose-a:text-primary/80",
-                // Lists
-                "prose-ul:ml-4 md:prose-ul:ml-6 prose-ol:ml-4 md:prose-ol:ml-6",
-                "prose-li:text-muted-foreground prose-li:mb-2 md:prose-li:mb-2.5 prose-li:leading-[1.7]",
-                // Blockquotes - gold accent
-                "prose-blockquote:border-l-[3px] prose-blockquote:border-primary prose-blockquote:bg-primary/[0.03] prose-blockquote:rounded-r-lg prose-blockquote:pl-5 md:prose-blockquote:pl-6 prose-blockquote:pr-4 prose-blockquote:py-4 prose-blockquote:not-italic prose-blockquote:text-foreground/80",
-                // Tables
-                "prose-table:w-full prose-table:border-collapse prose-table:text-xs sm:prose-table:text-sm md:prose-table:text-base",
-                "prose-th:border prose-th:border-border prose-th:bg-muted prose-th:px-3 md:prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold",
-                "prose-td:border prose-td:border-border prose-td:px-3 md:prose-td:px-4 prose-td:py-2",
-                // Dividers
-                "prose-hr:my-8 md:prose-hr:my-12 prose-hr:border-border/60",
-                // Images
-                "prose-img:rounded-xl prose-img:shadow-md",
-                "overflow-x-auto"
-              ].join(" ")}
-            >
-              {parsedContent ? (
-                <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
-              ) : (
-                <p className="text-muted-foreground">No content available.</p>
-              )}
-            </div>
-
-            {/* ── Tags ── */}
+            {/* Tags */}
             {post.tags && post.tags.length > 0 && (
-              <div className="mt-10 md:mt-14 pt-6 md:pt-8 border-t border-border/60">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-                  {post.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border/60 hover:border-primary/30 hover:text-primary transition-colors"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+              <div className="mt-12 pt-8 border-t border-border/50 flex items-center gap-2.5 flex-wrap">
+                <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                {post.tags.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/8 text-foreground/70 border border-primary/20 hover:border-primary/50 hover:text-primary transition-colors"
+                  >
+                    {tag}
+                  </span>
+                ))}
               </div>
             )}
 
+            {/* ── Author Card ── */}
+            <div className="mt-12 rounded-2xl border border-primary/20 bg-card p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5 shadow-sm">
+              <div className="flex-shrink-0 w-14 h-14 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
+                <User className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-primary mb-0.5">
+                  Written by
+                </p>
+                <p className="text-base font-bold text-foreground leading-snug">
+                  Uzair Muhammad
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Surrey Presale Specialist&nbsp;&middot;&nbsp;
+                  <a
+                    href="https://presaleproperties.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline inline-flex items-center gap-0.5"
+                  >
+                    PresaleProperties.com
+                    <ExternalLink className="h-3 w-3 ml-0.5" />
+                  </a>
+                </p>
+              </div>
+              <Link
+                to="/presale-projects"
+                className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap"
+              >
+                Book a Discovery Call
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+
             {/* ── CTA Banner ── */}
-            <div className="mt-10 md:mt-14 relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.04] via-primary/[0.02] to-transparent p-6 md:p-8">
-              {/* Decorative glow */}
-              <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-primary/[0.06] blur-3xl pointer-events-none" />
+            <div className="mt-8 relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.06] via-primary/[0.03] to-transparent p-6 md:p-8">
+              <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
               <div className="relative">
-                <h3 className="font-bold text-lg md:text-xl mb-2 text-foreground">
+                <h3 className="font-bold text-lg mb-2 text-foreground">
                   Ready to Start Your Presale Journey?
                 </h3>
-                <p className="text-sm md:text-base text-muted-foreground mb-5 max-w-2xl">
+                <p className="text-sm text-muted-foreground mb-5">
                   Browse the latest presale condos and townhomes across Metro Vancouver with VIP pricing and floor plans.
                 </p>
                 <div className="flex flex-wrap gap-2.5">
                   <Link to="/presale-projects">
-                    <Button size="sm" className="shadow-sm">
+                    <button className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm">
                       Browse All Projects
-                      <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                    </Button>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
                   </Link>
                   <Link to="/surrey-presale-condos">
-                    <Button size="sm" variant="outline" className="bg-background/80">Surrey Presales</Button>
+                    <button className="inline-flex items-center px-4 py-2 rounded-full border border-border bg-background text-sm font-medium hover:border-primary/40 hover:text-primary transition-colors">
+                      Surrey Presales
+                    </button>
                   </Link>
                   <Link to="/langley-presale-condos">
-                    <Button size="sm" variant="outline" className="bg-background/80">Langley Presales</Button>
+                    <button className="inline-flex items-center px-4 py-2 rounded-full border border-border bg-background text-sm font-medium hover:border-primary/40 hover:text-primary transition-colors">
+                      Langley Presales
+                    </button>
                   </Link>
                   <Link to="/presale-guide">
-                    <Button size="sm" variant="outline" className="bg-background/80">Buyer's Guide</Button>
+                    <button className="inline-flex items-center px-4 py-2 rounded-full border border-border bg-background text-sm font-medium hover:border-primary/40 hover:text-primary transition-colors">
+                      Buyer's Guide
+                    </button>
                   </Link>
                 </div>
               </div>
             </div>
           </div>
-        </article>
+        </div>
 
-        {/* ── Related Articles ── */}
+        {/* ── YOU MIGHT ALSO LIKE ── */}
         {relatedPosts.length > 0 && (
-          <aside aria-label="Related articles" className="py-14 md:py-20 border-t border-border/40 bg-muted/20">
-            <div className="container">
-              <div className="flex items-center gap-3 mb-8 md:mb-10">
-                <div className="h-[2px] w-10 rounded-full bg-primary" />
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">Related Guides</h2>
+          <section aria-label="Related articles" className="py-16 md:py-20 border-t border-border/40 bg-muted/30">
+            <div className="max-w-[1100px] mx-auto px-4 md:px-8">
+              <div className="flex items-center gap-3 mb-10">
+                <div className="h-[3px] w-8 rounded-full bg-primary" />
+                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                  You Might Also Like
+                </h2>
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-                {relatedPosts.map((related) => (
-                  <Link key={related.id} to={`/blog/${related.slug}`}>
-                    <Card className="group overflow-hidden hover:shadow-xl hover:shadow-primary/[0.04] hover:-translate-y-0.5 transition-all duration-300 h-full border-border/60">
-                      <div className="aspect-[16/10] overflow-hidden">
-                        {related.featured_image ? (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {relatedPosts.map((related) => {
+                  const relatedHero = related.featured_image
+                    ? related.featured_image
+                    : `https://image.pollinations.ai/prompt/${encodeURIComponent(related.title + " Surrey BC real estate presale")}?width=800&height=450&nologo=true`;
+
+                  return (
+                    <Link
+                      key={related.id}
+                      to={`/blog/${related.slug}`}
+                      className="group block"
+                    >
+                      <article className="h-full rounded-2xl overflow-hidden border border-border/50 bg-card hover:shadow-xl hover:shadow-primary/[0.06] hover:-translate-y-0.5 transition-all duration-300">
+                        {/* Image */}
+                        <div className="relative aspect-[16/10] overflow-hidden">
                           <img
-                            src={related.featured_image}
+                            src={relatedHero}
                             alt={related.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
                           />
-                        ) : (
-                          <div className="w-full h-full bg-muted flex items-center justify-center">
-                            <FileText className="h-10 w-10 text-muted-foreground/40" />
-                          </div>
-                        )}
-                      </div>
-                      <CardContent className="p-4 md:p-5">
-                        {related.category && (
-                          <span className="inline-block text-[10px] font-semibold uppercase tracking-wider text-primary mb-2">
-                            {related.category}
-                          </span>
-                        )}
-                        <h3 className="font-bold text-sm md:text-base mb-3 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                          {related.title}
-                        </h3>
-                        <div className="flex items-center justify-between">
-                          {related.publish_date && (
-                            <span className="text-[11px] text-muted-foreground">
-                              {formatDate(related.publish_date)}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-5">
+                          {related.category && (
+                            <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-primary mb-2">
+                              {related.category}
                             </span>
                           )}
-                          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                          <h3 className="font-bold text-sm md:text-[15px] leading-snug mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                            {related.title}
+                          </h3>
+                          {related.excerpt && (
+                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-3">
+                              {related.excerpt}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between">
+                            {related.publish_date && (
+                              <span className="text-[11px] text-muted-foreground">
+                                {formatDate(related.publish_date)}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1 text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                              Read Guide
+                              <ArrowRight className="h-3 w-3" />
+                            </span>
+                          </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+                      </article>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
-          </aside>
+          </section>
         )}
       </main>
 
