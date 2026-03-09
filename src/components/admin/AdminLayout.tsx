@@ -516,7 +516,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
             {/* Mobile logo */}
             <Link to="/admin" className="flex items-center gap-2 lg:hidden">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-[hsl(34,65%,40%)] flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary-deep flex items-center justify-center">
                 <Shield className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
               <span className="font-bold text-[13px]">Admin</span>
