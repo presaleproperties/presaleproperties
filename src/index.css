@@ -745,3 +745,173 @@
     animation: none !important;
   }
 }
+
+/* ── Premium Blog Prose Styles ── */
+.blog-prose {
+  font-size: 18px;
+  line-height: 1.8;
+  color: hsl(220 20% 18%);
+}
+
+.blog-prose p {
+  margin-bottom: 1.4em;
+}
+
+.blog-prose h2 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: hsl(220 20% 10%);
+  margin-top: 3rem;
+  margin-bottom: 0.9rem;
+  padding-left: 1rem;
+  border-left: 4px solid hsl(40 65% 55%);
+  line-height: 1.25;
+}
+
+.blog-prose h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: hsl(220 20% 10%);
+  margin-top: 2.2rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.3;
+}
+
+.blog-prose h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: hsl(220 20% 15%);
+  margin-top: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.blog-prose strong {
+  font-weight: 700;
+  color: hsl(220 20% 10%);
+}
+
+.blog-prose a {
+  color: hsl(40 65% 48%);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+
+.blog-prose a:hover {
+  color: hsl(40 65% 38%);
+}
+
+.blog-prose ul,
+.blog-prose ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1.4em;
+}
+
+.blog-prose li {
+  margin-bottom: 0.5em;
+  line-height: 1.75;
+}
+
+/* Premium blockquote — dark card with gold left border */
+.blog-prose blockquote {
+  margin: 2rem 0;
+  padding: 1.25rem 1.5rem;
+  background: hsl(220 20% 12%);
+  border-left: 4px solid hsl(40 65% 55%);
+  border-radius: 0 0.75rem 0.75rem 0;
+  color: hsl(40 30% 90%);
+  font-size: 1.05rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.blog-prose blockquote p {
+  margin-bottom: 0;
+  color: hsl(40 30% 90%);
+}
+
+/* Premium tables — alternating gold shading */
+.blog-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 0.9rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 2px 12px hsl(220 20% 10% / 0.07);
+}
+
+.blog-prose thead tr {
+  background: hsl(220 20% 14%);
+}
+
+.blog-prose thead th {
+  padding: 0.85rem 1.1rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: hsl(40 65% 75%);
+  border: none;
+}
+
+.blog-prose tbody tr:nth-child(even) {
+  background: hsl(40 65% 55% / 0.06);
+}
+
+.blog-prose tbody tr:nth-child(odd) {
+  background: hsl(0 0% 100%);
+}
+
+.blog-prose tbody tr:hover {
+  background: hsl(40 65% 55% / 0.1);
+}
+
+.blog-prose td {
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid hsl(220 10% 92%);
+  color: hsl(220 20% 20%);
+  vertical-align: top;
+}
+
+.blog-prose code {
+  font-size: 0.85em;
+  background: hsl(220 15% 94%);
+  padding: 0.15em 0.45em;
+  border-radius: 0.3rem;
+  font-family: ui-monospace, monospace;
+  color: hsl(220 20% 25%);
+}
+
+.blog-prose pre {
+  background: hsl(220 20% 12%);
+  color: hsl(40 30% 92%);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-size: 0.85rem;
+}
+
+.blog-prose pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.blog-prose hr {
+  border: none;
+  border-top: 1px solid hsl(220 10% 88%);
+  margin: 2.5rem 0;
+}
+
+.blog-prose img {
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px hsl(220 20% 10% / 0.1);
+  max-width: 100%;
+  margin: 1.5rem 0;
+}
