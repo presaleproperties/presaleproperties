@@ -24,11 +24,11 @@ export function LatestListings() {
 
       if (error) throw error;
       
-      const agentIds = [...new Set((listingsData as any[])?.map((l: any) => l.agent_id) || [])];
+      const agentIds = [...new Set((listingsData as any[])?.map((l: any) => l.agent_id).filter(Boolean) || [])];
       
       const [profilesResult, agentProfilesResult] = await Promise.all([
-        db.from("profiles").select("user_id, full_name, avatar_url").in("user_id", agentIds),
-        db.from("agent_profiles").select("user_id, brokerage_name").in("user_id", agentIds)
+        agentIds.length > 0 ? db.from("profiles").select("user_id, full_name, avatar_url").in("user_id", agentIds) : { data: [] },
+        agentIds.length > 0 ? db.from("agent_profiles").select("user_id, brokerage_name").in("user_id", agentIds) : { data: [] },
       ]);
       
       const profilesMap = new Map((profilesResult.data as any[])?.map((p: any) => [p.user_id, p]) || []);

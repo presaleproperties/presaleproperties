@@ -56,6 +56,45 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_profiles: {
+        Row: {
+          brokerage_address: string | null
+          brokerage_name: string
+          created_at: string
+          id: string
+          license_number: string
+          updated_at: string
+          user_id: string
+          verification_notes: string | null
+          verification_status: string
+          verified_at: string | null
+        }
+        Insert: {
+          brokerage_address?: string | null
+          brokerage_name?: string
+          created_at?: string
+          id?: string
+          license_number?: string
+          updated_at?: string
+          user_id: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+        }
+        Update: {
+          brokerage_address?: string | null
+          brokerage_name?: string
+          created_at?: string
+          id?: string
+          license_number?: string
+          updated_at?: string
+          user_id?: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           id: string
