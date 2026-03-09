@@ -92,13 +92,13 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
       <header 
         className={cn(
           "w-full z-50 shrink-0 transition-all duration-300",
-          // Default background - opaque
-          !transparentOnMobile && "bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80",
-          !transparentOnMobile && "border-b border-border/60",
+          // Default background — rich frosted glass
+          !transparentOnMobile && "bg-background/98 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/90",
+          !transparentOnMobile && "border-b border-border/50 shadow-[0_1px_0_0_hsl(var(--border)/0.5),0_4px_24px_-4px_hsl(var(--foreground)/0.06)]",
           // Transparent mode on mobile/tablet
-          transparentOnMobile && isMobileOrTablet && "bg-background/95 backdrop-blur-xl border-b border-border/60",
+          transparentOnMobile && isMobileOrTablet && "bg-background/98 backdrop-blur-2xl border-b border-border/50",
           // Desktop always gets normal bg regardless of transparentOnMobile
-          transparentOnMobile && "lg:bg-background/95 lg:backdrop-blur-xl lg:border-b lg:border-border/60",
+          transparentOnMobile && "lg:bg-background/98 lg:backdrop-blur-2xl lg:border-b lg:border-border/50",
           // Desktop: sticky positioning (normal behavior)
           "lg:sticky lg:top-0",
           // Mobile/tablet: fixed positioning for edge-to-edge scrolling
@@ -111,65 +111,84 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
         )}
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
-        <div className="flex h-14 md:h-16 items-center justify-between px-4 lg:container">
+        <div className="flex h-14 md:h-[68px] items-center justify-between px-4 lg:px-8 lg:max-w-screen-xl lg:mx-auto">
           {/* Logo */}
           <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8" />
 
-          {/* Desktop Navigation - Premium styled */}
-          <nav className="hidden lg:flex items-center gap-1">
+          {/* ── Desktop Navigation ── */}
+          <nav className="hidden lg:flex items-center">
+            {/* Thin vertical separator after logo */}
+            <div className="h-5 w-px bg-border/70 mr-7" />
+
             <NavigationMenu>
-              <NavigationMenuList className="gap-0">
-                {/* Presale Dropdown */}
+              <NavigationMenuList className="gap-0.5">
+
+                {/* ── Presale Dropdown ── */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/10 bg-transparent data-[state=open]:bg-accent/10 rounded-lg transition-colors">
-                    <Building2 className="h-4 w-4 mr-2 text-primary" />
+                  <NavigationMenuTrigger className={cn(
+                    "h-9 px-4 text-[13px] font-semibold tracking-wide bg-transparent rounded-lg transition-all duration-200",
+                    "text-foreground/65 hover:text-foreground",
+                    "hover:bg-foreground/[0.04] data-[state=open]:bg-foreground/[0.04]",
+                    "data-[state=open]:text-foreground",
+                    "[&>svg]:text-primary/70 [&>svg]:ml-1.5 [&>svg]:h-3.5 [&>svg]:w-3.5"
+                  )}>
                     Presale
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="w-[520px] p-5 bg-background rounded-xl shadow-lg border border-border/50">
-                      {/* Header Link */}
-                      <Link 
-                        to="/presale-projects" 
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/80 transition-colors group mb-4"
-                      >
-                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                          <Building2 className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-foreground">All Presale Projects</div>
-                          <p className="text-xs text-muted-foreground">Browse all new developments</p>
-                        </div>
-                      </Link>
-                      
-                      <div className="h-px bg-border/60 mb-4" />
-                      
-                      <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3 px-1">Presale Condos</p>
-                          <div className="space-y-1">
+                    {/* Premium dropdown panel */}
+                    <div className="w-[540px] bg-background rounded-2xl shadow-[0_20px_60px_-10px_hsl(var(--foreground)/0.14),0_0_0_1px_hsl(var(--border)/0.6)] overflow-hidden">
+                      {/* Panel header */}
+                      <div className="px-5 pt-5 pb-4 border-b border-border/50">
+                        <Link
+                          to="/presale-projects"
+                          className="flex items-center justify-between group"
+                        >
+                          <div className="flex items-center gap-3.5">
+                            <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/18 transition-colors">
+                              <Building2 className="h-4.5 w-4.5 text-primary" />
+                            </div>
+                            <div>
+                              <div className="text-[13px] font-bold text-foreground leading-none mb-0.5">All Presale Projects</div>
+                              <p className="text-[11px] text-muted-foreground">Browse every new development →</p>
+                            </div>
+                          </div>
+                          <span className="text-[11px] font-semibold text-primary bg-primary/8 px-2.5 py-1 rounded-full">
+                            400+ homes
+                          </span>
+                        </Link>
+                      </div>
+                      {/* City columns */}
+                      <div className="grid grid-cols-2 gap-0 p-5">
+                        <div className="pr-5 border-r border-border/40">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/70 mb-3">
+                            Presale Condos
+                          </p>
+                          <div className="space-y-0.5">
                             {CONDO_CITY_LINKS.slice(0, 6).map((city) => (
                               <NavigationMenuLink key={city.slug} asChild>
                                 <Link
                                   to={`/${city.slug}-presale-condos`}
-                                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-secondary/60 transition-colors text-sm text-foreground/80 hover:text-foreground"
+                                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-150 text-[13px] text-foreground/70 hover:text-foreground hover:bg-secondary/70 group"
                                 >
-                                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors flex-shrink-0" />
                                   {city.name}
                                 </Link>
                               </NavigationMenuLink>
                             ))}
                           </div>
                         </div>
-                        <div>
-                          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3 px-1">Presale Townhomes</p>
-                          <div className="space-y-1">
+                        <div className="pl-5">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/70 mb-3">
+                            Presale Townhomes
+                          </p>
+                          <div className="space-y-0.5">
                             {TOWNHOME_CITY_LINKS.map((city) => (
                               <NavigationMenuLink key={city.slug} asChild>
                                 <Link
                                   to={`/${city.slug}-presale-townhomes`}
-                                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-secondary/60 transition-colors text-sm text-foreground/80 hover:text-foreground"
+                                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-150 text-[13px] text-foreground/70 hover:text-foreground hover:bg-secondary/70 group"
                                 >
-                                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors flex-shrink-0" />
                                   {city.name}
                                 </Link>
                               </NavigationMenuLink>
@@ -181,57 +200,69 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
-                {/* Move-In Ready Dropdown */}
+                {/* ── Move-In Ready Dropdown ── */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/10 bg-transparent data-[state=open]:bg-accent/10 rounded-lg transition-colors">
-                    <Home className="h-4 w-4 mr-2 text-primary" />
+                  <NavigationMenuTrigger className={cn(
+                    "h-9 px-4 text-[13px] font-semibold tracking-wide bg-transparent rounded-lg transition-all duration-200",
+                    "text-foreground/65 hover:text-foreground",
+                    "hover:bg-foreground/[0.04] data-[state=open]:bg-foreground/[0.04]",
+                    "data-[state=open]:text-foreground",
+                    "[&>svg]:text-primary/70 [&>svg]:ml-1.5 [&>svg]:h-3.5 [&>svg]:w-3.5"
+                  )}>
                     Move-In Ready
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="w-[520px] p-5 bg-background rounded-xl shadow-lg border border-border/50">
-                      {/* Header Link */}
-                      <Link 
-                        to="/properties" 
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/80 transition-colors group mb-4"
-                      >
-                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                          <Home className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-foreground">All Move-In Ready</div>
-                          <p className="text-xs text-muted-foreground">New construction homes available now</p>
-                        </div>
-                      </Link>
-                      
-                      <div className="h-px bg-border/60 mb-4" />
-                      
-                      <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3 px-1">New Condos</p>
-                          <div className="space-y-1">
+                    <div className="w-[540px] bg-background rounded-2xl shadow-[0_20px_60px_-10px_hsl(var(--foreground)/0.14),0_0_0_1px_hsl(var(--border)/0.6)] overflow-hidden">
+                      <div className="px-5 pt-5 pb-4 border-b border-border/50">
+                        <Link
+                          to="/properties"
+                          className="flex items-center justify-between group"
+                        >
+                          <div className="flex items-center gap-3.5">
+                            <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/18 transition-colors">
+                              <Home className="h-4.5 w-4.5 text-primary" />
+                            </div>
+                            <div>
+                              <div className="text-[13px] font-bold text-foreground leading-none mb-0.5">All Move-In Ready</div>
+                              <p className="text-[11px] text-muted-foreground">New construction available now →</p>
+                            </div>
+                          </div>
+                          <span className="text-[11px] font-semibold text-primary bg-primary/8 px-2.5 py-1 rounded-full">
+                            Ready now
+                          </span>
+                        </Link>
+                      </div>
+                      <div className="grid grid-cols-2 gap-0 p-5">
+                        <div className="pr-5 border-r border-border/40">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/70 mb-3">
+                            New Condos
+                          </p>
+                          <div className="space-y-0.5">
                             {RESALE_CITY_LINKS.slice(0, 6).map((city) => (
                               <NavigationMenuLink key={city.slug} asChild>
                                 <Link
                                   to={`/properties/${city.slug}?type=condo`}
-                                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-secondary/60 transition-colors text-sm text-foreground/80 hover:text-foreground"
+                                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-150 text-[13px] text-foreground/70 hover:text-foreground hover:bg-secondary/70 group"
                                 >
-                                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors flex-shrink-0" />
                                   {city.name}
                                 </Link>
                               </NavigationMenuLink>
                             ))}
                           </div>
                         </div>
-                        <div>
-                          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3 px-1">New Townhomes</p>
-                          <div className="space-y-1">
+                        <div className="pl-5">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/70 mb-3">
+                            New Townhomes
+                          </p>
+                          <div className="space-y-0.5">
                             {RESALE_CITY_LINKS.slice(0, 4).map((city) => (
                               <NavigationMenuLink key={`townhome-${city.slug}`} asChild>
                                 <Link
                                   to={`/properties/${city.slug}?type=townhouse`}
-                                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-secondary/60 transition-colors text-sm text-foreground/80 hover:text-foreground"
+                                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-150 text-[13px] text-foreground/70 hover:text-foreground hover:bg-secondary/70 group"
                                 >
-                                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors flex-shrink-0" />
                                   {city.name}
                                 </Link>
                               </NavigationMenuLink>
@@ -244,62 +275,57 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
-            
-            {/* Simple nav links */}
-            <Link
-              to="/blog"
-              className={cn(
-                "h-10 px-4 flex items-center text-sm font-medium rounded-lg transition-colors",
-                isActive("/blog") 
-                  ? "text-foreground bg-secondary/60" 
-                  : "text-foreground/80 hover:text-foreground hover:bg-accent/10"
-              )}
-            >
-              <BookOpen className="h-4 w-4 mr-2 text-muted-foreground" />
-              Guides
-            </Link>
-            <Link
-              to="/calculator"
-              className={cn(
-                "h-10 px-4 flex items-center text-sm font-medium rounded-lg transition-colors",
-                isActive("/calculator") 
-                  ? "text-foreground bg-secondary/60" 
-                  : "text-foreground/80 hover:text-foreground hover:bg-accent/10"
-              )}
-            >
-              <Calculator className="h-4 w-4 mr-2 text-muted-foreground" />
-              Calculator
-            </Link>
-            <Link
-              to="/about"
-              className={cn(
-                "h-10 px-4 flex items-center text-sm font-medium rounded-lg transition-colors",
-                isActive("/about") 
-                  ? "text-foreground bg-secondary/60" 
-                  : "text-foreground/80 hover:text-foreground hover:bg-accent/10"
-              )}
-            >
-              <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-              About
-            </Link>
+
+            {/* Plain text links — no icons, refined weight */}
+            {[
+              { to: "/blog", label: "Guides" },
+              { to: "/calculator", label: "Calculator" },
+              { to: "/about", label: "About" },
+            ].map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className={cn(
+                  "h-9 px-4 flex items-center text-[13px] font-semibold tracking-wide rounded-lg transition-all duration-150",
+                  isActive(to)
+                    ? "text-foreground bg-foreground/[0.05]"
+                    : "text-foreground/65 hover:text-foreground hover:bg-foreground/[0.04]"
+                )}
+              >
+                {label}
+                {isActive(to) && (
+                  <span className="ml-2 h-1 w-1 rounded-full bg-primary inline-block" />
+                )}
+              </Link>
+            ))}
+
+            {/* Separator */}
+            <div className="h-5 w-px bg-border/70 mx-4" />
           </nav>
 
-          {/* Desktop CTA - Map Search */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Button 
-              asChild 
-              size="sm" 
+          {/* ── Desktop CTA ── */}
+          <div className="hidden lg:flex items-center gap-2.5">
+            {/* Ghost Map link */}
+            <Link
+              to="/map-search"
               className={cn(
-                "h-9 px-4 font-medium rounded-md",
-                "bg-primary hover:bg-primary/90",
-                "text-primary-foreground",
-                "transition-colors duration-200",
-                isMapPage && "ring-1 ring-primary/30"
+                "h-9 px-4 flex items-center gap-2 text-[13px] font-semibold rounded-lg transition-all duration-150",
+                isMapPage
+                  ? "text-primary bg-primary/8"
+                  : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.04]"
               )}
             >
-              <Link to="/map-search">
-                <Map className="h-4 w-4 mr-2" />
-                Map Search
+              <Map className="h-3.5 w-3.5" />
+              Map
+            </Link>
+            {/* Primary gold CTA */}
+            <Button
+              asChild
+              size="sm"
+              className="h-9 px-5 text-[13px] font-bold rounded-lg shadow-[0_2px_12px_hsl(var(--primary)/0.28)] hover:shadow-[0_4px_20px_hsl(var(--primary)/0.38)] transition-all duration-200"
+            >
+              <Link to="/presale-projects">
+                View Projects
               </Link>
             </Button>
           </div>
