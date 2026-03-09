@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
@@ -14,164 +13,200 @@ import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { InteractiveMortgageCalculator } from "@/components/calculators/InteractiveMortgageCalculator";
-import { 
-  FileText, 
-  DollarSign, 
-  Clock, 
-  Shield, 
-  CheckCircle, 
+import {
+  FileText,
+  DollarSign,
+  Clock,
+  Shield,
+  CheckCircle,
   AlertTriangle,
   ArrowRight,
   Building2,
   Users,
-  Calculator,
-  Phone
+  Phone,
+  ChevronRight,
 } from "lucide-react";
 
+// ── Data ──────────────────────────────────────────────────────────
+
+const steps = [
+  {
+    number: "01",
+    title: "Browse & Discover",
+    description:
+      "Search our marketplace for assignment listings that match your budget, preferred neighbourhood, and desired unit type. Filter by city, beds, and price range.",
+    icon: Building2,
+  },
+  {
+    number: "02",
+    title: "Connect with an Agent",
+    description:
+      "Submit an inquiry to the listing agent. They'll provide full details, floor plans, deposit history, and answer all your questions before you proceed.",
+    icon: Users,
+  },
+  {
+    number: "03",
+    title: "Review All Documents",
+    description:
+      "Your agent will share the original purchase contract, developer disclosure statement, and assignment agreement. Have a lawyer review before signing anything.",
+    icon: FileText,
+  },
+  {
+    number: "04",
+    title: "Get Developer Approval",
+    description:
+      "Most developers require written approval before an assignment can proceed. Your agent handles this process — confirm upfront whether the developer permits assignments.",
+    icon: Shield,
+  },
+  {
+    number: "05",
+    title: "Complete the Purchase",
+    description:
+      "Sign the assignment agreement, reimburse the original buyer's deposits, and prepare for completion when the developer transfers title directly to you.",
+    icon: CheckCircle,
+  },
+];
+
+const costs = [
+  {
+    name: "Assignment Price",
+    description:
+      "The total price you pay for the assignment, including any premium over the original purchase price.",
+    typical: "Market rate",
+    color: "bg-blue-50 text-blue-700 border-blue-100",
+  },
+  {
+    name: "Assignment Fee (to Seller)",
+    description:
+      "Fee charged by the original buyer for assigning their contract. This is negotiable between parties.",
+    typical: "$5,000 – $50,000+",
+    color: "bg-violet-50 text-violet-700 border-violet-100",
+  },
+  {
+    name: "Developer Assignment Fee",
+    description:
+      "Some developers charge a processing and approval fee. Confirm this before making an offer.",
+    typical: "$500 – $5,000",
+    color: "bg-amber-50 text-amber-700 border-amber-100",
+  },
+  {
+    name: "Legal Fees",
+    description:
+      "Your real estate lawyer reviews all documents and protects your interests throughout the process.",
+    typical: "$1,500 – $3,000",
+    color: "bg-emerald-50 text-emerald-700 border-emerald-100",
+  },
+  {
+    name: "Deposit Reimbursement",
+    description:
+      "You reimburse the original buyer for deposits they've already paid to the developer — typically held in trust.",
+    typical: "15–20% of original price",
+    color: "bg-rose-50 text-rose-700 border-rose-100",
+  },
+  {
+    name: "Remaining Balance at Completion",
+    description:
+      "The remaining amount owed to the developer, financed by your mortgage and paid at building completion.",
+    typical: "Balance of purchase price",
+    color: "bg-cyan-50 text-cyan-700 border-cyan-100",
+  },
+];
+
+const faqs = [
+  {
+    question: "What exactly is a presale assignment?",
+    answer:
+      "A presale assignment is when the original buyer of a presale condo sells their purchase contract to a new buyer before the building is completed. You're essentially buying their right to purchase the property from the developer at the originally agreed price.",
+  },
+  {
+    question: "Why would someone sell their assignment?",
+    answer:
+      "Common reasons include: change in financial circumstances, relocation, change in family size, inability to qualify for a mortgage at completion, or simply wanting to take profit if the market has appreciated since their original purchase.",
+  },
+  {
+    question: "Is buying an assignment legal in BC?",
+    answer:
+      "Yes, assignments are completely legal in British Columbia. However, they must be disclosed on the Property Transfer Tax form and are subject to specific tax rules. Always work with a knowledgeable real estate lawyer.",
+  },
+  {
+    question: "What are the risks of buying an assignment?",
+    answer:
+      "Key risks include: developer may not approve the assignment, construction delays, potential changes to final unit specifications, market value may decrease before completion, and you may need to qualify for a mortgage at higher interest rates.",
+  },
+  {
+    question: "Do I need developer approval?",
+    answer:
+      "Most developers require written approval before an assignment can proceed. Some have restrictions on when assignments are allowed (often only after a certain percentage of units are sold). Your agent will verify this upfront.",
+  },
+  {
+    question: "What deposits do I need to pay?",
+    answer:
+      "Typically you'll reimburse the original buyer for deposits they've already paid (usually 15–20% of original price) plus any assignment fee premium. The remaining balance is paid to the developer at completion, just like a regular presale purchase.",
+  },
+  {
+    question: "Can I view the actual unit before buying?",
+    answer:
+      "Usually no, since the building is still under construction. You'll rely on floor plans, renderings, and the display suite (if available). Some nearly-complete buildings may allow hard hat tours.",
+  },
+  {
+    question: "How is this different from buying resale?",
+    answer:
+      "With an assignment you're buying a contract, not a completed property. You'll get a brand new unit at completion with the latest finishes. However, you can't see the exact unit beforehand and must wait for construction to finish.",
+  },
+  {
+    question: "What happens to the original buyer's warranties?",
+    answer:
+      "2-5-10 home warranty coverage from BC Housing transfers to you as the new owner. You receive full warranty protection starting from the date of completion.",
+  },
+  {
+    question: "Are there tax implications?",
+    answer:
+      "Yes. Assignment profits may be taxed as income rather than capital gains. GST/HST applies if the property is new. Property Transfer Tax is calculated on the final sale price. Consult a tax professional for your specific situation.",
+  },
+];
+
+const benefits = [
+  {
+    title: "Lock In Past Pricing",
+    description:
+      "Purchase at prices negotiated months or years ago, potentially well below current market value.",
+    icon: DollarSign,
+  },
+  {
+    title: "Brand New Home",
+    description:
+      "Move into a never-lived-in unit with new appliances, modern finishes, and full warranty coverage.",
+    icon: Building2,
+  },
+  {
+    title: "Shorter Wait Time",
+    description:
+      "Skip the 3–5 year presale wait. Many assignments are for buildings completing within 1–2 years.",
+    icon: Clock,
+  },
+  {
+    title: "Full Warranty Protection",
+    description:
+      "Receive the same 2-5-10 warranty coverage as original buyers from BC Housing.",
+    icon: Shield,
+  },
+];
+
+// ── Page ──────────────────────────────────────────────────────────
+
 export default function BuyersGuide() {
-  const steps = [
-    {
-      number: "01",
-      title: "Browse & Discover",
-      description: "Search our marketplace for assignment listings that match your budget, preferred neighborhood, and desired unit type.",
-      icon: Building2,
-    },
-    {
-      number: "02",
-      title: "Connect with Agent",
-      description: "Submit an inquiry to the agent. They'll provide full details, floor plans, and answer your questions.",
-      icon: Users,
-    },
-    {
-      number: "03",
-      title: "Review Documents",
-      description: "Your agent will share the original purchase contract, disclosure statement, and assignment agreement for review.",
-      icon: FileText,
-    },
-    {
-      number: "04",
-      title: "Get Developer Approval",
-      description: "Most developers require approval for assignments. Your agent handles this process with the developer.",
-      icon: Shield,
-    },
-    {
-      number: "05",
-      title: "Complete the Purchase",
-      description: "Sign the assignment agreement, pay the deposit to the original buyer, and prepare for completion.",
-      icon: CheckCircle,
-    },
-  ];
-
-  const costs = [
-    {
-      name: "Assignment Price",
-      description: "The total price you pay for the assignment, including any premium over the original purchase price.",
-      typical: "Varies by market",
-    },
-    {
-      name: "Assignment Fee",
-      description: "Fee charged by the original buyer for assigning their contract. This is negotiable.",
-      typical: "$5,000 - $50,000+",
-    },
-    {
-      name: "Developer Assignment Fee",
-      description: "Some developers charge a fee to process and approve the assignment.",
-      typical: "$500 - $5,000",
-    },
-    {
-      name: "Legal Fees",
-      description: "Hire a real estate lawyer to review all documents and protect your interests.",
-      typical: "$1,500 - $3,000",
-    },
-    {
-      name: "Deposit to Original Buyer",
-      description: "You reimburse the original buyer for deposits they've already paid to the developer.",
-      typical: "Usually 15-20% of original price",
-    },
-    {
-      name: "Remaining Balance at Completion",
-      description: "The remaining amount owed to the developer, paid at building completion.",
-      typical: "Balance of purchase price",
-    },
-  ];
-
-  const faqs = [
-    {
-      question: "What exactly is a presale assignment?",
-      answer: "A presale assignment is when the original buyer of a presale condo or townhome sells their purchase contract to a new buyer before the building is completed. You're essentially buying their right to purchase the property from the developer at the originally agreed price."
-    },
-    {
-      question: "Why would someone sell their assignment?",
-      answer: "Common reasons include: change in financial circumstances, relocation, change in family size, inability to qualify for mortgage at completion, or simply wanting to take profit if the market has appreciated since their original purchase."
-    },
-    {
-      question: "Is buying an assignment legal in BC?",
-      answer: "Yes, assignments are completely legal in British Columbia. However, they must be disclosed on the Property Transfer Tax form and are subject to specific tax rules. Always work with a knowledgeable real estate lawyer."
-    },
-    {
-      question: "What are the risks of buying an assignment?",
-      answer: "Key risks include: developer may not approve the assignment, construction delays, potential changes to final unit specifications, market value may decrease before completion, and you may need to qualify for a mortgage at higher interest rates."
-    },
-    {
-      question: "Do I need developer approval?",
-      answer: "Most developers require written approval before an assignment can proceed. Some have restrictions on when assignments are allowed (often only after a certain percentage of units are sold). Your agent will verify this upfront."
-    },
-    {
-      question: "What deposits do I need to pay?",
-      answer: "Typically you'll reimburse the original buyer for deposits they've already paid (usually 15-20% of original price) plus any assignment fee premium. The remaining balance is paid to the developer at completion, just like a regular presale purchase."
-    },
-    {
-      question: "Can I view the actual unit before buying?",
-      answer: "Usually no, since the building is still under construction. You'll rely on floor plans, renderings, and the display suite (if available). Some nearly-complete buildings may allow hard hat tours."
-    },
-    {
-      question: "How is this different from buying resale?",
-      answer: "With an assignment you're buying a contract, not a completed property. You'll get a brand new unit at completion, often with the latest finishes and appliances. However, you can't see the exact unit beforehand and must wait for construction to finish."
-    },
-    {
-      question: "What happens to the original buyer's warranties?",
-      answer: "2-5-10 home warranty coverage from BC Housing transfers to you as the new owner. You receive full warranty protection starting from the date of completion."
-    },
-    {
-      question: "Are there tax implications?",
-      answer: "Yes. Assignment profits may be taxed as income rather than capital gains. GST/HST applies if the property is new. Property Transfer Tax is calculated on the final sale price. Consult a tax professional for your specific situation."
-    },
-  ];
-
-  const benefits = [
-    {
-      title: "Lock In Today's Pricing",
-      description: "Purchase at prices negotiated months or years ago, potentially below current market value.",
-      icon: DollarSign,
-    },
-    {
-      title: "Brand New Home",
-      description: "Move into a never-lived-in unit with new appliances, modern finishes, and full warranty coverage.",
-      icon: Building2,
-    },
-    {
-      title: "Shorter Wait Time",
-      description: "Skip the 3-5 year presale wait. Many assignments are for buildings completing within 1-2 years.",
-      icon: Clock,
-    },
-    {
-      title: "Full Warranty Protection",
-      description: "Receive the same 2-5-10 warranty coverage as original buyers from BC Housing.",
-      icon: Shield,
-    },
-  ];
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
         <title>Buyer's Guide to Presale Assignments | How to Buy an Assignment in Vancouver</title>
-        <meta name="description" content="Learn everything about buying presale condo assignments in Metro Vancouver. Step-by-step guide, typical costs, FAQs, and expert tips for first-time assignment buyers." />
-        <meta name="keywords" content="how to buy assignment, presale assignment guide, Vancouver condo assignment, assignment buying process, presale assignment costs, BC assignment rules" />
+        <meta
+          name="description"
+          content="Learn everything about buying presale condo assignments in Metro Vancouver. Step-by-step guide, typical costs, FAQs, and expert tips for first-time assignment buyers."
+        />
         <link rel="canonical" href="https://presaleproperties.com/buyers-guide" />
       </Helmet>
-      
-      <FAQSchema faqs={faqs} />
 
+      <FAQSchema faqs={faqs} />
       <ConversionHeader />
 
       <main className="flex-1">
@@ -182,195 +217,245 @@ export default function BuyersGuide() {
           </div>
         </div>
 
-        {/* Hero Section */}
-        <section className="bg-gradient-to-b from-primary/5 to-background py-12 md:py-20">
-          <div className="container px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-4">
-                Buyer's Guide
-              </span>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-                Your Complete Guide to{" "}
-                <span className="text-primary">Presale Assignments</span>
+        {/* ── Hero ──────────────────────────────────────────── */}
+        <section className="relative overflow-hidden border-b bg-card">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/6 via-background to-primary/3 pointer-events-none" />
+          <div
+            className="absolute inset-0 opacity-[0.025] pointer-events-none"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px)",
+              backgroundSize: "28px 28px",
+            }}
+          />
+
+          <div className="relative container px-4 py-16 md:py-24">
+            <div className="max-w-3xl">
+              <div className="flex items-center gap-2 mb-5">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold tracking-wide uppercase">
+                  <AssignmentIcon />
+                  Assignments Guide
+                </span>
+                <span className="text-muted-foreground/60 text-sm">Updated 2026</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-bold text-foreground leading-[1.1] mb-5 tracking-tight">
+                The Complete Guide to
+                <br />
+                <span className="text-primary">Buying an Assignment</span>
               </h1>
-              <p className="text-lg text-muted-foreground mb-8">
-                Everything you need to know about buying a presale condo or townhome assignment in Metro Vancouver — from understanding the process to closing the deal.
+              <p className="text-xl font-medium text-primary mb-3">
+                Buy a brand-new home at yesterday's prices — without the full presale waiting period.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <p className="text-[15px] text-muted-foreground leading-relaxed mb-8 max-w-xl">
+                Assignment sales are one of Metro Vancouver's best-kept real estate strategies. This guide explains exactly how they work, what they cost, and how to buy one safely.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Link to="/assignments">
-                  <Button size="lg" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto gap-2">
                     Browse Assignments
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
                 <Link to="/contact">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    <Phone className="h-4 w-4 mr-2" />
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
+                    <Phone className="h-4 w-4" />
                     Talk to an Expert
                   </Button>
                 </Link>
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* What is an Assignment */}
-        <section className="py-12 md:py-16">
-          <div className="container px-4">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
-                What is a Presale Assignment?
-              </h2>
-              <div className="prose prose-lg max-w-none text-muted-foreground">
-                <p className="text-lg leading-relaxed mb-4">
-                  A <strong className="text-foreground">presale assignment</strong> occurs when the original purchaser of a presale property sells their purchase contract to a new buyer before the building is completed.
-                </p>
-                <p className="leading-relaxed mb-4">
-                  When you buy an assignment, you're not buying the property itself (since it's not built yet). Instead, you're buying the <em>right and obligation</em> to complete the purchase from the developer at the originally negotiated terms.
-                </p>
-                <p className="leading-relaxed">
-                  At completion, the property transfers directly from the developer to you, the assignee. You step into the shoes of the original buyer and receive all the same benefits — including warranty coverage, new home features, and the locked-in purchase price.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Benefits */}
-        <section className="py-12 md:py-16 bg-muted/30">
-          <div className="container px-4">
-            <div className="text-center mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                Why Buy an Assignment?
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Assignments offer unique advantages for homebuyers and investors alike.
-              </p>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-              {benefits.map((benefit, i) => (
-                <Card key={i} className="border-0 shadow-sm">
-                  <CardContent className="p-6 text-center">
-                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <benefit.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-2">{benefit.title}</h3>
-                    <p className="text-sm text-muted-foreground">{benefit.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Step by Step Process */}
-        <section className="py-12 md:py-16">
-          <div className="container px-4">
-            <div className="text-center mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                The Assignment Buying Process
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Here's what to expect when purchasing a presale assignment.
-              </p>
-            </div>
-            <div className="max-w-4xl mx-auto space-y-6">
-              {steps.map((step, i) => (
-                <div key={i} className="flex gap-4 md:gap-6 items-start">
-                  <div className="shrink-0 w-14 h-14 bg-primary text-primary-foreground rounded-xl flex items-center justify-center font-bold text-lg">
-                    {step.number}
-                  </div>
-                  <div className="flex-1 pt-1">
-                    <h3 className="text-lg font-semibold text-foreground mb-1">{step.title}</h3>
-                    <p className="text-muted-foreground">{step.description}</p>
-                  </div>
+            {/* Stats row */}
+            <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl">
+              {[
+                { label: "Typical Deposit Reimbursed", value: "15–20%" },
+                { label: "BC Warranty (transferred)", value: "2-5-10" },
+                { label: "Developer Approval", value: "Required" },
+                { label: "Legal Review", value: "Essential" },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="bg-card border border-border/70 rounded-xl px-4 py-3 shadow-sm"
+                >
+                  <p className="text-xl font-bold text-primary">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Costs Section */}
-        <section className="py-12 md:py-16 bg-muted/30">
+        {/* ── What is an Assignment ─────────────────────────── */}
+        <section className="py-14 md:py-20">
           <div className="container px-4">
-            <div className="text-center mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                Understanding the Costs
+            <div className="max-w-3xl mx-auto">
+              <SectionLabel>The Basics</SectionLabel>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+                What is a Presale Assignment?
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Know what to budget for when buying an assignment.
+              <p className="text-lg font-medium text-primary mb-4 leading-relaxed">
+                A presale assignment occurs when the original purchaser of a presale property sells their purchase contract to a new buyer before the building is completed.
               </p>
+              <div className="space-y-3 text-[15px] text-muted-foreground leading-relaxed">
+                <p>
+                  When you buy an assignment, you're not buying the property itself — since it's not built yet. Instead, you're buying the <em>right and obligation</em> to complete the purchase from the developer at the originally negotiated terms.
+                </p>
+                <p>
+                  At completion, the property transfers directly from the developer to you, the assignee. You step into the original buyer's shoes and receive all the same benefits — including warranty coverage, new home features, and the locked-in purchase price.
+                </p>
+              </div>
             </div>
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-background rounded-xl border overflow-hidden">
-                {costs.map((cost, i) => (
-                  <div 
-                    key={i} 
-                    className={`p-4 md:p-6 ${i !== costs.length - 1 ? 'border-b' : ''}`}
+          </div>
+        </section>
+
+        {/* ── Benefits ──────────────────────────────────────── */}
+        <section className="py-14 md:py-20 bg-muted/30 border-y">
+          <div className="container px-4">
+            <div className="max-w-5xl mx-auto">
+              <div className="mb-10">
+                <SectionLabel>Why Assignments?</SectionLabel>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                  The Advantages of Buying an Assignment
+                </h2>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {benefits.map((b, i) => (
+                  <div
+                    key={i}
+                    className="bg-card rounded-2xl border border-border/70 p-6 shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-foreground">{cost.name}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">{cost.description}</p>
+                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                      <b.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-foreground mb-2 text-[15px]">{b.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{b.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Step by Step Process ──────────────────────────── */}
+        <section className="py-14 md:py-20">
+          <div className="container px-4">
+            <div className="max-w-3xl mx-auto">
+              <SectionLabel>The Process</SectionLabel>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+                How to Buy an Assignment: 5 Steps
+              </h2>
+              <p className="text-muted-foreground mb-10">
+                Here's exactly what to expect when purchasing a presale assignment.
+              </p>
+
+              <div className="relative">
+                <div className="absolute left-5 top-6 bottom-6 w-px bg-border hidden sm:block" />
+                <div className="space-y-10">
+                  {steps.map((step, i) => (
+                    <div key={i} className="relative flex gap-5 sm:gap-7">
+                      <div className="relative shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shadow-sm z-10 relative">
+                          {step.number}
+                        </div>
                       </div>
-                      <div className="shrink-0">
-                        <span className="inline-block px-3 py-1 bg-muted rounded-full text-sm font-medium">
-                          {cost.typical}
-                        </span>
+                      <div className="flex-1 pb-2">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <step.icon className="h-4 w-4 text-muted-foreground" />
+                          <h3 className="text-[17px] font-semibold text-foreground">{step.title}</h3>
+                        </div>
+                        <p className="text-[14.5px] text-muted-foreground leading-relaxed">
+                          {step.description}
+                        </p>
                       </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Costs ─────────────────────────────────────────── */}
+        <section className="py-14 md:py-20 bg-muted/30 border-y">
+          <div className="container px-4">
+            <div className="max-w-3xl mx-auto">
+              <SectionLabel>Budgeting</SectionLabel>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+                Understanding All the Costs
+              </h2>
+              <p className="text-muted-foreground mb-8">
+                Know exactly what to budget for when buying an assignment in BC.
+              </p>
+
+              <div className="space-y-3">
+                {costs.map((cost, i) => (
+                  <div
+                    key={i}
+                    className="bg-card border border-border/60 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5 shadow-sm"
+                  >
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground text-[15px]">{cost.name}</h3>
+                      <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">
+                        {cost.description}
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      <span className={`inline-block px-3 py-1.5 rounded-lg border text-xs font-semibold ${cost.color}`}>
+                        {cost.typical}
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg flex gap-3">
-                <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <strong className="text-foreground">Important:</strong>
-                  <span className="text-muted-foreground"> Always budget an additional 3-5% for closing costs including legal fees, property transfer tax, and adjustments. Consult with a mortgage broker early to ensure you can qualify.</span>
-                </div>
+
+              <div className="mt-6 flex items-start gap-3 p-4 bg-amber-50 border border-amber-200/80 rounded-xl">
+                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-800">
+                  <strong>Important:</strong> Always budget an additional 3–5% for closing costs including legal fees, property transfer tax, and adjustments. Consult with a mortgage broker early to ensure you can qualify at completion.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Mortgage Calculator */}
-        <section className="py-12 md:py-16">
+        {/* ── Mortgage Calculator ───────────────────────────── */}
+        <section className="py-14 md:py-20">
           <div className="container px-4">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+            <div className="max-w-3xl mx-auto">
+              <SectionLabel>Calculator</SectionLabel>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                 Calculate Your Monthly Payments
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Enter your purchase price to estimate monthly payments based on different down payment and interest rate scenarios.
+              <p className="text-muted-foreground mb-8">
+                Estimate monthly payments based on different down payment and interest rate scenarios.
               </p>
             </div>
             <InteractiveMortgageCalculator defaultPrice={650000} />
           </div>
         </section>
 
-        {/* FAQs */}
-        <section className="py-12 md:py-16 bg-muted/30">
+        {/* ── FAQs ──────────────────────────────────────────── */}
+        <section className="py-14 md:py-20 bg-muted/30 border-y">
           <div className="container px-4">
-            <div className="text-center mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+            <div className="max-w-3xl mx-auto">
+              <SectionLabel>FAQ</SectionLabel>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                 Frequently Asked Questions
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-muted-foreground mb-8">
                 Get answers to the most common questions about buying assignments.
               </p>
-            </div>
-            <div className="max-w-3xl mx-auto">
-              <Accordion type="single" collapsible className="space-y-3">
+              <Accordion type="single" collapsible className="space-y-2">
                 {faqs.map((faq, i) => (
-                  <AccordionItem 
-                    key={i} 
+                  <AccordionItem
+                    key={i}
                     value={`faq-${i}`}
-                    className="bg-background rounded-lg border px-4 md:px-6"
+                    className="bg-card border border-border/60 rounded-xl px-5 shadow-sm data-[state=open]:border-primary/30"
                   >
-                    <AccordionTrigger className="text-left font-medium py-4 hover:no-underline">
+                    <AccordionTrigger className="text-left font-medium py-4 hover:no-underline text-[15px]">
                       {faq.question}
                     </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground pb-4">
+                    <AccordionContent className="text-[14px] text-muted-foreground pb-4 leading-relaxed">
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>
@@ -380,54 +465,57 @@ export default function BuyersGuide() {
           </div>
         </section>
 
-        {/* Internal Links Section - SEO with exact match anchor text */}
-        <section className="py-12 md:py-16 bg-muted/30">
+        {/* ── City Links ────────────────────────────────────── */}
+        <section className="py-14 border-t">
           <div className="container px-4">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl font-bold text-foreground mb-6">
-                Browse Presale Condos by City
+            <div className="max-w-3xl mx-auto">
+              <SectionLabel>Browse by City</SectionLabel>
+              <h2 className="text-xl font-bold text-foreground mb-2">
+                Find Presale Condos in Your City
               </h2>
-              <p className="text-muted-foreground mb-6">
-                Find new condo developments and presale townhomes across Metro Vancouver and the Fraser Valley with VIP access presale registration, floorplans & pricing, and presale pricing sheets.
+              <p className="text-sm text-muted-foreground mb-6">
+                VIP access, floor plans & pricing across Metro Vancouver and the Fraser Valley.
               </p>
-              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-                <Link to="/presale-condos/surrey" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
-                  <span className="font-medium">Presale Condos Surrey</span>
-                </Link>
-                <Link to="/presale-condos/langley" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
-                  <span className="font-medium">Presale Condos Langley</span>
-                </Link>
-                <Link to="/presale-condos/coquitlam" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
-                  <span className="font-medium">Presale Condos Coquitlam</span>
-                </Link>
-                <Link to="/presale-condos/burnaby" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
-                  <span className="font-medium">Presale Condos Burnaby</span>
-                </Link>
-                <Link to="/presale-condos/abbotsford" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
-                  <span className="font-medium">Abbotsford Presale Condos</span>
-                </Link>
-                <Link to="/presale-condos/vancouver" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
-                  <span className="font-medium">Presale Condos Vancouver</span>
-                </Link>
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                {[
+                  { label: "Presale Condos Surrey", href: "/presale-condos/surrey" },
+                  { label: "Presale Condos Langley", href: "/presale-condos/langley" },
+                  { label: "Presale Condos Coquitlam", href: "/presale-condos/coquitlam" },
+                  { label: "Presale Condos Burnaby", href: "/presale-condos/burnaby" },
+                  { label: "Presale Condos Abbotsford", href: "/presale-condos/abbotsford" },
+                  { label: "Presale Condos Vancouver", href: "/presale-condos/vancouver" },
+                ].map((city) => (
+                  <Link
+                    key={city.href}
+                    to={city.href}
+                    className="group flex items-center justify-between px-4 py-3 bg-card border border-border/60 rounded-xl hover:border-primary/50 hover:shadow-sm transition-all text-sm font-medium text-foreground"
+                  >
+                    {city.label}
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Final CTA */}
-        <section className="py-12 md:py-16">
+        <RelatedContent />
+
+        {/* ── Final CTA ─────────────────────────────────────── */}
+        <section className="py-16 md:py-20 border-t">
           <div className="container px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            <div className="max-w-2xl mx-auto text-center">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
                 Ready to Find Your Assignment?
               </h2>
-              <p className="text-muted-foreground mb-8">
-                Browse our curated selection of presale assignments across Metro Vancouver. Each assignment is from a verified real estate agent.
+              <p className="text-muted-foreground mb-7 text-[15px]">
+                Browse our curated selection of verified presale assignments across Metro Vancouver.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link to="/assignments">
-                  <Button size="lg" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto gap-2">
                     Browse Assignments
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
                 <Link to="/presale-projects">
@@ -439,12 +527,30 @@ export default function BuyersGuide() {
             </div>
           </div>
         </section>
-
-        {/* Related Content for Internal Linking */}
-        <RelatedContent />
       </main>
 
       <Footer />
     </div>
+  );
+}
+
+// ── Shared micro-components ───────────────────────────────────────
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary mb-2">
+      {children}
+    </p>
+  );
+}
+
+function AssignmentIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <polyline points="10 9 9 9 8 9" />
+    </svg>
   );
 }
