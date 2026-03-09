@@ -371,7 +371,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             "flex items-center border-b border-border/50",
             sidebarCollapsed ? "h-14 justify-center px-2" : "h-14 px-4 gap-3"
           )}>
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-[hsl(34,65%,40%)] flex items-center justify-center shadow-sm shrink-0">
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-primary-deep flex items-center justify-center shadow-sm shrink-0">
               <Shield className="h-[14px] w-[14px] text-primary-foreground" />
             </div>
             {!sidebarCollapsed && (
