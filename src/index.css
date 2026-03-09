@@ -754,35 +754,37 @@
 }
 
 .blog-prose p {
-  margin-bottom: 1.4em;
+  margin-bottom: 1.5em;
 }
 
+/* H2 — gold 4px left border, generous top spacing */
 .blog-prose h2 {
   font-size: 1.65rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: hsl(220 20% 10%);
-  margin-top: 3rem;
-  margin-bottom: 0.9rem;
-  padding-left: 1rem;
+  color: hsl(220 20% 8%);
+  margin-top: 3.25rem;
+  margin-bottom: 1rem;
+  padding-left: 1.1rem;
   border-left: 4px solid hsl(40 65% 55%);
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
+/* H3 — bold, slightly larger than body, generous top */
 .blog-prose h3 {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: hsl(220 20% 10%);
-  margin-top: 2.2rem;
-  margin-bottom: 0.6rem;
+  margin-top: 2.5rem;
+  margin-bottom: 0.65rem;
   line-height: 1.3;
 }
 
 .blog-prose h4 {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  color: hsl(220 20% 15%);
-  margin-top: 1.8rem;
+  color: hsl(220 20% 14%);
+  margin-top: 2rem;
   margin-bottom: 0.5rem;
 }
 
@@ -792,70 +794,72 @@
 }
 
 .blog-prose a {
-  color: hsl(40 65% 48%);
+  color: hsl(40 65% 45%);
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
-  transition: color 0.15s;
+  text-decoration-color: hsl(40 65% 55% / 0.4);
+  transition: color 0.15s, text-decoration-color 0.15s;
 }
 
 .blog-prose a:hover {
-  color: hsl(40 65% 38%);
+  color: hsl(40 65% 35%);
+  text-decoration-color: hsl(40 65% 45%);
 }
 
 .blog-prose ul,
 .blog-prose ol {
   margin-left: 1.5rem;
-  margin-bottom: 1.4em;
+  margin-bottom: 1.5em;
 }
 
 .blog-prose li {
-  margin-bottom: 0.5em;
+  margin-bottom: 0.55em;
   line-height: 1.75;
 }
 
 /* Premium blockquote — dark card with gold left border */
 .blog-prose blockquote {
-  margin: 2rem 0;
-  padding: 1.25rem 1.5rem;
-  background: hsl(220 20% 12%);
+  margin: 2.5rem 0;
+  padding: 1.4rem 1.6rem;
+  background: hsl(220 22% 11%);
   border-left: 4px solid hsl(40 65% 55%);
-  border-radius: 0 0.75rem 0.75rem 0;
-  color: hsl(40 30% 90%);
+  border-radius: 0 0.875rem 0.875rem 0;
   font-size: 1.05rem;
   font-style: normal;
   font-weight: 500;
-  line-height: 1.7;
+  line-height: 1.75;
+  box-shadow: 0 4px 24px hsl(220 20% 5% / 0.18);
 }
 
 .blog-prose blockquote p {
   margin-bottom: 0;
-  color: hsl(40 30% 90%);
+  color: hsl(40 20% 88%);
 }
 
-/* Premium tables — alternating gold shading */
+/* Premium tables — dark header, alternating gold row shading */
 .blog-prose table {
   width: 100%;
   border-collapse: collapse;
-  margin: 2rem 0;
+  margin: 2.5rem 0;
   font-size: 0.9rem;
-  border-radius: 0.75rem;
+  border-radius: 0.875rem;
   overflow: hidden;
-  box-shadow: 0 2px 12px hsl(220 20% 10% / 0.07);
+  box-shadow: 0 2px 16px hsl(220 20% 10% / 0.08);
 }
 
 .blog-prose thead tr {
-  background: hsl(220 20% 14%);
+  background: hsl(220 22% 12%);
 }
 
 .blog-prose thead th {
-  padding: 0.85rem 1.1rem;
+  padding: 0.9rem 1.2rem;
   text-align: left;
   font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.04em;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: hsl(40 65% 75%);
+  color: hsl(40 70% 74%);
   border: none;
 }
 
@@ -868,19 +872,20 @@
 }
 
 .blog-prose tbody tr:hover {
-  background: hsl(40 65% 55% / 0.1);
+  background: hsl(40 65% 55% / 0.11);
+  transition: background 0.12s;
 }
 
 .blog-prose td {
-  padding: 0.75rem 1.1rem;
-  border-bottom: 1px solid hsl(220 10% 92%);
+  padding: 0.8rem 1.2rem;
+  border-bottom: 1px solid hsl(220 10% 91%);
   color: hsl(220 20% 20%);
   vertical-align: top;
 }
 
 .blog-prose code {
   font-size: 0.85em;
-  background: hsl(220 15% 94%);
+  background: hsl(220 15% 93%);
   padding: 0.15em 0.45em;
   border-radius: 0.3rem;
   font-family: ui-monospace, monospace;
@@ -888,13 +893,14 @@
 }
 
 .blog-prose pre {
-  background: hsl(220 20% 12%);
+  background: hsl(220 22% 11%);
   color: hsl(40 30% 92%);
   padding: 1.5rem;
-  border-radius: 0.75rem;
+  border-radius: 0.875rem;
   overflow-x: auto;
-  margin: 1.5rem 0;
+  margin: 2rem 0;
   font-size: 0.85rem;
+  box-shadow: 0 4px 20px hsl(220 20% 5% / 0.15);
 }
 
 .blog-prose pre code {
@@ -906,12 +912,13 @@
 .blog-prose hr {
   border: none;
   border-top: 1px solid hsl(220 10% 88%);
-  margin: 2.5rem 0;
+  margin: 3rem 0;
 }
 
 .blog-prose img {
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 20px hsl(220 20% 10% / 0.1);
+  border-radius: 0.875rem;
+  box-shadow: 0 4px 24px hsl(220 20% 10% / 0.1);
   max-width: 100%;
-  margin: 1.5rem 0;
+  margin: 2rem 0;
+  display: block;
 }
