@@ -22,7 +22,6 @@ export function ResaleHeroSection() {
         className="absolute inset-0 w-full h-full object-cover"
         loading="eager"
         decoding="sync"
-        fetchPriority="high"
       />
       
       {/* Gradient Overlay */}

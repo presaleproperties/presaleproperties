@@ -75,7 +75,6 @@ export function NewHomesHero({ onOpenLeadForm }: NewHomesHeroProps) {
           alt="Ready-to-Move-In New Homes in Metro Vancouver"
           className="h-full w-full object-cover"
           loading="eager"
-          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-black/75" />
       </div>
