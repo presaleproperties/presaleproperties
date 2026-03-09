@@ -171,7 +171,6 @@ export function PresaleProjectCard({
                 className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] will-change-transform"
                 loading="lazy"
                 decoding="async"
-                fetchPriority="auto"
                 style={{ transform: 'translateZ(0)', contentVisibility: 'auto' }}
               />
 
