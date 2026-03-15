@@ -58,6 +58,7 @@ const DEFAULT_INPUTS: SnapshotInputs = {
   strataFees: 300,
   propertyTax: 130,
   includeGST: true,
+  includePTT: true,
   holdingPeriodYears: 5,
   appreciationRate: 3,
   creditPercent: 0,
