@@ -2,13 +2,13 @@ import { SectionCard, StatGrid, Checklist, SectionLabel, CostRow } from "./share
 
 export function StepChooseUnit() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-      <div className="space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+      <div className="space-y-5 sm:space-y-6">
         <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight mb-3">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight mb-2 sm:mb-3">
             Choose Your Unit
           </h2>
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
             Selecting the right unit goes beyond square footage. Floor level, orientation, and corner-vs-interior all affect your long-term value and liveability.
           </p>
         </div>
