@@ -201,7 +201,7 @@ export function InvestmentSnapshot() {
     return {
       firstDeposit, secondDeposit, totalDeposits, downPayment, remainingDownPayment,
       baseMortgageAmount, cmhcPremium, mortgageAmount, monthlyMortgage,
-      ptt, gst, priceWithGST, creditTotal, cashAtCompletion, totalCashRequired,
+      ptt, pttRaw, gst, priceWithGST, creditTotal, cashAtCompletion, totalCashRequired,
       totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
       principalPaid, remainingBalance, futureValue, appreciation,
       totalEquityBuilt, totalCashFlowOverPeriod, totalReturn, roiPercent
