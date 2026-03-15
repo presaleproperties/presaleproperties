@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 interface StepNavigatorProps {
   currentStep: number;
   totalSteps: number;
@@ -9,49 +11,51 @@ export function StepNavigator({ currentStep, totalSteps, steps, onStepClick }: S
   return (
     <div className="w-full">
       {/* Progress bar */}
-      <div className="h-[2px] w-full bg-[rgba(201,169,110,0.12)] mb-6 relative">
+      <div className="h-1.5 w-full bg-secondary rounded-full mb-6 overflow-hidden">
         <div
-          className="h-full bg-[#C9A96E] transition-all duration-500 ease-out"
+          className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
           style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
         />
       </div>
 
-      {/* Step pills */}
-      <div className="flex items-start gap-0 overflow-x-auto scrollbar-hide pb-1">
-        {steps.map((step, idx) => {
+      {/* Step tabs */}
+      <div className="flex items-stretch overflow-x-auto scrollbar-hide gap-0 border-b border-border">
+        {steps.map((step) => {
           const isActive = step.number === currentStep;
           const isCompleted = step.number < currentStep;
           return (
             <button
               key={step.number}
               onClick={() => onStepClick(step.number)}
-              className={`flex flex-col items-center gap-1.5 px-3 md:px-4 min-w-[60px] md:min-w-[80px] group flex-1 transition-all duration-200 ${
-                isActive ? "opacity-100" : isCompleted ? "opacity-60 hover:opacity-80" : "opacity-30 hover:opacity-50"
-              }`}
+              className={cn(
+                "relative flex flex-col items-center gap-1 px-2 md:px-4 pb-3 pt-1 min-w-[56px] md:min-w-[72px] flex-1 transition-all duration-200 group",
+                isActive ? "opacity-100" : isCompleted ? "opacity-70 hover:opacity-90" : "opacity-35 hover:opacity-55"
+              )}
             >
-              {/* Numeral */}
+              {/* Number */}
               <span
-                className="font-['Cormorant_Garamond'] font-light leading-none transition-all duration-200"
-                style={{
-                  fontSize: "clamp(22px, 3vw, 36px)",
-                  color: isActive ? "#C9A96E" : isCompleted ? "#C9A96E" : "#8A8078",
-                }}
+                className={cn(
+                  "font-bold tabular-nums leading-none text-lg md:text-2xl transition-colors duration-200",
+                  isActive ? "text-primary" : isCompleted ? "text-primary/70" : "text-muted-foreground"
+                )}
               >
                 {String(step.number).padStart(2, "0")}
               </span>
               {/* Label */}
               <span
-                className="text-[10px] md:text-[11px] tracking-wide text-center leading-tight hidden sm:block"
-                style={{ color: isActive ? "#F5F0E8" : "#8A8078", fontFamily: "DM Sans, sans-serif" }}
+                className={cn(
+                  "text-[9px] md:text-[10px] uppercase tracking-wide text-center leading-tight hidden sm:block font-medium",
+                  isActive ? "text-foreground" : "text-muted-foreground"
+                )}
               >
                 {step.label}
               </span>
-              {/* Bottom indicator */}
+              {/* Active underline */}
               <div
-                className="h-[2px] w-full transition-all duration-300"
-                style={{
-                  background: isActive ? "#C9A96E" : "transparent",
-                }}
+                className={cn(
+                  "absolute bottom-0 left-0 right-0 h-0.5 rounded-full transition-all duration-300",
+                  isActive ? "bg-primary" : "bg-transparent"
+                )}
               />
             </button>
           );

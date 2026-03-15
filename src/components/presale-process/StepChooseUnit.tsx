@@ -5,17 +5,13 @@ export function StepChooseUnit() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
       <div className="space-y-6">
         <div>
-          <h2
-            className="font-['Cormorant_Garamond'] font-light leading-[1.1] mb-3"
-            style={{ fontSize: "clamp(28px, 4vw, 42px)", color: "#F5F0E8" }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight mb-3">
             Choose Your Unit
           </h2>
-          <p className="text-sm leading-relaxed max-w-md" style={{ color: "#8A8078", fontFamily: "DM Sans, sans-serif" }}>
+          <p className="text-muted-foreground leading-relaxed">
             Selecting the right unit goes beyond square footage. Floor level, orientation, and corner-vs-interior all affect your long-term value and liveability.
           </p>
         </div>
-
         <Checklist
           items={[
             "Higher floors carry a 1–3% premium per level",
