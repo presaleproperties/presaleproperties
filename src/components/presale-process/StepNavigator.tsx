@@ -11,15 +11,18 @@ export function StepNavigator({ currentStep, totalSteps, steps, onStepClick }: S
   return (
     <div className="w-full">
       {/* Progress bar */}
-      <div className="h-1.5 w-full bg-secondary rounded-full mb-6 overflow-hidden">
+      <div className="h-1.5 w-full bg-secondary rounded-full mb-5 overflow-hidden">
         <div
           className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
           style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
         />
       </div>
 
-      {/* Step tabs */}
-      <div className="flex items-stretch overflow-x-auto scrollbar-hide gap-0 border-b border-border">
+      {/* Step tabs — scrollable on mobile, distribute evenly on larger screens */}
+      <div
+        className="flex items-stretch border-b border-border overflow-x-auto"
+        style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
         {steps.map((step) => {
           const isActive = step.number === currentStep;
           const isCompleted = step.number < currentStep;
@@ -27,33 +30,44 @@ export function StepNavigator({ currentStep, totalSteps, steps, onStepClick }: S
             <button
               key={step.number}
               onClick={() => onStepClick(step.number)}
+              aria-label={`Step ${step.number}: ${step.label}`}
               className={cn(
-                "relative flex flex-col items-center gap-1 px-2 md:px-4 pb-3 pt-1 min-w-[56px] md:min-w-[72px] flex-1 transition-all duration-200 group",
-                isActive ? "opacity-100" : isCompleted ? "opacity-70 hover:opacity-90" : "opacity-35 hover:opacity-55"
+                "relative flex flex-col items-center justify-center gap-0.5",
+                // Mobile: fixed width so all 8 fit within scroll; tablet+: flex-1
+                "min-w-[52px] sm:min-w-0 sm:flex-1",
+                "px-1.5 sm:px-3 py-2.5 sm:pb-3",
+                // Touch target
+                "min-h-[52px]",
+                "transition-all duration-200 select-none",
+                isActive ? "opacity-100" : isCompleted ? "opacity-65 hover:opacity-85" : "opacity-30 hover:opacity-50"
               )}
             >
-              {/* Number */}
+              {/* Step number */}
               <span
                 className={cn(
-                  "font-bold tabular-nums leading-none text-lg md:text-2xl transition-colors duration-200",
+                  "font-bold tabular-nums leading-none transition-colors duration-200",
+                  // Smaller on mobile to prevent overflow
+                  "text-base sm:text-xl md:text-2xl",
                   isActive ? "text-primary" : isCompleted ? "text-primary/70" : "text-muted-foreground"
                 )}
               >
                 {String(step.number).padStart(2, "0")}
               </span>
-              {/* Label */}
+              {/* Label — visible sm+ only */}
               <span
                 className={cn(
-                  "text-[9px] md:text-[10px] uppercase tracking-wide text-center leading-tight hidden sm:block font-medium",
+                  "text-[9px] sm:text-[10px] uppercase tracking-wide text-center leading-tight hidden sm:block font-medium",
+                  "whitespace-nowrap overflow-hidden text-ellipsis w-full text-center",
                   isActive ? "text-foreground" : "text-muted-foreground"
                 )}
+                style={{ maxWidth: "72px" }}
               >
                 {step.label}
               </span>
               {/* Active underline */}
               <div
                 className={cn(
-                  "absolute bottom-0 left-0 right-0 h-0.5 rounded-full transition-all duration-300",
+                  "absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-300",
                   isActive ? "bg-primary" : "bg-transparent"
                 )}
               />
