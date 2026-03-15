@@ -118,6 +118,7 @@ const ContentHub = lazy(() => import("./pages/ContentHub"));
 const BlogCategoryPage = lazy(() => import("./pages/BlogCategoryPage"));
 const AdLandingPage = lazy(() => import("./pages/AdLandingPage"));
 const PresaleCompletionYearPage = lazy(() => import("./pages/PresaleCompletionYearPage"));
+const PresaleProcess = lazy(() => import("./pages/PresaleProcess"));
 
 const BuyerAuth = lazy(() => import("./pages/BuyerAuth"));
 const BuyerLogin = lazy(() => import("./pages/BuyerLogin"));
