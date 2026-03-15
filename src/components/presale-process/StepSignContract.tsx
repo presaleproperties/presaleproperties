@@ -5,17 +5,13 @@ export function StepSignContract() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
       <div className="space-y-6">
         <div>
-          <h2
-            className="font-['Cormorant_Garamond'] font-light leading-[1.1] mb-3"
-            style={{ fontSize: "clamp(28px, 4vw, 42px)", color: "#F5F0E8" }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight mb-3">
             Review &amp; Sign the Contract
           </h2>
-          <p className="text-sm leading-relaxed max-w-md" style={{ color: "#8A8078", fontFamily: "DM Sans, sans-serif" }}>
+          <p className="text-muted-foreground leading-relaxed">
             The Contract of Purchase and Sale is a binding agreement. BC law gives you a 7-day rescission period — use it wisely. Have your lawyer review every clause before the window closes.
           </p>
         </div>
-
         <Checklist
           items={[
             "You have 7 calendar days to rescind (with 0.25% penalty)",
@@ -43,19 +39,17 @@ export function StepSignContract() {
 
         <SectionCard>
           <SectionLabel text="2-5-10 warranty explained" />
-          <div className="space-y-3 text-sm" style={{ color: "#8A8078", fontFamily: "DM Sans, sans-serif" }}>
-            <div className="flex gap-3">
-              <span className="font-['Cormorant_Garamond'] text-lg font-semibold" style={{ color: "#C9A96E" }}>2yr</span>
-              <p>Materials and labour defects</p>
-            </div>
-            <div className="flex gap-3">
-              <span className="font-['Cormorant_Garamond'] text-lg font-semibold" style={{ color: "#C9A96E" }}>5yr</span>
-              <p>Building envelope (water penetration)</p>
-            </div>
-            <div className="flex gap-3">
-              <span className="font-['Cormorant_Garamond'] text-lg font-semibold" style={{ color: "#C9A96E" }}>10yr</span>
-              <p>Structural defects</p>
-            </div>
+          <div className="space-y-3">
+            {[
+              { years: "2yr", desc: "Materials and labour defects" },
+              { years: "5yr", desc: "Building envelope (water penetration)" },
+              { years: "10yr", desc: "Structural defects" },
+            ].map((item) => (
+              <div key={item.years} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
+                <span className="text-lg font-bold text-primary tabular-nums w-10 flex-shrink-0">{item.years}</span>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </SectionCard>
       </div>

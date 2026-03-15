@@ -5,17 +5,13 @@ export function StepPDI() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
       <div className="space-y-6">
         <div>
-          <h2
-            className="font-['Cormorant_Garamond'] font-light leading-[1.1] mb-3"
-            style={{ fontSize: "clamp(28px, 4vw, 42px)", color: "#F5F0E8" }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight mb-3">
             Final Walkthrough (PDI)
           </h2>
-          <p className="text-sm leading-relaxed max-w-md" style={{ color: "#8A8078", fontFamily: "DM Sans, sans-serif" }}>
+          <p className="text-muted-foreground leading-relaxed">
             The Pre-Delivery Inspection is your opportunity to document any deficiencies before you move in. Be thorough — anything missed here becomes harder to claim later under warranty.
           </p>
         </div>
-
         <Checklist
           items={[
             "Test every faucet, switch, outlet, and appliance",
@@ -45,14 +41,21 @@ export function StepPDI() {
 
         <SectionCard>
           <SectionLabel text="What to bring" />
-          <div className="space-y-2 text-sm" style={{ color: "#8A8078", fontFamily: "DM Sans, sans-serif" }}>
-            {["Phone or camera for documentation", "Blue painter's tape (mark defects)", "Notebook and pen", "Phone charger (to test outlets)", "Level tool (check counters, floors)", "Your signed contract for reference"].map((item) => (
-              <div key={item} className="flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: "#C9A96E" }} />
-                <span>{item}</span>
-              </div>
+          <ul className="space-y-2">
+            {[
+              "Phone or camera for documentation",
+              "Blue painter's tape (mark defects)",
+              "Notebook and pen",
+              "Phone charger (to test outlets)",
+              "Level tool (check counters, floors)",
+              "Your signed contract for reference",
+            ].map((item) => (
+              <li key={item} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                {item}
+              </li>
             ))}
-          </div>
+          </ul>
         </SectionCard>
       </div>
     </div>
