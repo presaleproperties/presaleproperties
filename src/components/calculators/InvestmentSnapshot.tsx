@@ -182,7 +182,8 @@ export function InvestmentSnapshot() {
     const cmhcPremium = calculateCMHCPremium(priceWithGST, inputs.downPaymentPercent);
     const mortgageAmount = baseMortgageAmount + cmhcPremium;
     const monthlyMortgage = calculateMonthlyMortgage(mortgageAmount, inputs.interestRate, inputs.amortizationYears);
-    const ptt = isFirstTimeBuyer ? 0 : calculatePTT(inputs.purchasePrice, false);
+    const pttRaw = calculatePTT(inputs.purchasePrice, false);
+    const ptt = isFirstTimeBuyer ? 0 : (inputs.includePTT ? pttRaw : 0);
     const creditTotal = Math.max(inputs.purchasePrice * (inputs.creditPercent / 100), inputs.creditAmount);
     const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
     const cashAtCompletion = Math.max(0, remainingDownPayment + ptt + inputs.closingCosts - creditTotal);
