@@ -483,11 +483,26 @@ export function InvestmentSnapshot() {
                       <div className="flex items-center justify-between py-2.5 border-t border-border/40">
                         <div>
                           <span className="text-[13px] font-semibold text-foreground">Property Transfer Tax</span>
-                          {isFirstTimeBuyer && <p className="text-[11px] text-green-600 font-medium">✓ First-time buyer exempt</p>}
+                          {isFirstTimeBuyer
+                            ? <p className="text-[11px] text-green-600 font-medium">✓ First-time buyer exempt</p>
+                            : <p className="text-[11px] text-muted-foreground">BC tiered rate on purchase price</p>
+                          }
                         </div>
-                        <span className={cn("text-[13px] font-bold", isFirstTimeBuyer && "text-green-600 line-through opacity-60")}>
-                          {fmt(isFirstTimeBuyer ? calculatePTT(inputs.purchasePrice, false) : results.ptt)}
-                        </span>
+                        {isFirstTimeBuyer ? (
+                          <span className="text-[13px] font-bold text-green-600 line-through opacity-60">
+                            {fmt(results.pttRaw)}
+                          </span>
+                        ) : (
+                          <div className="flex items-center gap-2.5">
+                            <span className={cn("text-[13px] font-bold", !inputs.includePTT && "text-muted-foreground line-through opacity-50")}>
+                              {fmt(results.pttRaw)}
+                            </span>
+                            <Switch
+                              checked={inputs.includePTT}
+                              onCheckedChange={(v) => updateInput('includePTT', v)}
+                            />
+                          </div>
+                        )}
                       </div>
 
                       {/* Developer Credit */}
