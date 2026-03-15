@@ -1,4 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
+import { Helmet } from "react-helmet-async";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
+import { Footer } from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
 import { StepNavigator } from "@/components/presale-process/StepNavigator";
 import { StepGetPreApproved } from "@/components/presale-process/StepGetPreApproved";
 import { StepRegisterAccess } from "@/components/presale-process/StepRegisterAccess";
@@ -8,7 +12,7 @@ import { StepPayDeposits } from "@/components/presale-process/StepPayDeposits";
 import { StepTrackConstruction } from "@/components/presale-process/StepTrackConstruction";
 import { StepPDI } from "@/components/presale-process/StepPDI";
 import { StepCompletionKeys } from "@/components/presale-process/StepCompletionKeys";
-import { Phone, ArrowRight, ArrowLeft, RotateCcw } from "lucide-react";
+import { Phone, ArrowRight, ArrowLeft, RotateCcw, Shield, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const STEPS = [
@@ -51,249 +55,204 @@ export default function PresaleProcess() {
       setVisible(true);
       setAnimating(false);
       contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 280);
+    }, 260);
   };
 
   const StepContent = STEP_COMPONENTS[currentStep];
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: "#0D0D0D", fontFamily: "DM Sans, sans-serif" }}
-    >
-      {/* Load fonts */}
+    <>
+      <Helmet>
+        <title>How to Buy a Presale Condo in Vancouver — 8-Step Guide | Presale Properties</title>
+        <meta
+          name="description"
+          content="A complete 8-step guide to buying a presale condo in Vancouver, BC — from pre-approval to receiving your keys. Expert guidance at no extra cost."
+        />
+      </Helmet>
+
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
-        
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        
         @keyframes stepFadeUp {
-          from { opacity: 0; transform: translateY(18px); }
+          from { opacity: 0; transform: translateY(14px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes stepFadeDown {
-          from { opacity: 0; transform: translateY(-18px); }
+          from { opacity: 0; transform: translateY(-14px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .step-enter-forward { animation: stepFadeUp 0.35s ease-out forwards; }
-        .step-enter-back    { animation: stepFadeDown 0.35s ease-out forwards; }
+        .step-enter-forward { animation: stepFadeUp 0.32s ease-out forwards; }
+        .step-enter-back    { animation: stepFadeDown 0.32s ease-out forwards; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      {/* Top accent line */}
-      <div className="w-full h-[2px]" style={{ background: "#C9A96E" }} />
+      <ConversionHeader />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-10 lg:py-16">
+      <main className="min-h-screen bg-background">
 
-        {/* Header */}
-        <div className="mb-10 lg:mb-14">
-          <p
-            className="text-[10px] uppercase tracking-[0.25em] mb-3"
-            style={{ color: "#C9A96E", fontFamily: "DM Sans, sans-serif" }}
-          >
-            Presale Properties · Vancouver, BC
-          </p>
-          <h1
-            className="font-['Cormorant_Garamond'] font-light leading-[1.05] mb-4"
-            style={{ fontSize: "clamp(32px, 5vw, 60px)", color: "#F5F0E8" }}
-          >
-            How to Buy a Presale<br />
-            <span style={{ color: "#C9A96E" }}>in Vancouver</span>
-          </h1>
-          <p
-            className="text-sm max-w-xl leading-relaxed"
-            style={{ color: "#8A8078", fontFamily: "DM Sans, sans-serif" }}
-          >
-            An 8-step guide to navigating the presale condo process — from pre-approval through to receiving your keys. No fluff. Just clarity.
-          </p>
-        </div>
+        {/* ── Hero ─────────────────────────────────────────────── */}
+        <section className="bg-gradient-to-b from-secondary/60 to-background border-b border-border">
+          <div className="container max-w-5xl mx-auto px-4 lg:px-6 py-12 lg:py-16">
+            {/* Eyebrow */}
+            <div className="flex items-center gap-2 mb-4">
+              <Shield size={13} className="text-primary" />
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+                Expert Help. No Extra Cost.
+              </span>
+            </div>
 
-        {/* Step Navigator */}
-        <div className="mb-10 lg:mb-12">
-          <StepNavigator
-            currentStep={currentStep}
-            totalSteps={STEPS.length}
-            steps={STEPS}
-            onStepClick={goToStep}
-          />
-        </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-end">
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-[1.05] mb-4">
+                  How to Buy a Presale
+                  <span className="text-primary"> in Vancouver</span>
+                </h1>
+                <p className="text-muted-foreground leading-relaxed max-w-lg">
+                  An 8-step guide to navigating the presale condo process — from pre-approval through to receiving your keys. No fluff. Just clarity.
+                </p>
+              </div>
 
-        {/* Step label */}
-        <div className="mb-8 flex items-center gap-3">
-          <div
-            className="h-6 w-[2px]"
-            style={{ background: "#C9A96E" }}
-          />
-          <p
-            className="text-xs uppercase tracking-[0.2em]"
-            style={{ color: "#C9A96E", fontFamily: "DM Sans, sans-serif" }}
-          >
-            Step {currentStep} of {STEPS.length} — {STEPS[currentStep - 1].label}
-          </p>
-        </div>
+              {/* Trust signals */}
+              <div className="flex flex-wrap gap-4 lg:justify-end">
+                {[
+                  { value: "400+", label: "Happy Clients" },
+                  { value: "$200M+", label: "In Sales" },
+                  { value: "5.0 ★", label: "Google Rating" },
+                ].map((stat) => (
+                  <div key={stat.label} className="text-center">
+                    <p className="text-2xl font-bold text-primary leading-none">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 font-medium">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
 
-        {/* Step Content */}
-        <div ref={contentRef}>
+        {/* ── Step navigator + content ──────────────────────────── */}
+        <section className="container max-w-5xl mx-auto px-4 lg:px-6 py-10 lg:py-14">
+
+          {/* Navigator */}
+          <div className="mb-8 lg:mb-10">
+            <StepNavigator
+              currentStep={currentStep}
+              totalSteps={STEPS.length}
+              steps={STEPS}
+              onStepClick={goToStep}
+            />
+          </div>
+
+          {/* Step label pill */}
+          <div className="flex items-center gap-3 mb-8" ref={contentRef}>
+            <div className="h-5 w-0.5 bg-primary rounded-full" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+              Step {currentStep} of {STEPS.length} — {STEPS[currentStep - 1].label}
+            </span>
+          </div>
+
+          {/* Animated step content */}
           <div
             key={currentStep}
-            className={visible ? (direction === "forward" ? "step-enter-forward" : "step-enter-back") : "opacity-0"}
+            className={visible
+              ? (direction === "forward" ? "step-enter-forward" : "step-enter-back")
+              : "opacity-0"
+            }
           >
             <StepContent />
           </div>
-        </div>
 
-        {/* Navigation buttons */}
-        <div className="mt-12 lg:mt-16 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          {/* Prev */}
-          <button
-            onClick={() => goToStep(currentStep - 1)}
-            disabled={currentStep === 1}
-            className="flex items-center gap-2 px-6 py-3 text-sm transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed"
-            style={{
-              border: "1px solid rgba(201,169,110,0.4)",
-              color: "#C9A96E",
-              borderRadius: "2px",
-              fontFamily: "DM Sans, sans-serif",
-              background: "transparent",
-            }}
-            onMouseEnter={e => { if (currentStep !== 1) (e.currentTarget as HTMLButtonElement).style.background = "rgba(201,169,110,0.08)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
-          >
-            <ArrowLeft size={15} />
-            Previous Step
-          </button>
+          {/* ── Prev / Next navigation ───────────────────────── */}
+          <div className="mt-12 lg:mt-16 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            {/* Prev */}
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => goToStep(currentStep - 1)}
+              disabled={currentStep === 1}
+              className="gap-2"
+            >
+              <ArrowLeft size={15} />
+              Previous Step
+            </Button>
 
-          {/* Step dots */}
-          <div className="hidden sm:flex items-center gap-1.5">
-            {STEPS.map((s) => (
-              <button
-                key={s.number}
-                onClick={() => goToStep(s.number)}
-                className="transition-all duration-200"
-                style={{
-                  width: s.number === currentStep ? "20px" : "6px",
-                  height: "6px",
-                  borderRadius: "1px",
-                  background: s.number === currentStep
-                    ? "#C9A96E"
-                    : s.number < currentStep
-                    ? "rgba(201,169,110,0.4)"
-                    : "rgba(255,255,255,0.12)",
-                }}
-              />
-            ))}
-          </div>
+            {/* Step dots */}
+            <div className="hidden sm:flex items-center gap-1.5">
+              {STEPS.map((s) => (
+                <button
+                  key={s.number}
+                  onClick={() => goToStep(s.number)}
+                  className="rounded-full transition-all duration-200 hover:opacity-80"
+                  style={{
+                    width: s.number === currentStep ? "20px" : "7px",
+                    height: "7px",
+                    background: s.number === currentStep
+                      ? "hsl(var(--primary))"
+                      : s.number < currentStep
+                      ? "hsl(var(--primary) / 0.35)"
+                      : "hsl(var(--border))",
+                  }}
+                />
+              ))}
+            </div>
 
-          {/* Next */}
-          {currentStep < STEPS.length ? (
-            <button
-              onClick={() => goToStep(currentStep + 1)}
-              className="flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200"
-              style={{
-                background: "#C9A96E",
-                color: "#0D0D0D",
-                borderRadius: "2px",
-                fontFamily: "DM Sans, sans-serif",
-                border: "none",
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "#D4B07A"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "#C9A96E"; }}
-            >
-              Next Step
-              <ArrowRight size={15} />
-            </button>
-          ) : (
-            <button
-              onClick={() => goToStep(1)}
-              className="flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200"
-              style={{
-                background: "#C9A96E",
-                color: "#0D0D0D",
-                borderRadius: "2px",
-                fontFamily: "DM Sans, sans-serif",
-                border: "none",
-              }}
-            >
-              <RotateCcw size={14} />
-              Start Over
-            </button>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div className="my-14 lg:my-20" style={{ borderTop: "1px solid rgba(201,169,110,0.14)" }} />
-
-        {/* CTA Strip */}
-        <div
-          className="relative p-8 lg:p-12"
-          style={{
-            background: "#141414",
-            borderTop: "2px solid #C9A96E",
-            borderRight: "1px solid rgba(201,169,110,0.18)",
-            borderBottom: "1px solid rgba(201,169,110,0.18)",
-            borderLeft: "1px solid rgba(201,169,110,0.18)",
-            borderRadius: "3px",
-          }}
-        >
-          <div className="max-w-2xl">
-            <p
-              className="text-[10px] uppercase tracking-[0.2em] mb-3"
-              style={{ color: "#C9A96E", fontFamily: "DM Sans, sans-serif" }}
-            >
-              Ready to move forward?
-            </p>
-            <h3
-              className="font-['Cormorant_Garamond'] font-light mb-3"
-              style={{ fontSize: "clamp(24px, 3.5vw, 38px)", color: "#F5F0E8" }}
-            >
-              We've helped hundreds of buyers navigate this process.
-            </h3>
-            <p
-              className="text-sm leading-relaxed mb-8 max-w-lg"
-              style={{ color: "#8A8078", fontFamily: "DM Sans, sans-serif" }}
-            >
-              Get a free 20-minute strategy call with a presale specialist. We'll review your timeline, budget, and the projects that make sense for you.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                to="/contact"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-medium transition-all duration-200"
-                style={{
-                  background: "#C9A96E",
-                  color: "#0D0D0D",
-                  borderRadius: "2px",
-                  fontFamily: "DM Sans, sans-serif",
-                  textDecoration: "none",
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "#D4B07A"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "#C9A96E"; }}
+            {/* Next */}
+            {currentStep < STEPS.length ? (
+              <Button
+                size="lg"
+                onClick={() => goToStep(currentStep + 1)}
+                className="gap-2"
               >
-                <Phone size={14} />
-                Book a Free Call
-              </Link>
-              <button
-                onClick={() => goToStep(1)}
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm transition-all duration-200"
-                style={{
-                  border: "1px solid rgba(201,169,110,0.4)",
-                  color: "#C9A96E",
-                  borderRadius: "2px",
-                  fontFamily: "DM Sans, sans-serif",
-                  background: "transparent",
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(201,169,110,0.08)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
-              >
+                Next Step
+                <ArrowRight size={15} />
+              </Button>
+            ) : (
+              <Button size="lg" onClick={() => goToStep(1)} className="gap-2">
                 <RotateCcw size={14} />
-                Review the Process
-              </button>
+                Start Over
+              </Button>
+            )}
+          </div>
+        </section>
+
+        {/* ── CTA strip ────────────────────────────────────────── */}
+        <section className="border-t border-border bg-secondary/40">
+          <div className="container max-w-5xl mx-auto px-4 lg:px-6 py-12 lg:py-16">
+            <div className="rounded-2xl border border-border bg-card shadow-card p-8 lg:p-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Building2 size={14} className="text-primary" />
+                    <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+                      Ready to move forward?
+                    </span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight mb-3">
+                    We've helped 400+ buyers navigate this process.
+                  </h2>
+                  <p className="text-muted-foreground leading-relaxed text-sm">
+                    Get a free 20-minute strategy call with a presale specialist. We'll review your timeline, budget, and the projects that make sense for you — at no extra cost.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 lg:justify-end">
+                  <Button size="xl" asChild className="gap-2 shadow-gold">
+                    <Link to="/contact">
+                      <Phone size={15} />
+                      Book a Free Call
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="xl" onClick={() => goToStep(1)} className="gap-2">
+                    <RotateCcw size={14} />
+                    Review the Process
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Footer spacing */}
-        <div className="pb-16" />
-      </div>
-    </div>
+      </main>
+
+      <Footer />
+    </>
   );
 }
