@@ -118,6 +118,7 @@ const ContentHub = lazy(() => import("./pages/ContentHub"));
 const BlogCategoryPage = lazy(() => import("./pages/BlogCategoryPage"));
 const AdLandingPage = lazy(() => import("./pages/AdLandingPage"));
 const PresaleCompletionYearPage = lazy(() => import("./pages/PresaleCompletionYearPage"));
+const PresaleProcess = lazy(() => import("./pages/PresaleProcess"));
 
 const BuyerAuth = lazy(() => import("./pages/BuyerAuth"));
 const BuyerLogin = lazy(() => import("./pages/BuyerLogin"));
@@ -259,6 +260,7 @@ const App = () => (
             
             <Route path="/buyers-guide" element={<BuyersGuide />} />
             <Route path="/presale-guide" element={<PresaleGuide />} />
+            <Route path="/presale-process" element={<PresaleProcess />} />
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
             <Route path="/roi-calculator" element={<ROICalculator />} />
             <Route path="/calculator" element={<InvestmentSnapshotPage />} />
