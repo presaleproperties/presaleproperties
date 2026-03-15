@@ -35,6 +35,7 @@ interface SnapshotInputs {
   strataFees: number;
   propertyTax: number;
   includeGST: boolean;
+  includePTT: boolean;
   holdingPeriodYears: number;
   appreciationRate: number;
   creditPercent: number;
