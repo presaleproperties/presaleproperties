@@ -2,14 +2,14 @@ import { SectionCard, MilestoneTimeline, Checklist, SectionLabel, StatGrid } fro
 
 export function StepTrackConstruction() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-      <div className="space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+      <div className="space-y-5 sm:space-y-6">
         <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight mb-3">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight mb-2 sm:mb-3">
             Track Construction
           </h2>
-          <p className="text-muted-foreground leading-relaxed">
-            From groundbreaking to topping out, you'll want to stay informed on your building's progress. Pay attention to the sunset clause date — if the developer can't complete by then, they can cancel the contract.
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            From groundbreaking to topping out, stay informed on your building's progress. Pay attention to the sunset clause date — if the developer can't complete by then, they can cancel the contract.
           </p>
         </div>
         <Checklist
