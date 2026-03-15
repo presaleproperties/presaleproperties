@@ -72,17 +72,18 @@ export default function PresaleProcess() {
 
       <style>{`
         @keyframes stepFadeUp {
-          from { opacity: 0; transform: translateY(14px); }
+          from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes stepFadeDown {
-          from { opacity: 0; transform: translateY(-14px); }
+          from { opacity: 0; transform: translateY(-12px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .step-enter-forward { animation: stepFadeUp 0.32s ease-out forwards; }
-        .step-enter-back    { animation: stepFadeDown 0.32s ease-out forwards; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .step-enter-forward { animation: stepFadeUp 0.3s ease-out forwards; }
+        .step-enter-back    { animation: stepFadeDown 0.3s ease-out forwards; }
+        /* hide nav scrollbar */
+        .nav-scroll::-webkit-scrollbar { display: none; }
+        .nav-scroll { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
       <ConversionHeader />
@@ -91,36 +92,38 @@ export default function PresaleProcess() {
 
         {/* ── Hero ─────────────────────────────────────────────── */}
         <section className="bg-gradient-to-b from-secondary/60 to-background border-b border-border">
-          <div className="container max-w-5xl mx-auto px-4 lg:px-6 py-12 lg:py-16">
+          <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
+
             {/* Eyebrow */}
-            <div className="flex items-center gap-2 mb-4">
-              <Shield size={13} className="text-primary" />
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <Shield size={13} className="text-primary flex-shrink-0" />
               <span className="text-xs font-semibold uppercase tracking-widest text-primary">
                 Expert Help. No Extra Cost.
               </span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-end">
-              <div>
-                <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-[1.05] mb-4">
+            {/* Heading + trust stats: stack on mobile, side-by-side lg+ */}
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 lg:gap-10">
+              <div className="min-w-0">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-[1.07] mb-3 sm:mb-4">
                   How to Buy a Presale
                   <span className="text-primary"> in Vancouver</span>
                 </h1>
-                <p className="text-muted-foreground leading-relaxed max-w-lg">
-                  An 8-step guide to navigating the presale condo process — from pre-approval through to receiving your keys. No fluff. Just clarity.
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg">
+                  An 8-step guide to navigating the presale condo process — from pre-approval through to receiving your keys.
                 </p>
               </div>
 
-              {/* Trust signals */}
-              <div className="flex flex-wrap gap-4 lg:justify-end">
+              {/* Trust signals row — always horizontal, even on mobile */}
+              <div className="flex items-center gap-6 sm:gap-8 flex-shrink-0">
                 {[
                   { value: "400+", label: "Happy Clients" },
                   { value: "$200M+", label: "In Sales" },
                   { value: "5.0 ★", label: "Google Rating" },
                 ].map((stat) => (
                   <div key={stat.label} className="text-center">
-                    <p className="text-2xl font-bold text-primary leading-none">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 font-medium">{stat.label}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-primary leading-none">{stat.value}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 font-medium whitespace-nowrap">{stat.label}</p>
                   </div>
                 ))}
               </div>
@@ -129,10 +132,10 @@ export default function PresaleProcess() {
         </section>
 
         {/* ── Step navigator + content ──────────────────────────── */}
-        <section className="container max-w-5xl mx-auto px-4 lg:px-6 py-10 lg:py-14">
+        <section className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-14">
 
           {/* Navigator */}
-          <div className="mb-8 lg:mb-10">
+          <div className="mb-6 sm:mb-8 lg:mb-10 nav-scroll">
             <StepNavigator
               currentStep={currentStep}
               totalSteps={STEPS.length}
@@ -141,108 +144,121 @@ export default function PresaleProcess() {
             />
           </div>
 
-          {/* Step label pill */}
-          <div className="flex items-center gap-3 mb-8" ref={contentRef}>
-            <div className="h-5 w-0.5 bg-primary rounded-full" />
-            <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+          {/* Current step label */}
+          <div className="flex items-center gap-2.5 mb-6 sm:mb-8" ref={contentRef}>
+            <div className="h-4 sm:h-5 w-0.5 bg-primary rounded-full flex-shrink-0" />
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary">
               Step {currentStep} of {STEPS.length} — {STEPS[currentStep - 1].label}
             </span>
           </div>
 
-          {/* Animated step content */}
-          <div
-            key={currentStep}
-            className={visible
-              ? (direction === "forward" ? "step-enter-forward" : "step-enter-back")
-              : "opacity-0"
-            }
-          >
-            <StepContent />
+          {/* Animated step content — overflow hidden prevents any bleedout during animation */}
+          <div className="overflow-hidden">
+            <div
+              key={currentStep}
+              className={visible
+                ? (direction === "forward" ? "step-enter-forward" : "step-enter-back")
+                : "opacity-0 pointer-events-none"
+              }
+            >
+              <StepContent />
+            </div>
           </div>
 
-          {/* ── Prev / Next navigation ───────────────────────── */}
-          <div className="mt-12 lg:mt-16 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            {/* Prev */}
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => goToStep(currentStep - 1)}
-              disabled={currentStep === 1}
-              className="gap-2"
-            >
-              <ArrowLeft size={15} />
-              Previous Step
-            </Button>
+          {/* ── Prev / Next navigation ───────────────────────────── */}
+          <div className="mt-10 sm:mt-12 lg:mt-16 pt-6 sm:pt-8 border-t border-border">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
 
-            {/* Step dots */}
-            <div className="hidden sm:flex items-center gap-1.5">
-              {STEPS.map((s) => (
-                <button
-                  key={s.number}
-                  onClick={() => goToStep(s.number)}
-                  className="rounded-full transition-all duration-200 hover:opacity-80"
-                  style={{
-                    width: s.number === currentStep ? "20px" : "7px",
-                    height: "7px",
-                    background: s.number === currentStep
-                      ? "hsl(var(--primary))"
-                      : s.number < currentStep
-                      ? "hsl(var(--primary) / 0.35)"
-                      : "hsl(var(--border))",
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Next */}
-            {currentStep < STEPS.length ? (
+              {/* Prev — full width on mobile */}
               <Button
+                variant="outline"
                 size="lg"
-                onClick={() => goToStep(currentStep + 1)}
-                className="gap-2"
+                onClick={() => goToStep(currentStep - 1)}
+                disabled={currentStep === 1}
+                className="gap-2 w-full sm:w-auto justify-center"
               >
-                Next Step
-                <ArrowRight size={15} />
+                <ArrowLeft size={15} />
+                Previous Step
               </Button>
-            ) : (
-              <Button size="lg" onClick={() => goToStep(1)} className="gap-2">
-                <RotateCcw size={14} />
-                Start Over
-              </Button>
-            )}
+
+              {/* Step dots — centre, hidden on mobile */}
+              <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0">
+                {STEPS.map((s) => (
+                  <button
+                    key={s.number}
+                    onClick={() => goToStep(s.number)}
+                    aria-label={`Go to step ${s.number}`}
+                    className="rounded-full transition-all duration-200 hover:opacity-80"
+                    style={{
+                      width: s.number === currentStep ? "18px" : "7px",
+                      height: "7px",
+                      background: s.number === currentStep
+                        ? "hsl(var(--primary))"
+                        : s.number < currentStep
+                        ? "hsl(var(--primary) / 0.35)"
+                        : "hsl(var(--border))",
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Next / Start Over — full width on mobile */}
+              {currentStep < STEPS.length ? (
+                <Button
+                  size="lg"
+                  onClick={() => goToStep(currentStep + 1)}
+                  className="gap-2 w-full sm:w-auto justify-center"
+                >
+                  Next Step
+                  <ArrowRight size={15} />
+                </Button>
+              ) : (
+                <Button
+                  size="lg"
+                  onClick={() => goToStep(1)}
+                  className="gap-2 w-full sm:w-auto justify-center"
+                >
+                  <RotateCcw size={14} />
+                  Start Over
+                </Button>
+              )}
+            </div>
           </div>
         </section>
 
         {/* ── CTA strip ────────────────────────────────────────── */}
         <section className="border-t border-border bg-secondary/40">
-          <div className="container max-w-5xl mx-auto px-4 lg:px-6 py-12 lg:py-16">
-            <div className="rounded-2xl border border-border bg-card shadow-card p-8 lg:p-12">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Building2 size={14} className="text-primary" />
+          <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
+            <div className="rounded-xl sm:rounded-2xl border border-border bg-card shadow-card p-6 sm:p-8 lg:p-12">
+              <div className="flex flex-col gap-6 sm:gap-8 lg:flex-row lg:items-center lg:justify-between">
+
+                {/* Copy */}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                    <Building2 size={13} className="text-primary flex-shrink-0" />
                     <span className="text-xs font-semibold uppercase tracking-widest text-primary">
                       Ready to move forward?
                     </span>
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight mb-3">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight mb-2 sm:mb-3">
                     We've helped 400+ buyers navigate this process.
                   </h2>
-                  <p className="text-muted-foreground leading-relaxed text-sm">
-                    Get a free 20-minute strategy call with a presale specialist. We'll review your timeline, budget, and the projects that make sense for you — at no extra cost.
+                  <p className="text-muted-foreground leading-relaxed text-sm max-w-lg">
+                    Get a free 20-minute strategy call with a presale specialist. We'll review your timeline, budget, and the right projects for you — at no extra cost.
                   </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 lg:justify-end">
-                  <Button size="xl" asChild className="gap-2 shadow-gold">
+                {/* CTAs — vertical on mobile, horizontal on sm+ */}
+                <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+                  <Button size="lg" asChild className="gap-2 shadow-gold w-full sm:w-auto justify-center">
                     <Link to="/contact">
                       <Phone size={15} />
                       Book a Free Call
                     </Link>
                   </Button>
-                  <Button variant="outline" size="xl" onClick={() => goToStep(1)} className="gap-2">
+                  <Button variant="outline" size="lg" onClick={() => goToStep(1)} className="gap-2 w-full sm:w-auto justify-center">
                     <RotateCcw size={14} />
-                    Review the Process
+                    Review Process
                   </Button>
                 </div>
               </div>
