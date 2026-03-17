@@ -146,6 +146,7 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
           onClose={() => setLightboxIndex(null)}
           onPrev={handlePrev}
           onNext={handleNext}
+          onJumpTo={handleJumpTo}
         />
       )}
     </section>
