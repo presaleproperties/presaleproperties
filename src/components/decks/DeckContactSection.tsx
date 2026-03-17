@@ -191,7 +191,7 @@ export function DeckContactSection({
                 <span className="text-sm text-muted-foreground ml-2 font-medium">5.0 · Google Reviews</span>
               </div>
 
-              {/* Primary: WhatsApp */}
+              {/* Primary CTA — single unified WhatsApp */}
               <a
                 href={`https://wa.me/${rawNumber}?text=${waMessage}`}
                 target="_blank"
@@ -200,7 +200,7 @@ export function DeckContactSection({
                 style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,0.30)" }}
               >
                 <MessageCircle className="h-5 w-5 shrink-0" />
-                Text {agent.fullName.split(" ")[0]} on WhatsApp
+                I'm Interested
               </a>
 
               {/* Contact links */}
