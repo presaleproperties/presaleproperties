@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { BookingModal } from "./BookingModal";
 import { Phone, Mail, MessageCircle, Star, Award, Globe, Quote } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Review {
+  reviewer_name: string;
+  reviewer_location: string | null;
+  review_text: string;
+  rating: number;
+}
 
 const AGENTS: Record<string, {
   fullName: string;
