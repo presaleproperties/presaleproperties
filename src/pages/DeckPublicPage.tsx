@@ -17,6 +17,7 @@ interface PitchDeck {
   project_name: string;
   tagline: string | null;
   city: string | null;
+  neighborhood: string | null;
   address: string | null;
   developer_name: string | null;
   stories: number | null;
