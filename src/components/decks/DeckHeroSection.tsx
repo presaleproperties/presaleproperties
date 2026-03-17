@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { ChevronDown, Building2, Layers, Calendar, Users, MessageCircle } from "lucide-react";
 
 interface DeckHeroSectionProps {
@@ -105,18 +104,6 @@ export function DeckHeroSection({
 
           <div className="w-12 h-px bg-primary/80" />
 
-          {/* CTA — desktop: floor plans button / mobile: WhatsApp */}
-          <div className="hidden sm:flex">
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={onFloorPlansClick}
-              className="py-3.5 px-8 bg-black/50 border-white/35 text-white hover:bg-black/70 hover:border-white/55 hover:text-white text-sm font-semibold backdrop-blur-sm"
-            >
-              View Floor Plans & Pricing
-            </Button>
-          </div>
-
         </div>
       </div>
 
@@ -138,9 +125,12 @@ export function DeckHeroSection({
       </div>
 
       {/* Scroll indicator — centered, above mobile CTA */}
-      <div className="absolute bottom-28 sm:bottom-6 left-0 right-0 flex flex-col items-center gap-1 animate-bounce z-10 pointer-events-none">
-        <span className="text-white/70 text-[10px] uppercase tracking-widest drop-shadow-md">Scroll</span>
-        <ChevronDown className="h-5 w-5 text-white/70 drop-shadow-md" />
+      <div
+        className="absolute bottom-28 sm:bottom-6 left-0 right-0 flex flex-col items-center gap-1 z-10 cursor-pointer"
+        onClick={onFloorPlansClick}
+      >
+        <span className="text-white/80 text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest drop-shadow-md animate-bounce">View Plans &amp; Pricing</span>
+        <ChevronDown className="h-5 w-5 text-white/80 drop-shadow-md animate-bounce" />
       </div>
     </section>
   );
