@@ -298,18 +298,46 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                     </div>
                   </div>
 
-                  {/* Strata + Tax */}
+                  {/* Strata + Tax — text inputs */}
                   <div className="grid grid-cols-2 gap-3">
-                    {([
-                      { label: "Strata /mo", val: strataFees, set: setStrataFees },
-                      { label: "Tax /mo",    val: propertyTax, set: setPropertyTax },
-                    ] as const).map(({ label, val, set }) => (
-                      <div key={label} className="rounded-xl border border-border/50 p-3">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">{label}</p>
-                        <Slider min={0} max={1500} step={25} value={[val]} onValueChange={([v]) => set(v)} />
-                        <p className="text-center text-sm font-bold text-foreground mt-1">{fmt(val)}</p>
+                    <div className="rounded-xl border border-border/50 p-3">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Strata /mo</p>
+                      <div className="relative">
+                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">$</span>
+                        <input
+                          type="number"
+                          min={0}
+                          max={3000}
+                          value={strataInput}
+                          onChange={(e) => {
+                            setStrataInput(e.target.value);
+                            const n = parseInt(e.target.value, 10);
+                            if (!isNaN(n) && n >= 0) setStrataFees(n);
+                          }}
+                          onBlur={() => setStrataInput(strataFees.toString())}
+                          className="w-full pl-6 pr-2 py-1.5 rounded-lg border border-border/60 bg-background text-sm font-bold text-foreground text-right focus:outline-none focus:ring-1 focus:ring-primary/40"
+                        />
                       </div>
-                    ))}
+                    </div>
+                    <div className="rounded-xl border border-border/50 p-3">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Tax /mo</p>
+                      <div className="relative">
+                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">$</span>
+                        <input
+                          type="number"
+                          min={0}
+                          max={3000}
+                          value={taxInput}
+                          onChange={(e) => {
+                            setTaxInput(e.target.value);
+                            const n = parseInt(e.target.value, 10);
+                            if (!isNaN(n) && n >= 0) setPropertyTax(n);
+                          }}
+                          onBlur={() => setTaxInput(propertyTax.toString())}
+                          className="w-full pl-6 pr-2 py-1.5 rounded-lg border border-border/60 bg-background text-sm font-bold text-foreground text-right focus:outline-none focus:ring-1 focus:ring-primary/40"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Hero: Monthly payment */}

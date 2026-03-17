@@ -345,11 +345,12 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
               </ul>
             </div>
 
-            {/* View on Map */}
+            {/* View on Map — pushed to bottom */}
+            <div className="flex-1" />
             {lat && lng && (
               <Link
                 to={`/map-search?lat=${lat}&lng=${lng}&zoom=15`}
-                className="flex items-center justify-center gap-2 w-full py-2 px-3 bg-background border border-border rounded-lg text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                className="flex items-center justify-center gap-2 w-full py-2.5 px-3 bg-background border border-border rounded-xl text-xs font-semibold text-foreground hover:bg-muted transition-colors mt-2"
               >
                 <MapPin className="h-3.5 w-3.5 text-primary" />
                 View on Map
