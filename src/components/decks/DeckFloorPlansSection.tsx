@@ -43,13 +43,13 @@ export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps
                 onMouseLeave={() => setHovered(null)}
               >
                 {/* Image area */}
-                <div className="aspect-[4/3] bg-muted overflow-hidden relative">
+                <div className="aspect-[4/3] bg-muted/40 overflow-hidden relative flex items-center justify-center">
                   {plan.image_url ? (
                     <>
                       <img
                         src={plan.image_url}
                         alt={plan.unit_type}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 p-2"
                       />
                       {/* Overlay on hover */}
                       <div className={`absolute inset-0 bg-primary/20 flex items-center justify-center transition-opacity duration-300 ${hovered === plan.id ? 'opacity-100' : 'opacity-0'}`}>
