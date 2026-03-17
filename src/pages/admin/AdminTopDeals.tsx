@@ -69,6 +69,7 @@ interface FloorPlan {
     interior_sqft?: number | null;
     exterior_sqft?: number | null;
     floor_plan_name?: string | null;
+    exposure?: string | null;
   } | null;
   customPrice: string;
   customRent: string;
