@@ -69,20 +69,20 @@ interface FloorPlan {
     interior_sqft?: number | null;
     exterior_sqft?: number | null;
     floor_plan_name?: string | null;
+    exposure?: string | null;
   } | null;
   customPrice: string;
   customRent: string;
 }
 
-const SLIDES = ["overview", "gallery", "map", "floorplans", "numbers"] as const;
+const SLIDES = ["overview", "gallery", "map", "floorplans"] as const;
 type Slide = typeof SLIDES[number];
 
 const SLIDE_LABELS: Record<Slide, string> = {
   overview: "Overview",
   gallery: "Gallery",
   map: "Location",
-  floorplans: "Floor Plans",
-  numbers: "The Numbers",
+  floorplans: "Floor Plans & Numbers",
 };
 
 function fmt(n: number | null | undefined) {
@@ -124,6 +124,7 @@ export default function AdminTopDeals() {
   const [amort, setAmort] = useState(25);
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
   const [customStrataFee, setCustomStrataFee] = useState<string>("");
+  const [activePlanIndex, setActivePlanIndex] = useState(0);
   // Override price for the numbers slide
   const [customCalcPrice, setCustomCalcPrice] = useState<string>("");
 
@@ -235,7 +236,16 @@ export default function AdminTopDeals() {
   };
 
   // ── Mortgage calculations
-  const calcPrice = customCalcPrice ? parseInt(customCalcPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000) : (selected?.starting_price ?? 850000);
+  const calcPrice = (() => {
+    // Use the active plan's custom price if set, else project starting price
+    const activeFp = floorPlans[activePlanIndex];
+    if (activeFp?.customPrice) {
+      return parseInt(activeFp.customPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000);
+    }
+    return customCalcPrice
+      ? parseInt(customCalcPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000)
+      : (selected?.starting_price ?? 850000);
+  })();
   const calc = useMemo(() => {
     const down = (calcPrice * downPct) / 100;
     const principal = calcPrice - down;
@@ -247,10 +257,11 @@ export default function AdminTopDeals() {
     const mr = rate / 100 / 12;
     const n = amort * 12;
     const monthly = mr > 0 ? (mortgage * mr * Math.pow(1 + mr, n)) / (Math.pow(1 + mr, n) - 1) : mortgage / n;
-    const fp0Sqft = floorPlans[0]?.metrics?.interior_sqft ?? floorPlans[0]?.metrics?.interiorSqft;
+    // Use active plan sqft for strata estimate
+    const activeFpSqft = floorPlans[activePlanIndex]?.metrics?.interior_sqft ?? floorPlans[activePlanIndex]?.metrics?.interiorSqft;
     // Custom strata override or estimate from sqft
     const strataOverride = customStrataFee ? parseInt(customStrataFee.replace(/\D/g, "")) : null;
-    const strata = strataOverride != null && strataOverride > 0 ? strataOverride : fp0Sqft ? Math.round(fp0Sqft * 0.5) : 350;
+    const strata = strataOverride != null && strataOverride > 0 ? strataOverride : activeFpSqft ? Math.round(activeFpSqft * 0.5) : 350;
     const tax = Math.round((calcPrice * 0.003) / 12);
 
     // Rebates / closing costs
@@ -611,18 +622,44 @@ export default function AdminTopDeals() {
           </div>
         )}
 
-        {/* ── SLIDE 5: FLOOR PLANS ──────────────────────────────────── */}
+
+        {/* ── SLIDE 4: FLOOR PLANS + NUMBERS ───────────────────────── */}
         {slide === "floorplans" && (
-          <div className="h-full overflow-y-auto animate-fade-in">
-            <div className="p-6 md:p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold">Floor Plans</h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">Upload 1–3 plans · AI extracts key metrics</p>
+          <div className="h-full flex animate-fade-in overflow-hidden">
+
+            {/* LEFT: Floor plan viewer */}
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden border-r border-border">
+
+              {/* Plan toggle header */}
+              <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 border-b border-border bg-muted/30">
+                <div className="flex items-center gap-1.5">
+                  {floorPlans.length > 0 ? (
+                    <div className="flex items-center gap-1 bg-background rounded-lg p-0.5 border border-border">
+                      {floorPlans.map((fp, i) => {
+                        const label = fp.metrics?.floor_plan_name || fp.metrics?.planName || `Plan ${i + 1}`;
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => setActivePlanIndex(i)}
+                            className={cn(
+                              "px-3 py-1 rounded-md text-xs font-semibold transition-all",
+                              activePlanIndex === i
+                                ? "bg-primary text-primary-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Upload floor plans below</span>
+                  )}
                 </div>
                 {floorPlans.length < 3 && (
-                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => fileInputRef.current?.click()}>
-                    <Upload className="h-3.5 w-3.5" />
+                  <Button variant="outline" size="sm" className="gap-1.5 h-7 text-xs" onClick={() => fileInputRef.current?.click()}>
+                    <Upload className="h-3 w-3" />
                     Add Plan
                   </Button>
                 )}
@@ -637,253 +674,162 @@ export default function AdminTopDeals() {
                 onChange={(e) => handleFloorPlanUpload(e.target.files)}
               />
 
-              {floorPlans.length === 0 ? (
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full border-2 border-dashed border-border rounded-2xl p-16 flex flex-col items-center gap-3 hover:border-primary/40 hover:bg-muted/20 transition-all group"
-                >
-                  <Upload className="h-10 w-10 text-muted-foreground/30 group-hover:text-primary/50 transition-colors" />
-                  <div className="text-center">
-                    <p className="font-semibold text-sm">Upload floor plans</p>
-                    <p className="text-xs text-muted-foreground mt-1">Up to 3 · AI will auto-extract size, type & price/sqft</p>
-                  </div>
-                </button>
-              ) : (
-                <div className={cn(
-                  "grid gap-5",
-                  floorPlans.length === 1 ? "grid-cols-1 max-w-lg" :
-                  floorPlans.length === 2 ? "md:grid-cols-2" :
-                  "md:grid-cols-3"
-                )}>
-                  {floorPlans.map((fp, i) => {
-                    const m = fp.metrics;
-                    const planLabel = m?.floor_plan_name || m?.planName || `Plan ${i + 1}`;
-                    const unitType = m?.unit_type || m?.unitType;
-                    const interiorSqft = m?.interior_sqft ?? m?.interiorSqft;
-                    const exteriorSqft = m?.exterior_sqft ?? m?.balconySqft;
-                    const beds = m?.beds;
-                    const baths = m?.baths;
-                    const displayPrice = fp.customPrice
-                      ? parseInt(fp.customPrice.replace(/\D/g, "")) || selected.starting_price
-                      : selected.starting_price;
-                    return (
-                    <div key={i} className="rounded-2xl border border-border bg-card overflow-hidden">
-                      {/* Plan image */}
-                      <div className="relative bg-muted" style={{ aspectRatio: "3/4" }}>
-                        <img src={fp.preview} alt="Floor plan" className="h-full w-full object-contain" />
-                        <button
-                          onClick={() => removeFloorPlan(i)}
-                          className="absolute top-2 right-2 h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-destructive/10 hover:border-destructive/30 transition-colors"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                        {fp.scanning && (
-                          <div className="absolute inset-0 bg-background/70 backdrop-blur-sm flex flex-col items-center justify-center gap-2">
-                            <Sparkles className="h-6 w-6 text-primary animate-pulse" />
-                            <p className="text-xs font-medium">Scanning…</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Metrics */}
-                      <div className="p-4 space-y-3">
-                        {fp.scanning ? (
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            Extracting metrics…
-                          </div>
-                        ) : (
-                          <>
-                            <div className="flex items-center justify-between">
-                              <p className="font-bold text-sm">{planLabel}</p>
-                              {m && Object.keys(m).length > 0 && (
-                                <div className="flex items-center gap-1 text-[10px] text-primary">
-                                  <CheckCircle2 className="h-3 w-3" />
-                                  AI scanned
-                                </div>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              {unitType && (
-                                <div className="rounded-lg bg-muted/50 p-2">
-                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Type</p>
-                                  <p className="text-xs font-semibold mt-0.5">{unitType}</p>
-                                </div>
-                              )}
-                              {interiorSqft && (
-                                <div className="rounded-lg bg-muted/50 p-2">
-                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Interior</p>
-                                  <p className="text-xs font-semibold mt-0.5">{interiorSqft} sqft</p>
-                                </div>
-                              )}
-                              {exteriorSqft && (
-                                <div className="rounded-lg bg-muted/50 p-2">
-                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Outdoor</p>
-                                  <p className="text-xs font-semibold mt-0.5">{exteriorSqft} sqft</p>
-                                </div>
-                              )}
-                              {beds != null && (
-                                <div className="rounded-lg bg-muted/50 p-2">
-                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Beds/Baths</p>
-                                  <p className="text-xs font-semibold mt-0.5">{beds}bd {baths != null ? `${baths}ba` : ""}</p>
-                                </div>
-                              )}
-                              {interiorSqft && displayPrice && (
-                                <div className="rounded-lg bg-primary/10 p-2">
-                                  <p className="text-[10px] text-primary/70 uppercase tracking-wider">$/sqft</p>
-                                  <p className="text-xs font-bold text-primary mt-0.5">
-                                    {fmt(Math.round(displayPrice / interiorSqft))}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Custom price + rent overrides */}
-                            <div className="pt-2 border-t border-border space-y-2">
-                              <div>
-                                <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium block mb-1">
-                                  Unit Price Override
-                                </label>
-                                <div className="relative">
-                                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                                  <input
-                                    type="text"
-                                    inputMode="numeric"
-                                    placeholder={selected.starting_price ? selected.starting_price.toLocaleString() : "e.g. 650,000"}
-                                    value={fp.customPrice}
-                                    onChange={e => {
-                                      const val = e.target.value.replace(/[^0-9]/g, "");
-                                      setFloorPlans(prev => {
-                                        const u = [...prev];
-                                        u[i] = { ...u[i], customPrice: val ? parseInt(val).toLocaleString() : "" };
-                                        return u;
-                                      });
-                                    }}
-                                    className="w-full h-8 pl-7 pr-3 rounded-lg border border-border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/40"
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium block mb-1">
-                                  Potential Monthly Rent
-                                </label>
-                                <div className="relative">
-                                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                                  <input
-                                    type="text"
-                                    inputMode="numeric"
-                                    placeholder="e.g. 2,500"
-                                    value={fp.customRent}
-                                    onChange={e => {
-                                      const val = e.target.value.replace(/[^0-9]/g, "");
-                                      setFloorPlans(prev => {
-                                        const u = [...prev];
-                                        u[i] = { ...u[i], customRent: val ? parseInt(val).toLocaleString() : "" };
-                                        return u;
-                                      });
-                                    }}
-                                    className="w-full h-8 pl-7 pr-3 rounded-lg border border-border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/40"
-                                  />
-                                </div>
-                                {fp.customRent && calc.monthly && (
-                                  <div className="mt-1.5 flex items-center justify-between text-[10px]">
-                                    <span className="text-muted-foreground">Est. cashflow</span>
-                                    {(() => {
-                                      const rent = parseInt(fp.customRent.replace(/\D/g, "")) || 0;
-                                      const cf = rent - calc.monthly - calc.strata - calc.tax;
-                                      return (
-                                        <span className={cf >= 0 ? "font-bold text-emerald-600" : "font-bold text-destructive"}>
-                                          {cf >= 0 ? "+" : ""}{fmt(cf)}/mo
-                                        </span>
-                                      );
-                                    })()}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
+              {/* Plan image area */}
+              <div className="flex-1 relative overflow-hidden bg-muted/20">
+                {floorPlans.length === 0 ? (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 hover:bg-muted/30 transition-all group"
+                  >
+                    <Upload className="h-10 w-10 text-muted-foreground/30 group-hover:text-primary/50 transition-colors" />
+                    <div className="text-center">
+                      <p className="font-semibold text-sm">Upload floor plans</p>
+                      <p className="text-xs text-muted-foreground mt-1">Up to 3 · AI will auto-extract size, type & price/sqft</p>
                     </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── SLIDE 6: THE NUMBERS ──────────────────────────────────── */}
-        {slide === "numbers" && (
-          <div className="h-full flex flex-col md:flex-row animate-fade-in">
-            {/* Left: visual summary */}
-            <div className="relative md:flex-1 h-48 md:h-full overflow-hidden bg-foreground">
-              {photos[0] && (
-                <img src={photos[0]} alt="" className="h-full w-full object-cover opacity-20" />
-              )}
-              <div className="absolute inset-0 flex flex-col justify-center p-6 md:p-10">
-                <div className="flex items-center gap-2 mb-4">
-                  <Calculator className="h-5 w-5 text-primary" />
-                  <p className="text-primary text-sm font-semibold uppercase tracking-wider">The Numbers</p>
-                </div>
-                <h2 className="text-white text-2xl md:text-4xl font-bold mb-2">{displayName}</h2>
-                <p className="text-white/50 text-sm">{displayAddr}</p>
-
-                <div className="mt-8 hidden md:block">
-                  <p className="text-white/40 text-[10px] uppercase tracking-widest mb-3">Est. Monthly Cost</p>
-                  <p className="text-white text-5xl font-bold">{fmt(calc.total)}<span className="text-white/40 text-lg font-normal">/mo</span></p>
-                  <p className="text-white/40 text-xs mt-2">Based on {downPct}% down · {rate}% rate · {amort}yr</p>
-                </div>
-
-                {/* Floor plan + rent summary */}
-                {floorPlans.length > 0 && (
-                  <div className="mt-6 space-y-3 hidden md:block">
-                    {floorPlans.map((fp, i) => {
-                      const m = fp.metrics;
-                      const sqft = m?.interior_sqft ?? m?.interiorSqft;
-                      const label = m?.floor_plan_name || m?.planName || `Plan ${i + 1}`;
-                      const type = m?.unit_type || m?.unitType;
-                      const rent = fp.customRent ? parseInt(fp.customRent.replace(/\D/g, "")) : 0;
-                      const cf = rent ? rent - calc.total : null;
-                      return (
-                        <div key={i} className="rounded-xl bg-white/5 border border-white/10 p-3 space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <span className="text-white/80 text-xs font-semibold">{label}{type ? ` · ${type}` : ""}</span>
-                            {sqft && <span className="text-white/50 text-xs">{sqft} sqft</span>}
-                          </div>
-                          {rent > 0 && (
-                            <div className="flex items-center justify-between">
-                              <span className="text-white/50 text-xs">Rent {fmt(rent)}/mo</span>
-                              <span className={`text-xs font-bold ${cf! >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                                {cf! >= 0 ? "+" : ""}{fmt(cf!)}/mo cashflow
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                  </button>
+                ) : floorPlans[activePlanIndex] ? (
+                  <>
+                    {floorPlans[activePlanIndex].scanning ? (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                        <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+                        <p className="text-sm font-medium">Scanning floor plan…</p>
+                      </div>
+                    ) : (
+                      <img
+                        key={activePlanIndex}
+                        src={floorPlans[activePlanIndex].preview}
+                        alt="Floor plan"
+                        className="h-full w-full object-contain animate-fade-in"
+                      />
+                    )}
+                    {/* Remove button */}
+                    <button
+                      onClick={() => {
+                        removeFloorPlan(activePlanIndex);
+                        setActivePlanIndex(Math.max(0, activePlanIndex - 1));
+                      }}
+                      className="absolute top-3 right-3 h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-destructive/10 hover:border-destructive/30 transition-colors"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </>
+                ) : null}
               </div>
+
+              {/* Plan metrics bar */}
+              {floorPlans[activePlanIndex] && !floorPlans[activePlanIndex].scanning && floorPlans[activePlanIndex].metrics && (
+                <div className="shrink-0 border-t border-border bg-card px-4 py-2.5 flex items-center gap-4 flex-wrap">
+                  {(() => {
+                    const m = floorPlans[activePlanIndex].metrics!;
+                    const unitType = m.unit_type || m.unitType;
+                    const sqft = m.interior_sqft ?? m.interiorSqft;
+                    const ext = m.exterior_sqft ?? m.balconySqft;
+                    const beds = m.beds;
+                    const baths = m.baths;
+                    const exposure = m.exposure;
+                    const dispPrice = floorPlans[activePlanIndex].customPrice
+                      ? parseInt(floorPlans[activePlanIndex].customPrice.replace(/\D/g, "")) || calcPrice
+                      : calcPrice;
+                    return (
+                      <>
+                        {unitType && <MetricChip label="Type" value={unitType} />}
+                        {beds != null && <MetricChip label="Beds/Baths" value={`${beds}bd${baths != null ? ` ${baths}ba` : ""}`} />}
+                        {sqft && <MetricChip label="Interior" value={`${sqft} sqft`} />}
+                        {ext && <MetricChip label="Outdoor" value={`${ext} sqft`} />}
+                        {exposure && <MetricChip label="Exposure" value={exposure} />}
+                        {sqft && dispPrice && (
+                          <MetricChip label="$/sqft" value={fmt(Math.round(dispPrice / sqft))} highlight />
+                        )}
+                        <div className="ml-auto flex items-center gap-1 text-[10px] text-primary">
+                          <CheckCircle2 className="h-3 w-3" /><span>AI scanned</span>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* Per-plan price + rent inputs */}
+              {floorPlans[activePlanIndex] && !floorPlans[activePlanIndex].scanning && (
+                <div className="shrink-0 border-t border-border bg-muted/20 px-4 py-2.5 flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium whitespace-nowrap">Unit Price</label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder={selected.starting_price?.toLocaleString() ?? "e.g. 650,000"}
+                        value={floorPlans[activePlanIndex].customPrice}
+                        onChange={e => {
+                          const val = e.target.value.replace(/[^0-9]/g, "");
+                          setFloorPlans(prev => {
+                            const u = [...prev];
+                            u[activePlanIndex] = { ...u[activePlanIndex], customPrice: val ? parseInt(val).toLocaleString() : "" };
+                            return u;
+                          });
+                        }}
+                        className="w-32 h-7 pl-6 pr-2 rounded-lg border border-border bg-background text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary/40"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium whitespace-nowrap">Monthly Rent</label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="e.g. 2,500"
+                        value={floorPlans[activePlanIndex].customRent}
+                        onChange={e => {
+                          const val = e.target.value.replace(/[^0-9]/g, "");
+                          setFloorPlans(prev => {
+                            const u = [...prev];
+                            u[activePlanIndex] = { ...u[activePlanIndex], customRent: val ? parseInt(val).toLocaleString() : "" };
+                            return u;
+                          });
+                        }}
+                        className="w-28 h-7 pl-6 pr-2 rounded-lg border border-border bg-background text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary/40"
+                      />
+                    </div>
+                  </div>
+                  {floorPlans[activePlanIndex].customRent && (
+                    <div className="ml-auto flex items-center gap-1.5">
+                      <span className="text-[10px] text-muted-foreground">Est. cashflow:</span>
+                      {(() => {
+                        const rent = parseInt(floorPlans[activePlanIndex].customRent.replace(/\D/g, "")) || 0;
+                        const cf = rent - calc.total;
+                        return (
+                          <span className={cn("text-xs font-bold", cf >= 0 ? "text-emerald-600" : "text-destructive")}>
+                            {cf >= 0 ? "+" : ""}{fmt(cf)}/mo
+                          </span>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Right: calculator */}
-            <div className="md:w-[420px] bg-card border-l border-border overflow-y-auto">
-              <div className="p-5 space-y-4">
+            {/* RIGHT: Calculator — fixed width, scrollable */}
+            <div className="w-[380px] shrink-0 bg-card overflow-y-auto">
+              <div className="p-4 space-y-4">
+                <div className="flex items-center gap-2 pb-1">
+                  <Calculator className="h-4 w-4 text-primary" />
+                  <p className="text-xs font-bold uppercase tracking-wider text-primary">The Numbers</p>
+                </div>
 
                 {/* Buyer Type Toggle */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-2">Buyer Type</p>
-                  <div className="grid grid-cols-2 gap-1.5 bg-muted/40 rounded-xl p-1">
+                  <div className="grid grid-cols-2 gap-1 bg-muted/40 rounded-xl p-0.5">
                     {(["investor", "ftb"] as const).map(bt => (
                       <button
                         key={bt}
                         onClick={() => setBuyerType(bt)}
                         className={cn(
                           "py-1.5 rounded-lg text-xs font-semibold transition-all",
-                          buyerType === bt
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
+                          buyerType === bt ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                         )}
                       >
                         {bt === "investor" ? "🏢 Investor" : "🏠 First-Time Buyer"}
@@ -891,17 +837,17 @@ export default function AdminTopDeals() {
                     ))}
                   </div>
                   {buyerType === "ftb" && (
-                    <p className="text-[10px] text-emerald-600 mt-1.5 font-medium">
-                      ✓ PTT exemption applied{calcPrice <= 450000 ? " · GST rebate applied" : calcPrice < 525000 ? " · Partial GST rebate" : ""}
+                    <p className="text-[10px] text-emerald-600 mt-1 font-medium">
+                      ✓ PTT exemption{calcPrice <= 450000 ? " · GST rebate" : calcPrice < 525000 ? " · Partial GST rebate" : ""}
                     </p>
                   )}
                 </div>
 
-                {/* Price override */}
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1.5">Purchase Price</p>
+                {/* Price display */}
+                <div className="rounded-xl bg-muted/30 p-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1">Purchase Price</p>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                     <input
                       type="text"
                       inputMode="numeric"
@@ -911,148 +857,96 @@ export default function AdminTopDeals() {
                         const val = e.target.value.replace(/[^0-9]/g, "");
                         setCustomCalcPrice(val ? parseInt(val).toLocaleString() : "");
                       }}
-                      className="w-full h-10 pl-9 pr-3 rounded-xl border border-border bg-background text-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="w-full h-9 pl-8 pr-2 rounded-lg border border-border bg-background text-base font-bold focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-1">Calculating at {fmt(calcPrice)}</p>
                 </div>
 
-                <div className="space-y-4 pt-2 border-t border-border">
-                  {/* Down payment */}
+                <div className="space-y-3 border-t border-border pt-3">
                   <div>
-                    <div className="flex justify-between mb-2">
+                    <div className="flex justify-between mb-1.5">
                       <label className="text-xs font-medium">Down Payment</label>
                       <span className="text-xs font-bold text-primary">{downPct}% · {fmt(calc.down)}</span>
                     </div>
                     <Slider value={[downPct]} onValueChange={v => setDownPct(v[0])} min={5} max={50} step={5} />
-                    <div className="flex justify-between text-[10px] text-muted-foreground mt-1"><span>5%</span><span>50%</span></div>
+                    <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5"><span>5%</span><span>50%</span></div>
                   </div>
-
-                  {/* Interest */}
                   <div>
-                    <div className="flex justify-between mb-2">
+                    <div className="flex justify-between mb-1.5">
                       <label className="text-xs font-medium">Interest Rate</label>
                       <span className="text-xs font-bold">{rate.toFixed(1)}%</span>
                     </div>
                     <Slider value={[rate]} onValueChange={v => setRate(v[0])} min={3} max={8} step={0.1} />
-                    <div className="flex justify-between text-[10px] text-muted-foreground mt-1"><span>3%</span><span>8%</span></div>
+                    <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5"><span>3%</span><span>8%</span></div>
                   </div>
-
-                  {/* Amortization */}
                   <div>
-                    <div className="flex justify-between mb-2">
+                    <div className="flex justify-between mb-1.5">
                       <label className="text-xs font-medium">Amortization</label>
                       <span className="text-xs font-bold">{amort} yrs</span>
                     </div>
                     <Slider value={[amort]} onValueChange={v => setAmort(v[0])} min={15} max={30} step={5} />
-                    <div className="flex justify-between text-[10px] text-muted-foreground mt-1"><span>15</span><span>30</span></div>
+                    <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5"><span>15</span><span>30</span></div>
                   </div>
-
-                  {/* Custom Strata Fee */}
                   <div>
-                    <div className="flex justify-between items-center mb-1.5">
-                      <label className="text-xs font-medium">Strata Fee / month</label>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-xs font-medium">Strata / mo</label>
                       {!calc.strataIsCustom && <span className="text-[10px] text-muted-foreground italic">estimated</span>}
                     </div>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                      <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
                       <input
                         type="text"
                         inputMode="numeric"
-                        placeholder={`${calc.strata} (est.)`}
+                        placeholder={`${calc.strata}`}
                         value={customStrataFee}
-                        onChange={e => {
-                          const val = e.target.value.replace(/[^0-9]/g, "");
-                          setCustomStrataFee(val);
-                        }}
-                        className="w-full h-9 pl-8 pr-3 rounded-xl border border-border bg-background text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        onChange={e => setCustomStrataFee(e.target.value.replace(/[^0-9]/g, ""))}
+                        className="w-full h-8 pl-7 pr-2 rounded-lg border border-border bg-background text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary/30"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Monthly Cost Results */}
-                <div className="pt-3 border-t border-border space-y-2">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Monthly Carrying Cost</p>
-                  <CalcRow label="Mortgage Amount" value={fmt(calc.mortgage)} />
-                  {calc.cmhc > 0 && <CalcRow label="CMHC Insurance" value={`+${fmt(calc.cmhc)}`} muted />}
+                {/* Monthly results */}
+                <div className="pt-3 border-t border-border space-y-1.5">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Monthly Cost</p>
                   <CalcRow label="Principal & Interest" value={`${fmt(calc.monthly)}/mo`} />
-                  <CalcRow label="Est. Property Tax" value={`${fmt(calc.tax)}/mo`} muted />
-                  <CalcRow label={`Strata Fee${calc.strataIsCustom ? "" : " (est.)"}`} value={`${fmt(calc.strata)}/mo`} muted />
-                  <div className="flex justify-between items-center pt-2.5 border-t border-border">
+                  <CalcRow label={`Property Tax`} value={`${fmt(calc.tax)}/mo`} muted />
+                  <CalcRow label={`Strata${calc.strataIsCustom ? "" : " (est.)"}`} value={`${fmt(calc.strata)}/mo`} muted />
+                  {calc.cmhc > 0 && <CalcRow label="CMHC" value={`+${fmt(calc.cmhc)}`} muted />}
+                  <div className="flex justify-between items-center pt-2 border-t border-border">
                     <span className="font-bold text-sm">Total Monthly</span>
-                    <span className="text-2xl font-bold text-primary">{fmt(calc.total)}</span>
+                    <span className="text-xl font-bold text-primary">{fmt(calc.total)}</span>
                   </div>
                 </div>
 
-                {/* Closing Costs */}
-                <div className="pt-3 border-t border-border space-y-2">
+                {/* Closing costs */}
+                <div className="pt-3 border-t border-border space-y-1.5">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Closing Costs</p>
-                  <div className="space-y-1.5">
+                  <CalcRow label="GST (5%)" value={fmt(calc.gstFull)} />
+                  {calc.gstRebate > 0 && (
                     <div className="flex justify-between items-center">
-                      <span className="text-xs text-muted-foreground">GST (5%)</span>
-                      <span className="text-xs font-semibold">{fmt(calc.gstFull)}</span>
+                      <span className="text-xs text-emerald-600">GST Rebate (FTB)</span>
+                      <span className="text-xs font-semibold text-emerald-600">−{fmt(calc.gstRebate)}</span>
                     </div>
-                    {calc.gstRebate > 0 && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs text-emerald-600">GST Rebate (FTB)</span>
-                        <span className="text-xs font-semibold text-emerald-600">−{fmt(calc.gstRebate)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-muted-foreground">Property Transfer Tax</span>
-                      {calc.pttPayable === 0 ? (
-                        <span className="text-xs font-semibold text-emerald-600">Exempt (FTB)</span>
-                      ) : calc.pttPayable < calc.ptt ? (
-                        <span className="text-xs font-semibold text-amber-600">{fmt(calc.pttPayable)} <span className="text-muted-foreground line-through">{fmt(calc.ptt)}</span></span>
-                      ) : (
-                        <span className="text-xs font-semibold">{fmt(calc.ptt)}</span>
-                      )}
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-muted-foreground">Legal Fees (est.)</span>
-                      <span className="text-xs font-semibold">{fmt(calc.legalFees)}</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-border">
-                      <span className="text-sm font-bold">Total Closing Costs</span>
-                      <span className="text-lg font-bold text-foreground">{fmt(calc.totalClosingCosts)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-muted-foreground">Down Payment</span>
-                      <span className="text-xs font-semibold">{fmt(calc.down)}</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-1.5 border-t border-border/50">
-                      <span className="text-sm font-bold">Total Cash Needed</span>
-                      <span className="text-lg font-bold text-primary">{fmt(calc.down + calc.totalClosingCosts)}</span>
-                    </div>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">PTT</span>
+                    {calc.pttPayable === 0
+                      ? <span className="text-xs font-semibold text-emerald-600">Exempt (FTB)</span>
+                      : calc.pttPayable < calc.ptt
+                        ? <span className="text-xs font-semibold text-amber-600">{fmt(calc.pttPayable)}</span>
+                        : <span className="text-xs font-semibold">{fmt(calc.ptt)}</span>
+                    }
+                  </div>
+                  <CalcRow label="Legal Fees" value={fmt(calc.legalFees)} muted />
+                  <div className="flex justify-between items-center pt-2 border-t border-border">
+                    <span className="font-bold text-sm">Total Cash Needed</span>
+                    <span className="text-xl font-bold text-primary">{fmt(calc.down + calc.totalClosingCosts)}</span>
                   </div>
                 </div>
 
-                {/* Rent vs cost for each plan */}
-                {floorPlans.some(fp => fp.customRent) && (
-                  <div className="pt-3 border-t border-border space-y-2">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Rental Cashflow</p>
-                    {floorPlans.map((fp, i) => {
-                      if (!fp.customRent) return null;
-                      const rent = parseInt(fp.customRent.replace(/\D/g, "")) || 0;
-                      const cf = rent - calc.total;
-                      const label = fp.metrics?.floor_plan_name || fp.metrics?.planName || `Plan ${i + 1}`;
-                      return (
-                        <div key={i} className="flex items-center justify-between rounded-lg border border-border p-2.5">
-                          <div>
-                            <p className="text-xs font-semibold">{label}</p>
-                            <p className="text-[10px] text-muted-foreground">Rent {fmt(rent)}/mo</p>
-                          </div>
-                          <span className={`text-sm font-bold ${cf >= 0 ? "text-emerald-600" : "text-destructive"}`}>
-                            {cf >= 0 ? "+" : ""}{fmt(cf)}/mo
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                <p className="text-[10px] text-muted-foreground text-center">
+                <p className="text-[10px] text-muted-foreground text-center pb-1">
                   Estimates only — consult a mortgage broker
                 </p>
               </div>
@@ -1215,6 +1109,15 @@ function CalcRow({ label, value, muted }: { label: string; value: string; muted?
     <div className="flex justify-between items-center">
       <span className={cn("text-xs", muted ? "text-muted-foreground" : "text-foreground")}>{label}</span>
       <span className={cn("text-xs font-semibold", muted && "text-muted-foreground")}>{value}</span>
+    </div>
+  );
+}
+
+function MetricChip({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className={cn("rounded-lg px-2.5 py-1.5", highlight ? "bg-primary/10" : "bg-muted/60")}>
+      <p className={cn("text-[9px] uppercase tracking-wider font-medium", highlight ? "text-primary/70" : "text-muted-foreground")}>{label}</p>
+      <p className={cn("text-xs font-bold mt-0.5", highlight ? "text-primary" : "text-foreground")}>{value}</p>
     </div>
   );
 }
