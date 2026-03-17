@@ -194,6 +194,7 @@ export default function DeckPublicPage() {
         <DeckProjectionsSection
           projections={deck.projections || {}}
           defaultPrice={defaultPrice}
+          floorPlans={deck.floor_plans || []}
         />
       </div>
 
