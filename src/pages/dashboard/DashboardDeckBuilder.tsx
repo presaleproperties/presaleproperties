@@ -840,8 +840,8 @@ export default function DashboardDeckBuilder() {
           badge={projectionsFromAI ? "AI Generated" : undefined}>
           <div className="space-y-4">
             {projectionsFromAI && (
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                <TrendingUp className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted border border-border">
+                <TrendingUp className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div>
                   <p className="text-xs font-semibold text-foreground">Projections generated from floor plan data</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
