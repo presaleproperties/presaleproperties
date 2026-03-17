@@ -74,13 +74,12 @@ interface FloorPlan {
   customRent: string;
 }
 
-const SLIDES = ["overview", "gallery", "details", "map", "floorplans", "numbers"] as const;
+const SLIDES = ["overview", "gallery", "map", "floorplans", "numbers"] as const;
 type Slide = typeof SLIDES[number];
 
 const SLIDE_LABELS: Record<Slide, string> = {
   overview: "Overview",
   gallery: "Gallery",
-  details: "Key Details",
   map: "Location",
   floorplans: "Floor Plans",
   numbers: "The Numbers",
@@ -561,61 +560,7 @@ export default function AdminTopDeals() {
           </div>
         )}
 
-        {/* ── SLIDE 3: KEY DETAILS ──────────────────────────────────── */}
-        {slide === "details" && (
-          <div className="h-full flex flex-col md:flex-row animate-fade-in">
-            {/* Background image with overlay */}
-            <div className="relative md:flex-1 h-48 md:h-full overflow-hidden">
-              {photos[0] && (
-                <img src={photos[0]} alt="" className="h-full w-full object-cover" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10">
-                <p className="text-white/60 text-xs uppercase tracking-widest font-medium mb-2">Key Details</p>
-                <h2 className="text-white text-2xl md:text-3xl font-bold">{displayName}</h2>
-              </div>
-            </div>
-
-            {/* Stats grid */}
-            <div className="md:w-96 bg-card border-l border-border overflow-y-auto">
-              <div className="p-6 space-y-4">
-                <DetailRow icon={<DollarSign />} label="Starting Price" value={fmt(selected.starting_price)} highlight />
-                {selected.deposit_structure && (
-                  <DetailRow icon={<Layers />} label="Deposit Structure" value={selected.deposit_structure} />
-                )}
-                {selected.completion_year && (
-                  <DetailRow icon={<Calendar />} label="Est. Completion" value={String(selected.completion_year)} />
-                )}
-                <DetailRow icon={<MapPin />} label="Location" value={displayAddr || "—"} />
-                {displayDev && (
-                  <DetailRow icon={<Building2 />} label="Developer" value={displayDev} />
-                )}
-                {selected.project_type && (
-                  <DetailRow icon={<Home />} label="Property Type" value={selected.project_type} />
-                )}
-
-                {/* Price per sqft from floor plans */}
-                {floorPlans.some((fp) => fp.metrics?.interiorSqft && selected.starting_price) && (
-                  <div className="pt-4 border-t border-border">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-3">Price Per Sqft</p>
-                    {floorPlans.map((fp, i) =>
-                      fp.metrics?.interiorSqft && selected.starting_price ? (
-                        <div key={i} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
-                          <span className="text-xs text-muted-foreground">{fp.metrics.planName || `Plan ${i + 1}`}</span>
-                          <span className="text-sm font-bold text-primary">
-                            {fmt(Math.round(selected.starting_price / fp.metrics.interiorSqft))}/sqft
-                          </span>
-                        </div>
-                      ) : null
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── SLIDE 4: MAP ──────────────────────────────────────────── */}
+        {/* ── SLIDE 3: MAP ──────────────────────────────────────────── */}
         {slide === "map" && (
           <div className="h-full flex flex-col animate-fade-in">
             <MapSlide project={selected} displayName={displayName ?? ""} displayAddr={displayAddr ?? ""} />
