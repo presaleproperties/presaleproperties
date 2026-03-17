@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Building2, Layers, Calendar, Users } from "lucide-react";
+import { ChevronDown, Building2, Layers, Calendar, Users, MessageCircle } from "lucide-react";
 
 interface DeckHeroSectionProps {
   projectName: string;
@@ -9,6 +9,7 @@ interface DeckHeroSectionProps {
   stories?: number;
   totalUnits?: number;
   completionYear?: string;
+  whatsappNumber?: string;
   onFloorPlansClick: () => void;
   onContactClick: () => void;
 }
@@ -21,6 +22,7 @@ export function DeckHeroSection({
   stories,
   totalUnits,
   completionYear,
+  whatsappNumber,
   onFloorPlansClick,
   onContactClick,
 }: DeckHeroSectionProps) {
@@ -30,6 +32,9 @@ export function DeckHeroSection({
     totalUnits && { icon: Users, label: "Units", value: `${totalUnits}` },
     completionYear && { icon: Calendar, label: "Completion", value: completionYear },
   ].filter(Boolean) as { icon: any; label: string; value: string }[];
+
+  const waNumber = (whatsappNumber || "17782313592").replace(/\D/g, "");
+  const waMessage = encodeURIComponent(`Hi! I'm interested in ${projectName} — can you share more details?`);
 
   return (
     <section
@@ -48,7 +53,6 @@ export function DeckHeroSection({
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80" />
         )}
-        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/98 via-black/55 to-black/15" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/35 to-transparent" />
       </div>
@@ -66,24 +70,20 @@ export function DeckHeroSection({
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-16 sm:pb-20 pt-28 w-full">
         <div className="max-w-4xl space-y-4 sm:space-y-5">
-          {/* Label */}
           <p className="text-primary text-[11px] font-semibold uppercase tracking-[0.2em]">
             01 — Overview
           </p>
 
-          {/* Project name */}
           <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight">
             {projectName || "Project Name"}
           </h1>
 
-          {/* Tagline */}
           {tagline && (
             <p className="text-white/65 text-base sm:text-xl font-light max-w-2xl leading-relaxed">
               {tagline}
             </p>
           )}
 
-          {/* Stats row — horizontal scroll on mobile */}
           {stats.length > 0 && (
             <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide pt-1">
               {stats.map((stat) => (
@@ -101,27 +101,37 @@ export function DeckHeroSection({
             </div>
           )}
 
-          {/* Divider */}
           <div className="w-12 h-px bg-primary/60" />
 
-          {/* CTAs — stack on mobile */}
+          {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-3 pt-1">
-            <Button
-              size="lg"
-              onClick={onFloorPlansClick}
-              className="h-12 sm:px-8 text-sm font-semibold shadow-lg shadow-primary/30 w-full sm:w-auto"
+            {/* Primary: WhatsApp text */}
+            <a
+              href={`https://wa.me/${waNumber}?text=${waMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2.5 h-13 px-7 rounded-xl font-bold text-sm text-white shadow-lg touch-manipulation transition-all active:scale-[0.98]"
+              style={{ background: "#25D366", boxShadow: "0 4px 24px rgba(37,211,102,0.35)" }}
             >
-              View Floor Plans & Pricing
-            </Button>
+              <MessageCircle className="h-5 w-5 shrink-0" />
+              Text Us — I'm Interested
+            </a>
+
+            {/* Secondary: Floor plans */}
             <Button
               size="lg"
               variant="outline"
-              onClick={onContactClick}
+              onClick={onFloorPlansClick}
               className="h-12 sm:px-8 bg-white/8 border-white/25 text-white hover:bg-white/15 hover:border-white/40 hover:text-white text-sm font-semibold backdrop-blur-sm w-full sm:w-auto"
             >
-              Book a Private Call
+              View Floor Plans & Pricing
             </Button>
           </div>
+
+          {/* Micro-copy */}
+          <p className="text-white/35 text-xs">
+            No obligation · Respond in minutes · Private pricing available
+          </p>
         </div>
       </div>
 
