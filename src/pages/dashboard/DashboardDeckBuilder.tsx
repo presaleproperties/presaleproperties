@@ -137,6 +137,10 @@ export default function DashboardDeckBuilder() {
   const [galleryUploading, setGalleryUploading] = useState(false);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
+  const [floorPlansPdfUrl, setFloorPlansPdfUrl] = useState("");
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+
   const [highlights, setHighlights] = useState<ProximityHighlight[]>([
     { icon: "🚇", label: "SkyTrain Station", distance: "5 min walk" },
   ]);
