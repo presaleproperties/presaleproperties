@@ -40,103 +40,117 @@ interface FloorPlanModalProps {
   allPlans?: FloorPlan[];
 }
 
-export function FloorPlanModal({ plan, onClose, allPlans }: FloorPlanModalProps) {
+export function FloorPlanModal({ plan, onClose }: FloorPlanModalProps) {
   const [zoomed, setZoomed] = useState(false);
 
   if (!plan) return null;
 
+  const psf = derivePsf(plan);
+
   return (
     <Dialog open={!!plan} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-3xl p-0 overflow-hidden gap-0 border-border/50 max-h-[100dvh] sm:max-h-[92dvh] rounded-none sm:rounded-2xl">
-        {/* Mobile: stacked. Desktop: side-by-side */}
-        <div className="flex flex-col md:grid md:grid-cols-[1fr_260px] h-full overflow-y-auto md:overflow-hidden max-h-[100dvh] sm:max-h-[92dvh]">
+      {/* Wide modal — image-first, side panel on desktop */}
+      <DialogContent className="w-full max-w-5xl p-0 overflow-hidden gap-0 border-border/50 rounded-none sm:rounded-2xl max-h-[100dvh] sm:max-h-[94dvh]">
 
-          {/* Image panel */}
-          <div className="relative bg-muted/30 flex items-center justify-center min-h-[220px] md:min-h-[420px] overflow-hidden order-1 shrink-0">
+        {/* Close button — always visible top-right */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 z-50 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground shadow-md"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_300px] h-full max-h-[100dvh] sm:max-h-[94dvh]">
+
+          {/* ── Image panel — dominant, scrollable on mobile ── */}
+          <div
+            className="relative bg-muted/20 flex items-center justify-center overflow-hidden cursor-zoom-in"
+            style={{ minHeight: "clamp(340px, 60dvh, 700px)" }}
+            onClick={() => setZoomed(!zoomed)}
+          >
             {plan.image_url ? (
               <div
-                className={`w-full h-full transition-transform duration-500 ${zoomed ? "scale-150 cursor-zoom-out" : "scale-100 cursor-zoom-in"} flex items-center justify-center p-4`}
-                onClick={() => setZoomed(!zoomed)}
+                className={`w-full h-full flex items-center justify-center p-3 sm:p-6 transition-transform duration-400 origin-center ${zoomed ? "scale-[2] cursor-zoom-out" : "scale-100 cursor-zoom-in"}`}
               >
                 <img
                   src={plan.image_url}
                   alt={`${plan.unit_type} floor plan`}
-                  className="max-h-[260px] md:max-h-[380px] w-auto object-contain select-none"
+                  className="w-full h-full object-contain select-none"
+                  style={{ maxHeight: "clamp(320px, 58dvh, 680px)" }}
                   draggable={false}
                 />
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center gap-3 opacity-30 py-12">
-                <div className="w-16 h-16 border-2 border-foreground/30 rounded-xl flex items-center justify-center">
-                  <Square className="h-7 w-7 text-foreground/40" />
+              <div className="flex flex-col items-center justify-center gap-3 opacity-30 py-16">
+                <div className="w-20 h-20 border-2 border-foreground/30 rounded-xl flex items-center justify-center">
+                  <Square className="h-9 w-9 text-foreground/40" />
                 </div>
                 <p className="text-sm text-muted-foreground">Floor plan preview coming soon</p>
               </div>
             )}
 
+            {/* Zoom hint */}
             {plan.image_url && (
-              <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-background/70 backdrop-blur-sm rounded-full px-2.5 py-1 text-[10px] text-muted-foreground border border-border/40 pointer-events-none">
-                {zoomed ? <ZoomOut className="h-3 w-3" /> : <ZoomIn className="h-3 w-3" />}
-                <span className="hidden sm:inline">{zoomed ? "Tap to zoom out" : "Tap to zoom in"}</span>
+              <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-background/75 backdrop-blur-sm rounded-full px-3 py-1.5 text-[11px] text-muted-foreground border border-border/40 pointer-events-none select-none">
+                {zoomed ? <ZoomOut className="h-3.5 w-3.5" /> : <ZoomIn className="h-3.5 w-3.5" />}
+                <span>{zoomed ? "Tap to zoom out" : "Tap to zoom in"}</span>
               </div>
             )}
           </div>
 
-          {/* Info panel */}
-          <div className="flex flex-col p-4 sm:p-5 md:p-6 border-t md:border-t-0 md:border-l border-border/50 bg-background order-2">
-            {/* Close — top right always */}
-            <button
-              onClick={onClose}
-              className="self-end p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground mb-2"
-            >
-              <X className="h-4 w-4" />
-            </button>
+          {/* ── Info panel ── */}
+          <div className="flex flex-col p-5 sm:p-6 border-t lg:border-t-0 lg:border-l border-border/50 bg-background overflow-y-auto">
 
             {/* Unit type */}
-            <div className="mb-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Unit Type</p>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">{plan.unit_type}</h3>
+            <div className="mb-4 pr-8">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Unit Type</p>
+              <h3 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">{plan.unit_type}</h3>
             </div>
 
             {/* Price */}
-            <div className="rounded-xl bg-primary/8 border border-primary/15 p-3 sm:p-4 mb-3">
+            <div className="rounded-xl bg-primary/8 border border-primary/15 p-4 mb-4">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Starting From</p>
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{plan.price_from}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-primary">{plan.price_from}</p>
             </div>
 
-            {/* Size + psf */}
-            <div className="space-y-3 mb-4">
+            {/* Size + PSF */}
+            <div className="space-y-3 mb-5">
               {plan.size_range && (
-                <div className="flex items-center gap-2 pb-3 border-b border-border/50">
-                  <Square className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <div className="flex items-center gap-3 pb-3 border-b border-border/50">
+                  <Square className="h-4 w-4 text-muted-foreground shrink-0" />
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Size</p>
                     <p className="text-sm font-semibold text-foreground">{plan.size_range}</p>
                   </div>
                 </div>
               )}
-              {(() => {
-                const psf = derivePsf(plan);
-                return psf ? (
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-3.5 w-3.5 text-primary shrink-0" />
-                    <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
-                      <p className="text-sm font-bold text-primary">{psf} <span className="font-normal text-muted-foreground">/ sqft</span></p>
-                    </div>
+              {psf && (
+                <div className="flex items-center gap-3">
+                  <TrendingUp className="h-4 w-4 text-primary shrink-0" />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
+                    <p className="text-sm font-bold text-primary">
+                      {psf} <span className="font-normal text-muted-foreground">/ sqft</span>
+                    </p>
                   </div>
-                ) : null;
-              })()}
+                </div>
+              )}
             </div>
 
             {/* CTA */}
             <Button
               className="w-full mt-auto touch-manipulation"
-              onClick={() => { onClose(); document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }); }}
+              size="lg"
+              onClick={() => {
+                onClose();
+                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+              }}
             >
               Inquire About This Unit
             </Button>
-            <p className="text-[10px] text-muted-foreground text-center mt-2">No obligation · Private showing available</p>
+            <p className="text-[10px] text-muted-foreground text-center mt-2">
+              No obligation · Private showing available
+            </p>
           </div>
         </div>
       </DialogContent>
