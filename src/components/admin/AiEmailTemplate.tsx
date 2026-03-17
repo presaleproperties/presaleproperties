@@ -290,8 +290,8 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
 
     // LOGO HEADER
     '  <!-- LOGO HEADER -->\n' +
-    '  <tr>\n    <td style="background:#ffffff;padding:28px 36px 20px;text-align:center;border-bottom:2px solid ' + ACCENT + ';">\n' +
-    '      <img src="' + LOGO_EMAIL_URL + '" alt="Presale Properties" width="200" border="0" style="display:inline-block;width:200px;max-width:200px;height:auto;" />\n' +
+    '  <tr>\n    <td style="background:#ffffff;padding:12px 36px 10px;text-align:center;border-bottom:2px solid ' + ACCENT + ';">\n' +
+    '      <img src="' + LOGO_EMAIL_URL + '" alt="Presale Properties" width="160" border="0" style="display:inline-block;width:160px;max-width:160px;height:auto;" />\n' +
     '    </td>\n  </tr>\n\n' +
 
     // PROJECT HEADER
