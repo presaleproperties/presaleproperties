@@ -149,7 +149,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
           <p className="text-muted-foreground text-sm">BC 2026 tax rules — same calculator as our site, pre-loaded with this project's numbers.</p>
         </div>
 
-        <div className="rounded-3xl border border-border/60 bg-card shadow-[0_8px_48px_-12px_hsl(var(--foreground)/0.08)] overflow-hidden">
+        <div className="rounded-3xl border border-border/60 bg-card shadow-[0_8px_48px_-12px_hsl(var(--foreground)/0.08)] overflow-x-hidden">
 
           {/* Header */}
           <div className="bg-foreground px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
