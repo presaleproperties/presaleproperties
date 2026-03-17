@@ -160,8 +160,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 <Home className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-background leading-none">Investment Snapshot</h3>
-                <p className="text-[11px] text-background/40 mt-0.5">BC 2026 presale rules applied</p>
+                <h3 className="text-[15px] font-bold text-background leading-none">Your Numbers</h3>
+                <p className="text-[11px] text-background/40 mt-0.5">BC 2026 tax rules applied</p>
               </div>
             </div>
             <div className="text-right shrink-0">
