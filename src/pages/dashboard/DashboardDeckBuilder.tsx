@@ -53,7 +53,7 @@ interface AgentProfile { user_id: string; full_name: string; email: string; phon
 
 interface FloorPlan {
   id: string; unit_type: string; size_range: string; price_from: string;
-  tags: string[]; image_url?: string;
+  price_per_sqft?: string; tags: string[]; image_url?: string;
   // AI extracted fields
   beds?: number | null; baths?: number | null; exposure?: string | null;
   interior_sqft?: number | null; exterior_sqft?: number | null;
