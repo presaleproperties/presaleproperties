@@ -47,6 +47,12 @@ const navItems = [
     description: "Manage your listings"
   },
   { 
+    label: "Pitch Decks", 
+    href: "/dashboard/decks", 
+    icon: Presentation,
+    description: "Shareable investor decks"
+  },
+  { 
     label: "Messages", 
     href: "/dashboard/messages", 
     icon: MessageSquare,
