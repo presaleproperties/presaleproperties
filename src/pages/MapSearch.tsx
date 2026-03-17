@@ -1845,9 +1845,9 @@ export default function MapSearch() {
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
               >
-                {/* Compact Carousel Header */}
+                 {/* Compact Carousel Header */}
                 <div 
-                  className="flex items-center justify-between pb-1.5" 
+                  className="flex items-center justify-between pb-1" 
                   style={{ 
                     paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', 
                     paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' 
@@ -1930,7 +1930,7 @@ export default function MapSearch() {
                               : 'border-border/30 active:border-primary/50'
                         }`}>
                           {/* Compact image with price overlay */}
-                          <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
+                          <div className="relative w-full aspect-[16/10] bg-muted overflow-hidden">
                             {isPresale ? (
                               (data as PresaleProject).featured_image ? (
                                 <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" loading="eager" />
@@ -1990,8 +1990,8 @@ export default function MapSearch() {
                               </div>
                             )}
                           </div>
-                          {/* Compact info: Name + Location */}
-                          <div className={cn("p-2 space-y-0.5 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
+                           {/* Compact info: Name + Location */}
+                          <div className={cn("px-2 pt-1.5 pb-2 space-y-0.5 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
                             {isAssignment && !isVerifiedAgent && (
                               <div className="absolute inset-0 bg-background/70 backdrop-blur-md flex items-center justify-center z-10">
                                 <p className="text-[10px] text-muted-foreground text-center px-1">Agent access</p>
