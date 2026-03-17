@@ -120,8 +120,6 @@ export default function DashboardDeckBuilder() {
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [developerName, setDeveloperName] = useState("");
-  const [stories, setStories] = useState("");
-  const [totalUnits, setTotalUnits] = useState("");
   const [completionYear, setCompletionYear] = useState("");
   const [lat, setLat] = useState<string>("");
   const [lng, setLng] = useState<string>("");
