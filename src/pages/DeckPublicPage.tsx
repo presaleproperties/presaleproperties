@@ -39,6 +39,7 @@ interface PitchDeck {
   lat: number | null;
   lng: number | null;
   is_published: boolean;
+  floor_plans_pdf_url: string | null;
 }
 
 const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "contact"];
