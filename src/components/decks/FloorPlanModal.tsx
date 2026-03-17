@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, ZoomIn, ZoomOut, Square } from "lucide-react";
+import { X, ZoomIn, ZoomOut, Square, TrendingUp } from "lucide-react";
 
 export interface FloorPlan {
   id: string;
@@ -11,6 +11,26 @@ export interface FloorPlan {
   price_per_sqft?: string;
   tags: string[];
   image_url?: string;
+  interior_sqft?: number | null;
+  exterior_sqft?: number | null;
+  beds?: number | null;
+  baths?: number | null;
+  exposure?: string | null;
+}
+
+function derivePsf(plan: FloorPlan): string | null {
+  if (plan.price_per_sqft?.trim()) return plan.price_per_sqft;
+  const price = parseFloat((plan.price_from || "").replace(/[^0-9.]/g, ""));
+  const sqft = plan.interior_sqft;
+  if (price > 0 && sqft && sqft > 0) return `$${Math.round(price / sqft).toLocaleString()}`;
+  if (price > 0 && plan.size_range) {
+    const match = plan.size_range.match(/(\d[\d,]*)/);
+    if (match) {
+      const parsed = parseInt(match[1].replace(/,/g, ""), 10);
+      if (parsed > 100) return `$${Math.round(price / parsed).toLocaleString()}`;
+    }
+  }
+  return null;
 }
 
 interface FloorPlanModalProps {
@@ -94,15 +114,18 @@ export function FloorPlanModal({ plan, onClose, allPlans }: FloorPlanModalProps)
                   </div>
                 </div>
               )}
-              {plan.price_per_sqft && (
-                <div className="flex items-center gap-2">
-                  <Square className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
-                    <p className="text-sm font-semibold text-foreground">{plan.price_per_sqft}</p>
+              {(() => {
+                const psf = derivePsf(plan);
+                return psf ? (
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
+                      <p className="text-sm font-bold text-primary">{psf} <span className="font-normal text-muted-foreground">/ sqft</span></p>
+                    </div>
                   </div>
-                </div>
-              )}
+                ) : null;
+              })()}
             </div>
 
             {/* CTA */}

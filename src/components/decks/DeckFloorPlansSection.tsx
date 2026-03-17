@@ -1,7 +1,36 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { FloorPlanModal, FloorPlan } from "./FloorPlanModal";
-import { LayoutPanelTop, ArrowRight, Square } from "lucide-react";
+import { LayoutPanelTop, ArrowRight, Square, TrendingUp } from "lucide-react";
+
+/** Derive $/sqft from price_from string + interior_sqft number */
+function derivePsf(plan: FloorPlan): string | null {
+  // Use stored value first
+  if (plan.price_per_sqft && plan.price_per_sqft.trim()) return plan.price_per_sqft;
+
+  // Try to compute from price_from + interior_sqft
+  const price = parseFloat((plan.price_from || "").replace(/[^0-9.]/g, ""));
+  const sqft = plan.interior_sqft;
+
+  if (price > 0 && sqft && sqft > 0) {
+    const psf = Math.round(price / sqft);
+    return `$${psf.toLocaleString()}`;
+  }
+
+  // Fallback: try to parse sqft from size_range string (e.g. "540 sq ft" or "540–680 sqft")
+  if (price > 0 && plan.size_range) {
+    const match = plan.size_range.match(/(\d[\d,]*)/);
+    if (match) {
+      const parsed = parseInt(match[1].replace(/,/g, ""), 10);
+      if (parsed > 100) {
+        const psf = Math.round(price / parsed);
+        return `$${psf.toLocaleString()}`;
+      }
+    }
+  }
+
+  return null;
+}
 
 interface DeckFloorPlansSectionProps {
   floorPlans: FloorPlan[];
@@ -83,33 +112,36 @@ export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps
 
                 {/* Card body */}
                 <div className="p-4 space-y-3">
-                  {/* Price + arrow */}
+                  {/* Price row */}
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Starting from</p>
-                      <p className="text-primary font-bold text-lg leading-tight">{plan.price_from}</p>
+                      <p className="text-primary font-bold text-lg leading-tight">{plan.price_from || "—"}</p>
                     </div>
                     <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${hovered === plan.id ? 'border-primary bg-primary' : 'border-border/50'}`}>
                       <ArrowRight className={`h-3.5 w-3.5 transition-colors ${hovered === plan.id ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
                     </div>
                   </div>
 
-                  {/* Size */}
-                  {plan.size_range && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Square className="h-3 w-3 shrink-0" />
-                      <span>{plan.size_range}</span>
-                    </div>
-                  )}
+                  {/* Size + PSF row */}
+                  <div className="flex items-center justify-between gap-2">
+                    {plan.size_range ? (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Square className="h-3 w-3 shrink-0" />
+                        <span>{plan.size_range}</span>
+                      </div>
+                    ) : <span />}
 
-                  {/* Price / sqft */}
-                  {plan.price_per_sqft && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Square className="h-3 w-3 shrink-0" />
-                      <span className="font-medium text-foreground">{plan.price_per_sqft}</span>
-                      <span className="text-muted-foreground">/ sqft</span>
-                    </div>
-                  )}
+                    {(() => {
+                      const psf = derivePsf(plan);
+                      return psf ? (
+                        <div className="flex items-center gap-1 text-xs bg-primary/8 border border-primary/20 text-primary font-semibold px-2 py-0.5 rounded-full">
+                          <TrendingUp className="h-2.5 w-2.5" />
+                          <span>{psf}/sqft</span>
+                        </div>
+                      ) : null;
+                    })()}
+                  </div>
                 </div>
               </button>
             ))}
