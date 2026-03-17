@@ -1066,7 +1066,7 @@ export default function MortgageCalculatorPage() {
                                   <HelpCircle className="h-3 w-3 text-muted-foreground" />
                                 </TooltipTrigger>
                                 <TooltipContent className="max-w-xs">
-                                  <p>BC first-time buyers get full PTT exemption on homes up to $500K, partial up to $525K. Must be Canadian citizen/PR, BC resident 1+ year.</p>
+                                  <p>BC first-time buyers on new construction get full PTT exemption on homes up to $1.1M, partial up to $1.15M (BC April 2024). Must be Canadian citizen/PR, principal residence.</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
