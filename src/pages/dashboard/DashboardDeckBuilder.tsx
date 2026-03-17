@@ -180,14 +180,14 @@ export default function DashboardDeckBuilder() {
   // Fetch active team members from team_members_public view
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("team_members_public" as any)
+      const { data } = await (supabase as any)
+        .from("team_members_public")
         .select("id, full_name, title, photo_url")
         .order("sort_order", { ascending: true });
       if (data?.length) {
-        setAgents(data as AgentProfile[]);
+        setAgents(data as unknown as AgentProfile[]);
         if (!isEdit) {
-          applyAgentProfile((data as AgentProfile[])[0]);
+          applyAgentProfile((data as unknown as AgentProfile[])[0]);
         }
       }
     })();
