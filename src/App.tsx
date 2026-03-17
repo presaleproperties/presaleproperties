@@ -86,6 +86,7 @@ const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
 const AdminCampaignBuilder = lazy(() => import("./pages/admin/AdminCampaignBuilder"));
 const AdminAiEmailBuilder = lazy(() => import("./pages/admin/AdminAiEmailBuilder"));
 const AdminMarketingHub = lazy(() => import("./pages/admin/AdminMarketingHub"));
+const AdminTopDeals = lazy(() => import("./pages/admin/AdminTopDeals"));
 const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
