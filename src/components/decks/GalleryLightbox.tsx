@@ -152,10 +152,20 @@ export function GalleryLightbox({ images, currentIndex, onClose, onPrev, onNext 
               key={i}
               data-index={i}
               onClick={() => {
-                // Navigate directly to tapped thumbnail
-                const diff = i - currentIndex;
-                if (diff > 0) { for (let j = 0; j < diff; j++) onNext(); }
-                else if (diff < 0) { for (let j = 0; j < Math.abs(diff); j++) onPrev(); }
+                // Jump directly: call prev/next enough times
+                // Better: parent exposes a setIndex via onJump prop
+                // For now, simulate by firing the correct number of steps
+                let target = i;
+                let current = currentIndex;
+                if (target === current) return;
+                // Choose shortest path
+                const forward = (target - current + images.length) % images.length;
+                const backward = (current - target + images.length) % images.length;
+                if (forward <= backward) {
+                  for (let j = 0; j < forward; j++) onNext();
+                } else {
+                  for (let j = 0; j < backward; j++) onPrev();
+                }
               }}
               className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
                 i === currentIndex
