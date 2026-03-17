@@ -1,4 +1,4 @@
-import { ChevronDown, Building2, Layers, Calendar, Users, MessageCircle } from "lucide-react";
+import { ChevronDown, Building2, Layers, Calendar, Users } from "lucide-react";
 
 interface DeckHeroSectionProps {
   projectName: string;
