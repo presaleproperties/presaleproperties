@@ -277,12 +277,6 @@ export function DeckContactSection({
               ))}
             </div>
 
-            {/* Bottom trust bar */}
-            <div className="rounded-xl border border-border/40 bg-muted/20 p-4 mt-1">
-              <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                🔒 <strong className="text-foreground">Private presentation</strong> — shared exclusively with you. All unit details, pricing, and availability are held confidential until you connect with our team.
-              </p>
-            </div>
           </div>
         </div>
 
