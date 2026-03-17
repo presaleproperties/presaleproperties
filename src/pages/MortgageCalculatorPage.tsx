@@ -1103,7 +1103,7 @@ export default function MortgageCalculatorPage() {
                       {isFirstTimeBuyer && !includeGST && (
                         <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
                           <CheckCircle className="h-3 w-3" />
-                          FTB PTT exemption: Full up to $500K, partial up to $525K
+                          FTB PTT exemption (new construction): Full up to $1.1M, partial up to $1.15M
                         </p>
                       )}
                     </CardContent>

@@ -219,11 +219,11 @@ const AdLandingPage = () => {
     return { amount: gstFormatted, label: "GST Included", description: "Already in price" };
   };
 
-  // Calculate PTT Savings for first-time buyers (BC rules)
-  // Full exemption up to $500K, phased out between $500K-$525K for newly built homes
+  // Calculate PTT Savings for first-time buyers (BC 2024 newly-built home rules)
+  // Full exemption ≤ $1,100,000 | Partial $1,100,001–$1,150,000
   const calculatePttSavings = (): { amount: string; label: string; description: string } => {
     const price = project?.starting_price;
-    if (!price) return { amount: "$8K", label: "PTT Savings", description: "First-time buyer" };
+    if (!price) return { amount: "$20K+", label: "PTT Savings", description: "First-time buyer" };
     
     // Calculate what PTT would normally be
     let normalPtt = 0;
@@ -235,16 +235,12 @@ const AdLandingPage = () => {
       normalPtt = 200000 * 0.01 + 1800000 * 0.02 + (price - 2000000) * 0.03;
     }
     
-    // First-time buyer exemption for newly built homes
+    // BC 2024 newly-built home PTT exemption for first-time buyers
     let savings = 0;
-    if (price <= 500000) {
+    if (price <= 1100000) {
       savings = normalPtt; // Full exemption
-    } else if (price < 525000) {
-      savings = normalPtt * (525000 - price) / 25000;
-    } else if (price <= 835000) {
-      // Partial exemption: exempt on first $500K portion only for new builds up to $835K
-      const pttOnFirst500K = 200000 * 0.01 + 300000 * 0.02; // $8,000
-      savings = pttOnFirst500K;
+    } else if (price < 1150000) {
+      savings = normalPtt * (1150000 - price) / 50000; // Partial exemption
     }
     
     savings = Math.round(savings);
