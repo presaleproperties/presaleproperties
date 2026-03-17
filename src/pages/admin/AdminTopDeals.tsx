@@ -58,11 +58,20 @@ interface FloorPlan {
   publicUrl: string | null;
   scanning: boolean;
   metrics: {
-    planName?: string;
-    unitType?: string;
+    planName?: string | null;
+    unitType?: string | null;
     interiorSqft?: number | null;
     balconySqft?: number | null;
+    unit_number?: string | null;
+    unit_type?: string | null;
+    beds?: number | null;
+    baths?: number | null;
+    interior_sqft?: number | null;
+    exterior_sqft?: number | null;
+    floor_plan_name?: string | null;
   } | null;
+  customPrice: string;
+  customRent: string;
 }
 
 const SLIDES = ["overview", "gallery", "details", "map", "floorplans", "numbers"] as const;
