@@ -234,19 +234,20 @@ Deno.serve(async (req) => {
     // ==========================================
     // BUILD CONTROLLED SITEMAP
     // ==========================================
-    // Order matters for crawl priority - programmatic SEO pages first
+    // IMPORTANT: Never include redirecting URLs — "Page with redirect" GSC error
+    // Legacy /{city}-presale-condos, /presale-condos-{city} etc. are 301 redirects → EXCLUDED
+    // Only canonical destination URLs are included
     const allPages = [
       ...staticPages,
-      ...cityHubPages,           // /presale-projects/{city}
-      ...cityTypePages,          // /presale-projects/{city}/condos
-      ...cityTypePricePages,     // /presale-projects/{city}/condos-under-500k
-      ...neighborhoodLandingPages,
-      ...projectPages,
-      ...propertiesCityPages,
+      ...cityHubPages,               // /presale-projects/{city}
+      ...cityTypePages,              // /presale-projects/{city}/condos
+      ...cityTypePricePages,         // /presale-projects/{city}/condos-under-500k
+      ...neighborhoodLandingPages,   // /burnaby-brentwood-presale etc. (these ARE canonical destinations)
+      ...projectPages,               // /{neighborhood}-presale-{type}-{slug}
+      ...propertiesCityPages,        // /properties/{city}
       ...seoHubPages,
-      // NOTE: Legacy /{city}-presale-condos URLs REMOVED — they are 301 redirects
       ...blogPages,
-      ...developerPages,
+      // developerPages intentionally empty — /developers/:slug redirects to /developers
     ];
     
     // NOTE: Individual MLS listings are NOT included
