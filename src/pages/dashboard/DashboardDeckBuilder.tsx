@@ -752,9 +752,18 @@ export default function DashboardDeckBuilder() {
                 {/* Editable fields — pre-filled by AI */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs">Unit Type</Label>
+                    <div className="flex items-center gap-1.5">
+                      <Label className="text-xs">Unit Type</Label>
+                      {fp.beds != null && fp.unit_type && (
+                        <span className="text-[9px] font-semibold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                          <Wand2 className="h-2.5 w-2.5" />AI
+                        </span>
+                      )}
+                    </div>
                     <Select value={fp.unit_type} onValueChange={(v) => updateFloorPlan(fp.id, "unit_type", v)}>
-                      <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-9">
+                        <SelectValue placeholder="Select type…" />
+                      </SelectTrigger>
                       <SelectContent position="popper" side="bottom">
                         {UNIT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                       </SelectContent>
