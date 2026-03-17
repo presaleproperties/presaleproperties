@@ -1255,7 +1255,7 @@ export default function MortgageCalculatorPage() {
                             <div className="border-t pt-2">
                               <p className="text-xs font-medium text-muted-foreground mb-2">GST Rebate (credited at closing)</p>
                               <div className="flex justify-between py-1 pl-3 text-green-600">
-                                <span>GST New Housing Rebate — BC 2024</span>
+                                <span>GST New Housing Rebate — Bill C-4 (2026)</span>
                                 <span>-{formatCurrency(calculations.gstRebate)}</span>
                               </div>
                             </div>
