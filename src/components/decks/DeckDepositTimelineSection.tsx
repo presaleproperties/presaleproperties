@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Clock, TrendingUp, Key, FileSignature, DollarSign, Check } from "lucide-react";
+import { Clock, Key, FileSignature, DollarSign, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DepositStep {
