@@ -129,7 +129,7 @@ export function DeckHeroSection({
           </div>
 
           {/* Micro-copy */}
-          <p className="text-white/35 text-xs">
+          <p className="text-white/60 text-xs">
             No obligation · Respond in minutes · Private pricing available
           </p>
         </div>
