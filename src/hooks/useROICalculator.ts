@@ -37,8 +37,8 @@ function calculateMortgageBalance(
 }
 
 // Calculate BC Property Transfer Tax
-// For NEW CONSTRUCTION (presales): BC 2024 newly-built home PTT exemption applies.
-// Full exemption ≤ $1,100,000 | Partial exemption $1,100,001–$1,150,000 | No exemption above $1,150,000
+// BC 2026 newly-built home PTT exemption (confirmed gov.bc.ca Jan 6, 2026):
+// Full exemption ≤ $1,100,000 | Partial phase-out $1,100,001–$1,150,000 | No exemption above $1,150,000
 export function calculatePTT(price: number, isFirstTimeBuyer: boolean = false): number {
   if (price <= 0) return 0;
   
@@ -57,9 +57,8 @@ export function calculatePTT(price: number, isFirstTimeBuyer: boolean = false): 
     ptt += (price - 2000000) * 0.03;
   }
   
-  // Newly-built home PTT exemption (BC April 2024+): applies to ALL buyers (not just FTB)
-  // for principal residence purchases of new construction.
-  // Full exemption ≤ $1,100,000; partial phase-out up to $1,150,000
+  // BC Newly-Built Home PTT Exemption (applies to principal residence new construction purchases).
+  // Full exemption ≤ $1,100,000; partial linear phase-out up to $1,150,000
   if (isFirstTimeBuyer) {
     if (price <= 1100000) {
       ptt = 0;
@@ -85,18 +84,18 @@ export function calculateCMHCInsurance(principal: number, downPaymentPercent: nu
   return Math.round(principal * 0.04);
 }
 
-// Calculate GST New Housing Rebate — BC 2024 New Construction rules.
-// First-Time Buyers purchasing a NEW BUILD as primary residence:
-//   Full 100% GST rebate (net GST = $0) on homes priced ≤ $1,000,000.
-//   Partial rebate phases out from $1,000,001 to $1,200,000 (linear).
-//   No rebate above $1,200,000.
+// Calculate GST New Housing Rebate — Federal Bill C-4 (Royal Assent March 12, 2026).
+// First-Time Buyers purchasing a NEW BUILD as primary residence (agreements from March 20, 2025+):
+//   Full 100% GST rebate (up to $50,000) on homes priced ≤ $1,000,000.
+//   Partial rebate phases out linearly from $1,000,001 to $1,500,000.
+//   No rebate at $1,500,000 or above.
 // Investors do NOT qualify — rebate is $0 regardless of price.
 export function calculateGSTRebate(price: number, gstAmount: number): number {
   if (price <= 1000000) {
-    return Math.round(gstAmount); // 100% rebate
-  } else if (price < 1200000) {
-    // Linear phase-out: full rebate at $1M, zero at $1.2M
-    const fraction = (1200000 - price) / 200000;
+    return Math.round(gstAmount); // 100% rebate — max $50,000
+  } else if (price < 1500000) {
+    // Linear phase-out: full rebate at $1M, zero at $1.5M
+    const fraction = (1500000 - price) / 500000;
     return Math.round(gstAmount * fraction);
   }
   return 0;
