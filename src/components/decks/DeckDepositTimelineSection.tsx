@@ -221,34 +221,6 @@ export function DeckDepositTimelineSection({
               </div>
             ))}
           </div>
-
-          {/* Summary card */}
-          <div className="rounded-2xl border border-border/60 bg-card overflow-hidden md:sticky md:top-24">
-            <div className="px-4 py-3 border-b border-border/50 bg-muted/20">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-1">Summary</p>
-              <p className="text-lg font-black text-foreground">{fmt(price)}</p>
-              <p className="text-[11px] text-muted-foreground">
-                {selectedPlan ? `${selectedPlan.unit_type} · ` : ""}{projectName}
-              </p>
-            </div>
-            <div className="px-4 py-4 space-y-2.5">
-              {steps.map((step, idx) => (
-                <div key={step.id} className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{step.label}</span>
-                  <span className="font-semibold text-foreground">{fmt(price * step.percent / 100)}</span>
-                </div>
-              ))}
-              <div className="pt-2 border-t border-border/50 flex justify-between text-xs">
-                <span className="font-semibold text-foreground">Total Deposits ({totalDepositPct}%)</span>
-                <span className="font-bold text-primary">{fmt(totalDepositAmt)}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Balance at Completion</span>
-                <span className="font-semibold text-foreground">{fmt(balanceAtCompletion)}</span>
-              </div>
-
-            </div>
-          </div>
         </div>
       </div>
     </section>
