@@ -235,7 +235,16 @@ export default function AdminTopDeals() {
   };
 
   // ── Mortgage calculations
-  const calcPrice = customCalcPrice ? parseInt(customCalcPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000) : (selected?.starting_price ?? 850000);
+  const calcPrice = (() => {
+    // Use the active plan's custom price if set, else project starting price
+    const activeFp = floorPlans[activePlanIndex];
+    if (activeFp?.customPrice) {
+      return parseInt(activeFp.customPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000);
+    }
+    return customCalcPrice
+      ? parseInt(customCalcPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000)
+      : (selected?.starting_price ?? 850000);
+  })();
   const calc = useMemo(() => {
     const down = (calcPrice * downPct) / 100;
     const principal = calcPrice - down;
@@ -247,10 +256,11 @@ export default function AdminTopDeals() {
     const mr = rate / 100 / 12;
     const n = amort * 12;
     const monthly = mr > 0 ? (mortgage * mr * Math.pow(1 + mr, n)) / (Math.pow(1 + mr, n) - 1) : mortgage / n;
-    const fp0Sqft = floorPlans[0]?.metrics?.interior_sqft ?? floorPlans[0]?.metrics?.interiorSqft;
+    // Use active plan sqft for strata estimate
+    const activeFpSqft = floorPlans[activePlanIndex]?.metrics?.interior_sqft ?? floorPlans[activePlanIndex]?.metrics?.interiorSqft;
     // Custom strata override or estimate from sqft
     const strataOverride = customStrataFee ? parseInt(customStrataFee.replace(/\D/g, "")) : null;
-    const strata = strataOverride != null && strataOverride > 0 ? strataOverride : fp0Sqft ? Math.round(fp0Sqft * 0.5) : 350;
+    const strata = strataOverride != null && strataOverride > 0 ? strataOverride : activeFpSqft ? Math.round(activeFpSqft * 0.5) : 350;
     const tax = Math.round((calcPrice * 0.003) / 12);
 
     // Rebates / closing costs
