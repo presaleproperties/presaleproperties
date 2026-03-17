@@ -125,6 +125,7 @@ export default function AdminTopDeals() {
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
   const [customStrataFee, setCustomStrataFee] = useState<string>("");
   const [activePlanIndex, setActivePlanIndex] = useState(0);
+  const [floorPlanZoom, setFloorPlanZoom] = useState(false);
   // customCalcPrice is now stored per-plan inside floorPlans[].customPrice
 
   // ── Load projects
