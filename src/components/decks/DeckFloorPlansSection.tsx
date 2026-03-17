@@ -34,9 +34,11 @@ function derivePsf(plan: FloorPlan): string | null {
 
 interface DeckFloorPlansSectionProps {
   floorPlans: FloorPlan[];
+  whatsappNumber?: string;
+  projectName?: string;
 }
 
-export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps) {
+export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName }: DeckFloorPlansSectionProps) {
   const [selected, setSelected] = useState<FloorPlan | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
 
