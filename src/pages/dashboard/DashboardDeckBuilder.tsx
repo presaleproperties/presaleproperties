@@ -966,18 +966,18 @@ export default function DashboardDeckBuilder() {
               {slugTaken && <p className="text-xs text-destructive">This slug is already taken.</p>}
             </div>
             {slug && !slugTaken && (
-              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
                 <p className="text-xs font-semibold text-foreground">Your deck URL:</p>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 text-xs bg-background border border-border rounded px-3 py-2 text-primary font-mono truncate">
-                    {window.location.origin}/deck/{slug}
+                    https://presaleproperties.lovable.app/deck/{slug}
                   </code>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/deck/${slug}`);
+                      navigator.clipboard.writeText(`https://presaleproperties.lovable.app/deck/${slug}`);
                       toast.success("URL copied to clipboard!");
                     }}
                   >
