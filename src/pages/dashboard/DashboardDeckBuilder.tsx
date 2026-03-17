@@ -706,7 +706,7 @@ export default function DashboardDeckBuilder() {
                         onClick={() => setGallery((g) => { const n = [...g]; [n[i], n[i + 1]] = [n[i + 1], n[i]]; return n; })} disabled={i === gallery.length - 1}>
                         <ArrowDown className="h-3 w-3" />
                       </button>
-                      <button className="p-1.5 bg-red-500/80 rounded hover:bg-red-500 transition-colors"
+                      <button className="p-1.5 bg-destructive/80 rounded hover:bg-destructive transition-colors"
                         onClick={() => setGallery((g) => g.filter((_, idx) => idx !== i))}>
                         <Trash2 className="h-3 w-3 text-white" />
                       </button>
