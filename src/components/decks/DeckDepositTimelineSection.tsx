@@ -94,7 +94,8 @@ export function DeckDepositTimelineSection({
         {/* Header */}
         <div className="mb-8 space-y-1">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Payment Plan</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Roadmap to Completion</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">How & When You Pay</h2>
+          <p className="text-muted-foreground text-sm">A simple breakdown of every payment — from signing to getting your keys.</p>
         </div>
 
         {/* Floor plan selector or slider */}
