@@ -39,9 +39,10 @@ export function DeckHeroSection({
   return (
     <section
       id="overview"
-      className="relative min-h-[100dvh] flex flex-col justify-end overflow-hidden"
+      className="relative flex flex-col justify-end overflow-hidden"
+      style={{ height: "100dvh" }}
     >
-      {/* Background image — minimal vignette only */}
+      {/* Background image — fixed position avoids iOS scroll flicker */}
       <div className="absolute inset-0 z-0">
         {heroImageUrl ? (
           <img
@@ -49,12 +50,13 @@ export function DeckHeroSection({
             alt={projectName}
             className="w-full h-full object-cover object-center"
             loading="eager"
+            fetchPriority="high"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80" />
         )}
-        {/* Soft vignette — just enough to anchor the bottom content */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+        {/* Vignette */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
       </div>
 
       {/* Top badge */}
@@ -67,10 +69,9 @@ export function DeckHeroSection({
         </div>
       </div>
 
-      {/* Content — stacked text with individual dark backgrounds */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-16 sm:pb-20 pt-28 w-full">
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-24 sm:pb-20 pt-28 w-full">
         <div className="max-w-2xl space-y-3 sm:space-y-4">
-
 
           {/* Project name */}
           <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
@@ -104,7 +105,7 @@ export function DeckHeroSection({
 
           <div className="w-12 h-px bg-primary/80" />
 
-          {/* CTA — desktop only */}
+          {/* CTA — desktop: floor plans button / mobile: WhatsApp */}
           <div className="hidden sm:flex">
             <Button
               size="lg"
@@ -119,8 +120,25 @@ export function DeckHeroSection({
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 animate-bounce">
+      {/* Mobile WhatsApp CTA — pinned above bottom safe area */}
+      <div
+        className="sm:hidden absolute left-4 right-4 z-20"
+        style={{ bottom: "max(1.25rem, env(safe-area-inset-bottom))" }}
+      >
+        <a
+          href={`https://wa.me/${waNumber}?text=${waMessage}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2.5 w-full py-4 rounded-2xl text-white font-bold text-base shadow-2xl touch-manipulation active:scale-[0.98] transition-transform"
+          style={{ backgroundColor: "#25D366" }}
+        >
+          <MessageCircle className="h-5 w-5" />
+          I'm Interested
+        </a>
+      </div>
+
+      {/* Scroll indicator — centered, above mobile CTA */}
+      <div className="absolute bottom-28 sm:bottom-6 left-0 right-0 flex flex-col items-center gap-1 animate-bounce z-10 pointer-events-none">
         <span className="text-white/70 text-[10px] uppercase tracking-widest drop-shadow-md">Scroll</span>
         <ChevronDown className="h-5 w-5 text-white/70 drop-shadow-md" />
       </div>

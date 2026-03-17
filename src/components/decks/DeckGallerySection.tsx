@@ -15,41 +15,61 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
     setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : 0));
   const handleJumpTo = (i: number) => setLightboxIndex(i);
 
-  // Mobile: horizontal scroll strip for first N images + "View All" button
-  // Desktop: masonry grid
-  const mobileStrip = () => {
+  // Mobile: 2-up grid (like project pages) with hero first image spanning full width
+  const mobileGrid = () => {
     if (images.length === 0) return null;
+    const [first, ...rest] = images;
+    const previewRest = rest.slice(0, 5);
+
     return (
-      <div className="sm:hidden space-y-3">
-        {/* Scrollable horizontal strip */}
-        <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide">
-          {images.slice(0, 12).map((img, i) => (
-            <button
-              key={i}
-              onClick={() => setLightboxIndex(i)}
-              className="shrink-0 snap-start w-[72vw] aspect-[4/3] overflow-hidden rounded-2xl relative touch-manipulation active:opacity-90 transition-opacity"
-            >
-              <img
-                src={img}
-                alt={`Gallery ${i + 1}`}
-                className="w-full h-full object-cover"
-                loading={i < 3 ? "eager" : "lazy"}
-              />
-              {/* Last tile: +more overlay */}
-              {i === 11 && images.length > 12 && (
-                <div className="absolute inset-0 bg-black/55 flex items-center justify-center rounded-2xl">
-                  <span className="text-white font-bold text-xl">+{images.length - 11} more</span>
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
+      <div className="sm:hidden space-y-1.5">
+        {/* Hero image — full width */}
+        <button
+          onClick={() => setLightboxIndex(0)}
+          className="w-full aspect-[16/9] overflow-hidden rounded-xl relative touch-manipulation active:opacity-90 transition-opacity"
+        >
+          <img
+            src={first}
+            alt="Gallery 1"
+            className="w-full h-full object-cover"
+            loading="eager"
+          />
+          <div className="absolute inset-0 bg-black/0 active:bg-black/10 transition-colors" />
+        </button>
+
+        {/* 2-column grid for remaining */}
+        {previewRest.length > 0 && (
+          <div className="grid grid-cols-2 gap-1.5">
+            {previewRest.map((img, i) => {
+              const isLast = i === previewRest.length - 1 && images.length > previewRest.length + 1;
+              return (
+                <button
+                  key={i + 1}
+                  onClick={() => setLightboxIndex(i + 1)}
+                  className="aspect-[4/3] overflow-hidden rounded-xl relative touch-manipulation active:opacity-90 transition-opacity"
+                >
+                  <img
+                    src={img}
+                    alt={`Gallery ${i + 2}`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  {isLast && (
+                    <div className="absolute inset-0 bg-black/55 flex items-center justify-center rounded-xl">
+                      <span className="text-white font-bold text-lg">+{images.length - previewRest.length} more</span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* View all button */}
         {images.length > 1 && (
           <button
             onClick={() => setLightboxIndex(0)}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-foreground text-background text-sm font-semibold touch-manipulation active:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-foreground text-background text-sm font-semibold touch-manipulation active:opacity-90 transition-opacity mt-1"
           >
             <Grid3x3 className="h-4 w-4" />
             View All {images.length} Photos
@@ -119,7 +139,7 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">03 — Gallery</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Project Photos</h2>
           {images.length > 0 && (
-            <p className="text-muted-foreground text-sm sm:hidden">Swipe to browse · tap to expand</p>
+            <p className="text-muted-foreground text-sm sm:hidden">Tap any photo to view full screen</p>
           )}
           {images.length > 0 && (
             <p className="text-muted-foreground text-sm hidden sm:block">Click any photo to view full screen</p>
@@ -133,7 +153,7 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
           </div>
         ) : (
           <>
-            {mobileStrip()}
+            {mobileGrid()}
             {desktopGrid()}
           </>
         )}
