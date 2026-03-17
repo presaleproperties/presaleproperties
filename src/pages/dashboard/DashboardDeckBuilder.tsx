@@ -590,14 +590,6 @@ export default function DashboardDeckBuilder() {
               <Label>Completion / Occupancy</Label>
               <Input value={completionYear} onChange={(e) => setCompletionYear(e.target.value)} placeholder="Spring 2027" />
             </div>
-            <div className="space-y-1.5">
-              <Label>Stories</Label>
-              <Input type="number" value={stories} onChange={(e) => setStories(e.target.value)} placeholder="32" min={1} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Total Units</Label>
-              <Input type="number" value={totalUnits} onChange={(e) => setTotalUnits(e.target.value)} placeholder="280" min={1} />
-            </div>
           </div>
         </Section>
 
