@@ -179,7 +179,7 @@ export function DeckContactSection({
               </div>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <div className="flex flex-col gap-3 mb-6">
                 <Button
                   size="lg"
                   className="flex-1 h-12 shadow-lg shadow-primary/20 touch-manipulation"
@@ -191,7 +191,7 @@ export function DeckContactSection({
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-12 sm:px-5 touch-manipulation border-green-500 text-green-600 hover:bg-green-50"
+                    className="h-12 touch-manipulation border-green-500 text-green-600 hover:bg-green-50"
                     onClick={() => window.open(`https://wa.me/${whatsappNumber}`, "_blank")}
                   >
                     <MessageCircle className="h-5 w-5 mr-2 text-green-500" />

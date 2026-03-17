@@ -168,7 +168,7 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
         .deck-ap-type { font-size:9px; color:#6B7280; }
       `}</style>
 
-      <div ref={mapContainerRef} className="w-full h-[320px] lg:h-[460px]" />
+      <div ref={mapContainerRef} className="w-full h-[280px] sm:h-[360px] lg:h-[460px]" />
 
       {/* Filter pills */}
       <div className="absolute bottom-2 left-2 right-2 z-[1000] flex justify-center gap-1">

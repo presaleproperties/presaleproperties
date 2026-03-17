@@ -35,6 +35,7 @@ export function DeckStickyNav({ visible, activeSection, projectName }: DeckStick
           "bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm",
           visible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         )}
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           {/* Logo */}

@@ -43,7 +43,7 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
         {rest.slice(0, 6).map((img, i) => (
           <div
             key={i + 1}
-            className="overflow-hidden rounded-xl cursor-pointer relative group aspect-square sm:h-[200px]"
+            className="overflow-hidden rounded-xl cursor-pointer relative group aspect-square sm:h-[170px] md:h-[200px]"
             onClick={() => setLightboxIndex(i + 1)}
           >
             <img
