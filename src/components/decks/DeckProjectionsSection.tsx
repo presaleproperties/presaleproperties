@@ -368,10 +368,6 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
 }
 
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Cell, ReferenceLine,
-} from "recharts";
-import {
   TrendingUp, DollarSign, Percent, Home, Users, Building2,
   ChevronDown, Info, CheckCircle2, AlertCircle,
 } from "lucide-react";
