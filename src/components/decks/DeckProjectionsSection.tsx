@@ -143,7 +143,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
               <p className="text-sm font-semibold text-green-800 dark:text-green-300">First-Time Buyer Advantages Applied</p>
               <p className="text-xs text-green-700 dark:text-green-400 mt-0.5">
                 {price <= 1100000 ? "Full PTT exemption on new construction (BC 2024) · " : price <= 1150000 ? "Partial PTT exemption (BC 2024) · " : ""}
-                {price <= 1000000 ? "GST new housing rebate available" : "GST rebate phased out above $1M"}
+                {price <= 1000000 ? "100% GST rebate on new construction ≤ $1M (BC 2024)" : price < 1200000 ? "Partial GST rebate ($1M–$1.2M)" : "No GST rebate above $1.2M"}
               </p>
             </div>
           </div>

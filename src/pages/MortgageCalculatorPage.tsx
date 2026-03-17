@@ -1250,22 +1250,14 @@ export default function MortgageCalculatorPage() {
                             </div>
                           )}
                           
-                          {/* GST Rebates - shown only if applicable (GST itself is in down payment) */}
-                          {(calculations.gstRebate > 0 || calculations.bcNewHousingRebate > 0) && (
+                          {/* GST Rebate — BC 2024 New Construction: 100% rebate ≤ $1M (primary residence only) */}
+                          {calculations.gstRebate > 0 && (
                             <div className="border-t pt-2">
-                              <p className="text-xs font-medium text-muted-foreground mb-2">GST Rebates (credited at closing)</p>
-                              {calculations.gstRebate > 0 && (
-                                <div className="flex justify-between py-1 pl-3 text-green-600">
-                                  <span>Federal GST Rebate</span>
-                                  <span>-{formatCurrency(calculations.gstRebate)}</span>
-                                </div>
-                              )}
-                              {calculations.bcNewHousingRebate > 0 && (
-                                <div className="flex justify-between py-1 pl-3 text-green-600">
-                                  <span>BC New Housing Rebate</span>
-                                  <span>-{formatCurrency(calculations.bcNewHousingRebate)}</span>
-                                </div>
-                              )}
+                              <p className="text-xs font-medium text-muted-foreground mb-2">GST Rebate (credited at closing)</p>
+                              <div className="flex justify-between py-1 pl-3 text-green-600">
+                                <span>GST New Housing Rebate — BC 2024</span>
+                                <span>-{formatCurrency(calculations.gstRebate)}</span>
+                              </div>
                             </div>
                           )}
                           {includeGST && (
