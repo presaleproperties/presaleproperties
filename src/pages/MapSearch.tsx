@@ -1930,7 +1930,7 @@ export default function MapSearch() {
                               : 'border-border/30 active:border-primary/50'
                         }`}>
                           {/* Compact image with price overlay */}
-                          <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
+                          <div className="relative w-full aspect-[16/10] bg-muted overflow-hidden">
                             {isPresale ? (
                               (data as PresaleProject).featured_image ? (
                                 <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" loading="eager" />
