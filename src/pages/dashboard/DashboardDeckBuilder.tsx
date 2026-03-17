@@ -243,8 +243,8 @@ export default function DashboardDeckBuilder() {
       setCity(data.city || "");
       setAddress(data.address || "");
       setDeveloperName(data.developer_name || "");
-      setStories(data.stories?.toString() || "");
-      setTotalUnits(data.total_units?.toString() || "");
+      setStories(data.stories || "");
+      setTotalUnits(data.total_units || "");
       setCompletionYear(data.completion_year || "");
       setHeroImageUrl(data.hero_image_url || "");
       setFloorPlans(data.floor_plans || []);
