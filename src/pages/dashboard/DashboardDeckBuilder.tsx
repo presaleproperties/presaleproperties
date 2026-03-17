@@ -47,7 +47,14 @@ interface PresaleProject {
   occupancy_estimate: string | null;
 }
 
-interface AgentProfile { user_id: string; full_name: string; email: string; phone: string | null; }
+interface AgentProfile {
+  id: string;
+  full_name: string;
+  title: string | null;
+  photo_url: string | null;
+  linkedin_url: string | null;
+  instagram_url: string | null;
+}
 
 interface FloorPlan {
   id: string; unit_type: string; size_range: string; price_from: string;
@@ -106,7 +113,7 @@ export default function DashboardDeckBuilder() {
   const searchRef = useRef<HTMLDivElement>(null);
 
   const [agents, setAgents] = useState<AgentProfile[]>([]);
-  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
 
   const [projectName, setProjectName] = useState("");
   const [tagline, setTagline] = useState("");
@@ -164,31 +171,27 @@ export default function DashboardDeckBuilder() {
     })();
   }, []);
 
+  // Map team member to contact fields (name only — phone/email filled manually or from hardcoded lookup)
   const applyAgentProfile = useCallback((agent: AgentProfile) => {
     setContactName(agent.full_name || "");
-    setContactPhone(agent.phone || "");
-    setContactEmail(agent.email || "");
-    setContactWhatsapp(agent.phone ? agent.phone.replace(/\D/g, "") : "");
-    setSelectedAgentId(agent.user_id);
+    setSelectedAgentId(agent.id || null);
   }, []);
 
-  // Fetch team members and auto-select logged-in user
+  // Fetch active team members from team_members_public view
   useEffect(() => {
     (async () => {
       const { data } = await (supabase as any)
-        .from("profiles")
-        .select("user_id, full_name, email, phone")
-        .not("full_name", "is", null)
-        .order("full_name");
+        .from("team_members_public")
+        .select("id, full_name, title, photo_url")
+        .order("sort_order", { ascending: true });
       if (data?.length) {
-        setAgents(data);
-        if (!isEdit && user) {
-          const me = data.find((a: AgentProfile) => a.user_id === user.id) || data[0];
-          if (me) applyAgentProfile(me);
+        setAgents(data as unknown as AgentProfile[]);
+        if (!isEdit) {
+          applyAgentProfile((data as unknown as AgentProfile[])[0]);
         }
       }
     })();
-  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -788,17 +791,24 @@ export default function DashboardDeckBuilder() {
                 <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wider">Team member</p>
                 <div className="flex flex-wrap gap-2">
                   {agents.map((agent) => (
-                    <button key={agent.user_id} type="button" onClick={() => applyAgentProfile(agent)}
+                    <button key={agent.id} type="button" onClick={() => applyAgentProfile(agent)}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-all ${
-                        selectedAgentId === agent.user_id
+                        selectedAgentId === agent.id
                           ? "border-primary bg-primary/10 text-primary font-medium"
                           : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
                       }`}>
-                      <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
-                        {(agent.full_name || "?").split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                      {agent.photo_url ? (
+                        <img src={agent.photo_url} alt={agent.full_name || ""} className="h-6 w-6 rounded-full object-cover object-top shrink-0" />
+                      ) : (
+                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
+                          {(agent.full_name || "?").split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="text-left">
+                        <p className="text-sm leading-tight">{agent.full_name}</p>
+                        {agent.title && <p className="text-[10px] text-muted-foreground leading-tight">{agent.title}</p>}
                       </div>
-                      {agent.full_name}
-                      {selectedAgentId === agent.user_id && <CheckCircle2 className="h-3.5 w-3.5 ml-0.5" />}
+                      {selectedAgentId === agent.id && <CheckCircle2 className="h-3.5 w-3.5 ml-0.5 shrink-0" />}
                     </button>
                   ))}
                 </div>
