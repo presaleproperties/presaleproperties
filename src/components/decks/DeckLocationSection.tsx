@@ -23,10 +23,10 @@ interface DeckLocationSectionProps {
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 
 const amenityCategories = [
-  { key: "schools",    label: "Schools",  icon: School,       color: "#64748B" },
-  { key: "transit",    label: "Transit",  icon: Train,        color: "#64748B" },
-  { key: "parks",      label: "Parks",    icon: Footprints,   color: "#64748B" },
-  { key: "grocery",    label: "Shops",    icon: ShoppingBag,  color: "#64748B" },
+  { key: "schools",  label: "Schools", icon: School,      color: "#64748B" },
+  { key: "transit",  label: "Transit", icon: Train,       color: "#64748B" },
+  { key: "parks",    label: "Parks",   icon: Footprints,  color: "#64748B" },
+  { key: "grocery",  label: "Shops",   icon: ShoppingBag, color: "#64748B" },
 ];
 
 function buildOverpassQuery(lat: number, lon: number): string {
@@ -168,9 +168,9 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
         .deck-ap-type { font-size:9px; color:#6B7280; }
       `}</style>
 
-      <div ref={mapContainerRef} className="w-full h-[280px] sm:h-[320px] md:h-[380px]" />
+      <div ref={mapContainerRef} className="w-full h-[320px] lg:h-[460px]" />
 
-      {/* Filter pills — icon-only circles, same as ProjectLocationMiniMap */}
+      {/* Filter pills */}
       <div className="absolute bottom-2 left-2 right-2 z-[1000] flex justify-center gap-1">
         {amenityCategories.map(({ key, icon: Icon, label }) => {
           const isActive = activeCategories.has(key);
@@ -239,7 +239,7 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
         </div>
 
         {/* Two-column: compact info left, map right */}
-        <div className="grid lg:grid-cols-[300px_1fr] gap-4 items-start">
+        <div className="grid lg:grid-cols-[280px_1fr] gap-4 items-start">
 
           {/* Left: compact info panel */}
           <div className="bg-muted/30 rounded-xl border border-border/40 p-4 space-y-4">
@@ -355,125 +355,6 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
             <DeckMap lat={centerLat} lng={centerLng} projectName={projectName} address={address} />
           </div>
 
-        </div>
-      </div>
-    </section>
-  );
-}
-
-          {/* Walk & Transit Scores */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-background rounded-xl p-4 border border-border/50">
-              <div className="flex items-center gap-2 mb-2">
-                <Footprints className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground font-medium uppercase">Walk Score</span>
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className={`text-2xl font-bold ${getScoreColor(data.walkScore)}`}>{data.walkScore}</span>
-                <span className="text-xs text-muted-foreground">/100</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">{getScoreLabel(data.walkScore)}</p>
-            </div>
-            <div className="bg-background rounded-xl p-4 border border-border/50">
-              <div className="flex items-center gap-2 mb-2">
-                <Train className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground font-medium uppercase">Transit Score</span>
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className={`text-2xl font-bold ${getScoreColor(data.transitScore)}`}>{data.transitScore}</span>
-                <span className="text-xs text-muted-foreground">/100</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {data.transitScore >= 70 ? "Excellent Transit" : "Some Transit"}
-              </p>
-            </div>
-          </div>
-
-          {/* Transit & Accessibility */}
-          <div className="mb-6">
-            <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Car className="h-4 w-4 text-primary" />
-              Transit & Accessibility
-            </h4>
-            <ul className="space-y-2">
-              {data.landmarks.map((l, i) => (
-                <li key={i} className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{l.name}</span>
-                  <span className="flex items-center gap-1.5 font-medium text-foreground">
-                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                    {l.distance}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Schools */}
-          <div className="mb-6">
-            <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <School className="h-4 w-4 text-primary" />
-              Nearby Schools
-            </h4>
-            <ul className="space-y-2">
-              {data.schools.map((s, i) => (
-                <li key={i} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">{s.name}</span>
-                    <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">
-                      {s.rating}/10
-                    </span>
-                  </div>
-                  <span className="text-muted-foreground text-xs">{s.distance}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Shopping & Dining */}
-          <div className="mb-5">
-            <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <ShoppingBag className="h-4 w-4 text-primary" />
-              Shopping & Dining
-            </h4>
-            <ul className="space-y-2">
-              {data.shopping.map((s, i) => (
-                <li key={i} className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{s.name}</span>
-                  <span className="text-muted-foreground text-xs">{s.distance}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* View on Map CTA */}
-          {lat && lng && (
-            <Link
-              to={`/map-search?lat=${lat}&lng=${lng}&zoom=15`}
-              className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-background border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
-            >
-              <MapPin className="h-4 w-4 text-primary" />
-              View {projectName} on Map
-            </Link>
-          )}
-        </div>
-
-        {/* Map — same component as ProjectLocationMiniMap */}
-        <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
-          <div className="flex items-center justify-between gap-2 mb-3">
-            <h3 className="text-base sm:text-lg font-bold text-foreground">Project Location</h3>
-            {lat && lng && (
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                Open in Maps
-              </a>
-            )}
-          </div>
-          <DeckMap lat={centerLat} lng={centerLng} projectName={projectName} address={address} />
         </div>
       </div>
     </section>
