@@ -113,38 +113,6 @@ export function DeckContactSection({
           </p>
         </div>
 
-        {/* Top CTA banner — urgency */}
-        <div className="relative rounded-2xl overflow-hidden mb-8 bg-gradient-to-r from-primary to-primary/80 p-6 sm:p-8">
-          <div className="absolute inset-0 opacity-10 pointer-events-none"
-            style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 0%, transparent 60%)" }} />
-          <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="h-4 w-4 text-primary-foreground/80 shrink-0" />
-                <span className="text-primary-foreground/80 text-xs font-semibold uppercase tracking-wider">Limited Availability</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-primary-foreground">
-                Ready to move forward on {projectName}?
-              </h3>
-              <p className="text-primary-foreground/75 text-sm">
-                Text us right now — we'll reply within minutes with pricing, availability & next steps.
-              </p>
-            </div>
-            <div className="shrink-0 w-full sm:w-auto">
-              <a
-                href={`https://wa.me/${rawNumber}?text=${waMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl font-bold text-sm text-white touch-manipulation transition-all active:scale-[0.98] shadow-lg w-full"
-                style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(0,0,0,0.25)" }}
-              >
-                <MessageCircle className="h-5 w-5 shrink-0" />
-                I'm Interested
-              </a>
-            </div>
-          </div>
-        </div>
-
         {/* Two-column layout */}
         <div className="grid lg:grid-cols-2 gap-8 items-start">
 
