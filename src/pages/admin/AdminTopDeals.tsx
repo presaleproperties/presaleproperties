@@ -692,12 +692,23 @@ export default function AdminTopDeals() {
                         <p className="text-sm font-medium">Scanning floor plan…</p>
                       </div>
                     ) : (
-                      <img
-                        key={activePlanIndex}
-                        src={floorPlans[activePlanIndex].preview}
-                        alt="Floor plan"
-                        className="h-full w-full object-contain animate-fade-in"
-                      />
+                      <div className="relative h-full w-full group/zoom">
+                        <img
+                          key={activePlanIndex}
+                          src={floorPlans[activePlanIndex].preview}
+                          alt="Floor plan"
+                          onClick={() => setFloorPlanZoom(true)}
+                          className="h-full w-full object-contain animate-fade-in cursor-zoom-in"
+                        />
+                        {/* Zoom hint */}
+                        <button
+                          onClick={() => setFloorPlanZoom(true)}
+                          className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-xs font-medium opacity-0 group-hover/zoom:opacity-100 transition-opacity shadow-sm hover:bg-muted"
+                        >
+                          <ZoomIn className="h-3.5 w-3.5" />
+                          Zoom
+                        </button>
+                      </div>
                     )}
                     {/* Remove button */}
                     <button
