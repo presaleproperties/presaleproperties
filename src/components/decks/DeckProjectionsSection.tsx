@@ -79,8 +79,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
   const [taxInput, setTaxInput] = useState("125");
   const [holdYears, setHoldYears] = useState(5);
   const [appRate, setAppRate] = useState(4);
-  const [dep1Pct, setDep1Pct] = useState(5);
-  const [dep2Pct, setDep2Pct] = useState(5);
+  const [depositPct, setDepositPct] = useState(10);
 
   const selectedPlan = floorPlans.find((p) => p.id === selectedPlanId);
   const planPrice = selectedPlan ? parsePriceFromString(selectedPlan.price_from) : null;
@@ -95,9 +94,9 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
     const pttRaw = calculatePTT(price, false);
     const ptt = isFirstTimeBuyer ? 0 : (includePTT ? pttRaw : 0);
 
-    const dep1 = price * (dep1Pct / 100);
-    const dep2 = price * (dep2Pct / 100);
-    const totalDeposits = dep1 + dep2;
+    const dep1 = price * (depositPct / 100);
+    const dep2 = 0;
+    const totalDeposits = dep1;
 
     const downAmt = priceWithGST * (downPct / 100);
     const baseMortgage = priceWithGST - downAmt;
@@ -136,7 +135,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
       totalEquity, totalCashFlow, totalReturn, roiPct,
       capRate, cashOnCash,
     };
-  }, [price, isFirstTimeBuyer, includeGST, includePTT, downPct, rate, amort, dep1Pct, dep2Pct, strataFees, propertyTax, holdYears, appRate, projectedRent]);
+  }, [price, isFirstTimeBuyer, includeGST, includePTT, downPct, rate, amort, depositPct, strataFees, propertyTax, holdYears, appRate, projectedRent]);
 
   const isPositiveCF = (results.monthlyCashFlow ?? 0) >= 0;
 
@@ -263,21 +262,14 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                     <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>5%</span><span>50%</span></div>
                   </div>
 
-                  {/* Deposit structure */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {([
-                      { label: "Deposit 1", val: dep1Pct, set: setDep1Pct, amt: results.dep1 },
-                      { label: "Deposit 2", val: dep2Pct, set: setDep2Pct, amt: results.dep2 },
-                    ] as const).map(({ label, val, set, amt }) => (
-                      <div key={label} className="rounded-xl bg-muted/40 p-3">
-                        <div className="flex justify-between text-[11px] mb-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
-                          <span className="font-bold text-primary">{val}%</span>
-                        </div>
-                        <Slider min={0} max={15} step={1} value={[val]} onValueChange={([v]) => set(v)} />
-                        <p className="text-center text-[11px] font-semibold text-muted-foreground mt-1">{fmt(amt)}</p>
-                      </div>
-                    ))}
+                  {/* Deposit paid to developer */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-foreground">Deposit Paid to Developer</span>
+                      <span className="text-sm font-bold text-primary">{depositPct}% · {fmt(results.dep1)}</span>
+                    </div>
+                    <Slider min={0} max={30} step={1} value={[depositPct]} onValueChange={([v]) => setDepositPct(v)} />
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>0%</span><span>30%</span></div>
                   </div>
 
                   {/* Rate + amortization */}
