@@ -178,7 +178,7 @@ export default function AdminTopDeals() {
     const newPlans: FloorPlan[] = [];
     for (let i = 0; i < Math.min(files.length, remaining); i++) {
       const file = files[i];
-      newPlans.push({ file, preview: URL.createObjectURL(file), publicUrl: null, scanning: true, metrics: null });
+      newPlans.push({ file, preview: URL.createObjectURL(file), publicUrl: null, scanning: true, metrics: null, customPrice: "", customRent: "" });
     }
     const startIdx = floorPlans.length;
     setFloorPlans((prev) => [...prev, ...newPlans]);
@@ -187,22 +187,26 @@ export default function AdminTopDeals() {
       const plan = newPlans[i];
       const planIndex = startIdx + i;
       try {
-        const path = `floorplans/topdeals-${Date.now()}-${plan.file.name}`;
+        // Sanitize filename — replace spaces and special chars
+        const safeName = plan.file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `floorplans/topdeals-${Date.now()}-${safeName}`;
         const { error: uploadError } = await supabase.storage
           .from("listing-files")
-          .upload(path, plan.file, { upsert: true });
+          .upload(path, plan.file, { upsert: true, contentType: plan.file.type });
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage.from("listing-files").getPublicUrl(path);
 
-        const { data: fnData, error: fnError } = await supabase.functions.invoke("extract-floorplan-data", {
-          body: { imageUrl: publicUrl },
+        // Use the more capable extract-floor-plan function
+        const { data: fnData, error: fnError } = await supabase.functions.invoke("extract-floor-plan", {
+          body: { fileUrl: publicUrl, fileName: safeName },
         });
         if (fnError) throw fnError;
 
+        const metrics = fnData?.data || fnData || {};
         setFloorPlans((prev) => {
           const updated = [...prev];
-          updated[planIndex] = { ...updated[planIndex], scanning: false, metrics: fnData, publicUrl };
+          updated[planIndex] = { ...updated[planIndex], scanning: false, metrics, publicUrl };
           return updated;
         });
         toast.success("Floor plan scanned");
