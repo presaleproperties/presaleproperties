@@ -62,11 +62,11 @@ export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps
             <p className="text-muted-foreground">Floor plans coming soon.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
             {floorPlans.map((plan, idx) => (
               <button
                 key={plan.id}
-                className="group relative text-left rounded-2xl overflow-hidden border border-border/50 bg-background hover:border-primary/40 hover:shadow-xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="group relative text-left rounded-xl sm:rounded-2xl overflow-hidden border border-border/50 bg-background hover:border-primary/40 hover:shadow-xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.98] touch-manipulation"
                 onClick={() => setSelected(plan)}
                 onMouseEnter={() => setHovered(plan.id)}
                 onMouseLeave={() => setHovered(null)}
