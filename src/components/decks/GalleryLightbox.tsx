@@ -68,9 +68,9 @@ export function GalleryLightbox({
 
   if (images.length === 0) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[200] bg-black flex flex-col"
+      className="fixed inset-0 z-[9999] bg-black flex flex-col"
       style={{ height: "100dvh" }}
     >
       {/* Top bar */}
