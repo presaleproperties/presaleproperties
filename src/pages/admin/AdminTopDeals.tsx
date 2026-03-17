@@ -261,18 +261,22 @@ export default function AdminTopDeals() {
     const activeFpSqft = floorPlans[activePlanIndex]?.metrics?.interior_sqft ?? floorPlans[activePlanIndex]?.metrics?.interiorSqft;
     // Custom strata override or estimate from sqft
     const strataOverride = customStrataFee ? parseInt(customStrataFee.replace(/\D/g, "")) : null;
-    const strata = strataOverride != null && strataOverride > 0 ? strataOverride : activeFpSqft ? Math.round(activeFpSqft * 0.5) : 350;
+    const strata = strataOverride != null && strataOverride > 0 ? strataOverride : activeFpSqft ? Math.round(activeFpSqft * 0.5) : 300;
     const tax = Math.round((calcPrice * 0.003) / 12);
 
     // Rebates / closing costs
-    // GST: ~5% on new presales; FTB rebate up to $6,300 (federal) for homes ≤ $450k; partial up to $524k
+    // GST: 5% on new presales
+    // FTB New Housing Rebate (federal): max $6,300 for homes ≤ $350k (36% of GST); phases out linearly to $0 at $450k
+    // Investors do NOT qualify for any GST rebate
     const gstFull = calcPrice * 0.05;
     let gstRebate = 0;
-    if (calcPrice <= 450000) {
-      gstRebate = Math.min(gstFull * 0.36, 6300);
-    } else if (calcPrice < 524999) {
-      const partial = (524999 - calcPrice) / 74999;
-      gstRebate = Math.min(gstFull * 0.36, 6300) * partial;
+    if (buyerType === "ftb") {
+      if (calcPrice <= 350000) {
+        gstRebate = Math.min(gstFull * 0.36, 6300);
+      } else if (calcPrice < 450000) {
+        const partial = (450000 - calcPrice) / 100000;
+        gstRebate = Math.min(gstFull * 0.36, 6300) * partial;
+      }
     }
     const netGST = gstFull - gstRebate;
 
