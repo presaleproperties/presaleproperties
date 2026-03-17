@@ -9,6 +9,7 @@ export interface FloorPlan {
   unit_type: string;
   size_range: string;
   price_from: string;
+  price_per_sqft?: string;
   tags: string[];
   image_url?: string;
 }

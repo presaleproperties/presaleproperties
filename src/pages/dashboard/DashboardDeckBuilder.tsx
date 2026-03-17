@@ -778,11 +778,11 @@ export default function DashboardDeckBuilder() {
                     <Input className="h-9" value={fp.price_from} onChange={(e) => updateFloorPlan(fp.id, "price_from", e.target.value)} placeholder="$599,900" />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Tags <span className="font-normal text-muted-foreground">(comma separated)</span></Label>
+                    <Label className="text-xs">Price / sqft</Label>
                     <Input className="h-9"
-                      value={fp.tags.join(", ")}
-                      onChange={(e) => updateFloorPlan(fp.id, "tags", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                      placeholder="Balcony, Den, Parking" />
+                      value={fp.price_per_sqft || ""}
+                      onChange={(e) => updateFloorPlan(fp.id, "price_per_sqft", e.target.value)}
+                      placeholder="$1,050/sqft" />
                   </div>
                 </div>
               </div>
