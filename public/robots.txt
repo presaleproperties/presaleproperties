@@ -81,12 +81,12 @@ Disallow: /langley/
 # CRAWL BUDGET - Block parameterized dynamic pages
 # ============================================
 
-# Map search with coordinate/UI params
-Disallow: /map-search?*lat=
-Disallow: /map-search?*lng=
-Disallow: /map-search?*zoom=
-Disallow: /map-search?*q=
-Disallow: /map-search?*mode=
+# Map search — block entirely (SPA UI, no indexable content)
+Disallow: /map-search
+Disallow: /map-search?*
+
+# Also block resale query-param URLs that are still being crawled  
+Disallow: /resale?*
 
 # Calculator with price params
 Disallow: /calculator?*price=

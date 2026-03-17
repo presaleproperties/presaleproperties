@@ -416,6 +416,12 @@ const App = () => (
             <Route path="/properties/port coquitlam" element={<Navigate to="/properties/port-coquitlam" replace />} />
             <Route path="/properties/west vancouver" element={<Navigate to="/properties/west-vancouver" replace />} />
             
+            {/* Catch 'undefined' segment URLs — Google crawled these from internal links with null property types */}
+            {/* These must come BEFORE the generic :slug route */}
+            <Route path="/properties/:citySlug/undefined" element={<PropertiesCleanupRedirect />} />
+            <Route path="/properties/:citySlug/:neighborhoodSlug/undefined" element={<PropertiesCleanupRedirect />} />
+            <Route path="/properties/:citySlug/undefined/:type" element={<PropertiesCleanupRedirect />} />
+            
             {/* Legacy /property-type/ routes → redirect to presale projects */}
             <Route path="/property-type/condos/:slug" element={<Navigate to="/presale-projects" replace />} />
             <Route path="/property-type/townhomes/:slug" element={<Navigate to="/presale-projects" replace />} />

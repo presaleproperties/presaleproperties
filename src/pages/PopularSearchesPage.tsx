@@ -39,7 +39,7 @@ const PROPERTY_TYPES = [
   { slug: "homes", label: "Homes", icon: HomeIcon },
 ];
 
-// Helper to generate URL
+// Helper to generate URL — always use /properties/ (canonical), never /resale/
 const getCitySlug = (city: string) => city.toLowerCase().replace(/\s+/g, "-");
 const getNeighborhoodSlug = (n: string) => n.toLowerCase().replace(/\s+/g, "-").replace(/'/g, "");
 
@@ -91,10 +91,10 @@ export default function PopularSearchesPage() {
                     <h3 className="font-semibold text-lg">New {label}</h3>
                   </div>
                   <ul className="space-y-2">
-                    {CITIES.slice(0, 8).map((city) => (
+                   {CITIES.slice(0, 8).map((city) => (
                       <li key={city}>
                         <Link
-                          to={`/resale/${getCitySlug(city)}/${slug}`}
+                          to={`/properties/${getCitySlug(city)}/${slug}`}
                           className="text-primary hover:underline text-sm"
                         >
                           New {label} in {city}
@@ -130,14 +130,14 @@ export default function PopularSearchesPage() {
                         </h4>
                         <ul className="space-y-2">
                           <li>
-                            <Link to={`/resale/${citySlug}`} className="text-primary hover:underline text-sm">
+                          <Link to={`/properties/${citySlug}`} className="text-primary hover:underline text-sm">
                               All New Homes in {city}
                             </Link>
                           </li>
                           {PROPERTY_TYPES.map(({ slug, label }) => (
                             <li key={slug}>
                               <Link 
-                                to={`/resale/${citySlug}/${slug}`} 
+                                to={`/properties/${citySlug}/${slug}`} 
                                 className="text-primary hover:underline text-sm"
                               >
                                 New {label} in {city}
@@ -156,7 +156,7 @@ export default function PopularSearchesPage() {
                           {neighborhoods.slice(0, 5).map((neighborhood) => (
                             <li key={neighborhood}>
                               <Link 
-                                to={`/resale/${citySlug}/${getNeighborhoodSlug(neighborhood)}/condos`}
+                                to={`/properties/${citySlug}/${getNeighborhoodSlug(neighborhood)}/condos`}
                                 className="text-primary hover:underline text-sm"
                               >
                                 New Condos in {neighborhood}
@@ -175,7 +175,7 @@ export default function PopularSearchesPage() {
                           {neighborhoods.slice(0, 5).map((neighborhood) => (
                             <li key={neighborhood}>
                               <Link 
-                                to={`/resale/${citySlug}/${getNeighborhoodSlug(neighborhood)}/townhomes`}
+                                to={`/properties/${citySlug}/${getNeighborhoodSlug(neighborhood)}/townhomes`}
                                 className="text-primary hover:underline text-sm"
                               >
                                 New Townhomes in {neighborhood}
@@ -194,7 +194,7 @@ export default function PopularSearchesPage() {
                           {[1, 2, 3, 4].map((bed) => (
                             <li key={bed}>
                               <Link 
-                                to={`/resale/${citySlug}/${bed}-bedroom`}
+                                to={`/properties/${citySlug}/${bed}-bedroom`}
                                 className="text-primary hover:underline text-sm"
                               >
                                 {bed}+ Bedroom Homes in {city}
