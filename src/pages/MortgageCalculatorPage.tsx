@@ -251,25 +251,21 @@ export default function MortgageCalculatorPage() {
     
     const mortgageAmount = principal + cmhcInsurance;
     
-    // GST Rebate for new homes (36% of GST on homes up to $350,000, reduced for $350,000-$450,000)
+    // GST Rebate — BC 2024 New Construction (primary residence / first-time buyer only).
+    // Full 100% rebate ≤ $1,000,000 | partial phase-out $1,000,001–$1,200,000 | none above $1,200,000.
+    // Investors do NOT qualify.
     let gstRebate = 0;
-    if (includeGST) {
-      if (basePrice <= 350000) {
-        gstRebate = gstAmount * 0.36;
-      } else if (basePrice < 450000) {
-        gstRebate = gstAmount * 0.36 * (1 - (basePrice - 350000) / 100000);
+    if (includeGST && isFirstTimeBuyer) {
+      if (basePrice <= 1000000) {
+        gstRebate = gstAmount; // 100% rebate
+      } else if (basePrice < 1200000) {
+        gstRebate = gstAmount * (1200000 - basePrice) / 200000;
       }
     }
-    
-    // BC New Housing Rebate (71.43% of provincial portion, capped) - only for new construction
-    let bcNewHousingRebate = 0;
-    if (includeGST && basePrice <= 850000) {
-      const pstEquivalent = basePrice * 0.07; // Provincial portion equivalent
-      bcNewHousingRebate = Math.min(pstEquivalent * 0.7143, 42500);
-      if (basePrice > 750000) {
-        bcNewHousingRebate = bcNewHousingRebate * (1 - (basePrice - 750000) / 100000);
-      }
-    }
+
+    // BC New Housing Rebate — not applicable for new construction condos/presales in BC.
+    // The federal GST rebate above already covers the full rebate for primary residents.
+    const bcNewHousingRebate = 0;
     
     // Property Transfer Tax - check exemptions
     const ptt = calculatePTT(basePrice, isPrimaryHome, includeGST, isFirstTimeBuyer);

@@ -120,25 +120,25 @@ export function StepGetPreApproved() {
         <SectionCard>
           <SectionLabel text="GST on New Construction — 5%" />
           <div className="space-y-0 mb-3">
-            <CostRow label="GST on $525,000" value="$26,250" />
             <CostRow label="GST on $600,000" value="$30,000" />
-            <CostRow label="GST on $750,000" value="$37,500" />
+            <CostRow label="GST on $800,000" value="$40,000" />
+            <CostRow label="GST on $1,000,000" value="$50,000" />
           </div>
-          {/* GST Rebate callout */}
+          {/* GST Rebate callout — BC 2024 New Construction rules */}
           <div className="rounded-md bg-primary/8 border border-primary/20 p-3 space-y-1.5">
-            <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">GST New Housing Rebate</p>
+            <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">GST New Housing Rebate — BC 2024 New Construction</p>
             <ul className="space-y-1 text-xs text-muted-foreground">
               <li className="flex items-start gap-1.5">
                 <span className="text-primary flex-shrink-0">✓</span>
-                <span><strong className="text-foreground">≤ $350,000:</strong> Rebate of 36% of GST (~$6,300 max). Primary residence only.</span>
+                <span><strong className="text-foreground">≤ $1,000,000:</strong> 100% GST rebate — net GST = $0. Primary residence only.</span>
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-primary flex-shrink-0">~</span>
-                <span><strong className="text-foreground">$350,001–$449,999:</strong> Partial rebate on sliding scale.</span>
+                <span><strong className="text-foreground">$1,000,001–$1,199,999:</strong> Partial rebate, phased out on sliding scale.</span>
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-destructive flex-shrink-0">✕</span>
-                <span><strong className="text-foreground">≥ $450,000:</strong> No rebate — full GST applies.</span>
+                <span><strong className="text-foreground">≥ $1,200,000:</strong> No rebate — full GST applies.</span>
               </li>
             </ul>
             <p className="text-[10px] text-muted-foreground pt-1 border-t border-border/50">
