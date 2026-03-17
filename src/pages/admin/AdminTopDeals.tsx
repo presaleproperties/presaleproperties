@@ -276,23 +276,26 @@ export default function AdminTopDeals() {
     const netGST = gstFull - gstRebate;
 
     // PTT: BC Property Transfer Tax
-    // FTB exemption: full exemption up to $500k; partial $500k–$525k
+    // Standard brackets: 1% on first $200k, 2% up to $2M, 3% over $2M
     let ptt = 0;
     if (calcPrice <= 200000) {
       ptt = calcPrice * 0.01;
-    } else if (calcPrice <= 3000000) {
-      ptt = 200000 * 0.01 + (Math.min(calcPrice, 3000000) - 200000) * 0.02;
+    } else if (calcPrice <= 2000000) {
+      ptt = 200000 * 0.01 + (calcPrice - 200000) * 0.02;
     } else {
-      ptt = 200000 * 0.01 + 2800000 * 0.02 + (calcPrice - 3000000) * 0.03;
+      ptt = 200000 * 0.01 + 1800000 * 0.02 + (calcPrice - 2000000) * 0.03;
     }
+    // FTB exemption (BC 2024 update for newly-built homes):
+    // Full exemption ≤ $835,000; partial phase-out $835k–$860k; no exemption above $860k
     let pttPayable = ptt;
     if (buyerType === "ftb") {
-      if (calcPrice <= 500000) {
+      if (calcPrice <= 835000) {
         pttPayable = 0;
-      } else if (calcPrice < 525000) {
-        const exemptFraction = (525000 - calcPrice) / 25000;
+      } else if (calcPrice < 860000) {
+        const exemptFraction = (860000 - calcPrice) / 25000;
         pttPayable = ptt * (1 - exemptFraction);
       }
+      // Above $860k: full PTT applies
     }
 
     const legalFees = 2000;
