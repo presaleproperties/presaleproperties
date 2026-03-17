@@ -2,18 +2,23 @@
  * SEO Index Control Hook
  * 
  * Centralizes logic for determining if a page should be indexed.
- * Implements PART 1 — INDEX CONTROL from the SEO strategy.
  * 
- * NOINDEX patterns:
- * - /map-search*
- * - URLs with ?lat=, ?lng=, ?zoom=, ?project=, ?sort=, ?view=
- * - Filter pages like /presale-projects?city=X
- * - Any dynamically generated UI/map URLs
+ * NOINDEX patterns (tight — only truly non-indexable):
+ * - /map-search (UI-only, no real content)
+ * - Auth / admin / dashboard routes
+ * - Coordinate/map params: lat, lng, zoom, mode
+ * - Pure UI state params: sort, view, filter, q, search
+ * 
+ * INDEXABLE (previously over-blocked, now allowed):
+ * - /presale-projects?city= → canonical to /presale-projects/{city}/condos
+ * - /properties?city= → canonical to /properties/{city}
+ * - All programmatic city/type/price pages
+ * - Blog, guides, buyer education pages
  * 
  * CANONICAL rules:
- * - Filter pages → canonical to clean city/type page
- * - Parameter URLs → canonical to base path
- * - All pages must have explicit canonical
+ * - Filter pages → canonical to clean base URL (indexed)
+ * - Param URLs → canonical to base path without params
+ * - Every page MUST have an explicit self-referencing or pointed canonical
  */
 
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -21,17 +26,17 @@ import { useMemo } from "react";
 
 const SITE_URL = "https://presaleproperties.com";
 
-// Query params that trigger noindex
-// NOTE: "page", "city", "neighborhood", "developer" removed — these are valid filter params
-// that have canonical city/hub pages; pagination shouldn't blanket-noindex.
+// ⚠️ TIGHT noindex params — ONLY true UI/map params, NOT content filters
+// Removed: beds, baths, price, type, deposit, year, status — these are content filters
+// that should be crawlable (they have canonical city pages to point to)
 const NOINDEX_PARAMS = [
-  "lat", "lng", "zoom", "project", "sort", "view",
-  "beds", "baths", "price", "type", "deposit",
-  "year", "status", "filter", "q", "search", "mode",
+  "lat", "lng", "zoom", "mode",   // map/UI-only coordinates
+  "filter", "q", "search",         // search UI state (no canonical target)
+  "view",                           // UI layout toggle
 ];
 
-// Routes that should ALWAYS be noindexed (regardless of params)
-// IMPORTANT: Only auth, admin, private, and true utility routes
+// Routes that should ALWAYS be noindexed
+// CRITICAL: Keep this list minimal — only auth/admin/private/true-utility
 const NOINDEX_ROUTES = [
   "/map-search",
   "/admin",
@@ -39,20 +44,20 @@ const NOINDEX_ROUTES = [
   "/login",
   "/buyer/login",
   "/buyer/signup",
+  "/buyer",
   "/buyer/dashboard",
   "/exclusive-offer",
   "/campaign",
   "/vip-access",
   "/404",
-  // NOTE: /resale, /blogs, /market-report, /guide, /privacy, /deposit, /investment-presale-properties
-  // removed — these are either redirect sources (handled by App.tsx) or indexable content pages.
+  "/developer",  // developer portal
 ];
 
-// Routes that should noindex when they have query params, canonical to base
+// Routes that should noindex when they have ANY query params (canonical to base path)
 const NOINDEX_WITH_PARAMS_ROUTES = [
   "/calculator",
-  "/presale-projects",
-  "/properties",
+  "/roi-calculator",
+  "/mortgage-calculator",
 ];
 
 // City filter pages that should canonical to clean city pages (NEW URL structure)
