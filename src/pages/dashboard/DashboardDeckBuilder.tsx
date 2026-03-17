@@ -391,8 +391,6 @@ export default function DashboardDeckBuilder() {
     const payload: any = {
       user_id: user.id, slug, project_name: projectName, tagline, city, address,
       developer_name: developerName,
-      stories: stories ? parseInt(stories) : null,
-      total_units: totalUnits ? parseInt(totalUnits) : null,
       completion_year: completionYear,
       hero_image_url: heroImageUrl, floor_plans: floorPlans, gallery,
       proximity_highlights: highlights,
