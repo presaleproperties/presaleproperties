@@ -984,7 +984,7 @@ export default function DashboardDeckBuilder() {
                     <Copy className="h-3.5 w-3.5 mr-1" />Copy
                   </Button>
                   <Button type="button" variant="outline" size="sm" asChild>
-                    <a href={`https://presaleproperties.com/deck/${slug}`} target="_blank" rel="noopener noreferrer">
+                    <a href={`/deck/${slug}`} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-3.5 w-3.5 mr-1" />Open
                     </a>
                   </Button>
