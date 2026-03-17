@@ -63,7 +63,7 @@ export function DeckHeroSection({
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/20">
           <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           <span className="text-primary text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest">
-            Exclusive Presale Opportunity
+            Buy Before It's Built — Lock In Today's Price
           </span>
         </div>
       </div>
