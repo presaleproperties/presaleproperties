@@ -89,19 +89,19 @@ export function DeckHeroSection({
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/8 backdrop-blur-md border border-white/12 shrink-0"
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 backdrop-blur-md border border-white/25 shrink-0"
                 >
                   <stat.icon className="h-3.5 w-3.5 text-primary shrink-0" />
                   <div>
-                   <p className="text-white/70 text-[9px] uppercase tracking-wider leading-none mb-0.5">{stat.label}</p>
-                    <p className="text-white font-semibold text-[12px] leading-none whitespace-nowrap">{stat.value}</p>
+                    <p className="text-white/75 text-[9px] uppercase tracking-wider leading-none mb-0.5">{stat.label}</p>
+                    <p className="text-white font-semibold text-[13px] leading-none whitespace-nowrap">{stat.value}</p>
                   </div>
                 </div>
               ))}
             </div>
           )}
 
-          <div className="w-12 h-px bg-primary/60" />
+          <div className="w-12 h-px bg-primary/80" />
 
           {/* CTAs */}
           <div className="flex flex-col gap-3 pt-1 w-full max-w-sm sm:max-w-none sm:flex-row">
@@ -122,14 +122,14 @@ export function DeckHeroSection({
               size="lg"
               variant="outline"
               onClick={onFloorPlansClick}
-              className="py-3.5 sm:px-8 bg-white/8 border-white/25 text-white hover:bg-white/15 hover:border-white/40 hover:text-white text-sm font-semibold backdrop-blur-sm w-full sm:w-auto"
+              className="py-3.5 sm:px-8 bg-black/40 border-white/40 text-white hover:bg-black/60 hover:border-white/60 hover:text-white text-sm font-semibold backdrop-blur-sm w-full sm:w-auto"
             >
               View Floor Plans & Pricing
             </Button>
           </div>
 
           {/* Micro-copy */}
-          <p className="text-white/60 text-xs">
+          <p className="text-white/80 text-xs">
             No obligation · Respond in minutes · Private pricing available
           </p>
         </div>
