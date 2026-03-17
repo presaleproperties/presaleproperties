@@ -74,13 +74,12 @@ interface FloorPlan {
   customRent: string;
 }
 
-const SLIDES = ["overview", "gallery", "details", "map", "floorplans", "numbers"] as const;
+const SLIDES = ["overview", "gallery", "map", "floorplans", "numbers"] as const;
 type Slide = typeof SLIDES[number];
 
 const SLIDE_LABELS: Record<Slide, string> = {
   overview: "Overview",
   gallery: "Gallery",
-  details: "Key Details",
   map: "Location",
   floorplans: "Floor Plans",
   numbers: "The Numbers",
