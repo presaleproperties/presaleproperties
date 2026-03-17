@@ -52,8 +52,8 @@ interface AgentProfile {
   full_name: string;
   title: string | null;
   photo_url: string | null;
-  linkedin_url: string | null;
-  instagram_url: string | null;
+  email: string | null;
+  phone: string | null;
 }
 
 interface FloorPlan {
