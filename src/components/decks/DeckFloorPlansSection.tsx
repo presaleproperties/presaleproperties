@@ -1,7 +1,36 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { FloorPlanModal, FloorPlan } from "./FloorPlanModal";
-import { LayoutPanelTop, ArrowRight, Square } from "lucide-react";
+import { LayoutPanelTop, ArrowRight, Square, TrendingUp } from "lucide-react";
+
+/** Derive $/sqft from price_from string + interior_sqft number */
+function derivePsf(plan: FloorPlan): string | null {
+  // Use stored value first
+  if (plan.price_per_sqft && plan.price_per_sqft.trim()) return plan.price_per_sqft;
+
+  // Try to compute from price_from + interior_sqft
+  const price = parseFloat((plan.price_from || "").replace(/[^0-9.]/g, ""));
+  const sqft = plan.interior_sqft;
+
+  if (price > 0 && sqft && sqft > 0) {
+    const psf = Math.round(price / sqft);
+    return `$${psf.toLocaleString()}`;
+  }
+
+  // Fallback: try to parse sqft from size_range string (e.g. "540 sq ft" or "540–680 sqft")
+  if (price > 0 && plan.size_range) {
+    const match = plan.size_range.match(/(\d[\d,]*)/);
+    if (match) {
+      const parsed = parseInt(match[1].replace(/,/g, ""), 10);
+      if (parsed > 100) {
+        const psf = Math.round(price / parsed);
+        return `$${psf.toLocaleString()}`;
+      }
+    }
+  }
+
+  return null;
+}
 
 interface DeckFloorPlansSectionProps {
   floorPlans: FloorPlan[];
