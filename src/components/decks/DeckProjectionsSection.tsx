@@ -195,7 +195,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
 
             {/* Tab 1: Monthly Payment */}
             <TabsContent value="mortgage" className="mt-0">
-              <div className="p-5 sm:p-6 grid sm:grid-cols-2 gap-6">
+              <div className="p-4 sm:p-6 grid sm:grid-cols-2 gap-4 sm:gap-6">
 
                 {/* Left: Sliders */}
                 <div className="space-y-5">
