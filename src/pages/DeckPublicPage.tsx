@@ -231,10 +231,12 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-primary/20" />
 
-      {/* Section 5 — Projections */}
+      {/* Section 5 — Deposit Timeline */}
       <div className="deck-animate">
-        <DeckProjectionsSection
-          projections={deck.projections || {}}
+        <DeckDepositTimelineSection
+          depositSteps={deck.deposit_steps && deck.deposit_steps.length > 0 ? deck.deposit_steps : DEFAULT_DEPOSIT_STEPS}
+          projectName={deck.project_name}
+          completionYear={deck.completion_year || undefined}
           defaultPrice={defaultPrice}
           floorPlans={deck.floor_plans || []}
         />
@@ -242,12 +244,10 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-primary/20" />
 
-      {/* Section 5b — Deposit Timeline */}
+      {/* Section 6 — Projections */}
       <div className="deck-animate">
-        <DeckDepositTimelineSection
-          depositSteps={deck.deposit_steps && deck.deposit_steps.length > 0 ? deck.deposit_steps : DEFAULT_DEPOSIT_STEPS}
-          projectName={deck.project_name}
-          completionYear={deck.completion_year || undefined}
+        <DeckProjectionsSection
+          projections={deck.projections || {}}
           defaultPrice={defaultPrice}
           floorPlans={deck.floor_plans || []}
         />
