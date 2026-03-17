@@ -377,9 +377,10 @@ const App = () => (
             {/* Legacy route redirects for soft 404 fixes */}
             <Route path="/guide" element={<Navigate to="/buyers-guide" replace />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/market-report/:city" element={<NotFound />} />
-            <Route path="/market-report" element={<NotFound />} />
-            <Route path="/deposit/:slug" element={<NotFound />} />
+            {/* Dead routes — redirect to relevant hub so Google sees 301, not soft 404 */}
+            <Route path="/market-report/:city" element={<Navigate to="/blog" replace />} />
+            <Route path="/market-report" element={<Navigate to="/blog" replace />} />
+            <Route path="/deposit/:slug" element={<Navigate to="/presale-guide" replace />} />
             <Route path="/langley/presales" element={<Navigate to="/presale-projects/langley" replace />} />
             <Route path="/investment-presale-properties" element={<Navigate to="/presale-projects" replace />} />
             
