@@ -73,24 +73,26 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
   const equity5yr = projectedValue5yr - price;
 
   return (
-    <section id="projections" className="relative py-24 bg-muted/10">
+    <section id="projections" className="relative py-16 sm:py-24 bg-muted/10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">05</div>
+        {/* Watermark — hidden on mobile */}
+        <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">05</div>
 
-        <div className="mb-10 space-y-2">
+        <div className="mb-8 sm:mb-10 space-y-2">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Projections</p>
-          <h2 className="text-4xl font-bold text-foreground">Investment Outlook</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Investment Outlook</h2>
           <p className="text-muted-foreground text-sm mt-1">BC 2024 tax rules applied. Toggle your buyer profile for personalized numbers.</p>
         </div>
 
         {/* Controls row */}
-        <div className="flex flex-wrap items-center gap-4 mb-8 p-4 rounded-2xl bg-background border border-border/50">
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/50 border border-border/40">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 mb-8 p-4 rounded-2xl bg-background border border-border/50">
+          {/* Buyer toggle — full width on mobile */}
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/50 border border-border/40 w-full sm:w-auto">
             {(["investor", "ftb"] as const).map((type) => (
               <button
                 key={type}
                 onClick={() => setBuyerType(type)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all touch-manipulation ${
                   buyerType === type
                     ? "bg-background shadow-sm border border-border/60 text-foreground"
                     : "text-muted-foreground hover:text-foreground"
