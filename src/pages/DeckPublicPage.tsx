@@ -5,6 +5,7 @@ import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { DeckHeroSection } from "@/components/decks/DeckHeroSection";
 import { DeckFloorPlansSection } from "@/components/decks/DeckFloorPlansSection";
+import { DeckFloorPlansPdfSection } from "@/components/decks/DeckFloorPlansPdfSection";
 import { DeckGallerySection } from "@/components/decks/DeckGallerySection";
 import { DeckLocationSection } from "@/components/decks/DeckLocationSection";
 import { DeckProjectionsSection } from "@/components/decks/DeckProjectionsSection";
@@ -38,6 +39,7 @@ interface PitchDeck {
   lat: number | null;
   lng: number | null;
   is_published: boolean;
+  floor_plans_pdf_url: string | null;
 }
 
 const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "contact"];
@@ -183,6 +185,16 @@ export default function DeckPublicPage() {
       <div className="deck-animate">
         <DeckFloorPlansSection floorPlans={deck.floor_plans || []} />
       </div>
+
+      {/* Section 2b — Full Floor Plans PDF (if uploaded) */}
+      {deck.floor_plans_pdf_url && (
+        <>
+          <div className="h-px bg-primary/20" />
+          <div className="deck-animate">
+            <DeckFloorPlansPdfSection pdfUrl={deck.floor_plans_pdf_url} />
+          </div>
+        </>
+      )}
 
       <div className="h-px bg-primary/20" />
 

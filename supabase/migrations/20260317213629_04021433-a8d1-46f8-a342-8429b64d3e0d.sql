@@ -1,0 +1,1 @@
+ALTER TABLE public.pitch_decks ADD COLUMN IF NOT EXISTS floor_plans_pdf_url TEXT;

@@ -137,6 +137,10 @@ export default function DashboardDeckBuilder() {
   const [galleryUploading, setGalleryUploading] = useState(false);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
+  const [floorPlansPdfUrl, setFloorPlansPdfUrl] = useState("");
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+
   const [highlights, setHighlights] = useState<ProximityHighlight[]>([
     { icon: "🚇", label: "SkyTrain Station", distance: "5 min walk" },
   ]);
@@ -258,6 +262,7 @@ export default function DashboardDeckBuilder() {
       setContactPhone(data.contact_phone || "");
       setContactEmail(data.contact_email || "");
       setContactWhatsapp(data.contact_whatsapp || "");
+      setFloorPlansPdfUrl(data.floor_plans_pdf_url || "");
       setSlug(data.slug || "");
       setIsPublished(data.is_published || false);
       if (data.linked_project_id) {
@@ -365,6 +370,16 @@ export default function DashboardDeckBuilder() {
     setGalleryUploading(false);
   };
 
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.type !== "application/pdf") { toast.error("Please upload a PDF file"); return; }
+    setPdfUploading(true);
+    const url = await uploadFile(file, `pitch-decks/${user.id}/floor-plans-${Date.now()}.pdf`);
+    if (url) { setFloorPlansPdfUrl(url); toast.success("Floor plans PDF uploaded!"); }
+    setPdfUploading(false);
+  };
+
   const addFloorPlan = () => {
     if (floorPlans.length >= 6) return;
     setFloorPlans((prev) => [...prev, { id: nanoid(), unit_type: "1 Bed", size_range: "", price_from: "", tags: [] }]);
@@ -408,6 +423,7 @@ export default function DashboardDeckBuilder() {
       is_published: isPublished, linked_project_id: linkedProjectId,
       lat: lat ? parseFloat(lat) : null,
       lng: lng ? parseFloat(lng) : null,
+      floor_plans_pdf_url: floorPlansPdfUrl || null,
     };
     let error;
     if (isEdit && id) {
@@ -440,6 +456,7 @@ export default function DashboardDeckBuilder() {
       {/* Hidden file inputs */}
       <input type="file" ref={heroInputRef} className="hidden" accept="image/*" onChange={handleHeroUpload} />
       <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" multiple onChange={handleGalleryUpload} />
+      <input type="file" ref={pdfInputRef} className="hidden" accept="application/pdf" onChange={handlePdfUpload} />
       {floorPlans.map((fp) => (
         <input key={fp.id} type="file" accept="image/*,application/pdf" className="hidden"
           ref={(el) => { fpInputRefs.current[fp.id] = el; }}
@@ -661,6 +678,51 @@ export default function DashboardDeckBuilder() {
               <Button variant="outline" onClick={addFloorPlan} className="w-full">
                 <Plus className="h-4 w-4 mr-2" />Add Floor Plan
               </Button>
+            )}
+          </div>
+        </Section>
+
+        {/* ── STEP 4b: Floor Plans PDF ────────────────────────────────── */}
+        <Section title="4b. Full Floor Plans PDF"
+          subtitle="Upload the complete floor plan document — shown on the deck page below Top Picks"
+          badge={floorPlansPdfUrl ? "✓ Uploaded" : undefined}
+          defaultOpen={false}>
+          <div className="space-y-3">
+            {floorPlansPdfUrl ? (
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/20">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Upload className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">Floor Plans PDF</p>
+                  <a href={floorPlansPdfUrl} target="_blank" rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline truncate block">View uploaded PDF ↗</a>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <Button variant="outline" size="sm" onClick={() => pdfInputRef.current?.click()}>
+                    Replace
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive"
+                    onClick={() => setFloorPlansPdfUrl("")}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                onClick={() => pdfInputRef.current?.click()}
+              >
+                {pdfUploading ? (
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 text-muted-foreground/40" />
+                    <p className="text-sm font-medium text-foreground">Click to upload PDF</p>
+                    <p className="text-xs text-muted-foreground">Full floor plans document · PDF only</p>
+                  </>
+                )}
+              </div>
             )}
           </div>
         </Section>
