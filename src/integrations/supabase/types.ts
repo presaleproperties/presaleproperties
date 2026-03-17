@@ -2067,6 +2067,7 @@ export type Database = {
           contact_phone: string | null
           contact_whatsapp: string | null
           created_at: string
+          deposit_steps: Json | null
           developer_name: string | null
           floor_plans: Json
           floor_plans_pdf_url: string | null
@@ -2098,6 +2099,7 @@ export type Database = {
           contact_phone?: string | null
           contact_whatsapp?: string | null
           created_at?: string
+          deposit_steps?: Json | null
           developer_name?: string | null
           floor_plans?: Json
           floor_plans_pdf_url?: string | null
@@ -2129,6 +2131,7 @@ export type Database = {
           contact_phone?: string | null
           contact_whatsapp?: string | null
           created_at?: string
+          deposit_steps?: Json | null
           developer_name?: string | null
           floor_plans?: Json
           floor_plans_pdf_url?: string | null

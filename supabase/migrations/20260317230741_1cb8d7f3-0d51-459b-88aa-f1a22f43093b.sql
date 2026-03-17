@@ -1,0 +1,1 @@
+ALTER TABLE public.pitch_decks ADD COLUMN IF NOT EXISTS deposit_steps JSONB;
