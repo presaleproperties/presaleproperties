@@ -241,7 +241,7 @@ export default function AdminTopDeals() {
     p.city.toLowerCase().includes(search.toLowerCase())
   );
 
-  const priceForCalc = selected?.min_price ?? DEFAULT_PRICE;
+  const priceForCalc = selected?.starting_price ?? DEFAULT_PRICE;
 
   // ── Reset when project changes ────────────────────────────────────
   const selectProject = (p: Project) => {
