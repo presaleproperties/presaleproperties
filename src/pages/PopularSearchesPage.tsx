@@ -130,14 +130,14 @@ export default function PopularSearchesPage() {
                         </h4>
                         <ul className="space-y-2">
                           <li>
-                            <Link to={`/resale/${citySlug}`} className="text-primary hover:underline text-sm">
+                          <Link to={`/properties/${citySlug}`} className="text-primary hover:underline text-sm">
                               All New Homes in {city}
                             </Link>
                           </li>
                           {PROPERTY_TYPES.map(({ slug, label }) => (
                             <li key={slug}>
                               <Link 
-                                to={`/resale/${citySlug}/${slug}`} 
+                                to={`/properties/${citySlug}/${slug}`} 
                                 className="text-primary hover:underline text-sm"
                               >
                                 New {label} in {city}
