@@ -186,6 +186,16 @@ export default function DeckPublicPage() {
         <DeckFloorPlansSection floorPlans={deck.floor_plans || []} />
       </div>
 
+      {/* Section 2b — Full Floor Plans PDF (if uploaded) */}
+      {deck.floor_plans_pdf_url && (
+        <>
+          <div className="h-px bg-primary/20" />
+          <div className="deck-animate">
+            <DeckFloorPlansPdfSection pdfUrl={deck.floor_plans_pdf_url} />
+          </div>
+        </>
+      )}
+
       <div className="h-px bg-primary/20" />
 
       {/* Section 3 — Gallery */}
