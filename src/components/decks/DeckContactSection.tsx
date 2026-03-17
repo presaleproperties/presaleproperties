@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BookingModal } from "./BookingModal";
-import { Phone, Mail, MessageCircle, Star, Award, Globe } from "lucide-react";
+import { Phone, Mail, MessageCircle, Star, Award, Globe, Quote } from "lucide-react";
 
 const AGENTS: Record<string, {
   fullName: string;
@@ -41,6 +41,45 @@ const AGENTS: Record<string, {
   },
 };
 
+const REVIEWS = [
+  {
+    name: "Harpreet S.",
+    location: "Surrey, BC",
+    text: "Uzair and the team helped me secure a presale unit in Langley at pre-launch pricing. The whole process was explained clearly and I felt confident every step of the way.",
+    rating: 5,
+  },
+  {
+    name: "Michael T.",
+    location: "Burnaby, BC",
+    text: "Professional, knowledgeable, and genuinely invested in getting me the best deal. Sarb was available whenever I had questions — even evenings and weekends.",
+    rating: 5,
+  },
+  {
+    name: "Priya K.",
+    location: "Abbotsford, BC",
+    text: "I had no idea how presales worked before working with this team. They walked me through every detail and the investment has already appreciated significantly.",
+    rating: 5,
+  },
+  {
+    name: "Navdeep B.",
+    location: "Coquitlam, BC",
+    text: "Ravish was fantastic — very thorough and always on top of new projects. I've now purchased two presale units through Presale Properties.",
+    rating: 5,
+  },
+  {
+    name: "Jennifer L.",
+    location: "Richmond, BC",
+    text: "Incredibly responsive and transparent. They never pushed me toward anything — just gave honest advice. 100% would recommend to anyone looking at presales.",
+    rating: 5,
+  },
+  {
+    name: "Kamran A.",
+    location: "North Delta, BC",
+    text: "Outstanding service from start to finish. Uzair's market knowledge is unmatched — he spotted value in a project before anyone else was talking about it.",
+    rating: 5,
+  },
+];
+
 function resolveAgent(contactName?: string) {
   if (!contactName) return AGENTS["Uzair Muhammad"];
   const lower = contactName.toLowerCase();
@@ -75,7 +114,7 @@ export function DeckContactSection({
   return (
     <section id="contact" className="relative py-16 sm:py-24 bg-muted/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        {/* Watermark — hidden on mobile */}
+        {/* Watermark */}
         <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
           06
         </div>
@@ -88,73 +127,76 @@ export function DeckContactSection({
           </p>
         </div>
 
-        <div className="max-w-lg">
-          <div className="relative rounded-2xl overflow-hidden border border-border/50 bg-background shadow-lg">
-            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/8 to-transparent" />
+        {/* Two-column layout */}
+        <div className="grid lg:grid-cols-2 gap-8 items-start">
 
-            <div className="relative p-5 sm:p-8">
+          {/* LEFT — Agent card (full width of column) */}
+          <div className="relative rounded-2xl overflow-hidden border border-border/50 bg-background shadow-lg h-full">
+            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-primary/8 to-transparent" />
+
+            <div className="relative p-6 sm:p-8 flex flex-col h-full">
               {/* Agent photo + info */}
-              <div className="flex items-start gap-4 mb-5">
+              <div className="flex items-start gap-5 mb-6">
                 <div className="relative shrink-0">
                   <img
                     src={agent.photo}
                     alt={agent.fullName}
-                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover object-top border-2 border-primary/30 shadow-md"
+                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover object-top border-2 border-primary/30 shadow-md"
                   />
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-background" title="Available" />
                 </div>
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 pt-1">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <h3 className="text-lg sm:text-xl font-bold text-foreground">{agent.fullName}</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-foreground">{agent.fullName}</h3>
                     <span className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full whitespace-nowrap">
                       Real Broker
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">{agent.title}</p>
-                  <p className="text-xs text-muted-foreground/70 mt-0.5 flex items-center gap-1">
+                  <p className="text-xs text-muted-foreground/70 mt-1 flex items-center gap-1">
                     <Globe className="h-3 w-3 shrink-0" />
-                    <span className="truncate">{agent.languages}</span>
+                    <span>{agent.languages}</span>
                   </p>
                 </div>
               </div>
 
               {/* Tagline */}
-              <p className="text-sm text-muted-foreground italic border-l-2 border-primary/30 pl-3 mb-5">
+              <p className="text-sm text-muted-foreground italic border-l-2 border-primary/30 pl-4 mb-6 leading-relaxed">
                 "{agent.tagline}"
               </p>
 
               {/* Rating */}
-              <div className="flex items-center gap-1 mb-5">
+              <div className="flex items-center gap-1 mb-6">
                 {[1,2,3,4,5].map((i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-primary text-primary" />
+                  <Star key={i} className="h-4 w-4 fill-primary text-primary" />
                 ))}
-                <span className="text-xs text-muted-foreground ml-1.5">5.0 · Google Reviews</span>
+                <span className="text-sm text-muted-foreground ml-2 font-medium">5.0 · Google Reviews</span>
               </div>
 
               {/* Contact links */}
-              <div className="space-y-2 mb-5">
+              <div className="space-y-2.5 mb-6">
                 <a
                   href={`tel:${displayPhone}`}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors group touch-manipulation"
+                  className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors group touch-manipulation"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors shrink-0">
                     <Phone className="h-4 w-4 text-primary" />
                   </div>
                   <span>{displayPhone}</span>
                 </a>
                 <a
                   href={`mailto:${displayEmail}`}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors group touch-manipulation"
+                  className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors group touch-manipulation"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors shrink-0">
                     <Mail className="h-4 w-4 text-primary" />
                   </div>
                   <span className="truncate">{displayEmail}</span>
                 </a>
               </div>
 
-              {/* CTAs — stacked on mobile */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-6">
                 <Button
                   size="lg"
                   className="flex-1 h-12 shadow-lg shadow-primary/20 touch-manipulation"
@@ -177,17 +219,56 @@ export function DeckContactSection({
               </div>
 
               {/* Brokerage note */}
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/30 border border-border/40 mt-5">
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/30 border border-border/40 mt-auto">
                 <Award className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-foreground">Presale Properties · Real Broker</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     presaleproperties.com · info@presaleproperties.com
                   </p>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* RIGHT — Google Reviews grid */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="flex items-center gap-1">
+                {[1,2,3,4,5].map((i) => (
+                  <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                ))}
+              </div>
+              <span className="text-sm font-bold text-foreground">5.0</span>
+              <span className="text-xs text-muted-foreground">· 40+ Google Reviews</span>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              {REVIEWS.map((review, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl border border-border/50 bg-background p-4 shadow-sm flex flex-col gap-3"
+                >
+                  <Quote className="h-4 w-4 text-primary/40 shrink-0" />
+                  <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                    {review.text}
+                  </p>
+                  <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/30">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{review.name}</p>
+                      <p className="text-xs text-muted-foreground">{review.location}</p>
+                    </div>
+                    <div className="flex gap-0.5">
+                      {[1,2,3,4,5].map((s) => (
+                        <Star key={s} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
 
         {/* Legal footer */}
