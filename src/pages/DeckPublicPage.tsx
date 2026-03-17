@@ -179,8 +179,8 @@ export default function DeckPublicPage() {
         <DeckLocationSection
           address={deck.address || undefined}
           city={deck.city || undefined}
-          lat={deck.latitude || undefined}
-          lng={deck.longitude || undefined}
+          lat={deck.lat ?? deck.latitude ?? undefined}
+          lng={deck.lng ?? deck.longitude ?? undefined}
           highlights={deck.proximity_highlights || []}
         />
       </div>
