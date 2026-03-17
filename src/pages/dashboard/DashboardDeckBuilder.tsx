@@ -429,6 +429,7 @@ export default function DashboardDeckBuilder() {
       completion_year: completionYear,
       hero_image_url: heroImageUrl, floor_plans: floorPlans, gallery,
       proximity_highlights: highlights,
+      deposit_steps: depositSteps,
       projections: {
         rental_min: rentalMin ? parseFloat(rentalMin) : null,
         rental_max: rentalMax ? parseFloat(rentalMax) : null,
