@@ -123,6 +123,8 @@ export default function AdminTopDeals() {
   const [downPct, setDownPct] = useState(20);
   const [rate, setRate] = useState(4.2);
   const [amort, setAmort] = useState(25);
+  // Override price for the numbers slide
+  const [customCalcPrice, setCustomCalcPrice] = useState<string>("");
 
   // ── Load projects
   useEffect(() => {
