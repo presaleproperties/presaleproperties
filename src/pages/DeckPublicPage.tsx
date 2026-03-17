@@ -116,7 +116,7 @@ export default function DeckPublicPage() {
     );
   }
 
-  if (!deck) return null;
+  if (!deck) return <NotFound />;
 
   const defaultPrice = deck.floor_plans?.[0]?.price_from
     ? parseFloat(deck.floor_plans[0].price_from.replace(/[^0-9.]/g, ""))
