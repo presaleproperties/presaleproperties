@@ -9,6 +9,7 @@ import { DeckFloorPlansPdfSection } from "@/components/decks/DeckFloorPlansPdfSe
 import { DeckGallerySection } from "@/components/decks/DeckGallerySection";
 import { DeckLocationSection } from "@/components/decks/DeckLocationSection";
 import { DeckProjectionsSection } from "@/components/decks/DeckProjectionsSection";
+import { DeckDepositTimelineSection, type DepositStep } from "@/components/decks/DeckDepositTimelineSection";
 import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { Loader2 } from "lucide-react";
