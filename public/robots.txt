@@ -56,9 +56,15 @@ Disallow: /dashboard/*
 Disallow: /login
 Disallow: /buyer/login
 Disallow: /buyer/signup
+Disallow: /buyer
+Disallow: /buyer/*
+Disallow: /developer
+Disallow: /developer/*
 Disallow: /exclusive-offer
 Disallow: /campaign/*
-Disallow: /api/
+
+# Legacy redirect sources — block crawl to save budget
+# These 301 redirect to canonical destinations already in sitemap
 Disallow: /resale/
 Disallow: /resale/*
 Disallow: /blogs/
@@ -66,32 +72,31 @@ Disallow: /blogs/*
 Disallow: /market-report/
 Disallow: /market-report/*
 Disallow: /deposit/
-Disallow: /guide
-Disallow: /privacy
-Disallow: /langley/presales
+Disallow: /deposit/*
+Disallow: /presale-condos/
+Disallow: /presale-condos-*
+Disallow: /langley/
 
 # ============================================
 # CRAWL BUDGET - Block parameterized dynamic pages
-# These are SPA views with no unique indexable content
 # ============================================
 
-# Map search with any query params (lat/lng, q=, city filter, etc.)
+# Map search with coordinate/UI params
 Disallow: /map-search?*lat=
 Disallow: /map-search?*lng=
 Disallow: /map-search?*zoom=
 Disallow: /map-search?*q=
 Disallow: /map-search?*mode=
-Disallow: /map-search?*neighborhood=
 
 # Calculator with price params
 Disallow: /calculator?*price=
 
-# Properties list with query params (the path-based /properties/{city} pages ARE indexed)
+# Properties list with query params (path-based /properties/{city} pages ARE indexed)
 Disallow: /properties?*city=
 Disallow: /properties?*type=
 Disallow: /properties?*beds=
 
-# Presale project list filters (the main /presale-projects page IS indexed)
+# Presale project list filters
 Disallow: /presale-projects?*type=
 Disallow: /presale-projects?*developer=
 Disallow: /presale-projects?*city=
@@ -101,9 +106,3 @@ Sitemap: https://presaleproperties.com/sitemap.xml
 
 # Image Sitemap
 Sitemap: https://presaleproperties.com/image-sitemap.xml
-
-# LLMs.txt - AI-readable site description
-# Available at: /llms.txt and /.well-known/llms.txt
-
-# Security policy
-# Available at: /.well-known/security.txt
