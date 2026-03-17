@@ -130,7 +130,7 @@ export function DeckContactSection({
                 Text us right now — we'll reply within minutes with pricing, availability & next steps.
               </p>
             </div>
-            <div className="flex flex-col gap-3 w-full sm:w-auto shrink-0">
+            <div className="shrink-0 w-full sm:w-auto">
               <a
                 href={`https://wa.me/${rawNumber}?text=${waMessage}`}
                 target="_blank"
@@ -141,15 +141,6 @@ export function DeckContactSection({
                 <MessageCircle className="h-5 w-5 shrink-0" />
                 I'm Interested
               </a>
-              <Button
-                size="lg"
-                variant="outline"
-                className="py-3.5 border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 hover:border-primary-foreground/50 hover:text-primary-foreground font-semibold touch-manipulation w-full"
-                onClick={() => setBookingOpen(true)}
-              >
-                <CalendarCheck className="h-4 w-4 mr-2 shrink-0" />
-                Book a Showing
-              </Button>
             </div>
           </div>
         </div>
@@ -211,16 +202,6 @@ export function DeckContactSection({
                 <MessageCircle className="h-5 w-5 shrink-0" />
                 Text {agent.fullName.split(" ")[0]} on WhatsApp
               </a>
-
-              {/* Secondary: Book showing */}
-              <Button
-                size="lg"
-                className="w-full h-12 mb-4"
-                onClick={() => setBookingOpen(true)}
-              >
-                <CalendarCheck className="h-4 w-4 mr-2 shrink-0" />
-                Book a Private Showing
-              </Button>
 
               {/* Contact links */}
               <div className="space-y-2 mb-6">
