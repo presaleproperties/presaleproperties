@@ -68,7 +68,7 @@ export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName 
             {floorPlans.map((plan, idx) => (
               <button
                 key={plan.id}
-                className="group relative text-left rounded-xl sm:rounded-2xl overflow-hidden border border-border/50 bg-background hover:border-primary/40 hover:shadow-xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.98] touch-manipulation"
+                className="group relative text-left rounded-xl sm:rounded-2xl overflow-hidden border-2 border-border bg-background hover:border-primary/60 hover:shadow-xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.98] touch-manipulation"
                 onClick={() => setSelected(plan)}
                 onMouseEnter={() => setHovered(plan.id)}
                 onMouseLeave={() => setHovered(null)}
