@@ -746,26 +746,14 @@ export default function DashboardDeckBuilder() {
         </Section>
 
         {/* ── STEP 7: Investment Numbers ──────────────────────────────── */}
-        <Section title="7. Investment Numbers" subtitle="Rental range & appreciation for projections section" defaultOpen={false}
+        <Section title="7. Investment Numbers" subtitle="Annual appreciation rate for the 5-year forecast chart" defaultOpen={false}
           badge={projectionsFromAI ? "AI Generated" : undefined}>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label className="flex items-center gap-1.5 text-sm">
-                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />Rental Min / mo
-              </Label>
-              <Input type="number" value={rentalMin} onChange={(e) => setRentalMin(e.target.value)} placeholder="2,200" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="flex items-center gap-1.5 text-sm">
-                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />Rental Max / mo
-              </Label>
-              <Input type="number" value={rentalMax} onChange={(e) => setRentalMax(e.target.value)} placeholder="2,800" />
-            </div>
-            <div className="col-span-2 space-y-1.5">
               <Label className="text-sm">Annual Appreciation (%)</Label>
               <Input type="number" step="0.5" value={appreciationRate}
                 onChange={(e) => setAppreciationRate(e.target.value)} placeholder="5" />
-              <p className="text-xs text-muted-foreground">Base rate for 5-year forecast chart — years auto-graduated.</p>
+              <p className="text-xs text-muted-foreground">Base rate for 5-year forecast chart — years auto-graduated. Projected rent is entered per floor plan above.</p>
             </div>
           </div>
         </Section>
