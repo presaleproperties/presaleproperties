@@ -80,7 +80,7 @@ export default function DashboardDecks() {
   };
 
   const copyLink = (slug: string) => {
-    const url = `${window.location.origin}/deck/${slug}`;
+    const url = `https://presaleproperties.lovable.app/deck/${slug}`;
     navigator.clipboard.writeText(url);
     toast.success("Link copied to clipboard!");
   };
