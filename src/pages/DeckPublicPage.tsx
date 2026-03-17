@@ -44,7 +44,6 @@ const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projecti
 
 export default function DeckPublicPage() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const [deck, setDeck] = useState<PitchDeck | null>(null);
   const [loading, setLoading] = useState(true);
   const [navVisible, setNavVisible] = useState(false);
