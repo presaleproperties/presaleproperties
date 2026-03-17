@@ -71,10 +71,6 @@ export function DeckHeroSection({
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-16 sm:pb-20 pt-28 w-full">
         <div className="max-w-2xl space-y-3 sm:space-y-4">
 
-          {/* Label */}
-          <span className="inline-block px-2 py-0.5 rounded bg-black/50 backdrop-blur-sm text-primary text-[11px] font-bold uppercase tracking-[0.2em]">
-            01 — Overview
-          </span>
 
           {/* Project name */}
           <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
@@ -108,13 +104,13 @@ export function DeckHeroSection({
 
           <div className="w-12 h-px bg-primary/80" />
 
-          {/* CTAs */}
-          <div className="flex flex-col gap-3 w-full sm:flex-row">
+          {/* CTAs — desktop only */}
+          <div className="hidden sm:flex gap-3 w-full flex-row">
             <a
               href={`https://wa.me/${waNumber}?text=${waMessage}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2.5 py-3.5 px-7 rounded-xl font-bold text-sm text-white shadow-lg touch-manipulation transition-all active:scale-[0.98] w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2.5 py-3.5 px-7 rounded-xl font-bold text-sm text-white shadow-lg touch-manipulation transition-all active:scale-[0.98]"
               style={{ background: "#25D366", boxShadow: "0 4px 24px rgba(37,211,102,0.35)" }}
             >
               <MessageCircle className="h-5 w-5 shrink-0" />
@@ -125,7 +121,7 @@ export function DeckHeroSection({
               size="lg"
               variant="outline"
               onClick={onFloorPlansClick}
-              className="py-3.5 sm:px-8 bg-black/50 border-white/35 text-white hover:bg-black/70 hover:border-white/55 hover:text-white text-sm font-semibold backdrop-blur-sm w-full sm:w-auto"
+              className="py-3.5 sm:px-8 bg-black/50 border-white/35 text-white hover:bg-black/70 hover:border-white/55 hover:text-white text-sm font-semibold backdrop-blur-sm"
             >
               View Floor Plans & Pricing
             </Button>
@@ -133,7 +129,7 @@ export function DeckHeroSection({
 
           {/* Micro-copy */}
           <p className="inline-block px-2 py-1 rounded bg-black/40 backdrop-blur-sm text-white/80 text-xs">
-            No obligation · Respond in minutes · Private pricing available
+            Respond in minutes · Private pricing.
           </p>
         </div>
       </div>
