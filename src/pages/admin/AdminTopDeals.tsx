@@ -38,18 +38,17 @@ interface Project {
   city: string;
   neighborhood: string | null;
   developer_name: string | null;
-  min_price: number | null;
-  max_price: number | null;
-  estimated_completion: string | null;
+  starting_price: number | null;
+  completion_year: number | null;
   deposit_structure: string | null;
-  description: string | null;
-  photos: string[] | null;
+  short_description: string | null;
   gallery_images: string[] | null;
-  hero_image: string | null;
+  featured_image: string | null;
   address: string | null;
-  latitude: number | null;
-  longitude: number | null;
+  map_lat: number | null;
+  map_lng: number | null;
   status: string | null;
+  project_type: string | null;
 }
 
 interface FloorPlan {
