@@ -105,18 +105,6 @@ export function DeckHeroSection({
 
           <div className="w-12 h-px bg-primary/80" />
 
-          {/* CTA — desktop: floor plans button / mobile: WhatsApp */}
-          <div className="hidden sm:flex">
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={onFloorPlansClick}
-              className="py-3.5 px-8 bg-black/50 border-white/35 text-white hover:bg-black/70 hover:border-white/55 hover:text-white text-sm font-semibold backdrop-blur-sm"
-            >
-              View Floor Plans & Pricing
-            </Button>
-          </div>
-
         </div>
       </div>
 
