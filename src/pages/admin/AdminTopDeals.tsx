@@ -932,12 +932,19 @@ export default function AdminTopDeals() {
                   )}
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-muted-foreground">PTT</span>
-                    {calc.pttPayable === 0
-                      ? <span className="text-xs font-semibold text-emerald-600">Exempt (FTB)</span>
-                      : calc.pttPayable < calc.ptt
-                        ? <span className="text-xs font-semibold text-amber-600">{fmt(calc.pttPayable)}</span>
-                        : <span className="text-xs font-semibold">{fmt(calc.ptt)}</span>
-                    }
+                    {calc.pttPayable === 0 ? (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] text-muted-foreground line-through">{fmt(calc.ptt)}</span>
+                        <span className="text-xs font-semibold text-emerald-600">Exempt (FTB)</span>
+                      </div>
+                    ) : calc.pttPayable < calc.ptt ? (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] text-muted-foreground line-through">{fmt(calc.ptt)}</span>
+                        <span className="text-xs font-semibold text-amber-600">{fmt(calc.pttPayable)}</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs font-semibold">{fmt(calc.ptt)}</span>
+                    )}
                   </div>
                   <CalcRow label="Legal Fees" value={fmt(calc.legalFees)} muted />
                   <div className="flex justify-between items-center pt-2 border-t border-border">
@@ -945,6 +952,29 @@ export default function AdminTopDeals() {
                     <span className="text-xl font-bold text-primary">{fmt(calc.down + calc.totalClosingCosts)}</span>
                   </div>
                 </div>
+
+                {/* FTB Savings Summary */}
+                {buyerType === "ftb" && (calc.gstRebate > 0 || calc.ptt !== calc.pttPayable) && (
+                  <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">🎉 First-Time Buyer Savings</p>
+                    {calc.gstRebate > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-emerald-700">GST Rebate</span>
+                        <span className="text-xs font-bold text-emerald-700">{fmt(calc.gstRebate)}</span>
+                      </div>
+                    )}
+                    {calc.ptt !== calc.pttPayable && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-emerald-700">PTT Savings</span>
+                        <span className="text-xs font-bold text-emerald-700">{fmt(calc.ptt - calc.pttPayable)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center pt-1.5 border-t border-emerald-300">
+                      <span className="text-xs font-bold text-emerald-800">Total Savings vs Investor</span>
+                      <span className="text-sm font-extrabold text-emerald-800">{fmt(calc.gstRebate + (calc.ptt - calc.pttPayable))}</span>
+                    </div>
+                  </div>
+                )}
 
                 <p className="text-[10px] text-muted-foreground text-center pb-1">
                   Estimates only — consult a mortgage broker
