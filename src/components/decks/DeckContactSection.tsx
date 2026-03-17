@@ -225,14 +225,14 @@ export function DeckContactSection({
               <span className="text-xs text-muted-foreground">· 40+ Google Reviews</span>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {reviews.map((review, i) => (
                 <div
                   key={i}
-                  className="rounded-xl border border-border/50 bg-background p-4 shadow-sm flex flex-col gap-3"
+                  className="rounded-xl border border-border/50 bg-background p-4 shadow-sm flex flex-col gap-2"
                 >
                   <Quote className="h-4 w-4 text-primary/40 shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                  <p className="text-sm text-muted-foreground leading-relaxed flex-1 line-clamp-4">
                     {review.review_text}
                   </p>
                   <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/30">
