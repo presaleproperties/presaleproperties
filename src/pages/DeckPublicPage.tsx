@@ -44,7 +44,7 @@ interface PitchDeck {
   deposit_steps: DepositStep[] | null;
 }
 
-const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "contact"];
+const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "deposit-timeline", "contact"];
 
 export default function DeckPublicPage() {
   const { slug } = useParams<{ slug: string }>();
