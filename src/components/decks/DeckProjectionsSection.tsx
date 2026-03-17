@@ -191,21 +191,35 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
             </div>
 
             {floorPlans.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider shrink-0">Unit:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {floorPlans.map((plan) => (
-                    <button
-                      key={plan.id}
-                      onClick={() => setSelectedPlanId(plan.id)}
-                      className={cn(
-                        "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all touch-manipulation",
-                        selectedPlanId === plan.id ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-background border-border text-muted-foreground hover:border-primary/40"
-                      )}
-                    >
-                      {plan.unit_type}
-                    </button>
-                  ))}
+              <div className="space-y-2">
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Unit:</span>
+                <div className="flex flex-wrap gap-2">
+                  {floorPlans.map((plan) => {
+                    const isActive = selectedPlanId === plan.id;
+                    return (
+                      <button
+                        key={plan.id}
+                        onClick={() => setSelectedPlanId(plan.id)}
+                        className={cn(
+                          "flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all touch-manipulation",
+                          isActive ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-background border-border text-muted-foreground hover:border-primary/40"
+                        )}
+                      >
+                        {plan.image_url && (
+                          <img
+                            src={plan.image_url}
+                            alt={plan.unit_type}
+                            className={cn(
+                              "h-7 w-7 rounded object-contain shrink-0",
+                              isActive ? "bg-primary-foreground/20" : "bg-muted"
+                            )}
+                          />
+                        )}
+                        <span>{plan.unit_type}</span>
+                        {plan.size_range && <span className={cn("text-[10px]", isActive ? "text-primary-foreground/70" : "text-muted-foreground/60")}>{plan.size_range}</span>}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
