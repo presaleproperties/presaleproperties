@@ -734,7 +734,7 @@ export default function DashboardDeckBuilder() {
                     <Label className="text-xs">Unit Type</Label>
                     <Select value={fp.unit_type} onValueChange={(v) => updateFloorPlan(fp.id, "unit_type", v)}>
                       <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" side="bottom">
                         {UNIT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                       </SelectContent>
                     </Select>
