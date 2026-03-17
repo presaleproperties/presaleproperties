@@ -29,6 +29,8 @@ import {
   Sparkles,
   CheckCircle2,
   Calculator,
+  ZoomIn,
+  X as XIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -125,6 +127,7 @@ export default function AdminTopDeals() {
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
   const [customStrataFee, setCustomStrataFee] = useState<string>("");
   const [activePlanIndex, setActivePlanIndex] = useState(0);
+  const [floorPlanZoom, setFloorPlanZoom] = useState(false);
   // customCalcPrice is now stored per-plan inside floorPlans[].customPrice
 
   // ── Load projects
@@ -691,12 +694,23 @@ export default function AdminTopDeals() {
                         <p className="text-sm font-medium">Scanning floor plan…</p>
                       </div>
                     ) : (
-                      <img
-                        key={activePlanIndex}
-                        src={floorPlans[activePlanIndex].preview}
-                        alt="Floor plan"
-                        className="h-full w-full object-contain animate-fade-in"
-                      />
+                      <div className="relative h-full w-full group/zoom">
+                        <img
+                          key={activePlanIndex}
+                          src={floorPlans[activePlanIndex].preview}
+                          alt="Floor plan"
+                          onClick={() => setFloorPlanZoom(true)}
+                          className="h-full w-full object-contain animate-fade-in cursor-zoom-in"
+                        />
+                        {/* Zoom hint */}
+                        <button
+                          onClick={() => setFloorPlanZoom(true)}
+                          className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-xs font-medium opacity-0 group-hover/zoom:opacity-100 transition-opacity shadow-sm hover:bg-muted"
+                        >
+                          <ZoomIn className="h-3.5 w-3.5" />
+                          Zoom
+                        </button>
+                      </div>
                     )}
                     {/* Remove button */}
                     <button
@@ -984,7 +998,33 @@ export default function AdminTopDeals() {
           </div>
         )}
 
-      </div>
+      {/* ── FLOOR PLAN ZOOM MODAL ─────────────────────────────────── */}
+      {floorPlanZoom && floorPlans[activePlanIndex] && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 backdrop-blur-sm"
+          onClick={() => setFloorPlanZoom(false)}
+        >
+          <div
+            className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center"
+            onClick={e => e.stopPropagation()}
+          >
+            <img
+              src={floorPlans[activePlanIndex].preview}
+              alt="Floor plan – zoomed"
+              className="max-w-[90vw] max-h-[90vh] object-contain rounded-xl shadow-2xl"
+            />
+            <button
+              onClick={() => setFloorPlanZoom(false)}
+              className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center transition-colors border border-white/20"
+            >
+              <XIcon className="h-5 w-5 text-white" />
+            </button>
+            <p className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs text-white/50 bg-black/40 px-3 py-1 rounded-full">
+              Click anywhere outside to close
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── BOTTOM NAV ──────────────────────────────────────────── */}
       <div className="shrink-0 flex items-center justify-between gap-4 px-4 py-2.5 border-t border-border/60 bg-card/80 backdrop-blur-sm">
