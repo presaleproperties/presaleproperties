@@ -9,6 +9,7 @@ import { DeckFloorPlansPdfSection } from "@/components/decks/DeckFloorPlansPdfSe
 import { DeckGallerySection } from "@/components/decks/DeckGallerySection";
 import { DeckLocationSection } from "@/components/decks/DeckLocationSection";
 import { DeckProjectionsSection } from "@/components/decks/DeckProjectionsSection";
+import { DeckDepositTimelineSection, type DepositStep } from "@/components/decks/DeckDepositTimelineSection";
 import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { Loader2 } from "lucide-react";
@@ -40,9 +41,10 @@ interface PitchDeck {
   lng: number | null;
   is_published: boolean;
   floor_plans_pdf_url: string | null;
+  deposit_steps: DepositStep[] | null;
 }
 
-const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "contact"];
+const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "deposit-timeline", "contact"];
 
 export default function DeckPublicPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -231,6 +233,20 @@ export default function DeckPublicPage() {
           floorPlans={deck.floor_plans || []}
         />
       </div>
+
+      <div className="h-px bg-primary/20" />
+
+      {/* Section 5b — Deposit Timeline */}
+      {deck.deposit_steps && deck.deposit_steps.length > 0 && (
+        <div className="deck-animate">
+          <DeckDepositTimelineSection
+            depositSteps={deck.deposit_steps}
+            projectName={deck.project_name}
+            completionYear={deck.completion_year || undefined}
+            defaultPrice={defaultPrice}
+          />
+        </div>
+      )}
 
       <div className="h-px bg-primary/20" />
 
