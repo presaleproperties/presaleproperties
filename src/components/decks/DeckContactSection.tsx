@@ -104,7 +104,7 @@ export function DeckContactSection({
         </div>
 
         <div className="mb-8 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Get Access</p>
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">07 — Get Access</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
             Claim Your Unit Before It's Gone
           </h2>
