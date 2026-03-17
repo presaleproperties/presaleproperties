@@ -489,7 +489,7 @@ export default function DashboardDeckBuilder() {
             </p>
           </div>
           <div className="flex gap-2">
-            {isEdit && isPublished && (
+            {isEdit && slug && (
               <Button variant="outline" size="sm" asChild>
                 <a href={`/deck/${slug}`} target="_blank" rel="noopener noreferrer">
                   <Eye className="h-4 w-4 mr-1" />Preview
