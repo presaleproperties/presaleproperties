@@ -559,13 +559,9 @@ export default function AdminTopDeals() {
             <div className="animate-fade-in">
               <h2 className="text-2xl font-bold mb-6 text-foreground">Key Details</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <HighlightCard icon={<DollarSign />} label="Price Range" value={
-                  selected.min_price && selected.max_price
-                    ? `${formatCurrency(selected.min_price)} – ${formatCurrency(selected.max_price)}`
-                    : formatCurrency(selected.min_price)
-                } />
+                <HighlightCard icon={<DollarSign />} label="Starting Price" value={formatCurrency(selected.starting_price)} />
                 <HighlightCard icon={<Layers />} label="Deposit Structure" value={selected.deposit_structure || "Contact for details"} />
-                <HighlightCard icon={<Calendar />} label="Est. Completion" value={selected.estimated_completion || "TBD"} />
+                <HighlightCard icon={<Calendar />} label="Est. Completion" value={selected.completion_year ? String(selected.completion_year) : "TBD"} />
                 <HighlightCard icon={<MapPin />} label="Location" value={displayAddr || "—"} />
                 {displayDev && (
                   <HighlightCard icon={<Building2 />} label="Developer" value={displayDev} />
@@ -576,16 +572,16 @@ export default function AdminTopDeals() {
               </div>
 
               {/* Price per sqft from floor plans */}
-              {floorPlans.some((fp) => fp.metrics?.interiorSqft && selected.min_price) && (
+              {floorPlans.some((fp) => fp.metrics?.interiorSqft && selected.starting_price) && (
                 <div className="mt-6">
                   <h3 className="text-sm font-semibold text-foreground mb-3">Price Per Sqft (from floor plans)</h3>
                   <div className="flex flex-wrap gap-3">
                     {floorPlans.map((fp, i) =>
-                      fp.metrics?.interiorSqft && selected.min_price ? (
+                      fp.metrics?.interiorSqft && selected.starting_price ? (
                         <div key={i} className="px-4 py-2.5 rounded-xl border border-border bg-card text-sm">
                           <span className="text-muted-foreground">{fp.metrics.planName || `Plan ${i + 1}`} — </span>
                           <span className="font-semibold text-primary">
-                            {formatCurrency(Math.round(selected.min_price / fp.metrics.interiorSqft))}/sqft
+                            {formatCurrency(Math.round(selected.starting_price / fp.metrics.interiorSqft))}/sqft
                           </span>
                         </div>
                       ) : null
