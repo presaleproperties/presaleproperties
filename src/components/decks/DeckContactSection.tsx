@@ -139,7 +139,7 @@ export function DeckContactSection({
                 style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(0,0,0,0.25)" }}
               >
                 <MessageCircle className="h-5 w-5 shrink-0" />
-                Text "I'm Interested"
+                I'm Interested
               </a>
               <Button
                 size="lg"

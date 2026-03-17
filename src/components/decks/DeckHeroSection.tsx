@@ -114,7 +114,7 @@ export function DeckHeroSection({
               style={{ background: "#25D366", boxShadow: "0 4px 24px rgba(37,211,102,0.35)" }}
             >
               <MessageCircle className="h-5 w-5 shrink-0" />
-              Text Us — I'm Interested
+              I'm Interested
             </a>
 
             {/* Secondary: Floor plans */}
