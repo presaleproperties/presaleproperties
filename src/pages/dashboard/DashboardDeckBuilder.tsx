@@ -113,7 +113,7 @@ export default function DashboardDeckBuilder() {
   const searchRef = useRef<HTMLDivElement>(null);
 
   const [agents, setAgents] = useState<AgentProfile[]>([]);
-  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
 
   const [projectName, setProjectName] = useState("");
   const [tagline, setTagline] = useState("");
