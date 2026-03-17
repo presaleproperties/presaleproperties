@@ -13,6 +13,7 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
     setLightboxIndex((i) => (i !== null ? (i - 1 + images.length) % images.length : 0));
   const handleNext = () =>
     setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : 0));
+  const handleJumpTo = (i: number) => setLightboxIndex(i);
 
   // Mobile: horizontal scroll strip for first N images + "View All" button
   // Desktop: masonry grid
