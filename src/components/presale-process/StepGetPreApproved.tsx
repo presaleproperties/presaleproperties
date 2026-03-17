@@ -104,7 +104,7 @@ export function StepGetPreApproved() {
           </div>
           {/* Exemption callout */}
           <div className="rounded-md bg-primary/8 border border-primary/20 p-3 space-y-1">
-            <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">First-Time Buyer Exemption — New Construction (BC 2024)</p>
+            <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">First-Time Buyer Exemption — New Construction (BC 2026)</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
               <strong className="text-foreground">Full exemption</strong> if purchase price ≤ $1,100,000 (PTT = $0).
               <br />
@@ -124,21 +124,21 @@ export function StepGetPreApproved() {
             <CostRow label="GST on $800,000" value="$40,000" />
             <CostRow label="GST on $1,000,000" value="$50,000" />
           </div>
-          {/* GST Rebate callout — BC 2024 New Construction rules */}
+          {/* GST Rebate callout — Federal Bill C-4 (Royal Assent March 12, 2026) */}
           <div className="rounded-md bg-primary/8 border border-primary/20 p-3 space-y-1.5">
-            <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">GST New Housing Rebate — BC 2024 New Construction</p>
+            <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">GST New Housing Rebate — Bill C-4 (2026)</p>
             <ul className="space-y-1 text-xs text-muted-foreground">
               <li className="flex items-start gap-1.5">
                 <span className="text-primary flex-shrink-0">✓</span>
-                <span><strong className="text-foreground">≤ $1,000,000:</strong> 100% GST rebate — net GST = $0. Primary residence only.</span>
+                <span><strong className="text-foreground">≤ $1,000,000:</strong> 100% GST rebate (up to $50,000). Primary residence only.</span>
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-primary flex-shrink-0">~</span>
-                <span><strong className="text-foreground">$1,000,001–$1,199,999:</strong> Partial rebate, phased out on sliding scale.</span>
+                <span><strong className="text-foreground">$1,000,001–$1,499,999:</strong> Partial rebate, phases out on sliding scale.</span>
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-destructive flex-shrink-0">✕</span>
-                <span><strong className="text-foreground">≥ $1,200,000:</strong> No rebate — full GST applies.</span>
+                <span><strong className="text-foreground">≥ $1,500,000:</strong> No rebate — full GST applies.</span>
               </li>
             </ul>
             <p className="text-[10px] text-muted-foreground pt-1 border-t border-border/50">
