@@ -71,10 +71,6 @@ export function DeckHeroSection({
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-16 sm:pb-20 pt-28 w-full">
         <div className="max-w-2xl space-y-3 sm:space-y-4">
 
-          {/* Label */}
-          <span className="inline-block px-2 py-0.5 rounded bg-black/50 backdrop-blur-sm text-primary text-[11px] font-bold uppercase tracking-[0.2em]">
-            01 — Overview
-          </span>
 
           {/* Project name */}
           <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
