@@ -587,19 +587,19 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 {!isFirstTimeBuyer && (
                   <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
                     <div className="p-4">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Investor Metrics</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Rental Income Metrics</p>
                       <div className="space-y-0">
                         {results.capRate !== null && (
-                          <Row label="Cap Rate" value={`${results.capRate.toFixed(2)}%`} sub="NOI / Price incl. GST" />
+                          <Row label="Yield (Cap Rate)" value={`${results.capRate.toFixed(2)}%`} sub="Annual rent income ÷ purchase price" />
                         )}
                         {results.cashOnCash !== null && (
-                          <Row label="Cash-on-Cash" value={`${results.cashOnCash.toFixed(2)}%`} sub="Annual CF / Cash In" />
+                          <Row label="Cash-on-Cash Return" value={`${results.cashOnCash.toFixed(2)}%`} sub="Annual profit ÷ cash you put in" />
                         )}
-                        <Row label="Mortgage" value={fmt(results.mortgageAmt)} sub={`Yr${holdYears} balance: ${fmt(results.remainingBalance)}`} />
+                        <Row label="Mortgage Amount" value={fmt(results.mortgageAmt)} sub={`Remaining after ${holdYears}yr: ${fmt(results.remainingBalance)}`} />
                         {results.monthlyCashFlow !== null && (
-                          <Row label="Monthly CF" value={fmt(results.monthlyCashFlow)} sub={`${fmt(projectedRent!)} rent − ${fmt(results.totalMonthlyExpenses)} costs`} green={isPositiveCF} />
+                          <Row label="Monthly Profit" value={fmt(results.monthlyCashFlow)} sub={`${fmt(projectedRent!)} rent − ${fmt(results.totalMonthlyExpenses)} costs`} green={isPositiveCF} />
                         )}
-                        <Row label="Mortgage Paydown" value={fmt(results.principalPaid)} sub={`Over ${holdYears} years`} green />
+                        <Row label="Mortgage Paid Down" value={fmt(results.principalPaid)} sub={`Over ${holdYears} years`} green />
                       </div>
                     </div>
                   </div>
