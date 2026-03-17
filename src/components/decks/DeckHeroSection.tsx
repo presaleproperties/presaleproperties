@@ -126,9 +126,12 @@ export function DeckHeroSection({
       </div>
 
       {/* Scroll indicator — centered, above mobile CTA */}
-      <div className="absolute bottom-28 sm:bottom-6 left-0 right-0 flex flex-col items-center gap-1 animate-bounce z-10 pointer-events-none">
-        <span className="text-white/70 text-[10px] uppercase tracking-widest drop-shadow-md">Scroll</span>
-        <ChevronDown className="h-5 w-5 text-white/70 drop-shadow-md" />
+      <div
+        className="absolute bottom-28 sm:bottom-6 left-0 right-0 flex flex-col items-center gap-1 z-10 cursor-pointer"
+        onClick={onFloorPlansClick}
+      >
+        <span className="text-white/80 text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest drop-shadow-md animate-bounce">View Plans &amp; Pricing</span>
+        <ChevronDown className="h-5 w-5 text-white/80 drop-shadow-md animate-bounce" />
       </div>
     </section>
   );
