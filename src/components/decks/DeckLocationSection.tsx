@@ -238,8 +238,8 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
           )}
         </div>
 
-        {/* Two-column: compact info left, map right */}
-        <div className="grid lg:grid-cols-[280px_1fr] gap-4 items-start">
+        {/* Two-column: compact info left, map right. On mobile/tablet stacks vertically with map first */}
+        <div className="grid gap-4 items-start lg:grid-cols-[280px_1fr]">
 
           {/* Left: compact info panel */}
           <div className="bg-muted/30 rounded-xl border border-border/40 p-4 space-y-4">
