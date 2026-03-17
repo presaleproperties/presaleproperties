@@ -2069,6 +2069,7 @@ export type Database = {
           created_at: string
           developer_name: string | null
           floor_plans: Json
+          floor_plans_pdf_url: string | null
           gallery: Json
           hero_image_url: string | null
           id: string
@@ -2099,6 +2100,7 @@ export type Database = {
           created_at?: string
           developer_name?: string | null
           floor_plans?: Json
+          floor_plans_pdf_url?: string | null
           gallery?: Json
           hero_image_url?: string | null
           id?: string
@@ -2129,6 +2131,7 @@ export type Database = {
           created_at?: string
           developer_name?: string | null
           floor_plans?: Json
+          floor_plans_pdf_url?: string | null
           gallery?: Json
           hero_image_url?: string | null
           id?: string
