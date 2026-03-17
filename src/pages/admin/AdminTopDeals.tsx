@@ -285,7 +285,7 @@ export default function AdminTopDeals() {
     } else {
       ptt = 200000 * 0.01 + 1800000 * 0.02 + (calcPrice - 2000000) * 0.03;
     }
-    // Newly-built home exemption (BC 2024): Full exemption ≤ $1.1M; partial $1.1M–$1.15M
+    // BC 2026 newly-built home PTT exemption: Full ≤ $1.1M; partial $1.1M–$1.15M
     let pttPayable = ptt;
     if (buyerType === "ftb") {
       if (calcPrice <= 1100000) {

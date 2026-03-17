@@ -235,7 +235,7 @@ const AdLandingPage = () => {
       normalPtt = 200000 * 0.01 + 1800000 * 0.02 + (price - 2000000) * 0.03;
     }
     
-    // BC 2024 newly-built home PTT exemption for first-time buyers
+    // BC 2026 newly-built home PTT exemption for first-time buyers
     let savings = 0;
     if (price <= 1100000) {
       savings = normalPtt; // Full exemption
