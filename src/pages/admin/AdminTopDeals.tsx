@@ -655,7 +655,7 @@ export default function AdminTopDeals() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,application/pdf"
                 multiple
                 className="hidden"
                 onChange={(e) => handleFloorPlanUpload(e.target.files)}
