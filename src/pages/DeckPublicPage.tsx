@@ -249,6 +249,7 @@ export default function DeckPublicPage() {
           projectName={deck.project_name}
           completionYear={deck.completion_year || undefined}
           defaultPrice={defaultPrice}
+          floorPlans={deck.floor_plans || []}
         />
       </div>
 
