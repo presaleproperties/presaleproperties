@@ -29,6 +29,8 @@ import {
   Sparkles,
   CheckCircle2,
   Calculator,
+  ZoomIn,
+  X as XIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
