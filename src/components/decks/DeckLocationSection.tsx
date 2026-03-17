@@ -360,10 +360,6 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
     </section>
   );
 }
-          <div className="flex items-center gap-2 mb-5">
-            <MapPin className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-bold text-foreground">Location & Neighborhood</h3>
-          </div>
 
           {/* Walk & Transit Scores */}
           <div className="grid grid-cols-2 gap-4 mb-6">
