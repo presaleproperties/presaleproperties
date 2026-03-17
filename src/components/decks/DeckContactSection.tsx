@@ -286,15 +286,6 @@ export function DeckContactSection({
           </div>
         </div>
 
-        {/* Legal footer */}
-        <div className="mt-12 pt-8 border-t border-primary/10 text-center">
-          <p className="text-xs text-muted-foreground max-w-3xl mx-auto px-4">
-            This presentation is prepared for qualified investors and real estate professionals. All
-            projections are estimates based on current market conditions and are not guarantees of
-            future performance. Speak with a licensed financial advisor before making investment
-            decisions. Presale Properties | Real Broker
-          </p>
-        </div>
       </div>
 
       <BookingModal
