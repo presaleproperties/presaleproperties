@@ -146,7 +146,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
         <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">05</div>
 
         <div className="mb-8 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Projections</p>
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Investment</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Investment Calculator</h2>
           <p className="text-muted-foreground text-sm">BC 2026 tax rules — same calculator as our site, pre-loaded with this project's numbers.</p>
         </div>
