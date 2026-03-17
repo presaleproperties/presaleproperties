@@ -682,6 +682,51 @@ export default function DashboardDeckBuilder() {
           </div>
         </Section>
 
+        {/* ── STEP 4b: Floor Plans PDF ────────────────────────────────── */}
+        <Section title="4b. Full Floor Plans PDF"
+          subtitle="Upload the complete floor plan document — shown on the deck page below Top Picks"
+          badge={floorPlansPdfUrl ? "✓ Uploaded" : undefined}
+          defaultOpen={false}>
+          <div className="space-y-3">
+            {floorPlansPdfUrl ? (
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/20">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Upload className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">Floor Plans PDF</p>
+                  <a href={floorPlansPdfUrl} target="_blank" rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline truncate block">View uploaded PDF ↗</a>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <Button variant="outline" size="sm" onClick={() => pdfInputRef.current?.click()}>
+                    Replace
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive"
+                    onClick={() => setFloorPlansPdfUrl("")}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                onClick={() => pdfInputRef.current?.click()}
+              >
+                {pdfUploading ? (
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 text-muted-foreground/40" />
+                    <p className="text-sm font-medium text-foreground">Click to upload PDF</p>
+                    <p className="text-xs text-muted-foreground">Full floor plans document · PDF only</p>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </Section>
+
         {/* ── STEP 5: Gallery ─────────────────────────────────────────── */}
         <Section title={`5. Photo Gallery (${gallery.length}/12)`}
           subtitle="First image shown largest — use arrows to reorder"
