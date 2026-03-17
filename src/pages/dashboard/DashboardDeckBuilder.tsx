@@ -61,7 +61,7 @@ interface FloorPlan {
   price_per_sqft?: string; tags: string[]; image_url?: string;
   beds?: number | null; baths?: number | null; exposure?: string | null;
   interior_sqft?: number | null; exterior_sqft?: number | null;
-  rent_min?: number | null; rent_max?: number | null;
+  projected_rent?: number | null;
 }
 
 interface ProximityHighlight { icon: string; label: string; distance: string; }
