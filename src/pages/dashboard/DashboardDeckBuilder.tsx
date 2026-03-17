@@ -171,7 +171,7 @@ export default function DashboardDeckBuilder() {
       setLoadingProjects(true);
       const { data } = await (supabase as any)
         .from("presale_projects")
-        .select("id,name,city,neighborhood,address,developer_name,starting_price,completion_year,stories,total_units,featured_image,gallery_images,floorplan_files,map_lat,map_lng,short_description,occupancy_estimate")
+        .select("id,name,city,neighborhood,address,developer_name,starting_price,completion_year,featured_image,gallery_images,floorplan_files,map_lat,map_lng,short_description,occupancy_estimate")
         .order("name");
       setProjects(data || []);
       setLoadingProjects(false);
@@ -201,8 +201,8 @@ export default function DashboardDeckBuilder() {
     setCity(cityStr || p.city || "");
     setAddress(p.address || "");
     setDeveloperName(p.developer_name || "");
-    setStories(p.stories?.toString() || "");
-    setTotalUnits(p.total_units?.toString() || "");
+    setStories("");
+    setTotalUnits("");
     // Completion — use occupancy_estimate string if available, else year
     setCompletionYear(p.occupancy_estimate || p.completion_year?.toString() || "");
     if (p.map_lat) setLat(p.map_lat.toString());
@@ -243,8 +243,8 @@ export default function DashboardDeckBuilder() {
       setCity(data.city || "");
       setAddress(data.address || "");
       setDeveloperName(data.developer_name || "");
-      setStories(data.stories?.toString() || "");
-      setTotalUnits(data.total_units?.toString() || "");
+      setStories(data.stories || "");
+      setTotalUnits(data.total_units || "");
       setCompletionYear(data.completion_year || "");
       setHeroImageUrl(data.hero_image_url || "");
       setFloorPlans(data.floor_plans || []);
