@@ -79,7 +79,7 @@ export function DeckHeroSection({
           </h1>
 
           {tagline && (
-            <p className="text-white/65 text-base sm:text-xl font-light max-w-2xl leading-relaxed">
+            <p className="text-white/90 text-base sm:text-xl font-light max-w-2xl leading-relaxed">
               {tagline}
             </p>
           )}
