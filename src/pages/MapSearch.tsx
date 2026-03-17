@@ -1990,8 +1990,8 @@ export default function MapSearch() {
                               </div>
                             )}
                           </div>
-                          {/* Compact info: Name + Location */}
-                          <div className={cn("p-2 space-y-0.5 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
+                           {/* Compact info: Name + Location */}
+                          <div className={cn("px-2 pt-1.5 pb-2 space-y-0.5 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
                             {isAssignment && !isVerifiedAgent && (
                               <div className="absolute inset-0 bg-background/70 backdrop-blur-md flex items-center justify-center z-10">
                                 <p className="text-[10px] text-muted-foreground text-center px-1">Agent access</p>
