@@ -370,6 +370,16 @@ export default function DashboardDeckBuilder() {
     setGalleryUploading(false);
   };
 
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.type !== "application/pdf") { toast.error("Please upload a PDF file"); return; }
+    setPdfUploading(true);
+    const url = await uploadFile(file, `pitch-decks/${user.id}/floor-plans-${Date.now()}.pdf`);
+    if (url) { setFloorPlansPdfUrl(url); toast.success("Floor plans PDF uploaded!"); }
+    setPdfUploading(false);
+  };
+
   const addFloorPlan = () => {
     if (floorPlans.length >= 6) return;
     setFloorPlans((prev) => [...prev, { id: nanoid(), unit_type: "1 Bed", size_range: "", price_from: "", tags: [] }]);
