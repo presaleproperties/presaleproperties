@@ -50,7 +50,7 @@ export function FloorPlanModal({ plan, onClose }: FloorPlanModalProps) {
   return (
     <Dialog open={!!plan} onOpenChange={onClose}>
       {/* Wide modal — image-first, side panel on desktop */}
-      <DialogContent className="w-full max-w-5xl p-0 overflow-hidden gap-0 border-border/50 rounded-none sm:rounded-2xl max-h-[100dvh] sm:max-h-[94dvh]">
+      <DialogContent className="w-full max-w-5xl p-0 overflow-hidden gap-0 border-border/50 rounded-t-2xl sm:rounded-2xl max-h-[95dvh] flex flex-col">
 
         {/* Close button — always visible top-right */}
         <button
@@ -60,23 +60,24 @@ export function FloorPlanModal({ plan, onClose }: FloorPlanModalProps) {
           <X className="h-4 w-4" />
         </button>
 
-        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_300px] h-full max-h-[100dvh] sm:max-h-[94dvh]">
+        {/* Scrollable inner wrapper */}
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_300px] overflow-y-auto overflow-x-hidden flex-1 min-h-0">
 
-          {/* ── Image panel — dominant, scrollable on mobile ── */}
+          {/* ── Image panel — dominant ── */}
           <div
-            className="relative bg-muted/20 flex items-center justify-center overflow-hidden cursor-zoom-in"
-            style={{ minHeight: "clamp(340px, 60dvh, 700px)" }}
+            className="relative bg-muted/20 flex items-center justify-center overflow-hidden shrink-0 lg:shrink"
+            style={{ minHeight: "clamp(260px, 48dvh, 640px)" }}
             onClick={() => setZoomed(!zoomed)}
           >
             {plan.image_url ? (
               <div
-                className={`w-full h-full flex items-center justify-center p-3 sm:p-6 transition-transform duration-400 origin-center ${zoomed ? "scale-[2] cursor-zoom-out" : "scale-100 cursor-zoom-in"}`}
+                className={`w-full h-full flex items-center justify-center p-3 sm:p-6 transition-transform duration-300 origin-center ${zoomed ? "scale-[2.2] cursor-zoom-out" : "scale-100 cursor-zoom-in"}`}
               >
                 <img
                   src={plan.image_url}
                   alt={`${plan.unit_type} floor plan`}
                   className="w-full h-full object-contain select-none"
-                  style={{ maxHeight: "clamp(320px, 58dvh, 680px)" }}
+                  style={{ maxHeight: "clamp(240px, 46dvh, 620px)" }}
                   draggable={false}
                 />
               </div>
@@ -99,7 +100,7 @@ export function FloorPlanModal({ plan, onClose }: FloorPlanModalProps) {
           </div>
 
           {/* ── Info panel ── */}
-          <div className="flex flex-col p-5 sm:p-6 border-t lg:border-t-0 lg:border-l border-border/50 bg-background overflow-y-auto">
+          <div className="flex flex-col p-5 sm:p-6 border-t lg:border-t-0 lg:border-l border-border/50 bg-background">
 
             {/* Unit type */}
             <div className="mb-4 pr-8">
