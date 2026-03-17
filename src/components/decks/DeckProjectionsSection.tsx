@@ -177,7 +177,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
 
           {/* Tabs */}
           <Tabs defaultValue="mortgage" className="w-full">
-            <TabsList className="w-full h-auto p-0 bg-muted/30 rounded-none border-b border-border/50 mt-4">
+            <TabsList className="w-full h-auto p-0 bg-muted/30 rounded-none border-b border-border/50 mt-3">
               {[
                 { value: "mortgage", icon: DollarSign, label: "Monthly Payment" },
                 { value: "forecast", icon: PiggyBank, label: "5-Year Forecast" },
@@ -185,9 +185,9 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 <TabsTrigger
                   key={value}
                   value={value}
-                  className="flex-1 h-11 rounded-none gap-2 text-[13px] font-semibold text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary transition-colors"
+                  className="flex-1 h-10 sm:h-11 rounded-none gap-1.5 text-xs sm:text-[13px] font-semibold text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary transition-colors touch-manipulation"
                 >
-                  <Icon className="h-3.5 w-3.5" />
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
                   {label}
                 </TabsTrigger>
               ))}
