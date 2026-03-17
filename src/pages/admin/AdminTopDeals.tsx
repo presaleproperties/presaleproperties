@@ -125,8 +125,7 @@ export default function AdminTopDeals() {
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
   const [customStrataFee, setCustomStrataFee] = useState<string>("");
   const [activePlanIndex, setActivePlanIndex] = useState(0);
-  // Override price for the numbers slide
-  const [customCalcPrice, setCustomCalcPrice] = useState<string>("");
+  // customCalcPrice is now stored per-plan inside floorPlans[].customPrice
 
   // ── Load projects
   useEffect(() => {
@@ -237,14 +236,12 @@ export default function AdminTopDeals() {
 
   // ── Mortgage calculations
   const calcPrice = (() => {
-    // Use the active plan's custom price if set, else project starting price
     const activeFp = floorPlans[activePlanIndex];
     if (activeFp?.customPrice) {
-      return parseInt(activeFp.customPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000);
+      const parsed = parseInt(activeFp.customPrice.replace(/\D/g, ""));
+      if (parsed > 0) return parsed;
     }
-    return customCalcPrice
-      ? parseInt(customCalcPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000)
-      : (selected?.starting_price ?? 850000);
+    return selected?.starting_price ?? 850000;
   })();
   const calc = useMemo(() => {
     const down = (calcPrice * downPct) / 100;
@@ -856,10 +853,14 @@ export default function AdminTopDeals() {
                       type="text"
                       inputMode="numeric"
                       placeholder={selected.starting_price ? selected.starting_price.toLocaleString() : "Enter price"}
-                      value={customCalcPrice}
+                      value={floorPlans[activePlanIndex]?.customPrice ?? ""}
                       onChange={e => {
                         const val = e.target.value.replace(/[^0-9]/g, "");
-                        setCustomCalcPrice(val ? parseInt(val).toLocaleString() : "");
+                        setFloorPlans(prev => {
+                          const u = [...prev];
+                          u[activePlanIndex] = { ...u[activePlanIndex], customPrice: val ? parseInt(val).toLocaleString() : "" };
+                          return u;
+                        });
                       }}
                       className="w-full h-9 pl-8 pr-2 rounded-lg border border-border bg-background text-base font-bold focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
