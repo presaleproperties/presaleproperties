@@ -68,9 +68,19 @@ export function DeckStickyNav({ visible, activeSection, projectName, whatsappNum
             ))}
           </nav>
 
-          {/* Right: project name + mobile toggle */}
+          {/* Right: WhatsApp CTA + project name + mobile toggle */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="hidden lg:block text-xs font-medium text-muted-foreground max-w-[160px] truncate">
+            <a
+              href={`https://wa.me/${rawNumber}?text=${waMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white touch-manipulation transition-all active:scale-[0.97]"
+              style={{ background: "#25D366" }}
+            >
+              <MessageCircle className="h-3.5 w-3.5 shrink-0" />
+              Text Us
+            </a>
+            <span className="hidden lg:block text-xs font-medium text-muted-foreground max-w-[140px] truncate">
               {projectName}
             </span>
             {/* Mobile hamburger */}
