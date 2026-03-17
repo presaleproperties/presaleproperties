@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { FloorPlanModal, FloorPlan } from "./FloorPlanModal";
-import { LayoutPanelTop, ArrowRight, BedDouble, Square, Tag } from "lucide-react";
+import { LayoutPanelTop, ArrowRight, Square } from "lucide-react";
 
 interface DeckFloorPlansSectionProps {
   floorPlans: FloorPlan[];
@@ -102,17 +102,12 @@ export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps
                     </div>
                   )}
 
-                  {/* Tags */}
-                  {plan.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {plan.tags.slice(0, 3).map((tag, i) => (
-                        <span
-                          key={i}
-                          className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/8 text-primary border border-primary/15"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                  {/* Price / sqft */}
+                  {plan.price_per_sqft && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Square className="h-3 w-3 shrink-0" />
+                      <span className="font-medium text-foreground">{plan.price_per_sqft}</span>
+                      <span className="text-muted-foreground">/ sqft</span>
                     </div>
                   )}
                 </div>
