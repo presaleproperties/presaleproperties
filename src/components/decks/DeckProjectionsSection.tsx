@@ -270,7 +270,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
             </div>
 
             <p className="text-[11px] text-muted-foreground">
-              * BC 2024 new construction rules. PTT exemption for FTB ≤$1.1M. GST rebate for primary residence ≤$1M. Consult a licensed advisor.
+              * BC 2024 new construction rules. PTT exemption for FTB ≤$1.1M. 100% GST rebate (primary residence, new build) ≤$1M — partial rebate $1M–$1.2M. Consult a licensed advisor.
             </p>
           </div>
 
