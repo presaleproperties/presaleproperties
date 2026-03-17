@@ -270,13 +270,19 @@ export default function DeckPublicPage() {
       {deck.contact_whatsapp || deck.contact_phone ? (
         <div
           className="sm:hidden fixed bottom-0 left-0 right-0 z-40 px-4 bg-background/95 backdrop-blur-md border-t border-border/30"
-          style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))", paddingTop: "0.75rem" }}
+          style={{
+            paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+            paddingTop: "0.75rem",
+            transform: "translateZ(0)",
+            willChange: "transform",
+            WebkitBackfaceVisibility: "hidden",
+          }}
         >
           <a
             href={`https://wa.me/${(deck.contact_whatsapp || deck.contact_phone || "").replace(/\D/g, "")}?text=${encodeURIComponent(`Hi! I'm interested in ${deck.project_name} — can you share more details?`)}`}
             target="_blank"
             rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl font-bold text-sm text-white touch-manipulation active:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl font-bold text-sm text-white touch-manipulation active:opacity-90 transition-opacity"
             style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,0.35)" }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
