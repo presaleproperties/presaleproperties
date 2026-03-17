@@ -48,12 +48,12 @@ export function FloorPlanModal({ plan, onClose, allPlans }: FloorPlanModalProps)
 
   return (
     <Dialog open={!!plan} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden gap-0 border-border/50 max-h-[92dvh]">
+      <DialogContent className="w-full max-w-3xl p-0 overflow-hidden gap-0 border-border/50 max-h-[100dvh] sm:max-h-[92dvh] rounded-none sm:rounded-2xl">
         {/* Mobile: stacked. Desktop: side-by-side */}
-        <div className="flex flex-col md:grid md:grid-cols-[1fr_260px] h-full overflow-auto md:overflow-hidden">
+        <div className="flex flex-col md:grid md:grid-cols-[1fr_260px] h-full overflow-y-auto md:overflow-hidden max-h-[100dvh] sm:max-h-[92dvh]">
 
           {/* Image panel */}
-          <div className="relative bg-muted/30 flex items-center justify-center min-h-[240px] md:min-h-[420px] overflow-hidden order-1">
+          <div className="relative bg-muted/30 flex items-center justify-center min-h-[220px] md:min-h-[420px] overflow-hidden order-1 shrink-0">
             {plan.image_url ? (
               <div
                 className={`w-full h-full transition-transform duration-500 ${zoomed ? "scale-150 cursor-zoom-out" : "scale-100 cursor-zoom-in"} flex items-center justify-center p-4`}
@@ -62,7 +62,7 @@ export function FloorPlanModal({ plan, onClose, allPlans }: FloorPlanModalProps)
                 <img
                   src={plan.image_url}
                   alt={`${plan.unit_type} floor plan`}
-                  className="max-h-[320px] md:max-h-[380px] w-auto object-contain select-none"
+                  className="max-h-[260px] md:max-h-[380px] w-auto object-contain select-none"
                   draggable={false}
                 />
               </div>
@@ -84,25 +84,25 @@ export function FloorPlanModal({ plan, onClose, allPlans }: FloorPlanModalProps)
           </div>
 
           {/* Info panel */}
-          <div className="flex flex-col p-5 md:p-6 border-t md:border-t-0 md:border-l border-border/50 bg-background order-2">
+          <div className="flex flex-col p-4 sm:p-5 md:p-6 border-t md:border-t-0 md:border-l border-border/50 bg-background order-2">
             {/* Close — top right always */}
             <button
               onClick={onClose}
-              className="self-end p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground mb-3"
+              className="self-end p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground mb-2"
             >
               <X className="h-4 w-4" />
             </button>
 
             {/* Unit type */}
-            <div className="mb-4">
+            <div className="mb-3">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Unit Type</p>
-              <h3 className="text-xl md:text-2xl font-bold text-foreground">{plan.unit_type}</h3>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">{plan.unit_type}</h3>
             </div>
 
             {/* Price */}
-            <div className="rounded-xl bg-primary/8 border border-primary/15 p-4 mb-4">
+            <div className="rounded-xl bg-primary/8 border border-primary/15 p-3 sm:p-4 mb-3">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Starting From</p>
-              <p className="text-2xl md:text-3xl font-bold text-primary">{plan.price_from}</p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{plan.price_from}</p>
             </div>
 
             {/* Size + psf */}
@@ -132,7 +132,7 @@ export function FloorPlanModal({ plan, onClose, allPlans }: FloorPlanModalProps)
 
             {/* CTA */}
             <Button
-              className="w-full mt-auto"
+              className="w-full mt-auto touch-manipulation"
               onClick={() => { onClose(); document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }); }}
             >
               Inquire About This Unit
