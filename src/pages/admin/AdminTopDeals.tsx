@@ -689,7 +689,7 @@ export default function AdminTopDeals() {
                                 />
                               )}
                             </div>
-                            <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 mt-1">
+                            <div className="flex items-center gap-1.5 text-[11px] text-primary mt-1">
                               <CheckCircle2 className="h-3 w-3" />
                               AI extracted
                             </div>
