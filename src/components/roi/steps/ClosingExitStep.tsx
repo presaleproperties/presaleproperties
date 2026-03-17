@@ -260,9 +260,9 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
               <p className="text-[10px] text-muted-foreground">
                 {isFirstTimeBuyer
                   ? pttFullExemption
-                    ? "Full exemption — new construction ≤$1.1M (BC 2024)"
+                    ? "Full exemption — new construction ≤$1.1M (BC 2026)"
                     : pttPartialExemption
-                    ? "Partial exemption — new construction $1.1M–$1.15M (BC 2024)"
+                    ? "Partial exemption — new construction $1.1M–$1.15M (BC 2026)"
                     : "Over $1.15M — standard PTT rates apply"
                   : "BC PTT — tiered rate on purchase price"}
               </p>
