@@ -104,15 +104,15 @@ function calculatePTT(
     rebate = provincial;
     exemptionType = "Primary Residence New Home Exemption";
   }
-  // Priority 2: First-Time Home Buyer exemption (resale or new)
+  // Priority 2: First-Time Home Buyer exemption on new construction (BC April 2024+)
+  // Full exemption ≤ $1,100,000 | Partial $1,100,001–$1,150,000
   else if (isFirstTimeBuyer) {
-    // BC FTB exemption: full up to $500K, partial $500K-$525K
-    if (price <= 500000) {
+    if (price <= 1100000) {
       rebate = provincial; // Full exemption
-      exemptionType = "First-Time Buyer Exemption";
-    } else if (price < 525000) {
-      // Partial exemption - phases out between $500K and $525K
-      rebate = provincial * (1 - (price - 500000) / 25000);
+      exemptionType = "First-Time Buyer Exemption (New Construction)";
+    } else if (price < 1150000) {
+      // Partial exemption - phases out between $1.1M and $1.15M
+      rebate = provincial * (1150000 - price) / 50000;
       exemptionType = "First-Time Buyer Exemption (partial)";
     }
   }
@@ -655,7 +655,7 @@ export default function MortgageCalculatorPage() {
     },
     {
       question: "What is BC Property Transfer Tax?",
-      answer: "Property Transfer Tax (PTT) is a provincial tax paid when you buy property in BC. The rate is 1% on the first $200,000, 2% on $200,000-$2,000,000, 3% on $2,000,000-$3,000,000, and 5% above $3,000,000. First-time buyers may qualify for exemptions up to $8,000 on homes up to $500,000. New home buyers can get up to $13,000 exemption."
+      answer: "Property Transfer Tax (PTT) is a provincial tax paid when you buy property in BC. The rate is 1% on the first $200,000, 2% on $200,000–$2,000,000, and 3% above $2,000,000. For newly-built homes (April 2024+), first-time buyers get a full PTT exemption on homes up to $1,100,000, with a partial exemption up to $1,150,000 — savings of up to $18,000 or more."
     },
     {
       question: "What closing costs should I budget for?",
@@ -1066,7 +1066,7 @@ export default function MortgageCalculatorPage() {
                                   <HelpCircle className="h-3 w-3 text-muted-foreground" />
                                 </TooltipTrigger>
                                 <TooltipContent className="max-w-xs">
-                                  <p>BC first-time buyers get full PTT exemption on homes up to $500K, partial up to $525K. Must be Canadian citizen/PR, BC resident 1+ year.</p>
+                                  <p>BC first-time buyers on new construction get full PTT exemption on homes up to $1.1M, partial up to $1.15M (BC April 2024). Must be Canadian citizen/PR, principal residence.</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -1103,7 +1103,7 @@ export default function MortgageCalculatorPage() {
                       {isFirstTimeBuyer && !includeGST && (
                         <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
                           <CheckCircle className="h-3 w-3" />
-                          FTB PTT exemption: Full up to $500K, partial up to $525K
+                          FTB PTT exemption (new construction): Full up to $1.1M, partial up to $1.15M
                         </p>
                       )}
                     </CardContent>

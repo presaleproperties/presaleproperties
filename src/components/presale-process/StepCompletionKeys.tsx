@@ -77,7 +77,7 @@ export function StepCompletionKeys() {
           <CostRow label="Deposits paid (5% + 5% = 10%)" value="−$48,000" />
           <CostRow label="Remaining down payment (5% − deposits)" value="−$24,000" />
           <CostRow label="GST (5% on $480K)" value="$24,000" />
-          <CostRow label="PTT (≤ $500K — full exemption)" value="$0" highlight />
+          <CostRow label="PTT (≤ $1.1M new construction — full exemption)" value="$0" highlight />
           <CostRow label="GST rebate (price ≤ $450K threshold)" value="Partial ~$2,400" highlight />
           <CostRow label="CMHC insurance (5% down)" value="$19,200" />
           <CostRow label="Legal fees + title insurance" value="~$2,300" />

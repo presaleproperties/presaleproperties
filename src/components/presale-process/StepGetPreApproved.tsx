@@ -104,13 +104,13 @@ export function StepGetPreApproved() {
           </div>
           {/* Exemption callout */}
           <div className="rounded-md bg-primary/8 border border-primary/20 p-3 space-y-1">
-            <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">First-Time Buyer Exemption</p>
+            <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">First-Time Buyer Exemption — New Construction (BC 2024)</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">Full exemption</strong> if purchase price ≤ $500,000 (PTT = $0).
+              <strong className="text-foreground">Full exemption</strong> if purchase price ≤ $1,100,000 (PTT = $0).
               <br />
-              <strong className="text-foreground">Partial exemption</strong> on $500,001–$525,000 (sliding scale).
+              <strong className="text-foreground">Partial exemption</strong> on $1,100,001–$1,150,000 (sliding scale).
               <br />
-              <strong className="text-foreground">No exemption</strong> above $525,000 — full PTT applies.
+              <strong className="text-foreground">No exemption</strong> above $1,150,000 — full PTT applies.
             </p>
           </div>
           <p className="text-[10px] text-muted-foreground mt-2">Investors pay full PTT — no exemption available.</p>
