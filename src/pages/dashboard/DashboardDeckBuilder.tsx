@@ -52,8 +52,8 @@ interface AgentProfile {
   full_name: string;
   title: string | null;
   photo_url: string | null;
-  linkedin_url: string | null;
-  instagram_url: string | null;
+  email: string | null;
+  phone: string | null;
 }
 
 interface FloorPlan {
@@ -169,23 +169,27 @@ export default function DashboardDeckBuilder() {
     })();
   }, []);
 
-  // Map team member to contact fields (name only — phone/email filled manually or from hardcoded lookup)
+  // Auto-populate all contact fields from team member record
   const applyAgentProfile = useCallback((agent: AgentProfile) => {
     setContactName(agent.full_name || "");
+    setContactPhone(agent.phone || "");
+    setContactEmail(agent.email || "");
+    setContactWhatsapp(agent.phone ? agent.phone.replace(/\D/g, "") : "");
     setSelectedAgentId(agent.id || null);
   }, []);
 
-  // Fetch active team members from team_members_public view
+  // Fetch active team members directly from team_members table (has phone + email)
   useEffect(() => {
     (async () => {
-      const { data } = await (supabase as any)
-        .from("team_members_public")
-        .select("id, full_name, title, photo_url")
+      const { data } = await supabase
+        .from("team_members")
+        .select("id, full_name, title, photo_url, email, phone")
+        .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (data?.length) {
-        setAgents(data as unknown as AgentProfile[]);
+        setAgents(data as AgentProfile[]);
         if (!isEdit) {
-          applyAgentProfile((data as unknown as AgentProfile[])[0]);
+          applyAgentProfile((data as AgentProfile[])[0]);
         }
       }
     })();
