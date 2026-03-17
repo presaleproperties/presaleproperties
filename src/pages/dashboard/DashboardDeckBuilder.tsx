@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import {
   Plus, Trash2, Loader2, Upload, Image, ArrowUp, ArrowDown,
   ChevronDown, ChevronUp, Save, Eye, Search, Building2, Sparkles, X,
-  Wand2, User, TrendingUp, DollarSign,
+  Wand2, User, TrendingUp, DollarSign, Copy, ExternalLink,
 } from "lucide-react";
 
 const UNIT_TYPES = ["Studio", "1 Bed", "1 Bed + Den", "2 Bed", "2 Bed + Den", "3 Bed", "Townhouse"];
@@ -489,7 +489,7 @@ export default function DashboardDeckBuilder() {
             </p>
           </div>
           <div className="flex gap-2">
-            {isEdit && isPublished && (
+            {isEdit && slug && (
               <Button variant="outline" size="sm" asChild>
                 <a href={`/deck/${slug}`} target="_blank" rel="noopener noreferrer">
                   <Eye className="h-4 w-4 mr-1" />Preview
@@ -734,7 +734,7 @@ export default function DashboardDeckBuilder() {
                     <Label className="text-xs">Unit Type</Label>
                     <Select value={fp.unit_type} onValueChange={(v) => updateFloorPlan(fp.id, "unit_type", v)}>
                       <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" side="bottom">
                         {UNIT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                       </SelectContent>
                     </Select>
@@ -949,24 +949,50 @@ export default function DashboardDeckBuilder() {
         </Section>
 
         {/* Section: URL Slug */}
-        <Section title="URL & Publishing" subtitle="Customize the public share link" defaultOpen={false}>
-          <div className="space-y-1.5">
-            <Label>URL Slug *</Label>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground shrink-0">/deck/</span>
-              <Input
-                value={slug}
-                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-                onBlur={() => checkSlug(slug)}
-                placeholder="aurora-surrey"
-                className={slugTaken ? "border-destructive" : ""}
-              />
+        <Section title="URL & Publishing" subtitle="Customize the public share link" defaultOpen={true}>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>URL Slug *</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground shrink-0">/deck/</span>
+                <Input
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                  onBlur={() => checkSlug(slug)}
+                  placeholder="aurora-surrey"
+                  className={slugTaken ? "border-destructive" : ""}
+                />
+              </div>
+              {slugTaken && <p className="text-xs text-destructive">This slug is already taken.</p>}
             </div>
-            {slugTaken && <p className="text-xs text-destructive">This slug is already taken.</p>}
             {slug && !slugTaken && (
-              <p className="text-xs text-muted-foreground">
-                Public URL: {window.location.origin}/deck/{slug}
-              </p>
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+                <p className="text-xs font-semibold text-foreground">Your deck URL:</p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 text-xs bg-background border border-border rounded px-3 py-2 text-primary font-mono truncate">
+                    {window.location.origin}/deck/{slug}
+                  </code>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/deck/${slug}`);
+                      toast.success("URL copied to clipboard!");
+                    }}
+                  >
+                    <Copy className="h-3.5 w-3.5 mr-1" />Copy
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <a href={`/deck/${slug}`} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-3.5 w-3.5 mr-1" />Open
+                    </a>
+                  </Button>
+                </div>
+                {!isPublished && (
+                  <p className="text-xs text-muted-foreground">⚠️ Deck is currently a draft — toggle Published above to make it live.</p>
+                )}
+              </div>
             )}
           </div>
         </Section>
