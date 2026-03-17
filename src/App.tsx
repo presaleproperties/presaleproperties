@@ -452,6 +452,9 @@ const App = () => (
             <Route path="/whalley-presale-condos-georgetown-ii" element={<Navigate to="/presale-projects/surrey" replace />} />
             <Route path="/dawson-delta-presale-condos-brentwood-block" element={<Navigate to="/presale-projects/burnaby" replace />} />
 
+            {/* Public Pitch Deck pages — must be before /:cityProductSlug catch-all */}
+            <Route path="/deck/:slug" element={<DeckPublicPage />} />
+
             {/* SEO City Product Pages - must be before 404 */}
             <Route path="/:cityProductSlug" element={<CityProductPage />} />
             

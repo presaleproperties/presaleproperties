@@ -19,6 +19,7 @@ import {
   MessageSquare,
   FileText,
   FolderOpen,
+  Presentation,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
