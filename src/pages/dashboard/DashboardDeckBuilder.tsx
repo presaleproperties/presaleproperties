@@ -164,6 +164,8 @@ export default function DashboardDeckBuilder() {
   const [appreciationRate, setAppreciationRate] = useState("5");
   const [projectionsFromAI, setProjectionsFromAI] = useState(false);
 
+  const [depositSteps, setDepositSteps] = useState<DepositStep[]>(DEFAULT_DEPOSIT_STEPS);
+
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
