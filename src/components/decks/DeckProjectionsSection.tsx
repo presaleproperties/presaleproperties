@@ -164,17 +164,9 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 <p className="text-[11px] text-background/40 mt-0.5">BC 2026 presale rules applied</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 shrink-0">
-              {!isFirstTimeBuyer && projectedRent && (
-                <div className="text-right">
-                  <p className="text-[10px] text-background/40 uppercase tracking-wider">Projected Rent</p>
-                  <p className="text-lg font-bold text-green-400">{fmt(projectedRent)}<span className="text-[11px] text-background/40 font-normal">/mo</span></p>
-                </div>
-              )}
-              <div className="text-right">
-                <p className="text-[10px] text-background/40 uppercase tracking-wider">Calculating for</p>
-                <p className="text-lg font-bold text-primary">{fmt(price)}</p>
-              </div>
+            <div className="text-right shrink-0">
+              <p className="text-[10px] text-background/40 uppercase tracking-wider">Calculating for</p>
+              <p className="text-lg font-bold text-primary">{fmt(price)}</p>
             </div>
           </div>
 
