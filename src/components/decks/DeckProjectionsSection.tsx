@@ -266,8 +266,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   {/* Deposit structure */}
                   <div className="grid grid-cols-2 gap-3">
                     {([
-                      { label: "Deposit 1", val: dep1Pct, set: setDep1Pct, amt: results.dep1 },
-                      { label: "Deposit 2", val: dep2Pct, set: setDep2Pct, amt: results.dep2 },
+                      { label: "Deposit 1 (at signing)", val: dep1Pct, set: setDep1Pct, amt: results.dep1 },
+                      { label: "Deposit 2 (3 months)", val: dep2Pct, set: setDep2Pct, amt: results.dep2 },
                     ] as const).map(({ label, val, set, amt }) => (
                       <div key={label} className="rounded-xl bg-muted/40 p-3">
                         <div className="flex justify-between text-[11px] mb-2">
@@ -283,7 +283,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   {/* Rate + amortization */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-foreground">Interest Rate</span>
+                      <span className="text-sm font-medium text-foreground">Mortgage Rate</span>
                       <span className="text-sm font-bold text-primary">{rate.toFixed(2)}%</span>
                     </div>
                     <Slider min={2} max={9} step={0.01} value={[rate]} onValueChange={([v]) => setRate(parseFloat(v.toFixed(2)))} />
@@ -291,7 +291,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-foreground mb-2">Amortization</p>
+                    <p className="text-sm font-medium text-foreground mb-2">Loan Length</p>
                     <div className="flex gap-2">
                       {[25, 30].map((yr) => (
                         <button key={yr} onClick={() => setAmort(yr)}
@@ -305,7 +305,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   {/* Strata + Tax — text inputs */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-xl border border-border/50 p-3">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Strata /mo</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Condo Fees /mo</p>
                       <div className="relative">
                         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">$</span>
                         <input
