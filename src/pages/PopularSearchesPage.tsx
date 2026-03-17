@@ -194,7 +194,7 @@ export default function PopularSearchesPage() {
                           {[1, 2, 3, 4].map((bed) => (
                             <li key={bed}>
                               <Link 
-                                to={`/resale/${citySlug}/${bed}-bedroom`}
+                                to={`/properties/${citySlug}/${bed}-bedroom`}
                                 className="text-primary hover:underline text-sm"
                               >
                                 {bed}+ Bedroom Homes in {city}
