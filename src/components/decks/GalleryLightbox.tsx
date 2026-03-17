@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface GalleryLightboxProps {
@@ -67,9 +68,9 @@ export function GalleryLightbox({
 
   if (images.length === 0) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[200] bg-black flex flex-col"
+      className="fixed inset-0 z-[9999] bg-black flex flex-col"
       style={{ height: "100dvh" }}
     >
       {/* Top bar */}
@@ -169,6 +170,7 @@ export function GalleryLightbox({
           ))}
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
