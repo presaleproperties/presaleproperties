@@ -225,24 +225,6 @@ export function DeckDepositTimelineSection({
                 <span className="font-semibold text-foreground">{fmt(balanceAtCompletion)}</span>
               </div>
 
-              {/* Mortgage inline */}
-              <div className="mt-1 pt-3 border-t border-border/50">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Est. Mortgage</p>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-lg bg-muted/40 px-2 py-2 text-center">
-                    <p className="text-sm font-black text-primary">{fmt(monthlyPayment)}<span className="text-[9px] font-normal">/mo</span></p>
-                    <p className="text-[9px] text-muted-foreground">5.24% · 25yr</p>
-                  </div>
-                  <div className="rounded-lg bg-muted/40 px-2 py-2 text-center">
-                    <p className="text-sm font-black text-foreground">{fmt(mortgageBase)}</p>
-                    <p className="text-[9px] text-muted-foreground">80% LTV</p>
-                  </div>
-                </div>
-                <p className="text-[9px] text-muted-foreground mt-2 leading-relaxed">Estimates only. Consult your mortgage advisor.</p>
-              </div>
             </div>
           </div>
         </div>
