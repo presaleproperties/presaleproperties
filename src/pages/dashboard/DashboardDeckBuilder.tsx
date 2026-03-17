@@ -360,9 +360,12 @@ export default function DashboardDeckBuilder() {
         const tags: string[] = [...(unit.features || [])];
         if (unit.exposure) tags.push(unit.exposure);
 
+        // Normalize AI unit_type to a valid UNIT_TYPES entry
+        const resolvedUnitType = normalizeUnitType(unit.unit_type) || fp.unit_type;
+
         return {
           ...fp,
-          unit_type: unit.unit_type || fp.unit_type,
+          unit_type: resolvedUnitType,
           size_range: sizeStr || fp.size_range,
           beds: unit.beds,
           baths: unit.baths,
