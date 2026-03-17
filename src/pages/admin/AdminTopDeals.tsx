@@ -120,8 +120,8 @@ export default function AdminTopDeals() {
 
   // Calculator state
   const [downPct, setDownPct] = useState(20);
-  const [rate, setRate] = useState(4.2);
-  const [amort, setAmort] = useState(25);
+  const [rate, setRate] = useState(3.8);
+  const [amort, setAmort] = useState(30);
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
   const [customStrataFee, setCustomStrataFee] = useState<string>("");
   const [activePlanIndex, setActivePlanIndex] = useState(0);
