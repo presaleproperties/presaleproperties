@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, ZoomIn, ZoomOut, Square, TrendingUp } from "lucide-react";
+import { X, ZoomIn, ZoomOut, Square, TrendingUp, MessageCircle } from "lucide-react";
 
 export interface FloorPlan {
   id: string;
@@ -37,24 +37,87 @@ function derivePsf(plan: FloorPlan): string | null {
 interface FloorPlanModalProps {
   plan: FloorPlan | null;
   onClose: () => void;
+  whatsappNumber?: string;
+  projectName?: string;
   allPlans?: FloorPlan[];
 }
 
-export function FloorPlanModal({ plan, onClose }: FloorPlanModalProps) {
+export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: FloorPlanModalProps) {
   const [zoomed, setZoomed] = useState(false);
+  // Pan state
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const panStart = useRef({ x: 0, y: 0 });
+  const hasDragged = useRef(false);
+
+  const resetZoom = useCallback(() => {
+    setZoomed(false);
+    setPan({ x: 0, y: 0 });
+  }, []);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (!zoomed) return;
+    isDragging.current = true;
+    hasDragged.current = false;
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    panStart.current = { ...pan };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    e.preventDefault();
+  }, [zoomed, pan]);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasDragged.current = true;
+    setPan({ x: panStart.current.x + dx, y: panStart.current.y + dy });
+  }, []);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    isDragging.current = false;
+  }, []);
+
+  const handleImageClick = useCallback((e: React.MouseEvent) => {
+    if (hasDragged.current) {
+      hasDragged.current = false;
+      return;
+    }
+    if (zoomed) {
+      resetZoom();
+    } else {
+      setZoomed(true);
+      setPan({ x: 0, y: 0 });
+    }
+  }, [zoomed, resetZoom]);
+
+  // Reset pan/zoom when plan changes
+  const prevPlanId = useRef<string | null>(null);
+  if (plan && plan.id !== prevPlanId.current) {
+    prevPlanId.current = plan.id;
+    if (zoomed) {
+      // Reset on next render
+    }
+  }
 
   if (!plan) return null;
 
   const psf = derivePsf(plan);
+  const waNumber = (whatsappNumber || "17782313592").replace(/\D/g, "");
+  const waMessage = encodeURIComponent(
+    `Hi! I'm interested in the ${plan.unit_type}${plan.price_from ? ` (from ${plan.price_from})` : ""}${projectName ? ` at ${projectName}` : ""} — can you share more details?`
+  );
+  const waUrl = `https://wa.me/${waNumber}?text=${waMessage}`;
 
   return (
-    <Dialog open={!!plan} onOpenChange={onClose}>
+    <Dialog open={!!plan} onOpenChange={(open) => { if (!open) { resetZoom(); onClose(); } }}>
       {/* Wide modal — image-first, side panel on desktop */}
       <DialogContent className="w-full max-w-5xl p-0 overflow-hidden gap-0 border-border/50 rounded-t-2xl sm:rounded-2xl max-h-[95dvh] flex flex-col">
 
         {/* Close button — always visible top-right */}
         <button
-          onClick={onClose}
+          onClick={() => { resetZoom(); onClose(); }}
           className="absolute top-3 right-3 z-50 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground shadow-md"
         >
           <X className="h-4 w-4" />
@@ -65,18 +128,30 @@ export function FloorPlanModal({ plan, onClose }: FloorPlanModalProps) {
 
           {/* ── Image panel — dominant ── */}
           <div
-            className="relative bg-muted/20 flex items-center justify-center overflow-hidden shrink-0 lg:shrink"
+            className={`relative bg-muted/20 flex items-center justify-center shrink-0 lg:shrink select-none ${zoomed ? "overflow-hidden cursor-grab active:cursor-grabbing" : "overflow-hidden cursor-zoom-in"}`}
             style={{ minHeight: "clamp(260px, 48dvh, 640px)" }}
-            onClick={() => setZoomed(!zoomed)}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            onClick={handleImageClick}
           >
             {plan.image_url ? (
               <div
-                className={`w-full h-full flex items-center justify-center p-3 sm:p-6 transition-transform duration-300 origin-center ${zoomed ? "scale-[2.2] cursor-zoom-out" : "scale-100 cursor-zoom-in"}`}
+                style={{
+                  transform: zoomed
+                    ? `scale(2.4) translate(${pan.x / 2.4}px, ${pan.y / 2.4}px)`
+                    : "scale(1) translate(0px, 0px)",
+                  transition: isDragging.current ? "none" : "transform 0.25s ease",
+                  transformOrigin: "center center",
+                  willChange: "transform",
+                }}
+                className="w-full h-full flex items-center justify-center p-3 sm:p-6"
               >
                 <img
                   src={plan.image_url}
                   alt={`${plan.unit_type} floor plan`}
-                  className="w-full h-full object-contain select-none"
+                  className="w-full h-full object-contain"
                   style={{ maxHeight: "clamp(240px, 46dvh, 620px)" }}
                   draggable={false}
                 />
@@ -94,7 +169,7 @@ export function FloorPlanModal({ plan, onClose }: FloorPlanModalProps) {
             {plan.image_url && (
               <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-background/75 backdrop-blur-sm rounded-full px-3 py-1.5 text-[11px] text-muted-foreground border border-border/40 pointer-events-none select-none">
                 {zoomed ? <ZoomOut className="h-3.5 w-3.5" /> : <ZoomIn className="h-3.5 w-3.5" />}
-                <span>{zoomed ? "Tap to zoom out" : "Tap to zoom in"}</span>
+                <span>{zoomed ? "Drag to pan · Tap to zoom out" : "Tap to zoom in & pan"}</span>
               </div>
             )}
           </div>
@@ -138,17 +213,22 @@ export function FloorPlanModal({ plan, onClose }: FloorPlanModalProps) {
               )}
             </div>
 
-            {/* CTA */}
-            <Button
-              className="w-full mt-auto touch-manipulation"
-              size="lg"
-              onClick={() => {
-                onClose();
-                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-              }}
+            {/* CTA — WhatsApp with unit-specific message */}
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full mt-auto"
+              onClick={onClose}
             >
-              Inquire About This Unit
-            </Button>
+              <Button
+                className="w-full touch-manipulation gap-2"
+                size="lg"
+              >
+                <MessageCircle className="h-4 w-4" />
+                I'm Interested in This Unit
+              </Button>
+            </a>
             <p className="text-[10px] text-muted-foreground text-center mt-2">
               No obligation · Private showing available
             </p>
