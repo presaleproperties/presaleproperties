@@ -203,16 +203,6 @@ export function DeckContactSection({
                 Text {agent.fullName.split(" ")[0]} on WhatsApp
               </a>
 
-              {/* Secondary: Book showing */}
-              <Button
-                size="lg"
-                className="w-full h-12 mb-4"
-                onClick={() => setBookingOpen(true)}
-              >
-                <CalendarCheck className="h-4 w-4 mr-2 shrink-0" />
-                Book a Private Showing
-              </Button>
-
               {/* Contact links */}
               <div className="space-y-2 mb-6">
                 <a
