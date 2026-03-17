@@ -570,10 +570,10 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 {/* Key metrics */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { label: "Total Return",  value: fmt(results.totalReturn),                                         dark: true },
-                    { label: "ROI",           value: `${results.roiPct.toFixed(1)}%`,  sub: `${holdYears}yr total`,   dark: false },
-                    { label: "Annualized",    value: `${holdYears > 0 ? (results.roiPct / holdYears).toFixed(1) : "0.0"}%`, sub: "per year", dark: false },
-                    { label: "Cash Invested", value: fmt(results.totalCashNeeded),                                     dark: false },
+                    { label: "Total Profit",     value: fmt(results.totalReturn),                                         dark: true },
+                    { label: "Total Return",     value: `${results.roiPct.toFixed(1)}%`,  sub: `over ${holdYears} years`,  dark: false },
+                    { label: "Per Year",         value: `${holdYears > 0 ? (results.roiPct / holdYears).toFixed(1) : "0.0"}%`, sub: "average annual", dark: false },
+                    { label: "Cash You Put In",  value: fmt(results.totalCashNeeded),                                      dark: false },
                   ].map(({ label, value, sub, dark }) => (
                     <div key={label} className={cn("rounded-2xl p-3.5 text-center", dark ? "bg-foreground text-background" : "bg-muted/50 border border-border/50")}>
                       <span className={cn("text-[10px] font-bold uppercase tracking-wider", dark ? "text-background/45" : "text-muted-foreground")}>{label}</span>
