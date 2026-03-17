@@ -116,21 +116,13 @@ export function FloorPlanModal({ plan, onClose, allPlans }: FloorPlanModalProps)
               </div>
             )}
 
-            {/* Tags */}
-            {plan.tags.length > 0 && (
-              <div className="space-y-2 mb-auto">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
-                  <Tag className="h-3 w-3" /> Highlights
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {plan.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/8 text-primary border border-primary/15"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+            {/* Price / sqft */}
+            {plan.price_per_sqft && (
+              <div className="flex items-center gap-2 mb-auto pb-5 border-b border-border/50">
+                <Square className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
+                  <p className="text-sm font-semibold text-foreground">{plan.price_per_sqft}</p>
                 </div>
               </div>
             )}
