@@ -833,6 +833,69 @@ export default function DashboardDeckBuilder() {
           </div>
         </Section>
 
+        {/* ── STEP 7b: Deposit Timeline ──────────────────────────────── */}
+        <Section title={`7b. Deposit Timeline (${depositSteps.length} steps)`}
+          subtitle="Displayed as an interactive payment plan on the deck — buyers can slider their price"
+          defaultOpen={false}
+          badge={depositSteps.length > 0 ? "✓ Set" : undefined}>
+          <div className="space-y-3">
+            {depositSteps.map((step, idx) => (
+              <div key={step.id} className="p-4 rounded-xl border border-border/50 bg-muted/20 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Step {idx + 1}</span>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                    onClick={() => setDepositSteps(prev => prev.filter(s => s.id !== step.id))}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Label</Label>
+                    <Input className="h-8 text-xs" value={step.label}
+                      onChange={e => setDepositSteps(prev => prev.map(s => s.id === step.id ? { ...s, label: e.target.value } : s))}
+                      placeholder="Upon Signing" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Timing</Label>
+                    <Input className="h-8 text-xs" value={step.timing}
+                      onChange={e => setDepositSteps(prev => prev.map(s => s.id === step.id ? { ...s, timing: e.target.value } : s))}
+                      placeholder="Due in 7 days" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Deposit %</Label>
+                    <Input className="h-8 text-xs" type="number" step="0.5" value={step.percent}
+                      onChange={e => setDepositSteps(prev => prev.map(s => s.id === step.id ? { ...s, percent: parseFloat(e.target.value) || 0 } : s))}
+                      placeholder="2.5" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Note (optional)</Label>
+                    <Input className="h-8 text-xs" value={step.note || ""}
+                      onChange={e => setDepositSteps(prev => prev.map(s => s.id === step.id ? { ...s, note: e.target.value } : s))}
+                      placeholder="Held in trust" />
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Amount at $800K: <span className="font-semibold text-foreground">${Math.round(800000 * step.percent / 100).toLocaleString()}</span>
+                </p>
+              </div>
+            ))}
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() =>
+                setDepositSteps(prev => [...prev, { id: Math.random().toString(36).slice(2, 8), label: "", percent: 5, timing: "", note: "" }])
+              }>
+                <Plus className="h-4 w-4 mr-1" />Add Step
+              </Button>
+              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground"
+                onClick={() => setDepositSteps(DEFAULT_DEPOSIT_STEPS)}>
+                Reset to defaults
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Total: <span className="font-semibold text-foreground">{depositSteps.reduce((a, s) => a + s.percent, 0)}%</span> of purchase price across {depositSteps.length} steps.
+            </p>
+          </div>
+        </Section>
+
         {/* ── STEP 8: Contact on Deck ─────────────────────────────────── */}
         <Section title="8. Contact on Deck" subtitle="Team member shown as the agent contact">
           <div className="space-y-4">
