@@ -60,10 +60,10 @@ export function DeckHeroSection({
 
       {/* Top badge */}
       <div className="absolute top-5 left-4 sm:top-8 sm:left-8 z-10">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/20">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm border border-primary/40">
           <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           <span className="text-primary text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest">
-            Buy Before It's Built — Lock In Today's Price
+            Private Presentation — Selected Clients Only
           </span>
         </div>
       </div>
