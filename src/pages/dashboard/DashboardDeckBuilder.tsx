@@ -120,8 +120,6 @@ export default function DashboardDeckBuilder() {
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [developerName, setDeveloperName] = useState("");
-  const [stories, setStories] = useState("");
-  const [totalUnits, setTotalUnits] = useState("");
   const [completionYear, setCompletionYear] = useState("");
   const [lat, setLat] = useState<string>("");
   const [lng, setLng] = useState<string>("");
@@ -239,8 +237,6 @@ export default function DashboardDeckBuilder() {
       setCity(data.city || "");
       setAddress(data.address || "");
       setDeveloperName(data.developer_name || "");
-      setStories(data.stories || "");
-      setTotalUnits(data.total_units || "");
       setCompletionYear(data.completion_year || "");
       setHeroImageUrl(data.hero_image_url || "");
       setFloorPlans(data.floor_plans || []);
@@ -393,8 +389,6 @@ export default function DashboardDeckBuilder() {
     const payload: any = {
       user_id: user.id, slug, project_name: projectName, tagline, city, address,
       developer_name: developerName,
-      stories: stories ? parseInt(stories) : null,
-      total_units: totalUnits ? parseInt(totalUnits) : null,
       completion_year: completionYear,
       hero_image_url: heroImageUrl, floor_plans: floorPlans, gallery,
       proximity_highlights: highlights,
@@ -589,14 +583,6 @@ export default function DashboardDeckBuilder() {
             <div className="space-y-1.5">
               <Label>Completion / Occupancy</Label>
               <Input value={completionYear} onChange={(e) => setCompletionYear(e.target.value)} placeholder="Spring 2027" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Stories</Label>
-              <Input type="number" value={stories} onChange={(e) => setStories(e.target.value)} placeholder="32" min={1} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Total Units</Label>
-              <Input type="number" value={totalUnits} onChange={(e) => setTotalUnits(e.target.value)} placeholder="280" min={1} />
             </div>
           </div>
         </Section>
