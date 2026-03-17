@@ -456,6 +456,7 @@ export default function DashboardDeckBuilder() {
       {/* Hidden file inputs */}
       <input type="file" ref={heroInputRef} className="hidden" accept="image/*" onChange={handleHeroUpload} />
       <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" multiple onChange={handleGalleryUpload} />
+      <input type="file" ref={pdfInputRef} className="hidden" accept="application/pdf" onChange={handlePdfUpload} />
       {floorPlans.map((fp) => (
         <input key={fp.id} type="file" accept="image/*,application/pdf" className="hidden"
           ref={(el) => { fpInputRefs.current[fp.id] = el; }}
