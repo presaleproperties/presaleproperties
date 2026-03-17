@@ -47,7 +47,14 @@ interface PresaleProject {
   occupancy_estimate: string | null;
 }
 
-interface AgentProfile { user_id: string; full_name: string; email: string; phone: string | null; }
+interface AgentProfile {
+  id: string;
+  full_name: string;
+  title: string | null;
+  photo_url: string | null;
+  linkedin_url: string | null;
+  instagram_url: string | null;
+}
 
 interface FloorPlan {
   id: string; unit_type: string; size_range: string; price_from: string;
