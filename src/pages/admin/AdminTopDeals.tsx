@@ -122,6 +122,8 @@ export default function AdminTopDeals() {
   const [downPct, setDownPct] = useState(20);
   const [rate, setRate] = useState(4.2);
   const [amort, setAmort] = useState(25);
+  const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
+  const [customStrataFee, setCustomStrataFee] = useState<string>("");
   // Override price for the numbers slide
   const [customCalcPrice, setCustomCalcPrice] = useState<string>("");
 
@@ -246,10 +248,52 @@ export default function AdminTopDeals() {
     const n = amort * 12;
     const monthly = mr > 0 ? (mortgage * mr * Math.pow(1 + mr, n)) / (Math.pow(1 + mr, n) - 1) : mortgage / n;
     const fp0Sqft = floorPlans[0]?.metrics?.interior_sqft ?? floorPlans[0]?.metrics?.interiorSqft;
-    const strata = fp0Sqft ? fp0Sqft * 0.5 : 350;
+    // Custom strata override or estimate from sqft
+    const strataOverride = customStrataFee ? parseInt(customStrataFee.replace(/\D/g, "")) : null;
+    const strata = strataOverride != null && strataOverride > 0 ? strataOverride : fp0Sqft ? Math.round(fp0Sqft * 0.5) : 350;
     const tax = Math.round((calcPrice * 0.003) / 12);
-    return { down, mortgage, cmhc, monthly, strata, tax, total: monthly + strata + tax };
-  }, [calcPrice, downPct, rate, amort, floorPlans]);
+
+    // Rebates / closing costs
+    // GST: ~5% on new presales; FTB rebate up to $6,300 (federal) for homes ≤ $450k; partial up to $524k
+    const gstFull = calcPrice * 0.05;
+    let gstRebate = 0;
+    if (calcPrice <= 450000) {
+      gstRebate = Math.min(gstFull * 0.36, 6300);
+    } else if (calcPrice < 524999) {
+      const partial = (524999 - calcPrice) / 74999;
+      gstRebate = Math.min(gstFull * 0.36, 6300) * partial;
+    }
+    const netGST = gstFull - gstRebate;
+
+    // PTT: BC Property Transfer Tax
+    // FTB exemption: full exemption up to $500k; partial $500k–$525k
+    let ptt = 0;
+    if (calcPrice <= 200000) {
+      ptt = calcPrice * 0.01;
+    } else if (calcPrice <= 3000000) {
+      ptt = 200000 * 0.01 + (Math.min(calcPrice, 3000000) - 200000) * 0.02;
+    } else {
+      ptt = 200000 * 0.01 + 2800000 * 0.02 + (calcPrice - 3000000) * 0.03;
+    }
+    let pttPayable = ptt;
+    if (buyerType === "ftb") {
+      if (calcPrice <= 500000) {
+        pttPayable = 0;
+      } else if (calcPrice < 525000) {
+        const exemptFraction = (525000 - calcPrice) / 25000;
+        pttPayable = ptt * (1 - exemptFraction);
+      }
+    }
+
+    const legalFees = 2000;
+    const totalClosingCosts = netGST + pttPayable + legalFees;
+
+    return {
+      down, mortgage, cmhc, monthly, strata, tax, total: monthly + strata + tax,
+      gstFull, gstRebate, netGST, ptt, pttPayable, legalFees, totalClosingCosts,
+      strataIsCustom: strataOverride != null && strataOverride > 0,
+    };
+  }, [calcPrice, downPct, rate, amort, floorPlans, buyerType, customStrataFee]);
 
   // ── Derived
   const photos = selected ? getPhotos(selected) : [];
@@ -824,11 +868,38 @@ export default function AdminTopDeals() {
             </div>
 
             {/* Right: calculator */}
-            <div className="md:w-96 bg-card border-l border-border overflow-y-auto">
-              <div className="p-6 space-y-5">
+            <div className="md:w-[420px] bg-card border-l border-border overflow-y-auto">
+              <div className="p-5 space-y-4">
+
+                {/* Buyer Type Toggle */}
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-2">Buyer Type</p>
+                  <div className="grid grid-cols-2 gap-1.5 bg-muted/40 rounded-xl p-1">
+                    {(["investor", "ftb"] as const).map(bt => (
+                      <button
+                        key={bt}
+                        onClick={() => setBuyerType(bt)}
+                        className={cn(
+                          "py-1.5 rounded-lg text-xs font-semibold transition-all",
+                          buyerType === bt
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        {bt === "investor" ? "🏢 Investor" : "🏠 First-Time Buyer"}
+                      </button>
+                    ))}
+                  </div>
+                  {buyerType === "ftb" && (
+                    <p className="text-[10px] text-emerald-600 mt-1.5 font-medium">
+                      ✓ PTT exemption applied{calcPrice <= 450000 ? " · GST rebate applied" : calcPrice < 525000 ? " · Partial GST rebate" : ""}
+                    </p>
+                  )}
+                </div>
+
                 {/* Price override */}
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1.5">Purchase Price</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1.5">Purchase Price</p>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
@@ -876,25 +947,91 @@ export default function AdminTopDeals() {
                     <Slider value={[amort]} onValueChange={v => setAmort(v[0])} min={15} max={30} step={5} />
                     <div className="flex justify-between text-[10px] text-muted-foreground mt-1"><span>15</span><span>30</span></div>
                   </div>
+
+                  {/* Custom Strata Fee */}
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="text-xs font-medium">Strata Fee / month</label>
+                      {!calc.strataIsCustom && <span className="text-[10px] text-muted-foreground italic">estimated</span>}
+                    </div>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder={`${calc.strata} (est.)`}
+                        value={customStrataFee}
+                        onChange={e => {
+                          const val = e.target.value.replace(/[^0-9]/g, "");
+                          setCustomStrataFee(val);
+                        }}
+                        className="w-full h-9 pl-8 pr-3 rounded-xl border border-border bg-background text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {/* Results */}
-                <div className="pt-4 border-t border-border space-y-2.5">
+                {/* Monthly Cost Results */}
+                <div className="pt-3 border-t border-border space-y-2">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Monthly Carrying Cost</p>
                   <CalcRow label="Mortgage Amount" value={fmt(calc.mortgage)} />
                   {calc.cmhc > 0 && <CalcRow label="CMHC Insurance" value={`+${fmt(calc.cmhc)}`} muted />}
                   <CalcRow label="Principal & Interest" value={`${fmt(calc.monthly)}/mo`} />
                   <CalcRow label="Est. Property Tax" value={`${fmt(calc.tax)}/mo`} muted />
-                  <CalcRow label="Est. Strata Fee" value={`${fmt(calc.strata)}/mo`} muted />
-                  <div className="flex justify-between items-center pt-3 border-t border-border">
-                    <span className="font-bold text-sm">Total Monthly Cost</span>
+                  <CalcRow label={`Strata Fee${calc.strataIsCustom ? "" : " (est.)"}`} value={`${fmt(calc.strata)}/mo`} muted />
+                  <div className="flex justify-between items-center pt-2.5 border-t border-border">
+                    <span className="font-bold text-sm">Total Monthly</span>
                     <span className="text-2xl font-bold text-primary">{fmt(calc.total)}</span>
+                  </div>
+                </div>
+
+                {/* Closing Costs */}
+                <div className="pt-3 border-t border-border space-y-2">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Closing Costs</p>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground">GST (5%)</span>
+                      <span className="text-xs font-semibold">{fmt(calc.gstFull)}</span>
+                    </div>
+                    {calc.gstRebate > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-emerald-600">GST Rebate (FTB)</span>
+                        <span className="text-xs font-semibold text-emerald-600">−{fmt(calc.gstRebate)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground">Property Transfer Tax</span>
+                      {calc.pttPayable === 0 ? (
+                        <span className="text-xs font-semibold text-emerald-600">Exempt (FTB)</span>
+                      ) : calc.pttPayable < calc.ptt ? (
+                        <span className="text-xs font-semibold text-amber-600">{fmt(calc.pttPayable)} <span className="text-muted-foreground line-through">{fmt(calc.ptt)}</span></span>
+                      ) : (
+                        <span className="text-xs font-semibold">{fmt(calc.ptt)}</span>
+                      )}
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground">Legal Fees (est.)</span>
+                      <span className="text-xs font-semibold">{fmt(calc.legalFees)}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
+                      <span className="text-sm font-bold">Total Closing Costs</span>
+                      <span className="text-lg font-bold text-foreground">{fmt(calc.totalClosingCosts)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground">Down Payment</span>
+                      <span className="text-xs font-semibold">{fmt(calc.down)}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-1.5 border-t border-border/50">
+                      <span className="text-sm font-bold">Total Cash Needed</span>
+                      <span className="text-lg font-bold text-primary">{fmt(calc.down + calc.totalClosingCosts)}</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Rent vs cost for each plan */}
                 {floorPlans.some(fp => fp.customRent) && (
                   <div className="pt-3 border-t border-border space-y-2">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Rental Cashflow</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Rental Cashflow</p>
                     {floorPlans.map((fp, i) => {
                       if (!fp.customRent) return null;
                       const rent = parseInt(fp.customRent.replace(/\D/g, "")) || 0;
