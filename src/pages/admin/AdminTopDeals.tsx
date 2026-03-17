@@ -429,81 +429,60 @@ export default function AdminTopDeals() {
                   <Building2 className="h-20 w-20 text-muted-foreground/20" />
                 </div>
               )}
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              {/* Project name badge on image */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                <p className="text-white/70 text-xs font-medium uppercase tracking-widest mb-1">
+                <p className="text-white/60 text-xs font-medium uppercase tracking-widest mb-1">
                   {selected.project_type || "Presale"} · {selected.city}
                 </p>
                 <h2 className="text-white text-3xl md:text-4xl font-bold tracking-tight leading-tight">
                   {displayName}
                 </h2>
                 {displayDev && (
-                  <p className="text-white/70 text-sm mt-1">by {displayDev}</p>
+                  <p className="text-white/60 text-sm mt-1">by {displayDev}</p>
                 )}
               </div>
             </div>
 
-            {/* Info panel — right side */}
-            <div className="md:w-80 lg:w-96 bg-card border-l border-border overflow-y-auto flex flex-col">
-              <div className="p-6 flex-1 space-y-5">
-                {/* Location */}
-                <div className="flex items-start gap-2.5">
-                  <div className="mt-0.5 h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <MapPin className="h-3.5 w-3.5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Location</p>
-                    <p className="text-sm font-semibold mt-0.5">{displayAddr}</p>
-                  </div>
+            {/* Key facts panel — bold stats grid */}
+            <div className="md:w-80 lg:w-96 bg-card border-l border-border flex flex-col justify-center">
+              <div className="p-6 md:p-8 space-y-0 divide-y divide-border">
+
+                {/* Price */}
+                <div className="py-4 first:pt-0">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium mb-1">Starting From</p>
+                  <p className="text-4xl font-black text-primary leading-none">{fmt(selected.starting_price)}</p>
                 </div>
 
-                {/* Starting price */}
-                <div className="flex items-start gap-2.5">
-                  <div className="mt-0.5 h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <DollarSign className="h-3.5 w-3.5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Starting From</p>
-                    <p className="text-2xl font-bold text-primary mt-0.5">{fmt(selected.starting_price)}</p>
-                  </div>
+                {/* Location */}
+                <div className="py-4">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium mb-1">Location</p>
+                  <p className="text-2xl font-black text-foreground leading-tight">{displayAddr}</p>
                 </div>
 
                 {/* Deposit */}
                 {selected.deposit_structure && (
-                  <div className="flex items-start gap-2.5">
-                    <div className="mt-0.5 h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <Layers className="h-3.5 w-3.5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Deposit Structure</p>
-                      <p className="text-sm font-semibold mt-0.5">{selected.deposit_structure}</p>
-                    </div>
+                  <div className="py-4">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium mb-1">Deposit</p>
+                    <p className="text-2xl font-black text-foreground leading-none">{selected.deposit_structure}</p>
                   </div>
                 )}
 
                 {/* Completion */}
                 {selected.completion_year && (
-                  <div className="flex items-start gap-2.5">
-                    <div className="mt-0.5 h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <Calendar className="h-3.5 w-3.5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Est. Completion</p>
-                      <p className="text-sm font-semibold mt-0.5">{selected.completion_year}</p>
-                    </div>
+                  <div className="py-4">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium mb-1">Est. Completion</p>
+                    <p className="text-2xl font-black text-foreground leading-none">{selected.completion_year}</p>
                   </div>
                 )}
 
-                {/* Description */}
-                {selected.short_description && (
-                  <div className="pt-2 border-t border-border">
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {selected.short_description}
-                    </p>
+                {/* Property type */}
+                {selected.project_type && (
+                  <div className="py-4 last:pb-0">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium mb-1">Type</p>
+                    <p className="text-2xl font-black text-foreground leading-none capitalize">{selected.project_type.replace("_", " ")}</p>
                   </div>
                 )}
+
               </div>
             </div>
           </div>
