@@ -490,7 +490,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 {/* Controls */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-primary/80 mb-3">Hold Period</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-primary/80 mb-3">How Long Will You Hold?</p>
                     <div className="flex items-center justify-center gap-3">
                       <button onClick={() => setHoldYears(Math.max(1, holdYears - 1))}
                         className="h-9 w-9 rounded-xl border border-border/60 bg-background flex items-center justify-center text-lg font-bold hover:bg-secondary transition-colors touch-manipulation">−</button>
