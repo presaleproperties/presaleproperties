@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { BookingModal } from "./BookingModal";
 import { Phone, Mail, MessageCircle, Star, Award, Globe, Quote } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Review {
+  reviewer_name: string;
+  reviewer_location: string | null;
+  review_text: string;
+  rating: number;
+}
 
 const AGENTS: Record<string, {
   fullName: string;
@@ -41,45 +49,6 @@ const AGENTS: Record<string, {
   },
 };
 
-const REVIEWS = [
-  {
-    name: "Harpreet S.",
-    location: "Surrey, BC",
-    text: "Uzair and the team helped me secure a presale unit in Langley at pre-launch pricing. The whole process was explained clearly and I felt confident every step of the way.",
-    rating: 5,
-  },
-  {
-    name: "Michael T.",
-    location: "Burnaby, BC",
-    text: "Professional, knowledgeable, and genuinely invested in getting me the best deal. Sarb was available whenever I had questions — even evenings and weekends.",
-    rating: 5,
-  },
-  {
-    name: "Priya K.",
-    location: "Abbotsford, BC",
-    text: "I had no idea how presales worked before working with this team. They walked me through every detail and the investment has already appreciated significantly.",
-    rating: 5,
-  },
-  {
-    name: "Navdeep B.",
-    location: "Coquitlam, BC",
-    text: "Ravish was fantastic — very thorough and always on top of new projects. I've now purchased two presale units through Presale Properties.",
-    rating: 5,
-  },
-  {
-    name: "Jennifer L.",
-    location: "Richmond, BC",
-    text: "Incredibly responsive and transparent. They never pushed me toward anything — just gave honest advice. 100% would recommend to anyone looking at presales.",
-    rating: 5,
-  },
-  {
-    name: "Kamran A.",
-    location: "North Delta, BC",
-    text: "Outstanding service from start to finish. Uzair's market knowledge is unmatched — he spotted value in a project before anyone else was talking about it.",
-    rating: 5,
-  },
-];
-
 function resolveAgent(contactName?: string) {
   if (!contactName) return AGENTS["Uzair Muhammad"];
   const lower = contactName.toLowerCase();
@@ -105,11 +74,25 @@ export function DeckContactSection({
   projectName,
 }: DeckContactSectionProps) {
   const [bookingOpen, setBookingOpen] = useState(false);
-  const agent = resolveAgent(contactName);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
+  const agent = resolveAgent(contactName);
   const displayPhone = contactPhone || agent.phone;
   const displayEmail = contactEmail || agent.email;
   const whatsappNumber = (contactWhatsapp || contactPhone || agent.phone).replace(/\D/g, "");
+
+  useEffect(() => {
+    supabase
+      .from("google_reviews")
+      .select("reviewer_name, reviewer_location, review_text, rating")
+      .eq("is_active", true)
+      .order("is_featured", { ascending: false })
+      .order("sort_order", { ascending: true })
+      .limit(6)
+      .then(({ data }) => {
+        if (data && data.length > 0) setReviews(data as Review[]);
+      });
+  }, []);
 
   return (
     <section id="contact" className="relative py-16 sm:py-24 bg-muted/10">
@@ -130,7 +113,7 @@ export function DeckContactSection({
         {/* Two-column layout */}
         <div className="grid lg:grid-cols-2 gap-8 items-start">
 
-          {/* LEFT — Agent card (full width of column) */}
+          {/* LEFT — Agent card */}
           <div className="relative rounded-2xl overflow-hidden border border-border/50 bg-background shadow-lg h-full">
             <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-primary/8 to-transparent" />
 
@@ -208,11 +191,10 @@ export function DeckContactSection({
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-12 sm:px-5 touch-manipulation"
-                    style={{ borderColor: "#25D366", color: "#25D366" }}
+                    className="h-12 sm:px-5 touch-manipulation border-green-500 text-green-600 hover:bg-green-50"
                     onClick={() => window.open(`https://wa.me/${whatsappNumber}`, "_blank")}
                   >
-                    <MessageCircle className="h-5 w-5 mr-2" style={{ color: "#25D366" }} />
+                    <MessageCircle className="h-5 w-5 mr-2 text-green-500" />
                     WhatsApp
                   </Button>
                 )}
@@ -231,7 +213,7 @@ export function DeckContactSection({
             </div>
           </div>
 
-          {/* RIGHT — Google Reviews grid */}
+          {/* RIGHT — Real Google Reviews */}
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 mb-1">
               <div className="flex items-center gap-1">
@@ -244,22 +226,24 @@ export function DeckContactSection({
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
-              {REVIEWS.map((review, i) => (
+              {reviews.map((review, i) => (
                 <div
                   key={i}
                   className="rounded-xl border border-border/50 bg-background p-4 shadow-sm flex flex-col gap-3"
                 >
                   <Quote className="h-4 w-4 text-primary/40 shrink-0" />
                   <p className="text-sm text-muted-foreground leading-relaxed flex-1">
-                    {review.text}
+                    {review.review_text}
                   </p>
                   <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/30">
                     <div>
-                      <p className="text-sm font-semibold text-foreground">{review.name}</p>
-                      <p className="text-xs text-muted-foreground">{review.location}</p>
+                      <p className="text-sm font-semibold text-foreground">{review.reviewer_name}</p>
+                      {review.reviewer_location && (
+                        <p className="text-xs text-muted-foreground">{review.reviewer_location}</p>
+                      )}
                     </div>
                     <div className="flex gap-0.5">
-                      {[1,2,3,4,5].map((s) => (
+                      {Array.from({ length: review.rating }).map((_, s) => (
                         <Star key={s} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                       ))}
                     </div>
