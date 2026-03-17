@@ -96,15 +96,15 @@ export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps
                   )}
 
                   {/* Unit type badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className="bg-background/90 backdrop-blur-sm text-foreground text-[11px] font-bold px-2.5 py-1 rounded-full border border-border/50 shadow-sm">
+                  <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
+                    <span className="bg-background/90 backdrop-blur-sm text-foreground text-[10px] sm:text-[11px] font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border border-border/50 shadow-sm whitespace-nowrap">
                       {plan.unit_type}
                     </span>
                   </div>
 
                   {/* Pick number */}
-                  <div className="absolute top-3 right-3">
-                    <span className="bg-primary/90 text-primary-foreground text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-sm">
+                  <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                    <span className="bg-primary/90 text-primary-foreground text-[10px] font-bold w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shadow-sm">
                       {idx + 1}
                     </span>
                   </div>
