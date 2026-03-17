@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { FloorPlanModal, FloorPlan } from "./FloorPlanModal";
-import { LayoutPanelTop, ArrowRight, BedDouble, Square, Tag } from "lucide-react";
+import { LayoutPanelTop, ArrowRight, Square } from "lucide-react";
 
 interface DeckFloorPlansSectionProps {
   floorPlans: FloorPlan[];

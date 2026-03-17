@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, ZoomIn, ZoomOut, Maximize2, Square, Tag, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ZoomIn, ZoomOut, Square, ChevronLeft, ChevronRight } from "lucide-react";
 
 export interface FloorPlan {
   id: string;
