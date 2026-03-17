@@ -120,6 +120,9 @@ const BlogCategoryPage = lazy(() => import("./pages/BlogCategoryPage"));
 const AdLandingPage = lazy(() => import("./pages/AdLandingPage"));
 const PresaleCompletionYearPage = lazy(() => import("./pages/PresaleCompletionYearPage"));
 const PresaleProcess = lazy(() => import("./pages/PresaleProcess"));
+const DeckPublicPage = lazy(() => import("./pages/DeckPublicPage"));
+const DashboardDecks = lazy(() => import("./pages/dashboard/DashboardDecks"));
+const DashboardDeckBuilder = lazy(() => import("./pages/dashboard/DashboardDeckBuilder"));
 
 const BuyerAuth = lazy(() => import("./pages/BuyerAuth"));
 const BuyerLogin = lazy(() => import("./pages/BuyerLogin"));
@@ -307,6 +310,9 @@ const App = () => (
             <Route path="/dashboard/listings" element={<ProtectedRoute><DashboardListings /></ProtectedRoute>} />
             <Route path="/dashboard/listings/new" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
             <Route path="/dashboard/listings/:id/edit" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
+            <Route path="/dashboard/decks" element={<ProtectedRoute><DashboardDecks /></ProtectedRoute>} />
+            <Route path="/dashboard/decks/new" element={<ProtectedRoute><DashboardDeckBuilder /></ProtectedRoute>} />
+            <Route path="/dashboard/decks/:id/edit" element={<ProtectedRoute><DashboardDeckBuilder /></ProtectedRoute>} />
             <Route path="/dashboard/messages" element={<ProtectedRoute><DashboardMessages /></ProtectedRoute>} />
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
             <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
@@ -445,6 +451,9 @@ const App = () => (
             <Route path="/prime-abbotsford-location-presale-homes-cooper-meadows-west-field" element={<Navigate to="/presale-projects/abbotsford" replace />} />
             <Route path="/whalley-presale-condos-georgetown-ii" element={<Navigate to="/presale-projects/surrey" replace />} />
             <Route path="/dawson-delta-presale-condos-brentwood-block" element={<Navigate to="/presale-projects/burnaby" replace />} />
+
+            {/* Public Pitch Deck pages — must be before /:cityProductSlug catch-all */}
+            <Route path="/deck/:slug" element={<DeckPublicPage />} />
 
             {/* SEO City Product Pages - must be before 404 */}
             <Route path="/:cityProductSlug" element={<CityProductPage />} />

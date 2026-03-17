@@ -19,6 +19,7 @@ import {
   MessageSquare,
   FileText,
   FolderOpen,
+  Presentation,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -44,6 +45,12 @@ const navItems = [
     href: "/dashboard/listings", 
     icon: FileText,
     description: "Manage your listings"
+  },
+  { 
+    label: "Pitch Decks", 
+    href: "/dashboard/decks", 
+    icon: Presentation,
+    description: "Shareable investor decks"
   },
   { 
     label: "Messages", 
