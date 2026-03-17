@@ -553,8 +553,8 @@ export function buildLoopEmailHtml(
     '<table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e8e3db;border-radius:4px;overflow:hidden;">\n\n' +
 
     // LOGO HEADER
-    '  <tr><td style="background:#ffffff;padding:10px 36px 8px;text-align:center;border-bottom:1px solid #e8e3db;">' +
-    '<img src="' + LOGO_EMAIL_URL + '" alt="Presale Properties" width="140" border="0" style="display:inline-block;width:140px;max-width:140px;height:auto;" />' +
+    '  <tr><td style="background:#ffffff;padding:6px 36px 4px;text-align:center;border-bottom:1px solid #e8e3db;">' +
+    '<img src="' + LOGO_EMAIL_URL + '" alt="Presale Properties" width="200" border="0" style="display:inline-block;width:200px;max-width:200px;height:auto;" />' +
     '</td></tr>\n\n' +
 
     // MASTHEAD
