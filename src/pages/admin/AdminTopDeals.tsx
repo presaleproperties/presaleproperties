@@ -236,12 +236,11 @@ export default function AdminTopDeals() {
 
   // ── Mortgage calculations
   const calcPrice = (() => {
-    // Use the active plan's custom price if set, else project starting price
     const activeFp = floorPlans[activePlanIndex];
-    const planPrice = activeFp?.customPrice
-      ? parseInt(activeFp.customPrice.replace(/\D/g, ""))
-      : (activeFp?.metrics?.price ?? activeFp?.metrics?.pricePerSqft == null ? null : null);
-    if (planPrice && planPrice > 0) return planPrice;
+    if (activeFp?.customPrice) {
+      const parsed = parseInt(activeFp.customPrice.replace(/\D/g, ""));
+      if (parsed > 0) return parsed;
+    }
     return selected?.starting_price ?? 850000;
   })();
   const calc = useMemo(() => {
