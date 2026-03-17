@@ -91,10 +91,10 @@ export default function PopularSearchesPage() {
                     <h3 className="font-semibold text-lg">New {label}</h3>
                   </div>
                   <ul className="space-y-2">
-                    {CITIES.slice(0, 8).map((city) => (
+                   {CITIES.slice(0, 8).map((city) => (
                       <li key={city}>
                         <Link
-                          to={`/resale/${getCitySlug(city)}/${slug}`}
+                          to={`/properties/${getCitySlug(city)}/${slug}`}
                           className="text-primary hover:underline text-sm"
                         >
                           New {label} in {city}
