@@ -225,6 +225,6 @@ export default function DeckPublicPage() {
           contactWhatsapp={deck.contact_whatsapp || undefined}
         />
       </div>
-    </>
+    </div>
   );
 }
