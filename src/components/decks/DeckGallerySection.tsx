@@ -22,7 +22,7 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
         {/* Hero image: full-width on mobile, 2-col span on sm+ */}
         <div
-          className="col-span-2 row-span-2 overflow-hidden rounded-xl cursor-pointer relative group aspect-[4/3] sm:aspect-auto sm:h-[420px]"
+          className="col-span-2 row-span-2 overflow-hidden rounded-xl cursor-pointer relative group aspect-[16/10] sm:aspect-auto sm:h-[360px] md:h-[420px]"
           onClick={() => setLightboxIndex(0)}
         >
           <img
@@ -43,7 +43,7 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
         {rest.slice(0, 6).map((img, i) => (
           <div
             key={i + 1}
-            className="overflow-hidden rounded-xl cursor-pointer relative group aspect-square sm:h-[200px]"
+            className="overflow-hidden rounded-xl cursor-pointer relative group aspect-square sm:h-[170px] md:h-[200px]"
             onClick={() => setLightboxIndex(i + 1)}
           >
             <img

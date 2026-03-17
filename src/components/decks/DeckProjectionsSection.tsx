@@ -114,33 +114,33 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
           </div>
 
           {/* Buyer type toggle */}
-          <div className="px-5 py-3.5 bg-muted/40 border-b border-border/50 flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex justify-center gap-2.5 flex-1">
+          <div className="px-4 sm:px-5 py-3 bg-muted/40 border-b border-border/50 space-y-3">
+            <div className="flex justify-center gap-2">
               {(["investor", "ftb"] as const).map((type) => (
                 <button
                   key={type}
                   onClick={() => setBuyerType(type)}
                   className={cn(
-                    "flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold transition-all",
+                    "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-[13px] font-semibold transition-all touch-manipulation flex-1 justify-center",
                     buyerType === type
                       ? "bg-primary text-primary-foreground shadow-[0_2px_12px_hsl(var(--primary)/0.30)]"
                       : "bg-background text-muted-foreground hover:bg-secondary/60 border border-border/60"
                   )}
                 >
-                  {type === "investor" ? <Building2 className="h-3.5 w-3.5" /> : <Users className="h-3.5 w-3.5" />}
+                  {type === "investor" ? <Building2 className="h-3.5 w-3.5 shrink-0" /> : <Users className="h-3.5 w-3.5 shrink-0" />}
                   {type === "investor" ? "Investor" : "First-Time Buyer"}
                 </button>
               ))}
             </div>
 
             {floorPlans.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
-                <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Unit:</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider shrink-0">Unit:</span>
                 <div className="flex flex-wrap gap-1.5">
                   <button
                     onClick={() => setSelectedPlanId("")}
                     className={cn(
-                      "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all",
+                      "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all touch-manipulation",
                       !selectedPlanId ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-background border-border text-muted-foreground hover:border-primary/40"
                     )}
                   >Default</button>
@@ -149,11 +149,11 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                       key={plan.id}
                       onClick={() => setSelectedPlanId(plan.id)}
                       className={cn(
-                        "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all",
+                        "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all touch-manipulation",
                         selectedPlanId === plan.id ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-background border-border text-muted-foreground hover:border-primary/40"
                       )}
                     >
-                      {plan.unit_type}{plan.price_from && <span className="ml-1.5 opacity-70">{plan.price_from}</span>}
+                      {plan.unit_type}
                     </button>
                   ))}
                 </div>
@@ -177,7 +177,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
 
           {/* Tabs */}
           <Tabs defaultValue="mortgage" className="w-full">
-            <TabsList className="w-full h-auto p-0 bg-muted/30 rounded-none border-b border-border/50 mt-4">
+            <TabsList className="w-full h-auto p-0 bg-muted/30 rounded-none border-b border-border/50 mt-3">
               {[
                 { value: "mortgage", icon: DollarSign, label: "Monthly Payment" },
                 { value: "forecast", icon: PiggyBank, label: "5-Year Forecast" },
@@ -185,9 +185,9 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 <TabsTrigger
                   key={value}
                   value={value}
-                  className="flex-1 h-11 rounded-none gap-2 text-[13px] font-semibold text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary transition-colors"
+                  className="flex-1 h-10 sm:h-11 rounded-none gap-1.5 text-xs sm:text-[13px] font-semibold text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary transition-colors touch-manipulation"
                 >
-                  <Icon className="h-3.5 w-3.5" />
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
                   {label}
                 </TabsTrigger>
               ))}
@@ -195,7 +195,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
 
             {/* Tab 1: Monthly Payment */}
             <TabsContent value="mortgage" className="mt-0">
-              <div className="p-5 sm:p-6 grid sm:grid-cols-2 gap-6">
+              <div className="p-4 sm:p-6 grid sm:grid-cols-2 gap-4 sm:gap-6">
 
                 {/* Left: Sliders */}
                 <div className="space-y-5">

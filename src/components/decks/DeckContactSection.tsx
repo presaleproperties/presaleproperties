@@ -179,7 +179,7 @@ export function DeckContactSection({
               </div>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <div className="flex flex-col gap-3 mb-6">
                 <Button
                   size="lg"
                   className="flex-1 h-12 shadow-lg shadow-primary/20 touch-manipulation"
@@ -191,7 +191,7 @@ export function DeckContactSection({
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-12 sm:px-5 touch-manipulation border-green-500 text-green-600 hover:bg-green-50"
+                    className="h-12 touch-manipulation border-green-500 text-green-600 hover:bg-green-50"
                     onClick={() => window.open(`https://wa.me/${whatsappNumber}`, "_blank")}
                   >
                     <MessageCircle className="h-5 w-5 mr-2 text-green-500" />
@@ -225,14 +225,14 @@ export function DeckContactSection({
               <span className="text-xs text-muted-foreground">· 40+ Google Reviews</span>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {reviews.map((review, i) => (
                 <div
                   key={i}
-                  className="rounded-xl border border-border/50 bg-background p-4 shadow-sm flex flex-col gap-3"
+                  className="rounded-xl border border-border/50 bg-background p-4 shadow-sm flex flex-col gap-2"
                 >
                   <Quote className="h-4 w-4 text-primary/40 shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                  <p className="text-sm text-muted-foreground leading-relaxed flex-1 line-clamp-4">
                     {review.review_text}
                   </p>
                   <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/30">

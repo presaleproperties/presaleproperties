@@ -168,7 +168,7 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
         .deck-ap-type { font-size:9px; color:#6B7280; }
       `}</style>
 
-      <div ref={mapContainerRef} className="w-full h-[320px] lg:h-[460px]" />
+      <div ref={mapContainerRef} className="w-full h-[280px] sm:h-[360px] lg:h-[460px]" />
 
       {/* Filter pills */}
       <div className="absolute bottom-2 left-2 right-2 z-[1000] flex justify-center gap-1">
@@ -238,11 +238,30 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
           )}
         </div>
 
-        {/* Two-column: compact info left, map right */}
-        <div className="grid lg:grid-cols-[280px_1fr] gap-4 items-start">
+        {/* Two-column: compact info left, map right. On mobile/tablet stacks vertically with map first */}
+        <div className="grid gap-4 items-start lg:grid-cols-[280px_1fr]">
+
+          {/* Right: map — on mobile renders first via order */}
+          <div className="bg-muted/30 rounded-xl border border-border/40 p-3 overflow-hidden order-first lg:order-last">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <h3 className="text-sm font-semibold text-foreground">Project Location</h3>
+              {lat && lng && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Google Maps
+                </a>
+              )}
+            </div>
+            <DeckMap lat={centerLat} lng={centerLng} projectName={projectName} address={address} />
+          </div>
 
           {/* Left: compact info panel */}
-          <div className="bg-muted/30 rounded-xl border border-border/40 p-4 space-y-4">
+          <div className="bg-muted/30 rounded-xl border border-border/40 p-4 space-y-4 order-last lg:order-first">
 
             {/* Walk & Transit Scores */}
             <div className="grid grid-cols-2 gap-2">
@@ -334,25 +353,6 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
                 View on Map
               </Link>
             )}
-          </div>
-
-          {/* Right: map */}
-          <div className="bg-muted/30 rounded-xl border border-border/40 p-3 overflow-hidden">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <h3 className="text-sm font-semibold text-foreground">Project Location</h3>
-              {lat && lng && (
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Google Maps
-                </a>
-              )}
-            </div>
-            <DeckMap lat={centerLat} lng={centerLng} projectName={projectName} address={address} />
           </div>
 
         </div>
