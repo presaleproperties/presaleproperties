@@ -536,7 +536,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-4">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5"><PiggyBank className="h-3 w-3" /> Total Equity Built</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5"><PiggyBank className="h-3 w-3" /> Total Wealth Built</p>
                       <span className="text-xl font-black text-foreground">{fmt(results.totalEquity)}</span>
                     </div>
                     <div className="h-3 rounded-full overflow-hidden flex mb-4 bg-muted/60">
