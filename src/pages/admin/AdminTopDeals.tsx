@@ -679,7 +679,18 @@ export default function AdminTopDeals() {
                   floorPlans.length === 2 ? "md:grid-cols-2" :
                   "md:grid-cols-3"
                 )}>
-                  {floorPlans.map((fp, i) => (
+                  {floorPlans.map((fp, i) => {
+                    const m = fp.metrics;
+                    const planLabel = m?.floor_plan_name || m?.planName || `Plan ${i + 1}`;
+                    const unitType = m?.unit_type || m?.unitType;
+                    const interiorSqft = m?.interior_sqft ?? m?.interiorSqft;
+                    const exteriorSqft = m?.exterior_sqft ?? m?.balconySqft;
+                    const beds = m?.beds;
+                    const baths = m?.baths;
+                    const displayPrice = fp.customPrice
+                      ? parseInt(fp.customPrice.replace(/\D/g, "")) || selected.starting_price
+                      : selected.starting_price;
+                    return (
                     <div key={i} className="rounded-2xl border border-border bg-card overflow-hidden">
                       {/* Plan image */}
                       <div className="relative bg-muted" style={{ aspectRatio: "3/4" }}>
@@ -699,56 +710,127 @@ export default function AdminTopDeals() {
                       </div>
 
                       {/* Metrics */}
-                      <div className="p-4">
+                      <div className="p-4 space-y-3">
                         {fp.scanning ? (
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             Extracting metrics…
                           </div>
-                        ) : fp.metrics && Object.keys(fp.metrics).length > 0 ? (
-                          <div className="space-y-2.5">
+                        ) : (
+                          <>
                             <div className="flex items-center justify-between">
-                              <p className="font-bold text-sm">{fp.metrics.planName || `Plan ${i + 1}`}</p>
-                              <div className="flex items-center gap-1 text-[10px] text-primary">
-                                <CheckCircle2 className="h-3 w-3" />
-                                AI scanned
-                              </div>
+                              <p className="font-bold text-sm">{planLabel}</p>
+                              {m && Object.keys(m).length > 0 && (
+                                <div className="flex items-center gap-1 text-[10px] text-primary">
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  AI scanned
+                                </div>
+                              )}
                             </div>
                             <div className="grid grid-cols-2 gap-2">
-                              {fp.metrics.unitType && (
+                              {unitType && (
                                 <div className="rounded-lg bg-muted/50 p-2">
                                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Type</p>
-                                  <p className="text-xs font-semibold mt-0.5">{fp.metrics.unitType}</p>
+                                  <p className="text-xs font-semibold mt-0.5">{unitType}</p>
                                 </div>
                               )}
-                              {fp.metrics.interiorSqft && (
+                              {interiorSqft && (
                                 <div className="rounded-lg bg-muted/50 p-2">
                                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Interior</p>
-                                  <p className="text-xs font-semibold mt-0.5">{fp.metrics.interiorSqft} sqft</p>
+                                  <p className="text-xs font-semibold mt-0.5">{interiorSqft} sqft</p>
                                 </div>
                               )}
-                              {fp.metrics.balconySqft && (
+                              {exteriorSqft && (
                                 <div className="rounded-lg bg-muted/50 p-2">
                                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Outdoor</p>
-                                  <p className="text-xs font-semibold mt-0.5">{fp.metrics.balconySqft} sqft</p>
+                                  <p className="text-xs font-semibold mt-0.5">{exteriorSqft} sqft</p>
                                 </div>
                               )}
-                              {fp.metrics.interiorSqft && selected.starting_price && (
+                              {beds != null && (
+                                <div className="rounded-lg bg-muted/50 p-2">
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Beds/Baths</p>
+                                  <p className="text-xs font-semibold mt-0.5">{beds}bd {baths != null ? `${baths}ba` : ""}</p>
+                                </div>
+                              )}
+                              {interiorSqft && displayPrice && (
                                 <div className="rounded-lg bg-primary/10 p-2">
                                   <p className="text-[10px] text-primary/70 uppercase tracking-wider">$/sqft</p>
                                   <p className="text-xs font-bold text-primary mt-0.5">
-                                    {fmt(Math.round(selected.starting_price / fp.metrics.interiorSqft))}
+                                    {fmt(Math.round(displayPrice / interiorSqft))}
                                   </p>
                                 </div>
                               )}
                             </div>
-                          </div>
-                        ) : (
-                          <p className="text-xs text-muted-foreground italic">No metrics extracted</p>
+
+                            {/* Custom price + rent overrides */}
+                            <div className="pt-2 border-t border-border space-y-2">
+                              <div>
+                                <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium block mb-1">
+                                  Unit Price Override
+                                </label>
+                                <div className="relative">
+                                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                  <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    placeholder={selected.starting_price ? selected.starting_price.toLocaleString() : "e.g. 650,000"}
+                                    value={fp.customPrice}
+                                    onChange={e => {
+                                      const val = e.target.value.replace(/[^0-9]/g, "");
+                                      setFloorPlans(prev => {
+                                        const u = [...prev];
+                                        u[i] = { ...u[i], customPrice: val ? parseInt(val).toLocaleString() : "" };
+                                        return u;
+                                      });
+                                    }}
+                                    className="w-full h-8 pl-7 pr-3 rounded-lg border border-border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/40"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium block mb-1">
+                                  Potential Monthly Rent
+                                </label>
+                                <div className="relative">
+                                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                  <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    placeholder="e.g. 2,500"
+                                    value={fp.customRent}
+                                    onChange={e => {
+                                      const val = e.target.value.replace(/[^0-9]/g, "");
+                                      setFloorPlans(prev => {
+                                        const u = [...prev];
+                                        u[i] = { ...u[i], customRent: val ? parseInt(val).toLocaleString() : "" };
+                                        return u;
+                                      });
+                                    }}
+                                    className="w-full h-8 pl-7 pr-3 rounded-lg border border-border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/40"
+                                  />
+                                </div>
+                                {fp.customRent && calc.monthly && (
+                                  <div className="mt-1.5 flex items-center justify-between text-[10px]">
+                                    <span className="text-muted-foreground">Est. cashflow</span>
+                                    {(() => {
+                                      const rent = parseInt(fp.customRent.replace(/\D/g, "")) || 0;
+                                      const cf = rent - calc.monthly - calc.strata - calc.tax;
+                                      return (
+                                        <span className={cf >= 0 ? "font-bold text-emerald-600" : "font-bold text-destructive"}>
+                                          {cf >= 0 ? "+" : ""}{fmt(cf)}/mo
+                                        </span>
+                                      );
+                                    })()}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </>
                         )}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
