@@ -91,7 +91,7 @@ Rules:
 
     if (isImage) {
       const blob = await fileResp.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(blob)));
+      const base64 = arrayBufferToBase64(blob);
       const mimeType = (contentType.split(";")[0] || "image/jpeg").trim();
       userContent = [
         { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
