@@ -43,12 +43,8 @@ export function DeckStickyNav({ visible, activeSection, projectName, whatsappNum
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link to="/" className="shrink-0 flex items-center gap-1.5">
-            <span className="text-sm font-bold tracking-tight text-foreground">
-              Presale<span className="text-primary">Properties</span>
-            </span>
-          </Link>
+          {/* Logo — same as main site */}
+          <Logo size="sm" />
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-0.5">
