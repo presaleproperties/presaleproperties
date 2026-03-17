@@ -90,7 +90,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
         <div className="mb-8 sm:mb-10 space-y-2">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Projections</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Investment Outlook</h2>
-          <p className="text-muted-foreground text-sm mt-1">BC 2024 tax rules applied. Toggle your buyer profile for personalized numbers.</p>
+          <p className="text-muted-foreground text-sm mt-1">BC 2026 tax rules applied. Toggle your buyer profile for personalized numbers.</p>
         </div>
 
         {/* Main calculator card */}
