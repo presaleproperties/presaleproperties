@@ -60,10 +60,10 @@ export function DeckHeroSection({
 
       {/* Top badge */}
       <div className="absolute top-5 left-4 sm:top-8 sm:left-8 z-10">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/20">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm border border-primary/40">
           <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           <span className="text-primary text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest">
-            Buy Before It's Built — Lock In Today's Price
+            Private Presentation — Selected Clients Only
           </span>
         </div>
       </div>
@@ -129,7 +129,7 @@ export function DeckHeroSection({
         className="absolute bottom-28 sm:bottom-6 left-0 right-0 flex flex-col items-center gap-1 z-10 cursor-pointer"
         onClick={onFloorPlansClick}
       >
-        <span className="text-white/80 text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest drop-shadow-md animate-bounce">View Plans &amp; Pricing</span>
+        <span className="text-white/80 text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest drop-shadow-md animate-bounce">Your Exclusive Floor Plans &amp; Pricing</span>
         <ChevronDown className="h-5 w-5 text-white/80 drop-shadow-md animate-bounce" />
       </div>
     </section>

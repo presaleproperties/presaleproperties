@@ -104,12 +104,12 @@ export function DeckContactSection({
         </div>
 
         <div className="mb-8 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">07 — Get Access</p>
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">07 — Your Next Step</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Ready to Move Forward?
+            We Hand-Picked This For You
           </h2>
           <p className="text-muted-foreground text-sm max-w-xl">
-            This presentation was put together just for you. Units are limited — message us now and we'll walk you through pricing, availability, and next steps.
+            This deck was put together specifically for you — not published publicly. You're seeing pricing and floor plans before anyone else. Message us to hold a unit or ask anything.
           </p>
         </div>
 
