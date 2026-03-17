@@ -239,10 +239,10 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
         </div>
 
         {/* Two-column: compact info left, map right. On mobile/tablet stacks vertically with map first */}
-        <div className="grid gap-4 items-start lg:grid-cols-[280px_1fr]">
+        <div className="grid gap-4 lg:grid-cols-[320px_1fr] lg:items-stretch">
 
           {/* Right: map — on mobile renders first via order */}
-          <div className="bg-muted/30 rounded-xl border border-border/40 p-3 overflow-hidden order-first lg:order-last">
+          <div className="bg-muted/30 rounded-xl border border-border/40 p-3 overflow-hidden order-first lg:order-last flex flex-col">
             <div className="flex items-center justify-between gap-2 mb-2">
               <h3 className="text-sm font-semibold text-foreground">Project Location</h3>
               {lat && lng && (
@@ -257,11 +257,13 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
                 </a>
               )}
             </div>
-            <DeckMap lat={centerLat} lng={centerLng} projectName={projectName} address={address} />
+            <div className="flex-1 min-h-0">
+              <DeckMap lat={centerLat} lng={centerLng} projectName={projectName} address={address} />
+            </div>
           </div>
 
-          {/* Left: compact info panel */}
-          <div className="bg-muted/30 rounded-xl border border-border/40 p-4 space-y-4 order-last lg:order-first">
+          {/* Left: compact info panel — stretches to match map height */}
+          <div className="bg-muted/30 rounded-xl border border-border/40 p-5 space-y-5 order-last lg:order-first flex flex-col">
 
             {/* Walk & Transit Scores */}
             <div className="grid grid-cols-2 gap-2">
