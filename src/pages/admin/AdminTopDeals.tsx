@@ -290,7 +290,7 @@ export default function AdminTopDeals() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {filteredProjects.map((p) => {
-                  const thumb = p.hero_image || p.gallery_images?.[0] || p.photos?.[0];
+                  const thumb = p.featured_image || p.gallery_images?.[0];
                   return (
                     <button
                       key={p.id}
