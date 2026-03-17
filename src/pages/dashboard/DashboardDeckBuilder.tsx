@@ -38,8 +38,6 @@ function normalizeUnitType(raw: string | null | undefined): string | null {
   return UNIT_TYPES.find(t => t.toLowerCase() === s) ?? null;
 }
 
-const UZAIR_USER_ID = "1a1c17cd-c64b-478a-832d-5874be1258d1";
-
 interface PresaleProject {
   id: string; name: string; city: string; neighborhood: string | null;
   address: string | null; developer_name: string | null; starting_price: number | null;
@@ -108,7 +106,7 @@ export default function DashboardDeckBuilder() {
   const searchRef = useRef<HTMLDivElement>(null);
 
   const [agents, setAgents] = useState<AgentProfile[]>([]);
-  const [selectedAgentId, setSelectedAgentId] = useState<string>(UZAIR_USER_ID);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
 
   const [projectName, setProjectName] = useState("");
   const [tagline, setTagline] = useState("");
@@ -137,7 +135,6 @@ export default function DashboardDeckBuilder() {
     { icon: "🚇", label: "SkyTrain Station", distance: "5 min walk" },
   ]);
 
-  // Simplified projections: just rental range + one appreciation rate
   const [rentalMin, setRentalMin] = useState("");
   const [rentalMax, setRentalMax] = useState("");
   const [appreciationRate, setAppreciationRate] = useState("5");
@@ -167,7 +164,15 @@ export default function DashboardDeckBuilder() {
     })();
   }, []);
 
-  // Fetch agents
+  const applyAgentProfile = useCallback((agent: AgentProfile) => {
+    setContactName(agent.full_name || "");
+    setContactPhone(agent.phone || "");
+    setContactEmail(agent.email || "");
+    setContactWhatsapp(agent.phone ? agent.phone.replace(/\D/g, "") : "");
+    setSelectedAgentId(agent.user_id);
+  }, []);
+
+  // Fetch team members and auto-select logged-in user
   useEffect(() => {
     (async () => {
       const { data } = await (supabase as any)
@@ -177,21 +182,13 @@ export default function DashboardDeckBuilder() {
         .order("full_name");
       if (data?.length) {
         setAgents(data);
-        if (!isEdit) {
-          const uzair = data.find((a: AgentProfile) => a.user_id === UZAIR_USER_ID);
-          if (uzair) applyAgentProfile(uzair);
+        if (!isEdit && user) {
+          const me = data.find((a: AgentProfile) => a.user_id === user.id) || data[0];
+          if (me) applyAgentProfile(me);
         }
       }
     })();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const applyAgentProfile = useCallback((agent: AgentProfile) => {
-    setContactName(agent.full_name || "");
-    setContactPhone(agent.phone || "");
-    setContactEmail(agent.email || "");
-    setContactWhatsapp(agent.phone ? agent.phone.replace(/\D/g, "") : "");
-    setSelectedAgentId(agent.user_id);
-  }, []);
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -224,7 +221,7 @@ export default function DashboardDeckBuilder() {
       setGallery(Array.from(new Set(imgs)).filter(Boolean).slice(0, 12));
     }
     if (!tagline) setTagline(`Presale Opportunity — ${p.city || "BC"}${p.completion_year ? ` · ${p.completion_year}` : ""}`);
-    toast.success(`Loaded "${p.name}" — all fields auto-populated.`);
+    toast.success(`"${p.name}" loaded — review and tweak as needed.`);
   }, [heroImageUrl, tagline]);
 
   // Load existing deck for edit
@@ -251,7 +248,6 @@ export default function DashboardDeckBuilder() {
       const p = data.projections || {};
       setRentalMin(p.rental_min?.toString() || "");
       setRentalMax(p.rental_max?.toString() || "");
-      // Use first appreciation value or default
       const firstRate = p.appreciation?.[0];
       setAppreciationRate(firstRate != null ? String(firstRate) : "5");
       setContactName(data.contact_name || "");
@@ -267,7 +263,7 @@ export default function DashboardDeckBuilder() {
       }
       setLoading(false);
     })();
-  }, [id, isEdit]);
+  }, [id, isEdit]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-slug
   useEffect(() => {
@@ -306,14 +302,14 @@ export default function DashboardDeckBuilder() {
       const url = await uploadFile(file, `pitch-decks/${user.id}/fp-${fpId}-${Date.now()}.${file.name.split(".").pop()}`);
       if (!url) { setAnalyzingFp(null); return; }
       setFloorPlans((prev) => prev.map((fp) => fp.id === fpId ? { ...fp, image_url: url } : fp));
-      toast.loading("AI is analyzing floor plan…", { id: `fp-ai-${fpId}` });
+      toast.loading("AI analyzing floor plan…", { id: `fp-ai-${fpId}` });
       const currentFp = floorPlans.find(fp => fp.id === fpId);
       const { data: fnData, error: fnError } = await supabase.functions.invoke("analyze-deck-floorplan", {
         body: { fileUrl: url, fileName: file.name, price: currentFp?.price_from || "" },
       });
       toast.dismiss(`fp-ai-${fpId}`);
       if (fnError || !fnData?.success) {
-        toast.error("AI analysis failed — fill in details manually");
+        toast.error("AI analysis failed — fill in manually");
         setAnalyzingFp(null);
         return;
       }
@@ -340,13 +336,13 @@ export default function DashboardDeckBuilder() {
         setRentalMax(projections.rental_max?.toString() || "");
         if (projections.appreciation?.[0]) setAppreciationRate(String(projections.appreciation[0]));
         setProjectionsFromAI(true);
-        toast.success("AI extracted unit data & projections!");
+        toast.success("AI filled unit data & projections!");
       } else {
-        toast.success("Floor plan analyzed — unit details filled!");
+        toast.success("Floor plan analyzed!");
       }
     } catch {
       toast.dismiss(`fp-ai-${fpId}`);
-      toast.error("Analysis error — fill in details manually");
+      toast.error("Analysis error — fill in manually");
     }
     setAnalyzingFp(null);
   };
@@ -369,10 +365,10 @@ export default function DashboardDeckBuilder() {
     if (floorPlans.length >= 6) return;
     setFloorPlans((prev) => [...prev, { id: nanoid(), unit_type: "1 Bed", size_range: "", price_from: "", tags: [] }]);
   };
-  const updateFloorPlan = (id: string, field: keyof FloorPlan, value: any) => {
-    setFloorPlans((prev) => prev.map((fp) => fp.id === id ? { ...fp, [field]: value } : fp));
+  const updateFloorPlan = (fpId: string, field: keyof FloorPlan, value: any) => {
+    setFloorPlans((prev) => prev.map((fp) => fp.id === fpId ? { ...fp, [field]: value } : fp));
   };
-  const removeFloorPlan = (id: string) => setFloorPlans((prev) => prev.filter((fp) => fp.id !== id));
+  const removeFloorPlan = (fpId: string) => setFloorPlans((prev) => prev.filter((fp) => fp.id !== fpId));
 
   const addHighlight = () => setHighlights((prev) => [...prev, { icon: "📍", label: "", distance: "" }]);
   const updateHighlight = (i: number, field: keyof ProximityHighlight, value: string) => {
@@ -388,8 +384,8 @@ export default function DashboardDeckBuilder() {
   const handleSave = async () => {
     if (!user) return;
     if (!projectName) { toast.error("Project name is required"); return; }
-    if (!slug) { toast.error("Slug is required"); return; }
-    if (slugTaken) { toast.error("Slug is already taken"); return; }
+    if (!slug) { toast.error("URL slug is required"); return; }
+    if (slugTaken) { toast.error("That URL slug is already taken"); return; }
     setSaving(true);
     const payload: any = {
       user_id: user.id, slug, project_name: projectName, tagline, city, address,
@@ -453,10 +449,10 @@ export default function DashboardDeckBuilder() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-foreground">
-              {isEdit ? "Edit Deck" : "New Pitch Deck"}
+              {isEdit ? `Edit — ${projectName || "Deck"}` : "New Pitch Deck"}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {isEdit ? `Editing: ${projectName}` : "Select a project to auto-fill everything"}
+              Internal · Presale Properties
             </p>
           </div>
           {isEdit && slug && (
@@ -480,7 +476,7 @@ export default function DashboardDeckBuilder() {
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{linkedProjectName}</p>
-                <p className="text-xs text-muted-foreground">Loaded — edit any field below</p>
+                <p className="text-xs text-muted-foreground">Linked — edit any field below to override</p>
               </div>
               <Button variant="ghost" size="sm" className="text-xs text-muted-foreground shrink-0"
                 onClick={() => { setLinkedProjectId(null); setLinkedProjectName(""); setProjectSearch(""); }}>
@@ -530,7 +526,7 @@ export default function DashboardDeckBuilder() {
         </div>
 
         {/* ── STEP 2: Hero Image ──────────────────────────────────────── */}
-        <Section title="2. Hero Image" subtitle="Cover photo — shown as the full-width background"
+        <Section title="2. Hero Image" subtitle="Full-width cover photo for the deck"
           badge={heroImageUrl ? "✓ Set" : undefined}>
           <div>
             {heroImageUrl ? (
@@ -547,7 +543,7 @@ export default function DashboardDeckBuilder() {
               </div>
             ) : (
               <div
-                className="border-2 border-dashed border-border rounded-xl aspect-video flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-primary/3 transition-colors"
+                className="border-2 border-dashed border-border rounded-xl aspect-video flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
                 onClick={() => heroInputRef.current?.click()}
               >
                 {heroUploading
@@ -564,7 +560,7 @@ export default function DashboardDeckBuilder() {
         </Section>
 
         {/* ── STEP 3: Project Details ─────────────────────────────────── */}
-        <Section title="3. Project Details" subtitle="Name, location and key specs"
+        <Section title="3. Project Details"
           badge={linkedProjectId ? "Auto-filled" : undefined}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2 space-y-1.5">
@@ -572,7 +568,7 @@ export default function DashboardDeckBuilder() {
               <Input value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Aurora Surrey" />
             </div>
             <div className="sm:col-span-2 space-y-1.5">
-              <Label>Tagline <span className="text-muted-foreground font-normal">(optional)</span></Label>
+              <Label>Tagline <span className="text-muted-foreground font-normal text-xs">(optional)</span></Label>
               <Input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="Presale Opportunity — Surrey City Centre · 2027" />
             </div>
             <div className="space-y-1.5">
@@ -604,8 +600,7 @@ export default function DashboardDeckBuilder() {
 
         {/* ── STEP 4: Floor Plans ─────────────────────────────────────── */}
         <Section title={`4. Floor Plans (${floorPlans.length}/6)`}
-          subtitle="Upload floor plan images — AI auto-fills size, type & pricing"
-          defaultOpen={true}>
+          subtitle="Upload image — AI auto-fills size, type & pricing">
           <div className="space-y-3">
             {floorPlans.map((fp, idx) => (
               <div key={fp.id} className="p-4 rounded-xl border border-border/50 bg-muted/20 space-y-3">
@@ -618,7 +613,6 @@ export default function DashboardDeckBuilder() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  {/* Floor plan image */}
                   <div
                     className="h-20 w-28 rounded-lg border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-primary/50 transition-colors shrink-0 overflow-hidden relative"
                     onClick={() => fpInputRefs.current[fp.id]?.click()}
@@ -668,7 +662,6 @@ export default function DashboardDeckBuilder() {
                   </div>
                 </div>
 
-                {/* AI extracted details */}
                 {fp.beds != null && (
                   <div className="flex flex-wrap gap-1.5">
                     <Badge variant="outline" className="text-[10px] h-5">{fp.beds}bd / {fp.baths}ba</Badge>
@@ -681,7 +674,7 @@ export default function DashboardDeckBuilder() {
 
             {floorPlans.length < 6 && (
               <Button variant="outline" onClick={addFloorPlan} className="w-full">
-                <Plus className="h-4 w-4 mr-2" />Add Floor Plan Unit
+                <Plus className="h-4 w-4 mr-2" />Add Floor Plan
               </Button>
             )}
           </div>
@@ -689,7 +682,7 @@ export default function DashboardDeckBuilder() {
 
         {/* ── STEP 5: Gallery ─────────────────────────────────────────── */}
         <Section title={`5. Photo Gallery (${gallery.length}/12)`}
-          subtitle="Project photos — first image shown largest"
+          subtitle="First image shown largest — use arrows to reorder"
           badge={gallery.length > 0 && linkedProjectId ? "From project" : undefined}>
           <div className="space-y-3">
             {gallery.length > 0 && (
@@ -728,7 +721,7 @@ export default function DashboardDeckBuilder() {
         </Section>
 
         {/* ── STEP 6: Location ────────────────────────────────────────── */}
-        <Section title="6. Location & Nearby" subtitle="Map pin + transit & amenity highlights" defaultOpen={false}
+        <Section title="6. Location & Nearby" subtitle="Map pin + transit & amenity callouts" defaultOpen={false}
           badge={linkedProjectId && lat ? "Coords loaded" : undefined}>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
@@ -741,7 +734,7 @@ export default function DashboardDeckBuilder() {
                 <Input className="h-9" value={lng} onChange={(e) => setLng(e.target.value)} placeholder="-122.8490" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground -mt-1">Add nearby points of interest:</p>
+            <p className="text-xs text-muted-foreground">Nearby points of interest:</p>
             {highlights.map((h, i) => (
               <div key={i} className="flex items-center gap-2">
                 <Input className="w-12 h-9 text-center px-1 text-base" value={h.icon}
@@ -762,65 +755,99 @@ export default function DashboardDeckBuilder() {
           </div>
         </Section>
 
-        {/* ── STEP 7: Projections ─────────────────────────────────────── */}
-        <Section title="7. Investment Numbers" subtitle="Rental estimates shown in the projections section" defaultOpen={false}
+        {/* ── STEP 7: Investment Numbers ──────────────────────────────── */}
+        <Section title="7. Investment Numbers" subtitle="Rental range & appreciation for projections section" defaultOpen={false}
           badge={projectionsFromAI ? "AI Generated" : undefined}>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="flex items-center gap-1.5 text-sm">
-                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />Rental Min/mo
+                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />Rental Min / mo
               </Label>
               <Input type="number" value={rentalMin} onChange={(e) => setRentalMin(e.target.value)} placeholder="2,200" />
             </div>
             <div className="space-y-1.5">
               <Label className="flex items-center gap-1.5 text-sm">
-                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />Rental Max/mo
+                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />Rental Max / mo
               </Label>
               <Input type="number" value={rentalMax} onChange={(e) => setRentalMax(e.target.value)} placeholder="2,800" />
             </div>
             <div className="col-span-2 space-y-1.5">
-              <Label className="text-sm">Annual Appreciation Forecast (%)</Label>
+              <Label className="text-sm">Annual Appreciation (%)</Label>
               <Input type="number" step="0.5" value={appreciationRate}
                 onChange={(e) => setAppreciationRate(e.target.value)} placeholder="5" />
-              <p className="text-xs text-muted-foreground">Used for 5-year projection chart. Years 1–5 are auto-calculated.</p>
+              <p className="text-xs text-muted-foreground">Base rate for 5-year forecast chart — years auto-graduated.</p>
             </div>
           </div>
         </Section>
 
-        {/* ── STEP 8: Agent ───────────────────────────────────────────── */}
-        <Section title="8. Agent" subtitle="Who appears as the contact on the deck">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {agents.length > 0 ? agents.map((agent) => (
-              <button key={agent.user_id} type="button" onClick={() => applyAgentProfile(agent)}
-                className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
-                  selectedAgentId === agent.user_id
-                    ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border bg-background hover:bg-accent/20"
-                }`}>
-                <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold text-primary">
-                    {(agent.full_name || "?").split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
-                  </span>
+        {/* ── STEP 8: Contact on Deck ─────────────────────────────────── */}
+        <Section title="8. Contact on Deck" subtitle="Team member shown as the agent contact">
+          <div className="space-y-4">
+            {agents.length > 0 && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wider">Team member</p>
+                <div className="flex flex-wrap gap-2">
+                  {agents.map((agent) => (
+                    <button key={agent.user_id} type="button" onClick={() => applyAgentProfile(agent)}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-all ${
+                        selectedAgentId === agent.user_id
+                          ? "border-primary bg-primary/10 text-primary font-medium"
+                          : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                      }`}>
+                      <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
+                        {(agent.full_name || "?").split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                      </div>
+                      {agent.full_name}
+                      {selectedAgentId === agent.user_id && <CheckCircle2 className="h-3.5 w-3.5 ml-0.5" />}
+                    </button>
+                  ))}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{agent.full_name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{agent.phone || agent.email}</p>
-                </div>
-                {selectedAgentId === agent.user_id && (
-                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                )}
-              </button>
-            )) : (
-              <p className="text-sm text-muted-foreground col-span-3">No agent profiles found.</p>
+              </div>
             )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Name</Label>
+                <Input className="h-9" value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Uzair Dada" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Phone</Label>
+                <Input className="h-9" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="+1 604 000 0000" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Email</Label>
+                <Input className="h-9" type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="agent@presaleproperties.com" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">WhatsApp Number</Label>
+                <Input className="h-9" value={contactWhatsapp} onChange={(e) => setContactWhatsapp(e.target.value)} placeholder="16040000000" />
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* ── STEP 9: URL & Publishing ─────────────────────────────────── */}
+        <Section title="9. URL & Publishing" defaultOpen={false}>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="text-sm">Deck URL Slug</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground shrink-0">/deck/</span>
+                <Input
+                  value={slug}
+                  onChange={(e) => { setSlug(e.target.value); checkSlug(e.target.value); }}
+                  placeholder="aurora-surrey"
+                  className={slugTaken ? "border-destructive" : ""}
+                />
+              </div>
+              {slugTaken && <p className="text-xs text-destructive">This slug is already taken — choose another.</p>}
+            </div>
           </div>
         </Section>
       </div>
 
-      {/* ── STICKY FOOTER: Publish + Save ───────────────────────────── */}
+      {/* ── STICKY FOOTER ───────────────────────────────────────────── */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border/50 shadow-lg">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          {/* Publish toggle */}
           <div className="flex items-center gap-3 min-w-0">
             <Switch checked={isPublished} onCheckedChange={setIsPublished} />
             <div className="min-w-0">
@@ -835,7 +862,7 @@ export default function DashboardDeckBuilder() {
                   <button
                     className="text-muted-foreground hover:text-primary transition-colors"
                     onClick={() => {
-                      navigator.clipboard.writeText(`https://presaleproperties.com/deck/${slug}`);
+                      navigator.clipboard.writeText(`${window.location.origin}/deck/${slug}`);
                       toast.success("Link copied!");
                     }}
                   >
@@ -849,8 +876,6 @@ export default function DashboardDeckBuilder() {
               )}
             </div>
           </div>
-
-          {/* Actions */}
           <div className="flex gap-2 shrink-0">
             <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/decks")}>Cancel</Button>
             <Button onClick={handleSave} disabled={saving || slugTaken} size="sm">
