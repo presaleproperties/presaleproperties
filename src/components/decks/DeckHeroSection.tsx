@@ -53,8 +53,8 @@ export function DeckHeroSection({
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/98 via-black/55 to-black/15" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
       </div>
 
       {/* Top badge */}
