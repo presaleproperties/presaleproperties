@@ -90,6 +90,8 @@ Deno.serve(async (req) => {
       { url: "/about", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/contact", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/developers", priority: "0.7", changefreq: "weekly", lastmod: now },
+      { url: "/presale-process", priority: "0.8", changefreq: "monthly", lastmod: now },
+      { url: "/privacy", priority: "0.3", changefreq: "yearly", lastmod: now },
     ];
     
     // NOTE: /map-search is EXCLUDED (noindex page)
@@ -234,19 +236,20 @@ Deno.serve(async (req) => {
     // ==========================================
     // BUILD CONTROLLED SITEMAP
     // ==========================================
-    // Order matters for crawl priority - programmatic SEO pages first
+    // IMPORTANT: Never include redirecting URLs — "Page with redirect" GSC error
+    // Legacy /{city}-presale-condos, /presale-condos-{city} etc. are 301 redirects → EXCLUDED
+    // Only canonical destination URLs are included
     const allPages = [
       ...staticPages,
-      ...cityHubPages,           // /presale-projects/{city}
-      ...cityTypePages,          // /presale-projects/{city}/condos
-      ...cityTypePricePages,     // /presale-projects/{city}/condos-under-500k
-      ...neighborhoodLandingPages,
-      ...projectPages,
-      ...propertiesCityPages,
+      ...cityHubPages,               // /presale-projects/{city}
+      ...cityTypePages,              // /presale-projects/{city}/condos
+      ...cityTypePricePages,         // /presale-projects/{city}/condos-under-500k
+      ...neighborhoodLandingPages,   // /burnaby-brentwood-presale etc. (these ARE canonical destinations)
+      ...projectPages,               // /{neighborhood}-presale-{type}-{slug}
+      ...propertiesCityPages,        // /properties/{city}
       ...seoHubPages,
-      // NOTE: Legacy /{city}-presale-condos URLs REMOVED — they are 301 redirects
       ...blogPages,
-      ...developerPages,
+      // developerPages intentionally empty — /developers/:slug redirects to /developers
     ];
     
     // NOTE: Individual MLS listings are NOT included

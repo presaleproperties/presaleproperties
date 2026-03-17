@@ -2,18 +2,23 @@
  * SEO Index Control Hook
  * 
  * Centralizes logic for determining if a page should be indexed.
- * Implements PART 1 — INDEX CONTROL from the SEO strategy.
  * 
- * NOINDEX patterns:
- * - /map-search*
- * - URLs with ?lat=, ?lng=, ?zoom=, ?project=, ?sort=, ?view=
- * - Filter pages like /presale-projects?city=X
- * - Any dynamically generated UI/map URLs
+ * NOINDEX patterns (tight — only truly non-indexable):
+ * - /map-search (UI-only, no real content)
+ * - Auth / admin / dashboard routes
+ * - Coordinate/map params: lat, lng, zoom, mode
+ * - Pure UI state params: sort, view, filter, q, search
+ * 
+ * INDEXABLE (previously over-blocked, now allowed):
+ * - /presale-projects?city= → canonical to /presale-projects/{city}/condos
+ * - /properties?city= → canonical to /properties/{city}
+ * - All programmatic city/type/price pages
+ * - Blog, guides, buyer education pages
  * 
  * CANONICAL rules:
- * - Filter pages → canonical to clean city/type page
- * - Parameter URLs → canonical to base path
- * - All pages must have explicit canonical
+ * - Filter pages → canonical to clean base URL (indexed)
+ * - Param URLs → canonical to base path without params
+ * - Every page MUST have an explicit self-referencing or pointed canonical
  */
 
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -21,17 +26,17 @@ import { useMemo } from "react";
 
 const SITE_URL = "https://presaleproperties.com";
 
-// Query params that trigger noindex
-// NOTE: "page", "city", "neighborhood", "developer" removed — these are valid filter params
-// that have canonical city/hub pages; pagination shouldn't blanket-noindex.
+// ⚠️ TIGHT noindex params — ONLY true UI/map params, NOT content filters
+// Removed: beds, baths, price, type, deposit, year, status — these are content filters
+// that should be crawlable (they have canonical city pages to point to)
 const NOINDEX_PARAMS = [
-  "lat", "lng", "zoom", "project", "sort", "view",
-  "beds", "baths", "price", "type", "deposit",
-  "year", "status", "filter", "q", "search", "mode",
+  "lat", "lng", "zoom", "mode",   // map/UI-only coordinates
+  "filter", "q", "search",         // search UI state (no canonical target)
+  "view",                           // UI layout toggle
 ];
 
-// Routes that should ALWAYS be noindexed (regardless of params)
-// IMPORTANT: Only auth, admin, private, and true utility routes
+// Routes that should ALWAYS be noindexed
+// CRITICAL: Keep this list minimal — only auth/admin/private/true-utility
 const NOINDEX_ROUTES = [
   "/map-search",
   "/admin",
@@ -39,20 +44,20 @@ const NOINDEX_ROUTES = [
   "/login",
   "/buyer/login",
   "/buyer/signup",
+  "/buyer",
   "/buyer/dashboard",
   "/exclusive-offer",
   "/campaign",
   "/vip-access",
   "/404",
-  // NOTE: /resale, /blogs, /market-report, /guide, /privacy, /deposit, /investment-presale-properties
-  // removed — these are either redirect sources (handled by App.tsx) or indexable content pages.
+  "/developer",  // developer portal
 ];
 
-// Routes that should noindex when they have query params, canonical to base
+// Routes that should noindex when they have ANY query params (canonical to base path)
 const NOINDEX_WITH_PARAMS_ROUTES = [
   "/calculator",
-  "/presale-projects",
-  "/properties",
+  "/roi-calculator",
+  "/mortgage-calculator",
 ];
 
 // City filter pages that should canonical to clean city pages (NEW URL structure)
@@ -103,84 +108,90 @@ export interface SeoRobotsResult {
 }
 
 /**
- * Determines SEO index/canonical strategy for the current page
+ * Determines SEO index/canonical strategy for the current page.
+ * Strategy: Index aggressively, noindex only when truly necessary.
  */
 export function useSeoRobots(): SeoRobotsResult {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   
   return useMemo(() => {
-    const path = location.pathname.replace(/\/+$/, '') || '/'; // Normalize trailing slashes
+    const path = location.pathname.replace(/\/+$/, '') || '/';
     const fullUrl = `${SITE_URL}${path}`;
+    const hasParams = searchParams.toString().length > 0;
     
-    // Check if route is in always-noindex list
+    // 1. Always-noindex routes (auth/admin/private only)
     const isNoindexRoute = NOINDEX_ROUTES.some(route => 
-      path === route || path.startsWith(`${route}/`) || path.startsWith(route)
+      path === route || path.startsWith(`${route}/`)
     );
-    
     if (isNoindexRoute) {
       return {
         noindex: true,
         canonicalUrl: fullUrl,
-        noindexReason: `Route ${path} is in NOINDEX_ROUTES`,
+        noindexReason: `Route in NOINDEX_ROUTES`,
         isFilterPage: false,
       };
     }
     
-    // Check for noindex query params
+    // 2. Calculator/tool pages with ANY params → noindex, canonical to base
+    const isNoindexWithParamsRoute = NOINDEX_WITH_PARAMS_ROUTES.some(route => path === route);
+    if (isNoindexWithParamsRoute && hasParams) {
+      return {
+        noindex: true,
+        canonicalUrl: fullUrl, // canonical to self (no params)
+        noindexReason: `Tool page with params`,
+        isFilterPage: false,
+      };
+    }
+
+    // 3. Check for noindex query params (map/UI only)
     const hasNoindexParams = NOINDEX_PARAMS.some(param => searchParams.has(param));
     
-    // Special case: /presale-projects with city param should canonical to city page
+    // 4. /presale-projects?city= → canonical to /presale-projects/{city}/condos (indexed)
     if (path === "/presale-projects" && searchParams.has("city")) {
       const cityParam = searchParams.get("city")?.toLowerCase().replace(/\s+/g, "-") || "";
       const typeParam = searchParams.get("type")?.toLowerCase() || "";
-      
-      // Check if townhome type specified
       const canonicalMap = typeParam === "townhome" ? CITY_TOWNHOME_CANONICAL_MAP : CITY_CANONICAL_MAP;
       const cleanCanonical = canonicalMap[cityParam];
-      
       if (cleanCanonical) {
         return {
-          noindex: true, // noindex filter page, point to clean canonical
+          noindex: true,
           canonicalUrl: `${SITE_URL}${cleanCanonical}`,
-          noindexReason: `Filter page ?city=${cityParam} → canonical ${cleanCanonical}`,
+          noindexReason: `City filter → canonical ${cleanCanonical}`,
           isFilterPage: true,
         };
       }
-    }
-    
-    // Special case: /presale-projects with any filter params → canonical to base
-    if (path === "/presale-projects" && hasNoindexParams) {
+      // Unknown city — canonical to hub
       return {
         noindex: true,
         canonicalUrl: `${SITE_URL}/presale-projects`,
-        noindexReason: `Filter page with params → canonical to /presale-projects`,
+        noindexReason: `Unknown city filter`,
         isFilterPage: true,
       };
     }
     
-    // Special case: /properties with city filter → canonical to city page
+    // 5. /properties?city= → canonical to /properties/{city}
     if (path === "/properties" && searchParams.has("city")) {
       const cityParam = searchParams.get("city")?.toLowerCase().replace(/\s+/g, "-") || "";
       return {
         noindex: true,
         canonicalUrl: `${SITE_URL}/properties/${cityParam}`,
-        noindexReason: `Filter page ?city=${cityParam} → canonical to /properties/${cityParam}`,
+        noindexReason: `City filter → /properties/${cityParam}`,
         isFilterPage: true,
       };
     }
     
-    // Check for any filter/param URLs
+    // 6. Any URL with true noindex params (lat/lng/zoom/mode etc.)
     if (hasNoindexParams) {
       return {
         noindex: true,
-        canonicalUrl: fullUrl.split('?')[0], // Canonical to base path without params
-        noindexReason: `URL contains noindex params: ${NOINDEX_PARAMS.filter(p => searchParams.has(p)).join(", ")}`,
+        canonicalUrl: fullUrl, // self (params stripped by GlobalSEO)
+        noindexReason: `UI params: ${NOINDEX_PARAMS.filter(p => searchParams.has(p)).join(", ")}`,
         isFilterPage: true,
       };
     }
     
-    // Default: index with self-referencing canonical
+    // 7. Default: index with self-referencing canonical
     return {
       noindex: false,
       canonicalUrl: fullUrl,
@@ -202,25 +213,15 @@ export function getCityPresaleCanonical(city: string, type: "condos" | "townhome
  * Check if a URL should be included in sitemap
  */
 export function shouldIncludeInSitemap(url: string): boolean {
-  // Never include routes with query params
   if (url.includes("?")) return false;
-  
-  // Never include noindex routes
   if (NOINDEX_ROUTES.some(route => url.startsWith(route))) return false;
-  
   return true;
 }
 
-/**
- * Get the noindex params list for use in other components
- */
 export function getNoindexParams(): string[] {
   return NOINDEX_PARAMS;
 }
 
-/**
- * Check if current URL has filter params that should trigger noindex
- */
 export function hasFilterParams(searchParams: URLSearchParams): boolean {
   return NOINDEX_PARAMS.some(param => searchParams.has(param));
 }

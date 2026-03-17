@@ -8,40 +8,40 @@ const SITE_URL = "https://presaleproperties.com";
  * Global SEO Component
  * 
  * Handles site-wide SEO concerns:
- * 1. Canonical URLs - Ensures every page has a proper canonical
- * 2. Robots meta - Dynamic noindex for filter/param pages
- * 3. Base meta tags that apply to all pages
+ * 1. Canonical URLs - Every page gets an explicit canonical (prevents "duplicate without canonical")
+ * 2. Robots meta - Tight noindex only for truly non-indexable pages
+ * 3. Googlebot specific directives for map/coordinate URLs
  * 
- * This should be placed in the App.tsx layout to ensure consistent SEO across all pages.
- * Individual pages can still override these with their own Helmet tags (later Helmet tags win).
+ * Individual pages override these with their own Helmet tags (later Helmet tags win).
+ * This base layer ensures ZERO pages are missing a canonical tag.
  */
 export function GlobalSEO() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { noindex, canonicalUrl, isFilterPage } = useSeoRobots();
+  const { noindex, canonicalUrl } = useSeoRobots();
   
-  // Clean path without trailing slashes
+  // Always produce a clean path — no trailing slashes, no query strings
   const cleanPath = location.pathname.replace(/\/+$/, '') || '/';
   
-  // For filter pages, canonical should point to base URL without params
-  const effectiveCanonicalUrl = isFilterPage 
-    ? canonicalUrl // useSeoRobots already computes the correct canonical for filter pages
-    : `${SITE_URL}${cleanPath}`;
+  // canonicalUrl from useSeoRobots already handles filter→clean page mapping.
+  // For non-filter pages it equals SITE_URL + cleanPath (self-referencing).
+  // This ensures EVERY page has an explicit canonical — fixing "duplicate without canonical".
+  const effectiveCanonicalUrl = canonicalUrl || `${SITE_URL}${cleanPath}`;
   
-  // Robots directive
+  // Robots directive — index by default, only block truly non-indexable pages
   const robotsContent = noindex 
     ? "noindex, follow" 
     : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 
   return (
     <Helmet>
-      {/* Default canonical - individual pages can override */}
+      {/* Canonical — base layer, individual pages override via their own Helmet */}
       <link rel="canonical" href={effectiveCanonicalUrl} />
       
-      {/* Robots meta - critical for preventing duplicate content */}
+      {/* Robots — tight noindex, only for auth/admin/map pages */}
       <meta name="robots" content={robotsContent} />
       
-      {/* Only noindex via googlebot for coordinate/UI-specific params (not pagination) */}
+      {/* Googlebot noindex ONLY for map coordinate params — not content filters */}
       {(searchParams.has("lat") || searchParams.has("lng") || searchParams.has("zoom") || searchParams.has("mode")) && (
         <meta name="googlebot" content="noindex, follow" />
       )}
