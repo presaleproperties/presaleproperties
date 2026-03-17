@@ -640,14 +640,9 @@ export default function DashboardDeckBuilder() {
                         onChange={(e) => updateFloorPlan(fp.id, "size_range", e.target.value)} placeholder="540–680 sqft" />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs flex items-center gap-1"><DollarSign className="h-3 w-3" />Rent Min/mo</Label>
-                      <Input className="h-8 text-xs" type="number" value={fp.rent_min ?? ""}
-                        onChange={(e) => updateFloorPlan(fp.id, "rent_min", e.target.value ? parseFloat(e.target.value) : null)} placeholder="2,000" />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs flex items-center gap-1"><DollarSign className="h-3 w-3" />Rent Max/mo</Label>
-                      <Input className="h-8 text-xs" type="number" value={fp.rent_max ?? ""}
-                        onChange={(e) => updateFloorPlan(fp.id, "rent_max", e.target.value ? parseFloat(e.target.value) : null)} placeholder="2,600" />
+                      <Label className="text-xs flex items-center gap-1"><DollarSign className="h-3 w-3" />Projected Rent/mo</Label>
+                      <Input className="h-8 text-xs" type="number" value={fp.projected_rent ?? ""}
+                        onChange={(e) => updateFloorPlan(fp.id, "projected_rent", e.target.value ? parseFloat(e.target.value) : null)} placeholder="2,300" />
                     </div>
                   </div>
                 </div>

@@ -352,16 +352,10 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                       <Row label="Projected Value" value={formatCAD(projectedValue5yr)} bold />
                       <Row label="Equity Gain" value={formatCAD(equity5yr)} green />
                       <Row label="Total Appreciation" value={`~${(totalAppr5yr * 100).toFixed(1)}%`} bold />
-                      {(selectedPlan?.rent_min || selectedPlan?.rent_max) && (
+                      {selectedPlan?.projected_rent && (
                         <Row
-                          label={`Est. Rental Income${selectedPlan.unit_type ? ` (${selectedPlan.unit_type})` : ""}`}
-                          value={
-                            selectedPlan.rent_min && selectedPlan.rent_max
-                              ? `${formatCAD(selectedPlan.rent_min)}–${formatCAD(selectedPlan.rent_max)}/mo`
-                              : selectedPlan.rent_min
-                              ? `${formatCAD(selectedPlan.rent_min)}/mo`
-                              : `${formatCAD(selectedPlan.rent_max!)}/mo`
-                          }
+                          label={`Projected Rent${selectedPlan.unit_type ? ` (${selectedPlan.unit_type})` : ""}`}
+                          value={`${formatCAD(selectedPlan.projected_rent)}/mo`}
                           green
                         />
                       )}
