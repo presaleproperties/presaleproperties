@@ -91,9 +91,8 @@ function formatCurrency(n: number | null | undefined) {
 
 function getPhotos(p: Project): string[] {
   const all: string[] = [];
-  if (p.hero_image) all.push(p.hero_image);
+  if (p.featured_image) all.push(p.featured_image);
   if (p.gallery_images?.length) all.push(...p.gallery_images);
-  if (p.photos?.length) all.push(...p.photos);
   const unique = Array.from(new Set(all)).filter(Boolean);
   return unique.length ? unique : [];
 }
