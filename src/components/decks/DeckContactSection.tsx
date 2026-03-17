@@ -75,8 +75,6 @@ export function DeckContactSection({
   const displayEmail = contactEmail || agent.email;
   const whatsappNumber = (contactWhatsapp || contactPhone || agent.phone).replace(/\D/g, "");
 
-  const allAgents = Object.values(AGENTS);
-
   return (
     <section id="contact" className="relative py-24 bg-muted/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
