@@ -89,6 +89,7 @@ const navSections = [
     label: "Content",
     emoji: "✍️",
     items: [
+      { href: "/admin/top-deals",           label: "Top Deals",     icon: Sparkles,  color: "text-primary",     badgeKey: null },
       { href: "/admin/blogs",               label: "Blog Posts",    icon: BookOpen,  color: "text-rose-500",    badgeKey: null },
       { href: "/admin/landing-pages",       label: "Campaigns",     icon: Megaphone, color: "text-orange-500",  badgeKey: null },
       { href: "/admin/marketing-hub",       label: "Marketing Hub", icon: Mail,      color: "text-emerald-500", badgeKey: null },
