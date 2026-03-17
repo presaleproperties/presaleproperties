@@ -79,8 +79,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
   const [taxInput, setTaxInput] = useState("125");
   const [holdYears, setHoldYears] = useState(5);
   const [appRate, setAppRate] = useState(4);
-  const [dep1Pct, setDep1Pct] = useState(5);
-  const [dep2Pct, setDep2Pct] = useState(5);
+  const [depositPct, setDepositPct] = useState(10);
 
   const selectedPlan = floorPlans.find((p) => p.id === selectedPlanId);
   const planPrice = selectedPlan ? parsePriceFromString(selectedPlan.price_from) : null;
