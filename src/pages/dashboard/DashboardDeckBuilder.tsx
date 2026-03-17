@@ -970,21 +970,21 @@ export default function DashboardDeckBuilder() {
                 <p className="text-xs font-semibold text-foreground">Your deck URL:</p>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 text-xs bg-background border border-border rounded px-3 py-2 text-primary font-mono truncate">
-                    https://presaleproperties.lovable.app/deck/{slug}
+                    https://presaleproperties.com/deck/{slug}
                   </code>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      navigator.clipboard.writeText(`https://presaleproperties.lovable.app/deck/${slug}`);
+                      navigator.clipboard.writeText(`https://presaleproperties.com/deck/${slug}`);
                       toast.success("URL copied to clipboard!");
                     }}
                   >
                     <Copy className="h-3.5 w-3.5 mr-1" />Copy
                   </Button>
                   <Button type="button" variant="outline" size="sm" asChild>
-                    <a href={`https://presaleproperties.lovable.app/deck/${slug}`} target="_blank" rel="noopener noreferrer">
+                    <a href={`https://presaleproperties.com/deck/${slug}`} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-3.5 w-3.5 mr-1" />Open
                     </a>
                   </Button>
