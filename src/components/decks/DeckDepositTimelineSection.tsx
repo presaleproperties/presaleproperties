@@ -153,52 +153,76 @@ export function DeckDepositTimelineSection({
 
           {/* Steps */}
           <div className="relative">
-            {/* Vertical line */}
-            <div className="absolute left-5 top-5 bottom-5 w-px bg-gradient-to-b from-primary/60 to-primary/10 z-0" />
-
+            {/* Deposit steps */}
             <div className="space-y-3">
-              {allNodes.map((node) => {
-                const amt = node.isCompletion
-                  ? balanceAtCompletion
-                  : price * (node.percent / 100);
-                const StepIcon = node.isCompletion ? Key : (STEP_ICONS[node.idx] ?? Clock);
+              {allNodes.filter(n => !n.isCompletion).map((node, i, arr) => {
+                const amt = price * (node.percent / 100);
+                const StepIcon = STEP_ICONS[node.idx] ?? Clock;
+                const isLast = i === arr.length - 1;
 
                 return (
-                  <div key={node.id} className="relative flex gap-4 items-center">
-                    {/* Icon */}
-                    <div className={cn(
-                      "relative z-10 h-10 w-10 rounded-full flex items-center justify-center border-2 shrink-0 transition-all",
-                      node.isCompletion
-                        ? "bg-primary border-primary text-primary-foreground shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]"
-                        : "bg-card border-border/70 text-muted-foreground"
-                    )}>
-                      <StepIcon className="h-4 w-4" />
-                    </div>
-
-                    {/* Row card */}
-                    <div className={cn(
-                      "flex-1 flex items-center justify-between rounded-xl px-4 py-3 border",
-                      node.isCompletion
-                        ? "border-primary/25 bg-primary/5"
-                        : "border-border/50 bg-card"
-                    )}>
-                      <div>
-                        <p className={cn("text-sm font-semibold leading-tight", node.isCompletion ? "text-primary" : "text-foreground")}>
-                          {node.label}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{node.timing}</p>
+                  <div key={node.id} className="relative">
+                    <div className="flex gap-4 items-center">
+                      {/* Icon + connector */}
+                      <div className="flex flex-col items-center shrink-0">
+                        <div className="relative z-10 h-10 w-10 rounded-full flex items-center justify-center border-2 bg-card border-border/70 text-muted-foreground">
+                          <StepIcon className="h-4 w-4" />
+                        </div>
+                        {!isLast && <div className="w-px flex-1 min-h-[12px] bg-border/50 mt-1" />}
                       </div>
-                      <div className="text-right shrink-0 ml-3">
-                        <p className="text-base font-black text-primary">{fmt(amt)}</p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {node.isCompletion ? `${(100 - totalDepositPct).toFixed(0)}% balance` : `${node.percent}%`}
-                        </p>
+
+                      {/* Row card */}
+                      <div className="flex-1 flex items-center justify-between rounded-xl px-4 py-3 border border-border/50 bg-card">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground leading-tight">{node.label}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">{node.timing}</p>
+                        </div>
+                        <div className="text-right shrink-0 ml-3">
+                          <p className="text-base font-black text-primary">{fmt(amt)}</p>
+                          <p className="text-[10px] text-muted-foreground">{node.percent}%</p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 );
               })}
             </div>
+
+            {/* Gap divider — Under Construction period */}
+            <div className="flex items-center gap-3 my-5 pl-0">
+              <div className="flex flex-col items-center shrink-0 w-10">
+                <div className="w-px h-4 bg-border/30" />
+                <div className="w-px h-4 border-l-2 border-dashed border-primary/30" />
+                <div className="w-px h-4 border-l-2 border-dashed border-primary/30" />
+                <div className="w-px h-4 border-l-2 border-dashed border-primary/30" />
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/60 border border-dashed border-border/60">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+                <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Under Construction</span>
+              </div>
+            </div>
+
+            {/* Completion node */}
+            {allNodes.filter(n => n.isCompletion).map((node) => (
+              <div key={node.id} className="flex gap-4 items-start">
+                <div className="relative z-10 h-10 w-10 rounded-full flex items-center justify-center border-2 bg-primary border-primary text-primary-foreground shadow-[0_0_0_4px_hsl(var(--primary)/0.15)] shrink-0 mt-0.5">
+                  <Key className="h-4 w-4" />
+                </div>
+                <div className="flex-1 rounded-xl px-4 py-3 border border-primary/30 bg-primary/5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-bold text-primary leading-tight">Completion — Keys in Hand</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{node.timing}</p>
+                      <p className="text-[11px] text-primary/70 mt-1.5 font-medium">🏦 Mortgage starts here — your balance becomes your loan</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-base font-black text-primary">{fmt(balanceAtCompletion)}</p>
+                      <p className="text-[10px] text-muted-foreground">{(100 - totalDepositPct).toFixed(0)}% balance</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Summary card */}
