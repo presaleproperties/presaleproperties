@@ -135,7 +135,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
       totalEquity, totalCashFlow, totalReturn, roiPct,
       capRate, cashOnCash,
     };
-  }, [price, isFirstTimeBuyer, includeGST, includePTT, downPct, rate, amort, dep1Pct, dep2Pct, strataFees, propertyTax, holdYears, appRate, projectedRent]);
+  }, [price, isFirstTimeBuyer, includeGST, includePTT, downPct, rate, amort, depositPct, strataFees, propertyTax, holdYears, appRate, projectedRent]);
 
   const isPositiveCF = (results.monthlyCashFlow ?? 0) >= 0;
 
