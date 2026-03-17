@@ -456,21 +456,14 @@ export default function AdminTopDeals() {
                     <StatCard
                       icon={<DollarSign className="h-4 w-4" />}
                       label="Starting From"
-                      value={formatCurrency(selected.min_price)}
+                      value={formatCurrency(selected.starting_price)}
                       accent
                     />
-                    {selected.max_price && (
-                      <StatCard
-                        icon={<DollarSign className="h-4 w-4" />}
-                        label="Up To"
-                        value={formatCurrency(selected.max_price)}
-                      />
-                    )}
-                    {selected.estimated_completion && (
+                    {selected.completion_year && (
                       <StatCard
                         icon={<Calendar className="h-4 w-4" />}
                         label="Est. Completion"
-                        value={selected.estimated_completion}
+                        value={String(selected.completion_year)}
                       />
                     )}
                     {selected.deposit_structure && (
@@ -480,11 +473,18 @@ export default function AdminTopDeals() {
                         value={selected.deposit_structure}
                       />
                     )}
+                    {selected.project_type && (
+                      <StatCard
+                        icon={<Home className="h-4 w-4" />}
+                        label="Type"
+                        value={selected.project_type}
+                      />
+                    )}
                   </div>
 
-                  {selected.description && (
+                  {selected.short_description && (
                     <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
-                      {selected.description}
+                      {selected.short_description}
                     </p>
                   )}
                 </div>
