@@ -100,7 +100,7 @@ export function DeckContactSection({
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Watermark */}
         <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
-          06
+          07
         </div>
 
         <div className="mb-8 space-y-2">
