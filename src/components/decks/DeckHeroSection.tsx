@@ -137,8 +137,8 @@ export function DeckHeroSection({
 
       {/* Scroll indicator */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 animate-bounce">
-        <span className="text-white/30 text-[10px] uppercase tracking-widest">Scroll</span>
-        <ChevronDown className="h-5 w-5 text-white/40" />
+        <span className="text-white/60 text-[10px] uppercase tracking-widest">Scroll</span>
+        <ChevronDown className="h-5 w-5 text-white/60" />
       </div>
     </section>
   );
