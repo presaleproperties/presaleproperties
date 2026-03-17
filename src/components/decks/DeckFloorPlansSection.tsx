@@ -95,14 +95,7 @@ export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps
                     </div>
                   )}
 
-                  {/* Unit type badge */}
-                  <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
-                    <span className="bg-background/90 backdrop-blur-sm text-foreground text-[10px] sm:text-[11px] font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border border-border/50 shadow-sm whitespace-nowrap">
-                      {plan.unit_type}
-                    </span>
-                  </div>
-
-                  {/* Pick number */}
+                  {/* Pick number only on the image */}
                   <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
                     <span className="bg-primary/90 text-primary-foreground text-[10px] font-bold w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shadow-sm">
                       {idx + 1}
@@ -112,13 +105,14 @@ export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps
 
                 {/* Card body */}
                 <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-                  {/* Price row */}
+                  {/* Unit type + price row */}
                   <div className="flex items-start justify-between gap-1">
                     <div className="min-w-0">
-                      <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider">From</p>
+                      <p className="text-foreground font-bold text-sm sm:text-base leading-tight truncate">{plan.unit_type}</p>
+                      <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">From</p>
                       <p className="text-primary font-bold text-sm sm:text-lg leading-tight truncate">{plan.price_from || "—"}</p>
                     </div>
-                    <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-300 ${hovered === plan.id ? 'border-primary bg-primary' : 'border-border/50'}`}>
+                    <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-300 mt-1 ${hovered === plan.id ? 'border-primary bg-primary' : 'border-border/50'}`}>
                       <ArrowRight className={`h-3 w-3 sm:h-3.5 sm:w-3.5 transition-colors ${hovered === plan.id ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
                     </div>
                   </div>
