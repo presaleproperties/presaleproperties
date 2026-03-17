@@ -146,7 +146,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
         <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">05</div>
 
         <div className="mb-8 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Projections</p>
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Investment</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Investment Calculator</h2>
           <p className="text-muted-foreground text-sm">BC 2026 tax rules — same calculator as our site, pre-loaded with this project's numbers.</p>
         </div>
@@ -164,17 +164,9 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 <p className="text-[11px] text-background/40 mt-0.5">BC 2026 presale rules applied</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 shrink-0">
-              {!isFirstTimeBuyer && projectedRent && (
-                <div className="text-right">
-                  <p className="text-[10px] text-background/40 uppercase tracking-wider">Projected Rent</p>
-                  <p className="text-lg font-bold text-green-400">{fmt(projectedRent)}<span className="text-[11px] text-background/40 font-normal">/mo</span></p>
-                </div>
-              )}
-              <div className="text-right">
-                <p className="text-[10px] text-background/40 uppercase tracking-wider">Calculating for</p>
-                <p className="text-lg font-bold text-primary">{fmt(price)}</p>
-              </div>
+            <div className="text-right shrink-0">
+              <p className="text-[10px] text-background/40 uppercase tracking-wider">Calculating for</p>
+              <p className="text-lg font-bold text-primary">{fmt(price)}</p>
             </div>
           </div>
 
@@ -209,20 +201,10 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                         key={plan.id}
                         onClick={() => setSelectedPlanId(plan.id)}
                         className={cn(
-                          "flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all touch-manipulation",
+                          "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all touch-manipulation",
                           isActive ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-background border-border text-muted-foreground hover:border-primary/40"
                         )}
                       >
-                        {plan.image_url && (
-                          <img
-                            src={plan.image_url}
-                            alt={plan.unit_type}
-                            className={cn(
-                              "h-7 w-7 rounded object-contain shrink-0",
-                              isActive ? "bg-primary-foreground/20" : "bg-muted"
-                            )}
-                          />
-                        )}
                         <span>{plan.unit_type}</span>
                         {plan.size_range && <span className={cn("text-[10px]", isActive ? "text-primary-foreground/70" : "text-muted-foreground/60")}>{plan.size_range}</span>}
                       </button>

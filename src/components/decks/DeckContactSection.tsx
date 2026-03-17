@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { BookingModal } from "./BookingModal";
-import { Phone, Mail, MessageCircle, Star, Award, Globe, Quote, CalendarCheck, Zap } from "lucide-react";
+import { Phone, Mail, MessageCircle, Star, Award, Globe, Quote, CalendarCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Review {
@@ -100,49 +100,17 @@ export function DeckContactSection({
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Watermark */}
         <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
-          06
+          07
         </div>
 
         <div className="mb-8 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Get Access</p>
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">07 — Get Access</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
             Claim Your Unit Before It's Gone
           </h2>
           <p className="text-muted-foreground text-sm max-w-xl">
             This is a private presentation shared with select clients. Units move fast — reach out now to lock in your spot or get full pricing details.
           </p>
-        </div>
-
-        {/* Top CTA banner — urgency */}
-        <div className="relative rounded-2xl overflow-hidden mb-8 bg-gradient-to-r from-primary to-primary/80 p-6 sm:p-8">
-          <div className="absolute inset-0 opacity-10 pointer-events-none"
-            style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 0%, transparent 60%)" }} />
-          <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="h-4 w-4 text-primary-foreground/80 shrink-0" />
-                <span className="text-primary-foreground/80 text-xs font-semibold uppercase tracking-wider">Limited Availability</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-primary-foreground">
-                Ready to move forward on {projectName}?
-              </h3>
-              <p className="text-primary-foreground/75 text-sm">
-                Text us right now — we'll reply within minutes with pricing, availability & next steps.
-              </p>
-            </div>
-            <div className="shrink-0 w-full sm:w-auto">
-              <a
-                href={`https://wa.me/${rawNumber}?text=${waMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl font-bold text-sm text-white touch-manipulation transition-all active:scale-[0.98] shadow-lg w-full"
-                style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(0,0,0,0.25)" }}
-              >
-                <MessageCircle className="h-5 w-5 shrink-0" />
-                I'm Interested
-              </a>
-            </div>
-          </div>
         </div>
 
         {/* Two-column layout */}
@@ -191,7 +159,7 @@ export function DeckContactSection({
                 <span className="text-sm text-muted-foreground ml-2 font-medium">5.0 · Google Reviews</span>
               </div>
 
-              {/* Primary: WhatsApp */}
+              {/* Primary CTA — single unified WhatsApp */}
               <a
                 href={`https://wa.me/${rawNumber}?text=${waMessage}`}
                 target="_blank"
@@ -200,7 +168,7 @@ export function DeckContactSection({
                 style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,0.30)" }}
               >
                 <MessageCircle className="h-5 w-5 shrink-0" />
-                Text {agent.fullName.split(" ")[0]} on WhatsApp
+                I'm Interested
               </a>
 
               {/* Contact links */}
