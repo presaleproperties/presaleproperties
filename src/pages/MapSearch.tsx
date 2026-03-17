@@ -1845,9 +1845,9 @@ export default function MapSearch() {
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
               >
-                {/* Compact Carousel Header */}
+                 {/* Compact Carousel Header */}
                 <div 
-                  className="flex items-center justify-between pb-1.5" 
+                  className="flex items-center justify-between pb-1" 
                   style={{ 
                     paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', 
                     paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' 
