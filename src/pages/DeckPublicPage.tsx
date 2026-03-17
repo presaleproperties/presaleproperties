@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import NotFound from "@/pages/NotFound";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { DeckHeroSection } from "@/components/decks/DeckHeroSection";
