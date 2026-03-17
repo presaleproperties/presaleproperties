@@ -123,6 +123,7 @@ export default function AdminTopDeals() {
   const [amort, setAmort] = useState(25);
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
   const [customStrataFee, setCustomStrataFee] = useState<string>("");
+  const [activePlanIndex, setActivePlanIndex] = useState(0);
   // Override price for the numbers slide
   const [customCalcPrice, setCustomCalcPrice] = useState<string>("");
 
