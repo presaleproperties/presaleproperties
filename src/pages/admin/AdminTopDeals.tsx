@@ -812,7 +812,7 @@ function StatCard({ icon, label, value, accent }: { icon: React.ReactNode; label
 function HighlightCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="p-5 rounded-2xl border border-border bg-card hover:border-primary/20 transition-colors">
-      <div className="h-9 w-9 rounded-xl bg-primary/8 flex items-center justify-center text-primary mb-3">
+      <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-3">
         {icon}
       </div>
       <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium mb-1">{label}</p>
