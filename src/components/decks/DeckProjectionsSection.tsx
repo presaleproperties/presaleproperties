@@ -146,9 +146,9 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
         <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">05</div>
 
         <div className="mb-8 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Investment</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Investment Calculator</h2>
-          <p className="text-muted-foreground text-sm">BC 2026 tax rules — same calculator as our site, pre-loaded with this project's numbers.</p>
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Numbers</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Run Your Numbers</h2>
+          <p className="text-muted-foreground text-sm">See your monthly payment, what you need at closing, and how the investment grows over time.</p>
         </div>
 
         <div className="rounded-3xl border border-border/60 bg-card shadow-[0_8px_48px_-12px_hsl(var(--foreground)/0.08)] overflow-x-hidden">
@@ -160,8 +160,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 <Home className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-background leading-none">Investment Snapshot</h3>
-                <p className="text-[11px] text-background/40 mt-0.5">BC 2026 presale rules applied</p>
+                <h3 className="text-[15px] font-bold text-background leading-none">Your Numbers</h3>
+                <p className="text-[11px] text-background/40 mt-0.5">BC 2026 tax rules applied</p>
               </div>
             </div>
             <div className="text-right shrink-0">
@@ -266,8 +266,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   {/* Deposit structure */}
                   <div className="grid grid-cols-2 gap-3">
                     {([
-                      { label: "Deposit 1", val: dep1Pct, set: setDep1Pct, amt: results.dep1 },
-                      { label: "Deposit 2", val: dep2Pct, set: setDep2Pct, amt: results.dep2 },
+                      { label: "Deposit 1 (at signing)", val: dep1Pct, set: setDep1Pct, amt: results.dep1 },
+                      { label: "Deposit 2 (3 months)", val: dep2Pct, set: setDep2Pct, amt: results.dep2 },
                     ] as const).map(({ label, val, set, amt }) => (
                       <div key={label} className="rounded-xl bg-muted/40 p-3">
                         <div className="flex justify-between text-[11px] mb-2">
@@ -283,7 +283,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   {/* Rate + amortization */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-foreground">Interest Rate</span>
+                      <span className="text-sm font-medium text-foreground">Mortgage Rate</span>
                       <span className="text-sm font-bold text-primary">{rate.toFixed(2)}%</span>
                     </div>
                     <Slider min={2} max={9} step={0.01} value={[rate]} onValueChange={([v]) => setRate(parseFloat(v.toFixed(2)))} />
@@ -291,7 +291,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-foreground mb-2">Amortization</p>
+                    <p className="text-sm font-medium text-foreground mb-2">Loan Length</p>
                     <div className="flex gap-2">
                       {[25, 30].map((yr) => (
                         <button key={yr} onClick={() => setAmort(yr)}
@@ -305,7 +305,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   {/* Strata + Tax — text inputs */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-xl border border-border/50 p-3">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Strata /mo</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Condo Fees /mo</p>
                       <div className="relative">
                         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">$</span>
                         <input
@@ -346,7 +346,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
 
                   {/* Hero: Monthly payment */}
                   <div className="rounded-2xl bg-primary/5 border border-primary/20 p-4 text-center">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Est. Monthly Payment</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Your Monthly Mortgage Payment</p>
                     <p className="text-4xl font-bold text-primary">{fmt(results.monthly)}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {fmt(results.mortgageAmt)} mortgage · {rate}% · {amort}yr
@@ -367,13 +367,13 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   {/* Cash at closing — dark card */}
                   <div className="rounded-2xl bg-foreground text-background p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] text-background/50 font-bold uppercase tracking-wider">Total Cash Required</span>
+                      <span className="text-[10px] text-background/50 font-bold uppercase tracking-wider">Total Money Needed</span>
                       <span className="text-2xl font-black text-background">{fmt(results.totalCashNeeded)}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-3">
                       {[
-                        { label: "Deposits", value: results.totalDeposits },
-                        { label: "At Closing", value: results.cashAtClosing },
+                        { label: "Pre-Construction Deposits", value: results.totalDeposits },
+                        { label: "Due on Move-In", value: results.cashAtClosing },
                       ].map(({ label, value }) => (
                         <div key={label} className="bg-background/8 rounded-xl p-3 text-center">
                           <div className="text-[10px] text-background/45 uppercase font-semibold mb-1">{label}</div>
@@ -382,20 +382,20 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                       ))}
                     </div>
                     <div className="border-t border-background/15 pt-3 space-y-1.5 text-[12px]">
-                      <div className="text-[10px] text-background/40 font-bold uppercase mb-2">Closing Detail</div>
+                      <div className="text-[10px] text-background/40 font-bold uppercase mb-2">Move-In Day Breakdown</div>
                       <div className="flex justify-between">
-                        <span className="text-background/60">Remaining Down</span>
+                        <span className="text-background/60">Remaining Down Payment</span>
                         <span className="font-semibold">{fmt(results.remainingDown)}</span>
                       </div>
                       {includeGST && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">GST (5%)</span>
+                          <span className="text-background/60">GST — Federal Tax (5%)</span>
                           <span className="font-semibold">{fmt(results.gst)}</span>
                         </div>
                       )}
                       {includeGST && isFirstTimeBuyer && results.gstRebate > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">GST Rebate (FTB)</span>
+                          <span className="text-background/60">GST Rebate (First-Time Buyer)</span>
                           <span className="font-semibold text-green-400">-{fmt(results.gstRebate)}</span>
                         </div>
                       )}
@@ -407,18 +407,18 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                       )}
                       {isFirstTimeBuyer && results.pttRaw > 0 && results.ptt === 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">PTT (Exempt FTB)</span>
+                          <span className="text-background/60">Property Transfer Tax (Waived)</span>
                           <span className="font-semibold text-green-400">$0</span>
                         </div>
                       )}
                       <div className="flex justify-between">
-                        <span className="text-background/60">Legal & Closing</span>
+                        <span className="text-background/60">Lawyer / Notary Fees</span>
                         <span className="font-semibold">{fmt(results.legalFees)}</span>
                       </div>
                       {results.cmhc > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">CMHC Premium</span>
-                          <span className="font-semibold">{fmt(results.cmhc)} <span className="text-background/30 text-[10px]">(in mortgage)</span></span>
+                          <span className="text-background/60">Mortgage Insurance (CMHC)</span>
+                          <span className="font-semibold">{fmt(results.cmhc)} <span className="text-background/30 text-[10px]">(added to mortgage)</span></span>
                         </div>
                       )}
                     </div>
@@ -428,8 +428,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   <div className="rounded-xl border border-border/50 overflow-hidden">
                     <div className="divide-y divide-border/30">
                       {[
-                        { label: "Include GST (5%)", sub: "New construction tax", amount: fmt(results.gst), checked: includeGST, onChange: setIncludeGST },
-                        { label: isFirstTimeBuyer ? "PTT — Exempt (FTB)" : "Property Transfer Tax", sub: isFirstTimeBuyer ? "First-time buyer exempt" : "BC tiered rate", amount: isFirstTimeBuyer ? "-" + fmt(results.pttRaw) : fmt(results.pttRaw), checked: includePTT, onChange: setIncludePTT, disabled: isFirstTimeBuyer },
+                       { label: "Include GST — Federal Tax (5%)", sub: "Applies to new construction", amount: fmt(results.gst), checked: includeGST, onChange: setIncludeGST },
+                        { label: isFirstTimeBuyer ? "Property Transfer Tax — Waived" : "Property Transfer Tax (PTT)", sub: isFirstTimeBuyer ? "You qualify for the first-time buyer exemption" : "BC one-time fee on purchase", amount: isFirstTimeBuyer ? "-" + fmt(results.pttRaw) : fmt(results.pttRaw), checked: includePTT, onChange: setIncludePTT, disabled: isFirstTimeBuyer },
                       ].map(({ label, sub, amount, checked, onChange, disabled }) => (
                         <div key={label} className="flex items-center justify-between px-4 py-3">
                           <div>
@@ -451,7 +451,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                       "rounded-2xl p-4 border-2 text-center",
                       isPositiveCF ? "bg-green-50/80 dark:bg-green-950/20 border-green-200 dark:border-green-800" : "bg-red-50/70 dark:bg-red-950/20 border-red-200 dark:border-red-800"
                     )}>
-                      <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-1", isPositiveCF ? "text-green-700" : "text-red-700")}>Monthly Cash Flow</p>
+                      <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-1", isPositiveCF ? "text-green-700" : "text-red-700")}>Monthly Profit After All Costs</p>
                       <p className={cn("text-4xl font-black", isPositiveCF ? "text-green-600" : "text-red-600")}>
                         {isPositiveCF ? "+" : ""}{fmt(results.monthlyCashFlow)}
                       </p>
@@ -477,7 +477,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   )}
 
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    BC 2026 rules. PTT exemption FTB ≤$1.1M. GST rebate 100% ≤$1M, partial $1M–$1.5M (Bill C-4, Mar 2026). Consult a licensed advisor.
+                    BC 2026 rules. First-time buyers are exempt from Property Transfer Tax on homes up to $1.1M. GST rebate: 100% on homes up to $1M, partial rebate up to $1.5M (Bill C-4, 2026). Always speak to a licensed advisor before purchasing.
                   </p>
                 </div>
               </div>
@@ -490,7 +490,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 {/* Controls */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-primary/80 mb-3">Hold Period</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-primary/80 mb-3">How Long Will You Hold?</p>
                     <div className="flex items-center justify-center gap-3">
                       <button onClick={() => setHoldYears(Math.max(1, holdYears - 1))}
                         className="h-9 w-9 rounded-xl border border-border/60 bg-background flex items-center justify-center text-lg font-bold hover:bg-secondary transition-colors touch-manipulation">−</button>
@@ -504,8 +504,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   </div>
 
                   <div className="rounded-2xl border border-border/60 bg-card p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3" /> Appreciation
+                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" /> Assumed Growth / Year
                     </p>
                     <div className="text-center mb-2">
                       <span className="text-4xl font-black text-primary">{appRate}</span>
@@ -536,7 +536,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-4">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5"><PiggyBank className="h-3 w-3" /> Total Equity Built</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5"><PiggyBank className="h-3 w-3" /> Total Wealth Built</p>
                       <span className="text-xl font-black text-foreground">{fmt(results.totalEquity)}</span>
                     </div>
                     <div className="h-3 rounded-full overflow-hidden flex mb-4 bg-muted/60">
@@ -552,8 +552,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                     <div className="grid grid-cols-3 gap-3 text-center">
                       {[
                         { label: "Down Payment",  value: results.downAmt,      dot: "bg-primary/70" },
-                        { label: "Paydown",       value: results.principalPaid, dot: "bg-blue-500" },
-                        { label: "Appreciation",  value: results.appreciation,  dot: "bg-green-500" },
+                        { label: "Mortgage Paid Off", value: results.principalPaid, dot: "bg-blue-500" },
+                        { label: "Value Growth",  value: results.appreciation,  dot: "bg-green-500" },
                       ].map(({ label, value, dot }) => (
                         <div key={label}>
                           <div className="flex items-center justify-center gap-1 mb-1">
@@ -570,10 +570,10 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 {/* Key metrics */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { label: "Total Return",  value: fmt(results.totalReturn),                                         dark: true },
-                    { label: "ROI",           value: `${results.roiPct.toFixed(1)}%`,  sub: `${holdYears}yr total`,   dark: false },
-                    { label: "Annualized",    value: `${holdYears > 0 ? (results.roiPct / holdYears).toFixed(1) : "0.0"}%`, sub: "per year", dark: false },
-                    { label: "Cash Invested", value: fmt(results.totalCashNeeded),                                     dark: false },
+                    { label: "Total Profit",     value: fmt(results.totalReturn),                                         dark: true },
+                    { label: "Total Return",     value: `${results.roiPct.toFixed(1)}%`,  sub: `over ${holdYears} years`,  dark: false },
+                    { label: "Per Year",         value: `${holdYears > 0 ? (results.roiPct / holdYears).toFixed(1) : "0.0"}%`, sub: "average annual", dark: false },
+                    { label: "Cash You Put In",  value: fmt(results.totalCashNeeded),                                      dark: false },
                   ].map(({ label, value, sub, dark }) => (
                     <div key={label} className={cn("rounded-2xl p-3.5 text-center", dark ? "bg-foreground text-background" : "bg-muted/50 border border-border/50")}>
                       <span className={cn("text-[10px] font-bold uppercase tracking-wider", dark ? "text-background/45" : "text-muted-foreground")}>{label}</span>
@@ -587,19 +587,19 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 {!isFirstTimeBuyer && (
                   <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
                     <div className="p-4">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Investor Metrics</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Rental Income Metrics</p>
                       <div className="space-y-0">
                         {results.capRate !== null && (
-                          <Row label="Cap Rate" value={`${results.capRate.toFixed(2)}%`} sub="NOI / Price incl. GST" />
+                          <Row label="Yield (Cap Rate)" value={`${results.capRate.toFixed(2)}%`} sub="Annual rent income ÷ purchase price" />
                         )}
                         {results.cashOnCash !== null && (
-                          <Row label="Cash-on-Cash" value={`${results.cashOnCash.toFixed(2)}%`} sub="Annual CF / Cash In" />
+                          <Row label="Cash-on-Cash Return" value={`${results.cashOnCash.toFixed(2)}%`} sub="Annual profit ÷ cash you put in" />
                         )}
-                        <Row label="Mortgage" value={fmt(results.mortgageAmt)} sub={`Yr${holdYears} balance: ${fmt(results.remainingBalance)}`} />
+                        <Row label="Mortgage Amount" value={fmt(results.mortgageAmt)} sub={`Remaining after ${holdYears}yr: ${fmt(results.remainingBalance)}`} />
                         {results.monthlyCashFlow !== null && (
-                          <Row label="Monthly CF" value={fmt(results.monthlyCashFlow)} sub={`${fmt(projectedRent!)} rent − ${fmt(results.totalMonthlyExpenses)} costs`} green={isPositiveCF} />
+                          <Row label="Monthly Profit" value={fmt(results.monthlyCashFlow)} sub={`${fmt(projectedRent!)} rent − ${fmt(results.totalMonthlyExpenses)} costs`} green={isPositiveCF} />
                         )}
-                        <Row label="Mortgage Paydown" value={fmt(results.principalPaid)} sub={`Over ${holdYears} years`} green />
+                        <Row label="Mortgage Paid Down" value={fmt(results.principalPaid)} sub={`Over ${holdYears} years`} green />
                       </div>
                     </div>
                   </div>
