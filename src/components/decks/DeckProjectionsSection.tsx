@@ -552,8 +552,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                     <div className="grid grid-cols-3 gap-3 text-center">
                       {[
                         { label: "Down Payment",  value: results.downAmt,      dot: "bg-primary/70" },
-                        { label: "Paydown",       value: results.principalPaid, dot: "bg-blue-500" },
-                        { label: "Appreciation",  value: results.appreciation,  dot: "bg-green-500" },
+                        { label: "Mortgage Paid Off", value: results.principalPaid, dot: "bg-blue-500" },
+                        { label: "Value Growth",  value: results.appreciation,  dot: "bg-green-500" },
                       ].map(({ label, value, dot }) => (
                         <div key={label}>
                           <div className="flex items-center justify-center gap-1 mb-1">
