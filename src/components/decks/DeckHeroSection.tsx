@@ -93,8 +93,8 @@ export function DeckHeroSection({
                 >
                   <stat.icon className="h-3.5 w-3.5 text-primary shrink-0" />
                   <div>
-                    <p className="text-white/45 text-[9px] uppercase tracking-wider leading-none mb-0.5">{stat.label}</p>
-                    <p className="text-white font-semibold text-[11px] leading-none whitespace-nowrap">{stat.value}</p>
+                   <p className="text-white/70 text-[9px] uppercase tracking-wider leading-none mb-0.5">{stat.label}</p>
+                    <p className="text-white font-semibold text-[12px] leading-none whitespace-nowrap">{stat.value}</p>
                   </div>
                 </div>
               ))}
