@@ -59,8 +59,8 @@ export function DeckHeroSection({
       </div>
 
 
-      {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-24 sm:pb-20 pt-28 w-full">
+      {/* Content — extra bottom padding on mobile to clear the footer CTA bar */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-28 sm:pb-20 pt-28 w-full">
         <div className="max-w-2xl space-y-3 sm:space-y-4">
 
           {/* Project name */}
@@ -98,14 +98,12 @@ export function DeckHeroSection({
         </div>
       </div>
 
-      {/* Mobile CTA removed — handled by the persistent fixed footer bar */}
-
-      {/* Scroll indicator — centered, above mobile CTA */}
+      {/* Scroll indicator — desktop/tablet only to avoid overlapping mobile content */}
       <div
-        className="absolute bottom-28 sm:bottom-6 left-0 right-0 flex flex-col items-center gap-1 z-10 cursor-pointer"
+        className="hidden sm:flex absolute bottom-6 left-0 right-0 flex-col items-center gap-1 z-10 cursor-pointer"
         onClick={onFloorPlansClick}
       >
-        <span className="text-white/80 text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest drop-shadow-md animate-bounce">View Plans &amp; Pricing</span>
+        <span className="text-white/80 text-[11px] font-semibold uppercase tracking-widest drop-shadow-md animate-bounce">View Plans &amp; Pricing</span>
         <ChevronDown className="h-5 w-5 text-white/80 drop-shadow-md animate-bounce" />
       </div>
     </section>

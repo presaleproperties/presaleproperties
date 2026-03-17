@@ -34,9 +34,10 @@ export function DeckStickyNav({ visible, activeSection, projectName, whatsappNum
 
   return (
     <>
+      {/* Hidden on mobile & tablet — footer bar handles CTA there */}
       <div
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          "hidden lg:block fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           "bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm",
           visible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         )}
