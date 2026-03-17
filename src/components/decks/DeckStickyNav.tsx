@@ -16,10 +16,15 @@ interface DeckStickyNavProps {
   visible: boolean;
   activeSection: string;
   projectName: string;
+  whatsappNumber?: string;
+  projectNameForWa?: string;
 }
 
-export function DeckStickyNav({ visible, activeSection, projectName }: DeckStickyNavProps) {
+export function DeckStickyNav({ visible, activeSection, projectName, whatsappNumber, projectNameForWa }: DeckStickyNavProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const rawNumber = (whatsappNumber || "17782313592").replace(/\D/g, "");
+  const waMessage = encodeURIComponent(`Hi! I'm interested in ${projectNameForWa || projectName} — can you share details?`);
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
