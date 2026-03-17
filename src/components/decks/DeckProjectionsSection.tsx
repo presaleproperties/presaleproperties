@@ -90,7 +90,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
         <div className="mb-8 sm:mb-10 space-y-2">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Projections</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Investment Outlook</h2>
-          <p className="text-muted-foreground text-sm mt-1">BC 2024 tax rules applied. Toggle your buyer profile for personalized numbers.</p>
+          <p className="text-muted-foreground text-sm mt-1">BC 2026 tax rules applied. Toggle your buyer profile for personalized numbers.</p>
         </div>
 
         {/* Main calculator card */}
@@ -104,7 +104,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
               </div>
               <div>
                 <h3 className="text-[15px] font-bold text-background leading-none">Investment Calculator</h3>
-                <p className="text-[11px] text-background/40 mt-0.5">BC 2024 presale rules applied</p>
+                <p className="text-[11px] text-background/40 mt-0.5">BC 2026 presale rules applied</p>
               </div>
             </div>
             <div className="text-right shrink-0">
@@ -169,7 +169,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 <p className="text-xs font-semibold text-green-800 dark:text-green-300">First-Time Buyer Advantages Applied</p>
                 <p className="text-[11px] text-green-700 dark:text-green-400 mt-0.5">
                   {price <= 1100000 ? "Full PTT exemption · " : price <= 1150000 ? "Partial PTT exemption · " : ""}
-                  {price <= 1000000 ? "100% GST rebate (new build ≤$1M)" : price < 1200000 ? "Partial GST rebate ($1M–$1.2M)" : "No GST rebate above $1.2M"}
+                  {price <= 1000000 ? "100% GST rebate (new build ≤$1M)" : price < 1500000 ? "Partial GST rebate ($1M–$1.5M)" : "No GST rebate above $1.5M"}
                 </p>
               </div>
             </div>
@@ -293,7 +293,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   </div>
 
                   <p className="text-[11px] text-muted-foreground mt-4 leading-relaxed">
-                    BC 2024 rules. PTT exemption for FTB ≤$1.1M. 100% GST rebate (primary residence, new build) ≤$1M. Consult a licensed advisor.
+                    BC 2026 rules. PTT exemption for FTB ≤$1.1M. GST rebate 100% ≤$1M, partial $1M–$1.5M (Bill C-4, Mar 2026). Consult a licensed advisor.
                   </p>
                 </div>
               </div>

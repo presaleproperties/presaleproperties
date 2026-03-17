@@ -251,15 +251,15 @@ export default function MortgageCalculatorPage() {
     
     const mortgageAmount = principal + cmhcInsurance;
     
-    // GST Rebate — BC 2024 New Construction (primary residence / first-time buyer only).
-    // Full 100% rebate ≤ $1,000,000 | partial phase-out $1,000,001–$1,200,000 | none above $1,200,000.
+    // GST Rebate — Federal Bill C-4 (Royal Assent March 12, 2026).
+    // Full 100% rebate ≤ $1,000,000 | partial phase-out $1,000,001–$1,499,999 | none at $1,500,000+.
     // Investors do NOT qualify.
     let gstRebate = 0;
     if (includeGST && isFirstTimeBuyer) {
       if (basePrice <= 1000000) {
-        gstRebate = gstAmount; // 100% rebate
-      } else if (basePrice < 1200000) {
-        gstRebate = gstAmount * (1200000 - basePrice) / 200000;
+        gstRebate = gstAmount; // 100% rebate — max $50,000
+      } else if (basePrice < 1500000) {
+        gstRebate = gstAmount * (1500000 - basePrice) / 500000;
       }
     }
 
@@ -1255,7 +1255,7 @@ export default function MortgageCalculatorPage() {
                             <div className="border-t pt-2">
                               <p className="text-xs font-medium text-muted-foreground mb-2">GST Rebate (credited at closing)</p>
                               <div className="flex justify-between py-1 pl-3 text-green-600">
-                                <span>GST New Housing Rebate — BC 2024</span>
+                                <span>GST New Housing Rebate — Bill C-4 (2026)</span>
                                 <span>-{formatCurrency(calculations.gstRebate)}</span>
                               </div>
                             </div>

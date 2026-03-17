@@ -100,7 +100,7 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
               <p className="text-sm font-medium text-green-700 dark:text-green-300">First-Time Buyer Benefits Applied</p>
               <p className="text-xs text-green-600 dark:text-green-400">
                 PTT exemption{pttFullExemption ? ' (full — new construction ≤$1.1M)' : pttPartialExemption ? ' (partial — new construction $1.1M–$1.15M)' : ' (over $1.15M — no exemption)'},{' '}
-                GST rebate{gstRebate > 0 ? ` (${formatCurrency(gstRebate)} back)` : ' (not eligible over $450K)'}
+                GST rebate{gstRebate > 0 ? ` (${formatCurrency(gstRebate)} back)` : ' (not eligible above $1.5M)'}
                 {cmhcInsurance > 0 ? `, CMHC insurance required` : ''}
               </p>
             </div>
@@ -260,9 +260,9 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
               <p className="text-[10px] text-muted-foreground">
                 {isFirstTimeBuyer
                   ? pttFullExemption
-                    ? "Full exemption — new construction ≤$1.1M (BC 2024)"
+                    ? "Full exemption — new construction ≤$1.1M (BC 2026)"
                     : pttPartialExemption
-                    ? "Partial exemption — new construction $1.1M–$1.15M (BC 2024)"
+                    ? "Partial exemption — new construction $1.1M–$1.15M (BC 2026)"
                     : "Over $1.15M — standard PTT rates apply"
                   : "BC PTT — tiered rate on purchase price"}
               </p>
