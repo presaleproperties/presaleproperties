@@ -20,6 +20,24 @@ import {
 } from "lucide-react";
 
 const UNIT_TYPES = ["Studio", "1 Bed", "1 Bed + Den", "2 Bed", "2 Bed + Den", "3 Bed", "Townhouse"];
+
+/** Map AI-returned unit_type string to the closest UNIT_TYPES entry */
+function normalizeUnitType(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const s = raw.toLowerCase().replace(/[-–—]/g, " ").trim();
+  if (s.includes("studio") || s.includes("bachelor")) return "Studio";
+  if (s.includes("townhouse") || s.includes("town home") || s.includes("townhome")) return "Townhouse";
+  const bed3 = s.includes("3") || s.includes("three");
+  const bed2 = s.includes("2") || s.includes("two");
+  const bed1 = s.includes("1") || s.includes("one");
+  const den  = s.includes("den") || s.includes("flex") || s.includes("+");
+  if (bed3) return "3 Bed";
+  if (bed2 && den) return "2 Bed + Den";
+  if (bed2) return "2 Bed";
+  if (bed1 && den) return "1 Bed + Den";
+  if (bed1) return "1 Bed";
+  return UNIT_TYPES.find(t => t.toLowerCase() === s) ?? null;
+}
 const UZAIR_USER_ID = "1a1c17cd-c64b-478a-832d-5874be1258d1";
 
 interface PresaleProject {
