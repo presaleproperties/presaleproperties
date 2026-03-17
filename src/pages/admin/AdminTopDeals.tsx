@@ -834,7 +834,7 @@ export default function AdminTopDeals() {
                   </div>
                   {buyerType === "ftb" && (
                     <p className="text-[10px] text-emerald-600 mt-1 font-medium">
-                      ✓ PTT exemption{calcPrice <= 350000 ? " · GST rebate" : calcPrice < 450000 ? " · Partial GST rebate" : ""}
+                      ✓ PTT exemption{calcPrice <= 1000000 ? " · Full GST rebate" : ""}
                     </p>
                   )}
                 </div>
