@@ -504,8 +504,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   </div>
 
                   <div className="rounded-2xl border border-border/60 bg-card p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3" /> Appreciation
+                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" /> Assumed Growth / Year
                     </p>
                     <div className="text-center mb-2">
                       <span className="text-4xl font-black text-primary">{appRate}</span>
