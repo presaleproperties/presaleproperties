@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import NotFound from "@/pages/NotFound";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { DeckHeroSection } from "@/components/decks/DeckHeroSection";
@@ -43,7 +44,6 @@ const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projecti
 
 export default function DeckPublicPage() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const [deck, setDeck] = useState<PitchDeck | null>(null);
   const [loading, setLoading] = useState(true);
   const [navVisible, setNavVisible] = useState(false);
@@ -57,10 +57,10 @@ export default function DeckPublicPage() {
         .from("pitch_decks")
         .select("*")
         .eq("slug", slug)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
-        navigate("/404", { replace: true });
+        setLoading(false);
         return;
       }
       // If not published, only allow if user owns it (checked client-side as best-effort)
@@ -116,7 +116,7 @@ export default function DeckPublicPage() {
     );
   }
 
-  if (!deck) return null;
+  if (!deck) return <NotFound />;
 
   const defaultPrice = deck.floor_plans?.[0]?.price_from
     ? parseFloat(deck.floor_plans[0].price_from.replace(/[^0-9.]/g, ""))
