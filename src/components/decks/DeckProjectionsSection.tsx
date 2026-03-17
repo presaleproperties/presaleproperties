@@ -94,9 +94,9 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
     const pttRaw = calculatePTT(price, false);
     const ptt = isFirstTimeBuyer ? 0 : (includePTT ? pttRaw : 0);
 
-    const dep1 = price * (dep1Pct / 100);
-    const dep2 = price * (dep2Pct / 100);
-    const totalDeposits = dep1 + dep2;
+    const dep1 = price * (depositPct / 100);
+    const dep2 = 0;
+    const totalDeposits = dep1;
 
     const downAmt = priceWithGST * (downPct / 100);
     const baseMortgage = priceWithGST - downAmt;
