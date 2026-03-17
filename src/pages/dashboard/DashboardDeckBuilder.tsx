@@ -980,8 +980,9 @@ export default function DashboardDeckBuilder() {
                     variant="outline"
                     size="sm"
                     onClick={() => {
+                      // Copy the direct deck URL — OG meta tags are embedded in the page itself
                       navigator.clipboard.writeText(`https://presaleproperties.com/deck/${slug}`);
-                      toast.success("URL copied to clipboard!");
+                      toast.success("Link copied! Hero image preview will appear in WhatsApp & iMessage.");
                     }}
                   >
                     <Copy className="h-3.5 w-3.5 mr-1" />Copy

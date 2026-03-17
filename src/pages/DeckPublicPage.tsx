@@ -125,9 +125,22 @@ export default function DeckPublicPage() {
   return (
     <>
       <Helmet>
-        <title>Presale Project | Presale Properties</title>
-        <meta name="description" content="Exclusive presale project opportunity. Contact us for floor plans, pricing, and investment projections." />
-        <meta name="robots" content="noindex, nofollow" />
+        <title>{deck.project_name} — Presale Investment Deck | Presale Properties</title>
+        <meta name="description" content={`Exclusive presale opportunity: ${deck.project_name}${deck.city ? ` in ${deck.city}` : ""}. View floor plans, pricing, and investment projections.`} />
+        {/* OG / WhatsApp / iMessage preview */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={`${deck.project_name} — Presale Investment Deck`} />
+        <meta property="og:description" content={`Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}. Floor plans, pricing & investment projections.`} />
+        <meta property="og:url" content={`https://presaleproperties.com/deck/${deck.slug}`} />
+        {deck.hero_image_url && <meta property="og:image" content={deck.hero_image_url} />}
+        {deck.hero_image_url && <meta property="og:image:secure_url" content={deck.hero_image_url} />}
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="PresaleProperties.com" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${deck.project_name} — Presale Investment Deck`} />
+        <meta name="twitter:description" content={`Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}. Floor plans, pricing & investment projections.`} />
+        {deck.hero_image_url && <meta name="twitter:image" content={deck.hero_image_url} />}
         <style>{`
           .deck-animate {
             opacity: 0;

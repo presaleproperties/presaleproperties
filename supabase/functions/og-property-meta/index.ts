@@ -70,10 +70,68 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const listingKey = url.searchParams.get("listingKey");
     const projectSlug = url.searchParams.get("projectSlug");
+    const deckSlug = url.searchParams.get("deckSlug");
 
-    if (!listingKey && !projectSlug) {
-      return new Response("Missing listingKey or projectSlug parameter", { status: 400, headers: corsHeaders });
+    if (!listingKey && !projectSlug && !deckSlug) {
+      return new Response("Missing listingKey, projectSlug, or deckSlug parameter", { status: 400, headers: corsHeaders });
     }
+
+    // ── Pitch Deck sharing ────────────────────────────────────────────────────
+    if (deckSlug) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      const { data: deck, error } = await supabase
+        .from("pitch_decks")
+        .select("project_name, tagline, city, hero_image_url, slug")
+        .eq("slug", deckSlug)
+        .maybeSingle();
+
+      if (error || !deck) {
+        return new Response("Deck not found", { status: 404, headers: corsHeaders });
+      }
+
+      const canonicalUrl = `${SITE_URL}/deck/${deck.slug}`;
+      const heroImage = ensureHttps(deck.hero_image_url) || `${SITE_URL}/og-image.png`;
+      const title = `${deck.project_name} — Presale Investment Deck`;
+      const description = deck.tagline || `Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}. Floor plans, pricing & investment projections.`;
+
+      if (!isBot(userAgent)) {
+        return new Response(null, { status: 302, headers: { ...corsHeaders, "Location": canonicalUrl } });
+      }
+
+      const html = `<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title><meta name="description" content="${description}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${canonicalUrl}">
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${description}">
+<meta property="og:image" content="${heroImage}">
+<meta property="og:image:secure_url" content="${heroImage}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="PresaleProperties.com">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${title}">
+<meta name="twitter:description" content="${description}">
+<meta name="twitter:image" content="${heroImage}">
+<link rel="canonical" href="${canonicalUrl}">
+</head><body>
+<img src="${heroImage}" alt="${deck.project_name}" style="max-width:100%;border-radius:8px;">
+<h1>${title}</h1><p>${description}</p>
+<a href="${canonicalUrl}" style="display:inline-block;margin-top:1rem;padding:12px 24px;background:#b8860b;color:white;text-decoration:none;border-radius:6px;">View Investment Deck</a>
+</body></html>`;
+
+      const responseHeaders = new Headers();
+      responseHeaders.set("Content-Type", "text/html; charset=utf-8");
+      responseHeaders.set("Cache-Control", "public, max-age=3600, s-maxage=86400");
+      responseHeaders.set("Access-Control-Allow-Origin", "*");
+      return new Response(html, { status: 200, headers: responseHeaders });
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     // Check user agent - redirect humans to the canonical page, serve OG HTML to bots
     const userAgent = req.headers.get("user-agent") || "";
