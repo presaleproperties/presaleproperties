@@ -238,12 +238,11 @@ export default function AdminTopDeals() {
   const calcPrice = (() => {
     // Use the active plan's custom price if set, else project starting price
     const activeFp = floorPlans[activePlanIndex];
-    if (activeFp?.customPrice) {
-      return parseInt(activeFp.customPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000);
-    }
-    return customCalcPrice
-      ? parseInt(customCalcPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000)
-      : (selected?.starting_price ?? 850000);
+    const planPrice = activeFp?.customPrice
+      ? parseInt(activeFp.customPrice.replace(/\D/g, ""))
+      : (activeFp?.metrics?.price ?? activeFp?.metrics?.pricePerSqft == null ? null : null);
+    if (planPrice && planPrice > 0) return planPrice;
+    return selected?.starting_price ?? 850000;
   })();
   const calc = useMemo(() => {
     const down = (calcPrice * downPct) / 100;
