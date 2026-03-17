@@ -237,8 +237,6 @@ export default function DashboardDeckBuilder() {
       setCity(data.city || "");
       setAddress(data.address || "");
       setDeveloperName(data.developer_name || "");
-      setStories && void 0;
-      setTotalUnits && void 0;
       setCompletionYear(data.completion_year || "");
       setHeroImageUrl(data.hero_image_url || "");
       setFloorPlans(data.floor_plans || []);
