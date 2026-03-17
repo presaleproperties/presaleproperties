@@ -1299,23 +1299,19 @@ export default function AdminEmailBuilder() {
   return (
     <TooltipProvider>
     <AdminLayout>
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <div className="flex items-center gap-4 min-w-0">
+      <div className="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-border">
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={() => navigate("/admin/email-builder-hub")}
+            className="h-7 w-7 rounded-md border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+          </button>
           <div className="shrink-0">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate("/admin/email-builder-hub")}
-                className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-xs"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" /> Hub
-              </button>
-              <span className="text-muted-foreground/40 text-xs">/</span>
-              <h1 className="text-lg font-bold text-foreground tracking-tight leading-tight">Email Builder</h1>
-            </div>
-            <p className="text-xs text-muted-foreground">Mailchimp-ready HTML · No code needed</p>
+            <h1 className="text-sm font-bold text-foreground tracking-tight leading-tight">Email Builder</h1>
+            <p className="text-[11px] text-muted-foreground">Mailchimp-ready HTML</p>
           </div>
-
-          <Separator orientation="vertical" className="h-8" />
+          <Separator orientation="vertical" className="h-7" />
 
           <div className="flex items-center gap-2 min-w-0">
             <Building2 className="h-4 w-4 text-primary shrink-0" />

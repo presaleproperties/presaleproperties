@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Mail, FileText, Sparkles, Plus, Clock, Trash2, Copy,
-  ChevronRight, Building2, Star, Layers, ArrowRight, Megaphone,
+  Mail, FileText, Plus, Clock, Trash2, Copy,
+  ChevronRight, Building2, Star, Megaphone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -32,46 +32,45 @@ function timeAgo(dateStr: string) {
   return "Just now";
 }
 
-// ─── Create options ───────────────────────────────────────────────────────────
 const CREATE_OPTIONS = [
   {
     key: "project-email",
     title: "Project Email",
-    desc: "Introduce a new presale to your VIP list. Hero image, stats bar, body copy, floor plans, agent card.",
+    desc: "Hero image, stats, highlights, floor plans, agent card",
     icon: Building2,
-    gradient: "from-emerald-600 to-emerald-800",
+    color: "text-emerald-600",
+    bg: "bg-emerald-500/10",
     badge: "Most Used",
-    badgeColor: "bg-emerald-500/15 text-emerald-600 border-emerald-500/20",
     url: "/admin/email-builder?template=project-email",
   },
   {
     key: "exclusive-offer",
     title: "Exclusive Offer",
-    desc: "High-urgency promo email with incentive spotlight and bold CTAs. Perfect for VIP-only pricing windows.",
+    desc: "High-urgency promo with incentive spotlight",
     icon: Star,
-    gradient: "from-amber-500 to-amber-700",
+    color: "text-amber-600",
+    bg: "bg-amber-500/10",
     badge: "Promo",
-    badgeColor: "bg-amber-500/15 text-amber-600 border-amber-500/20",
     url: "/admin/email-builder?template=exclusive-offer",
   },
   {
     key: "campaign-flyer",
-    title: "Campaign Flyer / One-Pager",
-    desc: "Branded marketing collateral — a print-ready single-page PDF for sharing at presentations.",
+    title: "Campaign Flyer",
+    desc: "Print-ready one-pager PDF for presentations",
     icon: FileText,
-    gradient: "from-violet-600 to-violet-800",
-    badge: "PDF Export",
-    badgeColor: "bg-violet-500/15 text-violet-600 border-violet-500/20",
+    color: "text-violet-600",
+    bg: "bg-violet-500/10",
+    badge: "PDF",
     url: "/admin/campaign-builder/new",
   },
   {
     key: "blank-email",
     title: "Blank Email",
-    desc: "Start from scratch. Paste your own copy and use AI to bold keywords.",
+    desc: "Start from scratch with your own copy",
     icon: Mail,
-    gradient: "from-slate-600 to-slate-800",
-    badge: "Custom",
-    badgeColor: "bg-slate-500/15 text-slate-500 border-slate-500/20",
+    color: "text-muted-foreground",
+    bg: "bg-muted/40",
+    badge: null,
     url: "/admin/email-builder?template=blank",
   },
 ];
@@ -100,7 +99,7 @@ export default function AdminMarketingHub() {
   useEffect(() => { fetchAssets(); }, []);
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    if (!confirm(`Delete "${name}"?`)) return;
     setDeleting(id);
     const { error } = await (supabase as any).from("campaign_templates").delete().eq("id", id);
     if (error) toast.error("Failed to delete");
@@ -122,118 +121,89 @@ export default function AdminMarketingHub() {
 
   return (
     <AdminLayout>
-      <div className="flex flex-col min-h-full bg-background">
+      <div className="flex flex-col h-full bg-background">
 
-        {/* ── Page header ── */}
-        <div className="border-b border-border bg-card px-6 py-5 shrink-0">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3.5">
-              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-sm">
-                <Megaphone className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold tracking-tight leading-none">Marketing Hub</h1>
-                <p className="text-xs text-muted-foreground mt-1">Create emails, promos, and campaign flyers — all in one place</p>
-              </div>
+        {/* Header */}
+        <div className="border-b border-border bg-card px-6 py-4 shrink-0 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Megaphone className="h-4 w-4 text-primary" />
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-[10px]">
-                {emailAssets.length + campaignAssets.length} saved
-              </Badge>
+            <div>
+              <h1 className="text-base font-bold tracking-tight">Marketing Hub</h1>
+              <p className="text-xs text-muted-foreground">Emails, flyers, and campaign assets</p>
             </div>
           </div>
+          <Badge variant="outline" className="text-[10px]">
+            {emailAssets.length + campaignAssets.length} saved
+          </Badge>
         </div>
 
         <div className="flex-1 overflow-auto">
-          <div className="max-w-[1200px] mx-auto p-6 space-y-8">
+          <div className="max-w-4xl mx-auto p-6 space-y-8">
 
-            {/* ── Create new section ── */}
+            {/* Create new */}
             <section>
-              <div className="flex items-center gap-2 mb-4">
-                <Plus className="h-4 w-4 text-muted-foreground" />
-                <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Create New</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Create New</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {CREATE_OPTIONS.map((opt) => (
                   <button
                     key={opt.key}
                     onClick={() => navigate(opt.url)}
-                    className="group relative flex flex-col text-left p-5 rounded-2xl border-2 border-border bg-card hover:border-primary/40 hover:shadow-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                    className="group flex flex-col gap-3 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-accent/30 transition-all text-left"
                   >
-                    {/* Icon */}
-                    <div className={cn(
-                      "h-12 w-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md mb-4 group-hover:scale-105 transition-transform",
-                      opt.gradient
-                    )}>
-                      <opt.icon className="h-6 w-6 text-white" />
+                    <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center", opt.bg)}>
+                      <opt.icon className={cn("h-4 w-4", opt.color)} />
                     </div>
-
-                    {/* Badge */}
-                    <Badge className={cn("text-[9px] h-4 px-1.5 mb-2 w-fit", opt.badgeColor)}>
-                      {opt.badge}
-                    </Badge>
-
-                    {/* Text */}
-                    <p className="text-sm font-bold mb-1 text-foreground">{opt.title}</p>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed flex-1">{opt.desc}</p>
-
-                    {/* Arrow */}
-                    <div className="flex items-center gap-1 mt-4 text-primary text-[11px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                      Start <ArrowRight className="h-3 w-3" />
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="text-xs font-semibold">{opt.title}</span>
+                        {opt.badge && (
+                          <Badge variant="secondary" className="text-[9px] h-4 px-1 py-0">{opt.badge}</Badge>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground leading-snug">{opt.desc}</p>
                     </div>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary/60 transition-colors" />
                   </button>
                 ))}
               </div>
             </section>
 
-            {/* ── Saved work ── */}
+            {/* Saved work */}
             <section>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Layers className="h-4 w-4 text-muted-foreground" />
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Saved Work</h2>
-                </div>
-                {/* Tab toggle */}
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Saved Work</p>
                 <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
-                  <button
-                    onClick={() => setActiveTab("emails")}
-                    className={cn(
-                      "px-3 py-1 text-[11px] font-semibold rounded-md transition-all",
-                      activeTab === "emails" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    Emails ({emailAssets.length})
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("flyers")}
-                    className={cn(
-                      "px-3 py-1 text-[11px] font-semibold rounded-md transition-all",
-                      activeTab === "flyers" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    Flyers ({campaignAssets.length})
-                  </button>
+                  {(["emails", "flyers"] as const).map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={cn(
+                        "px-3 py-1 text-[11px] font-semibold rounded-md transition-all capitalize",
+                        activeTab === tab ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {tab} ({tab === "emails" ? emailAssets.length : campaignAssets.length})
+                    </button>
+                  ))}
                 </div>
               </div>
 
               {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="h-48 rounded-xl border border-border bg-muted/30 animate-pulse" />
+                <div className="space-y-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-16 rounded-lg border border-border bg-muted/30 animate-pulse" />
                   ))}
                 </div>
               ) : activeAssets.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-border rounded-2xl text-center">
-                  <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mb-3">
-                    {activeTab === "emails" ? <Mail className="h-5 w-5 text-muted-foreground/50" /> : <FileText className="h-5 w-5 text-muted-foreground/50" />}
-                  </div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    No {activeTab === "emails" ? "emails" : "flyers"} saved yet
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1 mb-4 max-w-xs">
-                    {activeTab === "emails"
-                      ? "Create a Project Email or Exclusive Offer above and save it to find it here."
-                      : "Create a Campaign Flyer above and save it to re-use it any time."}
+                <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-border rounded-xl text-center">
+                  {activeTab === "emails"
+                    ? <Mail className="h-8 w-8 text-muted-foreground/30 mb-2" />
+                    : <FileText className="h-8 w-8 text-muted-foreground/30 mb-2" />}
+                  <p className="text-sm font-medium text-muted-foreground">No {activeTab} saved yet</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1 mb-3 max-w-xs">
+                    Create one above and save it to find it here.
                   </p>
                   <Button
                     variant="outline"
@@ -246,7 +216,7 @@ export default function AdminMarketingHub() {
                   </Button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="space-y-1.5">
                   {activeAssets.map(asset => {
                     const fd = asset.form_data || {};
                     const isEmail = fd._type === "ai-email" || !fd.plans;
@@ -257,75 +227,65 @@ export default function AdminMarketingHub() {
                     return (
                       <div
                         key={asset.id}
-                        className="group rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all overflow-hidden"
+                        className="group flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-card hover:border-primary/30 hover:bg-accent/20 transition-all"
                       >
-                        {/* Thumbnail */}
-                        <div className="h-28 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
-                          {(fd.heroImage || fd.thumbnail_url) ? (
-                            <img
-                              src={fd.heroImage || fd.thumbnail_url}
-                              alt=""
-                              className="w-full h-full object-cover opacity-70"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              {isEmail
-                                ? <Mail className="h-8 w-8 text-white/15" />
-                                : <FileText className="h-8 w-8 text-white/15" />}
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                          <div className="absolute bottom-2 left-3 right-3">
-                            <p className="text-white text-xs font-bold truncate">
-                              {fd.projectName || asset.project_name || "Untitled"}
-                            </p>
-                            {fd.city && <p className="text-white/50 text-[10px]">{fd.city}</p>}
-                          </div>
-                          <div className="absolute top-2 right-2">
-                            <Badge className={cn(
-                              "text-[9px] h-4 px-1.5",
-                              isEmail ? "bg-emerald-500/80 text-white border-0" : "bg-violet-500/80 text-white border-0"
-                            )}>
-                              {isEmail ? "Email" : "Flyer"}
-                            </Badge>
-                          </div>
+                        {/* Icon */}
+                        <div className={cn(
+                          "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
+                          isEmail ? "bg-emerald-500/10" : "bg-violet-500/10"
+                        )}>
+                          {isEmail
+                            ? <Mail className="h-4 w-4 text-emerald-600" />
+                            : <FileText className="h-4 w-4 text-violet-600" />}
                         </div>
 
                         {/* Info */}
-                        <div className="p-3">
-                          <p className="text-xs font-semibold truncate mb-1">{asset.name}</p>
-                          <div className="flex items-center gap-1 mb-3">
-                            <Clock className="h-3 w-3 text-muted-foreground/50" />
-                            <span className="text-[10px] text-muted-foreground">{timeAgo(asset.updated_at)}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold truncate">{asset.name}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {(fd.projectName || asset.project_name) && (
+                              <span className="text-[11px] text-muted-foreground truncate">
+                                {fd.projectName || asset.project_name}
+                                {fd.city && ` · ${fd.city}`}
+                              </span>
+                            )}
+                            <span className="text-muted-foreground/30 text-[11px]">·</span>
+                            <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60 shrink-0">
+                              <Clock className="h-3 w-3" />
+                              {timeAgo(asset.updated_at)}
+                            </span>
                           </div>
-                          <div className="flex gap-1.5">
-                            <Button
-                              size="sm"
-                              className="flex-1 h-7 text-[11px] gap-1"
-                              onClick={() => navigate(openUrl)}
-                            >
-                              <ChevronRight className="h-3 w-3" /> Open
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-7 w-7 shrink-0"
-                              onClick={() => handleDuplicate(asset)}
-                              title="Duplicate"
-                            >
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-7 w-7 shrink-0 hover:border-destructive hover:text-destructive"
-                              disabled={deleting === asset.id}
-                              onClick={() => handleDelete(asset.id, asset.name)}
-                              title="Delete"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-1.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-3 text-xs"
+                            onClick={() => navigate(openUrl)}
+                          >
+                            Open
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => handleDuplicate(asset)}
+                            title="Duplicate"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 hover:text-destructive"
+                            disabled={deleting === asset.id}
+                            onClick={() => handleDelete(asset.id, asset.name)}
+                            title="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
                         </div>
                       </div>
                     );
