@@ -262,6 +262,7 @@ export default function DashboardDeckBuilder() {
       setContactPhone(data.contact_phone || "");
       setContactEmail(data.contact_email || "");
       setContactWhatsapp(data.contact_whatsapp || "");
+      setFloorPlansPdfUrl(data.floor_plans_pdf_url || "");
       setSlug(data.slug || "");
       setIsPublished(data.is_published || false);
       if (data.linked_project_id) {
