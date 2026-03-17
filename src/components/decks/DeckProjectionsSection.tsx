@@ -67,7 +67,7 @@ function Row({ label, value, green, bold, sub }: { label: string; value: string;
 
 export function DeckProjectionsSection({ projections, defaultPrice, floorPlans = [] }: DeckProjectionsSectionProps) {
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
-  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(() => floorPlans?.[0]?.id ?? "");
   const [downPct, setDownPct] = useState(20);
   const [rate, setRate] = useState(3.79);
   const [amort, setAmort] = useState(30);
@@ -192,13 +192,6 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider shrink-0">Unit:</span>
                 <div className="flex flex-wrap gap-1.5">
-                  <button
-                    onClick={() => setSelectedPlanId("")}
-                    className={cn(
-                      "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all touch-manipulation",
-                      !selectedPlanId ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-background border-border text-muted-foreground hover:border-primary/40"
-                    )}
-                  >Default</button>
                   {floorPlans.map((plan) => (
                     <button
                       key={plan.id}
