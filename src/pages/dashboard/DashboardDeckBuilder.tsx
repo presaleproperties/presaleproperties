@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import {
   Plus, Trash2, Loader2, Upload, Image, ArrowUp, ArrowDown,
   ChevronDown, ChevronUp, Save, Eye, Search, Building2, Sparkles, X,
-  Wand2, User, TrendingUp, DollarSign,
+  Wand2, User, TrendingUp, DollarSign, Copy, ExternalLink,
 } from "lucide-react";
 
 const UNIT_TYPES = ["Studio", "1 Bed", "1 Bed + Den", "2 Bed", "2 Bed + Den", "3 Bed", "Townhouse"];
