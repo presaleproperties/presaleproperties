@@ -57,10 +57,10 @@ export default function DeckPublicPage() {
         .from("pitch_decks")
         .select("*")
         .eq("slug", slug)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
-        navigate("/404", { replace: true });
+        setLoading(false);
         return;
       }
       // If not published, only allow if user owns it (checked client-side as best-effort)
