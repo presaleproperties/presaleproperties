@@ -367,13 +367,13 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   {/* Cash at closing — dark card */}
                   <div className="rounded-2xl bg-foreground text-background p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] text-background/50 font-bold uppercase tracking-wider">Total Cash Required</span>
+                      <span className="text-[10px] text-background/50 font-bold uppercase tracking-wider">Total Money Needed</span>
                       <span className="text-2xl font-black text-background">{fmt(results.totalCashNeeded)}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-3">
                       {[
-                        { label: "Deposits", value: results.totalDeposits },
-                        { label: "At Closing", value: results.cashAtClosing },
+                        { label: "Pre-Construction Deposits", value: results.totalDeposits },
+                        { label: "Due on Move-In", value: results.cashAtClosing },
                       ].map(({ label, value }) => (
                         <div key={label} className="bg-background/8 rounded-xl p-3 text-center">
                           <div className="text-[10px] text-background/45 uppercase font-semibold mb-1">{label}</div>
@@ -382,20 +382,20 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                       ))}
                     </div>
                     <div className="border-t border-background/15 pt-3 space-y-1.5 text-[12px]">
-                      <div className="text-[10px] text-background/40 font-bold uppercase mb-2">Closing Detail</div>
+                      <div className="text-[10px] text-background/40 font-bold uppercase mb-2">Move-In Day Breakdown</div>
                       <div className="flex justify-between">
-                        <span className="text-background/60">Remaining Down</span>
+                        <span className="text-background/60">Remaining Down Payment</span>
                         <span className="font-semibold">{fmt(results.remainingDown)}</span>
                       </div>
                       {includeGST && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">GST (5%)</span>
+                          <span className="text-background/60">GST — Federal Tax (5%)</span>
                           <span className="font-semibold">{fmt(results.gst)}</span>
                         </div>
                       )}
                       {includeGST && isFirstTimeBuyer && results.gstRebate > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">GST Rebate (FTB)</span>
+                          <span className="text-background/60">GST Rebate (First-Time Buyer)</span>
                           <span className="font-semibold text-green-400">-{fmt(results.gstRebate)}</span>
                         </div>
                       )}
@@ -407,18 +407,18 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                       )}
                       {isFirstTimeBuyer && results.pttRaw > 0 && results.ptt === 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">PTT (Exempt FTB)</span>
+                          <span className="text-background/60">Property Transfer Tax (Waived)</span>
                           <span className="font-semibold text-green-400">$0</span>
                         </div>
                       )}
                       <div className="flex justify-between">
-                        <span className="text-background/60">Legal & Closing</span>
+                        <span className="text-background/60">Lawyer / Notary Fees</span>
                         <span className="font-semibold">{fmt(results.legalFees)}</span>
                       </div>
                       {results.cmhc > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">CMHC Premium</span>
-                          <span className="font-semibold">{fmt(results.cmhc)} <span className="text-background/30 text-[10px]">(in mortgage)</span></span>
+                          <span className="text-background/60">Mortgage Insurance (CMHC)</span>
+                          <span className="font-semibold">{fmt(results.cmhc)} <span className="text-background/30 text-[10px]">(added to mortgage)</span></span>
                         </div>
                       )}
                     </div>
