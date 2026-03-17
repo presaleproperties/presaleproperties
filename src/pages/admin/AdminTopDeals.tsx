@@ -491,7 +491,7 @@ export default function AdminTopDeals() {
         {/* ── SLIDE 2: GALLERY ──────────────────────────────────────── */}
         {slide === "gallery" && (
           <div className="h-full flex flex-col animate-fade-in bg-black">
-            {/* Main image */}
+            {/* Main image — maximum real estate, object-cover fills the frame */}
             <div className="flex-1 relative overflow-hidden">
               {photos.length > 0 ? (
                 <>
@@ -499,32 +499,38 @@ export default function AdminTopDeals() {
                     key={photoIndex}
                     src={photos[photoIndex]}
                     alt=""
-                    className="h-full w-full object-contain animate-fade-in"
+                    className="h-full w-full object-cover animate-fade-in"
                   />
-                  {/* Nav */}
+                  {/* Subtle gradient at bottom for thumbnail contrast */}
+                  <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
+
+                  {/* Project name — top left */}
+                  <div className="absolute top-5 left-5">
+                    <p className="text-white/90 text-xs font-bold uppercase tracking-widest drop-shadow">{displayName}</p>
+                  </div>
+
+                  {/* Counter pill — top right */}
+                  <div className="absolute top-5 right-5 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-white/90 font-semibold tabular-nums">
+                    {photoIndex + 1} / {photos.length}
+                  </div>
+
+                  {/* Nav arrows */}
                   {photos.length > 1 && (
                     <>
                       <button
                         onClick={() => setPhotoIndex((i) => (i - 1 + photos.length) % photos.length)}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/70 transition-colors text-white"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black/40 backdrop-blur-sm border border-white/15 flex items-center justify-center hover:bg-black/65 transition-all text-white shadow-lg"
                       >
                         <ArrowLeft className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setPhotoIndex((i) => (i + 1) % photos.length)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/70 transition-colors text-white"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black/40 backdrop-blur-sm border border-white/15 flex items-center justify-center hover:bg-black/65 transition-all text-white shadow-lg"
                       >
                         <ArrowRight className="h-4 w-4" />
                       </button>
-                      <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-white font-medium">
-                        {photoIndex + 1} / {photos.length}
-                      </div>
                     </>
                   )}
-                  {/* Project name overlay */}
-                  <div className="absolute top-4 left-4">
-                    <p className="text-white/80 text-xs font-semibold uppercase tracking-widest">{displayName}</p>
-                  </div>
                 </>
               ) : (
                 <div className="h-full flex items-center justify-center">
@@ -533,16 +539,18 @@ export default function AdminTopDeals() {
               )}
             </div>
 
-            {/* Thumbnail strip */}
+            {/* Thumbnail strip — compact, 56px tall */}
             {photos.length > 1 && (
-              <div className="shrink-0 h-20 bg-black/80 border-t border-white/10 flex items-center gap-2 px-4 overflow-x-auto">
+              <div className="shrink-0 h-14 bg-black flex items-center gap-1.5 px-3 overflow-x-auto scrollbar-none">
                 {photos.map((url, i) => (
                   <button
                     key={i}
                     onClick={() => setPhotoIndex(i)}
                     className={cn(
-                      "shrink-0 h-14 w-20 rounded-md overflow-hidden border-2 transition-all",
-                      i === photoIndex ? "border-primary opacity-100" : "border-transparent opacity-40 hover:opacity-70"
+                      "shrink-0 h-10 w-[calc(100%/8)] min-w-[56px] max-w-[72px] rounded overflow-hidden transition-all duration-200",
+                      i === photoIndex
+                        ? "ring-2 ring-primary opacity-100 scale-105"
+                        : "opacity-35 hover:opacity-60 ring-0"
                     )}
                   >
                     <img src={url} alt="" className="h-full w-full object-cover" />
