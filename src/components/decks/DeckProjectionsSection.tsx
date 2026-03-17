@@ -143,7 +143,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
               <p className="text-sm font-semibold text-green-800 dark:text-green-300">First-Time Buyer Advantages Applied</p>
               <p className="text-xs text-green-700 dark:text-green-400 mt-0.5">
                 {price <= 1100000 ? "Full PTT exemption on new construction (BC 2024) · " : price <= 1150000 ? "Partial PTT exemption (BC 2024) · " : ""}
-                {price <= 1000000 ? "GST new housing rebate available" : "GST rebate phased out above $1M"}
+                {price <= 1000000 ? "100% GST rebate on new construction ≤ $1M (BC 2024)" : price < 1200000 ? "Partial GST rebate ($1M–$1.2M)" : "No GST rebate above $1.2M"}
               </p>
             </div>
           </div>
@@ -270,7 +270,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
             </div>
 
             <p className="text-[11px] text-muted-foreground">
-              * BC 2024 new construction rules. PTT exemption for FTB ≤$1.1M. GST rebate for primary residence ≤$1M. Consult a licensed advisor.
+              * BC 2024 new construction rules. PTT exemption for FTB ≤$1.1M. 100% GST rebate (primary residence, new build) ≤$1M — partial rebate $1M–$1.2M. Consult a licensed advisor.
             </p>
           </div>
 

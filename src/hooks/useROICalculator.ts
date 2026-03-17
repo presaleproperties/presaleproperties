@@ -85,12 +85,19 @@ export function calculateCMHCInsurance(principal: number, downPaymentPercent: nu
   return Math.round(principal * 0.04);
 }
 
-// Calculate GST New Housing Rebate (for primary residence / first-time buyers)
+// Calculate GST New Housing Rebate — BC 2024 New Construction rules.
+// First-Time Buyers purchasing a NEW BUILD as primary residence:
+//   Full 100% GST rebate (net GST = $0) on homes priced ≤ $1,000,000.
+//   Partial rebate phases out from $1,000,001 to $1,200,000 (linear).
+//   No rebate above $1,200,000.
+// Investors do NOT qualify — rebate is $0 regardless of price.
 export function calculateGSTRebate(price: number, gstAmount: number): number {
-  if (price <= 350000) {
-    return Math.round(gstAmount * 0.36);
-  } else if (price < 450000) {
-    return Math.round(gstAmount * 0.36 * (1 - (price - 350000) / 100000));
+  if (price <= 1000000) {
+    return Math.round(gstAmount); // 100% rebate
+  } else if (price < 1200000) {
+    // Linear phase-out: full rebate at $1M, zero at $1.2M
+    const fraction = (1200000 - price) / 200000;
+    return Math.round(gstAmount * fraction);
   }
   return 0;
 }
