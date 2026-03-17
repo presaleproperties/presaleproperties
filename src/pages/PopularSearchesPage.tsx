@@ -175,7 +175,7 @@ export default function PopularSearchesPage() {
                           {neighborhoods.slice(0, 5).map((neighborhood) => (
                             <li key={neighborhood}>
                               <Link 
-                                to={`/resale/${citySlug}/${getNeighborhoodSlug(neighborhood)}/townhomes`}
+                                to={`/properties/${citySlug}/${getNeighborhoodSlug(neighborhood)}/townhomes`}
                                 className="text-primary hover:underline text-sm"
                               >
                                 New Townhomes in {neighborhood}
