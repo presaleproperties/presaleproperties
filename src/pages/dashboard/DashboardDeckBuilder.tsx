@@ -423,6 +423,7 @@ export default function DashboardDeckBuilder() {
       is_published: isPublished, linked_project_id: linkedProjectId,
       lat: lat ? parseFloat(lat) : null,
       lng: lng ? parseFloat(lng) : null,
+      floor_plans_pdf_url: floorPlansPdfUrl || null,
     };
     let error;
     if (isEdit && id) {
