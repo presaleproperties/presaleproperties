@@ -39,7 +39,7 @@ const PROPERTY_TYPES = [
   { slug: "homes", label: "Homes", icon: HomeIcon },
 ];
 
-// Helper to generate URL
+// Helper to generate URL — always use /properties/ (canonical), never /resale/
 const getCitySlug = (city: string) => city.toLowerCase().replace(/\s+/g, "-");
 const getNeighborhoodSlug = (n: string) => n.toLowerCase().replace(/\s+/g, "-").replace(/'/g, "");
 
