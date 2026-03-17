@@ -263,17 +263,12 @@ export default function AdminTopDeals() {
 
     // Rebates / closing costs
     // GST: 5% on new presales
-    // FTB New Housing Rebate (federal): max $6,300 for homes ≤ $350k (36% of GST); phases out linearly to $0 at $450k
+    // Updated FTB rebate (Canada 2024): 100% GST rebate for first-time buyers on new homes ≤ $1M
     // Investors do NOT qualify for any GST rebate
     const gstFull = calcPrice * 0.05;
     let gstRebate = 0;
-    if (buyerType === "ftb") {
-      if (calcPrice <= 350000) {
-        gstRebate = Math.min(gstFull * 0.36, 6300);
-      } else if (calcPrice < 450000) {
-        const partial = (450000 - calcPrice) / 100000;
-        gstRebate = Math.min(gstFull * 0.36, 6300) * partial;
-      }
+    if (buyerType === "ftb" && calcPrice <= 1000000) {
+      gstRebate = gstFull; // 100% rebate
     }
     const netGST = gstFull - gstRebate;
 
