@@ -859,15 +859,33 @@ export default function AdminTopDeals() {
                   <p className="text-white/40 text-xs mt-2">Based on {downPct}% down · {rate}% rate · {amort}yr</p>
                 </div>
 
-                {/* Floor plan summary */}
-                {floorPlans.some(fp => fp.metrics?.interiorSqft) && (
-                  <div className="mt-6 space-y-2 hidden md:block">
-                    {floorPlans.map((fp, i) => fp.metrics?.interiorSqft ? (
-                      <div key={i} className="flex items-center justify-between text-sm">
-                        <span className="text-white/50">{fp.metrics.planName || `Plan ${i + 1}`} · {fp.metrics.unitType}</span>
-                        <span className="text-white font-semibold">{fp.metrics.interiorSqft} sqft</span>
-                      </div>
-                    ) : null)}
+                {/* Floor plan + rent summary */}
+                {floorPlans.length > 0 && (
+                  <div className="mt-6 space-y-3 hidden md:block">
+                    {floorPlans.map((fp, i) => {
+                      const m = fp.metrics;
+                      const sqft = m?.interior_sqft ?? m?.interiorSqft;
+                      const label = m?.floor_plan_name || m?.planName || `Plan ${i + 1}`;
+                      const type = m?.unit_type || m?.unitType;
+                      const rent = fp.customRent ? parseInt(fp.customRent.replace(/\D/g, "")) : 0;
+                      const cf = rent ? rent - calc.total : null;
+                      return (
+                        <div key={i} className="rounded-xl bg-white/5 border border-white/10 p-3 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/80 text-xs font-semibold">{label}{type ? ` · ${type}` : ""}</span>
+                            {sqft && <span className="text-white/50 text-xs">{sqft} sqft</span>}
+                          </div>
+                          {rent > 0 && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-white/50 text-xs">Rent {fmt(rent)}/mo</span>
+                              <span className={`text-xs font-bold ${cf! >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                                {cf! >= 0 ? "+" : ""}{fmt(cf!)}/mo cashflow
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -876,9 +894,24 @@ export default function AdminTopDeals() {
             {/* Right: calculator */}
             <div className="md:w-96 bg-card border-l border-border overflow-y-auto">
               <div className="p-6 space-y-5">
+                {/* Price override */}
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1">Purchase Price</p>
-                  <p className="text-2xl font-bold text-primary">{fmt(calcPrice)}</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1.5">Purchase Price</p>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder={selected.starting_price ? selected.starting_price.toLocaleString() : "Enter price"}
+                      value={customCalcPrice}
+                      onChange={e => {
+                        const val = e.target.value.replace(/[^0-9]/g, "");
+                        setCustomCalcPrice(val ? parseInt(val).toLocaleString() : "");
+                      }}
+                      className="w-full h-10 pl-9 pr-3 rounded-xl border border-border bg-background text-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-1">Calculating at {fmt(calcPrice)}</p>
                 </div>
 
                 <div className="space-y-4 pt-2 border-t border-border">
@@ -921,10 +954,34 @@ export default function AdminTopDeals() {
                   <CalcRow label="Est. Property Tax" value={`${fmt(calc.tax)}/mo`} muted />
                   <CalcRow label="Est. Strata Fee" value={`${fmt(calc.strata)}/mo`} muted />
                   <div className="flex justify-between items-center pt-3 border-t border-border">
-                    <span className="font-bold text-sm">Total Monthly</span>
+                    <span className="font-bold text-sm">Total Monthly Cost</span>
                     <span className="text-2xl font-bold text-primary">{fmt(calc.total)}</span>
                   </div>
                 </div>
+
+                {/* Rent vs cost for each plan */}
+                {floorPlans.some(fp => fp.customRent) && (
+                  <div className="pt-3 border-t border-border space-y-2">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Rental Cashflow</p>
+                    {floorPlans.map((fp, i) => {
+                      if (!fp.customRent) return null;
+                      const rent = parseInt(fp.customRent.replace(/\D/g, "")) || 0;
+                      const cf = rent - calc.total;
+                      const label = fp.metrics?.floor_plan_name || fp.metrics?.planName || `Plan ${i + 1}`;
+                      return (
+                        <div key={i} className="flex items-center justify-between rounded-lg border border-border p-2.5">
+                          <div>
+                            <p className="text-xs font-semibold">{label}</p>
+                            <p className="text-[10px] text-muted-foreground">Rent {fmt(rent)}/mo</p>
+                          </div>
+                          <span className={`text-sm font-bold ${cf >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+                            {cf >= 0 ? "+" : ""}{fmt(cf)}/mo
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 <p className="text-[10px] text-muted-foreground text-center">
                   Estimates only — consult a mortgage broker
