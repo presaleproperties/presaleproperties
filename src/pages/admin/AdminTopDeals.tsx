@@ -675,10 +675,10 @@ export default function AdminTopDeals() {
                               {fp.metrics.balconySqft && (
                                 <MetricPill label="Outdoor" value={`${fp.metrics.balconySqft} sqft`} />
                               )}
-                              {fp.metrics.interiorSqft && selected.min_price && (
+                              {fp.metrics.interiorSqft && selected.starting_price && (
                                 <MetricPill
                                   label="$/sqft"
-                                  value={formatCurrency(Math.round(selected.min_price / fp.metrics.interiorSqft))}
+                                  value={formatCurrency(Math.round(selected.starting_price / fp.metrics.interiorSqft))}
                                   accent
                                 />
                               )}
