@@ -104,15 +104,15 @@ function calculatePTT(
     rebate = provincial;
     exemptionType = "Primary Residence New Home Exemption";
   }
-  // Priority 2: First-Time Home Buyer exemption (resale or new)
+  // Priority 2: First-Time Home Buyer exemption on new construction (BC April 2024+)
+  // Full exemption ≤ $1,100,000 | Partial $1,100,001–$1,150,000
   else if (isFirstTimeBuyer) {
-    // BC FTB exemption: full up to $500K, partial $500K-$525K
-    if (price <= 500000) {
+    if (price <= 1100000) {
       rebate = provincial; // Full exemption
-      exemptionType = "First-Time Buyer Exemption";
-    } else if (price < 525000) {
-      // Partial exemption - phases out between $500K and $525K
-      rebate = provincial * (1 - (price - 500000) / 25000);
+      exemptionType = "First-Time Buyer Exemption (New Construction)";
+    } else if (price < 1150000) {
+      // Partial exemption - phases out between $1.1M and $1.15M
+      rebate = provincial * (1150000 - price) / 50000;
       exemptionType = "First-Time Buyer Exemption (partial)";
     }
   }
