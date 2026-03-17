@@ -1,16 +1,21 @@
+import { useState, useMemo } from "react";
+import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
-import { MortgageCalculator } from "./MortgageCalculator";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Cell, ReferenceLine,
 } from "recharts";
-import { TrendingUp, DollarSign, Percent, Home } from "lucide-react";
+import {
+  TrendingUp, DollarSign, Percent, Home, Users, Building2,
+  ChevronDown, Info, CheckCircle2, AlertCircle,
+} from "lucide-react";
+import {
+  calculatePTT,
+  calculateGST,
+  calculateGSTRebate,
+  calculateCMHCInsurance,
+} from "@/hooks/useROICalculator";
+import { FloorPlan } from "./FloorPlanModal";
 
 export interface Projections {
   rental_min?: number;
@@ -23,6 +28,7 @@ export interface Projections {
 interface DeckProjectionsSectionProps {
   projections: Projections;
   defaultPrice?: number;
+  floorPlans?: FloorPlan[];
 }
 
 function formatCAD(n: number) {
@@ -33,91 +39,384 @@ function formatCAD(n: number) {
   }).format(n);
 }
 
-export function DeckProjectionsSection({ projections, defaultPrice }: DeckProjectionsSectionProps) {
+function parsePriceFromString(s?: string): number | null {
+  if (!s) return null;
+  const num = parseFloat(s.replace(/[^0-9.]/g, ""));
+  return isNaN(num) ? null : num;
+}
+
+const AMORTIZATION_OPTIONS = [25, 30];
+const DEFAULT_RATE = 3.8;
+
+export function DeckProjectionsSection({
+  projections,
+  defaultPrice,
+  floorPlans = [],
+}: DeckProjectionsSectionProps) {
+  const [buyerType, setBuyerType] = useState<"ftb" | "investor">("investor");
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+  const [downPct, setDownPct] = useState(20);
+  const [rate, setRate] = useState(DEFAULT_RATE);
+  const [amort, setAmort] = useState(30);
+  const [includePTT, setIncludePTT] = useState(true);
+  const [includeGST, setIncludeGST] = useState(true);
+
+  // Determine active price from selected plan or default
+  const selectedPlan = floorPlans.find((p) => p.id === selectedPlanId);
+  const planPrice = selectedPlan ? parsePriceFromString(selectedPlan.price_from) : null;
+  const price = Math.min(Math.max(planPrice ?? defaultPrice ?? 799900, 300000), 3000000);
+
   const appreciation = projections.appreciation || [4, 5, 5.5, 6, 6.5];
+  const isFirstTimeBuyer = buyerType === "ftb";
 
-  const chartData = appreciation.map((pct, i) => ({
-    year: `Yr ${i + 1}`,
-    pct,
-  }));
+  // Mortgage calc
+  const mortgageCalc = useMemo(() => {
+    const downAmt = Math.round((price * downPct) / 100);
+    const principal = price - downAmt;
+    const cmhc = calculateCMHCInsurance(principal, downPct);
+    const mortgageAmount = principal + cmhc;
+    const r = rate / 100 / 12;
+    const n = amort * 12;
+    const monthly = r === 0
+      ? mortgageAmount / n
+      : (mortgageAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    return { downAmt, principal, cmhc, mortgageAmount, monthly };
+  }, [price, downPct, rate, amort]);
 
-  const totalAppreciation5yr = appreciation.reduce((acc, pct) => acc * (1 + pct / 100), 1) - 1;
-  const price = defaultPrice ?? 799900;
-  const projectedValue = Math.round(price * (1 + totalAppreciation5yr));
+  // Closing cost calc
+  const closingCosts = useMemo(() => {
+    const gst = includeGST ? calculateGST(price) : 0;
+    const gstRebate = isFirstTimeBuyer && includeGST ? calculateGSTRebate(price, gst) : 0;
+    const ptt = includePTT ? calculatePTT(price, isFirstTimeBuyer) : 0;
+    const legalFees = 2000;
+    const totalCosts = gst - gstRebate + ptt + legalFees;
+    const cashNeeded = mortgageCalc.downAmt + totalCosts;
+    return { gst, gstRebate, ptt, legalFees, totalCosts, cashNeeded };
+  }, [price, isFirstTimeBuyer, includePTT, includeGST, mortgageCalc.downAmt]);
+
+  // Appreciation projections
+  const chartData = appreciation.map((pct, i) => {
+    const projValue = price * appreciation.slice(0, i + 1).reduce((acc, p) => acc * (1 + p / 100), 1);
+    return { year: `Yr ${i + 1}`, pct, value: Math.round(projValue) };
+  });
+  const totalAppr5yr = appreciation.reduce((acc, pct) => acc * (1 + pct / 100), 1) - 1;
+  const projectedValue5yr = Math.round(price * (1 + totalAppr5yr));
+  const equity5yr = projectedValue5yr - price;
+
+  // Rental yield
+  const avgRent = projections.rental_min && projections.rental_max
+    ? Math.round((projections.rental_min + projections.rental_max) / 2)
+    : null;
+  const grossYield = avgRent ? ((avgRent * 12) / price) * 100 : null;
+  const netYield = grossYield ? grossYield * 0.75 : null; // ~25% expenses
 
   const stats = [
     {
-      icon: DollarSign,
-      label: "Rental Estimate",
-      value:
-        projections.rental_min && projections.rental_max
-          ? `${formatCAD(projections.rental_min)}–${formatCAD(projections.rental_max)}/mo`
-          : "TBD",
-    },
-    {
-      icon: Percent,
-      label: "Cap Rate",
-      value:
-        projections.cap_rate_min != null && projections.cap_rate_max != null
-          ? `${projections.cap_rate_min}–${projections.cap_rate_max}%`
-          : "TBD",
+      icon: Home,
+      label: "Projected Value (5yr)",
+      value: formatCAD(projectedValue5yr),
+      sub: `+${formatCAD(equity5yr)} equity`,
+      positive: true,
     },
     {
       icon: TrendingUp,
       label: "5-Year Appreciation",
-      value: `~${(totalAppreciation5yr * 100).toFixed(1)}%`,
+      value: `~${(totalAppr5yr * 100).toFixed(1)}%`,
+      sub: appreciation.map((p) => `${p}%`).join(" · "),
+      positive: true,
     },
     {
-      icon: Home,
-      label: "Projected Value",
-      value: formatCAD(projectedValue),
+      icon: DollarSign,
+      label: "Rental Estimate",
+      value: avgRent ? `${formatCAD(avgRent)}/mo` : "TBD",
+      sub: avgRent ? `${formatCAD(avgRent * 12)}/yr gross` : "Contact for details",
+      positive: true,
+    },
+    {
+      icon: Percent,
+      label: buyerType === "investor" ? "Net Yield" : "Gross Yield",
+      value: netYield != null ? `${netYield.toFixed(1)}%` : "TBD",
+      sub: buyerType === "investor" ? "After est. expenses" : "Annual rental return",
+      positive: true,
     },
   ];
 
   return (
-    <section id="projections" className="relative py-24 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <section id="projections" className="relative py-24 bg-muted/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Watermark */}
-        <div className="absolute top-8 right-8 text-[180px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
+        <div className="absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
           05
         </div>
 
-        <div className="mb-12 space-y-2">
-          <p className="text-primary text-sm font-semibold uppercase tracking-widest">05 — Projections</p>
+        <div className="mb-10 space-y-2">
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Projections</p>
           <h2 className="text-4xl font-bold text-foreground">Investment Outlook</h2>
+          <p className="text-muted-foreground text-sm mt-1">
+            BC 2024 tax rules applied. Toggle your buyer profile for personalized numbers.
+          </p>
         </div>
 
-        {/* Top stat cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+        {/* Buyer type toggle + plan selector row */}
+        <div className="flex flex-wrap items-center gap-4 mb-10 p-4 rounded-2xl bg-background border border-border/50">
+          {/* Buyer toggle */}
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/50 border border-border/40">
+            <button
+              onClick={() => setBuyerType("investor")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                buyerType === "investor"
+                  ? "bg-background shadow-sm border border-border/60 text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Building2 className="h-4 w-4" />
+              Investor
+            </button>
+            <button
+              onClick={() => setBuyerType("ftb")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                buyerType === "ftb"
+                  ? "bg-background shadow-sm border border-border/60 text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Users className="h-4 w-4" />
+              First-Time Buyer
+            </button>
+          </div>
+
+          {/* Plan selector */}
+          {floorPlans.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Unit:</span>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => setSelectedPlanId("")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                    !selectedPlanId
+                      ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                      : "bg-background border-border text-muted-foreground hover:border-primary/40"
+                  }`}
+                >
+                  Default
+                </button>
+                {floorPlans.map((plan) => (
+                  <button
+                    key={plan.id}
+                    onClick={() => setSelectedPlanId(plan.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                      selectedPlanId === plan.id
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                        : "bg-background border-border text-muted-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {plan.unit_type}
+                    {plan.price_from && (
+                      <span className="ml-1.5 opacity-70">{plan.price_from}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Current price */}
+          <div className="ml-auto text-right shrink-0">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Calculating for</p>
+            <p className="text-lg font-bold text-primary">{formatCAD(price)}</p>
+          </div>
+        </div>
+
+        {/* FTB savings banner */}
+        {isFirstTimeBuyer && (
+          <div className="mb-8 flex items-start gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+            <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-green-800 dark:text-green-300">
+                First-Time Buyer Advantages Applied
+              </p>
+              <p className="text-xs text-green-700 dark:text-green-400 mt-0.5">
+                {price <= 1100000
+                  ? `Full PTT exemption on new construction (BC 2024) · `
+                  : price <= 1150000
+                  ? "Partial PTT exemption (BC 2024) · "
+                  : ""}
+                {price <= 1000000 ? "GST new housing rebate available" : "GST rebate phased out above $1M"}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {stats.map((stat) => (
-            <Card key={stat.label} className="overflow-hidden">
+            <Card key={stat.label} className="overflow-hidden border-border/50 hover:border-primary/30 transition-colors">
               <CardContent className="p-4 sm:p-5">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-3">
                   <div className="p-1.5 rounded-lg bg-primary/10">
                     <stat.icon className="h-4 w-4 text-primary" />
                   </div>
-                  <span className="text-xs text-muted-foreground font-medium">{stat.label}</span>
+                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider leading-tight">
+                    {stat.label}
+                  </span>
                 </div>
-                <p className="text-lg sm:text-xl font-bold text-foreground">{stat.value}</p>
+                <p className="text-xl font-bold text-foreground">{stat.value}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{stat.sub}</p>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Two column: mortgage calc + chart */}
+        {/* Two-column: calculator + chart */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Mortgage calculator */}
-          <div>
-            <h3 className="text-xl font-bold text-foreground mb-6">Live Mortgage Calculator</h3>
-            <MortgageCalculator defaultPrice={defaultPrice} />
+          {/* ── Mortgage + Closing Calculator ── */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-foreground">Monthly Payment Calculator</h3>
+
+            {/* Sliders */}
+            <div className="space-y-5">
+              {/* Down Payment */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-foreground">Down Payment</span>
+                  <span className="text-sm font-bold text-primary">{downPct}% · {formatCAD(mortgageCalc.downAmt)}</span>
+                </div>
+                <Slider min={5} max={50} step={1} value={[downPct]} onValueChange={([v]) => setDownPct(v)} />
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                  <span>5% min</span>
+                  <span>50%</span>
+                </div>
+              </div>
+
+              {/* Interest Rate */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-foreground">Interest Rate</span>
+                  <span className="text-sm font-bold text-primary">{rate.toFixed(1)}%</span>
+                </div>
+                <Slider min={2} max={9} step={0.1} value={[rate]} onValueChange={([v]) => setRate(parseFloat(v.toFixed(1)))} />
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                  <span>2%</span>
+                  <span>9%</span>
+                </div>
+              </div>
+
+              {/* Amortization */}
+              <div>
+                <p className="text-sm font-medium text-foreground mb-2">Amortization</p>
+                <div className="flex gap-2">
+                  {AMORTIZATION_OPTIONS.map((yr) => (
+                    <button
+                      key={yr}
+                      onClick={() => setAmort(yr)}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
+                        amort === yr
+                          ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                          : "bg-background border-border text-muted-foreground hover:border-primary/40"
+                      }`}
+                    >
+                      {yr} yr
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Monthly payment result */}
+            <Card className="bg-primary/5 border-primary/20">
+              <CardContent className="p-5">
+                <div className="text-center mb-4">
+                  <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Est. Monthly Payment</p>
+                  <p className="text-4xl font-bold text-primary">{formatCAD(mortgageCalc.monthly)}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formatCAD(mortgageCalc.mortgageAmount)} mortgage · {rate}% · {amort} yr
+                    {mortgageCalc.cmhc > 0 && ` · CMHC insured`}
+                  </p>
+                </div>
+                {mortgageCalc.cmhc > 0 && (
+                  <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2 mb-3">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>CMHC premium {formatCAD(mortgageCalc.cmhc)} added (under 20% down)</span>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-primary/10">
+                  <div className="text-center">
+                    <p className="text-[10px] text-muted-foreground">Down Payment</p>
+                    <p className="text-sm font-bold text-foreground">{formatCAD(mortgageCalc.downAmt)}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[10px] text-muted-foreground">Mortgage Amount</p>
+                    <p className="text-sm font-bold text-foreground">{formatCAD(mortgageCalc.mortgageAmount)}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Closing Costs Breakdown */}
+            <div className="rounded-xl border border-border/50 overflow-hidden">
+              <div className="bg-muted/40 px-4 py-2.5 flex items-center justify-between">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                  Cash Needed at Closing
+                </p>
+                {isFirstTimeBuyer && (
+                  <span className="text-[10px] font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 px-2 py-0.5 rounded-full">
+                    FTB Benefits
+                  </span>
+                )}
+              </div>
+              <div className="divide-y divide-border/40">
+                {[
+                  { label: "Down Payment", value: mortgageCalc.downAmt, positive: false },
+                  ...(includeGST ? [
+                    { label: "GST (5%)", value: closingCosts.gst, positive: false },
+                    ...(isFirstTimeBuyer && closingCosts.gstRebate > 0
+                      ? [{ label: "GST Rebate (FTB)", value: -closingCosts.gstRebate, positive: true }]
+                      : []
+                    ),
+                  ] : []),
+                  ...(includePTT ? [
+                    { label: `PTT${isFirstTimeBuyer && closingCosts.ptt === 0 ? " (Exempt)" : ""}`, value: closingCosts.ptt, positive: closingCosts.ptt === 0 },
+                  ] : []),
+                  { label: "Legal Fees (est.)", value: closingCosts.legalFees, positive: false },
+                ].map(({ label, value, positive }) => (
+                  <div key={label} className="flex justify-between px-4 py-2.5 text-sm">
+                    <span className={`${positive ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`}>{label}</span>
+                    <span className={`font-semibold ${positive ? "text-green-600 dark:text-green-400" : "text-foreground"}`}>
+                      {positive && value < 0 ? `-${formatCAD(Math.abs(value))}` : value === 0 ? "$0" : formatCAD(value)}
+                    </span>
+                  </div>
+                ))}
+                <div className="flex justify-between px-4 py-3 bg-muted/30 font-bold">
+                  <span className="text-sm text-foreground">Total Cash Needed</span>
+                  <span className="text-sm text-primary">{formatCAD(closingCosts.cashNeeded)}</span>
+                </div>
+              </div>
+
+              {/* Toggles */}
+              <div className="flex gap-4 px-4 py-3 border-t border-border/40 bg-muted/20">
+                <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+                  <input type="checkbox" checked={includeGST} onChange={(e) => setIncludeGST(e.target.checked)} className="accent-primary h-3 w-3" />
+                  Include GST
+                </label>
+                <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+                  <input type="checkbox" checked={includePTT} onChange={(e) => setIncludePTT(e.target.checked)} className="accent-primary h-3 w-3" />
+                  Include PTT
+                </label>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground">
+              * Based on BC 2024 new construction rules. PTT exemption for FTB ≤$1.1M. GST rebate applies for primary residence ≤$1M. Consult a licensed advisor.
+            </p>
           </div>
 
-          {/* Bar chart */}
-          <div>
-            <h3 className="text-xl font-bold text-foreground mb-6">5-Year Appreciation Forecast</h3>
+          {/* ── Appreciation Chart ── */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-foreground">5-Year Value Forecast</h3>
+
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} barCategoryGap="30%">
+                <BarChart data={chartData} barCategoryGap="35%">
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis
                     dataKey="year"
@@ -130,47 +429,80 @@ export function DeckProjectionsSection({ projections, defaultPrice }: DeckProjec
                     tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                     axisLine={false}
                     tickLine={false}
+                    domain={[0, Math.max(...appreciation) + 2]}
                   />
                   <Tooltip
-                    formatter={(v: number) => [`${v}%`, "Appreciation"]}
+                    formatter={(v: number, name: string) => {
+                      if (name === "pct") return [`${v}%`, "Annual Appreciation"];
+                      return [formatCAD(v as number), "Projected Value"];
+                    }}
                     contentStyle={{
                       background: "hsl(var(--background))",
                       border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
+                      borderRadius: "10px",
+                      fontSize: "12px",
                     }}
                   />
-                  <Bar dataKey="pct" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="pct" radius={[6, 6, 0, 0]} name="pct">
                     {chartData.map((_, i) => (
-                      <Cell key={i} fill="hsl(var(--primary))" opacity={0.7 + i * 0.06} />
+                      <Cell key={i} fill="hsl(var(--primary))" opacity={0.6 + i * 0.08} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            {/* Rental yield table */}
-            {projections.rental_min && projections.rental_max && (
-              <div className="mt-6 rounded-xl border border-border/50 overflow-hidden">
-                <div className="bg-muted/50 px-4 py-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-                    Rental Yield Snapshot
-                  </p>
-                </div>
-                <div className="divide-y divide-border/50">
+            {/* 5-year summary card */}
+            <Card className="border-border/50 overflow-hidden">
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-4 py-3 border-b border-primary/15">
+                <p className="text-xs font-semibold text-primary uppercase tracking-widest">5-Year Summary</p>
+              </div>
+              <CardContent className="p-0">
+                <div className="divide-y divide-border/40">
                   {[
-                    ["Monthly Rent Range", `${formatCAD(projections.rental_min)} – ${formatCAD(projections.rental_max)}`],
-                    ["Annual Gross Income", `${formatCAD(projections.rental_min * 12)} – ${formatCAD(projections.rental_max * 12)}`],
-                    ["Cap Rate", projections.cap_rate_min != null && projections.cap_rate_max != null
-                      ? `${projections.cap_rate_min}% – ${projections.cap_rate_max}%`
-                      : "—"],
+                    ["Purchase Price", formatCAD(price)],
+                    ["Projected Value", formatCAD(projectedValue5yr)],
+                    ["Equity Gain", formatCAD(equity5yr)],
+                    ["Total Appreciation", `${(totalAppr5yr * 100).toFixed(1)}%`],
                   ].map(([k, v]) => (
                     <div key={k} className="flex justify-between px-4 py-3 text-sm">
                       <span className="text-muted-foreground">{k}</span>
-                      <span className="font-semibold text-foreground">{v}</span>
+                      <span className={`font-bold ${k === "Equity Gain" ? "text-primary" : "text-foreground"}`}>{v}</span>
                     </div>
                   ))}
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+
+            {/* Rental yield table */}
+            {projections.rental_min && projections.rental_max && (
+              <Card className="border-border/50 overflow-hidden">
+                <div className="bg-muted/40 px-4 py-3 border-b border-border/40">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                    {buyerType === "investor" ? "Investor Rental Yield" : "Rental Income Potential"}
+                  </p>
+                </div>
+                <CardContent className="p-0">
+                  <div className="divide-y divide-border/40">
+                    {[
+                      ["Monthly Rent Range", `${formatCAD(projections.rental_min!)} – ${formatCAD(projections.rental_max!)}`],
+                      ["Annual Gross Income", `${formatCAD(projections.rental_min! * 12)} – ${formatCAD(projections.rental_max! * 12)}`],
+                      ...(buyerType === "investor"
+                        ? [["Net Income (est. 75%)", `${formatCAD(Math.round(projections.rental_min! * 12 * 0.75))} – ${formatCAD(Math.round(projections.rental_max! * 12 * 0.75))}`]]
+                        : []
+                      ),
+                      ["Cap Rate", projections.cap_rate_min != null && projections.cap_rate_max != null
+                        ? `${projections.cap_rate_min}% – ${projections.cap_rate_max}%`
+                        : "—"],
+                    ].map(([k, v]) => (
+                      <div key={k} className="flex justify-between px-4 py-3 text-sm">
+                        <span className="text-muted-foreground">{k}</span>
+                        <span className="font-semibold text-foreground">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>
