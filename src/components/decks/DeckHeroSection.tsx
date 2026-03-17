@@ -105,7 +105,7 @@ export function DeckHeroSection({
         className="absolute bottom-28 sm:bottom-6 left-0 right-0 flex flex-col items-center gap-1 z-10 cursor-pointer"
         onClick={onFloorPlansClick}
       >
-        <span className="text-white/80 text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest drop-shadow-md animate-bounce">Your Exclusive Floor Plans &amp; Pricing</span>
+        <span className="text-white/80 text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest drop-shadow-md animate-bounce">View Plans &amp; Pricing</span>
         <ChevronDown className="h-5 w-5 text-white/80 drop-shadow-md animate-bounce" />
       </div>
     </section>
