@@ -7,9 +7,17 @@ interface GalleryLightboxProps {
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
+  onJumpTo?: (index: number) => void;
 }
 
-export function GalleryLightbox({ images, currentIndex, onClose, onPrev, onNext }: GalleryLightboxProps) {
+export function GalleryLightbox({
+  images,
+  currentIndex,
+  onClose,
+  onPrev,
+  onNext,
+  onJumpTo,
+}: GalleryLightboxProps) {
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
   const thumbnailRef = useRef<HTMLDivElement>(null);
@@ -40,7 +48,7 @@ export function GalleryLightbox({ images, currentIndex, onClose, onPrev, onNext 
     if (active) active.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
   }, [currentIndex]);
 
-  // Touch swipe handlers
+  // Touch swipe on main image area
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
@@ -50,7 +58,6 @@ export function GalleryLightbox({ images, currentIndex, onClose, onPrev, onNext 
     if (touchStartX.current === null || touchStartY.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     const dy = e.changedTouches[0].clientY - touchStartY.current;
-    // Only trigger if horizontal swipe is dominant and > 40px
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
       dx < 0 ? onNext() : onPrev();
     }
@@ -84,11 +91,11 @@ export function GalleryLightbox({ images, currentIndex, onClose, onPrev, onNext 
 
       {/* Main image area — swipeable */}
       <div
-        className="flex-1 flex items-center justify-center relative min-h-0 select-none"
+        className="flex-1 flex items-center justify-center relative min-h-0 select-none px-0 sm:px-16"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Prev arrow — hidden on mobile (use swipe) */}
+        {/* Prev arrow — desktop only */}
         {images.length > 1 && (
           <button
             className="hidden sm:flex absolute left-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10 touch-manipulation items-center justify-center"
@@ -99,10 +106,10 @@ export function GalleryLightbox({ images, currentIndex, onClose, onPrev, onNext 
           </button>
         )}
 
-        {/* Loading shimmer */}
+        {/* Loading spinner */}
         {!imgLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-white/60 animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-white/70 animate-spin" />
           </div>
         )}
 
@@ -111,16 +118,16 @@ export function GalleryLightbox({ images, currentIndex, onClose, onPrev, onNext 
           src={images[currentIndex]}
           alt={`Gallery image ${currentIndex + 1}`}
           onLoad={() => setImgLoaded(true)}
-          className="max-w-full max-h-full object-contain rounded-md"
+          className="max-w-full max-h-full object-contain rounded-md pointer-events-none"
           style={{
-            maxHeight: "calc(100dvh - 130px)",
+            maxHeight: "calc(100dvh - 140px)",
             opacity: imgLoaded ? 1 : 0,
-            transition: "opacity 0.2s ease",
+            transition: "opacity 0.25s ease",
           }}
           draggable={false}
         />
 
-        {/* Next arrow — hidden on mobile */}
+        {/* Next arrow — desktop only */}
         {images.length > 1 && (
           <button
             className="hidden sm:flex absolute right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10 touch-manipulation items-center justify-center"
@@ -131,10 +138,10 @@ export function GalleryLightbox({ images, currentIndex, onClose, onPrev, onNext 
           </button>
         )}
 
-        {/* Mobile swipe hint — only shows briefly on first open */}
+        {/* Mobile swipe indicator */}
         {images.length > 1 && (
-          <div className="sm:hidden absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm">
-            <span className="text-white/60 text-[11px] tracking-wide">Swipe to browse</span>
+          <div className="sm:hidden absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm pointer-events-none">
+            <span className="text-white/50 text-[11px] tracking-wide">Swipe to browse</span>
           </div>
         )}
       </div>
@@ -143,30 +150,14 @@ export function GalleryLightbox({ images, currentIndex, onClose, onPrev, onNext 
       {images.length > 1 && (
         <div
           ref={thumbnailRef}
-          className="shrink-0 px-3 pt-2 flex gap-2 overflow-x-auto bg-black/80"
+          className="shrink-0 px-3 pt-2 flex gap-2 overflow-x-auto bg-black/80 scrollbar-hide"
           style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
-          onClick={(e) => e.stopPropagation()}
         >
           {images.map((img, i) => (
             <button
               key={i}
               data-index={i}
-              onClick={() => {
-                // Jump directly: call prev/next enough times
-                // Better: parent exposes a setIndex via onJump prop
-                // For now, simulate by firing the correct number of steps
-                let target = i;
-                let current = currentIndex;
-                if (target === current) return;
-                // Choose shortest path
-                const forward = (target - current + images.length) % images.length;
-                const backward = (current - target + images.length) % images.length;
-                if (forward <= backward) {
-                  for (let j = 0; j < forward; j++) onNext();
-                } else {
-                  for (let j = 0; j < backward; j++) onPrev();
-                }
-              }}
+              onClick={() => onJumpTo?.(i)}
               className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
                 i === currentIndex
                   ? "border-primary opacity-100 scale-105"
