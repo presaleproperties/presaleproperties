@@ -2073,7 +2073,10 @@ export type Database = {
           hero_image_url: string | null
           id: string
           is_published: boolean
+          lat: number | null
           latitude: number | null
+          linked_project_id: string | null
+          lng: number | null
           longitude: number | null
           project_name: string
           projections: Json
@@ -2100,7 +2103,10 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           is_published?: boolean
+          lat?: number | null
           latitude?: number | null
+          linked_project_id?: string | null
+          lng?: number | null
           longitude?: number | null
           project_name?: string
           projections?: Json
@@ -2127,7 +2133,10 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           is_published?: boolean
+          lat?: number | null
           latitude?: number | null
+          linked_project_id?: string | null
+          lng?: number | null
           longitude?: number | null
           project_name?: string
           projections?: Json
