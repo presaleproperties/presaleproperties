@@ -998,6 +998,8 @@ export default function AdminTopDeals() {
           </div>
         )}
 
+      </div>{/* end flex-1 slide area */}
+
       {/* ── FLOOR PLAN ZOOM MODAL ─────────────────────────────────── */}
       {floorPlanZoom && floorPlans[activePlanIndex] && (
         <div
