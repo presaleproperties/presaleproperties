@@ -51,10 +51,10 @@ export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName 
         </div>
 
         <div className="mb-8 sm:mb-12 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">02 — Available Units</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Choose Your Unit</h2>
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">02 — Hand-Picked For You</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Top Picked Units</h2>
           <p className="text-muted-foreground text-sm max-w-xl mt-1">
-            Tap any unit to see the full layout, size, and starting price.
+            These are the best available units — tap any to see the full layout, size, and price.
           </p>
         </div>
 

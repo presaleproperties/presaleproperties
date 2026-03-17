@@ -1,4 +1,4 @@
-import { ChevronDown, Building2, Layers, Calendar, Users, MessageCircle } from "lucide-react";
+import { ChevronDown, Building2, Layers, Calendar, Users } from "lucide-react";
 
 interface DeckHeroSectionProps {
   projectName: string;
@@ -107,22 +107,7 @@ export function DeckHeroSection({
         </div>
       </div>
 
-      {/* Mobile WhatsApp CTA — pinned above bottom safe area */}
-      <div
-        className="sm:hidden absolute left-4 right-4 z-20"
-        style={{ bottom: "max(1.25rem, env(safe-area-inset-bottom))" }}
-      >
-        <a
-          href={`https://wa.me/${waNumber}?text=${waMessage}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2.5 w-full py-4 rounded-2xl text-white font-bold text-base shadow-2xl touch-manipulation active:scale-[0.98] transition-transform"
-          style={{ backgroundColor: "#25D366" }}
-        >
-          <MessageCircle className="h-5 w-5" />
-          I'm Interested
-        </a>
-      </div>
+      {/* Mobile CTA removed — handled by the persistent fixed footer bar */}
 
       {/* Scroll indicator — centered, above mobile CTA */}
       <div

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { GalleryLightbox } from "./GalleryLightbox";
-import { ImageIcon, Expand, Grid3x3 } from "lucide-react";
+import { ImageIcon, Grid3x3, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DeckGallerySectionProps {
   images: string[];
@@ -8,6 +8,7 @@ interface DeckGallerySectionProps {
 
 export function DeckGallerySection({ images }: DeckGallerySectionProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const stripRef = useRef<HTMLDivElement>(null);
 
   const handlePrev = () =>
     setLightboxIndex((i) => (i !== null ? (i - 1 + images.length) % images.length : 0));
@@ -15,65 +16,61 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
     setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : 0));
   const handleJumpTo = (i: number) => setLightboxIndex(i);
 
-  // Mobile: 2-up grid (like project pages) with hero first image spanning full width
+  // Mobile: hero image + horizontal snap-scroll strip below
   const mobileGrid = () => {
     if (images.length === 0) return null;
     const [first, ...rest] = images;
-    const previewRest = rest.slice(0, 5);
 
     return (
-      <div className="sm:hidden space-y-1.5">
-        {/* Hero image — full width */}
+      <div className="sm:hidden space-y-2">
+        {/* Hero image — 16:9, full width tap to open */}
         <button
           onClick={() => setLightboxIndex(0)}
-          className="w-full aspect-[16/9] overflow-hidden rounded-xl relative touch-manipulation active:opacity-90 transition-opacity"
+          className="relative w-full aspect-[16/9] overflow-hidden rounded-xl touch-manipulation active:opacity-90 transition-opacity"
         >
           <img
             src={first}
-            alt="Gallery 1"
+            alt="Gallery hero"
             className="w-full h-full object-cover"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-black/0 active:bg-black/10 transition-colors" />
+          {/* Photo count pill */}
+          <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white text-[11px] font-semibold px-2.5 py-1 rounded-full">
+            <Grid3x3 className="h-3 w-3" />
+            {images.length} photos
+          </div>
         </button>
 
-        {/* 2-column grid for remaining */}
-        {previewRest.length > 0 && (
-          <div className="grid grid-cols-2 gap-1.5">
-            {previewRest.map((img, i) => {
-              const isLast = i === previewRest.length - 1 && images.length > previewRest.length + 1;
-              return (
-                <button
-                  key={i + 1}
-                  onClick={() => setLightboxIndex(i + 1)}
-                  className="aspect-[4/3] overflow-hidden rounded-xl relative touch-manipulation active:opacity-90 transition-opacity"
-                >
-                  <img
-                    src={img}
-                    alt={`Gallery ${i + 2}`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  {isLast && (
-                    <div className="absolute inset-0 bg-black/55 flex items-center justify-center rounded-xl">
-                      <span className="text-white font-bold text-lg">+{images.length - previewRest.length} more</span>
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* View all button */}
-        {images.length > 1 && (
-          <button
-            onClick={() => setLightboxIndex(0)}
-            className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-foreground text-background text-sm font-semibold touch-manipulation active:opacity-90 transition-opacity mt-1"
+        {/* Horizontal snap-scroll thumbnail strip */}
+        {rest.length > 0 && (
+          <div
+            ref={stripRef}
+            className="flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-1"
+            style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
           >
-            <Grid3x3 className="h-4 w-4" />
-            View All {images.length} Photos
-          </button>
+            {rest.map((img, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setLightboxIndex(i + 1)}
+                className="snap-start shrink-0 w-24 h-20 rounded-lg overflow-hidden touch-manipulation active:opacity-80 transition-opacity"
+              >
+                <img
+                  src={img}
+                  alt={`Photo ${i + 2}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </button>
+            ))}
+            {/* View all tile */}
+            <button
+              onClick={() => setLightboxIndex(0)}
+              className="snap-start shrink-0 w-24 h-20 rounded-lg bg-foreground/90 flex flex-col items-center justify-center gap-1 touch-manipulation"
+            >
+              <Grid3x3 className="h-4 w-4 text-background" />
+              <span className="text-background text-[10px] font-bold">All Photos</span>
+            </button>
+          </div>
         )}
       </div>
     );
@@ -96,9 +93,10 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
             loading="eager"
           />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
-          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="bg-background/80 backdrop-blur-sm rounded-lg p-1.5">
-              <Expand className="h-4 w-4 text-foreground" />
+          <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-background/80 backdrop-blur-sm rounded-lg px-3 py-1.5 flex items-center gap-1.5 text-xs font-semibold text-foreground">
+              <Grid3x3 className="h-3.5 w-3.5" />
+              View All {images.length} Photos
             </div>
           </div>
         </div>
@@ -128,22 +126,16 @@ export function DeckGallerySection({ images }: DeckGallerySectionProps) {
   };
 
   return (
-    <section id="gallery" className="relative py-12 sm:py-24 bg-background">
+    <section id="gallery" className="relative py-8 sm:py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Watermark — desktop only */}
         <div className="hidden sm:block absolute top-8 right-8 text-[180px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
           03
         </div>
 
-        <div className="mb-6 sm:mb-12 space-y-1.5">
+        <div className="mb-4 sm:mb-12 space-y-1">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">03 — Gallery</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Project Photos</h2>
-          {images.length > 0 && (
-            <p className="text-muted-foreground text-sm sm:hidden">Tap any photo to view full screen</p>
-          )}
-          {images.length > 0 && (
-            <p className="text-muted-foreground text-sm hidden sm:block">Click any photo to view full screen</p>
-          )}
+          <h2 className="text-2xl sm:text-4xl font-bold text-foreground">Project Photos</h2>
         </div>
 
         {images.length === 0 ? (
