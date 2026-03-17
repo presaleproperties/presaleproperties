@@ -114,15 +114,18 @@ export function FloorPlanModal({ plan, onClose, allPlans }: FloorPlanModalProps)
                   </div>
                 </div>
               )}
-              {plan.price_per_sqft && (
-                <div className="flex items-center gap-2">
-                  <Square className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
-                    <p className="text-sm font-semibold text-foreground">{plan.price_per_sqft}</p>
+              {(() => {
+                const psf = derivePsf(plan);
+                return psf ? (
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
+                      <p className="text-sm font-bold text-primary">{psf} <span className="font-normal text-muted-foreground">/ sqft</span></p>
+                    </div>
                   </div>
-                </div>
-              )}
+                ) : null;
+              })()}
             </div>
 
             {/* CTA */}
