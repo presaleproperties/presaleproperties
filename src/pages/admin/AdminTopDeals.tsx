@@ -132,7 +132,7 @@ export default function AdminTopDeals() {
       setLoadingProjects(true);
       const { data } = await (supabase as any)
         .from("presale_projects")
-        .select("id,name,city,neighborhood,developer_name,min_price,max_price,estimated_completion,deposit_structure,description,photos,gallery_images,hero_image,address,latitude,longitude,status")
+        .select("id,name,city,neighborhood,developer_name,starting_price,completion_year,deposit_structure,short_description,gallery_images,featured_image,address,map_lat,map_lng,status,project_type")
         .order("name");
       setProjects(data || []);
       setLoadingProjects(false);
