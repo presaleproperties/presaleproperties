@@ -5,6 +5,7 @@ import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { DeckHeroSection } from "@/components/decks/DeckHeroSection";
 import { DeckFloorPlansSection } from "@/components/decks/DeckFloorPlansSection";
+import { DeckFloorPlansPdfSection } from "@/components/decks/DeckFloorPlansPdfSection";
 import { DeckGallerySection } from "@/components/decks/DeckGallerySection";
 import { DeckLocationSection } from "@/components/decks/DeckLocationSection";
 import { DeckProjectionsSection } from "@/components/decks/DeckProjectionsSection";
