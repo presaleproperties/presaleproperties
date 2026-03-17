@@ -309,9 +309,9 @@ export default function AdminTopDeals() {
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-sm truncate text-foreground">{p.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{p.city}{p.neighborhood ? ` · ${p.neighborhood}` : ""}</p>
-                        {p.min_price && (
+                        {p.starting_price && (
                           <p className="text-xs font-medium text-primary mt-1">
-                            From {formatCurrency(p.min_price)}
+                            From {formatCurrency(p.starting_price)}
                           </p>
                         )}
                       </div>
