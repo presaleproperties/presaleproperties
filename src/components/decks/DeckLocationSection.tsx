@@ -170,6 +170,20 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
 
       <div ref={mapContainerRef} className="w-full h-[280px] sm:h-[360px] lg:h-[460px]" />
 
+      {/* Zoom controls */}
+      <div className="absolute top-3 right-3 z-[1000] flex flex-col gap-1">
+        <button
+          onClick={() => mapRef.current?.zoomIn()}
+          className="w-9 h-9 rounded-lg bg-background/95 backdrop-blur-sm border border-border/60 shadow-md flex items-center justify-center text-foreground hover:bg-muted transition-colors touch-manipulation text-lg font-light leading-none"
+          aria-label="Zoom in"
+        >+</button>
+        <button
+          onClick={() => mapRef.current?.zoomOut()}
+          className="w-9 h-9 rounded-lg bg-background/95 backdrop-blur-sm border border-border/60 shadow-md flex items-center justify-center text-foreground hover:bg-muted transition-colors touch-manipulation text-lg font-light leading-none"
+          aria-label="Zoom out"
+        >−</button>
+      </div>
+
       {/* Filter pills */}
       <div className="absolute bottom-2 left-2 right-2 z-[1000] flex justify-center gap-1">
         {amenityCategories.map(({ key, icon: Icon, label }) => {
