@@ -238,8 +238,128 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
           )}
         </div>
 
-        {/* Info panel — mirrors LocationDeepDive */}
-        <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6 mb-6">
+        {/* Two-column: compact info left, map right */}
+        <div className="grid lg:grid-cols-[300px_1fr] gap-4 items-start">
+
+          {/* Left: compact info panel */}
+          <div className="bg-muted/30 rounded-xl border border-border/40 p-4 space-y-4">
+
+            {/* Walk & Transit Scores */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-background rounded-lg p-3 border border-border/50">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Footprints className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Walk</span>
+                </div>
+                <div>
+                  <span className={`text-xl font-bold ${getScoreColor(data.walkScore)}`}>{data.walkScore}</span>
+                  <span className="text-[10px] text-muted-foreground ml-0.5">/100</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{getScoreLabel(data.walkScore)}</p>
+              </div>
+              <div className="bg-background rounded-lg p-3 border border-border/50">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Train className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Transit</span>
+                </div>
+                <div>
+                  <span className={`text-xl font-bold ${getScoreColor(data.transitScore)}`}>{data.transitScore}</span>
+                  <span className="text-[10px] text-muted-foreground ml-0.5">/100</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{data.transitScore >= 70 ? "Excellent Transit" : "Some Transit"}</p>
+              </div>
+            </div>
+
+            {/* Transit */}
+            <div>
+              <h4 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                <Car className="h-3.5 w-3.5 text-primary" />
+                Transit & Access
+              </h4>
+              <ul className="space-y-1.5">
+                {data.landmarks.slice(0, 4).map((l, i) => (
+                  <li key={i} className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground truncate pr-2">{l.name}</span>
+                    <span className="flex items-center gap-1 font-medium text-foreground shrink-0">
+                      <Clock className="h-3 w-3 text-muted-foreground" />
+                      {l.distance}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Schools */}
+            <div>
+              <h4 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                <School className="h-3.5 w-3.5 text-primary" />
+                Schools
+              </h4>
+              <ul className="space-y-1.5">
+                {data.schools.slice(0, 3).map((s, i) => (
+                  <li key={i} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-muted-foreground truncate">{s.name}</span>
+                      <span className="text-[10px] bg-primary/10 text-primary px-1 py-0.5 rounded font-medium shrink-0">{s.rating}/10</span>
+                    </div>
+                    <span className="text-muted-foreground text-[10px] shrink-0 ml-2">{s.distance}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Shopping */}
+            <div>
+              <h4 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                <ShoppingBag className="h-3.5 w-3.5 text-primary" />
+                Shopping & Dining
+              </h4>
+              <ul className="space-y-1.5">
+                {data.shopping.slice(0, 3).map((s, i) => (
+                  <li key={i} className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground truncate pr-2">{s.name}</span>
+                    <span className="text-muted-foreground text-[10px] shrink-0">{s.distance}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* View on Map */}
+            {lat && lng && (
+              <Link
+                to={`/map-search?lat=${lat}&lng=${lng}&zoom=15`}
+                className="flex items-center justify-center gap-2 w-full py-2 px-3 bg-background border border-border rounded-lg text-xs font-medium text-foreground hover:bg-muted transition-colors"
+              >
+                <MapPin className="h-3.5 w-3.5 text-primary" />
+                View on Map
+              </Link>
+            )}
+          </div>
+
+          {/* Right: map */}
+          <div className="bg-muted/30 rounded-xl border border-border/40 p-3 overflow-hidden">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <h3 className="text-sm font-semibold text-foreground">Project Location</h3>
+              {lat && lng && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Google Maps
+                </a>
+              )}
+            </div>
+            <DeckMap lat={centerLat} lng={centerLng} projectName={projectName} address={address} />
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
           <div className="flex items-center gap-2 mb-5">
             <MapPin className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-bold text-foreground">Location & Neighborhood</h3>
