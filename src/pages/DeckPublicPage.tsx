@@ -123,7 +123,7 @@ export default function DeckPublicPage() {
     : undefined;
 
   return (
-    <>
+    <div className="overflow-x-hidden">
       <Helmet>
         <title>{deck.project_name} — Presale Investment Deck | Presale Properties</title>
         <meta name="description" content={`Exclusive presale opportunity: ${deck.project_name}${deck.city ? ` in ${deck.city}` : ""}. View floor plans, pricing, and investment projections.`} />
@@ -225,6 +225,6 @@ export default function DeckPublicPage() {
           contactWhatsapp={deck.contact_whatsapp || undefined}
         />
       </div>
-    </>
+    </div>
   );
 }

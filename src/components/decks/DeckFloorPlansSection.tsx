@@ -12,18 +12,18 @@ export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <section id="floor-plans" className="relative py-24 bg-muted/20">
+    <section id="floor-plans" className="relative py-16 sm:py-24 bg-muted/20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        {/* Watermark */}
-        <div className="absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
+        {/* Watermark — hidden on mobile to prevent overflow */}
+        <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
           02
         </div>
 
-        <div className="mb-12 space-y-2">
+        <div className="mb-8 sm:mb-12 space-y-2">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">02 — Floor Plans</p>
-          <h2 className="text-4xl font-bold text-foreground">Top Unit Picks</h2>
-          <p className="text-muted-foreground text-sm max-w-xl mt-2">
-            Click any unit to explore the full floor plan, sizing, and pricing details.
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Top Unit Picks</h2>
+          <p className="text-muted-foreground text-sm max-w-xl mt-1">
+            Tap any unit to explore the full floor plan, sizing, and pricing details.
           </p>
         </div>
 

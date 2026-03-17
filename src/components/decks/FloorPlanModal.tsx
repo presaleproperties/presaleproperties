@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, ZoomIn, ZoomOut, Square, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ZoomIn, ZoomOut, Square } from "lucide-react";
 
 export interface FloorPlan {
   id: string;
@@ -25,112 +24,91 @@ export function FloorPlanModal({ plan, onClose, allPlans }: FloorPlanModalProps)
 
   if (!plan) return null;
 
-  const currentIdx = allPlans?.findIndex((p) => p.id === plan.id) ?? -1;
-  const hasPrev = allPlans && currentIdx > 0;
-  const hasNext = allPlans && currentIdx < allPlans.length - 1;
-
   return (
     <Dialog open={!!plan} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden gap-0 border-border/50">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_280px]">
+      <DialogContent className="max-w-3xl p-0 overflow-hidden gap-0 border-border/50 max-h-[92dvh]">
+        {/* Mobile: stacked. Desktop: side-by-side */}
+        <div className="flex flex-col md:grid md:grid-cols-[1fr_260px] h-full overflow-auto md:overflow-hidden">
+
           {/* Image panel */}
-          <div className="relative bg-muted/30 flex items-center justify-center min-h-[300px] md:min-h-[420px] overflow-hidden">
+          <div className="relative bg-muted/30 flex items-center justify-center min-h-[240px] md:min-h-[420px] overflow-hidden order-1">
             {plan.image_url ? (
               <div
-                className={`w-full h-full cursor-zoom-${zoomed ? "out" : "in"} transition-transform duration-500 ${zoomed ? "scale-150" : "scale-100"} flex items-center justify-center p-4`}
+                className={`w-full h-full transition-transform duration-500 ${zoomed ? "scale-150 cursor-zoom-out" : "scale-100 cursor-zoom-in"} flex items-center justify-center p-4`}
                 onClick={() => setZoomed(!zoomed)}
               >
                 <img
                   src={plan.image_url}
                   alt={`${plan.unit_type} floor plan`}
-                  className="max-h-[380px] w-auto object-contain select-none"
+                  className="max-h-[320px] md:max-h-[380px] w-auto object-contain select-none"
                   draggable={false}
                 />
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center gap-3 opacity-30 py-16">
-                <div className="w-20 h-20 border-2 border-foreground/30 rounded-xl flex items-center justify-center">
-                  <Square className="h-8 w-8 text-foreground/40" />
+              <div className="flex flex-col items-center justify-center gap-3 opacity-30 py-12">
+                <div className="w-16 h-16 border-2 border-foreground/30 rounded-xl flex items-center justify-center">
+                  <Square className="h-7 w-7 text-foreground/40" />
                 </div>
                 <p className="text-sm text-muted-foreground">Floor plan preview coming soon</p>
               </div>
             )}
 
-            {/* Zoom hint */}
             {plan.image_url && (
               <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-background/70 backdrop-blur-sm rounded-full px-2.5 py-1 text-[10px] text-muted-foreground border border-border/40 pointer-events-none">
                 {zoomed ? <ZoomOut className="h-3 w-3" /> : <ZoomIn className="h-3 w-3" />}
-                <span>{zoomed ? "Click to zoom out" : "Click to zoom in"}</span>
+                <span className="hidden sm:inline">{zoomed ? "Tap to zoom out" : "Tap to zoom in"}</span>
               </div>
-            )}
-
-            {/* Navigation arrows */}
-            {hasPrev && (
-              <button
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center hover:bg-background transition-colors shadow-sm"
-                onClick={(e) => { e.stopPropagation(); /* handled by parent */ }}
-              >
-                <ChevronLeft className="h-4 w-4 text-foreground" />
-              </button>
-            )}
-            {hasNext && (
-              <button
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center hover:bg-background transition-colors shadow-sm"
-                onClick={(e) => { e.stopPropagation(); /* handled by parent */ }}
-              >
-                <ChevronRight className="h-4 w-4 text-foreground" />
-              </button>
             )}
           </div>
 
           {/* Info panel */}
-          <div className="flex flex-col p-6 border-l border-border/50 bg-background">
-            {/* Close */}
+          <div className="flex flex-col p-5 md:p-6 border-t md:border-t-0 md:border-l border-border/50 bg-background order-2">
+            {/* Close — top right always */}
             <button
               onClick={onClose}
-              className="self-end -mt-1 -mr-1 p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground mb-4"
+              className="self-end p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground mb-3"
             >
               <X className="h-4 w-4" />
             </button>
 
             {/* Unit type */}
-            <div className="space-y-1 mb-6">
+            <div className="mb-4">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Unit Type</p>
-              <h3 className="text-2xl font-bold text-foreground">{plan.unit_type}</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-foreground">{plan.unit_type}</h3>
             </div>
 
             {/* Price */}
-            <div className="rounded-xl bg-primary/8 border border-primary/15 p-4 mb-5">
+            <div className="rounded-xl bg-primary/8 border border-primary/15 p-4 mb-4">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Starting From</p>
-              <p className="text-3xl font-bold text-primary">{plan.price_from}</p>
+              <p className="text-2xl md:text-3xl font-bold text-primary">{plan.price_from}</p>
             </div>
 
-            {/* Size */}
-            {plan.size_range && (
-              <div className="flex items-center gap-2 mb-5 pb-5 border-b border-border/50">
-                <Square className="h-4 w-4 text-muted-foreground shrink-0" />
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Size</p>
-                  <p className="text-sm font-semibold text-foreground">{plan.size_range}</p>
+            {/* Size + psf */}
+            <div className="space-y-3 mb-4">
+              {plan.size_range && (
+                <div className="flex items-center gap-2 pb-3 border-b border-border/50">
+                  <Square className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Size</p>
+                    <p className="text-sm font-semibold text-foreground">{plan.size_range}</p>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Price / sqft */}
-            {plan.price_per_sqft && (
-              <div className="flex items-center gap-2 mb-auto pb-5 border-b border-border/50">
-                <Square className="h-4 w-4 text-muted-foreground shrink-0" />
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
-                  <p className="text-sm font-semibold text-foreground">{plan.price_per_sqft}</p>
+              )}
+              {plan.price_per_sqft && (
+                <div className="flex items-center gap-2">
+                  <Square className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
+                    <p className="text-sm font-semibold text-foreground">{plan.price_per_sqft}</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* CTA */}
             <Button
-              className="w-full mt-6"
-              onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+              className="w-full mt-auto"
+              onClick={() => { onClose(); document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }); }}
             >
               Inquire About This Unit
             </Button>
