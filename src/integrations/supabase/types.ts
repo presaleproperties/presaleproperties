@@ -2057,6 +2057,90 @@ export type Database = {
         }
         Relationships: []
       }
+      pitch_decks: {
+        Row: {
+          address: string | null
+          city: string | null
+          completion_year: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          contact_whatsapp: string | null
+          created_at: string
+          developer_name: string | null
+          floor_plans: Json
+          gallery: Json
+          hero_image_url: string | null
+          id: string
+          is_published: boolean
+          latitude: number | null
+          longitude: number | null
+          project_name: string
+          projections: Json
+          proximity_highlights: Json
+          slug: string
+          stories: number | null
+          tagline: string | null
+          total_units: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          completion_year?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contact_whatsapp?: string | null
+          created_at?: string
+          developer_name?: string | null
+          floor_plans?: Json
+          gallery?: Json
+          hero_image_url?: string | null
+          id?: string
+          is_published?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          project_name?: string
+          projections?: Json
+          proximity_highlights?: Json
+          slug: string
+          stories?: number | null
+          tagline?: string | null
+          total_units?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          completion_year?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contact_whatsapp?: string | null
+          created_at?: string
+          developer_name?: string | null
+          floor_plans?: Json
+          gallery?: Json
+          hero_image_url?: string | null
+          id?: string
+          is_published?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          project_name?: string
+          projections?: Json
+          proximity_highlights?: Json
+          slug?: string
+          stories?: number | null
+          tagline?: string | null
+          total_units?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       presale_projects: {
         Row: {
           address: string | null
