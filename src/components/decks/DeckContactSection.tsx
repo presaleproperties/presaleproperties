@@ -49,7 +49,7 @@ const AGENTS: Record<string, {
   },
 };
 
-const REVIEWS = [
+// Reviews are loaded live from the database — no hardcoded data
   {
     name: "Harpreet S.",
     location: "Surrey, BC",
