@@ -628,20 +628,6 @@ export default function DashboardDeckBuilder() {
                   </div>
 
                   <div className="flex-1 grid grid-cols-2 gap-2">
-                    <div className="space-y-1 col-span-2">
-                      <div className="flex items-center gap-1">
-                        <Label className="text-xs">Unit Type</Label>
-                        {fp.beds != null && <Badge variant="secondary" className="text-[9px] h-4 px-1 ml-1"><Wand2 className="h-2.5 w-2.5 mr-0.5" />AI</Badge>}
-                      </div>
-                      <Select value={fp.unit_type} onValueChange={(v) => updateFloorPlan(fp.id, "unit_type", v)}>
-                        <SelectTrigger className="h-8 text-xs">
-                          <SelectValue placeholder="Select type…" />
-                        </SelectTrigger>
-                        <SelectContent position="popper" side="bottom">
-                          {UNIT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Price From</Label>
                       <Input className="h-8 text-xs" value={fp.price_from}
