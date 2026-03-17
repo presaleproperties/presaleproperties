@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, ZoomIn, ZoomOut, Square } from "lucide-react";
+import { X, ZoomIn, ZoomOut, Square, TrendingUp } from "lucide-react";
 
 export interface FloorPlan {
   id: string;
@@ -16,6 +16,21 @@ export interface FloorPlan {
   beds?: number | null;
   baths?: number | null;
   exposure?: string | null;
+}
+
+function derivePsf(plan: FloorPlan): string | null {
+  if (plan.price_per_sqft?.trim()) return plan.price_per_sqft;
+  const price = parseFloat((plan.price_from || "").replace(/[^0-9.]/g, ""));
+  const sqft = plan.interior_sqft;
+  if (price > 0 && sqft && sqft > 0) return `$${Math.round(price / sqft).toLocaleString()}`;
+  if (price > 0 && plan.size_range) {
+    const match = plan.size_range.match(/(\d[\d,]*)/);
+    if (match) {
+      const parsed = parseInt(match[1].replace(/,/g, ""), 10);
+      if (parsed > 100) return `$${Math.round(price / parsed).toLocaleString()}`;
+    }
+  }
+  return null;
 }
 
 interface FloorPlanModalProps {
