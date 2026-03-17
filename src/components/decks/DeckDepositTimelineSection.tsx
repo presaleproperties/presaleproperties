@@ -1,12 +1,12 @@
 import { useState, useMemo } from "react";
-import { CheckCircle2, Circle, Clock, Home, DollarSign, TrendingUp, ChevronDown, ChevronUp, CalendarDays } from "lucide-react";
+import { CheckCircle2, Clock, Home, TrendingUp, ChevronDown, ChevronUp, CalendarDays, Key, FileSignature, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DepositStep {
   id: string;
-  label: string;          // e.g. "Upon Signing"
-  percent: number;        // e.g. 2.5
-  timing: string;         // e.g. "Due in 7 days"
+  label: string;
+  percent: number;
+  timing: string;
   note?: string;
 }
 
@@ -30,6 +30,8 @@ function calcMonthly(principal: number, annualRate = 5.24, years = 25) {
   return (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
 }
 
+const STEP_ICONS = [FileSignature, Clock, Clock, Clock, DollarSign];
+
 export function DeckDepositTimelineSection({
   depositSteps,
   projectName,
@@ -37,7 +39,7 @@ export function DeckDepositTimelineSection({
   defaultPrice,
 }: DeckDepositTimelineSectionProps) {
   const [price, setPrice] = useState(defaultPrice ?? DEFAULT_PRICE);
-  const [activeStep, setActiveStep] = useState<string | null>(null);
+  const [activeStep, setActiveStep] = useState<string | null>(depositSteps[0]?.id ?? null);
   const [showBreakdown, setShowBreakdown] = useState(false);
 
   const steps = depositSteps.length > 0 ? depositSteps : [];
@@ -49,217 +51,240 @@ export function DeckDepositTimelineSection({
   const totalDepositAmt = price * (totalDepositPct / 100);
   const balanceAtCompletion = price - totalDepositAmt;
 
-  // GST estimate (~5% on new builds, rebate may apply)
   const gstEstimate = price * 0.05;
   const gstRebate = price <= 1_000_000 ? Math.min(gstEstimate * 0.36, 6_300) : 0;
   const netGst = gstEstimate - gstRebate;
   const ptt = price <= 1_100_000 ? 0 : price <= 1_150_000 ? (price - 1_100_000) * 0.02 : (price * 0.02) - 8_000 + (price - 500_000) * 0.01;
-  const closingCosts = 1_800; // legal
+  const closingCosts = 1_800;
   const totalClosingCosts = netGst + ptt + closingCosts;
   const cashAtCompletion = balanceAtCompletion + totalClosingCosts;
-  const monthlyPayment = calcMonthly(balanceAtCompletion * 0.8); // 20% down assumed
   const mortgageBase = balanceAtCompletion * 0.8;
+  const monthlyPayment = calcMonthly(mortgageBase);
 
-  const priceFmt = fmt(price);
-  const priceK = Math.round(price / 1000);
-
-  // cumulative deposit up to step i
   const cumulative = (idx: number) =>
     steps.slice(0, idx + 1).reduce((a, s) => a + s.percent, 0);
 
+  // All nodes: deposit steps + completion
+  const allNodes = [
+    ...steps.map((s, i) => ({ ...s, isCompletion: false, idx: i })),
+    {
+      id: "__completion__",
+      label: "Completion & Keys",
+      percent: 100 - totalDepositPct,
+      timing: completionYear ? `Estimated ${completionYear}` : "Estimated completion",
+      note: `Balance of ${fmt(balanceAtCompletion)} financed via mortgage. GST, PTT & legal fees due at closing.`,
+      isCompletion: true,
+      idx: steps.length,
+    },
+  ];
+
   return (
-    <section id="deposit-timeline" className="relative py-14 sm:py-24 bg-muted/20 overflow-hidden">
+    <section id="deposit-timeline" className="relative py-14 sm:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Watermark */}
-        <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
-          05
-        </div>
+        <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">06</div>
 
         {/* Header */}
-        <div className="mb-8 sm:mb-12 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Payment Plan</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Deposit Timeline</h2>
+        <div className="mb-10 sm:mb-14 space-y-2">
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Payment Plan</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Roadmap to Completion</h2>
           <p className="text-muted-foreground text-sm max-w-xl">
-            Walk through every payment milestone — from signing day to your keys at completion.
+            Every payment milestone, from your signature to getting your keys — with live dollar amounts for your price.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-10 items-start">
+        {/* Price slider */}
+        <div className="mb-8 p-5 rounded-2xl border border-border/60 bg-card space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-foreground">Adjust Your Unit Price</p>
+            <span className="text-xl font-bold text-primary">{fmt(price)}</span>
+          </div>
+          <input
+            type="range"
+            min={300_000}
+            max={2_000_000}
+            step={10_000}
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            className="w-full accent-primary h-2 cursor-pointer"
+          />
+          <div className="flex justify-between text-[11px] text-muted-foreground">
+            <span>$300K</span><span>$2M</span>
+          </div>
+        </div>
 
-          {/* ── Left: Price slider + timeline ── */}
-          <div className="space-y-6">
-            {/* Price selector */}
-            <div className="p-5 rounded-2xl border border-border/60 bg-background space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-foreground">Your Unit Price</p>
-                <span className="text-xl font-bold text-primary">{priceFmt}</span>
-              </div>
-              <input
-                type="range"
-                min={300_000}
-                max={2_000_000}
-                step={10_000}
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-                className="w-full accent-primary h-2 cursor-pointer"
-              />
-              <div className="flex justify-between text-[11px] text-muted-foreground">
-                <span>$300K</span>
-                <span>$2M</span>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 lg:gap-12 items-start">
 
-            {/* Timeline steps */}
-            <div className="relative">
-              {/* Vertical connector line */}
-              <div className="absolute left-5 top-5 bottom-5 w-px bg-border/60" />
+          {/* ── Left: Vertical roadmap ── */}
+          <div className="relative">
+            {/* Connector line — full height behind nodes */}
+            <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-gradient-to-b from-primary via-primary/40 to-primary/20 z-0" />
 
-              <div className="space-y-2">
-                {steps.map((step, idx) => {
-                  const isActive = activeStep === step.id;
-                  const amt = price * (step.percent / 100);
-                  const cum = cumulative(idx);
-                  const cumAmt = price * (cum / 100);
+            <div className="space-y-0">
+              {allNodes.map((node, i) => {
+                const isActive = activeStep === node.id;
+                const amt = node.isCompletion ? balanceAtCompletion : price * (node.percent / 100);
+                const cum = node.isCompletion ? totalDepositPct : cumulative(node.idx);
+                const cumAmt = price * (cum / 100);
+                const isLast = i === allNodes.length - 1;
+                const StepIcon = node.isCompletion ? Key : (STEP_ICONS[node.idx] ?? Clock);
 
-                  return (
-                    <div key={step.id}>
+                return (
+                  <div key={node.id} className="relative flex gap-4 sm:gap-6 pb-0">
+                    {/* Node circle */}
+                    <div className="relative z-10 flex flex-col items-center shrink-0">
                       <button
                         type="button"
-                        onClick={() => setActiveStep(isActive ? null : step.id)}
+                        onClick={() => setActiveStep(isActive ? null : node.id)}
                         className={cn(
-                          "w-full text-left flex items-start gap-4 p-4 rounded-2xl border transition-all duration-200 touch-manipulation",
-                          isActive
-                            ? "border-primary/40 bg-primary/5 shadow-sm"
-                            : "border-border/50 bg-background hover:border-primary/25 hover:bg-primary/3"
+                          "h-12 w-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 shadow-md touch-manipulation",
+                          node.isCompletion
+                            ? "bg-primary border-primary text-primary-foreground scale-110 shadow-[0_0_0_4px_hsl(var(--primary)/0.15)]"
+                            : isActive
+                            ? "bg-primary border-primary text-primary-foreground"
+                            : "bg-card border-border/80 text-muted-foreground hover:border-primary/50"
                         )}
                       >
-                        {/* Step icon */}
-                        <div className={cn(
-                          "relative z-10 h-10 w-10 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors",
-                          isActive ? "bg-primary border-primary text-primary-foreground" : "bg-background border-border/60 text-muted-foreground"
-                        )}>
-                          {idx === steps.length - 1 ? (
-                            <Home className="h-4 w-4" />
-                          ) : idx === 0 ? (
-                            <CheckCircle2 className="h-4 w-4" />
-                          ) : (
-                            <Clock className="h-4 w-4" />
-                          )}
+                        <StepIcon className="h-5 w-5" />
+                      </button>
+                      {/* Step number badge */}
+                      {!node.isCompletion && (
+                        <span className="text-[9px] font-bold text-muted-foreground mt-1 uppercase tracking-wide">
+                          Step {node.idx + 1}
+                        </span>
+                      )}
+                      {node.isCompletion && (
+                        <span className="text-[9px] font-bold text-primary mt-1 uppercase tracking-wide">
+                          Keys
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Card */}
+                    <div className={cn(
+                      "flex-1 mb-4 rounded-2xl border transition-all duration-200",
+                      node.isCompletion
+                        ? "border-primary/30 bg-primary/5 shadow-sm"
+                        : isActive
+                        ? "border-primary/30 bg-primary/3 shadow-sm"
+                        : "border-border/50 bg-card hover:border-primary/20"
+                    )}>
+                      <button
+                        type="button"
+                        onClick={() => setActiveStep(isActive ? null : node.id)}
+                        className="w-full text-left p-4 sm:p-5 touch-manipulation"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className={cn(
+                              "font-bold text-base leading-tight",
+                              node.isCompletion ? "text-primary" : "text-foreground"
+                            )}>{node.label}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{node.timing}</p>
+                          </div>
+                          <div className="text-right shrink-0 flex items-center gap-2">
+                            <div>
+                              <p className="text-lg font-black text-primary leading-tight">{fmt(amt)}</p>
+                              <p className="text-[10px] text-muted-foreground text-right">
+                                {node.isCompletion ? `${(100 - totalDepositPct).toFixed(0)}% balance` : `${node.percent}%`}
+                              </p>
+                            </div>
+                            {!node.isCompletion && (
+                              isActive
+                                ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+                                : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                            )}
+                          </div>
                         </div>
 
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <p className="font-semibold text-sm text-foreground leading-tight">{step.label}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5">{step.timing}</p>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <p className="text-sm font-bold text-primary">{fmt(amt)}</p>
-                              <p className="text-[10px] text-muted-foreground">{step.percent}%</p>
-                            </div>
-                          </div>
+                        {/* Progress bar always visible */}
+                        <div className="mt-3 w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={cn("h-full rounded-full transition-all duration-500", node.isCompletion ? "bg-primary" : "bg-primary/70")}
+                            style={{ width: `${Math.min(node.isCompletion ? 100 : cum, 100)}%` }}
+                          />
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {node.isCompletion ? "100% of purchase price" : `${cum}% of purchase price secured`}
+                        </p>
+                      </button>
 
-                          {/* Expanded detail */}
-                          {isActive && (
-                            <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="text-muted-foreground">Deposit paid to date</span>
+                      {/* Expanded detail */}
+                      {isActive && (
+                        <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0 border-t border-border/40 mt-0 space-y-2">
+                          {!node.isCompletion && (
+                            <>
+                              <div className="flex items-center justify-between text-xs pt-3">
+                                <span className="text-muted-foreground">Cumulative deposits after this step</span>
                                 <span className="font-semibold text-foreground">{fmt(cumAmt)} ({cum}%)</span>
                               </div>
                               <div className="flex items-center justify-between text-xs">
-                                <span className="text-muted-foreground">Balance remaining</span>
+                                <span className="text-muted-foreground">Balance still remaining</span>
                                 <span className="font-semibold text-foreground">{fmt(price - cumAmt)}</span>
                               </div>
-                              {/* Progress bar */}
-                              <div className="w-full h-2 rounded-full bg-muted overflow-hidden mt-2">
-                                <div
-                                  className="h-full rounded-full bg-primary transition-all duration-500"
-                                  style={{ width: `${Math.min(cum, 100)}%` }}
-                                />
+                            </>
+                          )}
+                          {node.isCompletion && (
+                            <div className="pt-3 grid grid-cols-2 gap-2">
+                              <div className="rounded-xl bg-background border border-border/50 p-3 text-center">
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Balance Due</p>
+                                <p className="text-base font-black text-foreground">{fmt(balanceAtCompletion)}</p>
                               </div>
-                              <p className="text-[10px] text-muted-foreground">{cum}% of purchase price secured</p>
-                              {step.note && (
-                                <p className="text-[11px] text-muted-foreground bg-muted/40 rounded-lg px-3 py-2 mt-1">{step.note}</p>
-                              )}
+                              <div className="rounded-xl bg-background border border-border/50 p-3 text-center">
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Est. Monthly</p>
+                                <p className="text-base font-black text-primary">{fmt(monthlyPayment)}/mo</p>
+                              </div>
                             </div>
                           )}
+                          {node.note && (
+                            <p className="text-[11px] text-muted-foreground bg-muted/40 rounded-lg px-3 py-2 leading-relaxed">{node.note}</p>
+                          )}
                         </div>
-
-                        {/* Chevron */}
-                        <div className="shrink-0 mt-1">
-                          {isActive
-                            ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                            : <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                          }
-                        </div>
-                      </button>
+                      )}
                     </div>
-                  );
-                })}
-
-                {/* Completion step */}
-                <div className="w-full text-left flex items-start gap-4 p-4 rounded-2xl border border-primary/30 bg-primary/5">
-                  <div className="relative z-10 h-10 w-10 rounded-full flex items-center justify-center shrink-0 border-2 bg-primary border-primary text-primary-foreground">
-                    <Home className="h-4 w-4" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-semibold text-sm text-foreground leading-tight">
-                          Completion & Keys
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {completionYear ? `Estimated ${completionYear}` : "Estimated completion"}
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-sm font-bold text-primary">{fmt(balanceAtCompletion)}</p>
-                        <p className="text-[10px] text-muted-foreground">{(100 - totalDepositPct).toFixed(0)}% balance</p>
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
-                      Balance due at completion — typically financed via mortgage. Total deposits paid: <span className="font-semibold text-foreground">{fmt(totalDepositAmt)} ({totalDepositPct}%)</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* ── Right: Summary card ── */}
+          {/* ── Right: Summary ── */}
           <div className="space-y-4 lg:sticky lg:top-24">
 
-            {/* Totals card */}
-            <div className="rounded-2xl border border-border/60 bg-background overflow-hidden">
-              <div className="px-5 py-4 border-b border-border/50">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Payment Summary</p>
-                <p className="text-2xl font-bold text-foreground mt-1">{priceFmt}</p>
+            {/* Summary card */}
+            <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
+              <div className="px-5 py-4 border-b border-border/50 bg-muted/20">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Payment Summary</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{fmt(price)}</p>
                 <p className="text-xs text-muted-foreground">{projectName}</p>
               </div>
-
               <div className="px-5 py-4 space-y-3">
                 {steps.map((step, idx) => (
                   <div key={step.id} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div className={cn(
                         "h-2 w-2 rounded-full",
-                        idx === 0 ? "bg-primary" : idx === 1 ? "bg-primary/70" : idx === 2 ? "bg-primary/45" : "bg-primary/25"
+                        idx === 0 ? "bg-primary" : idx === 1 ? "bg-primary/65" : idx === 2 ? "bg-primary/40" : "bg-primary/25"
                       )} />
                       <span className="text-muted-foreground text-xs">{step.label}</span>
+                      <span className="text-[10px] text-muted-foreground/60">{step.timing}</span>
                     </div>
                     <span className="font-semibold text-foreground text-xs">{fmt(price * step.percent / 100)}</span>
                   </div>
                 ))}
                 <div className="pt-2 border-t border-border/50 flex items-center justify-between">
                   <span className="text-xs font-semibold text-foreground">Total Deposits</span>
-                  <span className="text-sm font-bold text-primary">{fmt(totalDepositAmt)} <span className="text-muted-foreground font-normal text-xs">({totalDepositPct}%)</span></span>
+                  <span className="text-sm font-bold text-primary">{fmt(totalDepositAmt)} <span className="text-muted-foreground font-normal text-[10px]">({totalDepositPct}%)</span></span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">Balance at Completion</span>
+                  <span className="text-sm font-semibold text-foreground">{fmt(balanceAtCompletion)}</span>
                 </div>
               </div>
             </div>
 
-            {/* Completion breakdown toggle */}
-            <div className="rounded-2xl border border-border/60 bg-background overflow-hidden">
+            {/* Cash at completion toggle */}
+            <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
               <button
                 type="button"
                 onClick={() => setShowBreakdown(b => !b)}
@@ -271,21 +296,20 @@ export function DeckDepositTimelineSection({
                 </div>
                 {showBreakdown ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
               </button>
-
               {showBreakdown && (
                 <div className="px-5 pb-5 space-y-2.5 border-t border-border/50 pt-4">
-                  <Row label="Purchase Price" value={fmt(price)} />
-                  <Row label={`Deposits Paid (${totalDepositPct}%)`} value={`− ${fmt(totalDepositAmt)}`} muted />
-                  <Row label="Balance Due" value={fmt(balanceAtCompletion)} highlight />
+                  <SummaryRow label="Purchase Price" value={fmt(price)} />
+                  <SummaryRow label={`Deposits Paid (${totalDepositPct}%)`} value={`− ${fmt(totalDepositAmt)}`} muted />
+                  <SummaryRow label="Balance Due" value={fmt(balanceAtCompletion)} highlight />
                   <div className="h-px bg-border/50 my-1" />
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Closing Costs (Est.)</p>
-                  <Row label="GST (Net of Rebate)" value={fmt(netGst)} />
-                  <Row label="Property Transfer Tax" value={price <= 1_100_000 ? "Exempt (FTB)" : fmt(ptt)} />
-                  <Row label="Legal / Conveyancing" value={fmt(closingCosts)} />
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Estimated Closing Costs</p>
+                  <SummaryRow label="GST (Net of Rebate)" value={fmt(netGst)} />
+                  <SummaryRow label="Property Transfer Tax" value={price <= 1_100_000 ? "Exempt (FTB)" : fmt(ptt)} />
+                  <SummaryRow label="Legal / Conveyancing" value={fmt(closingCosts)} />
                   <div className="h-px bg-border/50 my-1" />
-                  <Row label="Total Cash at Closing" value={fmt(cashAtCompletion)} highlight bold />
+                  <SummaryRow label="Total Cash at Closing" value={fmt(cashAtCompletion)} highlight bold />
                   <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
-                    * PTT exempt for First-Time Buyers on properties ≤ $1.1M. GST rebate applies for primary residence ≤ $1M. Estimates only — consult your notary.
+                    PTT exempt for First-Time Buyers ≤$1.1M. GST rebate applies ≤$1M. Estimates only — consult your notary.
                   </p>
                 </div>
               )}
@@ -293,24 +317,24 @@ export function DeckDepositTimelineSection({
 
             {/* Mortgage snapshot */}
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-3">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
                 <p className="text-sm font-semibold text-foreground">Mortgage at Completion</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-background border border-border/50 p-3 text-center">
+                <div className="rounded-xl bg-card border border-border/50 p-3 text-center">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Est. Monthly</p>
                   <p className="text-lg font-bold text-primary">{fmt(monthlyPayment)}/mo</p>
                   <p className="text-[9px] text-muted-foreground mt-0.5">5.24% · 25yr amort</p>
                 </div>
-                <div className="rounded-xl bg-background border border-border/50 p-3 text-center">
+                <div className="rounded-xl bg-card border border-border/50 p-3 text-center">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Mortgage Base</p>
                   <p className="text-lg font-bold text-foreground">{fmt(mortgageBase)}</p>
                   <p className="text-[9px] text-muted-foreground mt-0.5">80% LTV assumed</p>
                 </div>
               </div>
               <p className="text-[10px] text-muted-foreground leading-relaxed">
-                Based on 20% down at completion. Rate and qualification are subject to change. Speak with a mortgage advisor for a personalized estimate.
+                Based on 20% down at completion. Rate subject to change. Speak with a mortgage advisor for a personalized estimate.
               </p>
             </div>
           </div>
@@ -320,7 +344,7 @@ export function DeckDepositTimelineSection({
   );
 }
 
-function Row({ label, value, muted, highlight, bold }: { label: string; value: string; muted?: boolean; highlight?: boolean; bold?: boolean }) {
+function SummaryRow({ label, value, muted, highlight, bold }: { label: string; value: string; muted?: boolean; highlight?: boolean; bold?: boolean }) {
   return (
     <div className="flex items-center justify-between text-xs">
       <span className={cn("text-muted-foreground", muted && "line-through opacity-60")}>{label}</span>
