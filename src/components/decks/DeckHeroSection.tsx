@@ -68,10 +68,11 @@ export function DeckHeroSection({
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-16 sm:pb-20 pt-28 w-full">
-        <div className="max-w-4xl space-y-4 sm:space-y-5">
-          <p className="text-primary text-[11px] font-bold uppercase tracking-[0.2em] drop-shadow-sm">
-            01 — Overview
-          </p>
+        <div className="max-w-4xl">
+          <div className="inline-block bg-black/60 backdrop-blur-md rounded-2xl px-6 py-6 space-y-4 sm:space-y-5">
+            <p className="text-primary text-[11px] font-bold uppercase tracking-[0.2em]">
+              01 — Overview
+            </p>
 
           <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight">
             {projectName || "Project Name"}
