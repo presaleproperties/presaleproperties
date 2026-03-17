@@ -125,8 +125,7 @@ export default function AdminTopDeals() {
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
   const [customStrataFee, setCustomStrataFee] = useState<string>("");
   const [activePlanIndex, setActivePlanIndex] = useState(0);
-  // Override price for the numbers slide
-  const [customCalcPrice, setCustomCalcPrice] = useState<string>("");
+  // customCalcPrice is now stored per-plan inside floorPlans[].customPrice
 
   // ── Load projects
   useEffect(() => {
