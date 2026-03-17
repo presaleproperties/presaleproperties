@@ -201,8 +201,8 @@ export default function DashboardDeckBuilder() {
     setCity(cityStr || p.city || "");
     setAddress(p.address || "");
     setDeveloperName(p.developer_name || "");
-    setStories(p.stories?.toString() || "");
-    setTotalUnits(p.total_units?.toString() || "");
+    setStories("");
+    setTotalUnits("");
     // Completion — use occupancy_estimate string if available, else year
     setCompletionYear(p.occupancy_estimate || p.completion_year?.toString() || "");
     if (p.map_lat) setLat(p.map_lat.toString());
