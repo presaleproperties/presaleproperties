@@ -170,6 +170,7 @@ export function GalleryLightbox({
           ))}
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
