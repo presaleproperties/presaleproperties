@@ -33,6 +33,8 @@ interface PitchDeck {
   contact_whatsapp: string | null;
   latitude: number | null;
   longitude: number | null;
+  lat: number | null;
+  lng: number | null;
   is_published: boolean;
 }
 
