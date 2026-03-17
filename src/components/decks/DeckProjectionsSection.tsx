@@ -266,8 +266,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   {/* Deposit structure */}
                   <div className="grid grid-cols-2 gap-3">
                     {([
-                      { label: "Deposit 1 (at signing)", val: dep1Pct, set: setDep1Pct, amt: results.dep1 },
-                      { label: "Deposit 2 (3 months)", val: dep2Pct, set: setDep2Pct, amt: results.dep2 },
+                      { label: "Deposit 1", val: dep1Pct, set: setDep1Pct, amt: results.dep1 },
+                      { label: "Deposit 2", val: dep2Pct, set: setDep2Pct, amt: results.dep2 },
                     ] as const).map(({ label, val, set, amt }) => (
                       <div key={label} className="rounded-xl bg-muted/40 p-3">
                         <div className="flex justify-between text-[11px] mb-2">
