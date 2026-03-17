@@ -171,31 +171,27 @@ export default function DashboardDeckBuilder() {
     })();
   }, []);
 
+  // Map team member to contact fields (name only — phone/email filled manually or from hardcoded lookup)
   const applyAgentProfile = useCallback((agent: AgentProfile) => {
     setContactName(agent.full_name || "");
-    setContactPhone(agent.phone || "");
-    setContactEmail(agent.email || "");
-    setContactWhatsapp(agent.phone ? agent.phone.replace(/\D/g, "") : "");
-    setSelectedAgentId(agent.user_id);
+    setSelectedAgentId(agent.id || null);
   }, []);
 
-  // Fetch team members and auto-select logged-in user
+  // Fetch active team members from team_members_public view
   useEffect(() => {
     (async () => {
-      const { data } = await (supabase as any)
-        .from("profiles")
-        .select("user_id, full_name, email, phone")
-        .not("full_name", "is", null)
-        .order("full_name");
+      const { data } = await supabase
+        .from("team_members_public" as any)
+        .select("id, full_name, title, photo_url")
+        .order("sort_order", { ascending: true });
       if (data?.length) {
-        setAgents(data);
-        if (!isEdit && user) {
-          const me = data.find((a: AgentProfile) => a.user_id === user.id) || data[0];
-          if (me) applyAgentProfile(me);
+        setAgents(data as AgentProfile[]);
+        if (!isEdit) {
+          applyAgentProfile((data as AgentProfile[])[0]);
         }
       }
     })();
-  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close dropdown on outside click
   useEffect(() => {
