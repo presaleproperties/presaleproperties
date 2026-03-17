@@ -355,25 +355,6 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
             )}
           </div>
 
-          {/* Right: map */}
-          <div className="bg-muted/30 rounded-xl border border-border/40 p-3 overflow-hidden">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <h3 className="text-sm font-semibold text-foreground">Project Location</h3>
-              {lat && lng && (
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Google Maps
-                </a>
-              )}
-            </div>
-            <DeckMap lat={centerLat} lng={centerLng} projectName={projectName} address={address} />
-          </div>
-
         </div>
       </div>
     </section>
