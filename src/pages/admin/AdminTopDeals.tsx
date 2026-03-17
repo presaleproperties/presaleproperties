@@ -248,10 +248,52 @@ export default function AdminTopDeals() {
     const n = amort * 12;
     const monthly = mr > 0 ? (mortgage * mr * Math.pow(1 + mr, n)) / (Math.pow(1 + mr, n) - 1) : mortgage / n;
     const fp0Sqft = floorPlans[0]?.metrics?.interior_sqft ?? floorPlans[0]?.metrics?.interiorSqft;
-    const strata = fp0Sqft ? fp0Sqft * 0.5 : 350;
+    // Custom strata override or estimate from sqft
+    const strataOverride = customStrataFee ? parseInt(customStrataFee.replace(/\D/g, "")) : null;
+    const strata = strataOverride != null && strataOverride > 0 ? strataOverride : fp0Sqft ? Math.round(fp0Sqft * 0.5) : 350;
     const tax = Math.round((calcPrice * 0.003) / 12);
-    return { down, mortgage, cmhc, monthly, strata, tax, total: monthly + strata + tax };
-  }, [calcPrice, downPct, rate, amort, floorPlans]);
+
+    // Rebates / closing costs
+    // GST: ~5% on new presales; FTB rebate up to $6,300 (federal) for homes ≤ $450k; partial up to $524k
+    const gstFull = calcPrice * 0.05;
+    let gstRebate = 0;
+    if (calcPrice <= 450000) {
+      gstRebate = Math.min(gstFull * 0.36, 6300);
+    } else if (calcPrice < 524999) {
+      const partial = (524999 - calcPrice) / 74999;
+      gstRebate = Math.min(gstFull * 0.36, 6300) * partial;
+    }
+    const netGST = gstFull - gstRebate;
+
+    // PTT: BC Property Transfer Tax
+    // FTB exemption: full exemption up to $500k; partial $500k–$525k
+    let ptt = 0;
+    if (calcPrice <= 200000) {
+      ptt = calcPrice * 0.01;
+    } else if (calcPrice <= 3000000) {
+      ptt = 200000 * 0.01 + (Math.min(calcPrice, 3000000) - 200000) * 0.02;
+    } else {
+      ptt = 200000 * 0.01 + 2800000 * 0.02 + (calcPrice - 3000000) * 0.03;
+    }
+    let pttPayable = ptt;
+    if (buyerType === "ftb") {
+      if (calcPrice <= 500000) {
+        pttPayable = 0;
+      } else if (calcPrice < 525000) {
+        const exemptFraction = (525000 - calcPrice) / 25000;
+        pttPayable = ptt * (1 - exemptFraction);
+      }
+    }
+
+    const legalFees = 2000;
+    const totalClosingCosts = netGST + pttPayable + legalFees;
+
+    return {
+      down, mortgage, cmhc, monthly, strata, tax, total: monthly + strata + tax,
+      gstFull, gstRebate, netGST, ptt, pttPayable, legalFees, totalClosingCosts,
+      strataIsCustom: strataOverride != null && strataOverride > 0,
+    };
+  }, [calcPrice, downPct, rate, amort, floorPlans, buyerType, customStrataFee]);
 
   // ── Derived
   const photos = selected ? getPhotos(selected) : [];
