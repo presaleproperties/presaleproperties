@@ -106,10 +106,10 @@ export function DeckContactSection({
         <div className="mb-8 space-y-2">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">07 — Get Access</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Claim Your Unit Before It's Gone
+            Ready to Move Forward?
           </h2>
           <p className="text-muted-foreground text-sm max-w-xl">
-            This is a private presentation shared with select clients. Units move fast — reach out now to lock in your spot or get full pricing details.
+            This presentation was put together just for you. Units are limited — message us now and we'll walk you through pricing, availability, and next steps.
           </p>
         </div>
 

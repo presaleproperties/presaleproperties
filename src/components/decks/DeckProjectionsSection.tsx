@@ -477,7 +477,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   )}
 
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    BC 2026 rules. PTT exemption FTB ≤$1.1M. GST rebate 100% ≤$1M, partial $1M–$1.5M (Bill C-4, Mar 2026). Consult a licensed advisor.
+                    BC 2026 rules. First-time buyers are exempt from Property Transfer Tax on homes up to $1.1M. GST rebate: 100% on homes up to $1M, partial rebate up to $1.5M (Bill C-4, 2026). Always speak to a licensed advisor before purchasing.
                   </p>
                 </div>
               </div>
