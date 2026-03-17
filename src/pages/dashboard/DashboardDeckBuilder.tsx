@@ -20,6 +20,24 @@ import {
 } from "lucide-react";
 
 const UNIT_TYPES = ["Studio", "1 Bed", "1 Bed + Den", "2 Bed", "2 Bed + Den", "3 Bed", "Townhouse"];
+
+/** Map AI-returned unit_type string to the closest UNIT_TYPES entry */
+function normalizeUnitType(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const s = raw.toLowerCase().replace(/[-–—]/g, " ").trim();
+  if (s.includes("studio") || s.includes("bachelor")) return "Studio";
+  if (s.includes("townhouse") || s.includes("town home") || s.includes("townhome")) return "Townhouse";
+  const bed3 = s.includes("3") || s.includes("three");
+  const bed2 = s.includes("2") || s.includes("two");
+  const bed1 = s.includes("1") || s.includes("one");
+  const den  = s.includes("den") || s.includes("flex") || s.includes("+");
+  if (bed3) return "3 Bed";
+  if (bed2 && den) return "2 Bed + Den";
+  if (bed2) return "2 Bed";
+  if (bed1 && den) return "1 Bed + Den";
+  if (bed1) return "1 Bed";
+  return UNIT_TYPES.find(t => t.toLowerCase() === s) ?? null;
+}
 const UZAIR_USER_ID = "1a1c17cd-c64b-478a-832d-5874be1258d1";
 
 interface PresaleProject {
@@ -342,9 +360,12 @@ export default function DashboardDeckBuilder() {
         const tags: string[] = [...(unit.features || [])];
         if (unit.exposure) tags.push(unit.exposure);
 
+        // Normalize AI unit_type to a valid UNIT_TYPES entry
+        const resolvedUnitType = normalizeUnitType(unit.unit_type) || fp.unit_type;
+
         return {
           ...fp,
-          unit_type: unit.unit_type || fp.unit_type,
+          unit_type: resolvedUnitType,
           size_range: sizeStr || fp.size_range,
           beds: unit.beds,
           baths: unit.baths,
@@ -731,9 +752,18 @@ export default function DashboardDeckBuilder() {
                 {/* Editable fields — pre-filled by AI */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs">Unit Type</Label>
+                    <div className="flex items-center gap-1.5">
+                      <Label className="text-xs">Unit Type</Label>
+                      {fp.beds != null && fp.unit_type && (
+                        <span className="text-[9px] font-semibold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                          <Wand2 className="h-2.5 w-2.5" />AI
+                        </span>
+                      )}
+                    </div>
                     <Select value={fp.unit_type} onValueChange={(v) => updateFloorPlan(fp.id, "unit_type", v)}>
-                      <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-9">
+                        <SelectValue placeholder="Select type…" />
+                      </SelectTrigger>
                       <SelectContent position="popper" side="bottom">
                         {UNIT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                       </SelectContent>
