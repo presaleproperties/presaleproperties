@@ -37,6 +37,8 @@ function calculateMortgageBalance(
 }
 
 // Calculate BC Property Transfer Tax
+// For NEW CONSTRUCTION (presales): BC 2024 newly-built home PTT exemption applies.
+// Full exemption ≤ $1,100,000 | Partial exemption $1,100,001–$1,150,000 | No exemption above $1,150,000
 export function calculatePTT(price: number, isFirstTimeBuyer: boolean = false): number {
   if (price <= 0) return 0;
   
@@ -55,13 +57,16 @@ export function calculatePTT(price: number, isFirstTimeBuyer: boolean = false): 
     ptt += (price - 2000000) * 0.03;
   }
   
-  // First-time home buyer exemption (simplified)
-  if (isFirstTimeBuyer && price <= 500000) {
-    ptt = 0;
-  } else if (isFirstTimeBuyer && price <= 525000) {
-    // Partial exemption
-    const exemption = (525000 - price) / 25000;
-    ptt = ptt * (1 - exemption);
+  // Newly-built home PTT exemption (BC April 2024+): applies to ALL buyers (not just FTB)
+  // for principal residence purchases of new construction.
+  // Full exemption ≤ $1,100,000; partial phase-out up to $1,150,000
+  if (isFirstTimeBuyer) {
+    if (price <= 1100000) {
+      ptt = 0;
+    } else if (price < 1150000) {
+      const exemptFraction = (1150000 - price) / 50000;
+      ptt = Math.round(ptt * (1 - exemptFraction));
+    }
   }
   
   return Math.round(ptt);
