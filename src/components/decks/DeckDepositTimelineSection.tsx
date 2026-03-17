@@ -148,11 +148,8 @@ export function DeckDepositTimelineSection({
           </div>
         )}
 
-        {/* Timeline + Summary side-by-side */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_260px] gap-6 items-start">
-
-          {/* Steps */}
-          <div className="relative">
+        {/* Timeline full width */}
+        <div className="relative">
             {/* Deposit steps */}
             <div className="space-y-3">
               {allNodes.filter(n => !n.isCompletion).map((node, i, arr) => {
