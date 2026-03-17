@@ -144,7 +144,12 @@ export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName 
         )}
       </div>
 
-      <FloorPlanModal plan={selected} onClose={() => setSelected(null)} />
+      <FloorPlanModal
+        plan={selected}
+        onClose={() => setSelected(null)}
+        whatsappNumber={whatsappNumber}
+        projectName={projectName}
+      />
     </section>
   );
 }
