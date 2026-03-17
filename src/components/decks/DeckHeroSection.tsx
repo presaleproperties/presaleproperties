@@ -68,70 +68,69 @@ export function DeckHeroSection({
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-16 sm:pb-20 pt-28 w-full">
-        <div className="max-w-4xl">
-          <div className="inline-block bg-black/60 backdrop-blur-md rounded-2xl px-6 py-6 space-y-4 sm:space-y-5">
+        <div className="max-w-2xl">
+          <div className="bg-black/55 backdrop-blur-md rounded-2xl px-6 py-6 space-y-4 sm:space-y-5">
             <p className="text-primary text-[11px] font-bold uppercase tracking-[0.2em]">
               01 — Overview
             </p>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight">
-            {projectName || "Project Name"}
-          </h1>
+            <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight">
+              {projectName || "Project Name"}
+            </h1>
 
-          {tagline && (
-            <p className="text-white/90 text-base sm:text-xl font-light max-w-2xl leading-relaxed">
-              {tagline}
-            </p>
-          )}
+            {tagline && (
+              <p className="text-white/90 text-base sm:text-xl font-light leading-relaxed">
+                {tagline}
+              </p>
+            )}
 
-          {stats.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide pt-1">
-              {stats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 backdrop-blur-md border border-white/25 shrink-0"
-                >
-                  <stat.icon className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <div>
-                    <p className="text-white/75 text-[9px] uppercase tracking-wider leading-none mb-0.5">{stat.label}</p>
-                    <p className="text-white font-semibold text-[13px] leading-none whitespace-nowrap">{stat.value}</p>
+            {stats.length > 0 && (
+              <div className="flex gap-2 flex-wrap pt-1">
+                {stats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 shrink-0"
+                  >
+                    <stat.icon className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <div>
+                      <p className="text-white/70 text-[9px] uppercase tracking-wider leading-none mb-0.5">{stat.label}</p>
+                      <p className="text-white font-semibold text-[13px] leading-none whitespace-nowrap">{stat.value}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+
+            <div className="w-12 h-px bg-primary/80" />
+
+            {/* CTAs */}
+            <div className="flex flex-col gap-3 w-full sm:flex-row">
+              <a
+                href={`https://wa.me/${waNumber}?text=${waMessage}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2.5 py-3.5 px-7 rounded-xl font-bold text-sm text-white shadow-lg touch-manipulation transition-all active:scale-[0.98] w-full sm:w-auto"
+                style={{ background: "#25D366", boxShadow: "0 4px 24px rgba(37,211,102,0.35)" }}
+              >
+                <MessageCircle className="h-5 w-5 shrink-0" />
+                I'm Interested
+              </a>
+
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={onFloorPlansClick}
+                className="py-3.5 sm:px-8 bg-white/10 border-white/40 text-white hover:bg-white/20 hover:border-white/60 hover:text-white text-sm font-semibold w-full sm:w-auto"
+              >
+                View Floor Plans & Pricing
+              </Button>
             </div>
-          )}
 
-          <div className="w-12 h-px bg-primary/80" />
-
-          {/* CTAs */}
-          <div className="flex flex-col gap-3 pt-1 w-full max-w-sm sm:max-w-none sm:flex-row">
-            {/* Primary: WhatsApp text */}
-            <a
-              href={`https://wa.me/${waNumber}?text=${waMessage}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2.5 py-3.5 px-7 rounded-xl font-bold text-sm text-white shadow-lg touch-manipulation transition-all active:scale-[0.98] w-full sm:w-auto"
-              style={{ background: "#25D366", boxShadow: "0 4px 24px rgba(37,211,102,0.35)" }}
-            >
-              <MessageCircle className="h-5 w-5 shrink-0" />
-              I'm Interested
-            </a>
-
-            {/* Secondary: Floor plans */}
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={onFloorPlansClick}
-              className="py-3.5 sm:px-8 bg-black/40 border-white/40 text-white hover:bg-black/60 hover:border-white/60 hover:text-white text-sm font-semibold backdrop-blur-sm w-full sm:w-auto"
-            >
-              View Floor Plans & Pricing
-            </Button>
+            {/* Micro-copy */}
+            <p className="text-white/75 text-xs">
+              No obligation · Respond in minutes · Private pricing available
+            </p>
           </div>
-
-          {/* Micro-copy */}
-          <p className="text-white/80 text-xs">
-            No obligation · Respond in minutes · Private pricing available
-          </p>
         </div>
       </div>
 
