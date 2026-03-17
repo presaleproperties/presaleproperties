@@ -66,6 +66,20 @@ interface FloorPlan {
 
 interface ProximityHighlight { icon: string; label: string; distance: string; }
 
+interface DepositStep {
+  id: string;
+  label: string;
+  percent: number;
+  timing: string;
+  note?: string;
+}
+
+const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
+  { id: "d1", label: "Upon Signing", percent: 2.5, timing: "Due in 7 days", note: "Paid to the developer's trust account on execution of the Purchase Agreement." },
+  { id: "d2", label: "2nd Deposit", percent: 2.5, timing: "Due in 3 months", note: "Second deposit due within 90 days of contract execution." },
+  { id: "d3", label: "3rd Deposit", percent: 5, timing: "Due in 6 months", note: "Third deposit due within 180 days of contract execution." },
+];
+
 interface SectionProps {
   title: string; subtitle?: string; children: React.ReactNode;
   defaultOpen?: boolean; badge?: string;
