@@ -183,7 +183,11 @@ export default function DeckPublicPage() {
 
       {/* Section 2 — Floor Plans */}
       <div className="deck-animate">
-        <DeckFloorPlansSection floorPlans={deck.floor_plans || []} />
+        <DeckFloorPlansSection
+          floorPlans={deck.floor_plans || []}
+          whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
+          projectName={deck.project_name}
+        />
       </div>
 
       {/* Section 2b — Full Floor Plans PDF (if uploaded) */}
