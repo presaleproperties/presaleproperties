@@ -84,20 +84,16 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
   const estimatedYear5Value = purchasePrice * Math.pow(1 + exit.annualPriceGrowthPercent / 100, 5);
   const sellingCosts = estimatedYear5Value * (exit.sellingCostPercent / 100);
 
-  // PTT exemption info
-  const pttFullExemption = isFirstTimeBuyer && purchasePrice <= 500000;
-  const pttPartialExemption = isFirstTimeBuyer && purchasePrice > 500000 && purchasePrice <= 525000;
+  // PTT exemption info — NEW CONSTRUCTION (BC April 2024+)
+  // Full exemption ≤ $1.1M | Partial $1.1M–$1.15M
+  const pttFullExemption = isFirstTimeBuyer && purchasePrice <= 1100000;
+  const pttPartialExemption = isFirstTimeBuyer && purchasePrice > 1100000 && purchasePrice <= 1150000;
 
   return (
-    <div className="space-y-4">
-      {/* Buyer type banner */}
-      {isFirstTimeBuyer && (
-        <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-          <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-          <div>
+...
             <p className="text-sm font-medium text-green-700 dark:text-green-300">First-Time Buyer Benefits Applied</p>
             <p className="text-xs text-green-600 dark:text-green-400">
-              PTT exemption{pttFullExemption ? ' (full)' : pttPartialExemption ? ' (partial)' : ' (over $525K — no exemption)'}, 
+              PTT exemption{pttFullExemption ? ' (full — new construction ≤$1.1M)' : pttPartialExemption ? ' (partial — new construction $1.1M–$1.15M)' : ' (over $1.15M — no exemption)'}, 
               GST rebate{gstRebate > 0 ? ` (${formatCurrency(gstRebate)} back)` : ' (not eligible over $450K)'}
               {cmhcInsurance > 0 ? `, CMHC insurance required` : ''}
             </p>
