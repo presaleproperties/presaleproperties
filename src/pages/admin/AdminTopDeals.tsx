@@ -854,10 +854,14 @@ export default function AdminTopDeals() {
                       type="text"
                       inputMode="numeric"
                       placeholder={selected.starting_price ? selected.starting_price.toLocaleString() : "Enter price"}
-                      value={customCalcPrice}
+                      value={floorPlans[activePlanIndex]?.customPrice ?? ""}
                       onChange={e => {
                         const val = e.target.value.replace(/[^0-9]/g, "");
-                        setCustomCalcPrice(val ? parseInt(val).toLocaleString() : "");
+                        setFloorPlans(prev => {
+                          const u = [...prev];
+                          u[activePlanIndex] = { ...u[activePlanIndex], customPrice: val ? parseInt(val).toLocaleString() : "" };
+                          return u;
+                        });
                       }}
                       className="w-full h-9 pl-8 pr-2 rounded-lg border border-border bg-background text-base font-bold focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
