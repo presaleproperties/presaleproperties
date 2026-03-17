@@ -428,8 +428,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   <div className="rounded-xl border border-border/50 overflow-hidden">
                     <div className="divide-y divide-border/30">
                       {[
-                        { label: "Include GST (5%)", sub: "New construction tax", amount: fmt(results.gst), checked: includeGST, onChange: setIncludeGST },
-                        { label: isFirstTimeBuyer ? "PTT — Exempt (FTB)" : "Property Transfer Tax", sub: isFirstTimeBuyer ? "First-time buyer exempt" : "BC tiered rate", amount: isFirstTimeBuyer ? "-" + fmt(results.pttRaw) : fmt(results.pttRaw), checked: includePTT, onChange: setIncludePTT, disabled: isFirstTimeBuyer },
+                       { label: "Include GST — Federal Tax (5%)", sub: "Applies to new construction", amount: fmt(results.gst), checked: includeGST, onChange: setIncludeGST },
+                        { label: isFirstTimeBuyer ? "Property Transfer Tax — Waived" : "Property Transfer Tax (PTT)", sub: isFirstTimeBuyer ? "You qualify for the first-time buyer exemption" : "BC one-time fee on purchase", amount: isFirstTimeBuyer ? "-" + fmt(results.pttRaw) : fmt(results.pttRaw), checked: includePTT, onChange: setIncludePTT, disabled: isFirstTimeBuyer },
                       ].map(({ label, sub, amount, checked, onChange, disabled }) => (
                         <div key={label} className="flex items-center justify-between px-4 py-3">
                           <div>
