@@ -1111,3 +1111,12 @@ function CalcRow({ label, value, muted }: { label: string; value: string; muted?
     </div>
   );
 }
+
+function MetricChip({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className={cn("rounded-lg px-2.5 py-1.5", highlight ? "bg-primary/10" : "bg-muted/60")}>
+      <p className={cn("text-[9px] uppercase tracking-wider font-medium", highlight ? "text-primary/70" : "text-muted-foreground")}>{label}</p>
+      <p className={cn("text-xs font-bold mt-0.5", highlight ? "text-primary" : "text-foreground")}>{value}</p>
+    </div>
+  );
+}
