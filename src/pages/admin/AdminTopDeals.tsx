@@ -38,18 +38,17 @@ interface Project {
   city: string;
   neighborhood: string | null;
   developer_name: string | null;
-  min_price: number | null;
-  max_price: number | null;
-  estimated_completion: string | null;
+  starting_price: number | null;
+  completion_year: number | null;
   deposit_structure: string | null;
-  description: string | null;
-  photos: string[] | null;
+  short_description: string | null;
   gallery_images: string[] | null;
-  hero_image: string | null;
+  featured_image: string | null;
   address: string | null;
-  latitude: number | null;
-  longitude: number | null;
+  map_lat: number | null;
+  map_lng: number | null;
   status: string | null;
+  project_type: string | null;
 }
 
 interface FloorPlan {
@@ -92,9 +91,8 @@ function formatCurrency(n: number | null | undefined) {
 
 function getPhotos(p: Project): string[] {
   const all: string[] = [];
-  if (p.hero_image) all.push(p.hero_image);
+  if (p.featured_image) all.push(p.featured_image);
   if (p.gallery_images?.length) all.push(...p.gallery_images);
-  if (p.photos?.length) all.push(...p.photos);
   const unique = Array.from(new Set(all)).filter(Boolean);
   return unique.length ? unique : [];
 }
@@ -134,7 +132,7 @@ export default function AdminTopDeals() {
       setLoadingProjects(true);
       const { data } = await (supabase as any)
         .from("presale_projects")
-        .select("id,name,city,neighborhood,developer_name,min_price,max_price,estimated_completion,deposit_structure,description,photos,gallery_images,hero_image,address,latitude,longitude,status")
+        .select("id,name,city,neighborhood,developer_name,starting_price,completion_year,deposit_structure,short_description,gallery_images,featured_image,address,map_lat,map_lng,status,project_type")
         .order("name");
       setProjects(data || []);
       setLoadingProjects(false);
@@ -243,7 +241,7 @@ export default function AdminTopDeals() {
     p.city.toLowerCase().includes(search.toLowerCase())
   );
 
-  const priceForCalc = selected?.min_price ?? DEFAULT_PRICE;
+  const priceForCalc = selected?.starting_price ?? DEFAULT_PRICE;
 
   // ── Reset when project changes ────────────────────────────────────
   const selectProject = (p: Project) => {
@@ -292,7 +290,7 @@ export default function AdminTopDeals() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {filteredProjects.map((p) => {
-                  const thumb = p.hero_image || p.gallery_images?.[0] || p.photos?.[0];
+                  const thumb = p.featured_image || p.gallery_images?.[0];
                   return (
                     <button
                       key={p.id}
@@ -311,9 +309,9 @@ export default function AdminTopDeals() {
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-sm truncate text-foreground">{p.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{p.city}{p.neighborhood ? ` · ${p.neighborhood}` : ""}</p>
-                        {p.min_price && (
+                        {p.starting_price && (
                           <p className="text-xs font-medium text-primary mt-1">
-                            From {formatCurrency(p.min_price)}
+                            From {formatCurrency(p.starting_price)}
                           </p>
                         )}
                       </div>
@@ -458,21 +456,14 @@ export default function AdminTopDeals() {
                     <StatCard
                       icon={<DollarSign className="h-4 w-4" />}
                       label="Starting From"
-                      value={formatCurrency(selected.min_price)}
+                      value={formatCurrency(selected.starting_price)}
                       accent
                     />
-                    {selected.max_price && (
-                      <StatCard
-                        icon={<DollarSign className="h-4 w-4" />}
-                        label="Up To"
-                        value={formatCurrency(selected.max_price)}
-                      />
-                    )}
-                    {selected.estimated_completion && (
+                    {selected.completion_year && (
                       <StatCard
                         icon={<Calendar className="h-4 w-4" />}
                         label="Est. Completion"
-                        value={selected.estimated_completion}
+                        value={String(selected.completion_year)}
                       />
                     )}
                     {selected.deposit_structure && (
@@ -482,11 +473,18 @@ export default function AdminTopDeals() {
                         value={selected.deposit_structure}
                       />
                     )}
+                    {selected.project_type && (
+                      <StatCard
+                        icon={<Home className="h-4 w-4" />}
+                        label="Type"
+                        value={selected.project_type}
+                      />
+                    )}
                   </div>
 
-                  {selected.description && (
+                  {selected.short_description && (
                     <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
-                      {selected.description}
+                      {selected.short_description}
                     </p>
                   )}
                 </div>
@@ -561,13 +559,9 @@ export default function AdminTopDeals() {
             <div className="animate-fade-in">
               <h2 className="text-2xl font-bold mb-6 text-foreground">Key Details</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <HighlightCard icon={<DollarSign />} label="Price Range" value={
-                  selected.min_price && selected.max_price
-                    ? `${formatCurrency(selected.min_price)} – ${formatCurrency(selected.max_price)}`
-                    : formatCurrency(selected.min_price)
-                } />
+                <HighlightCard icon={<DollarSign />} label="Starting Price" value={formatCurrency(selected.starting_price)} />
                 <HighlightCard icon={<Layers />} label="Deposit Structure" value={selected.deposit_structure || "Contact for details"} />
-                <HighlightCard icon={<Calendar />} label="Est. Completion" value={selected.estimated_completion || "TBD"} />
+                <HighlightCard icon={<Calendar />} label="Est. Completion" value={selected.completion_year ? String(selected.completion_year) : "TBD"} />
                 <HighlightCard icon={<MapPin />} label="Location" value={displayAddr || "—"} />
                 {displayDev && (
                   <HighlightCard icon={<Building2 />} label="Developer" value={displayDev} />
@@ -578,16 +572,16 @@ export default function AdminTopDeals() {
               </div>
 
               {/* Price per sqft from floor plans */}
-              {floorPlans.some((fp) => fp.metrics?.interiorSqft && selected.min_price) && (
+              {floorPlans.some((fp) => fp.metrics?.interiorSqft && selected.starting_price) && (
                 <div className="mt-6">
                   <h3 className="text-sm font-semibold text-foreground mb-3">Price Per Sqft (from floor plans)</h3>
                   <div className="flex flex-wrap gap-3">
                     {floorPlans.map((fp, i) =>
-                      fp.metrics?.interiorSqft && selected.min_price ? (
+                      fp.metrics?.interiorSqft && selected.starting_price ? (
                         <div key={i} className="px-4 py-2.5 rounded-xl border border-border bg-card text-sm">
                           <span className="text-muted-foreground">{fp.metrics.planName || `Plan ${i + 1}`} — </span>
                           <span className="font-semibold text-primary">
-                            {formatCurrency(Math.round(selected.min_price / fp.metrics.interiorSqft))}/sqft
+                            {formatCurrency(Math.round(selected.starting_price / fp.metrics.interiorSqft))}/sqft
                           </span>
                         </div>
                       ) : null
@@ -681,10 +675,10 @@ export default function AdminTopDeals() {
                               {fp.metrics.balconySqft && (
                                 <MetricPill label="Outdoor" value={`${fp.metrics.balconySqft} sqft`} />
                               )}
-                              {fp.metrics.interiorSqft && selected.min_price && (
+                              {fp.metrics.interiorSqft && selected.starting_price && (
                                 <MetricPill
                                   label="$/sqft"
-                                  value={formatCurrency(Math.round(selected.min_price / fp.metrics.interiorSqft))}
+                                  value={formatCurrency(Math.round(selected.starting_price / fp.metrics.interiorSqft))}
                                   accent
                                 />
                               )}
