@@ -112,33 +112,36 @@ export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps
 
                 {/* Card body */}
                 <div className="p-4 space-y-3">
-                  {/* Price + arrow */}
+                  {/* Price row */}
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Starting from</p>
-                      <p className="text-primary font-bold text-lg leading-tight">{plan.price_from}</p>
+                      <p className="text-primary font-bold text-lg leading-tight">{plan.price_from || "—"}</p>
                     </div>
                     <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${hovered === plan.id ? 'border-primary bg-primary' : 'border-border/50'}`}>
                       <ArrowRight className={`h-3.5 w-3.5 transition-colors ${hovered === plan.id ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
                     </div>
                   </div>
 
-                  {/* Size */}
-                  {plan.size_range && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Square className="h-3 w-3 shrink-0" />
-                      <span>{plan.size_range}</span>
-                    </div>
-                  )}
+                  {/* Size + PSF row */}
+                  <div className="flex items-center justify-between gap-2">
+                    {plan.size_range ? (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Square className="h-3 w-3 shrink-0" />
+                        <span>{plan.size_range}</span>
+                      </div>
+                    ) : <span />}
 
-                  {/* Price / sqft */}
-                  {plan.price_per_sqft && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Square className="h-3 w-3 shrink-0" />
-                      <span className="font-medium text-foreground">{plan.price_per_sqft}</span>
-                      <span className="text-muted-foreground">/ sqft</span>
-                    </div>
-                  )}
+                    {(() => {
+                      const psf = derivePsf(plan);
+                      return psf ? (
+                        <div className="flex items-center gap-1 text-xs bg-primary/8 border border-primary/20 text-primary font-semibold px-2 py-0.5 rounded-full">
+                          <TrendingUp className="h-2.5 w-2.5" />
+                          <span>{psf}/sqft</span>
+                        </div>
+                      ) : null;
+                    })()}
+                  </div>
                 </div>
               </button>
             ))}
