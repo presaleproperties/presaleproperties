@@ -111,37 +111,36 @@ export function DeckFloorPlansSection({ floorPlans }: DeckFloorPlansSectionProps
                 </div>
 
                 {/* Card body */}
-                <div className="p-4 space-y-3">
+                <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
                   {/* Price row */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Starting from</p>
-                      <p className="text-primary font-bold text-lg leading-tight">{plan.price_from || "—"}</p>
+                  <div className="flex items-start justify-between gap-1">
+                    <div className="min-w-0">
+                      <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider">From</p>
+                      <p className="text-primary font-bold text-sm sm:text-lg leading-tight truncate">{plan.price_from || "—"}</p>
                     </div>
-                    <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${hovered === plan.id ? 'border-primary bg-primary' : 'border-border/50'}`}>
-                      <ArrowRight className={`h-3.5 w-3.5 transition-colors ${hovered === plan.id ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
+                    <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-300 ${hovered === plan.id ? 'border-primary bg-primary' : 'border-border/50'}`}>
+                      <ArrowRight className={`h-3 w-3 sm:h-3.5 sm:w-3.5 transition-colors ${hovered === plan.id ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
                     </div>
                   </div>
 
-                  {/* Size + PSF row */}
-                  <div className="flex items-center justify-between gap-2">
-                    {plan.size_range ? (
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Square className="h-3 w-3 shrink-0" />
-                        <span>{plan.size_range}</span>
+                  {/* Size */}
+                  {plan.size_range && (
+                    <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground">
+                      <Square className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+                      <span className="truncate">{plan.size_range}</span>
+                    </div>
+                  )}
+
+                  {/* PSF pill */}
+                  {(() => {
+                    const psf = derivePsf(plan);
+                    return psf ? (
+                      <div className="flex items-center gap-1 text-[10px] sm:text-xs bg-primary/8 border border-primary/20 text-primary font-semibold px-1.5 sm:px-2 py-0.5 rounded-full w-fit">
+                        <TrendingUp className="h-2.5 w-2.5 shrink-0" />
+                        <span className="whitespace-nowrap">{psf}/sqft</span>
                       </div>
-                    ) : <span />}
-
-                    {(() => {
-                      const psf = derivePsf(plan);
-                      return psf ? (
-                        <div className="flex items-center gap-1 text-xs bg-primary/8 border border-primary/20 text-primary font-semibold px-2 py-0.5 rounded-full">
-                          <TrendingUp className="h-2.5 w-2.5" />
-                          <span>{psf}/sqft</span>
-                        </div>
-                      ) : null;
-                    })()}
-                  </div>
+                    ) : null;
+                  })()}
                 </div>
               </button>
             ))}
