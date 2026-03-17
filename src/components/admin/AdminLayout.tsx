@@ -38,6 +38,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Bell,
+  Presentation,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -89,12 +90,13 @@ const navSections = [
     label: "Content",
     emoji: "✍️",
     items: [
-      { href: "/admin/top-deals",           label: "Top Deals",     icon: Sparkles,  color: "text-primary",     badgeKey: null },
-      { href: "/admin/blogs",               label: "Blog Posts",    icon: BookOpen,  color: "text-rose-500",    badgeKey: null },
-      { href: "/admin/landing-pages",       label: "Campaigns",     icon: Megaphone, color: "text-orange-500",  badgeKey: null },
-      { href: "/admin/marketing-hub",       label: "Marketing Hub", icon: Mail,      color: "text-emerald-500", badgeKey: null },
-      { href: "/admin/campaign-builder/new",label: "Flyer Builder", icon: FileStack, color: "text-amber-400",   badgeKey: null },
-      { href: "/admin/google-reviews",      label: "Reviews",       icon: Star,      color: "text-yellow-500",  badgeKey: null },
+      { href: "/admin/top-deals",           label: "Top Deals",     icon: Sparkles,      color: "text-primary",     badgeKey: null },
+      { href: "/admin/blogs",               label: "Blog Posts",    icon: BookOpen,      color: "text-rose-500",    badgeKey: null },
+      { href: "/admin/landing-pages",       label: "Campaigns",     icon: Megaphone,     color: "text-orange-500",  badgeKey: null },
+      { href: "/admin/marketing-hub",       label: "Marketing Hub", icon: Mail,          color: "text-emerald-500", badgeKey: null },
+      { href: "/admin/campaign-builder/new",label: "Flyer Builder", icon: FileStack,     color: "text-amber-400",   badgeKey: null },
+      { href: "/admin/google-reviews",      label: "Reviews",       icon: Star,          color: "text-yellow-500",  badgeKey: null },
+      { href: "/dashboard/decks",           label: "Pitch Decks",   icon: Presentation,  color: "text-sky-500",     badgeKey: null },
     ],
   },
   {
