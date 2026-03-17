@@ -234,7 +234,7 @@ export default function AdminTopDeals() {
   };
 
   // ── Mortgage calculations
-  const calcPrice = selected?.starting_price ?? 850000;
+  const calcPrice = customCalcPrice ? parseInt(customCalcPrice.replace(/\D/g, "")) || (selected?.starting_price ?? 850000) : (selected?.starting_price ?? 850000);
   const calc = useMemo(() => {
     const down = (calcPrice * downPct) / 100;
     const principal = calcPrice - down;
@@ -246,8 +246,9 @@ export default function AdminTopDeals() {
     const mr = rate / 100 / 12;
     const n = amort * 12;
     const monthly = mr > 0 ? (mortgage * mr * Math.pow(1 + mr, n)) / (Math.pow(1 + mr, n) - 1) : mortgage / n;
-    const strata = floorPlans[0]?.metrics?.interiorSqft ? floorPlans[0].metrics.interiorSqft * 0.5 : 350;
-    const tax = 100;
+    const fp0Sqft = floorPlans[0]?.metrics?.interior_sqft ?? floorPlans[0]?.metrics?.interiorSqft;
+    const strata = fp0Sqft ? fp0Sqft * 0.5 : 350;
+    const tax = Math.round((calcPrice * 0.003) / 12);
     return { down, mortgage, cmhc, monthly, strata, tax, total: monthly + strata + tax };
   }, [calcPrice, downPct, rate, amort, floorPlans]);
 
