@@ -655,7 +655,7 @@ export default function MortgageCalculatorPage() {
     },
     {
       question: "What is BC Property Transfer Tax?",
-      answer: "Property Transfer Tax (PTT) is a provincial tax paid when you buy property in BC. The rate is 1% on the first $200,000, 2% on $200,000-$2,000,000, 3% on $2,000,000-$3,000,000, and 5% above $3,000,000. First-time buyers may qualify for exemptions up to $8,000 on homes up to $500,000. New home buyers can get up to $13,000 exemption."
+      answer: "Property Transfer Tax (PTT) is a provincial tax paid when you buy property in BC. The rate is 1% on the first $200,000, 2% on $200,000–$2,000,000, and 3% above $2,000,000. For newly-built homes (April 2024+), first-time buyers get a full PTT exemption on homes up to $1,100,000, with a partial exemption up to $1,150,000 — savings of up to $18,000 or more."
     },
     {
       question: "What closing costs should I budget for?",
