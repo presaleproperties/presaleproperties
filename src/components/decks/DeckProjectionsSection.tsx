@@ -67,7 +67,7 @@ function Row({ label, value, green, bold, sub }: { label: string; value: string;
 
 export function DeckProjectionsSection({ projections, defaultPrice, floorPlans = [] }: DeckProjectionsSectionProps) {
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
-  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(() => floorPlans?.[0]?.id ?? "");
   const [downPct, setDownPct] = useState(20);
   const [rate, setRate] = useState(3.79);
   const [amort, setAmort] = useState(30);
