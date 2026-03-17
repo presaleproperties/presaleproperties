@@ -918,63 +918,36 @@ export default function DashboardDeckBuilder() {
           </div>
         </Section>
 
-        {/* Section: Agent / Contact — with profile selector */}
-        <Section title="Agent Contact" subtitle="Select agent or customize contact info shown on the deck">
-          <div className="space-y-4">
-            {/* Agent profile selector */}
-            {agents.length > 0 && (
-              <div className="space-y-2">
-                <Label className="flex items-center gap-1.5">
-                  <User className="h-3.5 w-3.5 text-muted-foreground" />Select Agent Profile
-                </Label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {agents.map((agent) => (
-                    <button
-                      key={agent.user_id}
-                      type="button"
-                      onClick={() => applyAgentProfile(agent)}
-                      className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${
-                        selectedAgentId === agent.user_id
-                          ? "border-primary bg-primary/5"
-                          : "border-border bg-background hover:bg-accent/30"
-                      }`}
-                    >
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <span className="text-xs font-semibold text-primary">
-                          {(agent.full_name || "?").split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">{agent.full_name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{agent.phone || agent.email}</p>
-                      </div>
-                      {agent.user_id === UZAIR_USER_ID && (
-                        <Badge variant="secondary" className="text-[9px] h-4 px-1">Default</Badge>
-                      )}
-                    </button>
-                  ))}
+        {/* Section: Agent / Contact */}
+        <Section title="Agent Contact" subtitle="Choose which agent appears on the deck">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {agents.length > 0 ? agents.map((agent) => (
+              <button
+                key={agent.user_id}
+                type="button"
+                onClick={() => applyAgentProfile(agent)}
+                className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                  selectedAgentId === agent.user_id
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "border-border bg-background hover:bg-accent/20"
+                }`}
+              >
+                <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-primary">
+                    {(agent.full_name || "?").split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                  </span>
                 </div>
-              </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{agent.full_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{agent.phone || agent.email}</p>
+                </div>
+                {selectedAgentId === agent.user_id && (
+                  <div className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                )}
+              </button>
+            )) : (
+              <p className="text-sm text-muted-foreground col-span-3">No agent profiles found.</p>
             )}
-            {/* Editable contact fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="space-y-1.5">
-                <Label>Agent Name</Label>
-                <Input value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Uzair Muhammad" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Phone</Label>
-                <Input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="+1 (778) 231-3592" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Email</Label>
-                <Input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="agent@email.com" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>WhatsApp Number</Label>
-                <Input value={contactWhatsapp} onChange={(e) => setContactWhatsapp(e.target.value)} placeholder="17782313592" />
-              </div>
-            </div>
           </div>
         </Section>
 
