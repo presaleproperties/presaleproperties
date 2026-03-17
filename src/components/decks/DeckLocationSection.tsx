@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { MapPin, Train, ShoppingBag, Trees, GraduationCap, Coffee } from "lucide-react";
+import "leaflet/dist/leaflet.css";
 
 export interface ProximityHighlight {
   icon: string;
