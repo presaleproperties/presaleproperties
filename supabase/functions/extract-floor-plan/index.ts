@@ -100,7 +100,7 @@ Rules:
     } else {
       // For PDFs: fetch as base64 and pass as document
       const blob = await fileResp.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(blob)));
+      const base64 = arrayBufferToBase64(blob);
       userContent = [
         {
           type: "text",
