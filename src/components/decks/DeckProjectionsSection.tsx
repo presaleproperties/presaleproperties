@@ -346,7 +346,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
 
                   {/* Hero: Monthly payment */}
                   <div className="rounded-2xl bg-primary/5 border border-primary/20 p-4 text-center">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Est. Monthly Payment</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Your Monthly Mortgage Payment</p>
                     <p className="text-4xl font-bold text-primary">{fmt(results.monthly)}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {fmt(results.mortgageAmt)} mortgage · {rate}% · {amort}yr
