@@ -40,7 +40,12 @@ export function DeckStickyNav({ visible, activeSection, projectName, whatsappNum
           "bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm",
           visible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         )}
-        style={{ paddingTop: "env(safe-area-inset-top)" }}
+        style={{
+          paddingTop: "env(safe-area-inset-top)",
+          transform: visible ? "translateZ(0)" : "translateY(-100%) translateZ(0)",
+          willChange: "transform",
+          WebkitBackfaceVisibility: "hidden",
+        }}
       >
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           {/* Logo — same as main site */}
