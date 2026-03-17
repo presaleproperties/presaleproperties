@@ -123,7 +123,7 @@ export default function DeckPublicPage() {
     : undefined;
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="w-full" style={{ overflowX: "clip" }}>
       <Helmet>
         <title>{deck.project_name} — Presale Investment Deck | Presale Properties</title>
         <meta name="description" content={`Exclusive presale opportunity: ${deck.project_name}${deck.city ? ` in ${deck.city}` : ""}. View floor plans, pricing, and investment projections.`} />

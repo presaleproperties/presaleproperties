@@ -130,12 +130,12 @@ export function DeckContactSection({
                 Text us right now — we'll reply within minutes with pricing, availability & next steps.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
+            <div className="flex flex-col gap-3 w-full sm:w-auto shrink-0">
               <a
                 href={`https://wa.me/${rawNumber}?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 h-13 px-6 rounded-xl font-bold text-sm text-white whitespace-nowrap touch-manipulation transition-all active:scale-[0.98] shadow-lg"
+                className="inline-flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl font-bold text-sm text-white touch-manipulation transition-all active:scale-[0.98] shadow-lg w-full"
                 style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(0,0,0,0.25)" }}
               >
                 <MessageCircle className="h-5 w-5 shrink-0" />
@@ -144,7 +144,7 @@ export function DeckContactSection({
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 hover:border-primary-foreground/50 hover:text-primary-foreground font-semibold whitespace-nowrap touch-manipulation"
+                className="py-3.5 border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 hover:border-primary-foreground/50 hover:text-primary-foreground font-semibold touch-manipulation w-full"
                 onClick={() => setBookingOpen(true)}
               >
                 <CalendarCheck className="h-4 w-4 mr-2 shrink-0" />
@@ -205,7 +205,7 @@ export function DeckContactSection({
                 href={`https://wa.me/${rawNumber}?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2.5 w-full h-13 px-4 rounded-xl font-bold text-sm text-white mb-3 touch-manipulation transition-all active:scale-[0.98]"
+                className="flex items-center justify-center gap-2.5 w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white mb-3 touch-manipulation transition-all active:scale-[0.98]"
                 style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,0.30)" }}
               >
                 <MessageCircle className="h-5 w-5 shrink-0" />

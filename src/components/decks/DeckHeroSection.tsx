@@ -104,13 +104,13 @@ export function DeckHeroSection({
           <div className="w-12 h-px bg-primary/60" />
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-1">
+          <div className="flex flex-col gap-3 pt-1 w-full max-w-sm sm:max-w-none sm:flex-row">
             {/* Primary: WhatsApp text */}
             <a
               href={`https://wa.me/${waNumber}?text=${waMessage}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2.5 h-13 px-7 rounded-xl font-bold text-sm text-white shadow-lg touch-manipulation transition-all active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2.5 py-3.5 px-7 rounded-xl font-bold text-sm text-white shadow-lg touch-manipulation transition-all active:scale-[0.98] w-full sm:w-auto"
               style={{ background: "#25D366", boxShadow: "0 4px 24px rgba(37,211,102,0.35)" }}
             >
               <MessageCircle className="h-5 w-5 shrink-0" />
@@ -122,7 +122,7 @@ export function DeckHeroSection({
               size="lg"
               variant="outline"
               onClick={onFloorPlansClick}
-              className="h-12 sm:px-8 bg-white/8 border-white/25 text-white hover:bg-white/15 hover:border-white/40 hover:text-white text-sm font-semibold backdrop-blur-sm w-full sm:w-auto"
+              className="py-3.5 sm:px-8 bg-white/8 border-white/25 text-white hover:bg-white/15 hover:border-white/40 hover:text-white text-sm font-semibold backdrop-blur-sm w-full sm:w-auto"
             >
               View Floor Plans & Pricing
             </Button>
