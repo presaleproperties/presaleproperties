@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { BookingModal } from "./BookingModal";
-import { Phone, Mail, MessageCircle, Star, Award, Globe, Quote } from "lucide-react";
+import { Phone, Mail, MessageCircle, Star, Award, Globe, Quote, CalendarCheck, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Review {
@@ -79,7 +79,8 @@ export function DeckContactSection({
   const agent = resolveAgent(contactName);
   const displayPhone = contactPhone || agent.phone;
   const displayEmail = contactEmail || agent.email;
-  const whatsappNumber = (contactWhatsapp || contactPhone || agent.phone).replace(/\D/g, "");
+  const rawNumber = (contactWhatsapp || contactPhone || agent.phone).replace(/\D/g, "");
+  const waMessage = encodeURIComponent(`Hi ${agent.fullName.split(" ")[0]}! I just viewed the ${projectName} deck — I'm interested. Can we connect?`);
 
   useEffect(() => {
     supabase
@@ -88,7 +89,7 @@ export function DeckContactSection({
       .eq("is_active", true)
       .order("is_featured", { ascending: false })
       .order("sort_order", { ascending: true })
-      .limit(6)
+      .limit(4)
       .then(({ data }) => {
         if (data && data.length > 0) setReviews(data as Review[]);
       });
@@ -102,12 +103,55 @@ export function DeckContactSection({
           06
         </div>
 
-        <div className="mb-10 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Contact</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Ready to Invest?</h2>
-          <p className="text-muted-foreground text-sm">
-            Limited units available. Our specialists are ready to walk you through every detail.
+        <div className="mb-8 space-y-2">
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Get Access</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+            Claim Your Unit Before It's Gone
+          </h2>
+          <p className="text-muted-foreground text-sm max-w-xl">
+            This is a private presentation shared with select clients. Units move fast — reach out now to lock in your spot or get full pricing details.
           </p>
+        </div>
+
+        {/* Top CTA banner — urgency */}
+        <div className="relative rounded-2xl overflow-hidden mb-8 bg-gradient-to-r from-primary to-primary/80 p-6 sm:p-8">
+          <div className="absolute inset-0 opacity-10 pointer-events-none"
+            style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 0%, transparent 60%)" }} />
+          <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="h-4 w-4 text-primary-foreground/80 shrink-0" />
+                <span className="text-primary-foreground/80 text-xs font-semibold uppercase tracking-wider">Limited Availability</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-primary-foreground">
+                Ready to move forward on {projectName}?
+              </h3>
+              <p className="text-primary-foreground/75 text-sm">
+                Text us right now — we'll reply within minutes with pricing, availability & next steps.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
+              <a
+                href={`https://wa.me/${rawNumber}?text=${waMessage}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2.5 h-13 px-6 rounded-xl font-bold text-sm text-white whitespace-nowrap touch-manipulation transition-all active:scale-[0.98] shadow-lg"
+                style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(0,0,0,0.25)" }}
+              >
+                <MessageCircle className="h-5 w-5 shrink-0" />
+                Text "I'm Interested"
+              </a>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 hover:border-primary-foreground/50 hover:text-primary-foreground font-semibold whitespace-nowrap touch-manipulation"
+                onClick={() => setBookingOpen(true)}
+              >
+                <CalendarCheck className="h-4 w-4 mr-2 shrink-0" />
+                Book a Showing
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Two-column layout */}
@@ -126,7 +170,7 @@ export function DeckContactSection({
                     alt={agent.fullName}
                     className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover object-top border-2 border-primary/30 shadow-md"
                   />
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-background" title="Available" />
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-background" title="Available now" />
                 </div>
                 <div className="min-w-0 flex-1 pt-1">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -156,48 +200,48 @@ export function DeckContactSection({
                 <span className="text-sm text-muted-foreground ml-2 font-medium">5.0 · Google Reviews</span>
               </div>
 
+              {/* Primary: WhatsApp */}
+              <a
+                href={`https://wa.me/${rawNumber}?text=${waMessage}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2.5 w-full h-13 px-4 rounded-xl font-bold text-sm text-white mb-3 touch-manipulation transition-all active:scale-[0.98]"
+                style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,0.30)" }}
+              >
+                <MessageCircle className="h-5 w-5 shrink-0" />
+                Text {agent.fullName.split(" ")[0]} on WhatsApp
+              </a>
+
+              {/* Secondary: Book showing */}
+              <Button
+                size="lg"
+                className="w-full h-12 mb-4"
+                onClick={() => setBookingOpen(true)}
+              >
+                <CalendarCheck className="h-4 w-4 mr-2 shrink-0" />
+                Book a Private Showing
+              </Button>
+
               {/* Contact links */}
-              <div className="space-y-2.5 mb-6">
+              <div className="space-y-2 mb-6">
                 <a
                   href={`tel:${displayPhone}`}
-                  className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors group touch-manipulation"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors group touch-manipulation"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors shrink-0">
-                    <Phone className="h-4 w-4 text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Phone className="h-3.5 w-3.5 text-primary" />
                   </div>
                   <span>{displayPhone}</span>
                 </a>
                 <a
                   href={`mailto:${displayEmail}`}
-                  className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors group touch-manipulation"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors group touch-manipulation"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors shrink-0">
-                    <Mail className="h-4 w-4 text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Mail className="h-3.5 w-3.5 text-primary" />
                   </div>
                   <span className="truncate">{displayEmail}</span>
                 </a>
-              </div>
-
-              {/* CTAs */}
-              <div className="flex flex-col gap-3 mb-6">
-                <Button
-                  size="lg"
-                  className="flex-1 h-12 shadow-lg shadow-primary/20 touch-manipulation"
-                  onClick={() => setBookingOpen(true)}
-                >
-                  Book a Private Showing
-                </Button>
-                {whatsappNumber && (
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="h-12 touch-manipulation border-green-500 text-green-600 hover:bg-green-50"
-                    onClick={() => window.open(`https://wa.me/${whatsappNumber}`, "_blank")}
-                  >
-                    <MessageCircle className="h-5 w-5 mr-2 text-green-500" />
-                    WhatsApp
-                  </Button>
-                )}
               </div>
 
               {/* Brokerage note */}
@@ -213,7 +257,7 @@ export function DeckContactSection({
             </div>
           </div>
 
-          {/* RIGHT — Real Google Reviews */}
+          {/* RIGHT — Social proof reviews */}
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 mb-1">
               <div className="flex items-center gap-1">
@@ -251,8 +295,14 @@ export function DeckContactSection({
                 </div>
               ))}
             </div>
-          </div>
 
+            {/* Bottom trust bar */}
+            <div className="rounded-xl border border-border/40 bg-muted/20 p-4 mt-1">
+              <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                🔒 <strong className="text-foreground">Private presentation</strong> — shared exclusively with you. All unit details, pricing, and availability are held confidential until you connect with our team.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Legal footer */}

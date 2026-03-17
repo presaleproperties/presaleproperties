@@ -158,6 +158,8 @@ export default function DeckPublicPage() {
         visible={navVisible}
         activeSection={activeSection}
         projectName={deck.project_name}
+        whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
+        projectNameForWa={deck.project_name}
       />
 
       {/* Section 1 — Hero */}
@@ -169,6 +171,7 @@ export default function DeckPublicPage() {
         stories={deck.stories || undefined}
         totalUnits={deck.total_units || undefined}
         completionYear={deck.completion_year || undefined}
+        whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
         onFloorPlansClick={() => document.getElementById("floor-plans")?.scrollIntoView({ behavior: "smooth" })}
         onContactClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
       />

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, MessageCircle } from "lucide-react";
 
 const SECTIONS = [
   { id: "overview", label: "Overview" },
@@ -16,10 +16,15 @@ interface DeckStickyNavProps {
   visible: boolean;
   activeSection: string;
   projectName: string;
+  whatsappNumber?: string;
+  projectNameForWa?: string;
 }
 
-export function DeckStickyNav({ visible, activeSection, projectName }: DeckStickyNavProps) {
+export function DeckStickyNav({ visible, activeSection, projectName, whatsappNumber, projectNameForWa }: DeckStickyNavProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const rawNumber = (whatsappNumber || "17782313592").replace(/\D/g, "");
+  const waMessage = encodeURIComponent(`Hi! I'm interested in ${projectNameForWa || projectName} — can you share details?`);
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -63,9 +68,19 @@ export function DeckStickyNav({ visible, activeSection, projectName }: DeckStick
             ))}
           </nav>
 
-          {/* Right: project name + mobile toggle */}
+          {/* Right: WhatsApp CTA + project name + mobile toggle */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="hidden lg:block text-xs font-medium text-muted-foreground max-w-[160px] truncate">
+            <a
+              href={`https://wa.me/${rawNumber}?text=${waMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white touch-manipulation transition-all active:scale-[0.97]"
+              style={{ background: "#25D366" }}
+            >
+              <MessageCircle className="h-3.5 w-3.5 shrink-0" />
+              Text Us
+            </a>
+            <span className="hidden lg:block text-xs font-medium text-muted-foreground max-w-[140px] truncate">
               {projectName}
             </span>
             {/* Mobile hamburger */}
