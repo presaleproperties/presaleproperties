@@ -1,8 +1,9 @@
-import { MapPin, Train, School, ShoppingBag, Clock, Car, Footprints, TreePine, Stethoscope } from "lucide-react";
+import { MapPin, Train, School, ShoppingBag, Clock, Car, Footprints, ExternalLink, Loader2 } from "lucide-react";
 import { useEffect, useRef, useCallback, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getNeighborhoodData } from "@/components/projects/LocationDeepDive";
+import { Link } from "react-router-dom";
 
 export interface ProximityHighlight {
   icon: string;
@@ -19,15 +20,13 @@ interface DeckLocationSectionProps {
   highlights: ProximityHighlight[];
 }
 
-// ── Overpass API (same as ProjectLocationMiniMap) ──────────────────────────
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 
 const amenityCategories = [
-  { key: "schools",    label: "Schools",  icon: School,       color: "#4F46E5" },
-  { key: "transit",    label: "Transit",  icon: Train,        color: "#0891B2" },
-  { key: "parks",      label: "Parks",    icon: TreePine,     color: "#16A34A" },
-  { key: "grocery",    label: "Shops",    icon: ShoppingBag,  color: "#D97706" },
-  { key: "healthcare", label: "Health",   icon: Stethoscope,  color: "#DC2626" },
+  { key: "schools",    label: "Schools",  icon: School,       color: "#64748B" },
+  { key: "transit",    label: "Transit",  icon: Train,        color: "#64748B" },
+  { key: "parks",      label: "Parks",    icon: Footprints,   color: "#64748B" },
+  { key: "grocery",    label: "Shops",    icon: ShoppingBag,  color: "#64748B" },
 ];
 
 function buildOverpassQuery(lat: number, lon: number): string {
@@ -41,7 +40,6 @@ function buildOverpassQuery(lat: number, lon: number): string {
     `node["highway"="bus_stop"]${bbox};`,
     `node["leisure"~"park|playground"]${bbox};`,
     `way["leisure"~"park|playground"]${bbox};`,
-    `node["amenity"~"hospital|clinic|doctors|pharmacy"]${bbox};`,
   ];
   return `[out:json][timeout:10];(${queries.join("")});out center 50;`;
 }
@@ -50,12 +48,10 @@ function categorizePlace(tags: Record<string, string>) {
   if (tags.amenity === "school" || tags.amenity === "kindergarten") return { category: "schools", type: tags.amenity };
   if (tags.shop === "supermarket" || tags.shop === "grocery" || tags.shop === "convenience") return { category: "grocery", type: tags.shop };
   if (tags.public_transport || tags.railway || tags.highway === "bus_stop") return { category: "transit", type: tags.railway || tags.public_transport || "bus_stop" };
-  if (tags.leisure === "park" || tags.leisure === "playground") return { category: "parks", type: tags.leisure };
-  if (["hospital", "clinic", "doctors", "pharmacy"].includes(tags.amenity)) return { category: "healthcare", type: tags.amenity };
+  if (tags.leisure === "park" || tags.leisure === "playground" || tags.leisure === "garden") return { category: "parks", type: tags.leisure };
   return { category: "other", type: "unknown" };
 }
 
-// ── Inline map (same logic as ProjectLocationMiniMap) ─────────────────────
 function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number; projectName: string; address?: string }) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -63,7 +59,7 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
   const [nearbyPlaces, setNearbyPlaces] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [placesLoaded, setPlacesLoaded] = useState(false);
-  const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set(["schools", "transit", "parks", "grocery", "healthcare"]));
+  const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set(["schools", "transit", "parks"]));
 
   const fetchNearbyPlaces = useCallback(async () => {
     if (placesLoaded) return;
@@ -94,7 +90,7 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
 
     const map = L.map(mapContainerRef.current, {
       center: [lat, lng], zoom: 15,
-      zoomControl: true, attributionControl: false,
+      zoomControl: false, attributionControl: false,
       scrollWheelZoom: false, dragging: true, touchZoom: true,
     });
     L.tileLayer(TILE_URL, { maxZoom: 19 }).addTo(map);
@@ -102,15 +98,14 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
     const markersLayer = L.layerGroup().addTo(map);
     markersLayerRef.current = markersLayer;
 
-    // Project pin
     const projectIcon = L.divIcon({
-      html: `<div class="deckmap-pin"><div class="deckmap-pin-inner"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg></div></div>`,
-      className: "deckmap-pin-icon",
+      html: `<div class="deck-proj-pin"><div class="deck-proj-inner"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg></div></div>`,
+      className: "deck-proj-icon",
       iconSize: [32, 40], iconAnchor: [16, 40],
     });
     L.marker([lat, lng], { icon: projectIcon, zIndexOffset: 1000 })
       .addTo(map)
-      .bindPopup(`<div class="deckmap-popup"><div class="deckmap-popup-name">${projectName}</div>${address ? `<div class="deckmap-popup-address">${address}</div>` : ""}</div>`, { closeButton: false, className: "deckmap-popup-container" });
+      .bindPopup(`<div class="deck-popup"><div class="deck-popup-name">${projectName}</div>${address ? `<div class="deck-popup-addr">${address}</div>` : ""}</div>`, { closeButton: false, className: "deck-popup-wrap" });
 
     mapRef.current = map;
     fetchNearbyPlaces();
@@ -118,7 +113,6 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
     return () => { map.remove(); mapRef.current = null; markersLayerRef.current = null; };
   }, [lat, lng, projectName, address, fetchNearbyPlaces]);
 
-  // Render amenity markers when data or filters change
   useEffect(() => {
     const layer = markersLayerRef.current;
     if (!layer) return;
@@ -126,14 +120,13 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
     nearbyPlaces
       .filter(p => activeCategories.has(p.category))
       .forEach(place => {
-        const cat = amenityCategories.find(c => c.key === place.category);
-        if (!cat) return;
         const icon = L.divIcon({
-          html: `<div class="amenity-dot" style="background:${cat.color}"><span class="amenity-dot-inner"></span></div>`,
-          className: "amenity-dot-icon", iconSize: [12, 12], iconAnchor: [6, 6],
+          html: `<div class="deck-amenity-dot"></div>`,
+          className: "deck-amenity-icon", iconSize: [12, 12], iconAnchor: [6, 6],
         });
+        const cat = amenityCategories.find(c => c.key === place.category);
         L.marker([place.lat, place.lon], { icon })
-          .bindPopup(`<div class="amenity-popup-inner"><div class="amenity-popup-name">${place.name}</div><div class="amenity-popup-type">${cat.label}</div></div>`, { closeButton: false, className: "deckmap-amenity-container" })
+          .bindPopup(`<div class="deck-amenity-popup"><div class="deck-ap-name">${place.name}</div><div class="deck-ap-type">${cat?.label || ""}</div></div>`, { closeButton: false, className: "deck-amenity-wrap" })
           .addTo(layer);
       });
   }, [nearbyPlaces, activeCategories]);
@@ -147,11 +140,11 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
   });
 
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-border/40 shadow-lg bg-muted">
+    <div className="relative rounded-xl overflow-hidden border border-border/50 bg-muted">
       <style>{`
-        .deckmap-pin-icon { background:transparent !important; border:none !important; }
-        .deckmap-pin { position:relative; width:32px; height:40px; }
-        .deckmap-pin-inner {
+        .deck-proj-icon { background:transparent !important; border:none !important; }
+        .deck-proj-pin { position:relative; width:32px; height:40px; }
+        .deck-proj-inner {
           position:absolute; top:0; left:50%;
           width:28px; height:28px;
           background:hsl(var(--primary));
@@ -160,49 +153,45 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
           display:flex; align-items:center; justify-content:center;
           box-shadow:0 3px 8px rgba(0,0,0,0.25); border:2px solid white;
         }
-        .deckmap-pin-inner svg { transform:rotate(45deg); color:hsl(var(--primary-foreground)); }
-        .amenity-dot-icon { background:transparent !important; border:none !important; }
-        .amenity-dot { width:12px; height:12px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.2); border:1.5px solid white; }
-        .amenity-dot-inner { width:4px; height:4px; background:white; border-radius:50%; }
-        .deckmap-popup-container .leaflet-popup-content-wrapper { border-radius:10px; padding:0; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
-        .deckmap-popup-container .leaflet-popup-content { margin:0; }
-        .deckmap-popup { padding:10px 14px; }
-        .deckmap-popup-name { font-size:13px; font-weight:600; color:#1f2937; }
-        .deckmap-popup-address { font-size:11px; color:#6B7280; margin-top:2px; }
-        .deckmap-amenity-container .leaflet-popup-content-wrapper { border-radius:6px; padding:0; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
-        .deckmap-amenity-container .leaflet-popup-content { margin:0; }
-        .amenity-popup-inner { padding:6px 10px; }
-        .amenity-popup-name { font-size:11px; font-weight:500; color:#1f2937; }
-        .amenity-popup-type { font-size:9px; color:#6B7280; }
+        .deck-proj-inner svg { transform:rotate(45deg); color:hsl(var(--primary-foreground)); width:14px; height:14px; }
+        .deck-amenity-icon { background:transparent !important; border:none !important; }
+        .deck-amenity-dot { width:12px; height:12px; border-radius:50%; background:hsl(var(--foreground)); border:1.5px solid white; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+        .deck-popup-wrap .leaflet-popup-content-wrapper { border-radius:10px; padding:0; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+        .deck-popup-wrap .leaflet-popup-content { margin:0; }
+        .deck-popup { padding:10px 14px; }
+        .deck-popup-name { font-size:13px; font-weight:600; color:#1f2937; }
+        .deck-popup-addr { font-size:11px; color:#6B7280; margin-top:2px; }
+        .deck-amenity-wrap .leaflet-popup-content-wrapper { border-radius:6px; padding:0; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+        .deck-amenity-wrap .leaflet-popup-content { margin:0; }
+        .deck-amenity-popup { padding:6px 10px; }
+        .deck-ap-name { font-size:11px; font-weight:500; color:#1f2937; }
+        .deck-ap-type { font-size:9px; color:#6B7280; }
       `}</style>
 
-      <div ref={mapContainerRef} className="w-full h-[400px] lg:h-[500px]" />
+      <div ref={mapContainerRef} className="w-full h-[280px] sm:h-[320px] md:h-[380px]" />
 
-      {/* Category filter pills */}
-      <div className="absolute bottom-3 left-0 right-0 z-[1000] flex justify-center gap-1.5 px-3">
-        {amenityCategories.map(({ key, icon: Icon, label, color }) => {
+      {/* Filter pills — icon-only circles, same as ProjectLocationMiniMap */}
+      <div className="absolute bottom-2 left-2 right-2 z-[1000] flex justify-center gap-1">
+        {amenityCategories.map(({ key, icon: Icon, label }) => {
           const isActive = activeCategories.has(key);
           return (
             <button
               key={key}
               onClick={() => toggle(key)}
               title={label}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all shadow-sm ${
+              className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
                 isActive
-                  ? "text-background shadow-md"
-                  : "bg-background/90 text-muted-foreground hover:bg-background border border-border/30"
+                  ? "bg-foreground text-background shadow-sm"
+                  : "bg-background/80 text-muted-foreground hover:bg-background border border-border/30"
               }`}
-              style={isActive ? { background: color } : {}}
             >
-              <Icon className="h-3 w-3" />
-              <span className="hidden sm:inline">{label}</span>
+              <Icon className="h-3.5 w-3.5" />
             </button>
           );
         })}
         {isLoading && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/90 text-xs text-muted-foreground shadow-sm border border-border/30">
-            <svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-            Loading
+          <div className="w-7 h-7 rounded-full bg-background/80 flex items-center justify-center border border-border/30">
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
           </div>
         )}
       </div>
@@ -210,17 +199,17 @@ function DeckMap({ lat, lng, projectName, address }: { lat: number; lng: number;
   );
 }
 
-// ── Section ────────────────────────────────────────────────────────────────
 export function DeckLocationSection({ address, city, neighborhood, lat, lng, highlights }: DeckLocationSectionProps) {
   const centerLat = lat ?? 49.2057;
   const centerLng = lng ?? -122.9;
   const resolvedNeighborhood = neighborhood || city || "";
   const data = getNeighborhoodData(resolvedNeighborhood);
+  const projectName = city || "Project";
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-yellow-600";
-    return "text-orange-600";
+    if (score >= 80) return "text-green-600 dark:text-green-400";
+    if (score >= 60) return "text-yellow-600 dark:text-yellow-400";
+    return "text-orange-600 dark:text-orange-400";
   };
 
   const getScoreLabel = (score: number) => {
@@ -249,120 +238,126 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-          {/* Map — 3/5 */}
-          <div className="lg:col-span-3">
-            <DeckMap lat={centerLat} lng={centerLng} projectName={city || "Project"} address={address} />
-            <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1">
-              <span>📍</span>
-              <span>Interactive map — click category pills to show/hide amenities</span>
-            </p>
+        {/* Info panel — mirrors LocationDeepDive */}
+        <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-5">
+            <MapPin className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-bold text-foreground">Location & Neighborhood</h3>
           </div>
 
-          {/* Sidebar — 2/5 */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Address card */}
-            {(address || city) && (
-              <div className="flex items-start gap-4 p-4 rounded-xl bg-primary/5 border border-primary/15">
-                <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-                  <MapPin className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Address</p>
-                  <p className="font-semibold text-sm text-foreground">{address}</p>
-                  {city && <p className="text-xs text-muted-foreground mt-0.5">{city}, BC</p>}
-                </div>
+          {/* Walk & Transit Scores */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-background rounded-xl p-4 border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Footprints className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground font-medium uppercase">Walk Score</span>
               </div>
-            )}
-
-            {/* Walk & Transit scores */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-muted/40 rounded-xl p-4 border border-border/50">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Footprints className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">Walk</span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className={`text-2xl font-bold ${getScoreColor(data.walkScore)}`}>{data.walkScore}</span>
-                  <span className="text-xs text-muted-foreground">/100</span>
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{getScoreLabel(data.walkScore)}</p>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-2xl font-bold ${getScoreColor(data.walkScore)}`}>{data.walkScore}</span>
+                <span className="text-xs text-muted-foreground">/100</span>
               </div>
-              <div className="bg-muted/40 rounded-xl p-4 border border-border/50">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Train className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">Transit</span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className={`text-2xl font-bold ${getScoreColor(data.transitScore)}`}>{data.transitScore}</span>
-                  <span className="text-xs text-muted-foreground">/100</span>
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {data.transitScore >= 70 ? "Excellent Transit" : "Some Transit"}
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground mt-1">{getScoreLabel(data.walkScore)}</p>
             </div>
-
-            {/* Transit & Accessibility */}
-            <div className="space-y-2">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-1 flex items-center gap-1.5">
-                <Car className="h-3 w-3" /> Transit & Access
+            <div className="bg-background rounded-xl p-4 border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Train className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground font-medium uppercase">Transit Score</span>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-2xl font-bold ${getScoreColor(data.transitScore)}`}>{data.transitScore}</span>
+                <span className="text-xs text-muted-foreground">/100</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {data.transitScore >= 70 ? "Excellent Transit" : "Some Transit"}
               </p>
+            </div>
+          </div>
+
+          {/* Transit & Accessibility */}
+          <div className="mb-6">
+            <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Car className="h-4 w-4 text-primary" />
+              Transit & Accessibility
+            </h4>
+            <ul className="space-y-2">
               {data.landmarks.map((l, i) => (
-                <div key={i} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-muted/30 border border-border/40 hover:border-primary/25 transition-colors">
-                  <span className="text-sm text-foreground">{l.name}</span>
-                  <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/15 flex items-center gap-1 shrink-0 ml-2">
-                    <Clock className="h-2.5 w-2.5" />{l.distance}
+                <li key={i} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{l.name}</span>
+                  <span className="flex items-center gap-1.5 font-medium text-foreground">
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                    {l.distance}
                   </span>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
+          </div>
 
-            {/* Schools */}
-            <div className="space-y-2">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-1 flex items-center gap-1.5">
-                <School className="h-3 w-3" /> Nearby Schools
-              </p>
+          {/* Schools */}
+          <div className="mb-6">
+            <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <School className="h-4 w-4 text-primary" />
+              Nearby Schools
+            </h4>
+            <ul className="space-y-2">
               {data.schools.map((s, i) => (
-                <div key={i} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-muted/30 border border-border/40 hover:border-primary/25 transition-colors">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-sm text-foreground truncate">{s.name}</span>
-                    <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-semibold shrink-0">{s.rating}/10</span>
+                <li key={i} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">{s.name}</span>
+                    <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">
+                      {s.rating}/10
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground shrink-0 ml-2">{s.distance}</span>
-                </div>
+                  <span className="text-muted-foreground text-xs">{s.distance}</span>
+                </li>
               ))}
-            </div>
+            </ul>
+          </div>
 
-            {/* Shopping */}
-            <div className="space-y-2">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-1 flex items-center gap-1.5">
-                <ShoppingBag className="h-3 w-3" /> Shopping & Dining
-              </p>
+          {/* Shopping & Dining */}
+          <div className="mb-5">
+            <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <ShoppingBag className="h-4 w-4 text-primary" />
+              Shopping & Dining
+            </h4>
+            <ul className="space-y-2">
               {data.shopping.map((s, i) => (
-                <div key={i} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-muted/30 border border-border/40 hover:border-primary/25 transition-colors">
-                  <span className="text-sm text-foreground">{s.name}</span>
-                  <span className="text-xs text-muted-foreground shrink-0 ml-2">{s.distance}</span>
-                </div>
+                <li key={i} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{s.name}</span>
+                  <span className="text-muted-foreground text-xs">{s.distance}</span>
+                </li>
               ))}
-            </div>
+            </ul>
+          </div>
 
-            {/* Extra highlights from deck data */}
-            {highlights.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-1">What's Nearby</p>
-                {highlights.map((h, i) => (
-                  <div key={i} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-muted/30 border border-border/40 hover:border-primary/25 transition-colors">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">{h.icon}</span>
-                      <span className="text-sm font-medium text-foreground">{h.label}</span>
-                    </div>
-                    <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/15 shrink-0 ml-2">{h.distance}</span>
-                  </div>
-                ))}
-              </div>
+          {/* View on Map CTA */}
+          {lat && lng && (
+            <Link
+              to={`/map-search?lat=${lat}&lng=${lng}&zoom=15`}
+              className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-background border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
+            >
+              <MapPin className="h-4 w-4 text-primary" />
+              View {projectName} on Map
+            </Link>
+          )}
+        </div>
+
+        {/* Map — same component as ProjectLocationMiniMap */}
+        <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <h3 className="text-base sm:text-lg font-bold text-foreground">Project Location</h3>
+            {lat && lng && (
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Open in Maps
+              </a>
             )}
           </div>
+          <DeckMap lat={centerLat} lng={centerLng} projectName={projectName} address={address} />
         </div>
       </div>
     </section>
