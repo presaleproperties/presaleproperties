@@ -53,8 +53,8 @@ export function DeckHeroSection({
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/98 via-black/55 to-black/15" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
       </div>
 
       {/* Top badge */}
@@ -70,7 +70,7 @@ export function DeckHeroSection({
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-16 sm:pb-20 pt-28 w-full">
         <div className="max-w-4xl space-y-4 sm:space-y-5">
-          <p className="text-primary text-[11px] font-semibold uppercase tracking-[0.2em]">
+          <p className="text-primary text-[11px] font-bold uppercase tracking-[0.2em] drop-shadow-sm">
             01 — Overview
           </p>
 
@@ -79,7 +79,7 @@ export function DeckHeroSection({
           </h1>
 
           {tagline && (
-            <p className="text-white/65 text-base sm:text-xl font-light max-w-2xl leading-relaxed">
+            <p className="text-white/90 text-base sm:text-xl font-light max-w-2xl leading-relaxed">
               {tagline}
             </p>
           )}
@@ -93,8 +93,8 @@ export function DeckHeroSection({
                 >
                   <stat.icon className="h-3.5 w-3.5 text-primary shrink-0" />
                   <div>
-                    <p className="text-white/45 text-[9px] uppercase tracking-wider leading-none mb-0.5">{stat.label}</p>
-                    <p className="text-white font-semibold text-[11px] leading-none whitespace-nowrap">{stat.value}</p>
+                   <p className="text-white/70 text-[9px] uppercase tracking-wider leading-none mb-0.5">{stat.label}</p>
+                    <p className="text-white font-semibold text-[12px] leading-none whitespace-nowrap">{stat.value}</p>
                   </div>
                 </div>
               ))}
@@ -129,7 +129,7 @@ export function DeckHeroSection({
           </div>
 
           {/* Micro-copy */}
-          <p className="text-white/35 text-xs">
+          <p className="text-white/60 text-xs">
             No obligation · Respond in minutes · Private pricing available
           </p>
         </div>
@@ -137,8 +137,8 @@ export function DeckHeroSection({
 
       {/* Scroll indicator */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 animate-bounce">
-        <span className="text-white/30 text-[10px] uppercase tracking-widest">Scroll</span>
-        <ChevronDown className="h-5 w-5 text-white/40" />
+        <span className="text-white/60 text-[10px] uppercase tracking-widest">Scroll</span>
+        <ChevronDown className="h-5 w-5 text-white/60" />
       </div>
     </section>
   );
