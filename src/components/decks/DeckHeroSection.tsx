@@ -116,10 +116,6 @@ export function DeckHeroSection({
             </Button>
           </div>
 
-          {/* Micro-copy */}
-          <p className="inline-block px-2 py-1 rounded bg-black/40 backdrop-blur-sm text-white/80 text-xs">
-            Respond in minutes · Private pricing.
-          </p>
         </div>
       </div>
 
