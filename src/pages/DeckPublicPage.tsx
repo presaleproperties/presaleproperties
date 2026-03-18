@@ -10,7 +10,6 @@ import { DeckGallerySection } from "@/components/decks/DeckGallerySection";
 import { DeckLocationSection } from "@/components/decks/DeckLocationSection";
 import { DeckProjectionsSection } from "@/components/decks/DeckProjectionsSection";
 import { DeckDepositTimelineSection, type DepositStep } from "@/components/decks/DeckDepositTimelineSection";
-import { DeckKeyFactsBar } from "@/components/decks/DeckKeyFactsBar";
 
 const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
   { id: "d1", label: "Upon Signing", percent: 2.5, timing: "Due in 7 days", note: "Paid to the developer's trust account on execution of the Purchase Agreement." },
@@ -192,18 +191,14 @@ export default function DeckPublicPage() {
       {/* Accent divider */}
       <div className="h-px bg-primary/20" />
 
-      {/* Key Facts Bar */}
-      <DeckKeyFactsBar
-        assignmentFee={deck.assignment_fee}
-        includedItems={deck.included_items}
-      />
-
-      {/* Section 2 — Floor Plans */}
+      {/* Section 2 — Floor Plans (Key Facts embedded in header) */}
       <div className="deck-animate">
         <DeckFloorPlansSection
           floorPlans={deck.floor_plans || []}
           whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
           projectName={deck.project_name}
+          assignmentFee={deck.assignment_fee}
+          includedItems={deck.included_items}
         />
       </div>
 

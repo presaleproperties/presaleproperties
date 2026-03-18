@@ -1,23 +1,17 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { FloorPlanModal, FloorPlan } from "./FloorPlanModal";
-import { LayoutPanelTop, ArrowRight, Square, TrendingUp } from "lucide-react";
+import { LayoutPanelTop, ArrowRight, Square, TrendingUp, DollarSign, Car, Archive, Wind, CheckCircle2 } from "lucide-react";
 
 /** Derive $/sqft from price_from string + interior_sqft number */
 function derivePsf(plan: FloorPlan): string | null {
-  // Use stored value first
   if (plan.price_per_sqft && plan.price_per_sqft.trim()) return plan.price_per_sqft;
-
-  // Try to compute from price_from + interior_sqft
   const price = parseFloat((plan.price_from || "").replace(/[^0-9.]/g, ""));
   const sqft = plan.interior_sqft;
-
   if (price > 0 && sqft && sqft > 0) {
     const psf = Math.round(price / sqft);
     return `$${psf.toLocaleString()}`;
   }
-
-  // Fallback: try to parse sqft from size_range string (e.g. "540 sq ft" or "540–680 sqft")
   if (price > 0 && plan.size_range) {
     const match = plan.size_range.match(/(\d[\d,]*)/);
     if (match) {
@@ -28,19 +22,38 @@ function derivePsf(plan: FloorPlan): string | null {
       }
     }
   }
-
   return null;
+}
+
+const INCLUDED_ICONS: Record<string, React.ReactNode> = {
+  parking: <Car className="h-3.5 w-3.5 shrink-0" />,
+  storage: <Archive className="h-3.5 w-3.5 shrink-0" />,
+  ac: <Wind className="h-3.5 w-3.5 shrink-0" />,
+  "air conditioning": <Wind className="h-3.5 w-3.5 shrink-0" />,
+};
+function getIncludedIcon(item: string) {
+  return INCLUDED_ICONS[item.toLowerCase()] || <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />;
 }
 
 interface DeckFloorPlansSectionProps {
   floorPlans: FloorPlan[];
   whatsappNumber?: string;
   projectName?: string;
+  assignmentFee?: string | null;
+  includedItems?: string[] | null;
 }
 
-export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName }: DeckFloorPlansSectionProps) {
+export function DeckFloorPlansSection({
+  floorPlans,
+  whatsappNumber,
+  projectName,
+  assignmentFee,
+  includedItems,
+}: DeckFloorPlansSectionProps) {
   const [selected, setSelected] = useState<FloorPlan | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
+
+  const hasKeyFacts = assignmentFee || (includedItems && includedItems.length > 0);
 
   return (
     <section id="floor-plans" className="relative py-16 sm:py-24 bg-muted/20 overflow-hidden">
@@ -50,12 +63,52 @@ export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName 
           02
         </div>
 
-        <div className="mb-8 sm:mb-12 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">02 — Hand-Picked For You</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Top Picked Units</h2>
-          <p className="text-muted-foreground text-sm max-w-xl mt-1">
-            These are the best available units — tap any to see the full layout, size, and price.
-          </p>
+        <div className="mb-8 sm:mb-12 space-y-4">
+          <div className="space-y-2">
+            <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">02 — Hand-Picked For You</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Top Picked Units</h2>
+            <p className="text-muted-foreground text-sm max-w-xl mt-1">
+              These are the best available units — tap any to see the full layout, size, and price.
+            </p>
+          </div>
+
+          {/* ── Key Facts strip ── */}
+          {hasKeyFacts && (
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              {/* Assignment Fee pill */}
+              {assignmentFee && (
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background border-2 border-border shadow-sm">
+                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
+                    <DollarSign className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold leading-none mb-0.5">Assignment Fee</p>
+                    <p className="text-sm font-bold text-foreground leading-none">{assignmentFee}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Included items */}
+              {includedItems && includedItems.length > 0 && (
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background border-2 border-border shadow-sm flex-wrap">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold leading-none mb-1.5">Included in Price</p>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {includedItems.map((item) => (
+                        <span
+                          key={item}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/25"
+                        >
+                          {getIncludedIcon(item)}
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {floorPlans.length === 0 ? (
@@ -82,7 +135,6 @@ export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName 
                         alt={plan.unit_type}
                         className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 p-2"
                       />
-                      {/* Overlay on hover */}
                       <div className={`absolute inset-0 bg-primary/20 flex items-center justify-center transition-opacity duration-300 ${hovered === plan.id ? 'opacity-100' : 'opacity-0'}`}>
                         <div className="flex items-center gap-2 bg-background/90 backdrop-blur-sm text-foreground font-semibold text-sm px-4 py-2 rounded-full shadow-lg">
                           <span>View Floor Plan</span>
@@ -97,7 +149,6 @@ export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName 
                     </div>
                   )}
 
-                  {/* Pick number only on the image */}
                   <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
                     <span className="bg-primary/90 text-primary-foreground text-[10px] font-bold w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shadow-sm">
                       {idx + 1}
@@ -107,7 +158,6 @@ export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName 
 
                 {/* Card body */}
                 <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-                  {/* Unit type + price row */}
                   <div className="flex items-start justify-between gap-1">
                     <div className="min-w-0">
                       <p className="text-foreground font-bold text-sm sm:text-base leading-tight truncate">{plan.unit_type}</p>
@@ -119,7 +169,6 @@ export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName 
                     </div>
                   </div>
 
-                  {/* Size */}
                   {plan.size_range && (
                     <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground">
                       <Square className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
@@ -127,7 +176,6 @@ export function DeckFloorPlansSection({ floorPlans, whatsappNumber, projectName 
                     </div>
                   )}
 
-                  {/* PSF pill */}
                   {(() => {
                     const psf = derivePsf(plan);
                     return psf ? (
