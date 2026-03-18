@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { BookingModal } from "./BookingModal";
-import { Phone, Mail, MessageCircle, Star, Award, Globe, Quote } from "lucide-react";
+import { Phone, Mail, MessageCircle, Star, Award, Globe, Quote, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 interface Review {
   reviewer_name: string;
@@ -58,6 +59,8 @@ function resolveAgent(contactName?: string) {
   return AGENTS["Uzair Muhammad"];
 }
 
+const REVIEWS_VISIBLE = 4;
+
 interface DeckContactSectionProps {
   contactName?: string;
   contactPhone?: string;
@@ -75,6 +78,7 @@ export function DeckContactSection({
 }: DeckContactSectionProps) {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [showAllReviews, setShowAllReviews] = useState(false);
 
   const agent = resolveAgent(contactName);
   const displayPhone = contactPhone || agent.phone;
@@ -89,11 +93,14 @@ export function DeckContactSection({
       .eq("is_active", true)
       .order("is_featured", { ascending: false })
       .order("sort_order", { ascending: true })
-      .limit(6)
+      .limit(10)
       .then(({ data }) => {
         if (data && data.length > 0) setReviews(data as Review[]);
       });
   }, []);
+
+  const visibleReviews = showAllReviews ? reviews : reviews.slice(0, REVIEWS_VISIBLE);
+  const hasMore = reviews.length > REVIEWS_VISIBLE;
 
   return (
     <section id="contact" className="relative py-16 sm:py-24 bg-muted/10">
@@ -110,7 +117,7 @@ export function DeckContactSection({
         </div>
 
         {/* Two-column layout */}
-        <div className="grid lg:grid-cols-[380px_1fr] gap-8 items-start">
+        <div className="grid lg:grid-cols-[360px_1fr] gap-8 items-start">
 
           {/* LEFT — Agent card */}
           <div className="relative rounded-2xl overflow-hidden border border-border/50 bg-background shadow-lg">
@@ -171,7 +178,7 @@ export function DeckContactSection({
               <div className="space-y-2 mb-4">
                 <a
                   href={`tel:${displayPhone}`}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors group touch-manipulation"
+                  className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors touch-manipulation"
                 >
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Phone className="h-3.5 w-3.5 text-primary" />
@@ -180,7 +187,7 @@ export function DeckContactSection({
                 </a>
                 <a
                   href={`mailto:${displayEmail}`}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors group touch-manipulation"
+                  className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors touch-manipulation"
                 >
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Mail className="h-3.5 w-3.5 text-primary" />
@@ -212,14 +219,15 @@ export function DeckContactSection({
               <span className="text-xs text-muted-foreground">· 40+ Google Reviews</span>
             </div>
 
+            {/* Reviews grid — 2 cols, initially 4 reviews */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {reviews.map((review, i) => (
+              {visibleReviews.map((review, i) => (
                 <div
                   key={i}
                   className="rounded-xl border border-border/50 bg-background p-4 shadow-sm flex flex-col gap-2"
                 >
                   <Quote className="h-4 w-4 text-primary/40 shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed flex-1 line-clamp-5">
+                  <p className="text-sm text-muted-foreground leading-relaxed flex-1 line-clamp-4">
                     {review.review_text}
                   </p>
                   <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/30">
@@ -238,9 +246,19 @@ export function DeckContactSection({
                 </div>
               ))}
             </div>
+
+            {/* Show more / less toggle */}
+            {hasMore && (
+              <button
+                onClick={() => setShowAllReviews((v) => !v)}
+                className="flex items-center gap-2 self-start text-sm font-medium text-primary hover:text-primary/80 transition-colors touch-manipulation mt-1"
+              >
+                <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", showAllReviews && "rotate-180")} />
+                {showAllReviews ? "Show fewer reviews" : `See ${reviews.length - REVIEWS_VISIBLE} more reviews`}
+              </button>
+            )}
           </div>
         </div>
-
       </div>
 
       <BookingModal

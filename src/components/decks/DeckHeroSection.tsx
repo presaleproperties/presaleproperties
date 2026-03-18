@@ -23,9 +23,7 @@ export function DeckHeroSection({
   totalUnits,
   completionYear,
   assignmentFee,
-  whatsappNumber,
   onFloorPlansClick,
-  onContactClick,
 }: DeckHeroSectionProps) {
   const stats = [
     developerName && { icon: Building2, label: "Developer", value: developerName },
@@ -93,16 +91,6 @@ export function DeckHeroSection({
               ))}
             </div>
           )}
-
-          {/* Single CTA — desktop only */}
-          <div className="hidden sm:flex items-center gap-3 pt-1">
-            <button
-              onClick={onFloorPlansClick}
-              className="px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors touch-manipulation"
-            >
-              View Floor Plans & Pricing
-            </button>
-          </div>
         </div>
       </div>
 

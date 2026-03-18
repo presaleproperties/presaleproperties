@@ -31,6 +31,7 @@ export function DeckAboutSection({
   return (
     <section id="about" className="py-14 sm:py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
 
           {/* Left — description */}
@@ -51,11 +52,11 @@ export function DeckAboutSection({
 
             {/* Collapsible highlights */}
             {highlights && highlights.length > 0 && (
-              <div className="border border-border/60 rounded-xl overflow-hidden">
+              <div className="border border-border/50 rounded-xl overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setHighlightsOpen((v) => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3.5 bg-muted/30 hover:bg-muted/50 transition-colors touch-manipulation"
+                  className="w-full flex items-center justify-between px-4 py-3.5 bg-muted/20 hover:bg-muted/40 transition-colors touch-manipulation"
                 >
                   <span className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
@@ -64,8 +65,12 @@ export function DeckAboutSection({
                   </span>
                   <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", highlightsOpen && "rotate-180")} />
                 </button>
-                {highlightsOpen && (
-                  <ul className="px-4 py-3 space-y-2.5 border-t border-border/40">
+
+                <div
+                  className="overflow-hidden transition-all duration-300"
+                  style={{ maxHeight: highlightsOpen ? `${highlights.length * 44}px` : "0" }}
+                >
+                  <ul className="px-4 py-3 space-y-2 border-t border-border/30">
                     {highlights.map((h, i) => (
                       <li key={i} className="flex items-start gap-2.5">
                         <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
@@ -73,7 +78,7 @@ export function DeckAboutSection({
                       </li>
                     ))}
                   </ul>
-                )}
+                </div>
               </div>
             )}
           </div>
@@ -81,8 +86,8 @@ export function DeckAboutSection({
           {/* Right — amenities */}
           {amenities && amenities.length > 0 && (
             <div className="lg:col-span-5">
-              <div className="rounded-2xl border border-border bg-muted/20 p-6 space-y-4 sticky top-24">
-                <div className="flex items-center gap-2">
+              <div className="rounded-2xl border border-border/60 bg-muted/10 p-6 space-y-4 sticky top-24">
+                <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="h-4 w-4 text-primary" />
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Building Amenities
@@ -92,7 +97,7 @@ export function DeckAboutSection({
                   {amenities.map((amenity, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-background border border-border/80 text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                      className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-background border border-border/70 text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors"
                     >
                       {amenity}
                     </span>
@@ -105,7 +110,7 @@ export function DeckAboutSection({
       </div>
 
       <style>{`
-        .deck-prose p { margin-bottom: 0.85rem; font-size: 0.9375rem; line-height: 1.7; }
+        .deck-prose p { margin-bottom: 0.85rem; font-size: 0.9375rem; line-height: 1.75; }
         .deck-prose strong { font-weight: 700; color: hsl(var(--foreground)); }
         .deck-prose ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0.85rem; }
         .deck-prose ul li { margin-bottom: 0.4rem; font-size: 0.9375rem; }

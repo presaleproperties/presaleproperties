@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
-import { X, ZoomIn, ZoomOut, Square, TrendingUp, MessageCircle } from "lucide-react";
+import { X, ZoomIn, ZoomOut, Square, TrendingUp, MessageCircle, Maximize2 } from "lucide-react";
 
 export interface FloorPlan {
   id: string;
@@ -86,6 +86,7 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
   const prevPlanId = useRef<string | null>(null);
   if (plan && plan.id !== prevPlanId.current) {
     prevPlanId.current = plan.id;
+    // Reset zoom on plan change
   }
 
   if (!plan) return null;
@@ -97,138 +98,153 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
   );
   const waUrl = `https://wa.me/${waNumber}?text=${waMessage}`;
 
-  return (
-    <Dialog open={!!plan} onOpenChange={(open) => { if (!open) { resetZoom(); onClose(); } }}>
-      {/* Full-width modal — image dominant */}
-      <DialogContent className="w-full max-w-6xl p-0 overflow-hidden gap-0 border-border/50 rounded-t-2xl sm:rounded-2xl max-h-[96dvh] flex flex-col">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+      style={{ height: "100dvh" }}
+      onClick={(e) => { if (e.target === e.currentTarget) { resetZoom(); onClose(); } }}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => { resetZoom(); onClose(); }} />
 
-        {/* Close button */}
+      {/* Modal */}
+      <div
+        className="relative w-full sm:max-w-5xl xl:max-w-6xl bg-background rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col sm:flex-row shadow-2xl border border-border/30"
+        style={{
+          maxHeight: "96dvh",
+          height: "96dvh",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close */}
         <button
           onClick={() => { resetZoom(); onClose(); }}
-          className="absolute top-3 right-3 z-50 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground shadow-md"
+          className="absolute top-3 right-3 z-50 p-2 rounded-full bg-background/90 backdrop-blur-sm border border-border/50 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground shadow-md"
         >
           <X className="h-4 w-4" />
         </button>
 
-        {/* Layout: image takes the majority of space */}
-        <div className="flex flex-col lg:flex-row overflow-hidden flex-1 min-h-0">
-
-          {/* ── Image panel — maximum size ── */}
-          <div
-            className={`relative bg-muted/10 flex items-center justify-center select-none lg:flex-1 ${
-              zoomed ? "overflow-hidden cursor-grab active:cursor-grabbing" : "overflow-hidden cursor-zoom-in"
-            }`}
-            style={{ minHeight: "clamp(320px, 60dvh, 680px)" }}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-            onClick={handleImageClick}
-          >
-            {plan.image_url ? (
-              <div
-                style={{
-                  transform: zoomed
-                    ? `scale(2.6) translate(${pan.x / 2.6}px, ${pan.y / 2.6}px)`
-                    : "scale(1) translate(0px, 0px)",
-                  transition: isDragging.current ? "none" : "transform 0.25s ease",
-                  transformOrigin: "center center",
-                  willChange: "transform",
-                  width: "100%",
-                  height: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <img
-                  src={plan.image_url}
-                  alt={`${plan.unit_type} floor plan`}
-                  className="object-contain"
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "clamp(300px, 58dvh, 660px)",
-                    width: "auto",
-                    height: "auto",
-                    padding: "16px",
-                  }}
-                  draggable={false}
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-3 opacity-30 py-16">
-                <Square className="h-14 w-14 text-foreground/20" />
-                <p className="text-sm text-muted-foreground">Floor plan preview coming soon</p>
-              </div>
-            )}
-
-            {/* Zoom hint */}
-            {plan.image_url && (
-              <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-background/75 backdrop-blur-sm rounded-full px-3 py-1.5 text-[11px] text-muted-foreground border border-border/40 pointer-events-none select-none">
-                {zoomed ? <ZoomOut className="h-3.5 w-3.5" /> : <ZoomIn className="h-3.5 w-3.5" />}
-                <span>{zoomed ? "Drag to pan · Tap to zoom out" : "Tap to zoom in"}</span>
-              </div>
-            )}
-          </div>
-
-          {/* ── Info panel — compact right column ── */}
-          <div className="flex flex-col p-5 sm:p-6 border-t lg:border-t-0 lg:border-l border-border/50 bg-background lg:w-[280px] xl:w-[300px] shrink-0">
-
-            {/* Unit type */}
-            <div className="mb-4 pr-8">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Unit Type</p>
-              <h3 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">{plan.unit_type}</h3>
-            </div>
-
-            {/* Price */}
-            <div className="rounded-xl bg-primary/8 border border-primary/15 p-4 mb-4">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Starting From</p>
-              <p className="text-2xl sm:text-3xl font-bold text-primary">{plan.price_from}</p>
-            </div>
-
-            {/* Size + PSF */}
-            <div className="space-y-3 mb-5">
-              {plan.size_range && (
-                <div className="flex items-center gap-3 pb-3 border-b border-border/50">
-                  <Square className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Size</p>
-                    <p className="text-sm font-semibold text-foreground">{plan.size_range}</p>
-                  </div>
-                </div>
-              )}
-              {psf && (
-                <div className="flex items-center gap-3">
-                  <TrendingUp className="h-4 w-4 text-primary shrink-0" />
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
-                    <p className="text-sm font-bold text-primary">
-                      {psf} <span className="font-normal text-muted-foreground">/ sqft</span>
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* CTA */}
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full mt-auto"
-              onClick={onClose}
+        {/* ── IMAGE — takes ALL the space on left (desktop) / top (mobile) ── */}
+        <div
+          className={`relative bg-muted/5 flex items-center justify-center select-none flex-1 min-h-0 ${
+            zoomed ? "overflow-hidden cursor-grab active:cursor-grabbing" : "overflow-hidden cursor-zoom-in"
+          }`}
+          style={{ minHeight: "55dvh" }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          onClick={handleImageClick}
+        >
+          {plan.image_url ? (
+            <div
+              style={{
+                transform: zoomed
+                  ? `scale(2.8) translate(${pan.x / 2.8}px, ${pan.y / 2.8}px)`
+                  : "scale(1) translate(0px, 0px)",
+                transition: isDragging.current ? "none" : "transform 0.28s ease",
+                transformOrigin: "center center",
+                willChange: "transform",
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "0",
+              }}
             >
-              <Button className="w-full touch-manipulation gap-2" size="lg">
-                <MessageCircle className="h-4 w-4" />
-                I'm Interested
-              </Button>
-            </a>
-            <p className="text-[10px] text-muted-foreground text-center mt-2">
-              No obligation · Private showing available
-            </p>
-          </div>
+              <img
+                src={plan.image_url}
+                alt={`${plan.unit_type} floor plan`}
+                className="object-contain"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  width: "auto",
+                  height: "auto",
+                  padding: "12px",
+                }}
+                draggable={false}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 opacity-30 py-16">
+              <Maximize2 className="h-16 w-16 text-foreground/20" />
+              <p className="text-sm text-muted-foreground">Floor plan preview coming soon</p>
+            </div>
+          )}
+
+          {/* Zoom hint */}
+          {plan.image_url && (
+            <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-background/80 backdrop-blur-sm rounded-full px-3 py-1.5 text-[11px] text-muted-foreground border border-border/40 pointer-events-none select-none shadow-sm">
+              {zoomed ? <ZoomOut className="h-3.5 w-3.5" /> : <ZoomIn className="h-3.5 w-3.5" />}
+              <span>{zoomed ? "Drag to pan · Tap to zoom out" : "Tap to zoom"}</span>
+            </div>
+          )}
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* ── INFO PANEL — slim right column / bottom sheet on mobile ── */}
+        <div className="flex flex-col p-5 sm:p-6 border-t sm:border-t-0 sm:border-l border-border/40 bg-background sm:w-[240px] xl:w-[260px] shrink-0 overflow-y-auto">
+
+          {/* Unit type */}
+          <div className="mb-4 pr-7">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Unit Type</p>
+            <h3 className="text-xl font-bold text-foreground leading-tight">{plan.unit_type}</h3>
+          </div>
+
+          {/* Price */}
+          <div className="rounded-xl bg-primary/8 border border-primary/15 px-4 py-3 mb-4">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Starting From</p>
+            <p className="text-2xl font-bold text-primary leading-tight">{plan.price_from || "—"}</p>
+          </div>
+
+          {/* Details */}
+          <div className="space-y-3 mb-5">
+            {plan.size_range && (
+              <div className="flex items-center gap-2.5 pb-3 border-b border-border/40">
+                <Square className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Size</p>
+                  <p className="text-sm font-semibold text-foreground">{plan.size_range}</p>
+                </div>
+              </div>
+            )}
+            {psf && (
+              <div className="flex items-center gap-2.5">
+                <TrendingUp className="h-4 w-4 text-primary shrink-0" />
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
+                  <p className="text-sm font-bold text-primary">
+                    {psf} <span className="font-normal text-muted-foreground">/ sqft</span>
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* CTA */}
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full mt-auto"
+            onClick={onClose}
+          >
+            <Button
+              className="w-full touch-manipulation gap-2"
+              size="lg"
+              style={{ background: "#25D366", boxShadow: "0 4px 16px rgba(37,211,102,0.30)" }}
+            >
+              <MessageCircle className="h-4 w-4" />
+              I'm Interested
+            </Button>
+          </a>
+          <p className="text-[10px] text-muted-foreground text-center mt-2">
+            No obligation · Private showing available
+          </p>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }
