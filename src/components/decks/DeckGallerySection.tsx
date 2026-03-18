@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { GalleryLightbox } from "./GalleryLightbox";
-import { ImageIcon, Grid3x3, ZoomIn } from "lucide-react";
+import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
+import { ImageIcon } from "lucide-react";
 
 interface DeckGallerySectionProps {
   images: string[];
@@ -9,24 +8,6 @@ interface DeckGallerySectionProps {
 }
 
 export function DeckGallerySection({ images, onGalleryOpen, onGalleryClose }: DeckGallerySectionProps) {
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-
-  const openLightbox = (index: number) => {
-    onGalleryOpen?.();
-    setLightboxIndex(index);
-  };
-
-  const closeLightbox = () => {
-    setLightboxIndex(null);
-    onGalleryClose?.();
-  };
-
-  const handlePrev = () =>
-    setLightboxIndex((i) => (i !== null ? (i - 1 + images.length) % images.length : 0));
-  const handleNext = () =>
-    setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : 0));
-  const handleJumpTo = (i: number) => setLightboxIndex(i);
-
   if (images.length === 0) {
     return (
       <section id="gallery" className="relative py-8 sm:py-24 bg-background">
@@ -44,8 +25,7 @@ export function DeckGallerySection({ images, onGalleryOpen, onGalleryClose }: De
     );
   }
 
-  const [first, second, third, ...moreRest] = images;
-  const rest = images.slice(1);
+  const photos = images.map((url) => ({ url }));
 
   return (
     <section id="gallery" className="relative py-8 sm:py-20 bg-background">
@@ -55,133 +35,12 @@ export function DeckGallerySection({ images, onGalleryOpen, onGalleryClose }: De
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Project Photos</h2>
         </div>
 
-        {/* ── Mobile: hero card + horizontal thumbnail strip ── */}
-        <div className="sm:hidden space-y-2">
-          <button
-            onClick={() => openLightbox(0)}
-            className="relative w-full overflow-hidden rounded-2xl touch-manipulation active:scale-[0.98] transition-transform duration-150 focus:outline-none"
-            style={{ aspectRatio: "4/3" }}
-          >
-            <img
-              src={first}
-              alt="Gallery hero"
-              className="w-full h-full object-cover"
-              loading="eager"
-            />
-            {/* Gradient + badge */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 active:opacity-100 transition-opacity">
-              <div className="bg-black/60 backdrop-blur-sm rounded-full p-4">
-                <ZoomIn className="h-7 w-7 text-white" />
-              </div>
-            </div>
-            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full">
-              <Grid3x3 className="h-3 w-3" />
-              {images.length} photos
-            </div>
-          </button>
-
-          {/* Thumbnail strip */}
-          {rest.length > 0 && (
-            <div
-              className="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1"
-              style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
-            >
-              {rest.map((img, i) => (
-                <button
-                  key={i + 1}
-                  onClick={() => openLightbox(i + 1)}
-                  className="snap-start shrink-0 w-24 h-20 rounded-xl overflow-hidden touch-manipulation active:opacity-70 transition-opacity focus:outline-none"
-                >
-                  <img src={img} alt={`Photo ${i + 2}`} className="w-full h-full object-cover" loading="lazy" />
-                </button>
-              ))}
-              {/* View all button */}
-              <button
-                onClick={() => openLightbox(0)}
-                className="snap-start shrink-0 w-24 h-20 rounded-xl bg-foreground/90 flex flex-col items-center justify-center gap-1 touch-manipulation active:bg-foreground transition-colors focus:outline-none"
-              >
-                <Grid3x3 className="h-4 w-4 text-background" />
-                <span className="text-background text-[10px] font-bold">All Photos</span>
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* ── Desktop: bento-style gallery grid ── */}
-        <div className="hidden sm:grid grid-cols-4 gap-2">
-          {/* Hero: 2-col, 2-row */}
-          <div
-            className="col-span-2 row-span-2 overflow-hidden rounded-2xl cursor-pointer relative group"
-            style={{ height: "440px" }}
-            onClick={() => openLightbox(0)}
-          >
-            <img
-              src={first}
-              alt="Gallery 1"
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              loading="eager"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-            {/* Zoom hint on hover */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <div className="bg-black/50 backdrop-blur-sm rounded-full p-4 scale-75 group-hover:scale-100 transition-transform duration-200">
-                <ZoomIn className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            <div className="absolute bottom-3 left-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200">
-              <div className="bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 flex items-center gap-1.5 text-xs font-semibold text-foreground shadow-sm">
-                <Grid3x3 className="h-3.5 w-3.5" />
-                View All {images.length} Photos
-              </div>
-            </div>
-          </div>
-
-          {/* Side grid: up to 4 thumbnails */}
-          {rest.slice(0, 4).map((img, i) => (
-            <div
-              key={i + 1}
-              className="overflow-hidden rounded-2xl cursor-pointer relative group"
-              style={{ height: "214px" }}
-              onClick={() => openLightbox(i + 1)}
-            >
-              <img
-                src={img}
-                alt={`Gallery ${i + 2}`}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.06]"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
-
-              {/* Zoom icon on hover */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                <div className="bg-black/40 backdrop-blur-sm rounded-full p-2.5">
-                  <ZoomIn className="h-4 w-4 text-white" />
-                </div>
-              </div>
-
-              {/* "More photos" overlay on last visible tile */}
-              {i === 3 && images.length > 5 && (
-                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1.5 group-hover:bg-black/70 transition-colors">
-                  <span className="text-white font-bold text-2xl">+{images.length - 5}</span>
-                  <span className="text-white/70 text-xs font-medium tracking-wide uppercase">more photos</span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {lightboxIndex !== null && (
-        <GalleryLightbox
-          images={images}
-          currentIndex={lightboxIndex}
-          onClose={closeLightbox}
-          onPrev={handlePrev}
-          onNext={handleNext}
-          onJumpTo={handleJumpTo}
+        <REWPhotoGallery
+          photos={photos}
+          alt="Project Gallery"
+          previewAspectClassName="aspect-[4/3] lg:aspect-[16/9]"
         />
-      )}
+      </div>
     </section>
   );
 }
