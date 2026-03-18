@@ -683,6 +683,68 @@ export default function DashboardDeckBuilder() {
           </div>
         </Section>
 
+        {/* ── STEP 3b: About / Description ─────────────────────────────── */}
+        <Section title="3b. About the Project"
+          subtitle="Description, feature bullets & amenities — auto-filled from linked project"
+          defaultOpen={false}
+          badge={(description || deckHighlights.length > 0 || deckAmenities.length > 0) ? "✓ Set" : undefined}>
+          <div className="space-y-5">
+            {/* Description textarea */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Project Description <span className="text-muted-foreground font-normal">(Markdown supported)</span></Label>
+              <textarea
+                className="w-full min-h-[160px] rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 resize-y"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={"Welcome to **Eden** by Zenterra…\n\n•\tLocated near parks and walking trails\n•\tEasy access to the upcoming SkyTrain"}
+              />
+              <p className="text-xs text-muted-foreground">Use **bold** for emphasis. Bullet points with • or - are supported.</p>
+            </div>
+
+            {/* Highlight bullets */}
+            <div className="space-y-2">
+              <Label className="text-xs">Feature Highlights <span className="text-muted-foreground font-normal">(bullet list)</span></Label>
+              {deckHighlights.map((item, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Input
+                    className="h-8 text-xs flex-1"
+                    value={item}
+                    onChange={(e) => setDeckHighlights((prev) => prev.map((h, idx) => idx === i ? e.target.value : h))}
+                    placeholder="Over 2 acres of lush green spaces"
+                  />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => setDeckHighlights((prev) => prev.filter((_, idx) => idx !== i))}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+              <Button variant="outline" size="sm" onClick={() => setDeckHighlights((prev) => [...prev, ""])}>
+                <Plus className="h-4 w-4 mr-2" />Add Highlight
+              </Button>
+            </div>
+
+            {/* Amenity chips */}
+            <div className="space-y-2">
+              <Label className="text-xs">Building Amenities</Label>
+              <div className="flex flex-wrap gap-2">
+                {deckAmenities.map((item, i) => (
+                  <div key={i} className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted border border-border/60 text-sm font-medium text-foreground">
+                    {item}
+                    <button
+                      type="button"
+                      onClick={() => setDeckAmenities((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="ml-1 text-muted-foreground hover:text-destructive transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                <AddIncludedItemInput onAdd={(v) => { if (v && !deckAmenities.includes(v)) setDeckAmenities((p) => [...p, v]); }} />
+              </div>
+            </div>
+          </div>
+        </Section>
+
         {/* ── Key Facts ───────────────────────────────────────────────── */}
         <Section title="Key Facts" subtitle="Assignment fee & what's included in the price" defaultOpen={true}>
           <div className="space-y-4">
