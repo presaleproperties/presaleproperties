@@ -447,6 +447,8 @@ export default function DashboardDeckBuilder() {
       lat: lat ? parseFloat(lat) : null,
       lng: lng ? parseFloat(lng) : null,
       floor_plans_pdf_url: floorPlansPdfUrl || null,
+      assignment_fee: assignmentFee || null,
+      included_items: includedItems.filter(Boolean),
     };
     let error;
     if (isEdit && id) {
