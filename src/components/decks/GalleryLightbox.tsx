@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -19,18 +19,18 @@ export function GalleryLightbox({
   onNext,
   onJumpTo,
 }: GalleryLightboxProps) {
-  const touchStartX = useRef<number | null>(null);
-  const touchStartY = useRef<number | null>(null);
   const thumbnailRef = useRef<HTMLDivElement>(null);
-  const [imgLoaded, setImgLoaded] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [activeIndex, setActiveIndex] = useState(currentIndex);
+  const isScrollingProgrammatically = useRef(false);
 
-  useEffect(() => { setImgLoaded(false); }, [currentIndex]);
-
+  // Keyboard nav (desktop)
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") onPrev();
-      if (e.key === "ArrowRight") onNext();
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") onPrev();
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") onNext();
     };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKey);
@@ -40,27 +40,49 @@ export function GalleryLightbox({
     };
   }, [onClose, onPrev, onNext]);
 
+  // When currentIndex changes externally (thumbnail click / keyboard), scroll to that item
   useEffect(() => {
-    if (!thumbnailRef.current) return;
-    const active = thumbnailRef.current.querySelector(`[data-index="${currentIndex}"]`) as HTMLElement;
-    if (active) active.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    const el = itemRefs.current[currentIndex];
+    if (!el || !scrollContainerRef.current) return;
+    isScrollingProgrammatically.current = true;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    setActiveIndex(currentIndex);
+    setTimeout(() => { isScrollingProgrammatically.current = false; }, 600);
   }, [currentIndex]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-  };
+  // Sync thumbnail strip when activeIndex changes
+  useEffect(() => {
+    if (!thumbnailRef.current) return;
+    const active = thumbnailRef.current.querySelector(`[data-index="${activeIndex}"]`) as HTMLElement;
+    if (active) active.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [activeIndex]);
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null || touchStartY.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    const dy = e.changedTouches[0].clientY - touchStartY.current;
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-      dx < 0 ? onNext() : onPrev();
-    }
-    touchStartX.current = null;
-    touchStartY.current = null;
-  };
+  // IntersectionObserver to track which image is most visible while scrolling
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isScrollingProgrammatically.current) return;
+        let best: { index: number; ratio: number } | null = null;
+        entries.forEach((entry) => {
+          const idx = parseInt((entry.target as HTMLElement).dataset.imgIndex || "-1", 10);
+          if (idx >= 0 && (!best || entry.intersectionRatio > best.ratio)) {
+            best = { index: idx, ratio: entry.intersectionRatio };
+          }
+        });
+        if (best && (best as any).ratio > 0.4) {
+          setActiveIndex((best as any).index);
+          onJumpTo?.((best as any).index);
+        }
+      },
+      { root: container, threshold: [0.4, 0.6, 0.8] }
+    );
+
+    itemRefs.current.forEach((el) => { if (el) observer.observe(el); });
+    return () => observer.disconnect();
+  }, [images, onJumpTo]);
 
   if (images.length === 0) return null;
 
@@ -72,7 +94,7 @@ export function GalleryLightbox({
         style={{ paddingTop: "max(0.875rem, env(safe-area-inset-top))", paddingBottom: "0.875rem" }}
       >
         <span className="text-white/60 text-sm font-medium tabular-nums">
-          {currentIndex + 1} / {images.length}
+          {activeIndex + 1} / {images.length}
         </span>
         <button
           className="p-2.5 rounded-full bg-white/12 active:bg-white/25 text-white transition-colors touch-manipulation"
@@ -83,15 +105,39 @@ export function GalleryLightbox({
         </button>
       </div>
 
-      {/* Main image area — swipeable */}
+      {/* ── MOBILE: vertical scroll list ── */}
       <div
-        className="flex-1 flex items-center justify-center relative min-h-0 select-none px-0 sm:px-16"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        ref={scrollContainerRef}
+        className="sm:hidden flex-1 overflow-y-auto overscroll-contain"
+        style={{ scrollSnapType: "y mandatory", WebkitOverflowScrolling: "touch" }}
       >
+        {images.map((img, i) => (
+          <div
+            key={i}
+            ref={(el) => { itemRefs.current[i] = el; }}
+            data-img-index={i}
+            className="flex items-center justify-center px-3 py-2"
+            style={{ scrollSnapAlign: "center", minHeight: "60dvh" }}
+          >
+            <img
+              src={img}
+              alt={`Gallery image ${i + 1}`}
+              className="max-w-full rounded-xl object-contain"
+              style={{ maxHeight: "80dvh" }}
+              loading={i === 0 ? "eager" : "lazy"}
+              draggable={false}
+            />
+          </div>
+        ))}
+        {/* Bottom safe-area spacer */}
+        <div style={{ height: "max(1rem, env(safe-area-inset-bottom))" }} />
+      </div>
+
+      {/* ── DESKTOP: single image with arrows ── */}
+      <div className="hidden sm:flex flex-1 items-center justify-center relative min-h-0 select-none px-16">
         {images.length > 1 && (
           <button
-            className="hidden sm:flex absolute left-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10 touch-manipulation items-center justify-center"
+            className="absolute left-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10 flex items-center justify-center"
             onClick={onPrev}
             aria-label="Previous"
           >
@@ -99,48 +145,31 @@ export function GalleryLightbox({
           </button>
         )}
 
-        {!imgLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-white/70 animate-spin" />
-          </div>
-        )}
-
         <img
           key={currentIndex}
           src={images[currentIndex]}
           alt={`Gallery image ${currentIndex + 1}`}
-          onLoad={() => setImgLoaded(true)}
-          className="max-w-full max-h-full object-contain rounded-md pointer-events-none"
-          style={{
-            maxHeight: "calc(100dvh - 140px)",
-            opacity: imgLoaded ? 1 : 0,
-            transition: "opacity 0.25s ease",
-          }}
+          className="max-w-full max-h-full object-contain rounded-md"
+          style={{ maxHeight: "calc(100dvh - 140px)" }}
           draggable={false}
         />
 
         {images.length > 1 && (
           <button
-            className="hidden sm:flex absolute right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10 touch-manipulation items-center justify-center"
+            className="absolute right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10 flex items-center justify-center"
             onClick={onNext}
             aria-label="Next"
           >
             <ChevronRight className="h-6 w-6" />
           </button>
         )}
-
-        {images.length > 1 && (
-          <div className="sm:hidden absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm pointer-events-none">
-            <span className="text-white/50 text-[11px] tracking-wide">Swipe to browse</span>
-          </div>
-        )}
       </div>
 
-      {/* Thumbnail strip */}
+      {/* Thumbnail strip — desktop only */}
       {images.length > 1 && (
         <div
           ref={thumbnailRef}
-          className="shrink-0 px-3 pt-2 flex gap-2 overflow-x-auto bg-black/80 scrollbar-hide"
+          className="hidden sm:flex shrink-0 px-3 pt-2 gap-2 overflow-x-auto bg-black/80 scrollbar-hide"
           style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
         >
           {images.map((img, i) => (
@@ -151,12 +180,22 @@ export function GalleryLightbox({
               className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
                 i === currentIndex
                   ? "border-primary opacity-100 scale-105"
-                  : "border-transparent opacity-45 active:opacity-80"
+                  : "border-transparent opacity-45 hover:opacity-80"
               }`}
             >
               <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Mobile scroll hint */}
+      {images.length > 1 && (
+        <div
+          className="sm:hidden shrink-0 flex items-center justify-center py-2 bg-black/80"
+          style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+        >
+          <span className="text-white/40 text-[11px] tracking-wide">Scroll to browse</span>
         </div>
       )}
     </div>,
