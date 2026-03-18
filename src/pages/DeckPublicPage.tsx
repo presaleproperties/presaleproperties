@@ -192,18 +192,14 @@ export default function DeckPublicPage() {
       {/* Accent divider */}
       <div className="h-px bg-primary/20" />
 
-      {/* Key Facts Bar */}
-      <DeckKeyFactsBar
-        assignmentFee={deck.assignment_fee}
-        includedItems={deck.included_items}
-      />
-
-      {/* Section 2 — Floor Plans */}
+      {/* Section 2 — Floor Plans (Key Facts embedded in header) */}
       <div className="deck-animate">
         <DeckFloorPlansSection
           floorPlans={deck.floor_plans || []}
           whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
           projectName={deck.project_name}
+          assignmentFee={deck.assignment_fee}
+          includedItems={deck.included_items}
         />
       </div>
 
