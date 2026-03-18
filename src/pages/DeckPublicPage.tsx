@@ -341,5 +341,6 @@ export default function DeckPublicPage() {
         </div>
       </footer>
     </div>
+    </>
   );
 }
