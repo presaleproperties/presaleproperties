@@ -105,26 +105,37 @@ export function GalleryLightbox({
         </button>
       </div>
 
-      {/* ── MOBILE: vertical scroll list ── */}
+      {/* ── MOBILE: smooth vertical scroll list — full-width images with small gaps ── */}
       <div
         ref={scrollContainerRef}
         className="sm:hidden flex-1 overflow-y-auto overscroll-contain"
-        style={{ scrollSnapType: "y mandatory", WebkitOverflowScrolling: "touch" }}
+        style={{
+          scrollSnapType: "y mandatory",
+          WebkitOverflowScrolling: "touch",
+          scrollBehavior: "smooth",
+        }}
       >
         {images.map((img, i) => (
           <div
             key={i}
             ref={(el) => { itemRefs.current[i] = el; }}
             data-img-index={i}
-            className="flex items-center justify-center px-3 py-2"
-            style={{ scrollSnapAlign: "center", minHeight: "60dvh" }}
+            className="flex items-center justify-center"
+            style={{
+              scrollSnapAlign: "center",
+              minHeight: "75dvh",
+              paddingTop: i === 0 ? "8px" : "4px",
+              paddingBottom: i === images.length - 1 ? "8px" : "4px",
+              paddingLeft: "12px",
+              paddingRight: "12px",
+            }}
           >
             <img
               src={img}
               alt={`Gallery image ${i + 1}`}
-              className="max-w-full rounded-xl object-contain"
-              style={{ maxHeight: "80dvh" }}
-              loading={i === 0 ? "eager" : "lazy"}
+              className="w-full rounded-2xl object-contain shadow-lg"
+              style={{ maxHeight: "72dvh" }}
+              loading={i <= 1 ? "eager" : "lazy"}
               draggable={false}
             />
           </div>
@@ -149,7 +160,7 @@ export function GalleryLightbox({
           key={currentIndex}
           src={images[currentIndex]}
           alt={`Gallery image ${currentIndex + 1}`}
-          className="max-w-full max-h-full object-contain rounded-md"
+          className="max-w-full max-h-full object-contain rounded-xl"
           style={{ maxHeight: "calc(100dvh - 140px)" }}
           draggable={false}
         />
@@ -195,7 +206,7 @@ export function GalleryLightbox({
           className="sm:hidden shrink-0 flex items-center justify-center py-2 bg-black/80"
           style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
         >
-          <span className="text-white/40 text-[11px] tracking-wide">Scroll to browse</span>
+          <span className="text-white/40 text-[11px] tracking-wide">Swipe up or down to browse</span>
         </div>
       )}
     </div>,

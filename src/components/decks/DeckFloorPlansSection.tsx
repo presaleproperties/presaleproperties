@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { FloorPlanModal, FloorPlan } from "./FloorPlanModal";
-import { LayoutPanelTop, ArrowRight, Square, TrendingUp, DollarSign, Car, Archive, Wind, CheckCircle2, Flame, TrendingUp as TrendUp } from "lucide-react";
+import { LayoutPanelTop, ArrowRight, Square, TrendingUp, Car, Archive, Wind, CheckCircle2, Flame, TrendingUp as TrendUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function derivePsf(plan: FloorPlan): string | null {
@@ -19,22 +18,31 @@ function derivePsf(plan: FloorPlan): string | null {
   return null;
 }
 
+// Maps keyword → icon
 const INCLUDED_ICONS: Record<string, React.ReactNode> = {
-  parking: <Car className="h-3.5 w-3.5 shrink-0" />,
-  storage: <Archive className="h-3.5 w-3.5 shrink-0" />,
-  locker: <Archive className="h-3.5 w-3.5 shrink-0" />,
-  ac: <Wind className="h-3.5 w-3.5 shrink-0" />,
-  "air conditioning": <Wind className="h-3.5 w-3.5 shrink-0" />,
+  parking: <Car className="h-4 w-4 shrink-0" />,
+  storage: <Archive className="h-4 w-4 shrink-0" />,
+  locker: <Archive className="h-4 w-4 shrink-0" />,
+  ac: <Wind className="h-4 w-4 shrink-0" />,
+  "air conditioning": <Wind className="h-4 w-4 shrink-0" />,
 };
 function getIncludedIcon(item: string) {
-  return INCLUDED_ICONS[item.toLowerCase()] || <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />;
+  const lower = item.toLowerCase();
+  for (const [key, icon] of Object.entries(INCLUDED_ICONS)) {
+    if (lower.includes(key)) return icon;
+  }
+  return <CheckCircle2 className="h-4 w-4 shrink-0" />;
 }
 
-// Expand items with counts: "2 Parking" → "2 Parking Stalls"
-function formatIncludedItem(item: string): string {
-  const lower = item.toLowerCase();
-  if (/^\d+\s+park/.test(lower)) return item; // already has number
-  if (/^\d+\s+stor/.test(lower)) return item;
+// Normalize display: ensure items like "Parking" → "1 Parking Stall", "Storage" → "1 Storage Locker" when no number specified
+function normalizeIncludedItem(item: string): string {
+  const lower = item.toLowerCase().trim();
+  // Already has a leading number
+  if (/^\d/.test(lower)) return item;
+  // Normalize common ones
+  if (lower === "parking" || lower === "parking stall") return "1 Parking Stall";
+  if (lower === "storage" || lower === "storage locker" || lower === "locker") return "1 Storage Locker";
+  if (lower === "ac" || lower === "air conditioning" || lower === "a/c") return "Air Conditioning";
   return item;
 }
 
@@ -60,9 +68,11 @@ export function DeckFloorPlansSection({
   const [selected, setSelected] = useState<FloorPlan | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
 
-  const displayItems = (includedItems && includedItems.length > 0)
+  // Build display items with clear counts
+  const rawItems = (includedItems && includedItems.length > 0)
     ? includedItems
     : ["Parking", "Storage", "AC"];
+  const displayItems = rawItems.map(normalizeIncludedItem);
 
   const hasScarcity = (unitsRemaining !== null && unitsRemaining !== undefined) || nextPriceIncrease;
 
@@ -79,23 +89,23 @@ export function DeckFloorPlansSection({
             </p>
           </div>
 
-          {/* Key facts row */}
+          {/* Included in price + scarcity row */}
           <div className="flex flex-wrap items-stretch gap-3">
-            {/* Included in price */}
+            {/* Included in price card */}
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-background border border-border/60 shadow-sm">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
               </div>
               <div>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold leading-none mb-1.5">Included in Price</p>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {displayItems.map((item) => (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {displayItems.map((item, idx) => (
                     <span
                       key={item}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20"
                     >
-                      {getIncludedIcon(item)}
-                      {formatIncludedItem(item)}
+                      {getIncludedIcon(rawItems[idx] || item)}
+                      {item}
                     </span>
                   ))}
                 </div>
@@ -103,7 +113,7 @@ export function DeckFloorPlansSection({
             </div>
           </div>
 
-          {/* Scarcity / urgency — inline here next to the units */}
+          {/* Scarcity / urgency */}
           {hasScarcity && (
             <div className="flex flex-wrap items-center gap-3">
               {unitsRemaining !== null && unitsRemaining !== undefined && (
@@ -121,7 +131,7 @@ export function DeckFloorPlansSection({
               {nextPriceIncrease && (
                 <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/8 border border-primary/25">
                   <TrendUp className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <p className="text-sm font-semibold text-primary">Next price increase: {nextPriceIncrease} more</p>
+                  <p className="text-sm font-semibold text-primary">Next price increase: {nextPriceIncrease}</p>
                 </div>
               )}
             </div>

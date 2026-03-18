@@ -35,9 +35,6 @@ export function DeckHeroSection({
     assignmentFee && { icon: DollarSign, label: "Assignment Fee", value: assignmentFee },
   ].filter(Boolean) as { icon: any; label: string; value: string }[];
 
-  const waNumber = (whatsappNumber || "17782313592").replace(/\D/g, "");
-  const waMessage = encodeURIComponent(`Hi! I'm interested in ${projectName} — can you share more details?`);
-
   return (
     <section
       id="overview"
@@ -57,7 +54,7 @@ export function DeckHeroSection({
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
       </div>
 
       {/* Content */}
@@ -97,7 +94,7 @@ export function DeckHeroSection({
             </div>
           )}
 
-          {/* CTAs — desktop only */}
+          {/* Single CTA — desktop only */}
           <div className="hidden sm:flex items-center gap-3 pt-1">
             <button
               onClick={onFloorPlansClick}
@@ -105,14 +102,6 @@ export function DeckHeroSection({
             >
               View Floor Plans & Pricing
             </button>
-            <a
-              href={`https://wa.me/${waNumber}?text=${waMessage}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-xl bg-black/60 backdrop-blur-sm border border-white/30 text-white font-semibold text-sm hover:bg-black/70 transition-colors touch-manipulation"
-            >
-              Get More Info
-            </a>
           </div>
         </div>
       </div>
