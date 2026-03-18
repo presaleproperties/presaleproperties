@@ -1,4 +1,4 @@
-import { Flame, TrendingUp, Clock } from "lucide-react";
+import { Flame, TrendingUp } from "lucide-react";
 
 interface DeckScarcityBannerProps {
   unitsRemaining?: number | null;
@@ -10,8 +10,7 @@ export function DeckScarcityBanner({ unitsRemaining, nextPriceIncrease }: DeckSc
 
   return (
     <div className="relative overflow-hidden bg-destructive/5 border-y border-destructive/20">
-      {/* subtle pulse line at top */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-destructive/60 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-destructive/50 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 sm:py-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
@@ -40,34 +39,32 @@ export function DeckScarcityBanner({ unitsRemaining, nextPriceIncrease }: DeckSc
 
           {nextPriceIncrease && (
             <div className="flex items-center gap-2.5">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/15 shrink-0">
-                <TrendingUp className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                <TrendingUp className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="text-[10px] text-amber-600/70 dark:text-amber-400/70 uppercase tracking-widest font-semibold leading-none mb-0.5">
+                <p className="text-[10px] text-primary/60 uppercase tracking-widest font-semibold leading-none mb-0.5">
                   Upcoming Price Increase
                 </p>
-                <p className="text-sm font-bold text-amber-700 dark:text-amber-300 leading-none">
+                <p className="text-sm font-bold text-primary leading-none">
                   Next price is {nextPriceIncrease} more
                 </p>
               </div>
             </div>
           )}
 
-          {/* Urgency pulse dot — far right */}
+          {/* Urgency pulse dot */}
           <div className="sm:ml-auto flex items-center gap-1.5 shrink-0">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-60" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive" />
             </span>
-            <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-              Act Now
-            </span>
+            <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Act Now</span>
           </div>
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-destructive/60 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-destructive/50 to-transparent" />
     </div>
   );
 }
