@@ -44,7 +44,6 @@ interface FloorPlanModalProps {
 
 export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: FloorPlanModalProps) {
   const [zoomed, setZoomed] = useState(false);
-  // Pan state
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
@@ -79,26 +78,14 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
     isDragging.current = false;
   }, []);
 
-  const handleImageClick = useCallback((e: React.MouseEvent) => {
-    if (hasDragged.current) {
-      hasDragged.current = false;
-      return;
-    }
-    if (zoomed) {
-      resetZoom();
-    } else {
-      setZoomed(true);
-      setPan({ x: 0, y: 0 });
-    }
+  const handleImageClick = useCallback(() => {
+    if (hasDragged.current) { hasDragged.current = false; return; }
+    if (zoomed) { resetZoom(); } else { setZoomed(true); setPan({ x: 0, y: 0 }); }
   }, [zoomed, resetZoom]);
 
-  // Reset pan/zoom when plan changes
   const prevPlanId = useRef<string | null>(null);
   if (plan && plan.id !== prevPlanId.current) {
     prevPlanId.current = plan.id;
-    if (zoomed) {
-      // Reset on next render
-    }
   }
 
   if (!plan) return null;
@@ -112,10 +99,10 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
 
   return (
     <Dialog open={!!plan} onOpenChange={(open) => { if (!open) { resetZoom(); onClose(); } }}>
-      {/* Wide modal — image-first, side panel on desktop */}
-      <DialogContent className="w-full max-w-5xl p-0 overflow-hidden gap-0 border-border/50 rounded-t-2xl sm:rounded-2xl max-h-[95dvh] flex flex-col">
+      {/* Full-width modal — image dominant */}
+      <DialogContent className="w-full max-w-6xl p-0 overflow-hidden gap-0 border-border/50 rounded-t-2xl sm:rounded-2xl max-h-[96dvh] flex flex-col">
 
-        {/* Close button — always visible top-right */}
+        {/* Close button */}
         <button
           onClick={() => { resetZoom(); onClose(); }}
           className="absolute top-3 right-3 z-50 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground shadow-md"
@@ -123,13 +110,15 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
           <X className="h-4 w-4" />
         </button>
 
-        {/* Scrollable inner wrapper */}
-        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_300px] overflow-y-auto overflow-x-hidden flex-1 min-h-0">
+        {/* Layout: image takes the majority of space */}
+        <div className="flex flex-col lg:flex-row overflow-hidden flex-1 min-h-0">
 
-          {/* ── Image panel — dominant ── */}
+          {/* ── Image panel — maximum size ── */}
           <div
-            className={`relative bg-muted/20 flex items-center justify-center shrink-0 lg:shrink select-none ${zoomed ? "overflow-hidden cursor-grab active:cursor-grabbing" : "overflow-hidden cursor-zoom-in"}`}
-            style={{ minHeight: "clamp(260px, 48dvh, 640px)" }}
+            className={`relative bg-muted/10 flex items-center justify-center select-none lg:flex-1 ${
+              zoomed ? "overflow-hidden cursor-grab active:cursor-grabbing" : "overflow-hidden cursor-zoom-in"
+            }`}
+            style={{ minHeight: "clamp(320px, 60dvh, 680px)" }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -140,27 +129,35 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
               <div
                 style={{
                   transform: zoomed
-                    ? `scale(2.4) translate(${pan.x / 2.4}px, ${pan.y / 2.4}px)`
+                    ? `scale(2.6) translate(${pan.x / 2.6}px, ${pan.y / 2.6}px)`
                     : "scale(1) translate(0px, 0px)",
                   transition: isDragging.current ? "none" : "transform 0.25s ease",
                   transformOrigin: "center center",
                   willChange: "transform",
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-                className="w-full h-full flex items-center justify-center p-3 sm:p-6"
               >
                 <img
                   src={plan.image_url}
                   alt={`${plan.unit_type} floor plan`}
-                  className="w-full h-full object-contain"
-                  style={{ maxHeight: "clamp(240px, 46dvh, 620px)" }}
+                  className="object-contain"
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "clamp(300px, 58dvh, 660px)",
+                    width: "auto",
+                    height: "auto",
+                    padding: "16px",
+                  }}
                   draggable={false}
                 />
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 opacity-30 py-16">
-                <div className="w-20 h-20 border-2 border-foreground/30 rounded-xl flex items-center justify-center">
-                  <Square className="h-9 w-9 text-foreground/40" />
-                </div>
+                <Square className="h-14 w-14 text-foreground/20" />
                 <p className="text-sm text-muted-foreground">Floor plan preview coming soon</p>
               </div>
             )}
@@ -169,13 +166,13 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
             {plan.image_url && (
               <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-background/75 backdrop-blur-sm rounded-full px-3 py-1.5 text-[11px] text-muted-foreground border border-border/40 pointer-events-none select-none">
                 {zoomed ? <ZoomOut className="h-3.5 w-3.5" /> : <ZoomIn className="h-3.5 w-3.5" />}
-                <span>{zoomed ? "Drag to pan · Tap to zoom out" : "Tap to zoom in & pan"}</span>
+                <span>{zoomed ? "Drag to pan · Tap to zoom out" : "Tap to zoom in"}</span>
               </div>
             )}
           </div>
 
-          {/* ── Info panel ── */}
-          <div className="flex flex-col p-5 sm:p-6 border-t lg:border-t-0 lg:border-l border-border/50 bg-background">
+          {/* ── Info panel — compact right column ── */}
+          <div className="flex flex-col p-5 sm:p-6 border-t lg:border-t-0 lg:border-l border-border/50 bg-background lg:w-[280px] xl:w-[300px] shrink-0">
 
             {/* Unit type */}
             <div className="mb-4 pr-8">
@@ -213,7 +210,7 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
               )}
             </div>
 
-            {/* CTA — WhatsApp with unit-specific message */}
+            {/* CTA */}
             <a
               href={waUrl}
               target="_blank"
@@ -221,12 +218,9 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
               className="w-full mt-auto"
               onClick={onClose}
             >
-              <Button
-                className="w-full touch-manipulation gap-2"
-                size="lg"
-              >
+              <Button className="w-full touch-manipulation gap-2" size="lg">
                 <MessageCircle className="h-4 w-4" />
-                I'm Interested in This Unit
+                I'm Interested
               </Button>
             </a>
             <p className="text-[10px] text-muted-foreground text-center mt-2">

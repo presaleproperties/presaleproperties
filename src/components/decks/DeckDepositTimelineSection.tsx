@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Clock, Key, FileSignature, DollarSign, Check, Info } from "lucide-react";
+import { Clock, Key, FileSignature, DollarSign, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DepositStep {
@@ -39,13 +39,13 @@ function parsePrice(raw: string): number {
 const STEP_ICONS = [FileSignature, Clock, Clock, Clock, DollarSign];
 
 const TIMING_DESCRIPTIONS: Record<string, string> = {
-  "Due within 7 days": "Pay your first deposit within 7 days of signing your Purchase Agreement.",
-  "Due in 7 days": "Pay your first deposit within 7 days of signing your Purchase Agreement.",
-  "Due in 3 months": "Second deposit is due 90 days after you sign.",
-  "Due in 6 months": "Third deposit is due 180 days after signing. Nothing more until completion.",
+  "Due within 7 days": "Your first deposit is due within 7 days of signing your Purchase Agreement.",
+  "Due in 7 days": "Your first deposit is due within 7 days of signing your Purchase Agreement.",
+  "Due in 3 months": "Second deposit is due 90 days after signing.",
+  "Due in 6 months": "Third deposit is due 180 days after signing. No further payments until completion.",
 };
 
-function getTimingDescription(timing: string, idx: number): string {
+function getTimingDescription(timing: string): string {
   return TIMING_DESCRIPTIONS[timing] || timing;
 }
 
@@ -82,9 +82,9 @@ export function DeckDepositTimelineSection({
         {/* Header */}
         <div className="mb-8 space-y-1">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Payment Plan</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">How & When You Pay</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">When You Pay</h2>
           <p className="text-muted-foreground text-sm max-w-lg">
-            A step-by-step breakdown of every payment — from signing to getting your keys. <strong className="text-foreground">No payments during construction.</strong>
+            Every payment from signing to completion — clearly laid out. <strong className="text-foreground">No payments during construction.</strong>
           </p>
         </div>
 
@@ -146,7 +146,7 @@ export function DeckDepositTimelineSection({
               const amt = price * (node.percent / 100);
               const StepIcon = STEP_ICONS[i] ?? Clock;
               const isLast = i === steps.length - 1;
-              const desc = getTimingDescription(node.timing, i);
+              const desc = getTimingDescription(node.timing);
 
               return (
                 <div key={node.id} className="relative">
@@ -201,16 +201,15 @@ export function DeckDepositTimelineSection({
             <div className="flex-1 rounded-xl px-4 py-4 border border-primary/30 bg-primary/5">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-primary leading-tight">Completion — Keys in Hand</p>
+                  <p className="text-sm font-bold text-primary leading-tight">Completion & Possession</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {completionYear ? `Estimated ${completionYear}` : "Estimated completion"}
                   </p>
                   <p className="text-[12px] text-foreground/80 mt-2 leading-snug">
-                    At completion, you pay any <strong>remaining down payment balance</strong> and the mortgage starts. The {totalDepositPct}% you paid during construction counts toward your down payment.
+                    Pay any <strong>remaining down payment</strong> and take possession. The {totalDepositPct}% already paid counts toward your down payment.
                   </p>
                   <div className="mt-3 flex items-center gap-1.5 text-[11px] text-primary/80 bg-primary/10 rounded-lg px-3 py-2 w-fit">
-                    <Info className="h-3 w-3 shrink-0" />
-                    <span>🏦 Mortgage begins here — balance becomes your loan</span>
+                    <span>🏦 Mortgage begins here</span>
                   </div>
                 </div>
                 <div className="text-right shrink-0">

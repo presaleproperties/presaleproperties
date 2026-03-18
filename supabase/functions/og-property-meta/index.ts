@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
 
       const { data: deck, error } = await supabase
         .from("pitch_decks")
-        .select("project_name, tagline, city, hero_image_url, slug")
+        .select("project_name, tagline, city, hero_image_url, slug, description")
         .eq("slug", deckSlug)
         .maybeSingle();
 
@@ -92,10 +92,13 @@ Deno.serve(async (req) => {
         return new Response("Deck not found", { status: 404, headers: corsHeaders });
       }
 
+      const userAgent = req.headers.get("user-agent") || "";
       const canonicalUrl = `${SITE_URL}/deck/${deck.slug}`;
       const heroImage = ensureHttps(deck.hero_image_url) || `${SITE_URL}/og-image.png`;
-      const title = `${deck.project_name} — Presale Investment Deck`;
-      const description = deck.tagline || `Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}. Floor plans, pricing & investment projections.`;
+      const title = `${deck.project_name} — Exclusive Presale Opportunity`;
+      // Use first 160 chars of description as preview text, fallback to tagline
+      const rawDesc = (deck.description || deck.tagline || `Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}. View floor plans, pricing & investment projections.`).replace(/[#*_`>]/g, "").trim();
+      const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + "…" : rawDesc;
 
       if (!isBot(userAgent)) {
         return new Response(null, { status: 302, headers: { ...corsHeaders, "Location": canonicalUrl } });

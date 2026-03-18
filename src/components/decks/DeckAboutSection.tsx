@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
-import { CheckCircle2, Sparkles } from "lucide-react";
+import { CheckCircle2, Sparkles, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DeckAboutSectionProps {
   description?: string | null;
@@ -16,6 +17,8 @@ export function DeckAboutSection({
   amenities,
   projectName,
 }: DeckAboutSectionProps) {
+  const [highlightsOpen, setHighlightsOpen] = useState(false);
+
   const htmlContent = useMemo(() => {
     if (!description) return "";
     const raw = marked.parse(description, { async: false }) as string;
@@ -46,15 +49,32 @@ export function DeckAboutSection({
               />
             )}
 
+            {/* Collapsible highlights */}
             {highlights && highlights.length > 0 && (
-              <ul className="space-y-2.5 pt-1">
-                {highlights.map((h, i) => (
-                  <li key={i} className="flex items-start gap-2.5">
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm text-foreground leading-snug">{h}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="border border-border/60 rounded-xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setHighlightsOpen((v) => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3.5 bg-muted/30 hover:bg-muted/50 transition-colors touch-manipulation"
+                >
+                  <span className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                    Project Highlights
+                    <span className="text-xs font-normal text-muted-foreground">({highlights.length})</span>
+                  </span>
+                  <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", highlightsOpen && "rotate-180")} />
+                </button>
+                {highlightsOpen && (
+                  <ul className="px-4 py-3 space-y-2.5 border-t border-border/40">
+                    {highlights.map((h, i) => (
+                      <li key={i} className="flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground leading-snug">{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
           </div>
 
