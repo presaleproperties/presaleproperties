@@ -13,6 +13,7 @@ import { DeckDepositTimelineSection, type DepositStep } from "@/components/decks
 import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
+import { DeckFAQSection } from "@/components/decks/DeckFAQSection";
 import { Loader2 } from "lucide-react";
 
 const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
