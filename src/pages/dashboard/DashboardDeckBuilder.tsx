@@ -283,6 +283,8 @@ export default function DashboardDeckBuilder() {
       setContactWhatsapp(data.contact_whatsapp || "");
       if (data.deposit_steps?.length) setDepositSteps(data.deposit_steps);
       setFloorPlansPdfUrl(data.floor_plans_pdf_url || "");
+      setAssignmentFee(data.assignment_fee || "");
+      setIncludedItems(data.included_items?.length ? data.included_items : ["Parking", "Storage", "AC"]);
       setSlug(data.slug || "");
       setIsPublished(data.is_published || false);
       if (data.linked_project_id) {
