@@ -53,7 +53,11 @@ export function DeckFloorPlansSection({
   const [selected, setSelected] = useState<FloorPlan | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
 
-  const hasKeyFacts = assignmentFee || (includedItems && includedItems.length > 0);
+  // Use DB values, fall back to sensible defaults so Key Facts always renders
+  const displayFee = assignmentFee || null;
+  const displayItems = (includedItems && includedItems.length > 0)
+    ? includedItems
+    : ["Parking", "Storage", "AC"];
 
   return (
     <section id="floor-plans" className="relative py-16 sm:py-24 bg-muted/20 overflow-hidden">
@@ -63,7 +67,7 @@ export function DeckFloorPlansSection({
           02
         </div>
 
-        <div className="mb-8 sm:mb-12 space-y-4">
+        <div className="mb-8 sm:mb-12 space-y-5">
           <div className="space-y-2">
             <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">02 — Hand-Picked For You</p>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Top Picked Units</h2>
@@ -72,43 +76,42 @@ export function DeckFloorPlansSection({
             </p>
           </div>
 
-          {/* ── Key Facts strip ── */}
-          {hasKeyFacts && (
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              {/* Assignment Fee pill */}
-              {assignmentFee && (
-                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background border-2 border-border shadow-sm">
-                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
-                    <DollarSign className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold leading-none mb-0.5">Assignment Fee</p>
-                    <p className="text-sm font-bold text-foreground leading-none">{assignmentFee}</p>
-                  </div>
+          {/* ── Key Facts strip — always visible ── */}
+          <div className="flex flex-wrap items-stretch gap-3">
+            {/* Assignment Fee */}
+            {displayFee && (
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-background border-2 border-border shadow-sm">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                  <DollarSign className="h-4 w-4 text-primary" />
                 </div>
-              )}
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold leading-none mb-1">Assignment Fee</p>
+                  <p className="text-sm font-bold text-foreground leading-none">{displayFee}</p>
+                </div>
+              </div>
+            )}
 
-              {/* Included items */}
-              {includedItems && includedItems.length > 0 && (
-                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background border-2 border-border shadow-sm flex-wrap">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold leading-none mb-1.5">Included in Price</p>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {includedItems.map((item) => (
-                        <span
-                          key={item}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/25"
-                        >
-                          {getIncludedIcon(item)}
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+            {/* Included in Price */}
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-background border-2 border-border shadow-sm">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold leading-none mb-1.5">Included in Price</p>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {displayItems.map((item) => (
+                    <span
+                      key={item}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/25"
+                    >
+                      {getIncludedIcon(item)}
+                      {item}
+                    </span>
+                  ))}
                 </div>
-              )}
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
         {floorPlans.length === 0 ? (
