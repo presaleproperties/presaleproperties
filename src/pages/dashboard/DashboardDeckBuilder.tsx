@@ -45,6 +45,9 @@ interface PresaleProject {
   gallery_images: string[] | null; floorplan_files: string[] | null;
   map_lat: number | null; map_lng: number | null; short_description: string | null;
   occupancy_estimate: string | null;
+  full_description: string | null;
+  highlights: string[] | null;
+  amenities: string[] | null;
 }
 
 interface AgentProfile {
