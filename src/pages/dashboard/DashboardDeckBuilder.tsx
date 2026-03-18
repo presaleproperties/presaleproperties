@@ -634,6 +634,39 @@ export default function DashboardDeckBuilder() {
           </div>
         </Section>
 
+        {/* ── Key Facts ───────────────────────────────────────────────── */}
+        <Section title="Key Facts" subtitle="Assignment fee & what's included in the price" defaultOpen={true}>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>Assignment Fee <span className="text-muted-foreground font-normal text-xs">(e.g. $5,000 + GST)</span></Label>
+              <Input
+                value={assignmentFee}
+                onChange={(e) => setAssignmentFee(e.target.value)}
+                placeholder="$5,000 + GST"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>What's Included in Price</Label>
+              <p className="text-xs text-muted-foreground">Add items like Parking, Storage, AC, etc.</p>
+              <div className="flex flex-wrap gap-2">
+                {includedItems.map((item, i) => (
+                  <div key={i} className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-sm font-medium text-primary">
+                    {item}
+                    <button
+                      type="button"
+                      onClick={() => setIncludedItems((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="ml-1 text-primary/60 hover:text-destructive transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                <AddIncludedItemInput onAdd={(v) => { if (v && !includedItems.includes(v)) setIncludedItems((p) => [...p, v]); }} />
+              </div>
+            </div>
+          </div>
+        </Section>
+
         {/* ── STEP 4: Floor Plans ─────────────────────────────────────── */}
         <Section title={`4. Floor Plans (${floorPlans.length}/6)`}
           subtitle="Upload image — AI auto-fills size, type & pricing">
