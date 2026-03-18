@@ -200,6 +200,8 @@ export default function DashboardDeckBuilder() {
 
   const [assignmentFee, setAssignmentFee] = useState("");
   const [includedItems, setIncludedItems] = useState<string[]>(["Parking", "Storage", "AC"]);
+  const [unitsRemaining, setUnitsRemaining] = useState<string>("");
+  const [nextPriceIncrease, setNextPriceIncrease] = useState<string>("");
 
   const [slug, setSlug] = useState("");
   const [slugTaken, setSlugTaken] = useState(false);
