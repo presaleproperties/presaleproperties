@@ -19,6 +19,7 @@ const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
 import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckProjectHighlights } from "@/components/decks/DeckProjectHighlights";
+import { DeckScarcityBanner } from "@/components/decks/DeckScarcityBanner";
 import { Loader2 } from "lucide-react";
 
 interface PitchDeck {
@@ -51,6 +52,8 @@ interface PitchDeck {
   deposit_steps: DepositStep[] | null;
   assignment_fee: string | null;
   included_items: string[] | null;
+  units_remaining: number | null;
+  next_price_increase: string | null;
 }
 
 const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "deposit-timeline", "contact"];
@@ -187,6 +190,12 @@ export default function DeckPublicPage() {
         whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
         onFloorPlansClick={() => document.getElementById("floor-plans")?.scrollIntoView({ behavior: "smooth" })}
         onContactClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+      />
+
+      {/* Scarcity Banner — immediately below hero if set */}
+      <DeckScarcityBanner
+        unitsRemaining={deck.units_remaining}
+        nextPriceIncrease={deck.next_price_increase}
       />
 
       {/* Accent divider */}

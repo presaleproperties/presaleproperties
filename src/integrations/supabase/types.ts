@@ -2082,6 +2082,7 @@ export type Database = {
           linked_project_id: string | null
           lng: number | null
           longitude: number | null
+          next_price_increase: string | null
           project_name: string
           projections: Json
           proximity_highlights: Json
@@ -2089,6 +2090,7 @@ export type Database = {
           stories: number | null
           tagline: string | null
           total_units: number | null
+          units_remaining: number | null
           updated_at: string
           user_id: string
         }
@@ -2116,6 +2118,7 @@ export type Database = {
           linked_project_id?: string | null
           lng?: number | null
           longitude?: number | null
+          next_price_increase?: string | null
           project_name?: string
           projections?: Json
           proximity_highlights?: Json
@@ -2123,6 +2126,7 @@ export type Database = {
           stories?: number | null
           tagline?: string | null
           total_units?: number | null
+          units_remaining?: number | null
           updated_at?: string
           user_id: string
         }
@@ -2150,6 +2154,7 @@ export type Database = {
           linked_project_id?: string | null
           lng?: number | null
           longitude?: number | null
+          next_price_increase?: string | null
           project_name?: string
           projections?: Json
           proximity_highlights?: Json
@@ -2157,6 +2162,7 @@ export type Database = {
           stories?: number | null
           tagline?: string | null
           total_units?: number | null
+          units_remaining?: number | null
           updated_at?: string
           user_id?: string
         }

@@ -200,6 +200,8 @@ export default function DashboardDeckBuilder() {
 
   const [assignmentFee, setAssignmentFee] = useState("");
   const [includedItems, setIncludedItems] = useState<string[]>(["Parking", "Storage", "AC"]);
+  const [unitsRemaining, setUnitsRemaining] = useState<string>("");
+  const [nextPriceIncrease, setNextPriceIncrease] = useState<string>("");
 
   const [slug, setSlug] = useState("");
   const [slugTaken, setSlugTaken] = useState(false);
@@ -312,6 +314,8 @@ export default function DashboardDeckBuilder() {
       setFloorPlansPdfUrl(data.floor_plans_pdf_url || "");
       setAssignmentFee(data.assignment_fee || "");
       setIncludedItems(data.included_items?.length ? data.included_items : ["Parking", "Storage", "AC"]);
+      setUnitsRemaining(data.units_remaining != null ? String(data.units_remaining) : "");
+      setNextPriceIncrease(data.next_price_increase || "");
       setSlug(data.slug || "");
       setIsPublished(data.is_published || false);
       if (data.linked_project_id) {
@@ -476,6 +480,8 @@ export default function DashboardDeckBuilder() {
       floor_plans_pdf_url: floorPlansPdfUrl || null,
       assignment_fee: assignmentFee || null,
       included_items: includedItems.filter(Boolean),
+      units_remaining: unitsRemaining ? parseInt(unitsRemaining, 10) : null,
+      next_price_increase: nextPriceIncrease || null,
     };
     let error;
     if (isEdit && id) {
@@ -690,6 +696,35 @@ export default function DashboardDeckBuilder() {
                 ))}
                 <AddIncludedItemInput onAdd={(v) => { if (v && !includedItems.includes(v)) setIncludedItems((p) => [...p, v]); }} />
               </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* ── Scarcity Indicator ──────────────────────────────────────── */}
+        <Section title="Scarcity Indicator" subtitle="Urgency banner shown right below the hero — leave blank to hide" defaultOpen={false}
+          badge={unitsRemaining || nextPriceIncrease ? "✓ Active" : undefined}>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Units Remaining at This Price <span className="text-muted-foreground font-normal">(number)</span></Label>
+              <Input
+                type="number"
+                min={1}
+                value={unitsRemaining}
+                onChange={(e) => setUnitsRemaining(e.target.value)}
+                placeholder="e.g. 1"
+                className="h-9"
+              />
+              <p className="text-xs text-muted-foreground">Shows: "Only X unit(s) remaining at this price"</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Next Price Increase <span className="text-muted-foreground font-normal">(text)</span></Label>
+              <Input
+                value={nextPriceIncrease}
+                onChange={(e) => setNextPriceIncrease(e.target.value)}
+                placeholder="e.g. $5K more"
+                className="h-9"
+              />
+              <p className="text-xs text-muted-foreground">Shows: "Next price is $5K more"</p>
             </div>
           </div>
         </Section>
