@@ -60,16 +60,29 @@ export function PriceAlertButton({ projectId, projectName }: LeadMagnetProps) {
   const { toast } = useToast();
 
   const handleSubmit = async () => {
-    if (!email) return;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return;
     setIsSubmitting(true);
 
     try {
+      // Save to newsletter_subscribers (for email drip)
       await supabase.from("newsletter_subscribers").insert({
-        email,
+        email: email.trim(),
         source: "price_alert",
         wants_projects: true,
         wants_assignments: false,
       });
+
+      // Also create a project_lead and send to Zapier/Lofty CRM
+      const leadId = crypto.randomUUID();
+      await supabase.from("project_leads").insert({
+        id: leadId,
+        name: "Price Alert Subscriber",
+        email: email.trim(),
+        lead_source: "price_alert",
+        message: `Price alert request${projectName ? ` for ${projectName}` : ""}`,
+        visitor_id: getVisitorId(),
+      });
+      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
 
       trackFormSubmit({ form_name: "price_alert", form_location: "project_detail", email, project_name: projectName });
       MetaEvents.lead({ content_name: projectName, content_category: "price_alert" });
