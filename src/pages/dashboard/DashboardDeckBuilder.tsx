@@ -113,6 +113,33 @@ function genSlug(name: string) {
 }
 function nanoid() { return Math.random().toString(36).slice(2, 10); }
 
+function AddIncludedItemInput({ onAdd }: { onAdd: (v: string) => void }) {
+  const [val, setVal] = useState("");
+  const submit = () => {
+    const trimmed = val.trim();
+    if (trimmed) { onAdd(trimmed); setVal(""); }
+  };
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        type="text"
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(); } }}
+        placeholder="Add item…"
+        className="h-8 px-3 text-sm rounded-full border border-dashed border-border bg-background focus:outline-none focus:border-primary/50 w-28"
+      />
+      <button
+        type="button"
+        onClick={submit}
+        className="h-8 w-8 flex items-center justify-center rounded-full border border-border hover:border-primary/50 bg-background text-muted-foreground hover:text-primary transition-colors"
+      >
+        <Plus className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
 export default function DashboardDeckBuilder() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -170,6 +197,9 @@ export default function DashboardDeckBuilder() {
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
+
+  const [assignmentFee, setAssignmentFee] = useState("");
+  const [includedItems, setIncludedItems] = useState<string[]>(["Parking", "Storage", "AC"]);
 
   const [slug, setSlug] = useState("");
   const [slugTaken, setSlugTaken] = useState(false);
@@ -280,6 +310,8 @@ export default function DashboardDeckBuilder() {
       setContactWhatsapp(data.contact_whatsapp || "");
       if (data.deposit_steps?.length) setDepositSteps(data.deposit_steps);
       setFloorPlansPdfUrl(data.floor_plans_pdf_url || "");
+      setAssignmentFee(data.assignment_fee || "");
+      setIncludedItems(data.included_items?.length ? data.included_items : ["Parking", "Storage", "AC"]);
       setSlug(data.slug || "");
       setIsPublished(data.is_published || false);
       if (data.linked_project_id) {
@@ -442,6 +474,8 @@ export default function DashboardDeckBuilder() {
       lat: lat ? parseFloat(lat) : null,
       lng: lng ? parseFloat(lng) : null,
       floor_plans_pdf_url: floorPlansPdfUrl || null,
+      assignment_fee: assignmentFee || null,
+      included_items: includedItems.filter(Boolean),
     };
     let error;
     if (isEdit && id) {
@@ -623,6 +657,39 @@ export default function DashboardDeckBuilder() {
             <div className="space-y-1.5">
               <Label>Completion / Occupancy</Label>
               <Input value={completionYear} onChange={(e) => setCompletionYear(e.target.value)} placeholder="Spring 2027" />
+            </div>
+          </div>
+        </Section>
+
+        {/* ── Key Facts ───────────────────────────────────────────────── */}
+        <Section title="Key Facts" subtitle="Assignment fee & what's included in the price" defaultOpen={true}>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>Assignment Fee <span className="text-muted-foreground font-normal text-xs">(e.g. $5,000 + GST)</span></Label>
+              <Input
+                value={assignmentFee}
+                onChange={(e) => setAssignmentFee(e.target.value)}
+                placeholder="$5,000 + GST"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>What's Included in Price</Label>
+              <p className="text-xs text-muted-foreground">Add items like Parking, Storage, AC, etc.</p>
+              <div className="flex flex-wrap gap-2">
+                {includedItems.map((item, i) => (
+                  <div key={i} className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-sm font-medium text-primary">
+                    {item}
+                    <button
+                      type="button"
+                      onClick={() => setIncludedItems((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="ml-1 text-primary/60 hover:text-destructive transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                <AddIncludedItemInput onAdd={(v) => { if (v && !includedItems.includes(v)) setIncludedItems((p) => [...p, v]); }} />
+              </div>
             </div>
           </div>
         </Section>

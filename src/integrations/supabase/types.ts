@@ -2060,6 +2060,7 @@ export type Database = {
       pitch_decks: {
         Row: {
           address: string | null
+          assignment_fee: string | null
           city: string | null
           completion_year: string | null
           contact_email: string | null
@@ -2074,6 +2075,7 @@ export type Database = {
           gallery: Json
           hero_image_url: string | null
           id: string
+          included_items: string[] | null
           is_published: boolean
           lat: number | null
           latitude: number | null
@@ -2092,6 +2094,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          assignment_fee?: string | null
           city?: string | null
           completion_year?: string | null
           contact_email?: string | null
@@ -2106,6 +2109,7 @@ export type Database = {
           gallery?: Json
           hero_image_url?: string | null
           id?: string
+          included_items?: string[] | null
           is_published?: boolean
           lat?: number | null
           latitude?: number | null
@@ -2124,6 +2128,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          assignment_fee?: string | null
           city?: string | null
           completion_year?: string | null
           contact_email?: string | null
@@ -2138,6 +2143,7 @@ export type Database = {
           gallery?: Json
           hero_image_url?: string | null
           id?: string
+          included_items?: string[] | null
           is_published?: boolean
           lat?: number | null
           latitude?: number | null
