@@ -285,8 +285,12 @@ export default function DashboardDeckBuilder() {
       setGallery(Array.from(new Set(imgs)).filter(Boolean).slice(0, 12));
     }
     if (!tagline) setTagline(`Presale Opportunity — ${p.city || "BC"}${p.completion_year ? ` · ${p.completion_year}` : ""}`);
+    // Auto-fill description / highlights / amenities
+    if (p.full_description && !description) setDescription(p.full_description);
+    if (p.highlights?.length && !deckHighlights.length) setDeckHighlights(p.highlights);
+    if (p.amenities?.length && !deckAmenities.length) setDeckAmenities(p.amenities);
     toast.success(`"${p.name}" loaded — review and tweak as needed.`);
-  }, [heroImageUrl, tagline]);
+  }, [heroImageUrl, tagline, description, deckHighlights, deckAmenities]);
 
   // Load existing deck for edit
   useEffect(() => {
