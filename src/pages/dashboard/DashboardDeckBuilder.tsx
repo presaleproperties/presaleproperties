@@ -314,6 +314,8 @@ export default function DashboardDeckBuilder() {
       setFloorPlansPdfUrl(data.floor_plans_pdf_url || "");
       setAssignmentFee(data.assignment_fee || "");
       setIncludedItems(data.included_items?.length ? data.included_items : ["Parking", "Storage", "AC"]);
+      setUnitsRemaining(data.units_remaining != null ? String(data.units_remaining) : "");
+      setNextPriceIncrease(data.next_price_increase || "");
       setSlug(data.slug || "");
       setIsPublished(data.is_published || false);
       if (data.linked_project_id) {
