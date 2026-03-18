@@ -52,6 +52,8 @@ interface PitchDeck {
   deposit_steps: DepositStep[] | null;
   assignment_fee: string | null;
   included_items: string[] | null;
+  units_remaining: number | null;
+  next_price_increase: string | null;
 }
 
 const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "deposit-timeline", "contact"];
