@@ -171,6 +171,9 @@ export default function DashboardDeckBuilder() {
   const [contactEmail, setContactEmail] = useState("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
 
+  const [assignmentFee, setAssignmentFee] = useState("");
+  const [includedItems, setIncludedItems] = useState<string[]>(["Parking", "Storage", "AC"]);
+
   const [slug, setSlug] = useState("");
   const [slugTaken, setSlugTaken] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
