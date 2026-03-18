@@ -113,6 +113,33 @@ function genSlug(name: string) {
 }
 function nanoid() { return Math.random().toString(36).slice(2, 10); }
 
+function AddIncludedItemInput({ onAdd }: { onAdd: (v: string) => void }) {
+  const [val, setVal] = useState("");
+  const submit = () => {
+    const trimmed = val.trim();
+    if (trimmed) { onAdd(trimmed); setVal(""); }
+  };
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        type="text"
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(); } }}
+        placeholder="Add item…"
+        className="h-8 px-3 text-sm rounded-full border border-dashed border-border bg-background focus:outline-none focus:border-primary/50 w-28"
+      />
+      <button
+        type="button"
+        onClick={submit}
+        className="h-8 w-8 flex items-center justify-center rounded-full border border-border hover:border-primary/50 bg-background text-muted-foreground hover:text-primary transition-colors"
+      >
+        <Plus className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
 export default function DashboardDeckBuilder() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
