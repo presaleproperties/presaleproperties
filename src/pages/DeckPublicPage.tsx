@@ -139,45 +139,43 @@ export default function DeckPublicPage() {
     ? parseFloat(deck.floor_plans[0].price_from.replace(/[^0-9.]/g, ""))
     : undefined;
 
+  const rawDesc = (deck.description || deck.tagline || `Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}.`).replace(/[#*_`>]/g, "").trim();
+  const metaDesc = rawDesc.length > 160 ? rawDesc.slice(0, 157) + "…" : rawDesc;
+  const ogTitle = `${deck.project_name} — Exclusive Presale${deck.city ? ` in ${deck.city}` : ""}`;
+  const canonicalUrl = `https://presaleproperties.com/deck/${deck.slug}`;
+
   return (
+    <>
     {/* Unique OG meta per deck — hero image auto-populates in iMessage/WhatsApp/social previews */}
-    {(() => {
-      const rawDesc = (deck.description || deck.tagline || `Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}.`).replace(/[#*_`>]/g, "").trim();
-      const metaDesc = rawDesc.length > 160 ? rawDesc.slice(0, 157) + "…" : rawDesc;
-      const ogTitle = `${deck.project_name} — Exclusive Presale${deck.city ? ` in ${deck.city}` : ""}`;
-      const canonicalUrl = `https://presaleproperties.com/deck/${deck.slug}`;
-      return (
-        <Helmet>
-          <title>{deck.project_name} — Presale Investment Deck | Presale Properties</title>
-          <meta name="description" content={metaDesc} />
-          <meta property="og:type" content="website" />
-          <meta property="og:title" content={ogTitle} />
-          <meta property="og:description" content={metaDesc} />
-          <meta property="og:url" content={canonicalUrl} />
-          {deck.hero_image_url && <meta property="og:image" content={deck.hero_image_url} />}
-          {deck.hero_image_url && <meta property="og:image:secure_url" content={deck.hero_image_url} />}
-          <meta property="og:image:width" content="1200" />
-          <meta property="og:image:height" content="630" />
-          <meta property="og:site_name" content="PresaleProperties.com" />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={ogTitle} />
-          <meta name="twitter:description" content={metaDesc} />
-          {deck.hero_image_url && <meta name="twitter:image" content={deck.hero_image_url} />}
-          <link rel="canonical" href={canonicalUrl} />
-          <style>{`
-            .deck-animate {
-              opacity: 0;
-              transform: translateY(24px);
-              transition: opacity 0.6s ease, transform 0.6s ease;
-            }
-            .deck-visible {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          `}</style>
-        </Helmet>
-      );
-    })()}
+    <Helmet>
+      <title>{deck.project_name} — Presale Investment Deck | Presale Properties</title>
+      <meta name="description" content={metaDesc} />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content={ogTitle} />
+      <meta property="og:description" content={metaDesc} />
+      <meta property="og:url" content={canonicalUrl} />
+      {deck.hero_image_url && <meta property="og:image" content={deck.hero_image_url} />}
+      {deck.hero_image_url && <meta property="og:image:secure_url" content={deck.hero_image_url} />}
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:site_name" content="PresaleProperties.com" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={ogTitle} />
+      <meta name="twitter:description" content={metaDesc} />
+      {deck.hero_image_url && <meta name="twitter:image" content={deck.hero_image_url} />}
+      <link rel="canonical" href={canonicalUrl} />
+      <style>{`
+        .deck-animate {
+          opacity: 0;
+          transform: translateY(24px);
+          transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .deck-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}</style>
+    </Helmet>
     <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip" }}>
 
       <DeckStickyNav
