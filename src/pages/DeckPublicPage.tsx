@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import NotFound from "@/pages/NotFound";
 import { Helmet } from "react-helmet-async";
@@ -10,18 +10,16 @@ import { DeckGallerySection } from "@/components/decks/DeckGallerySection";
 import { DeckLocationSection } from "@/components/decks/DeckLocationSection";
 import { DeckProjectionsSection } from "@/components/decks/DeckProjectionsSection";
 import { DeckDepositTimelineSection, type DepositStep } from "@/components/decks/DeckDepositTimelineSection";
+import { DeckContactSection } from "@/components/decks/DeckContactSection";
+import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
+import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
+import { Loader2 } from "lucide-react";
 
 const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
-  { id: "d1", label: "Upon Signing", percent: 2.5, timing: "Due in 7 days", note: "Paid to the developer's trust account on execution of the Purchase Agreement." },
+  { id: "d1", label: "Upon Signing", percent: 2.5, timing: "Due within 7 days", note: "Paid to the developer's trust account on execution of the Purchase Agreement." },
   { id: "d2", label: "2nd Deposit", percent: 2.5, timing: "Due in 3 months", note: "Second deposit due within 90 days of contract execution." },
   { id: "d3", label: "3rd Deposit", percent: 5, timing: "Due in 6 months", note: "Third deposit due within 180 days of contract execution." },
 ];
-import { DeckContactSection } from "@/components/decks/DeckContactSection";
-import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
-import { DeckProjectHighlights } from "@/components/decks/DeckProjectHighlights";
-import { DeckScarcityBanner } from "@/components/decks/DeckScarcityBanner";
-import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
-import { Loader2 } from "lucide-react";
 
 interface PitchDeck {
   id: string;
@@ -60,7 +58,7 @@ interface PitchDeck {
   amenities: string[] | null;
 }
 
-const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "deposit-timeline", "contact"];
+const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "deposit-timeline", "projections", "contact"];
 
 export default function DeckPublicPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -68,8 +66,10 @@ export default function DeckPublicPage() {
   const [loading, setLoading] = useState(true);
   const [navVisible, setNavVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
+  // Scroll position to restore when closing gallery
+  const scrollYBeforeGallery = useRef<number>(0);
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
-  // Fetch deck
   useEffect(() => {
     if (!slug) return;
     (async () => {
@@ -78,12 +78,7 @@ export default function DeckPublicPage() {
         .select("*")
         .eq("slug", slug)
         .maybeSingle();
-
-      if (error || !data) {
-        setLoading(false);
-        return;
-      }
-      // If not published, only allow if user owns it (checked client-side as best-effort)
+      if (error || !data) { setLoading(false); return; }
       setDeck(data);
       setLoading(false);
     })();
@@ -94,16 +89,11 @@ export default function DeckPublicPage() {
     const handleScroll = () => {
       const heroHeight = window.innerHeight;
       setNavVisible(window.scrollY > heroHeight * 0.8);
-
-      // Find active section
       for (const id of [...SECTION_IDS].reverse()) {
         const el = document.getElementById(id);
         if (el) {
           const rect = el.getBoundingClientRect();
-          if (rect.top <= 80) {
-            setActiveSection(id);
-            break;
-          }
+          if (rect.top <= 80) { setActiveSection(id); break; }
         }
       }
     };
@@ -115,18 +105,25 @@ export default function DeckPublicPage() {
   useEffect(() => {
     if (!deck) return;
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("deck-visible");
-          }
-        });
-      },
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("deck-visible"); }),
       { threshold: 0.08, rootMargin: "0px 0px -60px 0px" }
     );
     document.querySelectorAll(".deck-animate").forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, [deck]);
+
+  const handleGalleryOpen = useCallback(() => {
+    scrollYBeforeGallery.current = window.scrollY;
+    setGalleryOpen(true);
+  }, []);
+
+  const handleGalleryClose = useCallback(() => {
+    setGalleryOpen(false);
+    // Restore scroll position after the portal unmounts
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: scrollYBeforeGallery.current, behavior: "instant" });
+    });
+  }, []);
 
   if (loading) {
     return (
@@ -147,19 +144,15 @@ export default function DeckPublicPage() {
       <Helmet>
         <title>{deck.project_name} — Presale Investment Deck | Presale Properties</title>
         <meta name="description" content={`Exclusive presale opportunity: ${deck.project_name}${deck.city ? ` in ${deck.city}` : ""}. View floor plans, pricing, and investment projections.`} />
-        {/* OG / WhatsApp / iMessage preview */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content={`${deck.project_name} — Presale Investment Deck`} />
         <meta property="og:description" content={`Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}. Floor plans, pricing & investment projections.`} />
         <meta property="og:url" content={`https://presaleproperties.com/deck/${deck.slug}`} />
         {deck.hero_image_url && <meta property="og:image" content={deck.hero_image_url} />}
-        {deck.hero_image_url && <meta property="og:image:secure_url" content={deck.hero_image_url} />}
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="PresaleProperties.com" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${deck.project_name} — Presale Investment Deck`} />
-        <meta name="twitter:description" content={`Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}. Floor plans, pricing & investment projections.`} />
         {deck.hero_image_url && <meta name="twitter:image" content={deck.hero_image_url} />}
         <style>{`
           .deck-animate {
@@ -182,7 +175,7 @@ export default function DeckPublicPage() {
         projectNameForWa={deck.project_name}
       />
 
-      {/* Section 1 — Hero */}
+      {/* ── 1. Hero ── */}
       <DeckHeroSection
         projectName={deck.project_name}
         tagline={deck.tagline || undefined}
@@ -191,46 +184,29 @@ export default function DeckPublicPage() {
         stories={deck.stories || undefined}
         totalUnits={deck.total_units || undefined}
         completionYear={deck.completion_year || undefined}
+        assignmentFee={deck.assignment_fee || undefined}
         whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
         onFloorPlansClick={() => document.getElementById("floor-plans")?.scrollIntoView({ behavior: "smooth" })}
         onContactClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
       />
 
-      {/* Scarcity Banner — immediately below hero if set */}
-      <DeckScarcityBanner
-        unitsRemaining={deck.units_remaining}
-        nextPriceIncrease={deck.next_price_increase}
-      />
-
-      {/* Accent divider */}
       <div className="h-px bg-primary/20" />
 
-      {/* Section 1b — Project Highlights */}
-      <DeckProjectHighlights
-        developerName={deck.developer_name || undefined}
-        stories={deck.stories || undefined}
-        totalUnits={deck.total_units || undefined}
-        completionYear={deck.completion_year || undefined}
-        city={deck.city || undefined}
-        address={deck.address || undefined}
-        proximityHighlights={deck.proximity_highlights || []}
-      />
+      {/* ── 2. About / Description — pulled from project ── */}
+      {(deck.description || (deck.highlights && deck.highlights.length > 0) || (deck.amenities && deck.amenities.length > 0)) && (
+        <div className="deck-animate">
+          <DeckAboutSection
+            description={deck.description}
+            highlights={deck.highlights}
+            amenities={deck.amenities}
+            projectName={deck.project_name}
+          />
+        </div>
+      )}
 
       <div className="h-px bg-primary/20" />
 
-      {/* Section 1c — About / Description */}
-      <div className="deck-animate">
-        <DeckAboutSection
-          description={deck.description}
-          highlights={deck.highlights}
-          amenities={deck.amenities}
-          projectName={deck.project_name}
-        />
-      </div>
-
-      <div className="h-px bg-primary/20" />
-
-      {/* Section 2 — Floor Plans (Key Facts embedded in header) */}
+      {/* ── 3. Floor Plans — scarcity inline ── */}
       <div className="deck-animate">
         <DeckFloorPlansSection
           floorPlans={deck.floor_plans || []}
@@ -238,10 +214,12 @@ export default function DeckPublicPage() {
           projectName={deck.project_name}
           assignmentFee={deck.assignment_fee}
           includedItems={deck.included_items}
+          unitsRemaining={deck.units_remaining}
+          nextPriceIncrease={deck.next_price_increase}
         />
       </div>
 
-      {/* Section 2b — Full Floor Plans PDF (if uploaded) */}
+      {/* Floor Plans PDF */}
       {deck.floor_plans_pdf_url && (
         <>
           <div className="h-px bg-primary/20" />
@@ -253,14 +231,18 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-primary/20" />
 
-      {/* Section 3 — Gallery */}
+      {/* ── 4. Gallery — scroll restore on close ── */}
       <div className="deck-animate">
-        <DeckGallerySection images={deck.gallery || []} />
+        <DeckGallerySection
+          images={deck.gallery || []}
+          onGalleryOpen={handleGalleryOpen}
+          onGalleryClose={handleGalleryClose}
+        />
       </div>
 
       <div className="h-px bg-primary/20" />
 
-      {/* Section 4 — Location */}
+      {/* ── 5. Location ── */}
       <div className="deck-animate">
         <DeckLocationSection
           address={deck.address || undefined}
@@ -274,7 +256,7 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-primary/20" />
 
-      {/* Section 5 — Deposit Timeline */}
+      {/* ── 6. Deposit / Payment Timeline ── */}
       <div className="deck-animate">
         <DeckDepositTimelineSection
           depositSteps={deck.deposit_steps && deck.deposit_steps.length > 0 ? deck.deposit_steps : DEFAULT_DEPOSIT_STEPS}
@@ -287,7 +269,7 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-primary/20" />
 
-      {/* Section 6 — Projections */}
+      {/* ── 7. Investment Calculator ── */}
       <div className="deck-animate">
         <DeckProjectionsSection
           projections={deck.projections || {}}
@@ -298,7 +280,7 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-primary/20" />
 
-      {/* Section 6 — Contact */}
+      {/* ── 8. Contact ── */}
       <div className="deck-animate">
         <DeckContactSection
           projectName={deck.project_name}
@@ -309,29 +291,17 @@ export default function DeckPublicPage() {
         />
       </div>
 
-      {/* Mobile sticky CTA — stable, jitter-free */}
-      {deck.contact_whatsapp || deck.contact_phone ? (
+      {/* Mobile sticky CTA */}
+      {(deck.contact_whatsapp || deck.contact_phone) ? (
         <div
           className="sm:hidden fixed bottom-0 left-0 right-0 z-[99999]"
-          style={{
-            isolation: "isolate",
-            transform: "translate3d(0,0,0)",
-            WebkitTransform: "translate3d(0,0,0)",
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-          }}
+          style={{ isolation: "isolate", transform: "translate3d(0,0,0)", WebkitTransform: "translate3d(0,0,0)" }}
         >
-          <div
-            className="bg-background border-t border-border/50 px-4"
-            style={{
-              paddingTop: "0.625rem",
-              paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
-            }}
-          >
+          <div className="bg-background border-t border-border/50 px-4"
+            style={{ paddingTop: "0.625rem", paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
             <a
               href={`https://wa.me/${(deck.contact_whatsapp || deck.contact_phone || "").replace(/\D/g, "")}?text=${encodeURIComponent(`Hi! I'm interested in ${deck.project_name} — can you share more details?`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full h-12 rounded-xl font-semibold text-sm text-white touch-manipulation active:opacity-90 select-none"
               style={{ background: "#25D366" }}
             >
@@ -344,15 +314,14 @@ export default function DeckPublicPage() {
         </div>
       ) : null}
 
-      {/* Disclaimer Footer */}
+      {/* Footer */}
       <footer className="bg-muted/30 border-t border-border/50 px-4 sm:px-8 py-8 pb-safe">
-
         <div className="max-w-4xl mx-auto space-y-3 text-center">
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            <strong className="text-foreground/70">DISCLAIMER:</strong> This is not an offering for sale. Any such offering can only be made with a disclosure statement. E.&amp;O.E. — Pricing, availability, and project details are subject to change without notice. All renderings, floor plans, and specifications are for illustrative purposes only. This communication is intended for informational purposes and does not constitute an offer or solicitation to purchase real estate.
+            <strong className="text-foreground/70">DISCLAIMER:</strong> This is not an offering for sale. Any such offering can only be made with a disclosure statement. E.&amp;O.E. — Pricing, availability, and project details are subject to change without notice. All renderings, floor plans, and specifications are for illustrative purposes only.
           </p>
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            This presentation is prepared in compliance with the <em>Real Estate Development Marketing Act</em> (REDMA) and the British Columbia Financial Services Authority (BCFSA). No binding purchase agreement is created by this material. Prospective purchasers should review all disclosure documents carefully before entering into any agreement of purchase and sale.
+            This presentation is prepared in compliance with the <em>Real Estate Development Marketing Act</em> (REDMA) and the British Columbia Financial Services Authority (BCFSA). No binding purchase agreement is created by this material.
           </p>
           <div className="pt-2 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-muted-foreground/60">
             <span>© {new Date().getFullYear()} PresaleProperties.com · Real Broker · 666 Burrard St, Suite 500, Vancouver, BC V6C 3P6</span>

@@ -1,4 +1,4 @@
-import { ChevronDown, Building2, Layers, Calendar, Users } from "lucide-react";
+import { ChevronDown, Building2, Layers, Calendar, Users, DollarSign } from "lucide-react";
 
 interface DeckHeroSectionProps {
   projectName: string;
@@ -8,6 +8,7 @@ interface DeckHeroSectionProps {
   stories?: number;
   totalUnits?: number;
   completionYear?: string;
+  assignmentFee?: string;
   whatsappNumber?: string;
   onFloorPlansClick: () => void;
   onContactClick: () => void;
@@ -21,6 +22,7 @@ export function DeckHeroSection({
   stories,
   totalUnits,
   completionYear,
+  assignmentFee,
   whatsappNumber,
   onFloorPlansClick,
   onContactClick,
@@ -28,8 +30,9 @@ export function DeckHeroSection({
   const stats = [
     developerName && { icon: Building2, label: "Developer", value: developerName },
     stories && { icon: Layers, label: "Stories", value: `${stories} Floors` },
-    totalUnits && { icon: Users, label: "Units", value: `${totalUnits}` },
+    totalUnits && { icon: Users, label: "Total Units", value: `${totalUnits}` },
     completionYear && { icon: Calendar, label: "Completion", value: completionYear },
+    assignmentFee && { icon: DollarSign, label: "Assignment Fee", value: assignmentFee },
   ].filter(Boolean) as { icon: any; label: string; value: string }[];
 
   const waNumber = (whatsappNumber || "17782313592").replace(/\D/g, "");
@@ -41,7 +44,7 @@ export function DeckHeroSection({
       className="relative flex flex-col justify-end overflow-hidden"
       style={{ height: "100dvh" }}
     >
-      {/* Background image — fixed position avoids iOS scroll flicker */}
+      {/* Background image */}
       <div className="absolute inset-0 z-0">
         {heroImageUrl ? (
           <img
@@ -54,14 +57,12 @@ export function DeckHeroSection({
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80" />
         )}
-        {/* Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
       </div>
 
-
-      {/* Content — extra bottom padding on mobile to clear the footer CTA bar */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-28 sm:pb-20 pt-28 w-full">
-        <div className="max-w-2xl space-y-3 sm:space-y-4">
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-28 sm:pb-24 pt-28 w-full">
+        <div className="max-w-2xl space-y-4">
 
           {/* Project name */}
           <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
@@ -75,9 +76,12 @@ export function DeckHeroSection({
             </p>
           )}
 
+          {/* Divider */}
+          <div className="w-12 h-px bg-primary/80" />
+
           {/* Stat pills */}
           {stats.length > 0 && (
-            <div className="flex gap-2 flex-wrap pt-1">
+            <div className="flex gap-2 flex-wrap">
               {stats.map((stat) => (
                 <div
                   key={stat.label}
@@ -93,18 +97,33 @@ export function DeckHeroSection({
             </div>
           )}
 
-          <div className="w-12 h-px bg-primary/80" />
-
+          {/* CTAs — desktop only */}
+          <div className="hidden sm:flex items-center gap-3 pt-1">
+            <button
+              onClick={onFloorPlansClick}
+              className="px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors touch-manipulation"
+            >
+              View Floor Plans & Pricing
+            </button>
+            <a
+              href={`https://wa.me/${waNumber}?text=${waMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-5 py-2.5 rounded-xl bg-black/60 backdrop-blur-sm border border-white/30 text-white font-semibold text-sm hover:bg-black/70 transition-colors touch-manipulation"
+            >
+              Get More Info
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* Scroll indicator — desktop/tablet only to avoid overlapping mobile content */}
+      {/* Scroll indicator */}
       <div
         className="hidden sm:flex absolute bottom-6 left-0 right-0 flex-col items-center gap-1 z-10 cursor-pointer"
         onClick={onFloorPlansClick}
       >
-        <span className="text-white/80 text-[11px] font-semibold uppercase tracking-widest drop-shadow-md animate-bounce">View Plans &amp; Pricing</span>
-        <ChevronDown className="h-5 w-5 text-white/80 drop-shadow-md animate-bounce" />
+        <span className="text-white/70 text-[10px] font-semibold uppercase tracking-widest drop-shadow-md">Scroll to explore</span>
+        <ChevronDown className="h-5 w-5 text-white/60 drop-shadow-md animate-bounce" />
       </div>
     </section>
   );
