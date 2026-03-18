@@ -326,6 +326,9 @@ export default function DashboardDeckBuilder() {
       setIncludedItems(data.included_items?.length ? data.included_items : ["Parking", "Storage", "AC"]);
       setUnitsRemaining(data.units_remaining != null ? String(data.units_remaining) : "");
       setNextPriceIncrease(data.next_price_increase || "");
+      setDescription(data.description || "");
+      setDeckHighlights(data.highlights || []);
+      setDeckAmenities(data.amenities || []);
       setSlug(data.slug || "");
       setIsPublished(data.is_published || false);
       if (data.linked_project_id) {
