@@ -221,7 +221,7 @@ export default function DashboardDeckBuilder() {
       setLoadingProjects(true);
       const { data } = await (supabase as any)
         .from("presale_projects")
-        .select("id,name,city,neighborhood,address,developer_name,starting_price,completion_year,featured_image,gallery_images,floorplan_files,map_lat,map_lng,short_description,occupancy_estimate")
+        .select("id,name,city,neighborhood,address,developer_name,starting_price,completion_year,featured_image,gallery_images,floorplan_files,map_lat,map_lng,short_description,occupancy_estimate,full_description,highlights,amenities")
         .order("name");
       setProjects(data || []);
       setLoadingProjects(false);
