@@ -192,6 +192,12 @@ export default function DeckPublicPage() {
       {/* Accent divider */}
       <div className="h-px bg-primary/20" />
 
+      {/* Key Facts Bar */}
+      <DeckKeyFactsBar
+        assignmentFee={deck.assignment_fee}
+        includedItems={deck.included_items}
+      />
+
       {/* Section 2 — Floor Plans */}
       <div className="deck-animate">
         <DeckFloorPlansSection
