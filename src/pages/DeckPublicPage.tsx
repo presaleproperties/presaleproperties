@@ -20,6 +20,7 @@ import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckProjectHighlights } from "@/components/decks/DeckProjectHighlights";
 import { DeckScarcityBanner } from "@/components/decks/DeckScarcityBanner";
+import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
 import { Loader2 } from "lucide-react";
 
 interface PitchDeck {
