@@ -20,6 +20,7 @@ import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckProjectHighlights } from "@/components/decks/DeckProjectHighlights";
 import { DeckScarcityBanner } from "@/components/decks/DeckScarcityBanner";
+import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
 import { Loader2 } from "lucide-react";
 
 interface PitchDeck {
@@ -54,6 +55,9 @@ interface PitchDeck {
   included_items: string[] | null;
   units_remaining: number | null;
   next_price_increase: string | null;
+  description: string | null;
+  highlights: string[] | null;
+  amenities: string[] | null;
 }
 
 const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "deposit-timeline", "contact"];
@@ -211,6 +215,18 @@ export default function DeckPublicPage() {
         address={deck.address || undefined}
         proximityHighlights={deck.proximity_highlights || []}
       />
+
+      <div className="h-px bg-primary/20" />
+
+      {/* Section 1c — About / Description */}
+      <div className="deck-animate">
+        <DeckAboutSection
+          description={deck.description}
+          highlights={deck.highlights}
+          amenities={deck.amenities}
+          projectName={deck.project_name}
+        />
+      </div>
 
       <div className="h-px bg-primary/20" />
 

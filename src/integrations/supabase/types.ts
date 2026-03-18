@@ -2060,6 +2060,7 @@ export type Database = {
       pitch_decks: {
         Row: {
           address: string | null
+          amenities: string[] | null
           assignment_fee: string | null
           city: string | null
           completion_year: string | null
@@ -2069,11 +2070,13 @@ export type Database = {
           contact_whatsapp: string | null
           created_at: string
           deposit_steps: Json | null
+          description: string | null
           developer_name: string | null
           floor_plans: Json
           floor_plans_pdf_url: string | null
           gallery: Json
           hero_image_url: string | null
+          highlights: string[] | null
           id: string
           included_items: string[] | null
           is_published: boolean
@@ -2096,6 +2099,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          amenities?: string[] | null
           assignment_fee?: string | null
           city?: string | null
           completion_year?: string | null
@@ -2105,11 +2109,13 @@ export type Database = {
           contact_whatsapp?: string | null
           created_at?: string
           deposit_steps?: Json | null
+          description?: string | null
           developer_name?: string | null
           floor_plans?: Json
           floor_plans_pdf_url?: string | null
           gallery?: Json
           hero_image_url?: string | null
+          highlights?: string[] | null
           id?: string
           included_items?: string[] | null
           is_published?: boolean
@@ -2132,6 +2138,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          amenities?: string[] | null
           assignment_fee?: string | null
           city?: string | null
           completion_year?: string | null
@@ -2141,11 +2148,13 @@ export type Database = {
           contact_whatsapp?: string | null
           created_at?: string
           deposit_steps?: Json | null
+          description?: string | null
           developer_name?: string | null
           floor_plans?: Json
           floor_plans_pdf_url?: string | null
           gallery?: Json
           hero_image_url?: string | null
+          highlights?: string[] | null
           id?: string
           included_items?: string[] | null
           is_published?: boolean

@@ -45,6 +45,9 @@ interface PresaleProject {
   gallery_images: string[] | null; floorplan_files: string[] | null;
   map_lat: number | null; map_lng: number | null; short_description: string | null;
   occupancy_estimate: string | null;
+  full_description: string | null;
+  highlights: string[] | null;
+  amenities: string[] | null;
 }
 
 interface AgentProfile {
@@ -202,6 +205,9 @@ export default function DashboardDeckBuilder() {
   const [includedItems, setIncludedItems] = useState<string[]>(["Parking", "Storage", "AC"]);
   const [unitsRemaining, setUnitsRemaining] = useState<string>("");
   const [nextPriceIncrease, setNextPriceIncrease] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [deckHighlights, setDeckHighlights] = useState<string[]>([]);
+  const [deckAmenities, setDeckAmenities] = useState<string[]>([]);
 
   const [slug, setSlug] = useState("");
   const [slugTaken, setSlugTaken] = useState(false);
@@ -215,7 +221,7 @@ export default function DashboardDeckBuilder() {
       setLoadingProjects(true);
       const { data } = await (supabase as any)
         .from("presale_projects")
-        .select("id,name,city,neighborhood,address,developer_name,starting_price,completion_year,featured_image,gallery_images,floorplan_files,map_lat,map_lng,short_description,occupancy_estimate")
+        .select("id,name,city,neighborhood,address,developer_name,starting_price,completion_year,featured_image,gallery_images,floorplan_files,map_lat,map_lng,short_description,occupancy_estimate,full_description,highlights,amenities")
         .order("name");
       setProjects(data || []);
       setLoadingProjects(false);
@@ -279,8 +285,12 @@ export default function DashboardDeckBuilder() {
       setGallery(Array.from(new Set(imgs)).filter(Boolean).slice(0, 12));
     }
     if (!tagline) setTagline(`Presale Opportunity — ${p.city || "BC"}${p.completion_year ? ` · ${p.completion_year}` : ""}`);
+    // Auto-fill description / highlights / amenities
+    if (p.full_description && !description) setDescription(p.full_description);
+    if (p.highlights?.length && !deckHighlights.length) setDeckHighlights(p.highlights);
+    if (p.amenities?.length && !deckAmenities.length) setDeckAmenities(p.amenities);
     toast.success(`"${p.name}" loaded — review and tweak as needed.`);
-  }, [heroImageUrl, tagline]);
+  }, [heroImageUrl, tagline, description, deckHighlights, deckAmenities]);
 
   // Load existing deck for edit
   useEffect(() => {
@@ -316,6 +326,9 @@ export default function DashboardDeckBuilder() {
       setIncludedItems(data.included_items?.length ? data.included_items : ["Parking", "Storage", "AC"]);
       setUnitsRemaining(data.units_remaining != null ? String(data.units_remaining) : "");
       setNextPriceIncrease(data.next_price_increase || "");
+      setDescription(data.description || "");
+      setDeckHighlights(data.highlights || []);
+      setDeckAmenities(data.amenities || []);
       setSlug(data.slug || "");
       setIsPublished(data.is_published || false);
       if (data.linked_project_id) {
@@ -482,6 +495,9 @@ export default function DashboardDeckBuilder() {
       included_items: includedItems.filter(Boolean),
       units_remaining: unitsRemaining ? parseInt(unitsRemaining, 10) : null,
       next_price_increase: nextPriceIncrease || null,
+      description: description || null,
+      highlights: deckHighlights.filter(Boolean),
+      amenities: deckAmenities.filter(Boolean),
     };
     let error;
     if (isEdit && id) {
@@ -663,6 +679,68 @@ export default function DashboardDeckBuilder() {
             <div className="space-y-1.5">
               <Label>Completion / Occupancy</Label>
               <Input value={completionYear} onChange={(e) => setCompletionYear(e.target.value)} placeholder="Spring 2027" />
+            </div>
+          </div>
+        </Section>
+
+        {/* ── STEP 3b: About / Description ─────────────────────────────── */}
+        <Section title="3b. About the Project"
+          subtitle="Description, feature bullets & amenities — auto-filled from linked project"
+          defaultOpen={false}
+          badge={(description || deckHighlights.length > 0 || deckAmenities.length > 0) ? "✓ Set" : undefined}>
+          <div className="space-y-5">
+            {/* Description textarea */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Project Description <span className="text-muted-foreground font-normal">(Markdown supported)</span></Label>
+              <textarea
+                className="w-full min-h-[160px] rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 resize-y"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={"Welcome to **Eden** by Zenterra…\n\n•\tLocated near parks and walking trails\n•\tEasy access to the upcoming SkyTrain"}
+              />
+              <p className="text-xs text-muted-foreground">Use **bold** for emphasis. Bullet points with • or - are supported.</p>
+            </div>
+
+            {/* Highlight bullets */}
+            <div className="space-y-2">
+              <Label className="text-xs">Feature Highlights <span className="text-muted-foreground font-normal">(bullet list)</span></Label>
+              {deckHighlights.map((item, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Input
+                    className="h-8 text-xs flex-1"
+                    value={item}
+                    onChange={(e) => setDeckHighlights((prev) => prev.map((h, idx) => idx === i ? e.target.value : h))}
+                    placeholder="Over 2 acres of lush green spaces"
+                  />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => setDeckHighlights((prev) => prev.filter((_, idx) => idx !== i))}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+              <Button variant="outline" size="sm" onClick={() => setDeckHighlights((prev) => [...prev, ""])}>
+                <Plus className="h-4 w-4 mr-2" />Add Highlight
+              </Button>
+            </div>
+
+            {/* Amenity chips */}
+            <div className="space-y-2">
+              <Label className="text-xs">Building Amenities</Label>
+              <div className="flex flex-wrap gap-2">
+                {deckAmenities.map((item, i) => (
+                  <div key={i} className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted border border-border/60 text-sm font-medium text-foreground">
+                    {item}
+                    <button
+                      type="button"
+                      onClick={() => setDeckAmenities((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="ml-1 text-muted-foreground hover:text-destructive transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                <AddIncludedItemInput onAdd={(v) => { if (v && !deckAmenities.includes(v)) setDeckAmenities((p) => [...p, v]); }} />
+              </div>
             </div>
           </div>
         </Section>
