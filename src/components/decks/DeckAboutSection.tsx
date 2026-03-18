@@ -16,14 +16,14 @@ export function DeckAboutSection({
   amenities,
   projectName,
 }: DeckAboutSectionProps) {
-  const hasContent = description || (highlights && highlights.length > 0) || (amenities && amenities.length > 0);
-  if (!hasContent) return null;
-
   const htmlContent = useMemo(() => {
     if (!description) return "";
     const raw = marked.parse(description, { async: false }) as string;
     return DOMPurify.sanitize(raw);
   }, [description]);
+
+  const hasContent = description || (highlights && highlights.length > 0) || (amenities && amenities.length > 0);
+  if (!hasContent) return null;
 
   return (
     <section className="deck-animate py-14 sm:py-20 bg-background">
