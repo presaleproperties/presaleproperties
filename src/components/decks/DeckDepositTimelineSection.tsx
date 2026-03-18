@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Clock, Key, FileSignature, DollarSign, Check } from "lucide-react";
+import { Clock, Key, FileSignature, DollarSign, Check, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DepositStep {
@@ -36,14 +36,18 @@ function parsePrice(raw: string): number {
   return isNaN(n) ? 0 : n;
 }
 
-function calcMonthly(principal: number, annualRate = 5.24, years = 25) {
-  const r = annualRate / 100 / 12;
-  const n = years * 12;
-  if (r === 0) return principal / n;
-  return (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-}
-
 const STEP_ICONS = [FileSignature, Clock, Clock, Clock, DollarSign];
+
+const TIMING_DESCRIPTIONS: Record<string, string> = {
+  "Due within 7 days": "Pay your first deposit within 7 days of signing your Purchase Agreement.",
+  "Due in 7 days": "Pay your first deposit within 7 days of signing your Purchase Agreement.",
+  "Due in 3 months": "Second deposit is due 90 days after you sign.",
+  "Due in 6 months": "Third deposit is due 180 days after signing. Nothing more until completion.",
+};
+
+function getTimingDescription(timing: string, idx: number): string {
+  return TIMING_DESCRIPTIONS[timing] || timing;
+}
 
 export function DeckDepositTimelineSection({
   depositSteps,
@@ -70,39 +74,25 @@ export function DeckDepositTimelineSection({
   const totalDepositPct = useMemo(() => steps.reduce((acc, s) => acc + s.percent, 0), [steps]);
   const totalDepositAmt = price * (totalDepositPct / 100);
   const balanceAtCompletion = price - totalDepositAmt;
-  const mortgageBase = balanceAtCompletion * 0.8;
-  const monthlyPayment = calcMonthly(mortgageBase);
-
-  const selectedPlan = plansWithPrice.find((p) => p.id === selectedPlanId);
-
-  const allNodes = [
-    ...steps.map((s, i) => ({ ...s, isCompletion: false, idx: i })),
-    {
-      id: "__completion__",
-      label: "Completion & Keys",
-      percent: 100 - totalDepositPct,
-      timing: completionYear ? `Estimated ${completionYear}` : "Estimated completion",
-      isCompletion: true,
-      idx: steps.length,
-    },
-  ];
 
   return (
-    <section id="deposit-timeline" className="relative py-14 sm:py-20 overflow-hidden">
-      <div className="max-w-5xl mx-auto px-4 sm:px-8">
+    <section id="deposit-timeline" className="relative py-14 sm:py-20 overflow-hidden bg-background">
+      <div className="max-w-4xl mx-auto px-4 sm:px-8">
 
         {/* Header */}
         <div className="mb-8 space-y-1">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Payment Plan</p>
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Payment Plan</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">How & When You Pay</h2>
-          <p className="text-muted-foreground text-sm">A simple breakdown of every payment — from signing to getting your keys.</p>
+          <p className="text-muted-foreground text-sm max-w-lg">
+            A step-by-step breakdown of every payment — from signing to getting your keys. <strong className="text-foreground">No payments during construction.</strong>
+          </p>
         </div>
 
-        {/* Floor plan selector or slider */}
+        {/* Unit price selector */}
         {plansWithPrice.length > 0 ? (
           <div className="mb-8 p-4 sm:p-5 rounded-2xl border border-border/60 bg-card">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold text-foreground">Select Unit</p>
+              <p className="text-sm font-semibold text-foreground">Calculate for unit</p>
               <p className="text-xl font-black text-primary">{fmt(price)}</p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -148,78 +138,104 @@ export function DeckDepositTimelineSection({
           </div>
         )}
 
-        {/* Timeline full width */}
+        {/* Timeline */}
         <div className="relative">
-            {/* Deposit steps */}
-            <div className="space-y-3">
-              {allNodes.filter(n => !n.isCompletion).map((node, i, arr) => {
-                const amt = price * (node.percent / 100);
-                const StepIcon = STEP_ICONS[node.idx] ?? Clock;
-                const isLast = i === arr.length - 1;
+          {/* Deposit steps */}
+          <div className="space-y-3">
+            {steps.map((node, i) => {
+              const amt = price * (node.percent / 100);
+              const StepIcon = STEP_ICONS[i] ?? Clock;
+              const isLast = i === steps.length - 1;
+              const desc = getTimingDescription(node.timing, i);
 
-                return (
-                  <div key={node.id} className="relative">
-                    <div className="flex gap-4 items-center">
-                      {/* Icon + connector */}
-                      <div className="flex flex-col items-center shrink-0">
-                        <div className="relative z-10 h-10 w-10 rounded-full flex items-center justify-center border-2 bg-card border-border/70 text-muted-foreground">
-                          <StepIcon className="h-4 w-4" />
-                        </div>
-                        {!isLast && <div className="w-px flex-1 min-h-[12px] bg-border/50 mt-1" />}
+              return (
+                <div key={node.id} className="relative">
+                  <div className="flex gap-4 items-stretch">
+                    {/* Icon + connector */}
+                    <div className="flex flex-col items-center shrink-0">
+                      <div className="relative z-10 h-10 w-10 rounded-full flex items-center justify-center border-2 bg-card border-border/70 text-muted-foreground shrink-0">
+                        <StepIcon className="h-4 w-4" />
                       </div>
+                      {!isLast && <div className="w-px flex-1 min-h-[16px] bg-border/40 mt-1" />}
+                    </div>
 
-                      {/* Row card */}
-                      <div className="flex-1 flex items-center justify-between rounded-xl px-4 py-3 border border-border/50 bg-card">
-                        <div>
-                          <p className="text-sm font-semibold text-foreground leading-tight">{node.label}</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">{node.timing}</p>
+                    {/* Card */}
+                    <div className="flex-1 rounded-xl px-4 py-3.5 border border-border/50 bg-card mb-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-foreground leading-tight">{node.label}</p>
+                          <p className="text-xs font-semibold text-primary mt-0.5">{node.timing}</p>
+                          <p className="text-[11px] text-muted-foreground mt-1 leading-snug">{desc}</p>
                         </div>
-                        <div className="text-right shrink-0 ml-3">
+                        <div className="text-right shrink-0 ml-2">
                           <p className="text-base font-black text-primary">{fmt(amt)}</p>
-                          <p className="text-[10px] text-muted-foreground">{node.percent}%</p>
+                          <p className="text-[10px] text-muted-foreground font-medium">{node.percent}% of price</p>
                         </div>
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Gap divider — Under Construction period */}
-            <div className="flex items-center gap-3 my-5 pl-0">
-              <div className="flex flex-col items-center shrink-0 w-10">
-                <div className="w-px h-4 bg-border/30" />
-                <div className="w-px h-4 border-l-2 border-dashed border-primary/30" />
-                <div className="w-px h-4 border-l-2 border-dashed border-primary/30" />
-                <div className="w-px h-4 border-l-2 border-dashed border-primary/30" />
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/60 border border-dashed border-border/60">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
-                <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Under Construction</span>
-              </div>
-            </div>
-
-            {/* Completion node */}
-            {allNodes.filter(n => n.isCompletion).map((node) => (
-              <div key={node.id} className="flex gap-4 items-start">
-                <div className="relative z-10 h-10 w-10 rounded-full flex items-center justify-center border-2 bg-primary border-primary text-primary-foreground shadow-[0_0_0_4px_hsl(var(--primary)/0.15)] shrink-0 mt-0.5">
-                  <Key className="h-4 w-4" />
                 </div>
-                <div className="flex-1 rounded-xl px-4 py-3 border border-primary/30 bg-primary/5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-bold text-primary leading-tight">Completion — Keys in Hand</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">{node.timing}</p>
-                      <p className="text-[11px] text-primary/70 mt-1.5 font-medium">🏦 Mortgage starts here — your balance becomes your loan</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-base font-black text-primary">{fmt(balanceAtCompletion)}</p>
-                      <p className="text-[10px] text-muted-foreground">{(100 - totalDepositPct).toFixed(0)}% balance</p>
-                    </div>
+              );
+            })}
+          </div>
+
+          {/* Under Construction gap */}
+          <div className="flex items-center gap-3 my-4">
+            <div className="flex flex-col items-center shrink-0 w-10">
+              <div className="w-px h-3 bg-border/30" />
+              <div className="w-px h-4 border-l-2 border-dashed border-primary/30" />
+              <div className="w-px h-4 border-l-2 border-dashed border-primary/30" />
+              <div className="w-px h-3 border-l-2 border-dashed border-primary/30" />
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/60 border border-dashed border-border/60">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Under Construction — No Further Payments</span>
+            </div>
+          </div>
+
+          {/* Completion node */}
+          <div className="flex gap-4 items-start">
+            <div className="relative z-10 h-10 w-10 rounded-full flex items-center justify-center border-2 bg-primary border-primary text-primary-foreground shadow-[0_0_0_4px_hsl(var(--primary)/0.15)] shrink-0 mt-0.5">
+              <Key className="h-4 w-4" />
+            </div>
+            <div className="flex-1 rounded-xl px-4 py-4 border border-primary/30 bg-primary/5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-primary leading-tight">Completion — Keys in Hand</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {completionYear ? `Estimated ${completionYear}` : "Estimated completion"}
+                  </p>
+                  <p className="text-[12px] text-foreground/80 mt-2 leading-snug">
+                    At completion, you pay any <strong>remaining down payment balance</strong> and the mortgage starts. The {totalDepositPct}% you paid during construction counts toward your down payment.
+                  </p>
+                  <div className="mt-3 flex items-center gap-1.5 text-[11px] text-primary/80 bg-primary/10 rounded-lg px-3 py-2 w-fit">
+                    <Info className="h-3 w-3 shrink-0" />
+                    <span>🏦 Mortgage begins here — balance becomes your loan</span>
                   </div>
                 </div>
+                <div className="text-right shrink-0">
+                  <p className="text-[10px] text-muted-foreground font-medium mb-0.5">Balance owing</p>
+                  <p className="text-lg font-black text-primary">{fmt(balanceAtCompletion)}</p>
+                  <p className="text-[10px] text-muted-foreground">{(100 - totalDepositPct).toFixed(0)}% of price</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Summary strip */}
+          <div className="mt-5 grid grid-cols-3 gap-3">
+            {[
+              { label: "Total Deposits", value: fmt(totalDepositAmt), sub: `${totalDepositPct}% during construction` },
+              { label: "Balance at Keys", value: fmt(balanceAtCompletion), sub: `${(100 - totalDepositPct).toFixed(0)}% at completion` },
+              { label: "Purchase Price", value: fmt(price), sub: "All-in before taxes" },
+            ].map(({ label, value, sub }) => (
+              <div key={label} className="rounded-xl bg-muted/40 border border-border/50 p-3 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
+                <p className="text-sm sm:text-base font-black text-foreground">{value}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>
               </div>
             ))}
+          </div>
         </div>
       </div>
     </section>
