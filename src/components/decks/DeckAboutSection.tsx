@@ -26,31 +26,28 @@ export function DeckAboutSection({
   if (!hasContent) return null;
 
   return (
-    <section className="deck-animate py-14 sm:py-20 bg-background">
+    <section id="about" className="py-14 sm:py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
 
-          {/* Left — description prose */}
+          {/* Left — description */}
           <div className="lg:col-span-7 space-y-6">
             <div className="space-y-1">
-              <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">
-                About the Development
-              </p>
+              <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">01 — The Development</p>
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-                {projectName || "Project Overview"}
+                {projectName ? `Welcome to ${projectName}` : "About the Development"}
               </h2>
             </div>
 
             {htmlContent && (
               <div
-                className="deck-prose text-muted-foreground leading-relaxed space-y-4"
+                className="deck-prose text-muted-foreground leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: htmlContent }}
               />
             )}
 
-            {/* Highlight bullets */}
             {highlights && highlights.length > 0 && (
-              <ul className="space-y-2.5 pt-2">
+              <ul className="space-y-2.5 pt-1">
                 {highlights.map((h, i) => (
                   <li key={i} className="flex items-start gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
@@ -64,7 +61,7 @@ export function DeckAboutSection({
           {/* Right — amenities */}
           {amenities && amenities.length > 0 && (
             <div className="lg:col-span-5">
-              <div className="rounded-2xl border border-border bg-muted/20 p-6 space-y-4">
+              <div className="rounded-2xl border border-border bg-muted/20 p-6 space-y-4 sticky top-24">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -87,13 +84,13 @@ export function DeckAboutSection({
         </div>
       </div>
 
-      {/* Prose styles scoped to this component */}
       <style>{`
-        .deck-prose p { margin-bottom: 0.85rem; font-size: 0.9375rem; }
+        .deck-prose p { margin-bottom: 0.85rem; font-size: 0.9375rem; line-height: 1.7; }
         .deck-prose strong { font-weight: 700; color: hsl(var(--foreground)); }
         .deck-prose ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0.85rem; }
         .deck-prose ul li { margin-bottom: 0.4rem; font-size: 0.9375rem; }
         .deck-prose p:last-child { margin-bottom: 0; }
+        .deck-prose h2, .deck-prose h3 { font-weight: 700; color: hsl(var(--foreground)); margin-bottom: 0.5rem; }
       `}</style>
     </section>
   );

@@ -7,9 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -51,12 +48,8 @@ interface PresaleProject {
 }
 
 interface AgentProfile {
-  id: string;
-  full_name: string;
-  title: string | null;
-  photo_url: string | null;
-  email: string | null;
-  phone: string | null;
+  id: string; full_name: string; title: string | null;
+  photo_url: string | null; email: string | null; phone: string | null;
 }
 
 interface FloorPlan {
@@ -70,41 +63,44 @@ interface FloorPlan {
 interface ProximityHighlight { icon: string; label: string; distance: string; }
 
 interface DepositStep {
-  id: string;
-  label: string;
-  percent: number;
-  timing: string;
-  note?: string;
+  id: string; label: string; percent: number; timing: string; note?: string;
 }
 
 const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
-  { id: "d1", label: "Upon Signing", percent: 2.5, timing: "Due in 7 days", note: "Paid to the developer's trust account on execution of the Purchase Agreement." },
-  { id: "d2", label: "2nd Deposit", percent: 2.5, timing: "Due in 3 months", note: "Second deposit due within 90 days of contract execution." },
-  { id: "d3", label: "3rd Deposit", percent: 5, timing: "Due in 6 months", note: "Third deposit due within 180 days of contract execution." },
+  { id: "d1", label: "Upon Signing", percent: 2.5, timing: "Due within 7 days", note: "Paid to the developer's trust account." },
+  { id: "d2", label: "2nd Deposit", percent: 2.5, timing: "Due in 3 months", note: "Due within 90 days of signing." },
+  { id: "d3", label: "3rd Deposit", percent: 5, timing: "Due in 6 months", note: "Due within 180 days. Nothing more until completion." },
 ];
 
 interface SectionProps {
   title: string; subtitle?: string; children: React.ReactNode;
-  defaultOpen?: boolean; badge?: string;
+  defaultOpen?: boolean; badge?: string; step?: number;
 }
 
-function Section({ title, subtitle, children, defaultOpen = true, badge }: SectionProps) {
+function Section({ title, subtitle, children, defaultOpen = true, badge, step }: SectionProps) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <button
         type="button"
-        className="w-full flex items-center justify-between px-5 py-4 text-left"
+        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-muted/30 transition-colors"
         onClick={() => setOpen((o) => !o)}
       >
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-foreground">{title}</span>
-            {badge && <Badge variant="secondary" className="text-[10px] h-4 px-1.5">{badge}</Badge>}
+        <div className="flex items-center gap-3 min-w-0">
+          {step && (
+            <span className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/10 text-primary text-[11px] font-bold flex items-center justify-center">
+              {step}
+            </span>
+          )}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-foreground text-sm">{title}</span>
+              {badge && <Badge variant="secondary" className="text-[10px] h-4 px-1.5">{badge}</Badge>}
+            </div>
+            {subtitle && <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{subtitle}</p>}
           </div>
-          {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
         </div>
-        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0 ml-2" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 ml-2" />}
       </button>
       {open && <CardContent className="pt-0 pb-5 px-5">{children}</CardContent>}
     </Card>
@@ -116,29 +112,36 @@ function genSlug(name: string) {
 }
 function nanoid() { return Math.random().toString(36).slice(2, 10); }
 
-function AddIncludedItemInput({ onAdd }: { onAdd: (v: string) => void }) {
+function TagInput({ items, onAdd, onRemove, placeholder = "Add item…" }: {
+  items: string[]; onAdd: (v: string) => void; onRemove: (i: number) => void; placeholder?: string;
+}) {
   const [val, setVal] = useState("");
-  const submit = () => {
-    const trimmed = val.trim();
-    if (trimmed) { onAdd(trimmed); setVal(""); }
-  };
+  const submit = () => { const t = val.trim(); if (t) { onAdd(t); setVal(""); } };
   return (
-    <div className="flex items-center gap-1">
-      <input
-        type="text"
-        value={val}
-        onChange={(e) => setVal(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(); } }}
-        placeholder="Add item…"
-        className="h-8 px-3 text-sm rounded-full border border-dashed border-border bg-background focus:outline-none focus:border-primary/50 w-28"
-      />
-      <button
-        type="button"
-        onClick={submit}
-        className="h-8 w-8 flex items-center justify-center rounded-full border border-border hover:border-primary/50 bg-background text-muted-foreground hover:text-primary transition-colors"
-      >
-        <Plus className="h-3.5 w-3.5" />
-      </button>
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
+        {items.map((item, i) => (
+          <div key={i} className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted border border-border/60 text-sm font-medium text-foreground">
+            {item}
+            <button type="button" onClick={() => onRemove(i)} className="ml-1 text-muted-foreground hover:text-destructive transition-colors">
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        ))}
+        <div className="flex items-center gap-1">
+          <input
+            type="text" value={val}
+            onChange={(e) => setVal(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(); } }}
+            placeholder={placeholder}
+            className="h-8 px-3 text-sm rounded-full border border-dashed border-border bg-background focus:outline-none focus:border-primary/50 w-32"
+          />
+          <button type="button" onClick={submit}
+            className="h-8 w-8 flex items-center justify-center rounded-full border border-dashed border-border hover:border-primary/50 bg-background text-muted-foreground hover:text-primary transition-colors">
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -160,6 +163,7 @@ export default function DashboardDeckBuilder() {
   const [agents, setAgents] = useState<AgentProfile[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
 
+  // Project details
   const [projectName, setProjectName] = useState("");
   const [tagline, setTagline] = useState("");
   const [city, setCity] = useState("");
@@ -169,53 +173,65 @@ export default function DashboardDeckBuilder() {
   const [lat, setLat] = useState<string>("");
   const [lng, setLng] = useState<string>("");
 
+  // Hero image
   const [heroImageUrl, setHeroImageUrl] = useState("");
   const [heroUploading, setHeroUploading] = useState(false);
   const heroInputRef = useRef<HTMLInputElement>(null);
 
+  // Floor plans
   const [floorPlans, setFloorPlans] = useState<FloorPlan[]>([]);
   const [analyzingFp, setAnalyzingFp] = useState<string | null>(null);
   const fpInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
+  // Gallery
   const [gallery, setGallery] = useState<string[]>([]);
   const [galleryUploading, setGalleryUploading] = useState(false);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
+  // PDF
   const [floorPlansPdfUrl, setFloorPlansPdfUrl] = useState("");
   const [pdfUploading, setPdfUploading] = useState(false);
   const pdfInputRef = useRef<HTMLInputElement>(null);
 
+  // Location
   const [highlights, setHighlights] = useState<ProximityHighlight[]>([
     { icon: "🚇", label: "SkyTrain Station", distance: "5 min walk" },
   ]);
 
-  const [rentalMin, setRentalMin] = useState("");
-  const [rentalMax, setRentalMax] = useState("");
+  // Investment
   const [appreciationRate, setAppreciationRate] = useState("5");
   const [projectionsFromAI, setProjectionsFromAI] = useState(false);
 
+  // Deposits
   const [depositSteps, setDepositSteps] = useState<DepositStep[]>(DEFAULT_DEPOSIT_STEPS);
 
+  // Contact
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
 
+  // Key facts
   const [assignmentFee, setAssignmentFee] = useState("");
-  const [includedItems, setIncludedItems] = useState<string[]>(["Parking", "Storage", "AC"]);
-  const [unitsRemaining, setUnitsRemaining] = useState<string>("");
-  const [nextPriceIncrease, setNextPriceIncrease] = useState<string>("");
+  const [includedItems, setIncludedItems] = useState<string[]>(["1 Parking Stall", "1 Storage Locker", "AC"]);
+
+  // About (description pulled from project)
   const [description, setDescription] = useState<string>("");
   const [deckHighlights, setDeckHighlights] = useState<string[]>([]);
   const [deckAmenities, setDeckAmenities] = useState<string[]>([]);
 
+  // Scarcity
+  const [unitsRemaining, setUnitsRemaining] = useState<string>("");
+  const [nextPriceIncrease, setNextPriceIncrease] = useState<string>("");
+
+  // Publishing
   const [slug, setSlug] = useState("");
   const [slugTaken, setSlugTaken] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
 
-  // Fetch presale projects
+  // Fetch projects
   useEffect(() => {
     (async () => {
       setLoadingProjects(true);
@@ -228,7 +244,6 @@ export default function DashboardDeckBuilder() {
     })();
   }, []);
 
-  // Auto-populate all contact fields from team member record
   const applyAgentProfile = useCallback((agent: AgentProfile) => {
     setContactName(agent.full_name || "");
     setContactPhone(agent.phone || "");
@@ -237,7 +252,7 @@ export default function DashboardDeckBuilder() {
     setSelectedAgentId(agent.id || null);
   }, []);
 
-  // Fetch active team members directly from team_members table (has phone + email)
+  // Fetch team members
   useEffect(() => {
     (async () => {
       const { data } = await supabase
@@ -247,9 +262,7 @@ export default function DashboardDeckBuilder() {
         .order("sort_order", { ascending: true });
       if (data?.length) {
         setAgents(data as AgentProfile[]);
-        if (!isEdit) {
-          applyAgentProfile((data as AgentProfile[])[0]);
-        }
+        if (!isEdit) applyAgentProfile((data as AgentProfile[])[0]);
       }
     })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -257,9 +270,7 @@ export default function DashboardDeckBuilder() {
   // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setShowProjectDropdown(false);
-      }
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowProjectDropdown(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -272,8 +283,7 @@ export default function DashboardDeckBuilder() {
     setProjectSearch(p.name);
     setShowProjectDropdown(false);
     setProjectName(p.name);
-    const cityStr = [p.city, p.neighborhood].filter(Boolean).join(", ");
-    setCity(cityStr || p.city || "");
+    setCity([p.city, p.neighborhood].filter(Boolean).join(", ") || p.city || "");
     setAddress(p.address || "");
     setDeveloperName(p.developer_name || "");
     setCompletionYear(p.occupancy_estimate || p.completion_year?.toString() || "");
@@ -285,19 +295,18 @@ export default function DashboardDeckBuilder() {
       setGallery(Array.from(new Set(imgs)).filter(Boolean).slice(0, 12));
     }
     if (!tagline) setTagline(`Presale Opportunity — ${p.city || "BC"}${p.completion_year ? ` · ${p.completion_year}` : ""}`);
-    // Auto-fill description / highlights / amenities
-    if (p.full_description && !description) setDescription(p.full_description);
-    if (p.highlights?.length && !deckHighlights.length) setDeckHighlights(p.highlights);
-    if (p.amenities?.length && !deckAmenities.length) setDeckAmenities(p.amenities);
-    toast.success(`"${p.name}" loaded — review and tweak as needed.`);
-  }, [heroImageUrl, tagline, description, deckHighlights, deckAmenities]);
+    // Always sync description / highlights / amenities from project
+    if (p.full_description) setDescription(p.full_description);
+    if (p.highlights?.length) setDeckHighlights(p.highlights);
+    if (p.amenities?.length) setDeckAmenities(p.amenities);
+    toast.success(`"${p.name}" loaded — review and adjust as needed.`);
+  }, [heroImageUrl, tagline]);
 
   // Load existing deck for edit
   useEffect(() => {
     if (!isEdit || !id) return;
     (async () => {
-      const { data, error } = await (supabase as any)
-        .from("pitch_decks").select("*").eq("id", id).single();
+      const { data, error } = await (supabase as any).from("pitch_decks").select("*").eq("id", id).single();
       if (error || !data) { toast.error("Deck not found"); navigate("/dashboard/decks"); return; }
       setProjectName(data.project_name || "");
       setTagline(data.tagline || "");
@@ -312,8 +321,6 @@ export default function DashboardDeckBuilder() {
       if (data.lat) setLat(data.lat.toString());
       if (data.lng) setLng(data.lng.toString());
       const p = data.projections || {};
-      setRentalMin(p.rental_min?.toString() || "");
-      setRentalMax(p.rental_max?.toString() || "");
       const firstRate = p.appreciation?.[0];
       setAppreciationRate(firstRate != null ? String(firstRate) : "5");
       setContactName(data.contact_name || "");
@@ -323,7 +330,7 @@ export default function DashboardDeckBuilder() {
       if (data.deposit_steps?.length) setDepositSteps(data.deposit_steps);
       setFloorPlansPdfUrl(data.floor_plans_pdf_url || "");
       setAssignmentFee(data.assignment_fee || "");
-      setIncludedItems(data.included_items?.length ? data.included_items : ["Parking", "Storage", "AC"]);
+      setIncludedItems(data.included_items?.length ? data.included_items : ["1 Parking Stall", "1 Storage Locker", "AC"]);
       setUnitsRemaining(data.units_remaining != null ? String(data.units_remaining) : "");
       setNextPriceIncrease(data.next_price_increase || "");
       setDescription(data.description || "");
@@ -383,11 +390,7 @@ export default function DashboardDeckBuilder() {
         body: { fileUrl: url, fileName: file.name, price: currentFp?.price_from || "" },
       });
       toast.dismiss(`fp-ai-${fpId}`);
-      if (fnError || !fnData?.success) {
-        toast.error("AI analysis failed — fill in manually");
-        setAnalyzingFp(null);
-        return;
-      }
+      if (fnError || !fnData?.success) { toast.error("AI analysis failed — fill in manually"); setAnalyzingFp(null); return; }
       const { unit, projections } = fnData;
       setFloorPlans((prev) => prev.map((fp) => {
         if (fp.id !== fpId) return fp;
@@ -407,8 +410,6 @@ export default function DashboardDeckBuilder() {
         };
       }));
       if (projections && !projectionsFromAI) {
-        setRentalMin(projections.rental_min?.toString() || "");
-        setRentalMax(projections.rental_max?.toString() || "");
         if (projections.appreciation?.[0]) setAppreciationRate(String(projections.appreciation[0]));
         setProjectionsFromAI(true);
         toast.success("AI filled unit data & projections!");
@@ -461,11 +462,6 @@ export default function DashboardDeckBuilder() {
   };
   const removeHighlight = (i: number) => setHighlights((prev) => prev.filter((_, idx) => idx !== i));
 
-  const buildAppreciation = () => {
-    const base = parseFloat(appreciationRate) || 5;
-    return [base, base + 0.5, base + 0.5, base + 1, base + 1];
-  };
-
   const handleSave = async () => {
     if (!user) return;
     if (!projectName) { toast.error("Project name is required"); return; }
@@ -474,17 +470,10 @@ export default function DashboardDeckBuilder() {
     setSaving(true);
     const payload: any = {
       user_id: user.id, slug, project_name: projectName, tagline, city, address,
-      developer_name: developerName,
-      completion_year: completionYear,
+      developer_name: developerName, completion_year: completionYear,
       hero_image_url: heroImageUrl, floor_plans: floorPlans, gallery,
-      proximity_highlights: highlights,
-      deposit_steps: depositSteps,
-      projections: {
-        rental_min: rentalMin ? parseFloat(rentalMin) : null,
-        rental_max: rentalMax ? parseFloat(rentalMax) : null,
-        cap_rate_min: null, cap_rate_max: null,
-        appreciation: buildAppreciation(),
-      },
+      proximity_highlights: highlights, deposit_steps: depositSteps,
+      projections: { appreciation: buildAppreciation() },
       contact_name: contactName, contact_phone: contactPhone,
       contact_email: contactEmail, contact_whatsapp: contactWhatsapp,
       is_published: isPublished, linked_project_id: linkedProjectId,
@@ -509,6 +498,11 @@ export default function DashboardDeckBuilder() {
     else { toast.success(isEdit ? "Deck updated!" : "Deck created!"); navigate("/dashboard/decks"); }
     setSaving(false);
   };
+
+  function buildAppreciation() {
+    const base = parseFloat(appreciationRate) || 5;
+    return [base, base + 0.5, base + 0.5, base + 1, base + 1];
+  }
 
   const filteredProjects = projects.filter((p) =>
     p.name.toLowerCase().includes(projectSearch.toLowerCase()) ||
@@ -537,39 +531,42 @@ export default function DashboardDeckBuilder() {
           onChange={(e) => handleFloorPlanUpload(e, fp.id)} />
       ))}
 
-      <div className="max-w-2xl mx-auto space-y-4 pb-28">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4">
+      <div className="max-w-2xl mx-auto space-y-3 pb-28 px-0">
+
+        {/* Page header */}
+        <div className="flex items-center justify-between gap-4 pb-1">
           <div>
             <h1 className="text-xl font-bold text-foreground">
-              {isEdit ? `Edit — ${projectName || "Deck"}` : "New Pitch Deck"}
+              {isEdit ? (projectName || "Edit Deck") : "New Pitch Deck"}
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Internal · Presale Properties
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {isPublished ? "🟢 Published" : "⚪ Draft"}{slug ? ` · /deck/${slug}` : ""}
             </p>
           </div>
-          {isEdit && slug && (
-            <Button variant="outline" size="sm" asChild>
-              <a href={`/deck/${slug}`} target="_blank" rel="noopener noreferrer">
-                <Eye className="h-4 w-4 mr-1" />Preview
-              </a>
-            </Button>
-          )}
+          <div className="flex items-center gap-2 shrink-0">
+            {isEdit && slug && (
+              <Button variant="outline" size="sm" asChild>
+                <a href={`/deck/${slug}`} target="_blank" rel="noopener noreferrer">
+                  <Eye className="h-3.5 w-3.5 mr-1.5" />Preview
+                </a>
+              </Button>
+            )}
+          </div>
         </div>
 
-        {/* ── STEP 1: Load from project ──────────────────────────────── */}
+        {/* ── STEP 1: Link Project ── */}
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <p className="text-sm font-semibold text-foreground">1. Pick a Project</p>
-            <Badge variant="outline" className="text-[10px] ml-auto">Auto-fills everything</Badge>
+            <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
+            <p className="text-sm font-semibold text-foreground">Link a Project</p>
+            <Badge variant="outline" className="text-[10px] ml-auto border-primary/40 text-primary">Auto-fills everything</Badge>
           </div>
           {linkedProjectId ? (
             <div className="flex items-center gap-3 p-3 rounded-lg bg-background border border-border">
-              <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{linkedProjectName}</p>
-                <p className="text-xs text-muted-foreground">Linked — edit any field below to override</p>
+                <p className="text-xs text-muted-foreground">Linked — all fields synced from project</p>
               </div>
               <Button variant="ghost" size="sm" className="text-xs text-muted-foreground shrink-0"
                 onClick={() => { setLinkedProjectId(null); setLinkedProjectName(""); setProjectSearch(""); }}>
@@ -581,13 +578,12 @@ export default function DashboardDeckBuilder() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
-                  type="text"
-                  value={projectSearch}
+                  type="text" value={projectSearch}
                   onChange={(e) => { setProjectSearch(e.target.value); setShowProjectDropdown(true); }}
                   onFocus={() => setShowProjectDropdown(true)}
-                  placeholder={loadingProjects ? "Loading projects..." : "Search by project name or city…"}
+                  placeholder={loadingProjects ? "Loading…" : "Search by project name or city…"}
                   disabled={loadingProjects}
-                  className="w-full h-10 pl-9 pr-4 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 placeholder:text-muted-foreground/60 transition-colors"
+                  className="w-full h-10 pl-9 pr-4 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50"
                 />
               </div>
               {showProjectDropdown && filteredProjects.length > 0 && (
@@ -597,18 +593,14 @@ export default function DashboardDeckBuilder() {
                       className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent/50 transition-colors border-b border-border/40 last:border-0">
                       {p.featured_image
                         ? <img src={p.featured_image} alt="" className="h-10 w-14 rounded object-cover shrink-0" />
-                        : <div className="h-10 w-14 rounded bg-muted flex items-center justify-center shrink-0">
-                            <Building2 className="h-4 w-4 text-muted-foreground" />
-                          </div>
+                        : <div className="h-10 w-14 rounded bg-muted flex items-center justify-center shrink-0"><Building2 className="h-4 w-4 text-muted-foreground" /></div>
                       }
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold truncate">{p.name}</p>
                         <p className="text-xs text-muted-foreground">{[p.city, p.neighborhood].filter(Boolean).join(" · ")}</p>
                       </div>
                       {p.starting_price && (
-                        <span className="text-xs font-semibold text-primary shrink-0">
-                          from ${(p.starting_price / 1000).toFixed(0)}K
-                        </span>
+                        <span className="text-xs font-semibold text-primary shrink-0">from ${(p.starting_price / 1000).toFixed(0)}K</span>
                       )}
                     </button>
                   ))}
@@ -618,50 +610,46 @@ export default function DashboardDeckBuilder() {
           )}
         </div>
 
-        {/* ── STEP 2: Hero Image ──────────────────────────────────────── */}
-        <Section title="2. Hero Image" subtitle="Full-width cover photo for the deck"
-          badge={heroImageUrl ? "✓ Set" : undefined}>
-          <div>
-            {heroImageUrl ? (
-              <div className="relative rounded-xl overflow-hidden aspect-video">
-                <img src={heroImageUrl} alt="Hero" className="w-full h-full object-cover" />
-                <div className="absolute top-2 right-2 flex gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => heroInputRef.current?.click()}>
-                    <Upload className="h-4 w-4 mr-1" />Replace
-                  </Button>
-                  <Button variant="destructive" size="sm" onClick={() => setHeroImageUrl("")}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+        {/* ── STEP 2: Hero Image ── */}
+        <Section step={2} title="Hero Image" subtitle="Full-width cover photo" badge={heroImageUrl ? "✓ Set" : undefined}>
+          {heroImageUrl ? (
+            <div className="relative rounded-xl overflow-hidden aspect-video">
+              <img src={heroImageUrl} alt="Hero" className="w-full h-full object-cover" />
+              <div className="absolute top-2 right-2 flex gap-2">
+                <Button variant="secondary" size="sm" onClick={() => heroInputRef.current?.click()}>
+                  <Upload className="h-3.5 w-3.5 mr-1" />Replace
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => setHeroImageUrl("")}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
               </div>
-            ) : (
-              <div
-                className="border-2 border-dashed border-border rounded-xl aspect-video flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
-                onClick={() => heroInputRef.current?.click()}
-              >
-                {heroUploading
-                  ? <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  : <>
-                      <Image className="h-10 w-10 text-muted-foreground/30" />
-                      <p className="text-sm font-medium text-foreground">Click to upload hero image</p>
-                      <p className="text-xs text-muted-foreground">JPG, PNG — landscape recommended</p>
-                    </>
-                }
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div
+              className="border-2 border-dashed border-border rounded-xl aspect-video flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              onClick={() => heroInputRef.current?.click()}
+            >
+              {heroUploading
+                ? <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                : <>
+                    <Image className="h-10 w-10 text-muted-foreground/30" />
+                    <p className="text-sm font-medium text-foreground">Click to upload hero image</p>
+                    <p className="text-xs text-muted-foreground">JPG, PNG — landscape recommended (16:9)</p>
+                  </>
+              }
+            </div>
+          )}
         </Section>
 
-        {/* ── STEP 3: Project Details ─────────────────────────────────── */}
-        <Section title="3. Project Details"
-          badge={linkedProjectId ? "Auto-filled" : undefined}>
+        {/* ── STEP 3: Project Details ── */}
+        <Section step={3} title="Project Details" badge={linkedProjectId ? "Synced" : undefined}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2 space-y-1.5">
               <Label>Project Name *</Label>
               <Input value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Aurora Surrey" />
             </div>
             <div className="sm:col-span-2 space-y-1.5">
-              <Label>Tagline <span className="text-muted-foreground font-normal text-xs">(optional)</span></Label>
+              <Label>Tagline <span className="text-muted-foreground font-normal text-xs">(shown under project name)</span></Label>
               <Input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="Presale Opportunity — Surrey City Centre · 2027" />
             </div>
             <div className="space-y-1.5">
@@ -669,46 +657,43 @@ export default function DashboardDeckBuilder() {
               <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Surrey, BC" />
             </div>
             <div className="space-y-1.5">
-              <Label>Full Address</Label>
-              <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="10188 City Pkwy, Surrey" />
+              <Label>Completion / Occupancy</Label>
+              <Input value={completionYear} onChange={(e) => setCompletionYear(e.target.value)} placeholder="Spring 2027" />
             </div>
             <div className="space-y-1.5">
               <Label>Developer</Label>
               <Input value={developerName} onChange={(e) => setDeveloperName(e.target.value)} placeholder="Bosa Development" />
             </div>
             <div className="space-y-1.5">
-              <Label>Completion / Occupancy</Label>
-              <Input value={completionYear} onChange={(e) => setCompletionYear(e.target.value)} placeholder="Spring 2027" />
+              <Label>Full Address</Label>
+              <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="10188 City Pkwy, Surrey" />
             </div>
           </div>
         </Section>
 
-        {/* ── STEP 3b: About / Description ─────────────────────────────── */}
-        <Section title="3b. About the Project"
-          subtitle="Description, feature bullets & amenities — auto-filled from linked project"
+        {/* ── STEP 4: About the Project ── */}
+        <Section step={4} title="About the Project"
+          subtitle="Description & amenities — synced from project page"
           defaultOpen={false}
           badge={(description || deckHighlights.length > 0 || deckAmenities.length > 0) ? "✓ Set" : undefined}>
           <div className="space-y-5">
-            {/* Description textarea */}
             <div className="space-y-1.5">
-              <Label className="text-xs">Project Description <span className="text-muted-foreground font-normal">(Markdown supported)</span></Label>
+              <Label>Project Description <span className="text-muted-foreground font-normal text-xs">(Markdown supported)</span></Label>
               <textarea
-                className="w-full min-h-[160px] rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 resize-y"
+                className="w-full min-h-[140px] rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 resize-y"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder={"Welcome to **Eden** by Zenterra…\n\n•\tLocated near parks and walking trails\n•\tEasy access to the upcoming SkyTrain"}
+                placeholder={"Welcome to **Eden** by Zenterra…\n\nLocated near parks and walking trails…"}
               />
-              <p className="text-xs text-muted-foreground">Use **bold** for emphasis. Bullet points with • or - are supported.</p>
+              <p className="text-xs text-muted-foreground">Use **bold** for emphasis. Auto-synced from linked project.</p>
             </div>
 
-            {/* Highlight bullets */}
             <div className="space-y-2">
-              <Label className="text-xs">Feature Highlights <span className="text-muted-foreground font-normal">(bullet list)</span></Label>
+              <Label>Feature Highlights <span className="text-muted-foreground font-normal text-xs">(bullet list)</span></Label>
               {deckHighlights.map((item, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <Input
-                    className="h-8 text-xs flex-1"
-                    value={item}
+                    className="h-8 text-xs flex-1" value={item}
                     onChange={(e) => setDeckHighlights((prev) => prev.map((h, idx) => idx === i ? e.target.value : h))}
                     placeholder="Over 2 acres of lush green spaces"
                   />
@@ -723,92 +708,20 @@ export default function DashboardDeckBuilder() {
               </Button>
             </div>
 
-            {/* Amenity chips */}
             <div className="space-y-2">
-              <Label className="text-xs">Building Amenities</Label>
-              <div className="flex flex-wrap gap-2">
-                {deckAmenities.map((item, i) => (
-                  <div key={i} className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted border border-border/60 text-sm font-medium text-foreground">
-                    {item}
-                    <button
-                      type="button"
-                      onClick={() => setDeckAmenities((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="ml-1 text-muted-foreground hover:text-destructive transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-                <AddIncludedItemInput onAdd={(v) => { if (v && !deckAmenities.includes(v)) setDeckAmenities((p) => [...p, v]); }} />
-              </div>
+              <Label>Building Amenities</Label>
+              <TagInput
+                items={deckAmenities}
+                onAdd={(v) => { if (v && !deckAmenities.includes(v)) setDeckAmenities((p) => [...p, v]); }}
+                onRemove={(i) => setDeckAmenities((prev) => prev.filter((_, idx) => idx !== i))}
+                placeholder="Add amenity…"
+              />
             </div>
           </div>
         </Section>
 
-        {/* ── Key Facts ───────────────────────────────────────────────── */}
-        <Section title="Key Facts" subtitle="Assignment fee & what's included in the price" defaultOpen={true}>
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label>Assignment Fee <span className="text-muted-foreground font-normal text-xs">(e.g. $5,000 + GST)</span></Label>
-              <Input
-                value={assignmentFee}
-                onChange={(e) => setAssignmentFee(e.target.value)}
-                placeholder="$5,000 + GST"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>What's Included in Price</Label>
-              <p className="text-xs text-muted-foreground">Add items like Parking, Storage, AC, etc.</p>
-              <div className="flex flex-wrap gap-2">
-                {includedItems.map((item, i) => (
-                  <div key={i} className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-sm font-medium text-primary">
-                    {item}
-                    <button
-                      type="button"
-                      onClick={() => setIncludedItems((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="ml-1 text-primary/60 hover:text-destructive transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-                <AddIncludedItemInput onAdd={(v) => { if (v && !includedItems.includes(v)) setIncludedItems((p) => [...p, v]); }} />
-              </div>
-            </div>
-          </div>
-        </Section>
-
-        {/* ── Scarcity Indicator ──────────────────────────────────────── */}
-        <Section title="Scarcity Indicator" subtitle="Urgency banner shown right below the hero — leave blank to hide" defaultOpen={false}
-          badge={unitsRemaining || nextPriceIncrease ? "✓ Active" : undefined}>
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs">Units Remaining at This Price <span className="text-muted-foreground font-normal">(number)</span></Label>
-              <Input
-                type="number"
-                min={1}
-                value={unitsRemaining}
-                onChange={(e) => setUnitsRemaining(e.target.value)}
-                placeholder="e.g. 1"
-                className="h-9"
-              />
-              <p className="text-xs text-muted-foreground">Shows: "Only X unit(s) remaining at this price"</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Next Price Increase <span className="text-muted-foreground font-normal">(text)</span></Label>
-              <Input
-                value={nextPriceIncrease}
-                onChange={(e) => setNextPriceIncrease(e.target.value)}
-                placeholder="e.g. $5K more"
-                className="h-9"
-              />
-              <p className="text-xs text-muted-foreground">Shows: "Next price is $5K more"</p>
-            </div>
-          </div>
-        </Section>
-
-        {/* ── STEP 4: Floor Plans ─────────────────────────────────────── */}
-        <Section title={`4. Floor Plans (${floorPlans.length}/6)`}
+        {/* ── STEP 5: Floor Plans ── */}
+        <Section step={5} title={`Floor Plans (${floorPlans.length}/6)`}
           subtitle="Upload image — AI auto-fills size, type & pricing">
           <div className="space-y-3">
             {floorPlans.map((fp, idx) => (
@@ -820,7 +733,6 @@ export default function DashboardDeckBuilder() {
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
-
                 <div className="flex items-start gap-3">
                   <div
                     className="h-20 w-28 rounded-lg border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-primary/50 transition-colors shrink-0 overflow-hidden relative"
@@ -842,7 +754,6 @@ export default function DashboardDeckBuilder() {
                       </>
                     )}
                   </div>
-
                   <div className="flex-1 grid grid-cols-2 gap-2">
                     <div className="space-y-1">
                       <Label className="text-xs">Price From</Label>
@@ -861,7 +772,6 @@ export default function DashboardDeckBuilder() {
                     </div>
                   </div>
                 </div>
-
                 {fp.beds != null && (
                   <div className="flex flex-wrap gap-1.5">
                     <Badge variant="outline" className="text-[10px] h-5">{fp.beds}bd / {fp.baths}ba</Badge>
@@ -871,64 +781,77 @@ export default function DashboardDeckBuilder() {
                 )}
               </div>
             ))}
-
             {floorPlans.length < 6 && (
               <Button variant="outline" onClick={addFloorPlan} className="w-full">
-                <Plus className="h-4 w-4 mr-2" />Add Floor Plan
+                <Plus className="h-4 w-4 mr-2" />Add Unit
               </Button>
             )}
+
+            {/* Assignment fee & included items */}
+            <div className="pt-3 border-t border-border/40 space-y-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Assignment Fee <span className="text-muted-foreground font-normal">(e.g. $0 or $5,000 + GST)</span></Label>
+                <Input
+                  value={assignmentFee}
+                  onChange={(e) => setAssignmentFee(e.target.value)}
+                  placeholder="$0 — No Assignment Fee"
+                  className="h-9"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">What's Included in Price</Label>
+                <p className="text-xs text-muted-foreground">Be specific: e.g. "1 Parking Stall", "1 Storage Locker", "AC"</p>
+                <TagInput
+                  items={includedItems}
+                  onAdd={(v) => { if (v && !includedItems.includes(v)) setIncludedItems((p) => [...p, v]); }}
+                  onRemove={(i) => setIncludedItems((prev) => prev.filter((_, idx) => idx !== i))}
+                  placeholder="1 Parking Stall…"
+                />
+              </div>
+            </div>
           </div>
         </Section>
 
-        {/* ── STEP 4b: Floor Plans PDF ────────────────────────────────── */}
-        <Section title="4b. Full Floor Plans PDF"
-          subtitle="Upload the complete floor plan document — shown on the deck page below Top Picks"
-          badge={floorPlansPdfUrl ? "✓ Uploaded" : undefined}
-          defaultOpen={false}>
-          <div className="space-y-3">
-            {floorPlansPdfUrl ? (
-              <div className="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/20">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <Upload className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">Floor Plans PDF</p>
-                  <a href={floorPlansPdfUrl} target="_blank" rel="noopener noreferrer"
-                    className="text-xs text-primary hover:underline truncate block">View uploaded PDF ↗</a>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <Button variant="outline" size="sm" onClick={() => pdfInputRef.current?.click()}>
-                    Replace
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive"
-                    onClick={() => setFloorPlansPdfUrl("")}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+        {/* ── STEP 5b: Floor Plans PDF ── */}
+        <Section title="Floor Plans PDF" subtitle="Full floor plan document (optional)" defaultOpen={false}
+          badge={floorPlansPdfUrl ? "✓ Uploaded" : undefined}>
+          {floorPlansPdfUrl ? (
+            <div className="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/20">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <Upload className="h-5 w-5 text-primary" />
               </div>
-            ) : (
-              <div
-                className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
-                onClick={() => pdfInputRef.current?.click()}
-              >
-                {pdfUploading ? (
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                ) : (
-                  <>
-                    <Upload className="h-8 w-8 text-muted-foreground/40" />
-                    <p className="text-sm font-medium text-foreground">Click to upload PDF</p>
-                    <p className="text-xs text-muted-foreground">Full floor plans document · PDF only</p>
-                  </>
-                )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">Floor Plans PDF</p>
+                <a href={floorPlansPdfUrl} target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline truncate block">View PDF ↗</a>
               </div>
-            )}
-          </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => pdfInputRef.current?.click()}>Replace</Button>
+                <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setFloorPlansPdfUrl("")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div
+              className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              onClick={() => pdfInputRef.current?.click()}
+            >
+              {pdfUploading ? <Loader2 className="h-8 w-8 animate-spin text-primary" /> : (
+                <>
+                  <Upload className="h-8 w-8 text-muted-foreground/40" />
+                  <p className="text-sm font-medium text-foreground">Click to upload PDF</p>
+                  <p className="text-xs text-muted-foreground">PDF only</p>
+                </>
+              )}
+            </div>
+          )}
         </Section>
 
-        {/* ── STEP 5: Gallery ─────────────────────────────────────────── */}
-        <Section title={`5. Photo Gallery (${gallery.length}/12)`}
-          subtitle="First image shown largest — use arrows to reorder"
-          badge={gallery.length > 0 && linkedProjectId ? "From project" : undefined}>
+        {/* ── STEP 6: Gallery ── */}
+        <Section step={6} title={`Photo Gallery (${gallery.length}/12)`}
+          subtitle="First image is the hero — drag to reorder"
+          badge={gallery.length > 0 ? `${gallery.length} photos` : undefined}>
           <div className="space-y-3">
             {gallery.length > 0 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -956,18 +879,15 @@ export default function DashboardDeckBuilder() {
             )}
             {gallery.length < 12 && (
               <Button variant="outline" className="w-full" onClick={() => galleryInputRef.current?.click()} disabled={galleryUploading}>
-                {galleryUploading
-                  ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading…</>
-                  : <><Upload className="h-4 w-4 mr-2" />Upload Photos ({gallery.length}/12)</>
-                }
+                {galleryUploading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading…</> : <><Upload className="h-4 w-4 mr-2" />Upload Photos</>}
               </Button>
             )}
           </div>
         </Section>
 
-        {/* ── STEP 6: Location ────────────────────────────────────────── */}
-        <Section title="6. Location & Nearby" subtitle="Map pin + transit & amenity callouts" defaultOpen={false}
-          badge={linkedProjectId && lat ? "Coords loaded" : undefined}>
+        {/* ── STEP 7: Location ── */}
+        <Section step={7} title="Location & Nearby" defaultOpen={false}
+          badge={lat ? "Coords set" : undefined}>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -979,15 +899,15 @@ export default function DashboardDeckBuilder() {
                 <Input className="h-9" value={lng} onChange={(e) => setLng(e.target.value)} placeholder="-122.8490" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Nearby points of interest:</p>
+            <p className="text-xs text-muted-foreground font-medium">Nearby points of interest:</p>
             {highlights.map((h, i) => (
               <div key={i} className="flex items-center gap-2">
                 <Input className="w-12 h-9 text-center px-1 text-base" value={h.icon}
-                  onChange={(e) => updateHighlight(i, "icon", e.target.value)} placeholder="🚇" />
+                  onChange={(e) => updateHighlight(i, "icon", e.target.value)} />
                 <Input className="flex-1 h-9 text-sm" value={h.label}
                   onChange={(e) => updateHighlight(i, "label", e.target.value)} placeholder="SkyTrain Station" />
-                <Input className="w-28 h-9 text-sm" value={h.distance}
-                  onChange={(e) => updateHighlight(i, "distance", e.target.value)} placeholder="5 min walk" />
+                <Input className="w-24 h-9 text-sm" value={h.distance}
+                  onChange={(e) => updateHighlight(i, "distance", e.target.value)} placeholder="5 min" />
                 <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
                   onClick={() => removeHighlight(i)}>
                   <Trash2 className="h-4 w-4" />
@@ -1000,29 +920,16 @@ export default function DashboardDeckBuilder() {
           </div>
         </Section>
 
-        {/* ── STEP 7: Investment Numbers ──────────────────────────────── */}
-        <Section title="7. Investment Numbers" subtitle="Annual appreciation rate for the 5-year forecast chart" defaultOpen={false}
-          badge={projectionsFromAI ? "AI Generated" : undefined}>
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label className="text-sm">Annual Appreciation (%)</Label>
-              <Input type="number" step="0.5" value={appreciationRate}
-                onChange={(e) => setAppreciationRate(e.target.value)} placeholder="5" />
-              <p className="text-xs text-muted-foreground">Base rate for 5-year forecast chart — years auto-graduated. Projected rent is entered per floor plan above.</p>
-            </div>
-          </div>
-        </Section>
-
-        {/* ── STEP 7b: Deposit Timeline ──────────────────────────────── */}
-        <Section title={`7b. Deposit Timeline (${depositSteps.length} steps)`}
-          subtitle="Displayed as an interactive payment plan on the deck — buyers can slider their price"
+        {/* ── STEP 8: Payment Plan ── */}
+        <Section step={8} title={`Payment Plan (${depositSteps.length} deposits)`}
+          subtitle="When do buyers pay? — defaults are 2.5% + 2.5% + 5% standard structure"
           defaultOpen={false}
           badge={depositSteps.length > 0 ? "✓ Set" : undefined}>
           <div className="space-y-3">
             {depositSteps.map((step, idx) => (
               <div key={step.id} className="p-4 rounded-xl border border-border/50 bg-muted/20 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Step {idx + 1}</span>
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Deposit {idx + 1}</span>
                   <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive"
                     onClick={() => setDepositSteps(prev => prev.filter(s => s.id !== step.id))}>
                     <Trash2 className="h-3.5 w-3.5" />
@@ -1055,7 +962,7 @@ export default function DashboardDeckBuilder() {
                   </div>
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  Amount at $800K: <span className="font-semibold text-foreground">${Math.round(800000 * step.percent / 100).toLocaleString()}</span>
+                  At $800K: <span className="font-semibold text-foreground">${Math.round(800000 * step.percent / 100).toLocaleString()}</span>
                 </p>
               </div>
             ))}
@@ -1063,7 +970,7 @@ export default function DashboardDeckBuilder() {
               <Button variant="outline" size="sm" onClick={() =>
                 setDepositSteps(prev => [...prev, { id: Math.random().toString(36).slice(2, 8), label: "", percent: 5, timing: "", note: "" }])
               }>
-                <Plus className="h-4 w-4 mr-1" />Add Step
+                <Plus className="h-4 w-4 mr-1" />Add Deposit
               </Button>
               <Button variant="ghost" size="sm" className="text-xs text-muted-foreground"
                 onClick={() => setDepositSteps(DEFAULT_DEPOSIT_STEPS)}>
@@ -1071,36 +978,49 @@ export default function DashboardDeckBuilder() {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Total: <span className="font-semibold text-foreground">{depositSteps.reduce((a, s) => a + s.percent, 0)}%</span> of purchase price across {depositSteps.length} steps.
+              Total: <span className="font-semibold text-foreground">{depositSteps.reduce((a, s) => a + s.percent, 0)}%</span> during construction.
             </p>
           </div>
         </Section>
 
-        {/* ── STEP 8: Contact on Deck ─────────────────────────────────── */}
-        <Section title="8. Contact on Deck" subtitle="Team member shown as the agent contact">
+        {/* ── STEP 8b: Scarcity ── */}
+        <Section title="Urgency / Scarcity" subtitle="Shown as inline badge near floor plans — leave blank to hide" defaultOpen={false}
+          badge={unitsRemaining || nextPriceIncrease ? "✓ Active" : undefined}>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Units Remaining</Label>
+              <Input type="number" min={1} value={unitsRemaining}
+                onChange={(e) => setUnitsRemaining(e.target.value)} placeholder="e.g. 3" className="h-9" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Next Price Increase</Label>
+              <Input value={nextPriceIncrease}
+                onChange={(e) => setNextPriceIncrease(e.target.value)} placeholder="$5K more" className="h-9" />
+            </div>
+          </div>
+        </Section>
+
+        {/* ── STEP 9: Contact ── */}
+        <Section step={9} title="Contact on Deck" subtitle="The agent buyers will reach out to">
           <div className="space-y-4">
             {agents.length > 0 && (
               <div>
-                <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wider">Team member</p>
+                <p className="text-xs text-muted-foreground mb-2 font-medium">Select team member:</p>
                 <div className="flex flex-wrap gap-2">
                   {agents.map((agent) => (
                     <button key={agent.id} type="button" onClick={() => applyAgentProfile(agent)}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-all ${
                         selectedAgentId === agent.id
                           ? "border-primary bg-primary/10 text-primary font-medium"
-                          : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                          : "border-border bg-background text-muted-foreground hover:border-primary/40"
                       }`}>
-                      {agent.photo_url ? (
-                        <img src={agent.photo_url} alt={agent.full_name || ""} className="h-6 w-6 rounded-full object-cover object-top shrink-0" />
-                      ) : (
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
-                          {(agent.full_name || "?").split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
-                        </div>
-                      )}
-                      <div className="text-left">
-                        <p className="text-sm leading-tight">{agent.full_name}</p>
-                        {agent.title && <p className="text-[10px] text-muted-foreground leading-tight">{agent.title}</p>}
-                      </div>
+                      {agent.photo_url
+                        ? <img src={agent.photo_url} alt={agent.full_name || ""} className="h-6 w-6 rounded-full object-cover shrink-0" />
+                        : <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
+                            {(agent.full_name || "?").split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                          </div>
+                      }
+                      {agent.full_name}
                       {selectedAgentId === agent.id && <CheckCircle2 className="h-3.5 w-3.5 ml-0.5 shrink-0" />}
                     </button>
                   ))}
@@ -1128,54 +1048,60 @@ export default function DashboardDeckBuilder() {
           </div>
         </Section>
 
-        {/* ── STEP 9: URL & Publishing ─────────────────────────────────── */}
-        <Section title="9. URL & Publishing" defaultOpen={false}>
-          <div className="space-y-3">
+        {/* ── STEP 10: URL & Publishing ── */}
+        <Section step={10} title="URL & Publishing" defaultOpen={false}
+          badge={isPublished ? "Live" : "Draft"}>
+          <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-sm">Deck URL Slug</Label>
+              <Label className="text-sm">Deck URL</Label>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground shrink-0">/deck/</span>
+                <span className="text-xs text-muted-foreground shrink-0 font-mono">/deck/</span>
                 <Input
                   value={slug}
                   onChange={(e) => { setSlug(e.target.value); checkSlug(e.target.value); }}
                   placeholder="aurora-surrey"
                   className={slugTaken ? "border-destructive" : ""}
                 />
+                {slug && (
+                  <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/deck/${slug}`); toast.success("Link copied!"); }}
+                    className="shrink-0 text-muted-foreground hover:text-primary transition-colors">
+                    <Copy className="h-4 w-4" />
+                  </button>
+                )}
               </div>
-              {slugTaken && <p className="text-xs text-destructive">This slug is already taken — choose another.</p>}
+              {slugTaken && <p className="text-xs text-destructive">This URL is taken — choose another.</p>}
+              {slug && !slugTaken && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <a href={`/deck/${slug}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-0.5">
+                    presaleproperties.com/deck/{slug} <ExternalLink className="h-2.5 w-2.5" />
+                  </a>
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between p-4 rounded-xl border border-border/60 bg-muted/20">
+              <div>
+                <p className="text-sm font-semibold text-foreground">{isPublished ? "Published" : "Draft"}</p>
+                <p className="text-xs text-muted-foreground">{isPublished ? "Visible to anyone with the link" : "Only you can see this deck"}</p>
+              </div>
+              <Switch checked={isPublished} onCheckedChange={setIsPublished} />
             </div>
           </div>
         </Section>
       </div>
 
-      {/* ── STICKY FOOTER ───────────────────────────────────────────── */}
+      {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border/50 shadow-lg">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <Switch checked={isPublished} onCheckedChange={setIsPublished} />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground leading-tight">
-                {isPublished ? "Published" : "Draft"}
+                {isPublished ? "🟢 Published" : "⚪ Draft"}
               </p>
               {slug && (
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <code className="text-[10px] text-muted-foreground font-mono truncate max-w-[180px]">
-                    /deck/{slug}
-                  </code>
-                  <button
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                    onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/deck/${slug}`);
-                      toast.success("Link copied!");
-                    }}
-                  >
-                    <Copy className="h-3 w-3" />
-                  </button>
-                  <a href={`/deck/${slug}`} target="_blank" rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-primary transition-colors">
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
+                <code className="text-[10px] text-muted-foreground font-mono truncate max-w-[160px] block">
+                  /deck/{slug}
+                </code>
               )}
             </div>
           </div>
