@@ -700,6 +700,35 @@ export default function DashboardDeckBuilder() {
           </div>
         </Section>
 
+        {/* ── Scarcity Indicator ──────────────────────────────────────── */}
+        <Section title="Scarcity Indicator" subtitle="Urgency banner shown right below the hero — leave blank to hide" defaultOpen={false}
+          badge={unitsRemaining || nextPriceIncrease ? "✓ Active" : undefined}>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Units Remaining at This Price <span className="text-muted-foreground font-normal">(number)</span></Label>
+              <Input
+                type="number"
+                min={1}
+                value={unitsRemaining}
+                onChange={(e) => setUnitsRemaining(e.target.value)}
+                placeholder="e.g. 1"
+                className="h-9"
+              />
+              <p className="text-xs text-muted-foreground">Shows: "Only X unit(s) remaining at this price"</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Next Price Increase <span className="text-muted-foreground font-normal">(text)</span></Label>
+              <Input
+                value={nextPriceIncrease}
+                onChange={(e) => setNextPriceIncrease(e.target.value)}
+                placeholder="e.g. $5K more"
+                className="h-9"
+              />
+              <p className="text-xs text-muted-foreground">Shows: "Next price is $5K more"</p>
+            </div>
+          </div>
+        </Section>
+
         {/* ── STEP 4: Floor Plans ─────────────────────────────────────── */}
         <Section title={`4. Floor Plans (${floorPlans.length}/6)`}
           subtitle="Upload image — AI auto-fills size, type & pricing">
