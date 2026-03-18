@@ -292,7 +292,14 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-primary/20" />
 
-      {/* ── 8. Contact ── */}
+      {/* ── 8. FAQ ── */}
+      <div className="deck-animate">
+        <DeckFAQSection />
+      </div>
+
+      <div className="h-px bg-primary/20" />
+
+      {/* ── 9. Contact ── */}
       <div className="deck-animate">
         <DeckContactSection
           projectName={deck.project_name}
