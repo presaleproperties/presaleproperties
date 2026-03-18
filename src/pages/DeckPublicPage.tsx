@@ -18,6 +18,7 @@ const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
 ];
 import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
+import { DeckProjectHighlights } from "@/components/decks/DeckProjectHighlights";
 import { Loader2 } from "lucide-react";
 
 interface PitchDeck {
