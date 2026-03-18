@@ -192,6 +192,19 @@ export default function DeckPublicPage() {
       {/* Accent divider */}
       <div className="h-px bg-primary/20" />
 
+      {/* Section 1b — Project Highlights */}
+      <DeckProjectHighlights
+        developerName={deck.developer_name || undefined}
+        stories={deck.stories || undefined}
+        totalUnits={deck.total_units || undefined}
+        completionYear={deck.completion_year || undefined}
+        city={deck.city || undefined}
+        address={deck.address || undefined}
+        proximityHighlights={deck.proximity_highlights || []}
+      />
+
+      <div className="h-px bg-primary/20" />
+
       {/* Section 2 — Floor Plans (Key Facts embedded in header) */}
       <div className="deck-animate">
         <DeckFloorPlansSection
