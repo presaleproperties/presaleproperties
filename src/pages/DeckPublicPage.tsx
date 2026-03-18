@@ -49,6 +49,8 @@ interface PitchDeck {
   is_published: boolean;
   floor_plans_pdf_url: string | null;
   deposit_steps: DepositStep[] | null;
+  assignment_fee: string | null;
+  included_items: string[] | null;
 }
 
 const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "projections", "deposit-timeline", "contact"];
