@@ -495,6 +495,9 @@ export default function DashboardDeckBuilder() {
       included_items: includedItems.filter(Boolean),
       units_remaining: unitsRemaining ? parseInt(unitsRemaining, 10) : null,
       next_price_increase: nextPriceIncrease || null,
+      description: description || null,
+      highlights: deckHighlights.filter(Boolean),
+      amenities: deckAmenities.filter(Boolean),
     };
     let error;
     if (isEdit && id) {
