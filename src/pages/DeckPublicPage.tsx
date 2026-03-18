@@ -192,6 +192,12 @@ export default function DeckPublicPage() {
         onContactClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
       />
 
+      {/* Scarcity Banner — immediately below hero if set */}
+      <DeckScarcityBanner
+        unitsRemaining={deck.units_remaining}
+        nextPriceIncrease={deck.next_price_increase}
+      />
+
       {/* Accent divider */}
       <div className="h-px bg-primary/20" />
 
