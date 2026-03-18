@@ -480,6 +480,8 @@ export default function DashboardDeckBuilder() {
       floor_plans_pdf_url: floorPlansPdfUrl || null,
       assignment_fee: assignmentFee || null,
       included_items: includedItems.filter(Boolean),
+      units_remaining: unitsRemaining ? parseInt(unitsRemaining, 10) : null,
+      next_price_increase: nextPriceIncrease || null,
     };
     let error;
     if (isEdit && id) {
