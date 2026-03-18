@@ -108,23 +108,49 @@ export function AboutContactForm({
       // Get selected agent name for the booking
       const selectedAgent = teamMembers.find((m) => m.id === data.agent_id);
       
-      const { error } = await supabase.from("bookings").insert({
+      const today = new Date().toISOString().split("T")[0];
+      const projectName = selectedAgent
+        ? `Request to work with ${selectedAgent.full_name}`
+        : "General Consultation Request";
+
+      const { data: booking, error } = await supabase.from("bookings").insert({
         name: data.name,
         email: data.email,
         phone: data.phone,
         notes: data.message || null,
-        project_name: selectedAgent
-          ? `Request to work with ${selectedAgent.full_name}`
-          : "General Consultation Request",
+        project_name: projectName,
         appointment_type: "showing" as const,
         buyer_type: "first_time" as const,
         timeline: "3_6_months" as const,
-        appointment_date: new Date().toISOString().split("T")[0],
+        appointment_date: today,
         appointment_time: "10:00",
         lead_source: "about_page",
-      });
+      }).select("id").single();
 
       if (error) throw error;
+
+      // Trigger Zapier/Lofty webhook (fire and forget)
+      if (booking?.id) {
+        supabase.functions.invoke("send-booking-notification", {
+          body: {
+            booking_id: booking.id,
+            appointment_type: "showing",
+            appointment_date: today,
+            appointment_time: "10:00",
+            formattedDate: new Date().toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
+            formattedTime: "10:00 AM",
+            project_name: projectName,
+            project_url: window.location.origin + "/about",
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            buyer_type: "first_time",
+            timeline: "3_6_months",
+            notes: data.message || "",
+            lead_source: "about_page",
+          },
+        }).catch(console.error);
+      }
 
       toast.success("Request submitted! We'll be in touch shortly.");
       form.reset();

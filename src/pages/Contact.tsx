@@ -62,12 +62,55 @@ export default function Contact() {
     setIsSubmitting(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+      const today = new Date().toISOString().split("T")[0];
+
+      // 1. Save to bookings table for CRM record keeping
+      const { data: booking, error: bookingError } = await supabase.from("bookings").insert({
+        name: result.data.name,
+        email: result.data.email,
+        phone: result.data.phone || "",
+        notes: `Subject: ${result.data.subject}\n\n${result.data.message}`,
+        project_name: result.data.subject,
+        appointment_type: "showing" as const,
+        buyer_type: "first_time" as const,
+        timeline: "3_6_months" as const,
+        appointment_date: today,
+        appointment_time: "10:00",
+        lead_source: "contact_page",
+      }).select("id").single();
+
+      if (bookingError) {
+        console.error("Error saving contact to DB:", bookingError);
+        // Don't block — still try to send email and Zapier
+      }
+
+      // 2. Send email notification (existing flow)
+      const { error: emailError } = await supabase.functions.invoke('send-contact-email', {
         body: result.data,
       });
+      if (emailError) console.error("Email send error:", emailError);
 
-      if (error) {
-        throw new Error(error.message || "Failed to send message");
+      // 3. Trigger Zapier/Lofty via booking notification (fire and forget)
+      if (booking?.id) {
+        supabase.functions.invoke("send-booking-notification", {
+          body: {
+            booking_id: booking.id,
+            appointment_type: "showing",
+            appointment_date: today,
+            appointment_time: "10:00",
+            formattedDate: new Date().toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
+            formattedTime: "10:00 AM",
+            project_name: result.data.subject,
+            project_url: window.location.origin + "/contact",
+            name: result.data.name,
+            email: result.data.email,
+            phone: result.data.phone || "",
+            buyer_type: "first_time",
+            timeline: "3_6_months",
+            notes: result.data.message,
+            lead_source: "contact_page",
+          },
+        }).catch(console.error);
       }
 
       setIsSubmitted(true);
