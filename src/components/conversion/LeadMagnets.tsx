@@ -60,16 +60,29 @@ export function PriceAlertButton({ projectId, projectName }: LeadMagnetProps) {
   const { toast } = useToast();
 
   const handleSubmit = async () => {
-    if (!email) return;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return;
     setIsSubmitting(true);
 
     try {
+      // Save to newsletter_subscribers (for email drip)
       await supabase.from("newsletter_subscribers").insert({
-        email,
+        email: email.trim(),
         source: "price_alert",
         wants_projects: true,
         wants_assignments: false,
       });
+
+      // Also create a project_lead and send to Zapier/Lofty CRM
+      const leadId = crypto.randomUUID();
+      await supabase.from("project_leads").insert({
+        id: leadId,
+        name: "Price Alert Subscriber",
+        email: email.trim(),
+        lead_source: "price_alert",
+        message: `Price alert request${projectName ? ` for ${projectName}` : ""}`,
+        visitor_id: getVisitorId(),
+      });
+      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
 
       trackFormSubmit({ form_name: "price_alert", form_location: "project_detail", email, project_name: projectName });
       MetaEvents.lead({ content_name: projectName, content_category: "price_alert" });
@@ -123,16 +136,29 @@ export function VIPNotifyButton({ projectName }: LeadMagnetProps) {
   const { toast } = useToast();
 
   const handleSubmit = async () => {
-    if (!email) return;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return;
     setIsSubmitting(true);
 
     try {
+      // Save to newsletter_subscribers (for email drip)
       await supabase.from("newsletter_subscribers").insert({
-        email,
+        email: email.trim(),
         source: "vip_notify",
         wants_projects: true,
         wants_assignments: false,
       });
+
+      // Also create a project_lead and send to Zapier/Lofty CRM
+      const leadId = crypto.randomUUID();
+      await supabase.from("project_leads").insert({
+        id: leadId,
+        name: "VIP Subscriber",
+        email: email.trim(),
+        lead_source: "vip_notify",
+        message: `VIP early access request${projectName ? ` for ${projectName}` : ""}`,
+        visitor_id: getVisitorId(),
+      });
+      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
 
       trackFormSubmit({ form_name: "vip_notify", form_location: "project_detail", email, project_name: projectName });
       MetaEvents.lead({ content_name: projectName, content_category: "vip_notify" });
@@ -186,17 +212,30 @@ export function NeighborhoodGuideButton({ city }: LeadMagnetProps) {
   const { toast } = useToast();
 
   const handleSubmit = async () => {
-    if (!email) return;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return;
     setIsSubmitting(true);
 
     try {
+      // Save to newsletter_subscribers (for email drip)
       await supabase.from("newsletter_subscribers").insert({
-        email,
+        email: email.trim(),
         source: "neighborhood_guide",
         preferred_city: city,
         wants_projects: true,
         wants_assignments: false,
       });
+
+      // Also create a project_lead and send to Zapier/Lofty CRM
+      const leadId = crypto.randomUUID();
+      await supabase.from("project_leads").insert({
+        id: leadId,
+        name: "Guide Download",
+        email: email.trim(),
+        lead_source: "neighborhood_guide",
+        message: `Neighborhood guide request${city ? ` for ${city}` : ""}`,
+        visitor_id: getVisitorId(),
+      });
+      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
 
       trackFormSubmit({ form_name: "neighborhood_guide", form_location: "project_detail", email });
       MetaEvents.lead({ content_name: `${city} Guide`, content_category: "neighborhood_guide" });

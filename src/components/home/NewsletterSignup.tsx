@@ -106,6 +106,23 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
         throw error;
       }
 
+      // Also send to Zapier/Lofty CRM via project_lead
+      const leadId = crypto.randomUUID();
+      await supabase.from("project_leads").insert({
+        id: leadId,
+        name: "Newsletter Subscriber",
+        email: data.email,
+        lead_source: source === "homepage" ? "newsletter_homepage" : `newsletter_${source}`,
+        message: `Newsletter signup${data.city && data.city !== "Any City" ? ` — preferred city: ${data.city}` : ""}${data.priceRange && data.priceRange !== "any" ? `, budget: ${data.priceRange}` : ""}`,
+        utm_source: utmData.utm_source,
+        utm_medium: utmData.utm_medium,
+        utm_campaign: utmData.utm_campaign,
+        referrer: utmData.referrer,
+        landing_page: utmData.landing_page,
+      });
+      // Fire and forget — don't block the success state
+      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
+
       setIsSubmitted(true);
       toast({
         title: "You're subscribed!",
