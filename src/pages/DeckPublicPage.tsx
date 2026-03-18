@@ -13,6 +13,7 @@ import { DeckDepositTimelineSection, type DepositStep } from "@/components/decks
 import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
+import { DeckFAQSection } from "@/components/decks/DeckFAQSection";
 import { Loader2 } from "lucide-react";
 
 const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
@@ -291,7 +292,14 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-primary/20" />
 
-      {/* ── 8. Contact ── */}
+      {/* ── 8. FAQ ── */}
+      <div className="deck-animate">
+        <DeckFAQSection />
+      </div>
+
+      <div className="h-px bg-primary/20" />
+
+      {/* ── 9. Contact ── */}
       <div className="deck-animate">
         <DeckContactSection
           projectName={deck.project_name}
