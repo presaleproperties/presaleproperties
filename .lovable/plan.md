@@ -1,44 +1,112 @@
 
-## Assessment: Assignment Detail Page — Public-Facing State
+## Full Lead Form Audit
 
-The current `AssignmentDetail.tsx` has the right bones but is missing several important elements that match the quality of the presale project detail pages. Here's what needs to be improved:
+This is a research/informational response — no plan needed, just a clear breakdown.
 
-### What's Currently Missing / Weak
+### All Forms, Their Tables, and Zapier Connection Status
 
-1. **No Expert Advisory Card** — The sidebar has a pricing card, deposit info, and key dates, but no `ExpertAdvisoryCard` (which exists and is used on resale/presale pages). The "Inquire About This Unit" button goes nowhere — it has no `onClick` handler and no lead form wired up.
+**FULLY CONNECTED TO ZAPIER ✓**
 
-2. **No lead capture / inquiry form** — The CTA button renders but does nothing. There's no `AboutContactForm` connected to it. Leads from assignment pages are not being captured.
+1. **Project Floor Plan / Get Access Form** (`ProjectLeadForm.tsx`, `usePresaleLeadCapture.ts`)
+   - Where: Project detail pages (e.g. `/presale-projects/eden`)
+   - Table: `project_leads`
+   - Zapier: ✅ Yes — calls `send-project-lead` → sends to `zapier_project_leads_webhook`
+   - Extras: Meta Conversions API, GA4, Meta Pixel
 
-3. **No document download section on the sidebar** — Documents (floor plan, brochure, one-pager) are only shown in the left column mid-page. They should also have a prominent download bundle section, especially for verified agent visitors.
+2. **Access Pack Modal** (`AccessPackModal.tsx`)
+   - Where: New Homes page, city landing pages, sticky bar, header CTA
+   - Table: `project_leads`
+   - Zapier: ✅ Yes — calls `send-project-lead` → `zapier_project_leads_webhook`
+   - Extras: Meta Conversions API, GA4, Meta Pixel
 
-4. **No agent-gate UX** — The route in `App.tsx` shows `/assignments/:id` is accessible to anyone, but the map restricts non-verified agents from clicking through. The detail page itself has no verification check — a non-agent who navigates directly sees full pricing and details with no lead capture.
+3. **Pitch Deck Lead Form** (on public deck pages)
+   - Where: `/deck/[slug]`
+   - Table: `project_leads`
+   - Zapier: ✅ Yes — calls `send-project-lead` → `zapier_project_leads_webhook`
 
-5. **SEO is set to `noindex, nofollow`** — This is intentional for agent-gated content, which is fine.
+4. **Booking / Schedule a Call** (`BookingModal.tsx`, `ResaleScheduleForm.tsx`)
+   - Where: Project pages, New Homes page
+   - Table: `bookings`
+   - Zapier: ✅ Yes — calls `send-booking-notification` → `zapier_bookings_webhook` (falls back to `zapier_project_leads_webhook` if not set)
 
-6. **"Inquire About This Unit" sends no context** — When wired up, it should pre-fill the listing title/project/price into the contact form.
+5. **ROI Calculator Lead Capture** (`CalculatorLeadCapture.tsx` via `ROILeadCapture.tsx`)
+   - Where: ROI Calculator page
+   - Table: `project_leads`
+   - Zapier: ✅ Yes — calls `send-project-lead` → `zapier_project_leads_webhook`
+   - Lead source tag: `roi_calculator`
+
+6. **Mortgage Calculator Lead Capture** (`CalculatorLeadCapture.tsx`)
+   - Where: Mortgage Calculator page
+   - Table: `project_leads`
+   - Zapier: ✅ Yes — calls `send-project-lead` → `zapier_project_leads_webhook`
+   - Lead source tag: `mortgage_calculator`
+
+7. **Exit Intent Popup** (`ExitIntentPopup.tsx`)
+   - Where: Site-wide (triggers on exit)
+   - Table: `newsletter_subscribers` + `project_leads` (dual write)
+   - Zapier: ✅ Yes — creates a project_lead then calls `send-project-lead`
+   - Lead source: `exit_intent_guide`
+   - Note: Only captures email, no phone/name → name stored as "Guide Download"
+
+8. **Resale Listing Lead Form** (`LeadCaptureForm.tsx`)
+   - Where: Resale/assignment listing pages (agent listings)
+   - Table: `leads` (separate table from `project_leads`)
+   - Zapier: ✅ Yes — calls `send-lead-notification` → `zapier_listing_leads_webhook`
+   - Note: Uses a **different webhook** (`ZAPIER_LISTING_LEADS_WEBHOOK`), separate Zap needed
 
 ---
 
-### Plan
+**NOT CONNECTED TO ZAPIER ⚠️**
 
-**1. Wire up the "Inquire About This Unit" CTA**
-- Import `AboutContactForm` into `AssignmentDetail.tsx`
-- Add `formOpen` state and connect the button's `onClick`
-- Pass `selectedAgentName` as `listing.title` so the form is pre-contextualized
+9. **Newsletter Signup** (`NewsletterSignup.tsx`)
+   - Where: Homepage, blog, city pages
+   - Table: `newsletter_subscribers`
+   - Zapier: ❌ No — saves directly to DB only, no webhook triggered
+   - Gap: These leads never hit Zapier/Lofty
 
-**2. Add `ExpertAdvisoryCard` to the right sidebar**
-- Place it below the pricing card in the right column
-- This adds trust signals and a second conversion path (same pattern as presale/resale pages)
+10. **Price Alert Button** (`LeadMagnets.tsx`)
+    - Where: Project detail pages
+    - Table: `newsletter_subscribers`
+    - Zapier: ❌ No — saves to DB only
+    - Gap: Email captured but not sent to CRM
 
-**3. Prominent Documents Download section in the sidebar**
-- Add a dedicated "Downloads" card in the right sidebar showing floor plan, brochure, and a note about the one-pager being available on request
-- Keep the existing documents section in the left column too, but the sidebar version is more visible for agents
+11. **VIP Notify Button** (`LeadMagnets.tsx`)
+    - Where: Project detail pages
+    - Table: `newsletter_subscribers`
+    - Zapier: ❌ No — saves to DB only
+    - Gap: Email captured but not sent to CRM
 
-**4. Non-verified agent soft gate**
-- If the user is not a verified agent (using `useVerifiedAgent` hook), show a blurred/locked overlay on the pricing card with a CTA to verify — consistent with how the map already handles it
-- This creates a lead capture moment instead of a dead end
+12. **Neighborhood Guide Button** (`LeadMagnets.tsx`)
+    - Where: Project detail pages
+    - Table: `newsletter_subscribers`
+    - Zapier: ❌ No — saves to DB only
+    - Gap: Email captured but not sent to CRM
 
-**Files to edit:**
-- `src/pages/AssignmentDetail.tsx` — primary changes (CTA form, expert card, sidebar downloads, agent gate)
+13. **Contact Page Form** (`Contact.tsx`)
+    - Where: `/contact`
+    - Table: None — goes directly via `send-contact-email` (Resend email only)
+    - Zapier: ❌ No — sends an email notification to admin only, not saved to DB or Zapier/Lofty
+    - Gap: Contact inquiries are not in the CRM at all
 
-This is a single-file change with no DB migrations needed.
+14. **About Page / Team Contact Form** (`AboutContactForm.tsx`)
+    - Where: `/about`, Team section, Assignments page
+    - Table: `bookings`
+    - Zapier: ⚠️ Partial — saves to `bookings` table, but `send-booking-notification` is NOT called. No Zapier trigger fires.
+    - Gap: Booking is saved but never reaches Zapier or Lofty
+
+---
+
+### Summary of Gaps
+
+| Gap | Impact |
+|---|---|
+| Newsletter signups (4 forms) not in Lofty | High — you're collecting emails but losing them from CRM |
+| Contact page form not saved to DB | High — inquiries disappear if email fails |
+| About page form doesn't trigger Zapier | Medium — bookings sit in DB unseen in Lofty |
+| Listing leads use a separate webhook | Medium — need to confirm `ZAPIER_LISTING_LEADS_WEBHOOK` is configured separately |
+| Booking fallback uses project leads webhook | Low — bookings use the project leads Zapier URL as fallback if no booking webhook is set |
+
+Would you like me to fix all these gaps? I can:
+1. Wire the newsletter/price alert/VIP/guide forms through `send-project-lead` so they hit Lofty
+2. Save contact form submissions to the DB and trigger Zapier
+3. Add `send-booking-notification` to the About page form
