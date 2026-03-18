@@ -218,6 +218,18 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-primary/20" />
 
+      {/* Section 1c — About / Description */}
+      <div className="deck-animate">
+        <DeckAboutSection
+          description={deck.description}
+          highlights={deck.highlights}
+          amenities={deck.amenities}
+          projectName={deck.project_name}
+        />
+      </div>
+
+      <div className="h-px bg-primary/20" />
+
       {/* Section 2 — Floor Plans (Key Facts embedded in header) */}
       <div className="deck-animate">
         <DeckFloorPlansSection
