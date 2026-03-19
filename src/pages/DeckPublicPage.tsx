@@ -198,6 +198,9 @@ export default function DeckPublicPage() {
         totalUnits={deck.total_units || undefined}
         completionYear={deck.completion_year || undefined}
         assignmentFee={deck.assignment_fee || undefined}
+        city={deck.city || undefined}
+        neighborhood={deck.neighborhood || undefined}
+        startingPrice={deck.floor_plans?.[0]?.price_from || undefined}
         whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
         onFloorPlansClick={() => document.getElementById("floor-plans")?.scrollIntoView({ behavior: "smooth" })}
         onContactClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
