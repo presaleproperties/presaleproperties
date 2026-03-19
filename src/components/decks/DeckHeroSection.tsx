@@ -1,4 +1,4 @@
-import { ChevronDown, Building2, Layers, Calendar, Users, DollarSign } from "lucide-react";
+import { ChevronDown, Building2, Layers, Calendar, Users, DollarSign, MapPin, Tag } from "lucide-react";
 
 interface DeckHeroSectionProps {
   projectName: string;
@@ -10,6 +10,9 @@ interface DeckHeroSectionProps {
   completionYear?: string;
   assignmentFee?: string;
   whatsappNumber?: string;
+  city?: string;
+  neighborhood?: string;
+  startingPrice?: string;
   onFloorPlansClick: () => void;
   onContactClick: () => void;
 }
@@ -23,9 +26,18 @@ export function DeckHeroSection({
   totalUnits,
   completionYear,
   assignmentFee,
+  city,
+  neighborhood,
+  startingPrice,
   onFloorPlansClick,
 }: DeckHeroSectionProps) {
+  const locationLabel = neighborhood && city
+    ? `${neighborhood}, ${city}`
+    : neighborhood || city || null;
+
   const stats = [
+    locationLabel && { icon: MapPin, label: "Location", value: locationLabel },
+    startingPrice && { icon: Tag, label: "Starting From", value: startingPrice },
     developerName && { icon: Building2, label: "Developer", value: developerName },
     stories && { icon: Layers, label: "Stories", value: `${stories} Floors` },
     totalUnits && { icon: Users, label: "Total Units", value: `${totalUnits}` },

@@ -57,6 +57,7 @@ interface PitchDeck {
   description: string | null;
   highlights: string[] | null;
   amenities: string[] | null;
+  incentives: string[] | null;
 }
 
 const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "deposit-timeline", "projections", "faq", "contact"];
@@ -197,6 +198,9 @@ export default function DeckPublicPage() {
         totalUnits={deck.total_units || undefined}
         completionYear={deck.completion_year || undefined}
         assignmentFee={deck.assignment_fee || undefined}
+        city={deck.city || undefined}
+        neighborhood={deck.neighborhood || undefined}
+        startingPrice={deck.floor_plans?.[0]?.price_from || undefined}
         whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
         onFloorPlansClick={() => document.getElementById("floor-plans")?.scrollIntoView({ behavior: "smooth" })}
         onContactClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
@@ -228,6 +232,7 @@ export default function DeckPublicPage() {
           includedItems={deck.included_items}
           unitsRemaining={deck.units_remaining}
           nextPriceIncrease={deck.next_price_increase}
+          incentives={deck.incentives}
         />
       </div>
 

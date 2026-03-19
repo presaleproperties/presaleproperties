@@ -50,6 +50,7 @@ interface DeckFloorPlansSectionProps {
   includedItems?: string[] | null;
   unitsRemaining?: number | null;
   nextPriceIncrease?: string | null;
+  incentives?: string[] | null;
 }
 
 export function DeckFloorPlansSection({
@@ -59,6 +60,7 @@ export function DeckFloorPlansSection({
   includedItems,
   unitsRemaining,
   nextPriceIncrease,
+  incentives,
 }: DeckFloorPlansSectionProps) {
   const [selected, setSelected] = useState<FloorPlan | null>(null);
 
@@ -120,6 +122,27 @@ export function DeckFloorPlansSection({
                   <p className="text-sm font-semibold text-primary">Next price increase: {nextPriceIncrease}</p>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Incentives banner */}
+          {incentives && incentives.length > 0 && (
+            <div className="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/20 flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">Developer Incentives</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {incentives.map((item, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-sm"
+                  >
+                    <CheckCircle2 className="h-3 w-3 shrink-0" />
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </div>
