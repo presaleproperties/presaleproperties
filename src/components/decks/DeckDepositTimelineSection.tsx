@@ -61,146 +61,113 @@ export function DeckDepositTimelineSection({
   const totalDepositAmt = price * (totalDepositPct / 100);
   const balanceAtCompletion = price - totalDepositAmt;
 
-  const nodes = [
-    ...steps.map((s) => ({
-      id: s.id,
-      label: s.label,
-      timing: s.timing,
-      percent: s.percent,
-      amt: price * (s.percent / 100),
-      isCompletion: false,
-    })),
-    {
-      id: "completion",
-      label: "Possession",
-      timing: completionYear ? `Est. ${completionYear}` : "At completion",
-      percent: 100 - totalDepositPct,
-      amt: balanceAtCompletion,
-      isCompletion: true,
-    },
-  ];
-
   return (
     <div id="deposit-timeline" className="w-full">
 
-        {/* Header */}
-        <div className="mb-10">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">05 — Payment Plan</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Deposit Structure</h2>
-          <p className="text-muted-foreground text-sm mt-1">No payments during construction.</p>
-        </div>
+      {/* Header */}
+      <div className="mb-10">
+        <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">05 — Payment Plan</p>
+        <h2 className="text-3xl font-bold text-foreground">Deposit Structure</h2>
+        <p className="text-muted-foreground text-sm mt-1">No payments during construction.</p>
+      </div>
 
-        {/* Unit selector */}
-        {plansWithPrice.length > 0 ? (
-          <div className="mb-8 flex flex-wrap items-center gap-2">
-            {plansWithPrice.map((plan) => {
-              const isSelected = selectedPlanId === plan.id;
-              return (
-                <button
-                  key={plan.id}
-                  type="button"
-                  onClick={() => setSelectedPlanId(plan.id)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all",
-                    isSelected
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border/60 bg-background text-foreground hover:border-primary/40"
-                  )}
-                >
-                  {isSelected && <Check className="h-3 w-3" />}
-                  {plan.unit_type} · {fmt(parsePrice(plan.price_from))}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="mb-8 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Unit price</span>
-              <span className="font-bold text-foreground">{fmt(price)}</span>
-            </div>
-            <input
-              type="range" min={300_000} max={2_000_000} step={10_000}
-              value={manualPrice}
-              onChange={(e) => { setSelectedPlanId(null); setManualPrice(Number(e.target.value)); }}
-              className="w-full accent-primary h-1.5 cursor-pointer"
-            />
-          </div>
-        )}
-
-        {/* Vertical timeline */}
-        <div className="relative flex flex-col">
-          {nodes.map((node, i) => {
-            const isLast = i === nodes.length - 1;
-            const isConstGap = !node.isCompletion && i === steps.length - 1;
+      {/* Unit selector */}
+      {plansWithPrice.length > 0 ? (
+        <div className="mb-8 flex flex-wrap gap-2">
+          {plansWithPrice.map((plan) => {
+            const isSelected = selectedPlanId === plan.id;
             return (
-              <div key={node.id}>
-                <div className="flex items-start gap-4">
-                  {/* Left: dot + connector */}
-                  <div className="flex flex-col items-center shrink-0 pt-0.5">
-                    <div className={cn(
-                      "w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 z-10",
-                      node.isCompletion
-                        ? "bg-primary border-primary text-primary-foreground shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]"
-                        : "bg-background border-border/70 text-muted-foreground"
-                    )}>
-                      {node.isCompletion
-                        ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        : <span className="text-[11px] font-bold text-foreground">{i + 1}</span>
-                      }
-                    </div>
-                    {!isLast && (
-                      <div className={cn(
-                        "w-px flex-1 min-h-[28px] mt-1",
-                        isConstGap ? "border-l-2 border-dashed border-border/40" : "bg-border/40"
-                      )} />
-                    )}
-                  </div>
-
-                  {/* Right: content */}
-                  <div className={cn(
-                    "flex-1 pb-5",
-                    isLast && "pb-0"
-                  )}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className={cn(
-                          "text-sm font-bold leading-tight",
-                          node.isCompletion ? "text-primary" : "text-foreground"
-                        )}>{node.label}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{node.timing}</p>
-                        {node.isCompletion && (
-                          <p className="text-[10px] text-muted-foreground/70 mt-1">Mortgage starts here</p>
-                        )}
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className={cn(
-                          "text-base font-black leading-none",
-                          node.isCompletion ? "text-primary" : "text-foreground"
-                        )}>{fmt(node.amt)}</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">{node.percent}%</p>
-                      </div>
-                    </div>
-
-                    {/* Construction gap tag after last deposit */}
-                    {isConstGap && (
-                      <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/50 border border-dashed border-border/60">
-                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 animate-pulse" />
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">No payments during construction</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <button
+                key={plan.id}
+                type="button"
+                onClick={() => setSelectedPlanId(plan.id)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all",
+                  isSelected
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border/60 bg-background text-foreground hover:border-primary/40"
+                )}
+              >
+                {isSelected && <Check className="h-3 w-3" />}
+                {plan.unit_type} · {fmt(parsePrice(plan.price_from))}
+              </button>
             );
           })}
         </div>
-
-        {/* Footer */}
-        <div className="mt-6 pt-5 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
-          <span>Total deposits ({totalDepositPct}%)</span>
-          <span className="font-bold text-foreground">{fmt(totalDepositAmt)}</span>
+      ) : (
+        <div className="mb-8 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Unit price</span>
+            <span className="font-bold text-foreground">{fmt(price)}</span>
+          </div>
+          <input
+            type="range" min={300_000} max={2_000_000} step={10_000}
+            value={manualPrice}
+            onChange={(e) => { setSelectedPlanId(null); setManualPrice(Number(e.target.value)); }}
+            className="w-full accent-primary h-1.5 cursor-pointer"
+          />
         </div>
+      )}
+
+      {/* Steps */}
+      <div className="space-y-0">
+        {steps.map((step, i) => {
+          const amt = price * (step.percent / 100);
+          return (
+            <div key={step.id} className="flex items-center gap-5 py-5 border-b border-border/40">
+              {/* Step number */}
+              <span className="text-3xl font-black text-muted-foreground/20 leading-none w-7 shrink-0 text-right">
+                {i + 1}
+              </span>
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">{step.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{step.timing}</p>
+              </div>
+              {/* Amount */}
+              <div className="text-right shrink-0">
+                <p className="text-base font-bold text-foreground">{fmt(amt)}</p>
+                <p className="text-[10px] text-muted-foreground">{step.percent}%</p>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Construction gap */}
+        <div className="flex items-center gap-3 py-4">
+          <div className="w-7 shrink-0 flex justify-center">
+            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/25 animate-pulse" />
+          </div>
+          <p className="text-[11px] font-medium text-muted-foreground/50 uppercase tracking-widest">
+            Construction period — no payments
+          </p>
+        </div>
+
+        {/* Completion */}
+        <div className="flex items-center gap-5 py-5">
+          <span className="text-3xl font-black leading-none w-7 shrink-0 text-right">
+            <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center ml-auto">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-primary">Possession</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {completionYear ? `Est. ${completionYear}` : "At completion"} · Mortgage starts
+            </p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-base font-bold text-primary">{fmt(balanceAtCompletion)}</p>
+            <p className="text-[10px] text-muted-foreground">{(100 - totalDepositPct).toFixed(0)}% remaining</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Total */}
+      <div className="mt-2 pt-4 border-t border-border/40 flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Total deposits during construction</span>
+        <span className="text-sm font-bold text-foreground">{fmt(totalDepositAmt)} <span className="text-muted-foreground font-normal text-xs">({totalDepositPct}%)</span></span>
+      </div>
 
     </div>
   );
