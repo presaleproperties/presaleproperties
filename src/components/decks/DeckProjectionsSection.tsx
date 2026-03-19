@@ -605,7 +605,6 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </section>
+    </div>
   );
 }
