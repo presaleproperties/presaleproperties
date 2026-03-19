@@ -29,17 +29,17 @@ export function DeckAboutSection({
   if (!hasContent) return null;
 
   return (
-    <section id="about" className="py-14 sm:py-20 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+    <section id="about" className="py-16 sm:py-24 bg-background">
+      <div className="max-w-5xl mx-auto px-5 sm:px-10">
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16 items-start">
 
           {/* Left — description */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="space-y-1">
-              <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">01 — The Development</p>
+          <div className="lg:col-span-3 space-y-6">
+            <div className="space-y-2">
+              <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">The Development</p>
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-                {projectName ? `Welcome to ${projectName}` : "About the Development"}
+                {projectName ? `About ${projectName}` : "About the Development"}
               </h2>
             </div>
 
@@ -56,10 +56,10 @@ export function DeckAboutSection({
                 <button
                   type="button"
                   onClick={() => setHighlightsOpen((v) => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3.5 bg-muted/20 hover:bg-muted/40 transition-colors touch-manipulation"
+                  className="w-full flex items-center justify-between px-4 py-3 bg-muted/20 hover:bg-muted/40 transition-colors touch-manipulation"
                 >
                   <span className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
                     Project Highlights
                     <span className="text-xs font-normal text-muted-foreground">({highlights.length})</span>
                   </span>
@@ -73,7 +73,7 @@ export function DeckAboutSection({
                   <ul className="px-4 py-3 space-y-2 border-t border-border/30">
                     {highlights.map((h, i) => (
                       <li key={i} className="flex items-start gap-2.5">
-                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
                         <span className="text-sm text-foreground leading-snug">{h}</span>
                       </li>
                     ))}
@@ -85,19 +85,19 @@ export function DeckAboutSection({
 
           {/* Right — amenities */}
           {amenities && amenities.length > 0 && (
-            <div className="lg:col-span-5">
-              <div className="rounded-2xl border border-border/60 bg-muted/10 p-6 space-y-4 sticky top-24">
-                <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="h-4 w-4 text-primary" />
+            <div className="lg:col-span-2">
+              <div className="rounded-2xl border border-border/50 bg-muted/20 p-5 space-y-3 sticky top-24">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Building Amenities
+                    Amenities
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {amenities.map((amenity, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-background border border-border/70 text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-background border border-border/60 text-foreground"
                     >
                       {amenity}
                     </span>
