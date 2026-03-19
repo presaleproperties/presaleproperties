@@ -409,24 +409,45 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                     {/* Completion day breakdown */}
                     <div className="border-t border-background/15 pt-3 space-y-0.5">
                       <div className="text-[9px] text-background/40 font-bold uppercase mb-2 tracking-wider">Completion Day Breakdown</div>
-                      <BreakdownRow label="Remaining Down Payment" value={fmt(results.remainingDown)} sub={`${downPct}% total down − ${depositPct}% already paid`} />
                       <BreakdownRow
-                        label={`GST — 5% Federal Tax`}
-                        value={results.gstNet > 0 ? fmt(results.gstNet) : "Fully Rebated"}
-                        green={results.gstNet === 0}
-                        sub={results.gstRebate > 0 ? `Gross ${fmt(results.gstGross)} − rebate ${fmt(results.gstRebate)}` : "New construction"}
+                        label="Remaining Down Payment"
+                        value={fmt(results.remainingDown)}
+                        sub={isFirstTimeBuyer
+                          ? `${downPct}% of (price + net GST) − ${depositPct}% already paid`
+                          : `${downPct}% of (price + GST) − ${depositPct}% already paid`}
                       />
-                      {isFirstTimeBuyer && results.gstRebate > 0 && (
-                        <BreakdownRow label="↳ GST Rebate (FTB, Bill C-4)" value={`-${fmt(results.gstRebate)}`} green sub="Credited at completion" />
+                      {isFirstTimeBuyer ? (
+                        <>
+                          <BreakdownRow
+                            label="GST — 5% Federal Tax"
+                            value={results.gstNet > 0 ? fmt(results.gstNet) : "Fully Rebated"}
+                            green={results.gstNet === 0}
+                            sub={results.gstRebate > 0 ? `${fmt(results.gstGross)} gross − ${fmt(results.gstRebate)} rebate` : "No rebate above $1.5M"}
+                          />
+                        </>
+                      ) : (
+                        <BreakdownRow
+                          label="GST — 5% Federal Tax"
+                          value={fmt(results.gstGross)}
+                          sub="Added to mortgage — not paid at closing"
+                          green
+                        />
                       )}
                       {results.ptt > 0 ? (
-                        <BreakdownRow label="Property Transfer Tax (PTT)" value={fmt(results.ptt)} sub="BC one-time fee" />
+                        <BreakdownRow label="Property Transfer Tax (PTT)" value={fmt(results.ptt)} sub={isFirstTimeBuyer ? "BC one-time fee" : "Paid out of pocket at closing"} />
                       ) : (
                         <BreakdownRow label="Property Transfer Tax" value="$0 — Waived" green sub={price <= 1_100_000 ? "FTB full exemption ≤$1.1M" : "Partial FTB exemption"} />
                       )}
                       <BreakdownRow label="Lawyer / Notary Fees" value={fmt(results.legalFees)} />
                       {results.cmhc > 0 && (
                         <BreakdownRow label="CMHC Insurance" value={fmt(results.cmhc)} sub="Added to mortgage, not cash" />
+                      )}
+                      {!isFirstTimeBuyer && (
+                        <BreakdownRow
+                          label="GST in Mortgage"
+                          value={fmt(results.gstGross)}
+                          sub={`Mortgage = ${fmt(results.mortgageAmt)} (incl. GST)`}
+                        />
                       )}
                     </div>
                   </div>
