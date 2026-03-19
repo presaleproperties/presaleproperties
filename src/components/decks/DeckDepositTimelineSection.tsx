@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Check, Key } from "lucide-react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DepositStep {
@@ -61,168 +61,111 @@ export function DeckDepositTimelineSection({
   const totalDepositAmt = price * (totalDepositPct / 100);
   const balanceAtCompletion = price - totalDepositAmt;
 
-  // All nodes: deposit steps + completion
-  const allNodes = [
-    ...steps.map((s, i) => ({
-      id: s.id,
-      label: s.label,
-      timing: s.timing,
-      percent: s.percent,
-      amt: price * (s.percent / 100),
-      isCompletion: false,
-      index: i,
-    })),
-    {
-      id: "completion",
-      label: "Completion",
-      timing: completionYear ? `Est. ${completionYear}` : "Est. Completion",
-      percent: 100 - totalDepositPct,
-      amt: balanceAtCompletion,
-      isCompletion: true,
-      index: steps.length,
-    },
-  ];
-
   return (
     <section id="deposit-timeline" className="relative py-14 sm:py-20 bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-8">
 
         {/* Header */}
-        <div className="mb-8 space-y-1">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">05 — Payment Plan</p>
+        <div className="mb-10">
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">05 — Payment Plan</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Deposit Structure</h2>
-          <p className="text-muted-foreground text-sm">
-            Simple payments from signing to completion. <strong className="text-foreground">No payments during construction.</strong>
-          </p>
         </div>
 
-        {/* Unit price selector */}
+        {/* Unit selector */}
         {plansWithPrice.length > 0 ? (
-          <div className="mb-8 p-4 rounded-2xl border border-border/60 bg-card">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold text-foreground">Calculate for unit</p>
-              <p className="text-xl font-black text-primary">{fmt(price)}</p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {plansWithPrice.map((plan) => {
-                const isSelected = selectedPlanId === plan.id;
-                return (
-                  <button
-                    key={plan.id}
-                    type="button"
-                    onClick={() => setSelectedPlanId(plan.id)}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all touch-manipulation",
-                      isSelected
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border/60 bg-background text-foreground hover:border-primary/50"
-                    )}
-                  >
-                    {isSelected && <Check className="h-3 w-3 shrink-0" />}
-                    {plan.unit_type}
-                    <span className={cn("font-normal", isSelected ? "text-primary-foreground/80" : "text-muted-foreground")}>
-                      {fmt(parsePrice(plan.price_from))}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+          <div className="mb-8 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted-foreground font-medium mr-1">Show for:</span>
+            {plansWithPrice.map((plan) => {
+              const isSelected = selectedPlanId === plan.id;
+              return (
+                <button
+                  key={plan.id}
+                  type="button"
+                  onClick={() => setSelectedPlanId(plan.id)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all",
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border/60 bg-background text-foreground hover:border-primary/40"
+                  )}
+                >
+                  {isSelected && <Check className="h-3 w-3" />}
+                  {plan.unit_type} · {fmt(parsePrice(plan.price_from))}
+                </button>
+              );
+            })}
           </div>
         ) : (
-          <div className="mb-8 p-5 rounded-2xl border border-border/60 bg-card space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-foreground">Unit Price</p>
-              <span className="text-xl font-bold text-primary">{fmt(price)}</span>
+          <div className="mb-8 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Unit price</span>
+              <span className="font-bold text-foreground">{fmt(price)}</span>
             </div>
             <input
               type="range" min={300_000} max={2_000_000} step={10_000}
               value={manualPrice}
               onChange={(e) => { setSelectedPlanId(null); setManualPrice(Number(e.target.value)); }}
-              className="w-full accent-primary h-2 cursor-pointer"
+              className="w-full accent-primary h-1.5 cursor-pointer"
             />
-            <div className="flex justify-between text-[11px] text-muted-foreground">
-              <span>$300K</span><span>$2M</span>
-            </div>
           </div>
         )}
 
-        {/* ── One-liner horizontal timeline ── */}
-        <div className="relative">
-          {/* Connecting line */}
-          <div className="absolute top-5 left-0 right-0 h-px bg-border/50" style={{ zIndex: 0 }} />
-
-          <div className="relative flex items-start justify-between gap-2" style={{ zIndex: 1 }}>
-            {allNodes.map((node) => (
-              <div key={node.id} className="flex flex-col items-center flex-1 min-w-0">
-                {/* Dot */}
-                <div
-                  className={cn(
-                    "h-10 w-10 rounded-full flex items-center justify-center border-2 shrink-0 mb-3",
-                    node.isCompletion
-                      ? "bg-primary border-primary text-primary-foreground shadow-[0_0_0_4px_hsl(var(--primary)/0.15)]"
-                      : "bg-card border-border/70 text-muted-foreground"
-                  )}
-                >
-                  {node.isCompletion
-                    ? <Key className="h-4 w-4" />
-                    : <span className="text-xs font-bold text-foreground">{node.index + 1}</span>
-                  }
+        {/* Payment rows */}
+        <div className="space-y-0 rounded-2xl border border-border/60 overflow-hidden bg-card divide-y divide-border/40">
+          {steps.map((step, i) => {
+            const amt = price * (step.percent / 100);
+            return (
+              <div key={step.id} className="flex items-center justify-between px-5 py-4">
+                <div className="flex items-center gap-3.5">
+                  <span className="w-5 h-5 rounded-full bg-muted/60 border border-border/60 flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{step.label}</p>
+                    <p className="text-xs text-muted-foreground">{step.timing}</p>
+                  </div>
                 </div>
-
-                {/* Label + timing */}
-                <p className={cn(
-                  "text-[11px] sm:text-xs font-bold text-center leading-tight mb-0.5",
-                  node.isCompletion ? "text-primary" : "text-foreground"
-                )}>
-                  {node.label}
-                </p>
-                <p className="text-[10px] text-muted-foreground text-center leading-tight mb-2">
-                  {node.timing}
-                </p>
-
-                {/* Amount pill */}
-                <div className={cn(
-                  "px-2.5 py-1 rounded-full text-center",
-                  node.isCompletion
-                    ? "bg-primary/10 border border-primary/25"
-                    : "bg-muted/60 border border-border/50"
-                )}>
-                  <p className={cn(
-                    "text-[11px] sm:text-xs font-black leading-none",
-                    node.isCompletion ? "text-primary" : "text-foreground"
-                  )}>
-                    {fmt(node.amt)}
-                  </p>
-                  <p className="text-[9px] text-muted-foreground mt-0.5">{node.percent}%</p>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-foreground">{fmt(amt)}</p>
+                  <p className="text-[10px] text-muted-foreground">{step.percent}%</p>
                 </div>
               </div>
-            ))}
+            );
+          })}
+
+          {/* Construction gap row */}
+          <div className="flex items-center justify-center gap-2 px-5 py-3 bg-muted/30">
+            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 animate-pulse" />
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+              No payments during construction
+            </span>
+            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 animate-pulse" />
           </div>
 
-          {/* Under construction note */}
-          <div className="mt-6 flex items-center justify-center gap-2">
-            <div className="h-px flex-1 border-t border-dashed border-border/50" />
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-dashed border-border/60">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
-              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">No payments during construction</span>
+          {/* Completion row */}
+          <div className="flex items-center justify-between px-5 py-4 bg-primary/5">
+            <div className="flex items-center gap-3.5">
+              <span className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-primary">Completion & Possession</p>
+                <p className="text-xs text-muted-foreground">
+                  {completionYear ? `Est. ${completionYear}` : "Estimated completion"} · Mortgage starts here
+                </p>
+              </div>
             </div>
-            <div className="h-px flex-1 border-t border-dashed border-border/50" />
+            <div className="text-right">
+              <p className="text-sm font-bold text-primary">{fmt(balanceAtCompletion)}</p>
+              <p className="text-[10px] text-muted-foreground">{(100 - totalDepositPct).toFixed(0)}% remaining</p>
+            </div>
           </div>
+        </div>
 
-          {/* Summary strip */}
-          <div className="mt-5 grid grid-cols-3 gap-3">
-            {[
-              { label: "Total Deposits", value: fmt(totalDepositAmt), sub: `${totalDepositPct}% upfront` },
-              { label: "Balance at Keys", value: fmt(balanceAtCompletion), sub: `${(100 - totalDepositPct).toFixed(0)}% at completion` },
-              { label: "Purchase Price", value: fmt(price), sub: "Before taxes" },
-            ].map(({ label, value, sub }) => (
-              <div key={label} className="rounded-xl bg-muted/40 border border-border/50 p-3 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
-                <p className="text-sm sm:text-base font-black text-foreground">{value}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>
-              </div>
-            ))}
-          </div>
+        {/* Total deposit summary — one line */}
+        <div className="mt-4 flex items-center justify-between px-1 text-xs text-muted-foreground">
+          <span>Total deposits during construction</span>
+          <span className="font-bold text-foreground">{fmt(totalDepositAmt)} <span className="font-normal text-muted-foreground">({totalDepositPct}%)</span></span>
         </div>
 
       </div>
