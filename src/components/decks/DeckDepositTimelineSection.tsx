@@ -61,20 +61,39 @@ export function DeckDepositTimelineSection({
   const totalDepositAmt = price * (totalDepositPct / 100);
   const balanceAtCompletion = price - totalDepositAmt;
 
+  const nodes = [
+    ...steps.map((s) => ({
+      id: s.id,
+      label: s.label,
+      timing: s.timing,
+      percent: s.percent,
+      amt: price * (s.percent / 100),
+      isCompletion: false,
+    })),
+    {
+      id: "completion",
+      label: "Possession",
+      timing: completionYear ? `Est. ${completionYear}` : "At completion",
+      percent: 100 - totalDepositPct,
+      amt: balanceAtCompletion,
+      isCompletion: true,
+    },
+  ];
+
   return (
-    <section id="deposit-timeline" className="relative py-14 sm:py-20 bg-background">
-      <div className="max-w-2xl mx-auto px-4 sm:px-8">
+    <section id="deposit-timeline" className="py-14 sm:py-20 bg-background">
+      <div className="max-w-3xl mx-auto px-4 sm:px-8">
 
         {/* Header */}
         <div className="mb-10">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">05 — Payment Plan</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Deposit Structure</h2>
+          <p className="text-muted-foreground text-sm mt-1">No payments during construction.</p>
         </div>
 
         {/* Unit selector */}
         {plansWithPrice.length > 0 ? (
           <div className="mb-8 flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted-foreground font-medium mr-1">Show for:</span>
             {plansWithPrice.map((plan) => {
               const isSelected = selectedPlanId === plan.id;
               return (
@@ -110,62 +129,51 @@ export function DeckDepositTimelineSection({
           </div>
         )}
 
-        {/* Payment rows */}
-        <div className="space-y-0 rounded-2xl border border-border/60 overflow-hidden bg-card divide-y divide-border/40">
-          {steps.map((step, i) => {
-            const amt = price * (step.percent / 100);
+        {/* Timeline nodes */}
+        <div className="flex items-start gap-0">
+          {nodes.map((node, i) => {
+            const isLast = i === nodes.length - 1;
             return (
-              <div key={step.id} className="flex items-center justify-between px-5 py-4">
-                <div className="flex items-center gap-3.5">
-                  <span className="w-5 h-5 rounded-full bg-muted/60 border border-border/60 flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0">
-                    {i + 1}
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{step.label}</p>
-                    <p className="text-xs text-muted-foreground">{step.timing}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold text-foreground">{fmt(amt)}</p>
-                  <p className="text-[10px] text-muted-foreground">{step.percent}%</p>
+              <div key={node.id} className="flex-1 flex flex-col items-center relative">
+                {/* Connecting line */}
+                {!isLast && (
+                  <div className="absolute top-3 left-1/2 right-0 h-px bg-border/50" style={{ width: "100%" }} />
+                )}
+
+                {/* Dot */}
+                <div className={cn(
+                  "relative z-10 w-6 h-6 rounded-full border-2 mb-3 shrink-0",
+                  node.isCompletion
+                    ? "bg-primary border-primary"
+                    : "bg-background border-border/60"
+                )} />
+
+                {/* Content */}
+                <div className="text-center px-1 w-full">
+                  <p className={cn(
+                    "text-xl sm:text-2xl font-black leading-none mb-1",
+                    node.isCompletion ? "text-primary" : "text-foreground"
+                  )}>
+                    {node.percent}%
+                  </p>
+                  <p className="text-xs font-semibold text-foreground mb-0.5">{node.label}</p>
+                  <p className="text-[10px] text-muted-foreground mb-2 leading-tight">{node.timing}</p>
+                  <p className={cn(
+                    "text-xs font-bold",
+                    node.isCompletion ? "text-primary" : "text-muted-foreground"
+                  )}>
+                    {fmt(node.amt)}
+                  </p>
                 </div>
               </div>
             );
           })}
-
-          {/* Construction gap row */}
-          <div className="flex items-center justify-center gap-2 px-5 py-3 bg-muted/30">
-            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 animate-pulse" />
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
-              No payments during construction
-            </span>
-            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 animate-pulse" />
-          </div>
-
-          {/* Completion row */}
-          <div className="flex items-center justify-between px-5 py-4 bg-primary/5">
-            <div className="flex items-center gap-3.5">
-              <span className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-primary">Completion & Possession</p>
-                <p className="text-xs text-muted-foreground">
-                  {completionYear ? `Est. ${completionYear}` : "Estimated completion"} · Mortgage starts here
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-bold text-primary">{fmt(balanceAtCompletion)}</p>
-              <p className="text-[10px] text-muted-foreground">{(100 - totalDepositPct).toFixed(0)}% remaining</p>
-            </div>
-          </div>
         </div>
 
-        {/* Total deposit summary — one line */}
-        <div className="mt-4 flex items-center justify-between px-1 text-xs text-muted-foreground">
-          <span>Total deposits during construction</span>
-          <span className="font-bold text-foreground">{fmt(totalDepositAmt)} <span className="font-normal text-muted-foreground">({totalDepositPct}%)</span></span>
+        {/* Footer note */}
+        <div className="mt-8 pt-6 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
+          <span>Total deposits ({totalDepositPct}%)</span>
+          <span className="font-bold text-foreground">{fmt(totalDepositAmt)}</span>
         </div>
 
       </div>
