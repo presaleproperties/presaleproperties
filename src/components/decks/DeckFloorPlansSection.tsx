@@ -50,6 +50,7 @@ interface DeckFloorPlansSectionProps {
   includedItems?: string[] | null;
   unitsRemaining?: number | null;
   nextPriceIncrease?: string | null;
+  incentives?: string[] | null;
 }
 
 export function DeckFloorPlansSection({
