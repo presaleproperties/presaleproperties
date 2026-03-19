@@ -57,6 +57,7 @@ interface PitchDeck {
   description: string | null;
   highlights: string[] | null;
   amenities: string[] | null;
+  incentives: string[] | null;
 }
 
 const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "deposit-timeline", "projections", "faq", "contact"];
