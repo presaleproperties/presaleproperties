@@ -221,15 +221,16 @@ export function DeckDepositTimelineSection({
             </div>
           </div>
 
-          {/* Summary strip — simplified */}
-          <div className="mt-5 grid grid-cols-2 gap-3">
+          {/* Summary strip */}
+          <div className="mt-5 grid grid-cols-3 gap-3">
             {[
-              { label: "Total Deposits", value: fmt(totalDepositAmt), sub: `${totalDepositPct}% paid during construction` },
-              { label: "Purchase Price", value: fmt(price), sub: "Before taxes" },
+              { label: "Total Deposits", value: fmt(totalDepositAmt), sub: `${totalDepositPct}% during construction` },
+              { label: "Balance at Keys", value: fmt(balanceAtCompletion), sub: `${(100 - totalDepositPct).toFixed(0)}% at completion` },
+              { label: "Purchase Price", value: fmt(price), sub: "All-in before taxes" },
             ].map(({ label, value, sub }) => (
               <div key={label} className="rounded-xl bg-muted/40 border border-border/50 p-3 text-center">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
-                <p className="text-sm sm:text-base font-bold text-foreground">{value}</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
+                <p className="text-sm sm:text-base font-black text-foreground">{value}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>
               </div>
             ))}

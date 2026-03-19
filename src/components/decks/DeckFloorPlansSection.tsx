@@ -76,21 +76,23 @@ export function DeckFloorPlansSection({
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         {/* Header */}
-        <div className="mb-10 sm:mb-12">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">Floor Plans & Pricing</p>
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div className="mb-10 sm:mb-14">
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">02 — Hand-Picked For You</p>
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1">Available Units</h2>
-              <p className="text-muted-foreground text-sm">Tap any unit to view the full floor plan.</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Top Picked Units</h2>
+              <p className="text-muted-foreground text-sm max-w-lg">
+                The best available units — tap any to see the full floor plan, size, and pricing.
+              </p>
             </div>
 
-            {/* Included in price */}
+            {/* Included in price — inline badge row */}
             <div className="flex items-center gap-2 flex-wrap shrink-0">
-              <span className="text-[10px] text-muted-foreground font-semibold whitespace-nowrap">Included:</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Included:</span>
               {displayItems.map((item, idx) => (
                 <span
                   key={item}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-background border border-border/60 text-foreground"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-background border border-border/70 text-foreground shadow-sm"
                 >
                   {getIncludedIcon(rawItems[idx] || item)}
                   {item}
