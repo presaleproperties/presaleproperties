@@ -984,7 +984,7 @@ export default function DashboardDeckBuilder() {
         </Section>
 
         {/* ── STEP 8b: Scarcity ── */}
-        <Section title="Urgency / Scarcity" subtitle="Shown as inline badge near floor plans — leave blank to hide" defaultOpen={false}
+        <Section title="Urgency / Scarcity" subtitle="Shown as inline badge near floor plans — leave blank to hide" defaultOpen={true}
           badge={unitsRemaining || nextPriceIncrease ? "✓ Active" : undefined}>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
