@@ -15,18 +15,6 @@ const FAQS = [
     q: "Do I need a mortgage pre-approval?",
     a: "Not at this stage — what you need is a pre-qualification. Pre-approvals are only valid for 90–120 days, and some banks offer 1–2 year completion approvals, but those come with significantly higher interest rates and a tougher stress test that can throw off your qualifying numbers.\n\nThe smartest move is to get a rough qualification number based on your current income and financial situation. That way you know what ballpark you're buying in, and you're not committing to something you won't be able to close at completion.",
   },
-  {
-    q: "How much do I need upfront?",
-    a: "The deposit structure is spread across construction milestones — typically 5% at signing, then installments of 5–10% tied to key build stages. You're never required to put down the full amount at once.",
-  },
-  {
-    q: "What happens if I can't close at completion?",
-    a: "You have options. You can assign the unit to another buyer before completion, potentially at a profit. Alternatively, you can arrange a bridge loan or refinance closer to the possession date. Speaking to a mortgage broker early gives you the most flexibility.",
-  },
-  {
-    q: "Is there GST on top of the purchase price?",
-    a: "Yes — new construction in BC is subject to GST. For primary residences under $350,000, a federal rebate applies. Your lawyer and accountant will walk you through the exact numbers at time of purchase.",
-  },
 ];
 
 interface FAQItemProps {
