@@ -3,7 +3,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { TrendingUp, Home, Users, Building2, DollarSign, PiggyBank, CheckCircle2, AlertCircle, ArrowUpRight, Info } from "lucide-react";
+import { TrendingUp, Home, Users, Building2, DollarSign, PiggyBank, CheckCircle2, AlertCircle, ArrowUpRight } from "lucide-react";
 import {
   calculatePTT,
   calculateGST,
@@ -193,15 +193,10 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
         <div className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
 
           {/* Header bar */}
-          <div className="bg-foreground px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-xl bg-primary/20 flex items-center justify-center">
-                <Home className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-[15px] font-bold text-background leading-none">Investment Calculator</h3>
-                <p className="text-[11px] text-background/40 mt-0.5">BC 2026 · GST rebate · PTT exemption rules applied</p>
-              </div>
+          <div className="bg-foreground px-5 py-4 flex items-center justify-between gap-4">
+            <div>
+              <h3 className="text-[15px] font-bold text-background leading-none">Investment Calculator</h3>
+              <p className="text-[11px] text-background/40 mt-0.5">BC 2026 rules — GST &amp; PTT applied</p>
             </div>
             <div className="text-right shrink-0">
               <p className="text-[10px] text-background/40 uppercase tracking-wider">Purchase price</p>

@@ -206,9 +206,9 @@ export default function DeckPublicPage() {
         onContactClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
       />
 
-      <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
-      {/* ── 2. About / Description — pulled from project ── */}
+      {/* ── 2. About / Description ── */}
       {(deck.description || (deck.highlights && deck.highlights.length > 0) || (deck.amenities && deck.amenities.length > 0)) && (
         <div className="deck-animate">
           <DeckAboutSection
@@ -220,9 +220,7 @@ export default function DeckPublicPage() {
         </div>
       )}
 
-      <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
-
-      {/* ── 3. Floor Plans — scarcity inline ── */}
+      {/* ── 3. Floor Plans ── */}
       <div className="deck-animate">
         <DeckFloorPlansSection
           floorPlans={deck.floor_plans || []}
@@ -238,17 +236,12 @@ export default function DeckPublicPage() {
 
       {/* Floor Plans PDF */}
       {deck.floor_plans_pdf_url && (
-        <>
-          <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
-          <div className="deck-animate">
-            <DeckFloorPlansPdfSection pdfUrl={deck.floor_plans_pdf_url} />
-          </div>
-        </>
+        <div className="deck-animate">
+          <DeckFloorPlansPdfSection pdfUrl={deck.floor_plans_pdf_url} />
+        </div>
       )}
 
-      <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
-
-      {/* ── 4. Gallery — scroll restore on close ── */}
+      {/* ── 4. Gallery ── */}
       <div className="deck-animate">
         <DeckGallerySection
           images={deck.gallery || []}
@@ -256,8 +249,6 @@ export default function DeckPublicPage() {
           onGalleryClose={handleGalleryClose}
         />
       </div>
-
-      <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
 
       {/* ── 5. Location ── */}
       <div className="deck-animate">
@@ -271,8 +262,6 @@ export default function DeckPublicPage() {
         />
       </div>
 
-      <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
-
       {/* ── 6. Deposit / Payment Timeline ── */}
       <div className="deck-animate">
         <DeckDepositTimelineSection
@@ -284,8 +273,6 @@ export default function DeckPublicPage() {
         />
       </div>
 
-      <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
-
       {/* ── 7. Investment Calculator ── */}
       <div className="deck-animate">
         <DeckProjectionsSection
@@ -295,14 +282,10 @@ export default function DeckPublicPage() {
         />
       </div>
 
-      <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
-
       {/* ── 8. FAQ ── */}
       <div className="deck-animate">
         <DeckFAQSection />
       </div>
-
-      <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
 
       {/* ── 9. Contact ── */}
       <div className="deck-animate">
