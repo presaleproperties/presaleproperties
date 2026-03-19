@@ -232,6 +232,7 @@ export default function DeckPublicPage() {
           includedItems={deck.included_items}
           unitsRemaining={deck.units_remaining}
           nextPriceIncrease={deck.next_price_increase}
+          incentives={deck.incentives}
         />
       </div>
 
