@@ -91,38 +91,62 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
   const isFirstTimeBuyer = buyerType === "ftb";
 
   const results = useMemo(() => {
-    // GST: 5% on new construction (same as main calculator)
+    // GST: 5% on new construction
     const gstGross = calculateGST(price);
-    // GST rebate — FTB only (Bill C-4 2026): 100% ≤$1M, partial $1M–$1.5M, $0 for investors
-    const gstRebate = isFirstTimeBuyer ? calculateGSTRebate(price, gstGross) : 0;
-    // Net GST paid at completion
-    const gstNet = gstGross - gstRebate;
-    const priceWithGSTNet = price + gstNet;
 
-    // PTT — uses same calculatePTT(price, isFirstTimeBuyer) as main calculator
-    // Full FTB exemption ≤$1.1M, partial phase-out to $1.15M (BC 2026)
+    // PTT — BC 2026 rules (same as main calculator)
     const pttRaw = calculatePTT(price, false);
     const ptt = calculatePTT(price, isFirstTimeBuyer);
 
-    // Deposits paid during construction
+    // ── INVESTOR logic ──
+    // GST is added to the mortgage (not paid out of pocket)
+    // Down payment = (purchase price + full GST) × down%
+    // PTT is paid out of pocket at completion
+    // cashAtCompletion = remaining down + PTT + legal fees (NO cash GST)
+    //
+    // ── FIRST-TIME BUYER logic ──
+    // GST rebate applied (Bill C-4 2026): 100% ≤$1M, partial $1M–$1.5M
+    // Net GST is paid out of pocket at completion (reduced by rebate)
+    // Down payment = (price + net GST) × down%
+    // PTT may be fully/partially waived
+
+    const gstRebate = isFirstTimeBuyer ? calculateGSTRebate(price, gstGross) : 0;
+    const gstNet = gstGross - gstRebate;
+
+    // Base for down payment calculation:
+    // Investor: price + full GST (GST rolls into mortgage, but down% is on that base)
+    // FTB: price + net GST (what they actually need to finance)
+    const priceWithGST = price + gstGross; // investor base (GST always in mortgage)
+    const priceWithGSTNet = price + gstNet; // FTB base
+
+    // Deposits paid during construction (% of purchase price, no GST)
     const depositAmt = price * (depositPct / 100);
 
-    // Down payment is on price + net GST (same as InvestmentSnapshot main calc)
-    const downAmt = priceWithGSTNet * (downPct / 100);
+    // Down payment base
+    const downBase = isFirstTimeBuyer ? priceWithGSTNet : priceWithGST;
+    const downAmt = downBase * (downPct / 100);
 
     // Remaining down payment due at completion (after deposits already paid)
     const remainingDown = Math.max(0, downAmt - depositAmt);
 
-    // Mortgage: base principal + CMHC if < 20% down
-    const baseMortgage = priceWithGSTNet - downAmt;
+    // Mortgage principal
+    // Investor: (price + GST) − down (GST rolled into mortgage)
+    // FTB: (price + netGST) − down
+    const baseMortgage = downBase - downAmt;
     const cmhc = calculateCMHCInsurance(baseMortgage, downPct);
     const mortgageAmt = baseMortgage + cmhc;
     const monthly = calcMortgage(mortgageAmt, rate, amort);
 
-    // Legal/notary fees — $2,000 default (matches main calculator closingCosts default)
+    // Legal/notary fees — $2,000 default
     const legalFees = 2000;
-    // cashAtCompletion = remaining down + PTT + net GST + legal fees
-    const cashAtCompletion = remainingDown + ptt + gstNet + legalFees;
+
+    // Cash needed at completion:
+    // Investor: remaining down + PTT (out of pocket) + legal fees (NO GST cash — it's in mortgage)
+    // FTB: remaining down + PTT (may be waived) + net GST (cash) + legal fees
+    const cashAtCompletion = isFirstTimeBuyer
+      ? remainingDown + ptt + gstNet + legalFees
+      : remainingDown + ptt + legalFees;
+
     const totalCashNeeded = depositAmt + cashAtCompletion;
 
     // Cash flow (if rent provided)
