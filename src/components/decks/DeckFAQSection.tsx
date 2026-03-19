@@ -39,35 +39,52 @@ interface FAQItemProps {
 
 function FAQItem({ q, a, isOpen, onToggle, index }: FAQItemProps) {
   return (
-    <div className="border-b border-border/60 last:border-0">
+    <div
+      className={cn(
+        "rounded-2xl border transition-all duration-200 overflow-hidden",
+        isOpen
+          ? "border-primary/40 bg-primary/4 shadow-sm"
+          : "border-border/60 bg-card hover:border-border"
+      )}
+    >
       <button
         onClick={onToggle}
-        className="w-full flex items-start justify-between gap-4 py-5 text-left group focus:outline-none"
+        className="w-full flex items-start justify-between gap-4 px-5 py-5 text-left group focus:outline-none"
         aria-expanded={isOpen}
       >
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <span className={cn(
+            "shrink-0 mt-0.5 text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center border transition-all duration-200",
+            isOpen
+              ? "bg-primary border-primary text-primary-foreground"
+              : "border-border/60 text-muted-foreground bg-muted/50"
+          )}>
+            {index + 1}
+          </span>
+          <span className={cn(
+            "text-sm sm:text-[15px] font-semibold leading-snug transition-colors duration-200",
+            isOpen ? "text-primary" : "text-foreground group-hover:text-primary"
+          )}>
+            {q}
+          </span>
+        </div>
         <span className={cn(
-          "text-sm sm:text-base font-medium leading-snug transition-colors duration-200",
-          isOpen ? "text-primary" : "text-foreground group-hover:text-primary"
-        )}>
-          {q}
-        </span>
-        <span className={cn(
-          "shrink-0 mt-0.5 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200",
+          "shrink-0 mt-0.5 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200",
           isOpen
-            ? "bg-primary text-primary-foreground"
+            ? "bg-primary text-primary-foreground rotate-180"
             : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
         )}>
-          {isOpen ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+          <Plus className={cn("h-3.5 w-3.5 transition-transform duration-300", isOpen && "rotate-45")} />
         </span>
       </button>
 
       <div
         className={cn(
           "overflow-hidden transition-all duration-300 ease-in-out",
-          isOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
+          isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         )}
       >
-        <div className="pb-5 pr-9">
+        <div className="px-5 pb-5 pl-[3.25rem]">
           {a.split("\n\n").map((para, i) => (
             <p key={i} className={cn("text-sm text-muted-foreground leading-relaxed", i > 0 && "mt-3")}>
               {para}
@@ -85,14 +102,15 @@ export function DeckFAQSection() {
   const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
 
   return (
-    <section id="faq" className="relative py-8 sm:py-20 bg-background">
+    <section id="faq" className="relative py-14 sm:py-20 bg-muted/20">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        <div className="mb-6 sm:mb-12 space-y-1">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">FAQ</p>
+        <div className="mb-8 sm:mb-12 space-y-1">
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Questions</p>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Common Questions</h2>
+          <p className="text-muted-foreground text-sm">Everything buyers typically want to know before moving forward.</p>
         </div>
 
-        <div>
+        <div className="space-y-2.5">
           {FAQS.map((faq, i) => (
             <FAQItem
               key={i}
@@ -108,3 +126,4 @@ export function DeckFAQSection() {
     </section>
   );
 }
+
