@@ -128,49 +128,76 @@ export function DeckDepositTimelineSection({
           </div>
         )}
 
-        {/* Timeline nodes */}
-        <div className="flex items-start gap-0">
+        {/* Vertical timeline */}
+        <div className="relative flex flex-col">
           {nodes.map((node, i) => {
             const isLast = i === nodes.length - 1;
+            const isConstGap = !node.isCompletion && i === steps.length - 1;
             return (
-              <div key={node.id} className="flex-1 flex flex-col items-center relative">
-                {/* Connecting line */}
-                {!isLast && (
-                  <div className="absolute top-3 left-1/2 right-0 h-px bg-border/50" style={{ width: "100%" }} />
-                )}
+              <div key={node.id}>
+                <div className="flex items-start gap-4">
+                  {/* Left: dot + connector */}
+                  <div className="flex flex-col items-center shrink-0 pt-0.5">
+                    <div className={cn(
+                      "w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 z-10",
+                      node.isCompletion
+                        ? "bg-primary border-primary text-primary-foreground shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]"
+                        : "bg-background border-border/70 text-muted-foreground"
+                    )}>
+                      {node.isCompletion
+                        ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        : <span className="text-[11px] font-bold text-foreground">{i + 1}</span>
+                      }
+                    </div>
+                    {!isLast && (
+                      <div className={cn(
+                        "w-px flex-1 min-h-[28px] mt-1",
+                        isConstGap ? "border-l-2 border-dashed border-border/40" : "bg-border/40"
+                      )} />
+                    )}
+                  </div>
 
-                {/* Dot */}
-                <div className={cn(
-                  "relative z-10 w-6 h-6 rounded-full border-2 mb-3 shrink-0",
-                  node.isCompletion
-                    ? "bg-primary border-primary"
-                    : "bg-background border-border/60"
-                )} />
+                  {/* Right: content */}
+                  <div className={cn(
+                    "flex-1 pb-5",
+                    isLast && "pb-0"
+                  )}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className={cn(
+                          "text-sm font-bold leading-tight",
+                          node.isCompletion ? "text-primary" : "text-foreground"
+                        )}>{node.label}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{node.timing}</p>
+                        {node.isCompletion && (
+                          <p className="text-[10px] text-muted-foreground/70 mt-1">Mortgage starts here</p>
+                        )}
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className={cn(
+                          "text-base font-black leading-none",
+                          node.isCompletion ? "text-primary" : "text-foreground"
+                        )}>{fmt(node.amt)}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{node.percent}%</p>
+                      </div>
+                    </div>
 
-                {/* Content */}
-                <div className="text-center px-1 w-full">
-                  <p className={cn(
-                    "text-xl sm:text-2xl font-black leading-none mb-1",
-                    node.isCompletion ? "text-primary" : "text-foreground"
-                  )}>
-                    {node.percent}%
-                  </p>
-                  <p className="text-xs font-semibold text-foreground mb-0.5">{node.label}</p>
-                  <p className="text-[10px] text-muted-foreground mb-2 leading-tight">{node.timing}</p>
-                  <p className={cn(
-                    "text-xs font-bold",
-                    node.isCompletion ? "text-primary" : "text-muted-foreground"
-                  )}>
-                    {fmt(node.amt)}
-                  </p>
+                    {/* Construction gap tag after last deposit */}
+                    {isConstGap && (
+                      <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/50 border border-dashed border-border/60">
+                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 animate-pulse" />
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">No payments during construction</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Footer note */}
-        <div className="mt-8 pt-6 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
+        {/* Footer */}
+        <div className="mt-6 pt-5 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
           <span>Total deposits ({totalDepositPct}%)</span>
           <span className="font-bold text-foreground">{fmt(totalDepositAmt)}</span>
         </div>
