@@ -65,10 +65,10 @@ export function DeckDepositTimelineSection({
     <div id="deposit-timeline" className="w-full">
 
       {/* Header */}
-      <div className="mb-10">
-        <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">05 — Payment Plan</p>
-        <h2 className="text-3xl font-bold text-foreground">Deposit Structure</h2>
-        <p className="text-muted-foreground text-sm mt-1">No payments during construction.</p>
+      <div className="mb-12">
+        <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-3">05 — Payment Plan</p>
+        <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">Deposit Structure</h2>
+        <p className="text-muted-foreground text-sm mt-2">No payments during construction. Here's exactly when money moves.</p>
       </div>
 
       {/* Unit selector */}
@@ -110,63 +110,63 @@ export function DeckDepositTimelineSection({
       )}
 
       {/* Steps */}
-      <div className="space-y-0">
+      <div className="divide-y divide-border/30">
         {steps.map((step, i) => {
           const amt = price * (step.percent / 100);
           return (
-            <div key={step.id} className="flex items-center gap-5 py-5 border-b border-border/40">
+            <div key={step.id} className="flex items-center gap-6 py-6">
               {/* Step number */}
-              <span className="text-3xl font-black text-muted-foreground/20 leading-none w-7 shrink-0 text-right">
+              <span className="text-5xl font-black text-muted-foreground/10 leading-none w-8 shrink-0 select-none">
                 {i + 1}
               </span>
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground">{step.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{step.timing}</p>
+                <p className="text-base font-semibold text-foreground">{step.label}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">{step.timing}</p>
               </div>
               {/* Amount */}
               <div className="text-right shrink-0">
-                <p className="text-base font-bold text-foreground">{fmt(amt)}</p>
-                <p className="text-[10px] text-muted-foreground">{step.percent}%</p>
+                <p className="text-xl font-bold text-foreground">{fmt(amt)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{step.percent}% of purchase price</p>
               </div>
             </div>
           );
         })}
 
         {/* Construction gap */}
-        <div className="flex items-center gap-3 py-4">
-          <div className="w-7 shrink-0 flex justify-center">
-            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/25 animate-pulse" />
+        <div className="py-5 flex items-center gap-4">
+          <div className="w-8 shrink-0 flex justify-center">
+            <div className="w-2 h-2 rounded-full bg-border animate-pulse" />
           </div>
-          <p className="text-[11px] font-medium text-muted-foreground/50 uppercase tracking-widest">
-            Construction period — no payments
+          <p className="text-xs font-medium text-muted-foreground/60 uppercase tracking-widest">
+            Construction — no further payments required
           </p>
         </div>
 
         {/* Completion */}
-        <div className="flex items-center gap-5 py-5">
-          <span className="text-3xl font-black leading-none w-7 shrink-0 text-right">
-            <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center ml-auto">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div className="flex items-center gap-6 py-6">
+          <div className="w-8 shrink-0 flex justify-center">
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             </div>
-          </span>
+          </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-primary">Possession</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {completionYear ? `Est. ${completionYear}` : "At completion"} · Mortgage starts
+            <p className="text-base font-semibold text-primary">Possession & Keys</p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {completionYear ? `Estimated ${completionYear}` : "At completion"} · Mortgage begins
             </p>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-base font-bold text-primary">{fmt(balanceAtCompletion)}</p>
-            <p className="text-[10px] text-muted-foreground">{(100 - totalDepositPct).toFixed(0)}% remaining</p>
+            <p className="text-xl font-bold text-primary">{fmt(balanceAtCompletion)}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{(100 - totalDepositPct).toFixed(0)}% balance remaining</p>
           </div>
         </div>
       </div>
 
       {/* Total */}
-      <div className="mt-2 pt-4 border-t border-border/40 flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">Total deposits during construction</span>
-        <span className="text-sm font-bold text-foreground">{fmt(totalDepositAmt)} <span className="text-muted-foreground font-normal text-xs">({totalDepositPct}%)</span></span>
+      <div className="mt-2 pt-5 border-t border-border/40 flex items-center justify-between">
+        <span className="text-sm text-muted-foreground">Total deposits during construction</span>
+        <span className="text-base font-bold text-foreground">{fmt(totalDepositAmt)} <span className="text-muted-foreground font-normal text-sm">({totalDepositPct}%)</span></span>
       </div>
 
     </div>
