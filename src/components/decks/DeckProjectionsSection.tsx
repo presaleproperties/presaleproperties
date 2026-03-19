@@ -181,8 +181,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
   const isPositiveCF = (results.monthlyCashFlow ?? 0) >= 0;
 
   return (
-    <section id="projections" className="relative py-16 sm:py-24 bg-muted/10 overflow-hidden">
-      <div className="max-w-4xl mx-auto px-4 sm:px-8">
+    <div id="projections" className="w-full">
 
         <div className="mb-8 space-y-2">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Your Numbers</p>
