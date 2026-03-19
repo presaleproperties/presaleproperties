@@ -91,36 +91,37 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
   const isFirstTimeBuyer = buyerType === "ftb";
 
   const results = useMemo(() => {
-    // GST: 5% on new construction
-    const gstGross = calculateGST(price); // full GST before rebate
-    // GST rebate for FTB (Bill C-4 2026): 100% rebate ≤$1M, partial $1M–$1.5M, none above
+    // GST: 5% on new construction (same as main calculator)
+    const gstGross = calculateGST(price);
+    // GST rebate — FTB only (Bill C-4 2026): 100% ≤$1M, partial $1M–$1.5M, $0 for investors
     const gstRebate = isFirstTimeBuyer ? calculateGSTRebate(price, gstGross) : 0;
-    // Net GST actually paid
+    // Net GST paid at completion
     const gstNet = gstGross - gstRebate;
     const priceWithGSTNet = price + gstNet;
 
-    // PTT: BC one-time fee. FTB exempt ≤$1.1M, partial phase-out to $1.15M
+    // PTT — uses same calculatePTT(price, isFirstTimeBuyer) as main calculator
+    // Full FTB exemption ≤$1.1M, partial phase-out to $1.15M (BC 2026)
     const pttRaw = calculatePTT(price, false);
-    const ptt = isFirstTimeBuyer
-      ? (price <= 1_100_000 ? 0 : price <= 1_150_000 ? pttRaw * ((price - 1_100_000) / 50_000) : pttRaw)
-      : pttRaw;
+    const ptt = calculatePTT(price, isFirstTimeBuyer);
 
     // Deposits paid during construction
     const depositAmt = price * (depositPct / 100);
 
-    // Down payment on full purchase price (inc. GST net)
+    // Down payment is on price + net GST (same as InvestmentSnapshot main calc)
     const downAmt = priceWithGSTNet * (downPct / 100);
 
     // Remaining down payment due at completion (after deposits already paid)
     const remainingDown = Math.max(0, downAmt - depositAmt);
 
-    // Mortgage base
+    // Mortgage: base principal + CMHC if < 20% down
     const baseMortgage = priceWithGSTNet - downAmt;
     const cmhc = calculateCMHCInsurance(baseMortgage, downPct);
     const mortgageAmt = baseMortgage + cmhc;
     const monthly = calcMortgage(mortgageAmt, rate, amort);
 
+    // Legal/notary fees — $2,000 default (matches main calculator closingCosts default)
     const legalFees = 2000;
+    // cashAtCompletion = remaining down + PTT + net GST + legal fees
     const cashAtCompletion = remainingDown + ptt + gstNet + legalFees;
     const totalCashNeeded = depositAmt + cashAtCompletion;
 
