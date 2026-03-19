@@ -36,9 +36,7 @@ export function DeckHeroSection({
     : neighborhood || city || null;
 
   const stats = [
-    locationLabel && { icon: MapPin, label: "Location", value: locationLabel },
     startingPrice && { icon: Tag, label: "Starting From", value: startingPrice },
-    developerName && { icon: Building2, label: "Developer", value: developerName },
     stories && { icon: Layers, label: "Stories", value: `${stories} Floors` },
     totalUnits && { icon: Users, label: "Total Units", value: `${totalUnits}` },
     completionYear && { icon: Calendar, label: "Completion", value: completionYear },
