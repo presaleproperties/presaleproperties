@@ -60,6 +60,7 @@ export function DeckFloorPlansSection({
   includedItems,
   unitsRemaining,
   nextPriceIncrease,
+  incentives,
 }: DeckFloorPlansSectionProps) {
   const [selected, setSelected] = useState<FloorPlan | null>(null);
 
