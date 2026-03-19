@@ -81,8 +81,7 @@ export function DeckDepositTimelineSection({
   ];
 
   return (
-    <section id="deposit-timeline" className="py-14 sm:py-20 bg-background">
-      <div className="max-w-3xl mx-auto px-4 sm:px-8">
+    <div id="deposit-timeline" className="w-full">
 
         {/* Header */}
         <div className="mb-10">
