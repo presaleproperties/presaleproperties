@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { BookingModal } from "./BookingModal";
-import { Phone, Mail, MessageCircle, Star, Award, Globe, Quote, ChevronDown } from "lucide-react";
+import { Phone, Mail, MessageCircle, Star, Quote, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
