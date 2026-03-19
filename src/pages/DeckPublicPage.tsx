@@ -273,26 +273,28 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
 
-      {/* ── 6. Deposit / Payment Timeline ── */}
+      {/* ── 6+7. Deposit + Calculator side-by-side on desktop ── */}
       <div className="deck-animate">
-        <DeckDepositTimelineSection
-          depositSteps={deck.deposit_steps && deck.deposit_steps.length > 0 ? deck.deposit_steps : DEFAULT_DEPOSIT_STEPS}
-          projectName={deck.project_name}
-          completionYear={deck.completion_year || undefined}
-          defaultPrice={defaultPrice}
-          floorPlans={deck.floor_plans || []}
-        />
-      </div>
-
-      <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
-
-      {/* ── 7. Investment Calculator ── */}
-      <div className="deck-animate">
-        <DeckProjectionsSection
-          projections={deck.projections || {}}
-          defaultPrice={defaultPrice}
-          floorPlans={deck.floor_plans || []}
-        />
+        <section className="py-14 sm:py-20 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+              {/* Left: Deposit Timeline */}
+              <DeckDepositTimelineSection
+                depositSteps={deck.deposit_steps && deck.deposit_steps.length > 0 ? deck.deposit_steps : DEFAULT_DEPOSIT_STEPS}
+                projectName={deck.project_name}
+                completionYear={deck.completion_year || undefined}
+                defaultPrice={defaultPrice}
+                floorPlans={deck.floor_plans || []}
+              />
+              {/* Right: Calculator */}
+              <DeckProjectionsSection
+                projections={deck.projections || {}}
+                defaultPrice={defaultPrice}
+                floorPlans={deck.floor_plans || []}
+              />
+            </div>
+          </div>
+        </section>
       </div>
 
       <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
