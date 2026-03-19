@@ -59,7 +59,7 @@ interface PitchDeck {
   amenities: string[] | null;
 }
 
-const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "deposit-timeline", "projections", "contact"];
+const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "deposit-timeline", "projections", "faq", "contact"];
 
 export default function DeckPublicPage() {
   const { slug } = useParams<{ slug: string }>();
