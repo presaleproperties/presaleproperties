@@ -175,7 +175,6 @@ export function DeckDepositTimelineSection({
           <span className="font-bold text-foreground">{fmt(totalDepositAmt)}</span>
         </div>
 
-      </div>
-    </section>
+    </div>
   );
 }
