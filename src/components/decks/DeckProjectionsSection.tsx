@@ -183,10 +183,10 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
   return (
     <div id="projections" className="w-full">
 
-        <div className="mb-8 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Your Numbers</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Run Your Numbers</h2>
-          <p className="text-muted-foreground text-sm">Estimate your monthly payment and what you need at closing. BC 2026 tax rules applied.</p>
+        <div className="mb-10">
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-3">06 — Your Numbers</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">Run Your Numbers</h2>
+          <p className="text-muted-foreground text-sm mt-2">Estimate your monthly payment and what you need at closing. BC 2026 tax rules applied.</p>
         </div>
 
         <div className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
