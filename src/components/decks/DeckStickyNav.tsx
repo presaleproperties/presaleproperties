@@ -49,8 +49,8 @@ export function DeckStickyNav({ visible, activeSection, phoneNumber }: DeckStick
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
-          {/* Logo */}
-          <Logo size="md" />
+          {/* Logo — oversized but clipped by nav height */}
+          <Logo size="lg" className="h-[7rem] sm:h-[8rem]" />
 
           {/* Desktop nav links */}
           <nav className="hidden lg:flex items-center gap-0.5 flex-1 justify-center">
