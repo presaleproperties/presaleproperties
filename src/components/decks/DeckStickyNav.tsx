@@ -48,7 +48,7 @@ export function DeckStickyNav({ visible, activeSection, phoneNumber }: DeckStick
           WebkitBackfaceVisibility: "hidden",
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3 overflow-visible">
           {/* Logo — oversized but clipped by nav height */}
           <Logo size="lg" className="h-[7rem] sm:h-[8rem]" />
 
