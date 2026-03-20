@@ -658,12 +658,7 @@ export function InvestmentSnapshot() {
                         </div>
                         {inputs.includeGST && (
                           <div className="flex justify-between items-center pt-2 border-t border-green-200">
-                            <div>
-                              <span className="text-[13px] font-semibold text-green-800">GST Rebate</span>
-                              <p className="text-[11px] text-green-600">
-                                {inputs.purchasePrice <= 1000000 ? 'Up to $50,000 rebate' : inputs.purchasePrice < 1500000 ? 'Partial rebate' : 'Not eligible'}
-                              </p>
-                            </div>
+                            <span className="text-[13px] font-semibold text-green-800">GST Rebate</span>
                             <span className="text-lg font-black text-green-600">
                               {fmt(inputs.purchasePrice <= 1000000 ? Math.min(results.gst, 50000) : inputs.purchasePrice < 1500000 ? Math.min(results.gst, 50000) * ((1500000 - inputs.purchasePrice) / 500000) : 0)}
                             </span>
@@ -679,9 +674,8 @@ export function InvestmentSnapshot() {
                     </SectionCard>
                   )}
 
-                  <Button onClick={() => setCurrentPage('equity')} className="w-full h-12 text-[13px] font-bold gap-2" variant="outline">
-                    View Equity & Growth
-                    <ChevronRight className="h-4 w-4" />
+                  <Button onClick={() => setCurrentPage('equity')} className="w-full h-10 text-[13px] font-bold gap-2" variant="outline">
+                    Equity & Growth <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
