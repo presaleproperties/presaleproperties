@@ -71,6 +71,8 @@ export function DeckDepositTimelineSection({
   const balanceAtCompletion = price - totalDepositAmt;
 
   return (
+    <div id="deposit-timeline" className="w-full">
+
       {/* Header */}
       <div className="mb-10">
         <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em] mb-3">
