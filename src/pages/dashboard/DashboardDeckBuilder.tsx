@@ -743,9 +743,26 @@ export default function DashboardDeckBuilder() {
           subtitle="Upload image — AI auto-fills size, type & pricing">
           <div className="space-y-3">
             {floorPlans.map((fp, idx) => (
-              <div key={fp.id} className="p-4 rounded-xl border border-border/50 bg-muted/20 space-y-3">
+              <div
+                key={fp.id}
+                draggable
+                onDragStart={() => handleFpDragStart(idx)}
+                onDragOver={(e) => handleFpDragOver(e, idx)}
+                onDrop={() => handleFpDrop(idx)}
+                onDragEnd={handleFpDragEnd}
+                className={`p-4 rounded-xl border bg-muted/20 space-y-3 transition-all duration-150 ${
+                  dragOverFpIdx === idx && dragFpIdx.current !== idx
+                    ? "border-primary/60 ring-2 ring-primary/20 bg-primary/5"
+                    : "border-border/50"
+                }`}
+              >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Unit {idx + 1}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-muted-foreground transition-colors touch-none">
+                      <GripVertical className="h-4 w-4" />
+                    </div>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Unit {idx + 1}</span>
+                  </div>
                   <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive"
                     onClick={() => removeFloorPlan(fp.id)}>
                     <Trash2 className="h-3.5 w-3.5" />
