@@ -150,7 +150,7 @@ export function DeckContactSection({
               </div>
 
               {/* Tagline */}
-              <p className="text-sm text-muted-foreground italic border-l-2 border-primary/30 pl-3 mb-4 leading-relaxed">
+              <p className="text-base text-muted-foreground italic border-l-2 border-primary/30 pl-3 mb-4 leading-relaxed">
                 "{agent.tagline}"
               </p>
 
@@ -159,7 +159,7 @@ export function DeckContactSection({
                 {[1,2,3,4,5].map((i) => (
                   <Star key={i} className="h-4 w-4 fill-primary text-primary" />
                 ))}
-                <span className="text-sm text-muted-foreground ml-2 font-medium">5.0 · Google Reviews</span>
+                <span className="text-base text-muted-foreground ml-2 font-medium">5.0 · Google Reviews</span>
               </div>
 
               {/* Primary CTA */}
