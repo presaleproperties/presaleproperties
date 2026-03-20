@@ -189,6 +189,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
           <p className="text-muted-foreground text-sm mt-2">Estimate your monthly payment and what you need at closing. BC 2026 tax rules applied.</p>
         </div>
 
+
         <div className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
 
           {/* Header bar */}
