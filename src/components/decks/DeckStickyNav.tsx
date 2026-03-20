@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { MessageCircle, Menu, X } from "lucide-react";
+import { Phone, Menu, X } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 
 const SECTIONS = [
@@ -18,14 +18,12 @@ interface DeckStickyNavProps {
   visible: boolean;
   activeSection: string;
   projectName: string;
-  whatsappNumber?: string;
-  projectNameForWa?: string;
+  phoneNumber?: string;
 }
 
-export function DeckStickyNav({ visible, activeSection, projectName, whatsappNumber, projectNameForWa }: DeckStickyNavProps) {
+export function DeckStickyNav({ visible, activeSection, phoneNumber }: DeckStickyNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const rawNumber = (whatsappNumber || "17782313592").replace(/\D/g, "");
-  const waMessage = encodeURIComponent(`Hi! I'm interested in ${projectNameForWa || projectName} — can you share details?`);
+  const rawPhone = (phoneNumber || "17782313592").replace(/\D/g, "");
 
   const scrollTo = (id: string) => {
     setMobileMenuOpen(false);
@@ -72,17 +70,14 @@ export function DeckStickyNav({ visible, activeSection, projectName, whatsappNum
             ))}
           </nav>
 
-          {/* Right: Text Us + mobile hamburger */}
+          {/* Right: Call Now + mobile hamburger */}
           <div className="flex items-center gap-2">
             <a
-              href={`https://wa.me/${rawNumber}?text=${waMessage}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-white touch-manipulation transition-all active:scale-[0.97]"
-              style={{ background: "#25D366" }}
+              href={`tel:+${rawPhone}`}
+              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-primary text-primary-foreground touch-manipulation transition-all active:scale-[0.97] hover:bg-primary/90"
             >
-              <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-              <span>Text Us</span>
+              <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+              <span>Call Now</span>
             </a>
             {/* Mobile hamburger */}
             <button

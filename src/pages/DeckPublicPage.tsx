@@ -205,8 +205,7 @@ export default function DeckPublicPage() {
         visible={navVisible}
         activeSection={activeSection}
         projectName={deck.project_name}
-        whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
-        projectNameForWa={deck.project_name}
+        phoneNumber={deck.contact_phone || deck.contact_whatsapp || undefined}
       />
 
       {/* ── 1. Hero ── */}
