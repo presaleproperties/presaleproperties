@@ -34,13 +34,13 @@ export function MortgageCalculator({ defaultPrice = 799900 }: { defaultPrice?: n
   }, [price, downPct, rate, amort]);
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
+    <div className="space-y-7">
+      <div className="space-y-6">
         {/* Purchase Price */}
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-foreground">Purchase Price</span>
-            <span className="text-sm font-bold text-primary">{formatCAD(price)}</span>
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-base font-semibold text-foreground">Purchase Price</span>
+            <span className="text-base font-bold text-primary">{formatCAD(price)}</span>
           </div>
           <Slider
             min={300000}
@@ -50,7 +50,7 @@ export function MortgageCalculator({ defaultPrice = 799900 }: { defaultPrice?: n
             onValueChange={([v]) => setPrice(v)}
             className="w-full"
           />
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+          <div className="flex justify-between text-sm text-muted-foreground mt-1.5">
             <span>$300K</span>
             <span>$2M</span>
           </div>
@@ -58,9 +58,9 @@ export function MortgageCalculator({ defaultPrice = 799900 }: { defaultPrice?: n
 
         {/* Down Payment */}
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-foreground">Down Payment</span>
-            <span className="text-sm font-bold text-primary">{downPct}% · {formatCAD(downAmt)}</span>
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-base font-semibold text-foreground">Down Payment</span>
+            <span className="text-base font-bold text-primary">{downPct}% · {formatCAD(downAmt)}</span>
           </div>
           <Slider
             min={5}
@@ -70,7 +70,7 @@ export function MortgageCalculator({ defaultPrice = 799900 }: { defaultPrice?: n
             onValueChange={([v]) => setDownPct(v)}
             className="w-full"
           />
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+          <div className="flex justify-between text-sm text-muted-foreground mt-1.5">
             <span>5%</span>
             <span>50%</span>
           </div>
@@ -78,9 +78,9 @@ export function MortgageCalculator({ defaultPrice = 799900 }: { defaultPrice?: n
 
         {/* Interest Rate */}
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-foreground">Interest Rate</span>
-            <span className="text-sm font-bold text-primary">{rate.toFixed(1)}%</span>
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-base font-semibold text-foreground">Interest Rate</span>
+            <span className="text-base font-bold text-primary">{rate.toFixed(1)}%</span>
           </div>
           <Slider
             min={2}
@@ -90,7 +90,7 @@ export function MortgageCalculator({ defaultPrice = 799900 }: { defaultPrice?: n
             onValueChange={([v]) => setRate(parseFloat(v.toFixed(1)))}
             className="w-full"
           />
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+          <div className="flex justify-between text-sm text-muted-foreground mt-1.5">
             <span>2%</span>
             <span>9%</span>
           </div>
@@ -98,18 +98,18 @@ export function MortgageCalculator({ defaultPrice = 799900 }: { defaultPrice?: n
 
         {/* Amortization */}
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-foreground">Amortization</span>
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-base font-semibold text-foreground">Amortization</span>
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2.5 flex-wrap">
             {AMORTIZATION_OPTIONS.map((yr) => (
               <button
                 key={yr}
                 onClick={() => setAmort(yr)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
+                className={`px-4 py-2 rounded-lg text-[15px] font-semibold border transition-all ${
                   amort === yr
                     ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                    : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                    : "bg-background border-border text-foreground/70 hover:border-primary/50"
                 }`}
               >
                 {yr} yr
@@ -121,28 +121,28 @@ export function MortgageCalculator({ defaultPrice = 799900 }: { defaultPrice?: n
 
       {/* Result */}
       <Card className="bg-primary/5 border-primary/20">
-        <CardContent className="p-5">
+        <CardContent className="p-6">
           <div className="text-center">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Est. Monthly Payment</p>
-            <p className="text-4xl font-bold text-primary">{formatCAD(monthly)}</p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-2">Est. Monthly Payment</p>
+            <p className="text-5xl font-bold text-primary">{formatCAD(monthly)}</p>
+            <p className="text-sm text-muted-foreground mt-2">
               on {formatCAD(principal)} mortgage · {rate}% · {amort} yr amort
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-primary/10">
+          <div className="grid grid-cols-2 gap-4 mt-5 pt-5 border-t border-primary/10">
             <div className="text-center">
-              <p className="text-xs text-muted-foreground">Total Interest</p>
-              <p className="text-sm font-semibold text-foreground">{formatCAD(monthly * amort * 12 - principal)}</p>
+              <p className="text-sm text-muted-foreground mb-1">Total Interest</p>
+              <p className="text-base font-bold text-foreground">{formatCAD(monthly * amort * 12 - principal)}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-muted-foreground">Total Cost</p>
-              <p className="text-sm font-semibold text-foreground">{formatCAD(monthly * amort * 12 + downAmt)}</p>
+              <p className="text-sm text-muted-foreground mb-1">Total Cost</p>
+              <p className="text-base font-bold text-foreground">{formatCAD(monthly * amort * 12 + downAmt)}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground leading-relaxed">
         * Estimate only. Does not include CMHC insurance, strata fees, property tax, or closing costs.
         Consult a mortgage professional for accurate figures.
       </p>
