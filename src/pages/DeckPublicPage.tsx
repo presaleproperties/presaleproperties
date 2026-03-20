@@ -384,13 +384,13 @@ export default function DeckPublicPage() {
       {/* Footer */}
       <footer className="bg-muted/30 border-t border-border/50 px-4 sm:px-8 py-8 pb-safe">
         <div className="max-w-4xl mx-auto space-y-3 text-center">
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             <strong className="text-foreground/70">DISCLAIMER:</strong> This is not an offering for sale. Any such offering can only be made with a disclosure statement. E.&amp;O.E. — Pricing, availability, and project details are subject to change without notice. All renderings, floor plans, and specifications are for illustrative purposes only.
           </p>
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             This presentation is prepared in compliance with the <em>Real Estate Development Marketing Act</em> (REDMA) and the British Columbia Financial Services Authority (BCFSA). No binding purchase agreement is created by this material.
           </p>
-          <div className="pt-2 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-muted-foreground/60">
+          <div className="pt-2 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground/60">
             <span>© {new Date().getFullYear()} PresaleProperties.com · Real Broker · 666 Burrard St, Suite 500, Vancouver, BC V6C 3P6</span>
             <span>info@presaleproperties.com · 672-258-1100</span>
           </div>

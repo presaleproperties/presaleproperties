@@ -109,7 +109,7 @@ export function DeckHeroSection({
         className="hidden sm:flex absolute bottom-6 left-0 right-0 flex-col items-center gap-1 z-10 cursor-pointer"
         onClick={onFloorPlansClick}
       >
-        <span className="text-white/70 text-[10px] font-semibold uppercase tracking-widest drop-shadow-md">Scroll to explore</span>
+        <span className="text-white/70 text-xs font-semibold uppercase tracking-widest drop-shadow-md">Scroll to explore</span>
         <ChevronDown className="h-5 w-5 text-white/60 drop-shadow-md animate-bounce" />
       </div>
     </section>
