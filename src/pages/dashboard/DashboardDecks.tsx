@@ -80,11 +80,9 @@ export default function DashboardDecks() {
   };
 
   const copyLink = (slug: string) => {
-    // Use the OG proxy URL so WhatsApp/iMessage/social platforms auto-generate
-    // a rich preview with the hero image, project name & pricing
-    const url = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${slug}`;
+    const url = `${window.location.origin}/deck/${slug}`;
     navigator.clipboard.writeText(url);
-    toast.success("Share link copied! Rich preview will show on WhatsApp & social.");
+    toast.success("Public link copied! Send this to your clients.");
   };
 
   return (
