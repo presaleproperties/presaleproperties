@@ -682,30 +682,27 @@ export function InvestmentSnapshot() {
             </div>
           </TabsContent>
 
-          {/* ══════════════════════════════════════
-              PAGE 2: Equity & Growth
-          ══════════════════════════════════════ */}
           <TabsContent value="equity" className="mt-0">
-            <div className="p-4 sm:p-6 space-y-5">
+            <div className="p-4 sm:p-5 space-y-4">
 
               {/* Controls */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <SectionCard className="border-primary/25 bg-primary/5">
-                  <div className="p-4">
-                    <FieldLabel className="text-primary/80 flex items-center gap-1 block mb-3">
+                  <div className="p-3">
+                    <FieldLabel className="text-primary/80 flex items-center gap-1 block mb-2">
                       <Calendar className="h-3 w-3" /> Hold Period
                     </FieldLabel>
                     <div className="flex items-center justify-center gap-3">
                       <button onClick={() => updateInput('holdingPeriodYears', Math.max(1, inputs.holdingPeriodYears - 1))}
-                        className="h-9 w-9 rounded-xl border border-border/60 bg-background flex items-center justify-center text-lg font-bold hover:bg-secondary transition-colors">
+                        className="h-8 w-8 rounded-xl border border-border/60 bg-background flex items-center justify-center text-lg font-bold hover:bg-secondary transition-colors">
                         −
                       </button>
                       <div className="text-center">
-                        <span className="text-4xl font-black text-primary">{inputs.holdingPeriodYears}</span>
+                        <span className="text-3xl font-black text-primary">{inputs.holdingPeriodYears}</span>
                         <span className="text-[12px] text-muted-foreground ml-1">yr</span>
                       </div>
                       <button onClick={() => updateInput('holdingPeriodYears', Math.min(30, inputs.holdingPeriodYears + 1))}
-                        className="h-9 w-9 rounded-xl border border-border/60 bg-background flex items-center justify-center text-lg font-bold hover:bg-secondary transition-colors">
+                        className="h-8 w-8 rounded-xl border border-border/60 bg-background flex items-center justify-center text-lg font-bold hover:bg-secondary transition-colors">
                         +
                       </button>
                     </div>
@@ -713,12 +710,12 @@ export function InvestmentSnapshot() {
                 </SectionCard>
 
                 <SectionCard>
-                  <div className="p-4">
-                    <FieldLabel className="flex items-center gap-1 block mb-3">
+                  <div className="p-3">
+                    <FieldLabel className="flex items-center gap-1 block mb-2">
                       <TrendingUp className="h-3 w-3" /> Appreciation
                     </FieldLabel>
-                    <div className="text-center mb-2.5">
-                      <span className="text-4xl font-black text-primary">{inputs.appreciationRate}</span>
+                    <div className="text-center mb-2">
+                      <span className="text-3xl font-black text-primary">{inputs.appreciationRate}</span>
                       <span className="text-[12px] text-muted-foreground ml-1">% / yr</span>
                     </div>
                     <Slider
@@ -731,17 +728,17 @@ export function InvestmentSnapshot() {
               </div>
 
               {/* Future Value Hero */}
-              <div className="rounded-2xl bg-gradient-to-r from-green-50 to-green-50/30 border border-green-200 p-5 flex items-center justify-between">
+              <div className="rounded-2xl bg-gradient-to-r from-green-50 to-green-50/30 border border-green-200 p-4 flex items-center justify-between">
                 <div>
-                  <FieldLabel className="text-green-600 block mb-1">Estimated Value in {inputs.holdingPeriodYears}yr</FieldLabel>
+                  <FieldLabel className="text-green-600 block mb-0.5">Value in {inputs.holdingPeriodYears}yr</FieldLabel>
                   <div className="text-3xl font-black text-green-700">{fmt(results.futureValue)}</div>
-                  <div className="flex items-center gap-1 text-[13px] text-green-600 mt-1 font-semibold">
+                  <div className="flex items-center gap-1 text-[12px] text-green-600 mt-0.5 font-semibold">
                     <ArrowUpRight className="h-3.5 w-3.5" />
-                    +{fmt(results.appreciation)} appreciation
+                    +{fmt(results.appreciation)}
                   </div>
                 </div>
                 <div className="text-right">
-                  <FieldLabel className="block mb-1">Purchase</FieldLabel>
+                  <FieldLabel className="block mb-0.5">Purchase</FieldLabel>
                   <div className="text-[14px] font-semibold text-muted-foreground">{fmt(inputs.purchasePrice)}</div>
                   {inputs.includeGST && <div className="text-[11px] text-muted-foreground/60 mt-0.5">+GST: {fmt(results.priceWithGST)}</div>}
                 </div>
@@ -749,37 +746,33 @@ export function InvestmentSnapshot() {
 
               {/* Equity Breakdown */}
               <SectionCard>
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <FieldLabel className="flex items-center gap-1.5"><PiggyBank className="h-3 w-3" /> Total Equity Built</FieldLabel>
+                <div className="p-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <FieldLabel className="flex items-center gap-1.5"><PiggyBank className="h-3 w-3" /> Equity Built</FieldLabel>
                     <span className="text-xl font-black text-foreground">{fmt(results.totalEquityBuilt)}</span>
                   </div>
-                  {/* Stacked bar */}
-                  <div className="h-3 rounded-full overflow-hidden flex mb-4 bg-muted/60">
+                  <div className="h-2.5 rounded-full overflow-hidden flex mb-3 bg-muted/60">
                     {[
                       { value: results.downPayment,    color: 'bg-primary/70' },
                       { value: results.principalPaid,  color: 'bg-blue-500' },
                       { value: results.appreciation,   color: 'bg-green-500' },
                     ].map(({ value, color }, i) => (
-                      <div
-                        key={i}
-                        className={cn(color, "transition-all")}
-                        style={{ width: `${(value / (results.totalEquityBuilt || 1)) * 100}%` }}
-                      />
+                      <div key={i} className={cn(color, "transition-all")}
+                        style={{ width: `${(value / (results.totalEquityBuilt || 1)) * 100}%` }} />
                     ))}
                   </div>
-                  <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="grid grid-cols-3 gap-2 text-center">
                     {[
-                      { label: 'Down Payment', value: results.downPayment,   dot: 'bg-primary/70' },
-                      { label: 'Paydown',       value: results.principalPaid, dot: 'bg-blue-500' },
-                      { label: 'Appreciation',  value: results.appreciation,  dot: 'bg-green-500' },
+                      { label: 'Down Pmt', value: results.downPayment,   dot: 'bg-primary/70' },
+                      { label: 'Paydown',  value: results.principalPaid, dot: 'bg-blue-500' },
+                      { label: 'Apprec.',  value: results.appreciation,  dot: 'bg-green-500' },
                     ].map(({ label, value, dot }) => (
                       <div key={label}>
-                        <div className="flex items-center justify-center gap-1 mb-1">
+                        <div className="flex items-center justify-center gap-1 mb-0.5">
                           <div className={cn("h-2 w-2 rounded-full", dot)} />
                           <FieldLabel>{label}</FieldLabel>
                         </div>
-                        <div className="text-[14px] font-bold text-foreground">{fmt(value)}</div>
+                        <div className="text-[13px] font-bold text-foreground">{fmt(value)}</div>
                       </div>
                     ))}
                   </div>
@@ -787,19 +780,19 @@ export function InvestmentSnapshot() {
               </SectionCard>
 
               {/* Key Metrics Row */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
-                  { label: 'Total Return',  value: fmt(results.totalReturn),                                                                        dark: true },
-                  { label: 'ROI',           value: `${results.roiPercent.toFixed(1)}%`,                   sub: `${inputs.holdingPeriodYears}yr total`, dark: false },
-                  { label: 'Annualized',    value: `${inputs.holdingPeriodYears > 0 ? (results.roiPercent / inputs.holdingPeriodYears).toFixed(1) : '0.0'}%`, sub: 'per year', dark: false },
-                  { label: 'Cash Invested', value: fmt(results.totalCashRequired),                                                                   dark: false },
+                  { label: 'Total Return',  value: fmt(results.totalReturn),                                                                         dark: true },
+                  { label: 'ROI',           value: `${results.roiPercent.toFixed(1)}%`,                    sub: `${inputs.holdingPeriodYears}yr`,      dark: false },
+                  { label: 'Annualized',    value: `${inputs.holdingPeriodYears > 0 ? (results.roiPercent / inputs.holdingPeriodYears).toFixed(1) : '0.0'}%`, sub: 'per yr', dark: false },
+                  { label: 'Cash In',       value: fmt(results.totalCashRequired),                                                                    dark: false },
                 ].map(({ label, value, sub, dark }) => (
                   <div key={label} className={cn(
-                    "rounded-2xl p-3.5 text-center",
+                    "rounded-2xl p-3 text-center",
                     dark ? "bg-foreground text-background" : "bg-muted/50 border border-border/50"
                   )}>
                     <FieldLabel className={dark ? "text-background/45" : ""}>{label}</FieldLabel>
-                    <div className={cn("text-[15px] font-black mt-1.5", dark ? "text-background" : "text-foreground")}>
+                    <div className={cn("text-[14px] font-black mt-1", dark ? "text-background" : "text-foreground")}>
                       {value}
                     </div>
                     {sub && <div className={cn("text-[10px] mt-0.5", dark ? "text-background/40" : "text-muted-foreground/60")}>{sub}</div>}
@@ -809,18 +802,18 @@ export function InvestmentSnapshot() {
 
               {/* Investor: Return Sources + Metrics */}
               {!isFirstTimeBuyer && (
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-3">
                   <SectionCard>
-                    <div className="p-4">
-                      <FieldLabel className="block mb-3">Return Sources</FieldLabel>
-                      <div className="space-y-3.5">
+                    <div className="p-3">
+                      <FieldLabel className="block mb-2.5">Return Sources</FieldLabel>
+                      <div className="space-y-3">
                         {[
                           { label: 'Appreciation', value: results.appreciation, pct: results.totalReturn !== 0 ? (results.appreciation / Math.abs(results.totalReturn) * 100) : 0, color: 'bg-green-500' },
                           { label: 'Paydown', value: results.principalPaid, pct: results.totalReturn !== 0 ? (results.principalPaid / Math.abs(results.totalReturn) * 100) : 0, color: 'bg-blue-500' },
                           { label: 'Cash Flow', value: results.totalCashFlowOverPeriod, pct: results.totalReturn !== 0 ? (results.totalCashFlowOverPeriod / Math.abs(results.totalReturn) * 100) : 0, color: results.totalCashFlowOverPeriod >= 0 ? 'bg-emerald-400' : 'bg-red-400' },
                         ].map(({ label, value, pct, color }) => (
                           <div key={label}>
-                            <div className="flex justify-between text-[12px] mb-1.5">
+                            <div className="flex justify-between text-[12px] mb-1">
                               <span className="text-muted-foreground">{label} <span className="text-muted-foreground/50">({pct.toFixed(0)}%)</span></span>
                               <span className={cn("font-bold", value >= 0 ? "text-green-600" : "text-red-600")}>
                                 {value >= 0 ? '+' : ''}{fmt(value)}
@@ -836,18 +829,12 @@ export function InvestmentSnapshot() {
                   </SectionCard>
 
                   <SectionCard>
-                    <div className="p-4">
-                      <FieldLabel className="block mb-3">Investor Metrics</FieldLabel>
-                      <div className="space-y-0">
-                        {[
-                          { label: 'Cap Rate',      value: `${((inputs.monthlyRent * 12 - (inputs.strataFees + inputs.propertyTax) * 12) / results.priceWithGST * 100).toFixed(2)}%`, sub: 'NOI / Price' },
-                          { label: 'Cash-on-Cash',  value: `${results.totalCashRequired > 0 ? (results.annualCashFlow / results.totalCashRequired * 100).toFixed(2) : '0.00'}%`, sub: 'Annual CF / Cash In' },
-                          { label: 'Mortgage',      value: fmt(results.mortgageAmount), sub: `Yr${inputs.holdingPeriodYears} balance: ${fmt(results.remainingBalance)}` },
-                          { label: 'Monthly CF',    value: fmt(results.monthlyCashFlow), sub: `${fmt(inputs.monthlyRent)} rent − ${fmt(results.totalMonthlyExpenses)} costs` },
-                        ].map(({ label, value, sub }) => (
-                          <Row key={label} label={label} value={value} sub={sub} />
-                        ))}
-                      </div>
+                    <div className="p-3">
+                      <FieldLabel className="block mb-2.5">Metrics</FieldLabel>
+                      <Row label="Cap Rate"     value={`${((inputs.monthlyRent * 12 - (inputs.strataFees + inputs.propertyTax) * 12) / results.priceWithGST * 100).toFixed(2)}%`} sub="NOI / Price" />
+                      <Row label="Cash-on-Cash" value={`${results.totalCashRequired > 0 ? (results.annualCashFlow / results.totalCashRequired * 100).toFixed(2) : '0.00'}%`} sub="Annual CF / Cash In" />
+                      <Row label="Mortgage"     value={fmt(results.mortgageAmount)} sub={`Yr${inputs.holdingPeriodYears}: ${fmt(results.remainingBalance)}`} />
+                      <Row label="Monthly CF"   value={fmt(results.monthlyCashFlow)} />
                     </div>
                   </SectionCard>
                 </div>
@@ -855,9 +842,9 @@ export function InvestmentSnapshot() {
 
               {/* Year-by-Year Growth */}
               <SectionCard>
-                <div className="p-4">
-                  <FieldLabel className="block mb-3">Property Value Over Time</FieldLabel>
-                  <div className="space-y-2">
+                <div className="p-3">
+                  <FieldLabel className="block mb-2.5">Value Over Time</FieldLabel>
+                  <div className="space-y-1.5">
                     {Array.from({ length: Math.min(inputs.holdingPeriodYears, 10) }, (_, i) => {
                       const yr = i + 1;
                       const val = inputs.purchasePrice * Math.pow(1 + inputs.appreciationRate / 100, yr);
@@ -865,16 +852,14 @@ export function InvestmentSnapshot() {
                       const maxVal = inputs.purchasePrice * Math.pow(1 + inputs.appreciationRate / 100, Math.min(inputs.holdingPeriodYears, 10));
                       const maxGain = maxVal - inputs.purchasePrice;
                       return (
-                        <div key={yr} className="flex items-center gap-3 text-[12px]">
-                          <span className="w-9 text-muted-foreground font-semibold shrink-0">Yr {yr}</span>
-                          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all"
-                              style={{ width: `${maxGain > 0 ? (gain / maxGain) * 100 : 0}%` }}
-                            />
+                        <div key={yr} className="flex items-center gap-2 text-[12px]">
+                          <span className="w-8 text-muted-foreground font-semibold shrink-0">Yr{yr}</span>
+                          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all"
+                              style={{ width: `${maxGain > 0 ? (gain / maxGain) * 100 : 0}%` }} />
                           </div>
-                          <span className="w-[72px] text-right font-bold shrink-0">{fmt(val)}</span>
-                          <span className="w-[58px] text-right text-green-600 font-semibold shrink-0">+{fmt(gain)}</span>
+                          <span className="w-[68px] text-right font-bold shrink-0">{fmt(val)}</span>
+                          <span className="w-[52px] text-right text-green-600 font-semibold shrink-0">+{fmt(gain)}</span>
                         </div>
                       );
                     })}
@@ -885,24 +870,24 @@ export function InvestmentSnapshot() {
               {/* First-Time Buyer: Rent vs Own */}
               {isFirstTimeBuyer && (
                 <SectionCard className="border-primary/25 bg-primary/4">
-                  <div className="p-4">
-                    <div className="flex items-center gap-2 mb-4">
+                  <div className="p-3">
+                    <div className="flex items-center gap-2 mb-3">
                       <Home className="h-4 w-4 text-primary" />
                       <span className="text-[13px] font-bold text-primary">Rent vs Own — {inputs.holdingPeriodYears}yr</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="grid grid-cols-2 gap-2 mb-2.5">
                       {[
                         { label: 'Total Rent Paid', value: `-${fmt(rentVsOwn.totalRentPaid)}`, color: 'text-red-600' },
                         { label: 'Equity Built',    value: fmt(rentVsOwn.equityBuilt),          color: 'text-green-600' },
                       ].map(({ label, value, color }) => (
-                        <div key={label} className="bg-background rounded-xl p-3 border border-border/50 text-center">
-                          <FieldLabel className="block mb-1">{label}</FieldLabel>
+                        <div key={label} className="bg-background rounded-xl p-2.5 border border-border/50 text-center">
+                          <FieldLabel className="block mb-0.5">{label}</FieldLabel>
                           <div className={cn("text-lg font-black", color)}>{value}</div>
                         </div>
                       ))}
                     </div>
                     <div className={cn(
-                      "rounded-xl p-3 text-center",
+                      "rounded-xl p-2.5 text-center",
                       rentVsOwn.owningIsBetter ? "bg-green-100 border border-green-300" : "bg-amber-50 border border-amber-200"
                     )}>
                       <div className={cn("text-[13px] font-bold", rentVsOwn.owningIsBetter ? "text-green-700" : "text-amber-700")}>
