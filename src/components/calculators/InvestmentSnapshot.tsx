@@ -375,23 +375,23 @@ export function InvestmentSnapshot() {
                       />
                       <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border/40">
                         <div>
-                          <FieldLabel className="block mb-1">Sqft</FieldLabel>
+                          <FieldLabel className="block mb-1.5">Sqft</FieldLabel>
                           <Input
                             type="number"
                             value={inputs.sqft}
                             onChange={(e) => updateInput('sqft', parseInt(e.target.value) || 0)}
-                            className="h-8 text-center font-semibold text-sm"
+                            className="h-9 text-center font-semibold text-sm"
                           />
                         </div>
                         <div>
-                          <FieldLabel className="block mb-1">$/sqft</FieldLabel>
-                          <div className="h-8 flex items-center justify-center rounded-lg bg-primary/8 text-sm font-bold text-primary border border-primary/15">
+                          <FieldLabel className="block mb-1.5">$/sqft</FieldLabel>
+                          <div className="h-9 flex items-center justify-center rounded-lg bg-primary/8 text-sm font-bold text-primary border border-primary/15">
                             {inputs.sqft > 0 ? `$${Math.round(inputs.purchasePrice / inputs.sqft).toLocaleString()}` : '—'}
                           </div>
                         </div>
                       </div>
                       {inputs.includeGST && (
-                        <div className="flex justify-between mt-1.5 text-[11px] text-muted-foreground">
+                        <div className="flex justify-between mt-2 text-[13px] text-muted-foreground">
                           <span>Incl. GST</span>
                           <span className="font-semibold">{fmt(results.priceWithGST)}</span>
                         </div>
