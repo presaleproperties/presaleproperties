@@ -182,6 +182,8 @@ export default function DashboardDeckBuilder() {
   const [floorPlans, setFloorPlans] = useState<FloorPlan[]>([]);
   const [analyzingFp, setAnalyzingFp] = useState<string | null>(null);
   const fpInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const dragFpIdx = useRef<number | null>(null);
+  const [dragOverFpIdx, setDragOverFpIdx] = useState<number | null>(null);
 
   // Gallery
   const [gallery, setGallery] = useState<string[]>([]);
