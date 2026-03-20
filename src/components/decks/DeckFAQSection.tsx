@@ -15,6 +15,10 @@ const FAQS = [
     q: "Do I need a mortgage pre-approval?",
     a: "Not at this stage — what you need is a pre-qualification. Pre-approvals are only valid for 90–120 days, and some banks offer 1–2 year completion approvals, but those come with significantly higher interest rates and a tougher stress test that can throw off your qualifying numbers.\n\nThe smartest move is to get a rough qualification number based on your current income and financial situation. That way you know what ballpark you're buying in, and you're not committing to something you won't be able to close at completion.",
   },
+  {
+    q: "Do I need to pay GST out of pocket on top of my down payment as an investor?",
+    a: "No. As an investor, you do not pay GST separately out of pocket. The GST is added to the purchase price, and your 20% down payment is calculated on that combined total (Purchase Price + GST = Final Price). The remaining GST balance is simply rolled into your mortgage — so your cash requirement at signing only reflects the down payment on the full price, nothing extra on top.",
+  },
 ];
 
 interface FAQItemProps {
