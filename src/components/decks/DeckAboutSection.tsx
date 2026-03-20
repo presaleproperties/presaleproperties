@@ -89,7 +89,7 @@ export function DeckAboutSection({
               <div className="rounded-2xl border border-border/60 bg-muted/10 p-6 space-y-4 sticky top-24">
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                     Building Amenities
                   </p>
                 </div>
@@ -97,7 +97,7 @@ export function DeckAboutSection({
                   {amenities.map((amenity, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-background border border-border/70 text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                      className="inline-flex items-center px-3.5 py-2 rounded-full text-sm font-medium bg-background border border-border/70 text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors"
                     >
                       {amenity}
                     </span>
