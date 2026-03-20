@@ -37,7 +37,7 @@ export function DeckAboutSection({
           {/* Left — description */}
           <div className="lg:col-span-7 space-y-6">
             <div className="space-y-1">
-              <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">01 — The Development</p>
+              <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em]">01 — The Development</p>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
                 {projectName ? `Welcome to ${projectName}` : "About the Development"}
               </h2>
@@ -56,25 +56,25 @@ export function DeckAboutSection({
                 <button
                   type="button"
                   onClick={() => setHighlightsOpen((v) => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3.5 bg-muted/20 hover:bg-muted/40 transition-colors touch-manipulation"
+                  className="w-full flex items-center justify-between px-4 py-4 bg-muted/20 hover:bg-muted/40 transition-colors touch-manipulation"
                 >
-                  <span className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <span className="text-base font-semibold text-foreground flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                     Project Highlights
-                    <span className="text-xs font-normal text-muted-foreground">({highlights.length})</span>
+                    <span className="text-sm font-normal text-muted-foreground">({highlights.length})</span>
                   </span>
                   <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", highlightsOpen && "rotate-180")} />
                 </button>
 
                 <div
                   className="overflow-hidden transition-all duration-300"
-                  style={{ maxHeight: highlightsOpen ? `${highlights.length * 44}px` : "0" }}
+                  style={{ maxHeight: highlightsOpen ? `${highlights.length * 52}px` : "0" }}
                 >
-                  <ul className="px-4 py-3 space-y-2 border-t border-border/30">
+                  <ul className="px-4 py-4 space-y-3 border-t border-border/30">
                     {highlights.map((h, i) => (
                       <li key={i} className="flex items-start gap-2.5">
                         <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground leading-snug">{h}</span>
+                        <span className="text-base text-foreground leading-snug">{h}</span>
                       </li>
                     ))}
                   </ul>
