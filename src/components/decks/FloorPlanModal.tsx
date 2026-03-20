@@ -58,7 +58,7 @@ interface FloorPlanModalProps {
   includedItems?: string[];
 }
 
-export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: FloorPlanModalProps) {
+export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, includedItems }: FloorPlanModalProps) {
   const [zoomed, setZoomed] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const isDragging = useRef(false);
