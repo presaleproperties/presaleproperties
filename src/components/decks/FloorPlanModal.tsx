@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
-import { X, ZoomIn, ZoomOut, Square, TrendingUp, MessageCircle, Maximize2 } from "lucide-react";
+import { X, ZoomIn, ZoomOut, Square, TrendingUp, MessageCircle, Maximize2, Car, Archive, Wind, CheckCircle2 } from "lucide-react";
 
 export interface FloorPlan {
   id: string;
@@ -34,15 +34,31 @@ function derivePsf(plan: FloorPlan): string | null {
   return null;
 }
 
+const INCLUDED_ICON_MAP: Record<string, React.ReactNode> = {
+  parking: <Car className="h-3.5 w-3.5 shrink-0" />,
+  storage: <Archive className="h-3.5 w-3.5 shrink-0" />,
+  locker: <Archive className="h-3.5 w-3.5 shrink-0" />,
+  ac: <Wind className="h-3.5 w-3.5 shrink-0" />,
+  "air conditioning": <Wind className="h-3.5 w-3.5 shrink-0" />,
+};
+function getIncludedIcon(item: string) {
+  const lower = item.toLowerCase();
+  for (const [key, icon] of Object.entries(INCLUDED_ICON_MAP)) {
+    if (lower.includes(key)) return icon;
+  }
+  return <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />;
+}
+
 interface FloorPlanModalProps {
   plan: FloorPlan | null;
   onClose: () => void;
   whatsappNumber?: string;
   projectName?: string;
   allPlans?: FloorPlan[];
+  includedItems?: string[];
 }
 
-export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: FloorPlanModalProps) {
+export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, includedItems }: FloorPlanModalProps) {
   const [zoomed, setZoomed] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const isDragging = useRef(false);
@@ -199,7 +215,7 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
           </div>
 
           {/* Details */}
-          <div className="space-y-3 mb-5">
+          <div className="space-y-3 mb-4">
             {plan.size_range && (
               <div className="flex items-center gap-2.5 pb-3 border-b border-border/40">
                 <Square className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -210,13 +226,27 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: F
               </div>
             )}
             {psf && (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 pb-3 border-b border-border/40">
                 <TrendingUp className="h-4 w-4 text-primary shrink-0" />
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
                   <p className="text-sm font-bold text-primary">
                     {psf} <span className="font-normal text-muted-foreground">/ sqft</span>
                   </p>
+                </div>
+              </div>
+            )}
+            {/* Included items */}
+            {includedItems && includedItems.length > 0 && (
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Included</p>
+                <div className="flex flex-col gap-1.5">
+                  {includedItems.map((item) => (
+                    <div key={item} className="flex items-center gap-2 text-sm text-foreground">
+                      <span className="text-primary shrink-0">{getIncludedIcon(item)}</span>
+                      <span className="font-medium">{item}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
