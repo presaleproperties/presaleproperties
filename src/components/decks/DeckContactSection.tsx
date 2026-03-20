@@ -183,7 +183,7 @@ export function DeckContactSection({
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Phone className="h-3.5 w-3.5 text-primary" />
                   </div>
-                  <span>{displayPhone}</span>
+                  <span className="text-base font-medium text-foreground">{displayPhone}</span>
                 </a>
                 <a
                   href={`mailto:${displayEmail}`}
