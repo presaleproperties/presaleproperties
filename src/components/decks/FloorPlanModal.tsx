@@ -215,7 +215,7 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, inc
           </div>
 
           {/* Details */}
-          <div className="space-y-3 mb-5">
+          <div className="space-y-3 mb-4">
             {plan.size_range && (
               <div className="flex items-center gap-2.5 pb-3 border-b border-border/40">
                 <Square className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -226,13 +226,27 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, inc
               </div>
             )}
             {psf && (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 pb-3 border-b border-border/40">
                 <TrendingUp className="h-4 w-4 text-primary shrink-0" />
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Price / sqft</p>
                   <p className="text-sm font-bold text-primary">
                     {psf} <span className="font-normal text-muted-foreground">/ sqft</span>
                   </p>
+                </div>
+              </div>
+            )}
+            {/* Included items */}
+            {includedItems && includedItems.length > 0 && (
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Included</p>
+                <div className="flex flex-col gap-1.5">
+                  {includedItems.map((item) => (
+                    <div key={item} className="flex items-center gap-2 text-sm text-foreground">
+                      <span className="text-primary shrink-0">{getIncludedIcon(item)}</span>
+                      <span className="font-medium">{item}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

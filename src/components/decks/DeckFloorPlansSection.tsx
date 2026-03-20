@@ -266,6 +266,7 @@ export function DeckFloorPlansSection({
         onClose={() => setSelected(null)}
         whatsappNumber={whatsappNumber}
         projectName={projectName}
+        includedItems={displayItems}
       />
     </section>
   );
