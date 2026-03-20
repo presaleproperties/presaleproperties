@@ -123,43 +123,43 @@ export function DeckContactSection({
           <div className="relative rounded-2xl overflow-hidden border border-border/50 bg-background shadow-lg">
             <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/8 to-transparent" />
 
-            <div className="relative p-6 flex flex-col">
+            <div className="relative p-6 flex flex-col gap-4">
               {/* Agent photo + info */}
-              <div className="flex items-start gap-4 mb-5">
+              <div className="flex items-center gap-4">
                 <div className="relative shrink-0">
                   <img
                     src={agent.photo}
                     alt={agent.fullName}
-                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover object-top border-2 border-primary/30 shadow-md"
+                    className="w-20 h-20 rounded-2xl object-cover object-top border-2 border-primary/30 shadow-md"
                   />
                   <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-background" title="Available now" />
                 </div>
-                <div className="min-w-0 flex-1 pt-1">
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <h3 className="text-lg sm:text-xl font-bold text-foreground">{agent.fullName}</h3>
-                    <span className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full whitespace-nowrap">
-                      Real Broker
-                    </span>
-                  </div>
-                  <p className="text-base text-muted-foreground">{agent.title}</p>
-                  <p className="text-sm text-muted-foreground/70 mt-1 flex items-center gap-1">
-                    <Globe className="h-3 w-3 shrink-0" />
-                    <span>{agent.languages}</span>
-                  </p>
+                <div className="min-w-0 overflow-hidden">
+                  <h3 className="text-lg font-bold text-foreground leading-tight truncate">{agent.fullName}</h3>
+                  <p className="text-sm text-muted-foreground truncate">{agent.title}</p>
+                  <span className="inline-block mt-1 text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
+                    Real Broker
+                  </span>
                 </div>
               </div>
 
+              {/* Languages */}
+              <p className="text-sm text-muted-foreground/70 flex items-start gap-1.5">
+                <Globe className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                <span>{agent.languages}</span>
+              </p>
+
               {/* Tagline */}
-              <p className="text-base text-muted-foreground italic border-l-2 border-primary/30 pl-3 mb-4 leading-relaxed">
+              <p className="text-sm text-muted-foreground italic border-l-2 border-primary/30 pl-3 leading-relaxed">
                 "{agent.tagline}"
               </p>
 
               {/* Rating */}
-              <div className="flex items-center gap-1 mb-4">
+              <div className="flex items-center gap-1">
                 {[1,2,3,4,5].map((i) => (
-                  <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                  <Star key={i} className="h-3.5 w-3.5 fill-primary text-primary" />
                 ))}
-                <span className="text-base text-muted-foreground ml-2 font-medium">5.0 · Google Reviews</span>
+                <span className="text-sm text-muted-foreground ml-1.5 font-medium">5.0 · Google Reviews</span>
               </div>
 
               {/* Primary CTA */}
@@ -167,7 +167,7 @@ export function DeckContactSection({
                 href={`https://wa.me/${rawNumber}?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2.5 w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white mb-3 touch-manipulation transition-all active:scale-[0.98]"
+                className="flex items-center justify-center gap-2.5 w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white touch-manipulation transition-all active:scale-[0.98]"
                 style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,0.30)" }}
               >
                 <MessageCircle className="h-5 w-5 shrink-0" />
@@ -175,33 +175,33 @@ export function DeckContactSection({
               </a>
 
               {/* Contact links */}
-              <div className="space-y-2 mb-4">
+              <div className="space-y-2">
                 <a
                   href={`tel:${displayPhone}`}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors touch-manipulation"
+                  className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 transition-colors touch-manipulation"
                 >
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Phone className="h-3.5 w-3.5 text-primary" />
                   </div>
-                  <span className="text-base font-medium text-foreground">{displayPhone}</span>
+                  <span className="text-sm font-medium text-foreground truncate">{displayPhone}</span>
                 </a>
                 <a
                   href={`mailto:${displayEmail}`}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 text-sm font-medium text-foreground transition-colors touch-manipulation"
+                  className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl border border-border/50 bg-muted/20 hover:border-primary/40 hover:bg-primary/5 transition-colors touch-manipulation"
                 >
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Mail className="h-3.5 w-3.5 text-primary" />
                   </div>
-                  <span className="text-base font-medium text-foreground truncate">{displayEmail}</span>
+                  <span className="text-sm font-medium text-foreground truncate">{displayEmail}</span>
                 </a>
               </div>
 
               {/* Brokerage note */}
               <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/40">
                 <Award className="h-4 w-4 text-primary shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground">Presale Properties · Real Broker</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">presaleproperties.com</p>
+                <div className="min-w-0 overflow-hidden">
+                  <p className="text-sm font-semibold text-foreground truncate">Presale Properties · Real Broker</p>
+                  <p className="text-xs text-muted-foreground truncate">presaleproperties.com</p>
                 </div>
               </div>
             </div>
