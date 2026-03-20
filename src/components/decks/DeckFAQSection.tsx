@@ -58,7 +58,7 @@ function FAQItem({ q, a, isOpen, onToggle, index }: FAQItemProps) {
             {index + 1}
           </span>
           <span className={cn(
-            "text-sm sm:text-[15px] font-semibold leading-snug transition-colors duration-200",
+            "text-base sm:text-[17px] font-semibold leading-snug transition-colors duration-200",
             isOpen ? "text-primary" : "text-foreground group-hover:text-primary"
           )}>
             {q}
