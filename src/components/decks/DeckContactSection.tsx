@@ -107,11 +107,11 @@ export function DeckContactSection({
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         <div className="mb-10 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">08 — Your Next Step</p>
+          <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em]">08 — Your Next Step</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
             We Hand-Picked This For You
           </h2>
-          <p className="text-muted-foreground text-sm max-w-xl">
+          <p className="text-muted-foreground text-base max-w-xl">
             This deck was put together specifically for you — pricing and floor plans before anyone else. Message us to hold a unit or ask anything.
           </p>
         </div>
@@ -141,8 +141,8 @@ export function DeckContactSection({
                       Real Broker
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">{agent.title}</p>
-                  <p className="text-xs text-muted-foreground/70 mt-1 flex items-center gap-1">
+                  <p className="text-base text-muted-foreground">{agent.title}</p>
+                  <p className="text-sm text-muted-foreground/70 mt-1 flex items-center gap-1">
                     <Globe className="h-3 w-3 shrink-0" />
                     <span>{agent.languages}</span>
                   </p>
@@ -150,7 +150,7 @@ export function DeckContactSection({
               </div>
 
               {/* Tagline */}
-              <p className="text-sm text-muted-foreground italic border-l-2 border-primary/30 pl-3 mb-4 leading-relaxed">
+              <p className="text-base text-muted-foreground italic border-l-2 border-primary/30 pl-3 mb-4 leading-relaxed">
                 "{agent.tagline}"
               </p>
 
@@ -159,7 +159,7 @@ export function DeckContactSection({
                 {[1,2,3,4,5].map((i) => (
                   <Star key={i} className="h-4 w-4 fill-primary text-primary" />
                 ))}
-                <span className="text-sm text-muted-foreground ml-2 font-medium">5.0 · Google Reviews</span>
+                <span className="text-base text-muted-foreground ml-2 font-medium">5.0 · Google Reviews</span>
               </div>
 
               {/* Primary CTA */}
@@ -183,7 +183,7 @@ export function DeckContactSection({
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Phone className="h-3.5 w-3.5 text-primary" />
                   </div>
-                  <span>{displayPhone}</span>
+                  <span className="text-base font-medium text-foreground">{displayPhone}</span>
                 </a>
                 <a
                   href={`mailto:${displayEmail}`}
@@ -192,7 +192,7 @@ export function DeckContactSection({
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Mail className="h-3.5 w-3.5 text-primary" />
                   </div>
-                  <span className="truncate">{displayEmail}</span>
+                  <span className="text-base font-medium text-foreground truncate">{displayEmail}</span>
                 </a>
               </div>
 
@@ -227,14 +227,14 @@ export function DeckContactSection({
                   className="rounded-xl border border-border/50 bg-background p-4 shadow-sm flex flex-col gap-2"
                 >
                   <Quote className="h-4 w-4 text-primary/40 shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed flex-1 line-clamp-4">
+                  <p className="text-base text-foreground/75 leading-relaxed flex-1 line-clamp-4">
                     {review.review_text}
                   </p>
                   <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/30">
                     <div>
-                      <p className="text-sm font-semibold text-foreground">{review.reviewer_name}</p>
+                      <p className="text-base font-semibold text-foreground">{review.reviewer_name}</p>
                       {review.reviewer_location && (
-                        <p className="text-xs text-muted-foreground">{review.reviewer_location}</p>
+                        <p className="text-sm text-muted-foreground">{review.reviewer_location}</p>
                       )}
                     </div>
                     <div className="flex gap-0.5">

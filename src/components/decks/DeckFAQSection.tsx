@@ -58,7 +58,7 @@ function FAQItem({ q, a, isOpen, onToggle, index }: FAQItemProps) {
             {index + 1}
           </span>
           <span className={cn(
-            "text-sm sm:text-[15px] font-semibold leading-snug transition-colors duration-200",
+            "text-base sm:text-[17px] font-semibold leading-snug transition-colors duration-200",
             isOpen ? "text-primary" : "text-foreground group-hover:text-primary"
           )}>
             {q}
@@ -80,9 +80,9 @@ function FAQItem({ q, a, isOpen, onToggle, index }: FAQItemProps) {
           isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         )}
       >
-        <div className="px-5 pb-5 pl-[3.25rem]">
+        <div className="px-5 pb-6 pl-[3.25rem]">
           {a.split("\n\n").map((para, i) => (
-            <p key={i} className={cn("text-sm text-muted-foreground leading-relaxed", i > 0 && "mt-3")}>
+            <p key={i} className={cn("text-base text-foreground/75 leading-relaxed", i > 0 && "mt-3")}>
               {para}
             </p>
           ))}
@@ -101,9 +101,9 @@ export function DeckFAQSection() {
     <section id="faq" className="relative py-16 sm:py-24 bg-muted/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="mb-10 space-y-1">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">07 — Questions</p>
+          <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em]">07 — Questions</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Common Questions</h2>
-          <p className="text-muted-foreground text-sm">Everything buyers typically want to know before moving forward.</p>
+          <p className="text-muted-foreground text-base">Everything buyers typically want to know before moving forward.</p>
         </div>
 
         <div className="space-y-2.5">

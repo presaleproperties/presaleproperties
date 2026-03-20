@@ -66,7 +66,7 @@ export function DeckProjectHighlights({
         <div className="space-y-8">
           {/* Section label */}
           <div className="space-y-1">
-            <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">
+            <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em]">
               01 — The Development
             </p>
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
@@ -80,16 +80,16 @@ export function DeckProjectHighlights({
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="group flex flex-col gap-2 px-4 py-4 rounded-xl bg-muted/30 border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200"
+                  className="group flex flex-col gap-2 px-4 py-5 rounded-xl bg-muted/30 border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200"
                 >
                   <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 shrink-0">
                     <stat.icon className="h-4 w-4 text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold leading-none mb-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold leading-none mb-1.5">
                       {stat.label}
                     </p>
-                    <p className="text-sm font-bold text-foreground leading-snug break-words">
+                    <p className="text-base font-bold text-foreground leading-snug break-words">
                       {stat.value}
                     </p>
                   </div>
@@ -103,7 +103,7 @@ export function DeckProjectHighlights({
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Navigation className="h-4 w-4 text-primary" />
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                   What's Nearby
                 </p>
               </div>
@@ -111,7 +111,7 @@ export function DeckProjectHighlights({
                 {proximityHighlights.map((h, i) => (
                   <div
                     key={i}
-                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-muted/40 border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-muted/40 border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200"
                   >
                     {h.icon && (
                       <span className="text-base leading-none">{h.icon}</span>
@@ -120,7 +120,7 @@ export function DeckProjectHighlights({
                       {h.label}
                     </span>
                     {h.distance && (
-                      <span className="text-xs text-primary font-semibold">
+                      <span className="text-sm text-primary font-semibold">
                         · {h.distance}
                         {typeof h.distance === "number" ? " min" : ""}
                       </span>
