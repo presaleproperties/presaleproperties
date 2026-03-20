@@ -132,7 +132,7 @@ function SectionCard({ children, className }: { children: React.ReactNode; class
 
 function FieldLabel({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={cn("text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground", className)}>
+    <span className={cn("text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground", className)}>
       {children}
     </span>
   );
@@ -140,13 +140,13 @@ function FieldLabel({ children, className }: { children: React.ReactNode; classN
 
 function Row({ label, value, sub, accent, green }: { label: string; value: string; sub?: string; accent?: boolean; green?: boolean }) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
+    <div className="flex items-center justify-between py-2.5 border-b border-border/30 last:border-0">
       <div>
-        <span className="text-[13px] text-muted-foreground">{label}</span>
-        {sub && <div className="text-[10px] text-muted-foreground/60 mt-0.5">{sub}</div>}
+        <span className="text-[14px] text-foreground/80">{label}</span>
+        {sub && <div className="text-[11px] text-muted-foreground/70 mt-0.5">{sub}</div>}
       </div>
       <span className={cn(
-        "text-[13px] font-bold",
+        "text-[14px] font-bold",
         accent && "text-foreground",
         green && "text-green-600"
       )}>
