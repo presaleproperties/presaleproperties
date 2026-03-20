@@ -107,11 +107,11 @@ export function DeckContactSection({
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         <div className="mb-10 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">08 — Your Next Step</p>
+          <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em]">08 — Your Next Step</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
             We Hand-Picked This For You
           </h2>
-          <p className="text-muted-foreground text-sm max-w-xl">
+          <p className="text-muted-foreground text-base max-w-xl">
             This deck was put together specifically for you — pricing and floor plans before anyone else. Message us to hold a unit or ask anything.
           </p>
         </div>
