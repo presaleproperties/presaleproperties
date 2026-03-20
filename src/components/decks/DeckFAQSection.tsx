@@ -19,6 +19,10 @@ const FAQS = [
     q: "Do I need to pay GST out of pocket on top of my down payment as an investor?",
     a: "No. As an investor, you do not pay GST separately out of pocket. The GST is added to the purchase price, and your 20% down payment is calculated on that combined total (Purchase Price + GST = Final Price). The remaining GST balance is simply rolled into your mortgage — so your cash requirement at signing only reflects the down payment on the full price, nothing extra on top.",
   },
+  {
+    q: "Do I need to pay Property Transfer Tax (PTT) out of pocket as an investor?",
+    a: "Yes. PTT cannot be added to your mortgage — it must be paid out of pocket at completion. As an investor purchasing a new construction property, PTT is calculated on the final purchase price (including GST) and is due in full at closing. This is a separate cash requirement on top of your down payment, so it's important to budget for it in advance.",
+  },
 ];
 
 interface FAQItemProps {
