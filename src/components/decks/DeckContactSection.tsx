@@ -137,7 +137,7 @@ export function DeckContactSection({
                 <div className="min-w-0 flex-1 pt-1">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <h3 className="text-lg sm:text-xl font-bold text-foreground">{agent.fullName}</h3>
-                    <span className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+                    <span className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full whitespace-nowrap">
                       Real Broker
                     </span>
                   </div>

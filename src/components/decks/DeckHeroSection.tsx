@@ -92,10 +92,10 @@ export function DeckHeroSection({
                   key={stat.label}
                   className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/20 shrink-0"
                 >
-                  <stat.icon className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <stat.icon className="h-4 w-4 text-primary shrink-0" />
                   <div>
-                    <p className="text-white/70 text-[9px] uppercase tracking-wider leading-none mb-0.5">{stat.label}</p>
-                    <p className="text-white font-semibold text-[13px] leading-none whitespace-nowrap">{stat.value}</p>
+                    <p className="text-white/70 text-[11px] uppercase tracking-wider leading-none mb-1">{stat.label}</p>
+                    <p className="text-white font-semibold text-sm leading-none whitespace-nowrap">{stat.value}</p>
                   </div>
                 </div>
               ))}
@@ -109,7 +109,7 @@ export function DeckHeroSection({
         className="hidden sm:flex absolute bottom-6 left-0 right-0 flex-col items-center gap-1 z-10 cursor-pointer"
         onClick={onFloorPlansClick}
       >
-        <span className="text-white/70 text-[10px] font-semibold uppercase tracking-widest drop-shadow-md">Scroll to explore</span>
+        <span className="text-white/70 text-xs font-semibold uppercase tracking-widest drop-shadow-md">Scroll to explore</span>
         <ChevronDown className="h-5 w-5 text-white/60 drop-shadow-md animate-bounce" />
       </div>
     </section>

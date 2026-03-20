@@ -29,7 +29,10 @@ export function DeckStickyNav({ visible, activeSection, phoneNumber }: DeckStick
     setMobileMenuOpen(false);
     requestAnimationFrame(() => {
       const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      if (!el) return;
+      const NAV_HEIGHT = 68; // px — accounts for the fixed nav bar
+      const top = el.getBoundingClientRect().top + window.scrollY - NAV_HEIGHT;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     });
   };
 
