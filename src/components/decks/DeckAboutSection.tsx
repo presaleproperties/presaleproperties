@@ -110,12 +110,12 @@ export function DeckAboutSection({
       </div>
 
       <style>{`
-        .deck-prose p { margin-bottom: 0.85rem; font-size: 0.9375rem; line-height: 1.75; }
+        .deck-prose p { margin-bottom: 1rem; font-size: 1.0625rem; line-height: 1.8; }
         .deck-prose strong { font-weight: 700; color: hsl(var(--foreground)); }
-        .deck-prose ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0.85rem; }
-        .deck-prose ul li { margin-bottom: 0.4rem; font-size: 0.9375rem; }
+        .deck-prose ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 1rem; }
+        .deck-prose ul li { margin-bottom: 0.5rem; font-size: 1.0625rem; line-height: 1.8; }
         .deck-prose p:last-child { margin-bottom: 0; }
-        .deck-prose h2, .deck-prose h3 { font-weight: 700; color: hsl(var(--foreground)); margin-bottom: 0.5rem; }
+        .deck-prose h2, .deck-prose h3 { font-weight: 700; color: hsl(var(--foreground)); margin-bottom: 0.6rem; font-size: 1.25rem; }
       `}</style>
     </section>
   );
