@@ -417,15 +417,15 @@ export function InvestmentSnapshot() {
                         <span className="font-bold">{fmt(results.downPayment)}</span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/40">
+                      <div className="grid grid-cols-2 gap-2 pt-3 border-t border-border/40">
                         {[
                           { label: 'Deposit 1', field: 'firstDepositPercent' as const, value: results.firstDeposit },
                           { label: 'Deposit 2', field: 'secondDepositPercent' as const, value: results.secondDeposit },
                         ].map(({ label, field, value }) => (
-                          <div key={field} className="bg-muted/40 rounded-xl p-2.5">
-                            <div className="flex justify-between text-[11px] mb-1.5">
+                          <div key={field} className="bg-muted/40 rounded-xl p-3">
+                            <div className="flex justify-between mb-2">
                               <FieldLabel>{label}</FieldLabel>
-                              <span className="font-bold text-primary">{inputs[field]}%</span>
+                              <span className="text-[13px] font-bold text-primary">{inputs[field]}%</span>
                             </div>
                             <Slider
                               value={[inputs[field]]}
@@ -433,7 +433,7 @@ export function InvestmentSnapshot() {
                               min={field === 'firstDepositPercent' ? 1 : 0}
                               max={15} step={1}
                             />
-                            <div className="text-center text-[11px] font-semibold mt-1.5 text-muted-foreground">{fmt(value)}</div>
+                            <div className="text-center text-[13px] font-semibold mt-2 text-foreground/70">{fmt(value)}</div>
                           </div>
                         ))}
                       </div>
@@ -448,8 +448,8 @@ export function InvestmentSnapshot() {
                       { label: 'Tax/mo',  field: 'propertyTax' as const },
                     ].map(({ label, field, step }) => (
                       <SectionCard key={field}>
-                        <div className="p-2.5">
-                          <FieldLabel className="block mb-1">{label}</FieldLabel>
+                        <div className="p-3">
+                          <FieldLabel className="block mb-1.5">{label}</FieldLabel>
                           <Input
                             type="number"
                             step={step}
@@ -464,30 +464,30 @@ export function InvestmentSnapshot() {
 
                   {/* Closing Adjustments */}
                   <SectionCard>
-                    <div className="p-3 space-y-0">
-                      <FieldLabel className="block mb-2">Closing</FieldLabel>
+                    <div className="p-4 space-y-0">
+                      <FieldLabel className="block mb-3">Closing</FieldLabel>
 
                       {/* GST */}
-                      <div className="flex items-center justify-between py-2">
-                        <span className="text-[13px] font-semibold text-foreground">GST (5%)</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[13px] font-bold">{fmt(results.gst)}</span>
+                      <div className="flex items-center justify-between py-2.5">
+                        <span className="text-[14px] font-semibold text-foreground">GST (5%)</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[14px] font-bold">{fmt(results.gst)}</span>
                           <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} />
                         </div>
                       </div>
 
                       {/* PTT */}
-                      <div className="flex items-center justify-between py-2 border-t border-border/40">
-                        <span className="text-[13px] font-semibold text-foreground">
-                          PTT{isFirstTimeBuyer && <span className="text-green-600 text-[11px] ml-1.5">✓ Exempt</span>}
+                      <div className="flex items-center justify-between py-2.5 border-t border-border/40">
+                        <span className="text-[14px] font-semibold text-foreground">
+                          PTT{isFirstTimeBuyer && <span className="text-green-600 text-[12px] ml-2">✓ Exempt</span>}
                         </span>
                         {isFirstTimeBuyer ? (
-                          <span className="text-[13px] font-bold text-green-600 line-through opacity-60">
+                          <span className="text-[14px] font-bold text-green-600 line-through opacity-60">
                             {fmt(results.pttRaw)}
                           </span>
                         ) : (
-                          <div className="flex items-center gap-2">
-                            <span className={cn("text-[13px] font-bold", !inputs.includePTT && "text-muted-foreground line-through opacity-50")}>
+                          <div className="flex items-center gap-3">
+                            <span className={cn("text-[14px] font-bold", !inputs.includePTT && "text-muted-foreground line-through opacity-50")}>
                               {fmt(results.pttRaw)}
                             </span>
                             <Switch checked={inputs.includePTT} onCheckedChange={(v) => updateInput('includePTT', v)} />
@@ -496,18 +496,18 @@ export function InvestmentSnapshot() {
                       </div>
 
                       {/* Developer Credit */}
-                      <div className="pt-2 border-t border-border/40">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-[13px] font-semibold text-foreground">Dev. Credit</span>
-                          <span className="text-[13px] font-bold text-green-600">-{fmt(results.creditTotal)}</span>
+                      <div className="pt-2.5 border-t border-border/40">
+                        <div className="flex items-center justify-between mb-2.5">
+                          <span className="text-[14px] font-semibold text-foreground">Dev. Credit</span>
+                          <span className="text-[14px] font-bold text-green-600">-{fmt(results.creditTotal)}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <Input type="number" step="0.5" min="0" max="10" value={inputs.creditPercent}
                             onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
-                            className="h-8 text-center text-sm" placeholder="% of price" />
+                            className="h-9 text-center text-sm" placeholder="% of price" />
                           <Input type="number" step="1000" min="0" value={inputs.creditAmount}
                             onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
-                            className="h-8 text-center text-sm" placeholder="Fixed $" />
+                            className="h-9 text-center text-sm" placeholder="Fixed $" />
                         </div>
                       </div>
                     </div>
@@ -516,27 +516,27 @@ export function InvestmentSnapshot() {
                   {/* Rent input */}
                   {isFirstTimeBuyer ? (
                     <SectionCard className="border-primary/25 bg-primary/3">
-                      <div className="p-3">
+                      <div className="p-4">
                         <FieldLabel className="text-primary/80">Current Rent</FieldLabel>
                         <Input
                           type="text"
                           inputMode="numeric"
                           value={inputs.currentRent ? `$${inputs.currentRent.toLocaleString()}` : ''}
                           onChange={(e) => updateInput('currentRent', Number(e.target.value.replace(/\D/g, '')) || 0)}
-                          className="mt-1.5 h-10 text-center font-bold border-primary/30"
+                          className="mt-2 h-11 text-center font-bold border-primary/30 text-base"
                           placeholder="$2,200"
                         />
                       </div>
                     </SectionCard>
                   ) : (
                     <SectionCard className="border-green-200 bg-green-50/50">
-                      <div className="p-3">
+                      <div className="p-4">
                         <FieldLabel className="text-green-700/80">Monthly Rent</FieldLabel>
                         <Input
                           type="number"
                           value={inputs.monthlyRent}
                           onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
-                          className="mt-1.5 h-10 text-center font-bold border-green-200"
+                          className="mt-2 h-11 text-center font-bold border-green-200 text-base"
                         />
                       </div>
                     </SectionCard>
@@ -548,14 +548,14 @@ export function InvestmentSnapshot() {
 
                   {/* Hero result */}
                   <div className={cn(
-                    "rounded-2xl p-4 text-center border-2",
+                    "rounded-2xl p-5 text-center border-2",
                     isFirstTimeBuyer
                       ? "bg-primary/6 border-primary/25"
                       : isPositive
                         ? "bg-green-50/80 border-green-200"
                         : "bg-red-50/70 border-red-200"
                   )}>
-                    <div className="flex items-center justify-center gap-2 mb-1.5">
+                    <div className="flex items-center justify-center gap-2 mb-2">
                       {isFirstTimeBuyer
                         ? <Home className="h-4 w-4 text-primary" />
                         : isPositive
@@ -569,7 +569,7 @@ export function InvestmentSnapshot() {
                       </FieldLabel>
                     </div>
                     <div className={cn(
-                      "text-[40px] font-black leading-none tracking-tight",
+                      "text-[44px] font-black leading-none tracking-tight",
                       isFirstTimeBuyer ? "text-foreground" : isPositive ? "text-green-600" : "text-red-600"
                     )}>
                       {isFirstTimeBuyer
@@ -577,70 +577,70 @@ export function InvestmentSnapshot() {
                         : (isPositive ? '+' : '') + fmt(results.monthlyCashFlow)
                       }
                     </div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5">per month</div>
+                    <div className="text-[13px] text-muted-foreground mt-1">per month</div>
                   </div>
 
                   {/* Monthly Breakdown */}
                   <SectionCard>
-                    <div className="p-3">
-                      <FieldLabel className="block mb-2">Monthly</FieldLabel>
+                    <div className="p-4">
+                      <FieldLabel className="block mb-3">Monthly Breakdown</FieldLabel>
                       <Row label="Mortgage" value={fmt(results.monthlyMortgage)} />
                       <Row label="Strata" value={fmt(inputs.strataFees)} />
                       <Row label="Property Tax" value={fmt(inputs.propertyTax)} />
-                      <div className="flex justify-between pt-2 mt-1 border-t border-border/50">
-                        <span className="text-[13px] font-bold text-foreground">Total Expenses</span>
-                        <span className="text-[13px] font-black text-foreground">{fmt(results.totalMonthlyExpenses)}</span>
+                      <div className="flex justify-between pt-2.5 mt-1 border-t border-border/50">
+                        <span className="text-[15px] font-bold text-foreground">Total Expenses</span>
+                        <span className="text-[15px] font-black text-foreground">{fmt(results.totalMonthlyExpenses)}</span>
                       </div>
                       {!isFirstTimeBuyer && (
-                        <div className="flex justify-between pt-1.5">
-                          <span className="text-[13px] font-bold text-foreground">Rent Income</span>
-                          <span className="text-[13px] font-black text-green-600">{fmt(inputs.monthlyRent)}</span>
+                        <div className="flex justify-between pt-2">
+                          <span className="text-[15px] font-bold text-foreground">Rent Income</span>
+                          <span className="text-[15px] font-black text-green-600">{fmt(inputs.monthlyRent)}</span>
                         </div>
                       )}
                     </div>
                   </SectionCard>
 
                   {/* Cash Required — dark card */}
-                  <div className="rounded-2xl bg-foreground text-background p-3.5">
-                    <div className="flex items-center justify-between mb-2.5">
+                  <div className="rounded-2xl bg-foreground text-background p-4">
+                    <div className="flex items-center justify-between mb-3">
                       <FieldLabel className="text-background/50">Total Cash Required</FieldLabel>
                       <span className="text-2xl font-black text-background">{fmt(results.totalCashRequired)}</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 mb-2.5">
+                    <div className="grid grid-cols-2 gap-2 mb-3">
                       {[
                         { label: 'Deposits', value: results.totalDeposits },
                         { label: 'At Closing', value: results.cashAtCompletion },
                       ].map(({ label, value }) => (
-                        <div key={label} className="bg-background/8 rounded-xl p-2.5 text-center">
-                          <div className="text-[10px] text-background/45 uppercase font-semibold mb-0.5">{label}</div>
-                          <div className="text-[15px] font-black text-background">{fmt(value)}</div>
+                        <div key={label} className="bg-background/8 rounded-xl p-3 text-center">
+                          <div className="text-[12px] text-background/50 uppercase font-semibold mb-1">{label}</div>
+                          <div className="text-[17px] font-black text-background">{fmt(value)}</div>
                         </div>
                       ))}
                     </div>
-                    <div className="border-t border-background/15 pt-2.5 space-y-1 text-[12px]">
+                    <div className="border-t border-background/15 pt-3 space-y-2 text-[13px]">
                       <div className="flex justify-between">
-                        <span className="text-background/60">Remaining Down</span>
+                        <span className="text-background/65">Remaining Down</span>
                         <span className="font-semibold">{fmt(results.remainingDownPayment)}</span>
                       </div>
                       {results.ptt > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">PTT</span>
+                          <span className="text-background/65">PTT</span>
                           <span className="font-semibold">{fmt(results.ptt)}</span>
                         </div>
                       )}
                       <div className="flex justify-between">
-                        <span className="text-background/60">Legal & Closing</span>
+                        <span className="text-background/65">Legal & Closing</span>
                         <span className="font-semibold">{fmt(inputs.closingCosts)}</span>
                       </div>
                       {results.creditTotal > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">Dev. Credit</span>
+                          <span className="text-background/65">Dev. Credit</span>
                           <span className="font-semibold text-green-400">-{fmt(results.creditTotal)}</span>
                         </div>
                       )}
                       {results.cmhcPremium > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">CMHC</span>
+                          <span className="text-background/65">CMHC</span>
                           <span className="font-semibold">{fmt(results.cmhcPremium)}</span>
                         </div>
                       )}
