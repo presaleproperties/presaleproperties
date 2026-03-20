@@ -214,7 +214,7 @@ export default function DeckPublicPage() {
         }
       `}</style>
     </Helmet>
-    <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip" }}>
+    <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip", scrollPaddingTop: "80px" }}>
 
       <DeckStickyNav
         visible={navVisible}
