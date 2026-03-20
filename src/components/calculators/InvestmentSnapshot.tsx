@@ -356,43 +356,43 @@ export function InvestmentSnapshot() {
               PAGE 1: Cash Flow
           ══════════════════════════════════════ */}
           <TabsContent value="cashflow" className="mt-0">
-            <div className="p-4 sm:p-6">
-              <div className="grid lg:grid-cols-[1fr_1fr] gap-6">
+            <div className="p-4 sm:p-5">
+              <div className="grid lg:grid-cols-[1fr_1fr] gap-5">
 
                 {/* ── Left: Inputs ── */}
-                <div className="space-y-4">
+                <div className="space-y-3">
 
                   {/* Purchase Price */}
                   <SectionCard>
-                    <div className="p-4">
+                    <div className="p-3">
                       <FieldLabel>Purchase Price</FieldLabel>
                       <Input
                         type="text"
                         inputMode="numeric"
                         value={`$${inputs.purchasePrice.toLocaleString()}`}
                         onChange={(e) => updateInput('purchasePrice', Number(e.target.value.replace(/\D/g, '')) || 0)}
-                        className="mt-2 text-2xl font-extrabold text-center h-14 border-2 border-primary/25 bg-primary/3 focus-visible:ring-primary/40"
+                        className="mt-2 text-2xl font-extrabold text-center h-12 border-2 border-primary/25 bg-primary/3 focus-visible:ring-primary/40"
                       />
-                      <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-border/40">
+                      <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border/40">
                         <div>
-                          <FieldLabel className="block mb-1.5">Unit Size (sqft)</FieldLabel>
+                          <FieldLabel className="block mb-1">Sqft</FieldLabel>
                           <Input
                             type="number"
                             value={inputs.sqft}
                             onChange={(e) => updateInput('sqft', parseInt(e.target.value) || 0)}
-                            className="h-9 text-center font-semibold text-sm"
+                            className="h-8 text-center font-semibold text-sm"
                           />
                         </div>
                         <div>
-                          <FieldLabel className="block mb-1.5">Price / sqft</FieldLabel>
-                          <div className="h-9 flex items-center justify-center rounded-lg bg-primary/8 text-sm font-bold text-primary border border-primary/15">
+                          <FieldLabel className="block mb-1">$/sqft</FieldLabel>
+                          <div className="h-8 flex items-center justify-center rounded-lg bg-primary/8 text-sm font-bold text-primary border border-primary/15">
                             {inputs.sqft > 0 ? `$${Math.round(inputs.purchasePrice / inputs.sqft).toLocaleString()}` : '—'}
                           </div>
                         </div>
                       </div>
                       {inputs.includeGST && (
-                        <div className="flex justify-between mt-2 text-[11px] text-muted-foreground">
-                          <span>Total incl. GST</span>
+                        <div className="flex justify-between mt-1.5 text-[11px] text-muted-foreground">
+                          <span>Incl. GST</span>
                           <span className="font-semibold">{fmt(results.priceWithGST)}</span>
                         </div>
                       )}
@@ -401,8 +401,8 @@ export function InvestmentSnapshot() {
 
                   {/* Down Payment */}
                   <SectionCard>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-3">
+                    <div className="p-3">
+                      <div className="flex items-center justify-between mb-2">
                         <FieldLabel>Down Payment</FieldLabel>
                         <span className="text-xl font-black text-primary">{inputs.downPaymentPercent}%</span>
                       </div>
@@ -412,18 +412,18 @@ export function InvestmentSnapshot() {
                         min={5} max={60} step={5}
                         className="mb-2"
                       />
-                      <div className="flex justify-between text-[13px]">
-                        <span className="text-muted-foreground">Amount required</span>
+                      <div className="flex justify-between text-[12px] mb-2">
+                        <span className="text-muted-foreground">Amount</span>
                         <span className="font-bold">{fmt(results.downPayment)}</span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-border/40">
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/40">
                         {[
                           { label: 'Deposit 1', field: 'firstDepositPercent' as const, value: results.firstDeposit },
                           { label: 'Deposit 2', field: 'secondDepositPercent' as const, value: results.secondDeposit },
                         ].map(({ label, field, value }) => (
-                          <div key={field} className="bg-muted/40 rounded-xl p-3">
-                            <div className="flex justify-between text-[11px] mb-2">
+                          <div key={field} className="bg-muted/40 rounded-xl p-2.5">
+                            <div className="flex justify-between text-[11px] mb-1.5">
                               <FieldLabel>{label}</FieldLabel>
                               <span className="font-bold text-primary">{inputs[field]}%</span>
                             </div>
@@ -433,7 +433,7 @@ export function InvestmentSnapshot() {
                               min={field === 'firstDepositPercent' ? 1 : 0}
                               max={15} step={1}
                             />
-                            <div className="text-center text-[12px] font-semibold mt-2 text-muted-foreground">{fmt(value)}</div>
+                            <div className="text-center text-[11px] font-semibold mt-1.5 text-muted-foreground">{fmt(value)}</div>
                           </div>
                         ))}
                       </div>
@@ -441,21 +441,21 @@ export function InvestmentSnapshot() {
                   </SectionCard>
 
                   {/* Rate + Monthly costs */}
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-2">
                     {[
-                      { label: 'Rate %',   field: 'interestRate' as const, step: 0.01 },
-                      { label: 'Strata',   field: 'strataFees' as const },
-                      { label: 'Tax / mo', field: 'propertyTax' as const },
+                      { label: 'Rate %',  field: 'interestRate' as const, step: 0.01 },
+                      { label: 'Strata',  field: 'strataFees' as const },
+                      { label: 'Tax/mo',  field: 'propertyTax' as const },
                     ].map(({ label, field, step }) => (
                       <SectionCard key={field}>
-                        <div className="p-3">
-                          <FieldLabel className="block mb-1.5">{label}</FieldLabel>
+                        <div className="p-2.5">
+                          <FieldLabel className="block mb-1">{label}</FieldLabel>
                           <Input
                             type="number"
                             step={step}
                             value={inputs[field] as number}
                             onChange={(e) => updateInput(field, step ? parseFloat(e.target.value) || 0 : parseInt(e.target.value) || 0)}
-                            className="h-10 text-center font-bold text-sm"
+                            className="h-9 text-center font-bold text-sm"
                           />
                         </div>
                       </SectionCard>
@@ -464,66 +464,50 @@ export function InvestmentSnapshot() {
 
                   {/* Closing Adjustments */}
                   <SectionCard>
-                    <div className="p-4 space-y-3">
-                      <FieldLabel>Closing Adjustments</FieldLabel>
+                    <div className="p-3 space-y-0">
+                      <FieldLabel className="block mb-2">Closing</FieldLabel>
 
                       {/* GST */}
-                      <div className="flex items-center justify-between pt-2">
-                        <div>
-                          <span className="text-[13px] font-semibold text-foreground">Include GST (5%)</span>
-                          <p className="text-[11px] text-muted-foreground">New construction tax</p>
-                        </div>
-                        <div className="flex items-center gap-2.5">
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-[13px] font-semibold text-foreground">GST (5%)</span>
+                        <div className="flex items-center gap-2">
                           <span className="text-[13px] font-bold">{fmt(results.gst)}</span>
                           <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} />
                         </div>
                       </div>
 
                       {/* PTT */}
-                      <div className="flex items-center justify-between py-2.5 border-t border-border/40">
-                        <div>
-                          <span className="text-[13px] font-semibold text-foreground">Property Transfer Tax</span>
-                          {isFirstTimeBuyer
-                            ? <p className="text-[11px] text-green-600 font-medium">✓ First-time buyer exempt</p>
-                            : <p className="text-[11px] text-muted-foreground">BC tiered rate on purchase price</p>
-                          }
-                        </div>
+                      <div className="flex items-center justify-between py-2 border-t border-border/40">
+                        <span className="text-[13px] font-semibold text-foreground">
+                          PTT{isFirstTimeBuyer && <span className="text-green-600 text-[11px] ml-1.5">✓ Exempt</span>}
+                        </span>
                         {isFirstTimeBuyer ? (
                           <span className="text-[13px] font-bold text-green-600 line-through opacity-60">
                             {fmt(results.pttRaw)}
                           </span>
                         ) : (
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex items-center gap-2">
                             <span className={cn("text-[13px] font-bold", !inputs.includePTT && "text-muted-foreground line-through opacity-50")}>
                               {fmt(results.pttRaw)}
                             </span>
-                            <Switch
-                              checked={inputs.includePTT}
-                              onCheckedChange={(v) => updateInput('includePTT', v)}
-                            />
+                            <Switch checked={inputs.includePTT} onCheckedChange={(v) => updateInput('includePTT', v)} />
                           </div>
                         )}
                       </div>
 
                       {/* Developer Credit */}
-                      <div className="pt-2.5 border-t border-border/40">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-[13px] font-semibold text-foreground">Developer Credit</span>
+                      <div className="pt-2 border-t border-border/40">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[13px] font-semibold text-foreground">Dev. Credit</span>
                           <span className="text-[13px] font-bold text-green-600">-{fmt(results.creditTotal)}</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-2.5">
-                          <div>
-                            <FieldLabel className="block mb-1.5">% of Price</FieldLabel>
-                            <Input type="number" step="0.5" min="0" max="10" value={inputs.creditPercent}
-                              onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
-                              className="h-9 text-center text-sm" placeholder="0%" />
-                          </div>
-                          <div>
-                            <FieldLabel className="block mb-1.5">Fixed $</FieldLabel>
-                            <Input type="number" step="1000" min="0" value={inputs.creditAmount}
-                              onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
-                              className="h-9 text-center text-sm" placeholder="$0" />
-                          </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input type="number" step="0.5" min="0" max="10" value={inputs.creditPercent}
+                            onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
+                            className="h-8 text-center text-sm" placeholder="% of price" />
+                          <Input type="number" step="1000" min="0" value={inputs.creditAmount}
+                            onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
+                            className="h-8 text-center text-sm" placeholder="Fixed $" />
                         </div>
                       </div>
                     </div>
@@ -532,28 +516,27 @@ export function InvestmentSnapshot() {
                   {/* Rent input */}
                   {isFirstTimeBuyer ? (
                     <SectionCard className="border-primary/25 bg-primary/3">
-                      <div className="p-4">
-                        <FieldLabel className="text-primary/80">Current Monthly Rent</FieldLabel>
+                      <div className="p-3">
+                        <FieldLabel className="text-primary/80">Current Rent</FieldLabel>
                         <Input
                           type="text"
                           inputMode="numeric"
                           value={inputs.currentRent ? `$${inputs.currentRent.toLocaleString()}` : ''}
                           onChange={(e) => updateInput('currentRent', Number(e.target.value.replace(/\D/g, '')) || 0)}
-                          className="mt-2 h-11 text-center font-bold border-primary/30"
+                          className="mt-1.5 h-10 text-center font-bold border-primary/30"
                           placeholder="$2,200"
                         />
-                        <p className="text-[11px] text-muted-foreground mt-1.5">Used for rent vs. own comparison</p>
                       </div>
                     </SectionCard>
                   ) : (
                     <SectionCard className="border-green-200 bg-green-50/50">
-                      <div className="p-4">
+                      <div className="p-3">
                         <FieldLabel className="text-green-700/80">Monthly Rent</FieldLabel>
                         <Input
                           type="number"
                           value={inputs.monthlyRent}
                           onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
-                          className="mt-2 h-11 text-center font-bold border-green-200"
+                          className="mt-1.5 h-10 text-center font-bold border-green-200"
                         />
                       </div>
                     </SectionCard>
@@ -561,18 +544,18 @@ export function InvestmentSnapshot() {
                 </div>
 
                 {/* ── Right: Results ── */}
-                <div className="space-y-4">
+                <div className="space-y-3">
 
-                  {/* Hero result: Cash Flow / Monthly Payment */}
+                  {/* Hero result */}
                   <div className={cn(
-                    "rounded-2xl p-5 text-center border-2",
+                    "rounded-2xl p-4 text-center border-2",
                     isFirstTimeBuyer
                       ? "bg-primary/6 border-primary/25"
                       : isPositive
                         ? "bg-green-50/80 border-green-200"
                         : "bg-red-50/70 border-red-200"
                   )}>
-                    <div className="flex items-center justify-center gap-2 mb-2">
+                    <div className="flex items-center justify-center gap-2 mb-1.5">
                       {isFirstTimeBuyer
                         ? <Home className="h-4 w-4 text-primary" />
                         : isPositive
@@ -582,11 +565,11 @@ export function InvestmentSnapshot() {
                       <FieldLabel className={cn(
                         isFirstTimeBuyer ? "text-primary" : isPositive ? "text-green-700" : "text-red-700"
                       )}>
-                        {isFirstTimeBuyer ? 'Your Monthly Payment' : 'Monthly Cash Flow'}
+                        {isFirstTimeBuyer ? 'Monthly Payment' : 'Monthly Cash Flow'}
                       </FieldLabel>
                     </div>
                     <div className={cn(
-                      "text-[42px] font-black leading-none tracking-tight",
+                      "text-[40px] font-black leading-none tracking-tight",
                       isFirstTimeBuyer ? "text-foreground" : isPositive ? "text-green-600" : "text-red-600"
                     )}>
                       {isFirstTimeBuyer
@@ -594,59 +577,54 @@ export function InvestmentSnapshot() {
                         : (isPositive ? '+' : '') + fmt(results.monthlyCashFlow)
                       }
                     </div>
-                    <div className="text-[12px] text-muted-foreground mt-1">per month</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">per month</div>
                   </div>
 
                   {/* Monthly Breakdown */}
                   <SectionCard>
-                    <div className="p-4">
-                      <FieldLabel className="block mb-3">Monthly Breakdown</FieldLabel>
-                      <div className="space-y-0">
-                        <Row label="Mortgage" value={fmt(results.monthlyMortgage)} />
-                        <Row label="Strata Fees" value={fmt(inputs.strataFees)} />
-                        <Row label="Property Tax" value={fmt(inputs.propertyTax)} />
-                        <div className="flex justify-between pt-3 mt-1 border-t border-border/50">
-                          <span className="text-[13px] font-bold text-foreground">Total Expenses</span>
-                          <span className="text-[13px] font-black text-foreground">{fmt(results.totalMonthlyExpenses)}</span>
-                        </div>
-                        {!isFirstTimeBuyer && (
-                          <div className="flex justify-between pt-2">
-                            <span className="text-[13px] font-bold text-foreground">Monthly Rent</span>
-                            <span className="text-[13px] font-black text-green-600">{fmt(inputs.monthlyRent)}</span>
-                          </div>
-                        )}
+                    <div className="p-3">
+                      <FieldLabel className="block mb-2">Monthly</FieldLabel>
+                      <Row label="Mortgage" value={fmt(results.monthlyMortgage)} />
+                      <Row label="Strata" value={fmt(inputs.strataFees)} />
+                      <Row label="Property Tax" value={fmt(inputs.propertyTax)} />
+                      <div className="flex justify-between pt-2 mt-1 border-t border-border/50">
+                        <span className="text-[13px] font-bold text-foreground">Total Expenses</span>
+                        <span className="text-[13px] font-black text-foreground">{fmt(results.totalMonthlyExpenses)}</span>
                       </div>
+                      {!isFirstTimeBuyer && (
+                        <div className="flex justify-between pt-1.5">
+                          <span className="text-[13px] font-bold text-foreground">Rent Income</span>
+                          <span className="text-[13px] font-black text-green-600">{fmt(inputs.monthlyRent)}</span>
+                        </div>
+                      )}
                     </div>
                   </SectionCard>
 
                   {/* Cash Required — dark card */}
-                  <div className="rounded-2xl bg-foreground text-background p-4">
-                    <div className="flex items-center justify-between mb-3">
+                  <div className="rounded-2xl bg-foreground text-background p-3.5">
+                    <div className="flex items-center justify-between mb-2.5">
                       <FieldLabel className="text-background/50">Total Cash Required</FieldLabel>
                       <span className="text-2xl font-black text-background">{fmt(results.totalCashRequired)}</span>
                     </div>
-                    {/* Two buckets */}
-                    <div className="grid grid-cols-2 gap-2 mb-3">
+                    <div className="grid grid-cols-2 gap-2 mb-2.5">
                       {[
                         { label: 'Deposits', value: results.totalDeposits },
                         { label: 'At Closing', value: results.cashAtCompletion },
                       ].map(({ label, value }) => (
-                        <div key={label} className="bg-background/8 rounded-xl p-3 text-center">
-                          <div className="text-[10px] text-background/45 uppercase font-semibold mb-1">{label}</div>
+                        <div key={label} className="bg-background/8 rounded-xl p-2.5 text-center">
+                          <div className="text-[10px] text-background/45 uppercase font-semibold mb-0.5">{label}</div>
                           <div className="text-[15px] font-black text-background">{fmt(value)}</div>
                         </div>
                       ))}
                     </div>
-                    {/* Closing breakdown */}
-                    <div className="border-t border-background/15 pt-3 space-y-1.5 text-[12px]">
-                      <div className="text-[10px] text-background/40 font-bold uppercase mb-2">Closing Detail</div>
+                    <div className="border-t border-background/15 pt-2.5 space-y-1 text-[12px]">
                       <div className="flex justify-between">
                         <span className="text-background/60">Remaining Down</span>
                         <span className="font-semibold">{fmt(results.remainingDownPayment)}</span>
                       </div>
                       {results.ptt > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">Property Transfer Tax</span>
+                          <span className="text-background/60">PTT</span>
                           <span className="font-semibold">{fmt(results.ptt)}</span>
                         </div>
                       )}
@@ -656,14 +634,14 @@ export function InvestmentSnapshot() {
                       </div>
                       {results.creditTotal > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">Developer Credit</span>
+                          <span className="text-background/60">Dev. Credit</span>
                           <span className="font-semibold text-green-400">-{fmt(results.creditTotal)}</span>
                         </div>
                       )}
                       {results.cmhcPremium > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-background/60">CMHC Premium</span>
-                          <span className="font-semibold">{fmt(results.cmhcPremium)} <span className="text-background/30 text-[10px]">(in mortgage)</span></span>
+                          <span className="text-background/60">CMHC</span>
+                          <span className="font-semibold">{fmt(results.cmhcPremium)}</span>
                         </div>
                       )}
                     </div>
@@ -672,13 +650,10 @@ export function InvestmentSnapshot() {
                   {/* First-time buyer: PTT + GST savings */}
                   {isFirstTimeBuyer && (
                     <SectionCard className="border-green-200 bg-green-50/60">
-                      <div className="p-4 space-y-3">
-                        <FieldLabel className="text-green-700/80 block mb-1">First-Time Buyer Savings</FieldLabel>
+                      <div className="p-3 space-y-2">
+                        <FieldLabel className="text-green-700/80 block">FTB Savings</FieldLabel>
                         <div className="flex justify-between items-center">
-                          <div>
-                            <span className="text-[13px] font-semibold text-green-800">PTT Exempt</span>
-                            <p className="text-[11px] text-green-600">Saved on purchase</p>
-                          </div>
+                          <span className="text-[13px] font-semibold text-green-800">PTT Exempt</span>
                           <span className="text-lg font-black text-green-600">{fmt(calculatePTT(inputs.purchasePrice, false))}</span>
                         </div>
                         {inputs.includeGST && (
