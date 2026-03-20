@@ -227,14 +227,14 @@ export function DeckContactSection({
                   className="rounded-xl border border-border/50 bg-background p-4 shadow-sm flex flex-col gap-2"
                 >
                   <Quote className="h-4 w-4 text-primary/40 shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed flex-1 line-clamp-4">
+                  <p className="text-base text-foreground/75 leading-relaxed flex-1 line-clamp-4">
                     {review.review_text}
                   </p>
                   <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/30">
                     <div>
-                      <p className="text-sm font-semibold text-foreground">{review.reviewer_name}</p>
+                      <p className="text-base font-semibold text-foreground">{review.reviewer_name}</p>
                       {review.reviewer_location && (
-                        <p className="text-xs text-muted-foreground">{review.reviewer_location}</p>
+                        <p className="text-sm text-muted-foreground">{review.reviewer_location}</p>
                       )}
                     </div>
                     <div className="flex gap-0.5">
