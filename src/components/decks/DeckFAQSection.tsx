@@ -80,9 +80,9 @@ function FAQItem({ q, a, isOpen, onToggle, index }: FAQItemProps) {
           isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         )}
       >
-        <div className="px-5 pb-5 pl-[3.25rem]">
+        <div className="px-5 pb-6 pl-[3.25rem]">
           {a.split("\n\n").map((para, i) => (
-            <p key={i} className={cn("text-sm text-muted-foreground leading-relaxed", i > 0 && "mt-3")}>
+            <p key={i} className={cn("text-base text-foreground/75 leading-relaxed", i > 0 && "mt-3")}>
               {para}
             </p>
           ))}
