@@ -81,7 +81,7 @@ export function DeckDepositTimelineSection({
         <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
           Deposit Structure
         </h2>
-        <p className="text-muted-foreground text-sm mt-2 max-w-sm">
+        <p className="text-muted-foreground text-sm mt-2">
           No payments during construction — here's exactly when money moves.
         </p>
       </div>

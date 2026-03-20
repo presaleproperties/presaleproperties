@@ -29,7 +29,7 @@ export function DeckAboutSection({
   if (!hasContent) return null;
 
   return (
-    <section id="about" className="py-14 sm:py-20 bg-background">
+    <section id="about" className="py-16 sm:py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
@@ -38,7 +38,7 @@ export function DeckAboutSection({
           <div className="lg:col-span-7 space-y-6">
             <div className="space-y-1">
               <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">01 — The Development</p>
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
                 {projectName ? `Welcome to ${projectName}` : "About the Development"}
               </h2>
             </div>

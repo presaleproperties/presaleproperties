@@ -241,7 +241,7 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
           04
         </div>
 
-        <div className="mb-6 space-y-1">
+        <div className="mb-10 space-y-1">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">04 — Location</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Neighbourhood</h2>
           {(address || city) && (
