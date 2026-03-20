@@ -234,7 +234,7 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
   };
 
   return (
-    <section id="location" className="relative py-12 sm:py-16 bg-background overflow-hidden">
+    <section id="location" className="relative py-16 sm:py-24 bg-background overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Watermark */}
         <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
