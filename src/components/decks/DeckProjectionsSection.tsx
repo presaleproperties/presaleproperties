@@ -442,13 +442,6 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                       {results.cmhc > 0 && (
                         <BreakdownRow label="CMHC Insurance" value={fmt(results.cmhc)} sub="Added to mortgage, not cash" />
                       )}
-                      {!isFirstTimeBuyer && (
-                        <BreakdownRow
-                          label="GST in Mortgage"
-                          value={fmt(results.gstGross)}
-                          sub={`Mortgage = ${fmt(results.mortgageAmt)} (incl. GST)`}
-                        />
-                      )}
                     </div>
                   </div>
 
