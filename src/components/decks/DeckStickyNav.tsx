@@ -39,7 +39,7 @@ export function DeckStickyNav({ visible, activeSection, phoneNumber }: DeckStick
       <div
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          "bg-background/96 backdrop-blur-md border-b border-border/60 shadow-sm",
+          "bg-background border-b border-border/70 shadow-[0_2px_12px_-2px_hsl(var(--foreground)/0.08)]",
           visible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         )}
         style={{
@@ -48,9 +48,9 @@ export function DeckStickyNav({ visible, activeSection, phoneNumber }: DeckStick
           WebkitBackfaceVisibility: "hidden",
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3 overflow-visible">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4 overflow-visible">
           {/* Logo — oversized but clipped by nav height */}
-          <Logo size="lg" className="h-[7rem] sm:h-[8rem]" />
+          <Logo size="lg" className="h-[7rem] sm:h-[8rem] shrink-0" />
 
           {/* Desktop nav links */}
           <nav className="hidden lg:flex items-center gap-0.5 flex-1 justify-center">
@@ -59,10 +59,10 @@ export function DeckStickyNav({ visible, activeSection, phoneNumber }: DeckStick
                 key={s.id}
                 onClick={() => scrollTo(s.id)}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap",
+                  "px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap",
                   activeSection === s.id
                     ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    : "text-foreground/65 hover:text-foreground hover:bg-muted"
                 )}
               >
                 {s.label}
@@ -71,10 +71,10 @@ export function DeckStickyNav({ visible, activeSection, phoneNumber }: DeckStick
           </nav>
 
           {/* Right: Call Now + mobile hamburger */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <a
               href={`tel:+${rawPhone}`}
-              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-primary text-primary-foreground touch-manipulation transition-all active:scale-[0.97] hover:bg-primary/90"
+              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2.5 rounded-lg text-[13px] sm:text-sm font-bold bg-primary text-primary-foreground touch-manipulation transition-all active:scale-[0.97] hover:bg-primary/90"
             >
               <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
               <span>Call Now</span>
@@ -82,7 +82,7 @@ export function DeckStickyNav({ visible, activeSection, phoneNumber }: DeckStick
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileMenuOpen((v) => !v)}
-              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg border border-border/60 bg-muted/50 text-foreground transition-colors hover:bg-muted active:scale-95 touch-manipulation"
+              className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg border border-border/60 bg-muted/50 text-foreground transition-colors hover:bg-muted active:scale-95 touch-manipulation"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -97,13 +97,13 @@ export function DeckStickyNav({ visible, activeSection, phoneNumber }: DeckStick
             mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           )}
         >
-          <div className="bg-background/98 backdrop-blur-md px-4 py-3 grid grid-cols-2 gap-1.5">
+          <div className="bg-background px-4 py-4 grid grid-cols-2 gap-2">
             {SECTIONS.map((s) => (
               <button
                 key={s.id}
                 onClick={() => scrollTo(s.id)}
                 className={cn(
-                  "px-3 py-2.5 rounded-xl text-sm font-medium text-left transition-all touch-manipulation",
+                  "px-4 py-3 rounded-xl text-sm font-medium text-left transition-all touch-manipulation",
                   activeSection === s.id
                     ? "bg-primary text-primary-foreground"
                     : "text-foreground bg-muted/60 hover:bg-muted active:scale-[0.97]"
