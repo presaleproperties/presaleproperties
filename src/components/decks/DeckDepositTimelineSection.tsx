@@ -71,17 +71,15 @@ export function DeckDepositTimelineSection({
   const balanceAtCompletion = price - totalDepositAmt;
 
   return (
-    <div id="deposit-timeline" className="w-full">
-
       {/* Header */}
       <div className="mb-10">
-        <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-3">
+        <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em] mb-3">
           05 — Payment Plan
         </p>
         <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
           Deposit Structure
         </h2>
-        <p className="text-muted-foreground text-sm mt-2">
+        <p className="text-muted-foreground text-base mt-2">
           No payments during construction — here's exactly when money moves.
         </p>
       </div>
@@ -97,13 +95,13 @@ export function DeckDepositTimelineSection({
                 type="button"
                 onClick={() => setSelectedPlanId(plan.id)}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all",
+                  "flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-semibold transition-all",
                   isSelected
                     ? "border-primary bg-primary text-primary-foreground shadow-sm"
                     : "border-border/60 bg-background text-foreground hover:border-primary/40"
                 )}
               >
-                {isSelected && <Check className="h-3 w-3 shrink-0" />}
+                {isSelected && <Check className="h-3.5 w-3.5 shrink-0" />}
                 {plan.unit_type} · {fmt(parsePrice(plan.price_from))}
               </button>
             );
@@ -111,7 +109,7 @@ export function DeckDepositTimelineSection({
         </div>
       ) : (
         <div className="mb-10 space-y-2">
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-base">
             <span className="text-muted-foreground">Unit price</span>
             <span className="font-bold text-foreground">{fmt(price)}</span>
           </div>
@@ -143,7 +141,7 @@ export function DeckDepositTimelineSection({
               <div className="flex flex-col items-center shrink-0" style={{ width: 36 }}>
                 {/* Node */}
                 <div className="w-9 h-9 rounded-full bg-background border-2 border-primary flex items-center justify-center shadow-sm z-10 shrink-0">
-                  <span className="text-xs font-bold text-primary">{i + 1}</span>
+                  <span className="text-sm font-bold text-primary">{i + 1}</span>
                 </div>
                 {/* Connector down to construction gap */}
                 {!isLast && (
@@ -155,18 +153,18 @@ export function DeckDepositTimelineSection({
               <div className={cn("flex-1 pb-8", isLast && "pb-6")}>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm font-bold text-foreground leading-snug">{step.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                      <Clock className="h-3 w-3 shrink-0" />
+                    <p className="text-base font-bold text-foreground leading-snug">{step.label}</p>
+                    <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5 shrink-0" />
                       {step.timing}
                     </p>
                     {step.note && (
-                      <p className="text-xs text-muted-foreground/70 mt-1 italic">{step.note}</p>
+                      <p className="text-sm text-muted-foreground/70 mt-1 italic">{step.note}</p>
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-lg font-bold text-foreground tabular-nums">{fmt(amt)}</p>
-                    <p className="text-[11px] text-muted-foreground">{step.percent}%</p>
+                    <p className="text-xl font-bold text-foreground tabular-nums">{fmt(amt)}</p>
+                    <p className="text-sm text-muted-foreground">{step.percent}%</p>
                   </div>
                 </div>
               </div>
@@ -178,12 +176,12 @@ export function DeckDepositTimelineSection({
         <div className="flex gap-5">
           <div className="flex flex-col items-center shrink-0" style={{ width: 36 }}>
             <div className="w-9 h-9 rounded-full bg-muted/40 border border-dashed border-border/70 flex items-center justify-center z-10 shrink-0">
-              <span className="text-[10px] text-muted-foreground/50 font-bold">~</span>
+              <span className="text-sm text-muted-foreground/50 font-bold">~</span>
             </div>
             <div className="flex-1 w-px border-l border-dashed border-border/40 my-1" />
           </div>
           <div className="flex-1 pb-6 flex items-center">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+            <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground/60">
               Construction — no further payments
             </p>
           </div>
@@ -199,14 +197,14 @@ export function DeckDepositTimelineSection({
           <div className="flex-1 pb-2">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-bold text-primary leading-snug">Possession & Keys</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-base font-bold text-primary leading-snug">Possession & Keys</p>
+                <p className="text-sm text-muted-foreground mt-1">
                   {completionYear ? `Estimated ${completionYear}` : "At completion"} · Mortgage begins
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-lg font-bold text-primary tabular-nums">{fmt(balanceAtCompletion)}</p>
-                <p className="text-[11px] text-muted-foreground">{(100 - totalDepositPct).toFixed(0)}% balance</p>
+                <p className="text-xl font-bold text-primary tabular-nums">{fmt(balanceAtCompletion)}</p>
+                <p className="text-sm text-muted-foreground">{(100 - totalDepositPct).toFixed(0)}% balance</p>
               </div>
             </div>
           </div>
@@ -217,17 +215,17 @@ export function DeckDepositTimelineSection({
       {/* Summary footer */}
       <div className="mt-8 pt-5 border-t border-border/40 flex items-center justify-between gap-4">
         <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Total deposits</p>
-          <p className="text-lg font-bold text-foreground mt-0.5">
+          <p className="text-sm text-muted-foreground uppercase tracking-wider">Total deposits</p>
+          <p className="text-xl font-bold text-foreground mt-0.5">
             {fmt(totalDepositAmt)}
-            <span className="text-sm font-normal text-muted-foreground ml-1.5">({totalDepositPct}%)</span>
+            <span className="text-base font-normal text-muted-foreground ml-1.5">({totalDepositPct}%)</span>
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Balance at keys</p>
-          <p className="text-lg font-bold text-foreground mt-0.5">
+          <p className="text-sm text-muted-foreground uppercase tracking-wider">Balance at keys</p>
+          <p className="text-xl font-bold text-foreground mt-0.5">
             {fmt(balanceAtCompletion)}
-            <span className="text-sm font-normal text-muted-foreground ml-1.5">
+            <span className="text-base font-normal text-muted-foreground ml-1.5">
               ({(100 - totalDepositPct).toFixed(0)}%)
             </span>
           </p>
