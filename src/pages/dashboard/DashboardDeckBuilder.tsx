@@ -458,6 +458,22 @@ export default function DashboardDeckBuilder() {
   };
   const removeFloorPlan = (fpId: string) => setFloorPlans((prev) => prev.filter((fp) => fp.id !== fpId));
 
+  const handleFpDragStart = (idx: number) => { dragFpIdx.current = idx; };
+  const handleFpDragOver = (e: React.DragEvent, idx: number) => { e.preventDefault(); setDragOverFpIdx(idx); };
+  const handleFpDrop = (idx: number) => {
+    const from = dragFpIdx.current;
+    if (from === null || from === idx) { dragFpIdx.current = null; setDragOverFpIdx(null); return; }
+    setFloorPlans((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(idx, 0, moved);
+      return next;
+    });
+    dragFpIdx.current = null;
+    setDragOverFpIdx(null);
+  };
+  const handleFpDragEnd = () => { dragFpIdx.current = null; setDragOverFpIdx(null); };
+
   const addHighlight = () => setHighlights((prev) => [...prev, { icon: "📍", label: "", distance: "" }]);
   const updateHighlight = (i: number, field: keyof ProximityHighlight, value: string) => {
     setHighlights((prev) => prev.map((h, idx) => idx === i ? { ...h, [field]: value } : h));
