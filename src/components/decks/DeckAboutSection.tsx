@@ -37,7 +37,7 @@ export function DeckAboutSection({
           {/* Left — description */}
           <div className="lg:col-span-7 space-y-6">
             <div className="space-y-1">
-              <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em]">01 — The Development</p>
+              <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em]">02 — About the Development</p>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
                 {projectName ? `Welcome to ${projectName}` : "About the Development"}
               </h2>
