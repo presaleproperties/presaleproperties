@@ -34,12 +34,28 @@ function derivePsf(plan: FloorPlan): string | null {
   return null;
 }
 
+const INCLUDED_ICON_MAP: Record<string, React.ReactNode> = {
+  parking: <Car className="h-3.5 w-3.5 shrink-0" />,
+  storage: <Archive className="h-3.5 w-3.5 shrink-0" />,
+  locker: <Archive className="h-3.5 w-3.5 shrink-0" />,
+  ac: <Wind className="h-3.5 w-3.5 shrink-0" />,
+  "air conditioning": <Wind className="h-3.5 w-3.5 shrink-0" />,
+};
+function getIncludedIcon(item: string) {
+  const lower = item.toLowerCase();
+  for (const [key, icon] of Object.entries(INCLUDED_ICON_MAP)) {
+    if (lower.includes(key)) return icon;
+  }
+  return <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />;
+}
+
 interface FloorPlanModalProps {
   plan: FloorPlan | null;
   onClose: () => void;
   whatsappNumber?: string;
   projectName?: string;
   allPlans?: FloorPlan[];
+  includedItems?: string[];
 }
 
 export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName }: FloorPlanModalProps) {

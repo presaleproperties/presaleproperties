@@ -225,7 +225,7 @@ export function DeckFloorPlansSection({
                       </div>
                     </div>
 
-                    {/* Size + PSF row */}
+                  {/* Size + PSF row */}
                     <div className="flex items-center gap-3 pt-1 border-t border-border/40">
                       {plan.size_range && (
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -239,6 +239,19 @@ export function DeckFloorPlansSection({
                           {psf}/sqft
                         </span>
                       )}
+                    </div>
+
+                    {/* Included items */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/30">
+                      {displayItems.map((item, i) => (
+                        <span
+                          key={item}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium bg-muted/60 border border-border/50 text-muted-foreground"
+                        >
+                          {getIncludedIcon(rawItems[i] || item)}
+                          {item}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </button>
