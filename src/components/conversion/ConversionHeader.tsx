@@ -92,13 +92,13 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
       <header 
         className={cn(
           "w-full z-50 shrink-0 transition-all duration-300",
-          // Default background — rich frosted glass
-          !transparentOnMobile && "bg-background/98 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/90",
-          !transparentOnMobile && "border-b border-border/50 shadow-[0_1px_0_0_hsl(var(--border)/0.5),0_4px_24px_-4px_hsl(var(--foreground)/0.06)]",
+          // Default background — solid white
+          !transparentOnMobile && "bg-background",
+          !transparentOnMobile && "border-b border-border/60 shadow-[0_2px_12px_-2px_hsl(var(--foreground)/0.07)]",
           // Transparent mode on mobile/tablet
-          transparentOnMobile && isMobileOrTablet && "bg-background/98 backdrop-blur-2xl border-b border-border/50",
-          // Desktop always gets normal bg regardless of transparentOnMobile
-          transparentOnMobile && "lg:bg-background/98 lg:backdrop-blur-2xl lg:border-b lg:border-border/50",
+          transparentOnMobile && isMobileOrTablet && "bg-background border-b border-border/60",
+          // Desktop always gets solid bg regardless of transparentOnMobile
+          transparentOnMobile && "lg:bg-background lg:border-b lg:border-border/60",
           // Desktop: sticky positioning (normal behavior)
           "lg:sticky lg:top-0",
           // Mobile/tablet: fixed positioning for edge-to-edge scrolling
