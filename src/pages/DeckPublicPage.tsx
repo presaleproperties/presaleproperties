@@ -162,21 +162,36 @@ export default function DeckPublicPage() {
     ? parseFloat(deck.floor_plans[0].price_from.replace(/[^0-9.]/g, ""))
     : undefined;
 
+  // Starting price label for meta tags
+  const startingPriceLabel = deck.floor_plans?.find((p: any) => p?.price_from)?.price_from ?? null;
+  const locationLabel = deck.neighborhood && deck.city
+    ? `${deck.neighborhood}, ${deck.city}`
+    : deck.neighborhood || deck.city || null;
+
   const rawDesc = (deck.description || deck.tagline || `Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}.`).replace(/[#*_`>]/g, "").trim();
-  const metaDesc = rawDesc.length > 160 ? rawDesc.slice(0, 157) + "…" : rawDesc;
-  const ogTitle = `${deck.project_name} — Exclusive Presale${deck.city ? ` in ${deck.city}` : ""}`;
+  const descBase = rawDesc.length > 120 ? rawDesc.slice(0, 117) + "…" : rawDesc;
+  const metaDesc = startingPriceLabel
+    ? `Starting from ${startingPriceLabel}. ${descBase}`.slice(0, 160)
+    : descBase.slice(0, 160);
+
+  const ogTitle = startingPriceLabel
+    ? `${deck.project_name} — From ${startingPriceLabel}${locationLabel ? ` | ${locationLabel}` : ""}`
+    : `${deck.project_name} — Exclusive Presale${locationLabel ? ` | ${locationLabel}` : ""}`;
+
   const canonicalUrl = `https://presaleproperties.com/deck/${deck.slug}`;
+  // Proxy URL — serves full OG meta to WhatsApp / iMessage / social crawlers
+  const proxyUrl = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${deck.slug}`;
 
   return (
     <>
-    {/* Unique OG meta per deck — hero image auto-populates in iMessage/WhatsApp/social previews */}
+    {/* OG meta — proxy URL ensures hero image shows in WhatsApp/iMessage previews */}
     <Helmet>
       <title>{deck.project_name} — Presale Investment Deck | Presale Properties</title>
       <meta name="description" content={metaDesc} />
       <meta property="og:type" content="website" />
       <meta property="og:title" content={ogTitle} />
       <meta property="og:description" content={metaDesc} />
-      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:url" content={proxyUrl} />
       {deck.hero_image_url && <meta property="og:image" content={deck.hero_image_url} />}
       {deck.hero_image_url && <meta property="og:image:secure_url" content={deck.hero_image_url} />}
       <meta property="og:image:width" content="1200" />
