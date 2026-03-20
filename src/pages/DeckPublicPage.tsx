@@ -297,7 +297,7 @@ export default function DeckPublicPage() {
       {/* ── 6. Deposit Timeline ── */}
       <div className="deck-animate">
         <section className="py-16 sm:py-24 bg-background">
-          <div className="max-w-2xl mx-auto px-4 sm:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8">
             <DeckDepositTimelineSection
               depositSteps={deck.deposit_steps && deck.deposit_steps.length > 0 ? deck.deposit_steps : DEFAULT_DEPOSIT_STEPS}
               projectName={deck.project_name}
@@ -314,7 +314,7 @@ export default function DeckPublicPage() {
       {/* ── 7. Investment Calculator ── */}
       <div className="deck-animate">
         <section className="py-16 sm:py-24 bg-muted/20">
-          <div className="max-w-3xl mx-auto px-4 sm:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8">
             <DeckProjectionsSection
               projections={deck.projections || {}}
               defaultPrice={defaultPrice}

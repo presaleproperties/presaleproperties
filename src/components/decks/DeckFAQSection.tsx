@@ -91,7 +91,7 @@ export function DeckFAQSection() {
 
   return (
     <section id="faq" className="relative py-14 sm:py-20 bg-muted/20">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="mb-8 sm:mb-12 space-y-1">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Questions</p>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Common Questions</h2>
