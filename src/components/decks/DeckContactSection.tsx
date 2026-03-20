@@ -141,8 +141,8 @@ export function DeckContactSection({
                       Real Broker
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">{agent.title}</p>
-                  <p className="text-xs text-muted-foreground/70 mt-1 flex items-center gap-1">
+                  <p className="text-base text-muted-foreground">{agent.title}</p>
+                  <p className="text-sm text-muted-foreground/70 mt-1 flex items-center gap-1">
                     <Globe className="h-3 w-3 shrink-0" />
                     <span>{agent.languages}</span>
                   </p>
