@@ -192,7 +192,7 @@ export function DeckContactSection({
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Mail className="h-3.5 w-3.5 text-primary" />
                   </div>
-                  <span className="truncate">{displayEmail}</span>
+                  <span className="text-base font-medium text-foreground truncate">{displayEmail}</span>
                 </a>
               </div>
 
