@@ -106,8 +106,8 @@ export function DeckContactSection({
     <section id="contact" className="relative py-16 sm:py-24 bg-muted/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
-        <div className="mb-8 space-y-2">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">07 — Your Next Step</p>
+        <div className="mb-10 space-y-2">
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">08 — Your Next Step</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
             We Hand-Picked This For You
           </h2>

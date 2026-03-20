@@ -234,14 +234,14 @@ export function DeckLocationSection({ address, city, neighborhood, lat, lng, hig
   };
 
   return (
-    <section id="location" className="relative py-12 sm:py-16 bg-background overflow-hidden">
+    <section id="location" className="relative py-16 sm:py-24 bg-background overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Watermark */}
         <div className="hidden sm:block absolute top-8 right-8 text-[160px] font-black text-foreground/[0.025] select-none pointer-events-none leading-none">
           04
         </div>
 
-        <div className="mb-6 space-y-1">
+        <div className="mb-10 space-y-1">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">04 — Location</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Neighbourhood</h2>
           {(address || city) && (

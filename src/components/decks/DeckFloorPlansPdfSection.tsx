@@ -9,12 +9,12 @@ export function DeckFloorPlansPdfSection({ pdfUrl }: DeckFloorPlansPdfSectionPro
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section className="relative py-12 sm:py-16 bg-muted/10">
+    <section className="relative py-16 sm:py-24 bg-muted/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="mb-6 space-y-1 flex items-end justify-between gap-4 flex-wrap">
+        <div className="mb-10 space-y-1 flex items-end justify-between gap-4 flex-wrap">
           <div className="space-y-1">
             <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">Floor Plans</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground flex items-center gap-2">
               <FileText className="h-6 w-6 text-primary shrink-0" />
               Full Floor Plan Document
             </h2>

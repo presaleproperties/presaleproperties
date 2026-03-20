@@ -90,11 +90,11 @@ export function DeckFAQSection() {
   const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
 
   return (
-    <section id="faq" className="relative py-14 sm:py-20 bg-muted/20">
+    <section id="faq" className="relative py-16 sm:py-24 bg-muted/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="mb-8 sm:mb-12 space-y-1">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">06 — Questions</p>
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Common Questions</h2>
+        <div className="mb-10 space-y-1">
+          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">07 — Questions</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Common Questions</h2>
           <p className="text-muted-foreground text-sm">Everything buyers typically want to know before moving forward.</p>
         </div>
 
