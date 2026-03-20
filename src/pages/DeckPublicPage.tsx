@@ -212,6 +212,9 @@ export default function DeckPublicPage() {
           opacity: 1;
           transform: translateY(0);
         }
+        html {
+          scroll-padding-top: 80px;
+        }
       `}</style>
     </Helmet>
     <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip", scrollPaddingTop: "80px" }}>
