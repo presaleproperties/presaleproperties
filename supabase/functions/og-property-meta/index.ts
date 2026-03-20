@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
 
       const { data: deck, error } = await supabase
         .from("pitch_decks")
-        .select("project_name, tagline, city, hero_image_url, slug, description")
+        .select("project_name, tagline, city, neighborhood, hero_image_url, slug, description, floor_plans")
         .eq("slug", deckSlug)
         .maybeSingle();
 
@@ -95,10 +95,34 @@ Deno.serve(async (req) => {
       const userAgent = req.headers.get("user-agent") || "";
       const canonicalUrl = `${SITE_URL}/deck/${deck.slug}`;
       const heroImage = ensureHttps(deck.hero_image_url) || `${SITE_URL}/og-image.png`;
-      const title = `${deck.project_name} — Exclusive Presale Opportunity`;
-      // Use first 160 chars of description as preview text, fallback to tagline
-      const rawDesc = (deck.description || deck.tagline || `Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}. View floor plans, pricing & investment projections.`).replace(/[#*_`>]/g, "").trim();
-      const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + "…" : rawDesc;
+
+      // Extract starting price from first floor plan with a price
+      let startingPrice: string | null = null;
+      try {
+        const plans = Array.isArray(deck.floor_plans) ? deck.floor_plans : [];
+        const firstPriced = plans.find((p: any) => p?.price_from && p.price_from.trim());
+        if (firstPriced?.price_from) {
+          const num = parseFloat(firstPriced.price_from.replace(/[^0-9.]/g, ""));
+          if (!isNaN(num) && num > 0) {
+            startingPrice = new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(num);
+          }
+        }
+      } catch (_) { /* ignore */ }
+
+      const locationLabel = deck.neighborhood && deck.city
+        ? `${deck.neighborhood}, ${deck.city}`
+        : deck.neighborhood || deck.city || "BC";
+
+      const title = startingPrice
+        ? `${deck.project_name} — From ${startingPrice} | ${locationLabel}`
+        : `${deck.project_name} — Exclusive Presale | ${locationLabel}`;
+
+      const rawDesc = (deck.description || deck.tagline || `Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}.`).replace(/[#*_`>]/g, "").trim();
+      const descBase = rawDesc.length > 120 ? rawDesc.slice(0, 117) + "…" : rawDesc;
+      const description = startingPrice
+        ? `Starting from ${startingPrice}. ${descBase}`
+        : descBase;
+      const metaDesc = description.length > 160 ? description.slice(0, 157) + "…" : description;
 
       if (!isBot(userAgent)) {
         return new Response(null, { status: 302, headers: { ...corsHeaders, "Location": canonicalUrl } });
@@ -107,11 +131,11 @@ Deno.serve(async (req) => {
       const html = `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${title}</title><meta name="description" content="${description}">
+<title>${title}</title><meta name="description" content="${metaDesc}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${canonicalUrl}">
 <meta property="og:title" content="${title}">
-<meta property="og:description" content="${description}">
+<meta property="og:description" content="${metaDesc}">
 <meta property="og:image" content="${heroImage}">
 <meta property="og:image:secure_url" content="${heroImage}">
 <meta property="og:image:width" content="1200">
@@ -119,12 +143,12 @@ Deno.serve(async (req) => {
 <meta property="og:site_name" content="PresaleProperties.com">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${title}">
-<meta name="twitter:description" content="${description}">
+<meta name="twitter:description" content="${metaDesc}">
 <meta name="twitter:image" content="${heroImage}">
 <link rel="canonical" href="${canonicalUrl}">
 </head><body>
 <img src="${heroImage}" alt="${deck.project_name}" style="max-width:100%;border-radius:8px;">
-<h1>${title}</h1><p>${description}</p>
+<h1>${title}</h1><p>${metaDesc}</p>
 <a href="${canonicalUrl}" style="display:inline-block;margin-top:1rem;padding:12px 24px;background:#b8860b;color:white;text-decoration:none;border-radius:6px;">View Investment Deck</a>
 </body></html>`;
 
