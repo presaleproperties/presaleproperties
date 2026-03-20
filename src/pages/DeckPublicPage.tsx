@@ -74,16 +74,37 @@ export default function DeckPublicPage() {
 
   useEffect(() => {
     if (!slug) return;
-    (async () => {
+    let deckId: string | null = null;
+
+    const fetchDeck = async () => {
       const { data, error } = await (supabase as any)
         .from("pitch_decks")
         .select("*")
         .eq("slug", slug)
         .maybeSingle();
       if (error || !data) { setLoading(false); return; }
+      deckId = data.id;
       setDeck(data);
       setLoading(false);
-    })();
+      return data.id as string;
+    };
+
+    fetchDeck().then((id) => {
+      if (!id) return;
+      // Subscribe to realtime updates so reorders/edits in the builder reflect immediately
+      const channel = supabase
+        .channel(`pitch_deck_${id}`)
+        .on(
+          "postgres_changes" as any,
+          { event: "UPDATE", schema: "public", table: "pitch_decks", filter: `id=eq.${id}` },
+          (payload: any) => {
+            if (payload.new) setDeck(payload.new as any);
+          }
+        )
+        .subscribe();
+
+      return () => { supabase.removeChannel(channel); };
+    });
   }, [slug]);
 
   // Sticky nav + active section via scroll
