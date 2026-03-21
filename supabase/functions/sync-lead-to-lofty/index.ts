@@ -446,7 +446,21 @@ serve(async (req: Request): Promise<Response> => {
           const loftyId = loftyData?.leadId || loftyData?.id || loftyData?.lead_id || loftyData?.contact_id;
           console.log("Lofty created contact ID:", loftyId);
 
-          // Try to append note via PUT update on the lead (Lofty /notes endpoint doesn't exist)
+          // Fetch the created lead back to see what fields Lofty actually stores
+          if (loftyId) {
+            try {
+              const getRes = await fetch(`${url}/${loftyId}`, {
+                method: "GET",
+                headers: { "Accept": "application/json", "Authorization": auth },
+              });
+              const getBody = await getRes.text();
+              console.log("Lofty GET created lead:", getRes.status, getBody.substring(0, 600));
+            } catch (getErr) {
+              console.log("GET check failed:", getErr);
+            }
+          }
+
+          // Try to update note via PUT (discovery - check which field name sticks)
           if (loftyId && contactData.notes) {
             try {
               const noteUpdateRes = await fetch(`${url}/${loftyId}`, {
