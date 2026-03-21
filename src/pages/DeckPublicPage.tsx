@@ -70,6 +70,7 @@ export default function DeckPublicPage() {
   const [loading, setLoading] = useState(true);
   const [navVisible, setNavVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
+  const [isUnlocked, setIsUnlocked] = useState(false);
   // Scroll position to restore when closing gallery
   const scrollYBeforeGallery = useRef<number>(0);
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -77,6 +78,11 @@ export default function DeckPublicPage() {
   useEffect(() => {
     if (!slug) return;
     let deckId: string | null = null;
+
+    // Check localStorage first (fastest)
+    if (localStorage.getItem(`deck_unlocked_${slug}`)) {
+      setIsUnlocked(true);
+    }
 
     const fetchDeck = async () => {
       const { data, error } = await (supabase as any)
@@ -91,8 +97,26 @@ export default function DeckPublicPage() {
       return data.id as string;
     };
 
-    fetchDeck().then((id) => {
+    fetchDeck().then(async (id) => {
       if (!id) return;
+
+      // Secondary check: visitor_id in project_leads (covers different browsers / cleared storage)
+      if (!localStorage.getItem(`deck_unlocked_${slug}`)) {
+        const visitorId = getVisitorId();
+        if (visitorId) {
+          const { data: existingLead } = await (supabase as any)
+            .from("project_leads")
+            .select("id")
+            .eq("visitor_id", visitorId)
+            .ilike("message", "Pitch Deck:%")
+            .maybeSingle();
+          if (existingLead) {
+            localStorage.setItem(`deck_unlocked_${slug}`, "1");
+            setIsUnlocked(true);
+          }
+        }
+      }
+
       // Subscribe to realtime updates so reorders/edits in the builder reflect immediately
       const channel = supabase
         .channel(`pitch_deck_${id}`)
