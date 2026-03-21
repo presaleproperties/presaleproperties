@@ -173,6 +173,17 @@ export function ExitIntentPopup() {
         utm_campaign: utmCampaign,
       });
 
+      // Fire Lofty CRM sync with full tracking (fire-and-forget)
+      submitLead({
+        firstName: "Guide",
+        lastName: "Download",
+        email: data.email.trim(),
+        phone: "",
+        formType: "exit_popup",
+        message: "7 Red Flags Guide - Exit Intent Download",
+        projectUrl: window.location.href,
+      });
+
       // Send to Zapier via edge function
       supabase.functions
         .invoke("send-project-lead", { body: { leadId } })
