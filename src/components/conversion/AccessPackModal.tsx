@@ -329,7 +329,7 @@ export function AccessPackModal({
                 </Label>
                 <Input id="apm-phone" type="tel" inputMode="numeric" placeholder="(604) 555-0123" autoComplete="tel"
                   value={form.watch("phone")}
-                  onChange={(e) => { const { formatPhoneNumber } = require("@/lib/formatPhone"); form.setValue("phone", formatPhoneNumber(e.target.value), { shouldValidate: form.formState.isSubmitted }); }}
+                  onChange={(e) => form.setValue("phone", formatPhoneNumber(e.target.value), { shouldValidate: form.formState.isSubmitted })}
                   className="h-11 mt-1 text-[16px]" />
                 {form.formState.errors.phone && (
                   <p className="text-xs text-destructive mt-1">{form.formState.errors.phone.message}</p>
