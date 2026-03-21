@@ -210,15 +210,6 @@ serve(async (req: Request): Promise<Response> => {
       }
     }
 
-    // Dummy block to close the old if — will be continued below
-    if (false) {
-      } else {
-        console.warn("Lofty search failed:", searchRes.status);
-      }
-    } catch (searchErr) {
-      console.warn("Lofty search error (will create new):", searchErr);
-    }
-
     // ── UPDATE existing contact ───────────────────────────────────────────
     if (existingLoftyId && existingLoftyId !== "null" && existingLoftyId !== "undefined") {
       console.log("Updating existing Lofty contact:", existingLoftyId);
