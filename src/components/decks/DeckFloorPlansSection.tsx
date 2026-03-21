@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FloorPlanModal, FloorPlan } from "./FloorPlanModal";
-import { LayoutPanelTop, ArrowRight, Square, TrendingUp, Car, Archive, Wind, CheckCircle2, Flame, TrendingUp as TrendUp, BedDouble, Bath } from "lucide-react";
+import { LayoutPanelTop, ArrowRight, Square, TrendingUp, Car, Archive, Wind, CheckCircle2, Flame, TrendingUp as TrendUp, BedDouble, Bath, Lock as LockIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function derivePsf(plan: FloorPlan): string | null {
