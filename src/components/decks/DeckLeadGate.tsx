@@ -71,6 +71,9 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
         body: { leadName: fullName.trim(), leadPhone: verPhone, leadEmail: email.trim().toLowerCase(), projectName, deckSlug: slug },
       }).catch(console.error);
 
+      // Send to Zapier via send-project-lead
+      supabase.functions.invoke("send-project-lead", { body: { leadId: crypto.randomUUID() } }).catch(console.error);
+
       supabase.functions.invoke("trigger-workflow", {
         body: {
           event: "project_inquiry",
