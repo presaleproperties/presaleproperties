@@ -37,7 +37,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitted },
     reset,
     watch,
     setValue,
