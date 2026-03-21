@@ -1200,7 +1200,60 @@ export default function DashboardDeckBuilder() {
             </div>
           </div>
         </Section>
-      </div>
+        </div>{/* end builder inner */}
+        </div>{/* end builder column */}
+
+        {/* Live preview column — sticky, only visible on xl+ */}
+        <div className="hidden xl:flex flex-col w-[480px] shrink-0 sticky top-0 h-screen border-l border-border/50 bg-muted/20">
+          {/* Preview header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-background shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+              </span>
+              <p className="text-sm font-semibold text-foreground">Live Preview</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {slug ? (
+                <a
+                  href={`/deck/${slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Open full page
+                </a>
+              ) : (
+                <span className="text-xs text-muted-foreground">Save to preview</span>
+              )}
+            </div>
+          </div>
+
+          {/* iframe or placeholder */}
+          <div className="flex-1 overflow-hidden relative">
+            {slug ? (
+              <iframe
+                key={slug}
+                src={`/deck/${slug}`}
+                title="Deck Live Preview"
+                className="w-full h-full border-0"
+                style={{ transform: "scale(0.75)", transformOrigin: "top left", width: "133.33%", height: "133.33%" }}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full gap-4 px-8 text-center">
+                <Eye className="h-12 w-12 text-muted-foreground/20" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Preview will appear here</p>
+                  <p className="text-xs text-muted-foreground mt-1">Save the deck first to see the live preview</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+      </div>{/* end two-column */}
 
       {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border/50 shadow-lg">
