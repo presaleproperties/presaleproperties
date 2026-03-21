@@ -150,6 +150,21 @@ export function ProjectMobileCTA({
 
       if (error) throw error;
 
+      // Fire Lofty CRM sync with full tracking data (fire-and-forget)
+      submitLead({
+        firstName: data.fullName.split(" ")[0] ?? data.fullName,
+        lastName: data.fullName.split(" ").slice(1).join(" ") || "",
+        email: data.email,
+        phone,
+        formType: "project_inquiry",
+        projectName,
+        projectUrl: window.location.href,
+        message: [
+          data.workingWithAgent ? "Working with agent" : null,
+          data.isRealtor ? "Is a Realtor" : null,
+        ].filter(Boolean).join(", ") || undefined,
+      });
+
       trackCTAClick({ cta_type: "lead_form_submit", cta_label: "Get Instant Access", cta_location: "mobile_cta_footer", project_id: projectId, project_name: projectName });
       trackFormSubmit({ form_name: "floor_plan_request", form_location: "mobile_cta_footer", first_name: data.fullName, last_name: "", email: data.email, phone, user_type: actualPersona, project_id: projectId, project_name: projectName });
 
