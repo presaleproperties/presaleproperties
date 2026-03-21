@@ -199,17 +199,6 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
                 {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
               </div>
 
-              {/* Realtor checkbox */}
-              <label className="flex items-center gap-2.5 cursor-pointer select-none py-1">
-                <input
-                  type="checkbox"
-                  checked={isRealtor}
-                  onChange={(e) => setIsRealtor(e.target.checked)}
-                  className="h-4 w-4 rounded border-input accent-primary cursor-pointer"
-                />
-                <span className="text-sm text-muted-foreground">I'm a licensed Realtor</span>
-              </label>
-
               {/* Submit */}
               <button
                 type="submit"
