@@ -80,7 +80,9 @@ export default function DashboardDecks() {
   };
 
   const copyLink = (slug: string) => {
-    const url = `https://presaleproperties.com/deck/${slug}`;
+    // Use the OG proxy so WhatsApp/iMessage/social previews show the deck hero image & details.
+    // Humans who click the link are redirected to the real deck page by the edge function.
+    const url = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${slug}`;
     navigator.clipboard.writeText(url);
     toast.success("Public link copied! Send this to your clients.");
   };
