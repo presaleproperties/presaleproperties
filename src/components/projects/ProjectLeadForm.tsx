@@ -18,6 +18,7 @@ import { trackCTAClick } from "@/hooks/useLoftyTracking";
 import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId } from "@/lib/tracking";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
