@@ -226,6 +226,15 @@ export default function DashboardDeckBuilder() {
   const [unitsRemaining, setUnitsRemaining] = useState<string>("");
   const [nextPriceIncrease, setNextPriceIncrease] = useState<string>("");
 
+  // Lead Gate
+  const ALL_GATE_SECTIONS = [
+    { id: "floor-plans", label: "Floor Plans & Pricing" },
+    { id: "deposit-timeline", label: "Deposit Timeline" },
+    { id: "projections", label: "Investment Calculator" },
+  ] as const;
+  const [gateEnabled, setGateEnabled] = useState(true);
+  const [gatedSections, setGatedSections] = useState<string[]>(["floor-plans", "deposit-timeline", "projections"]);
+
   // Publishing
   const [slug, setSlug] = useState("");
   const [slugTaken, setSlugTaken] = useState(false);
