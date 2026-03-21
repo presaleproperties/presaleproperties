@@ -384,7 +384,7 @@ export function ProjectLeadForm({
             type="submit"
             className="w-full h-12 text-sm font-semibold rounded-lg gap-2 shadow-gold hover:shadow-gold-glow transition-all"
             size="lg"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !verifiedPhone}
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">

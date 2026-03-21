@@ -288,7 +288,7 @@ export function ProjectMobileCTA({
                       <p className="text-xs text-destructive text-center">{form.formState.errors.root.message}</p>
                     )}
 
-                    <Button type="submit" className="w-full h-12 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all gap-2" disabled={isSubmitting}>
+                    <Button type="submit" className="w-full h-12 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all gap-2" disabled={isSubmitting || !verifiedPhone}>
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
                           <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
