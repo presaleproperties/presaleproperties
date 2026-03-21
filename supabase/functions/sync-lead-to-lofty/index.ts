@@ -430,7 +430,7 @@ serve(async (req: Request): Promise<Response> => {
         lastStatus = res.status;
         lastBody = bodyText;
 
-        console.log("Lofty POST response:", res.status);
+        console.log("Lofty POST response:", res.status, bodyText.substring(0, 500));
 
         if (res.ok) {
           let loftyData: any;
@@ -440,7 +440,7 @@ serve(async (req: Request): Promise<Response> => {
             loftyData = { raw: bodyText };
           }
 
-          console.log("New lead created in Lofty successfully");
+          console.log("Lofty created contact ID:", loftyData?.id || loftyData?.lead_id || loftyData?.contact_id || "unknown");
           return new Response(
             JSON.stringify({
               success: true,
