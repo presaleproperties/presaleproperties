@@ -146,12 +146,10 @@ serve(async (req: Request): Promise<Response> => {
     console.log("Prepared contact:", { firstName, lastName, email, phone, tags });
 
     // ── Always CREATE a new lead — Lofty handles deduplication ──────────────
-    // We never PUT/update existing contacts. This prevents overwriting names,
-    // removing tags, or corrupting data that exists in Lofty already.
+    // We never search for or PUT/update existing contacts. This prevents
+    // overwriting names, removing tags, or corrupting existing Lofty data.
+    // Lofty will automatically merge by email/phone on their side.
     console.log("Creating new Lofty lead for:", email);
-
-    // ── CREATE new contact ────────────────────────────────────────────────
-    console.log("Creating new Lofty contact for:", email);
 
     const createPayload = {
       // Both camelCase (Lofty requires) and snake_case aliases
