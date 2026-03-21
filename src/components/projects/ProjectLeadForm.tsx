@@ -64,7 +64,7 @@ export function ProjectLeadForm({
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   // pendingData holds the validated form data while awaiting OTP
   const [pendingData, setPendingData] = useState<FormData | null>(null);
-  const triggerSendRef = useRef<((phone: string) => Promise<void>) | null>(null);
+  const hasSentRef = useRef(false);
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);

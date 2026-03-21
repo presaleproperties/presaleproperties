@@ -61,7 +61,7 @@ export function ProjectMobileCTA({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [pendingData, setPendingData] = useState<FormData | null>(null);
-  const triggerSendRef = useRef<((phone: string) => Promise<void>) | null>(null);
+  const hasSentRef = useRef(false);
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);
