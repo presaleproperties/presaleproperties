@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Calendar, CheckCircle, MessageCircle, Shield, Send, X } from "lucide-react";
+import { Calendar, CheckCircle, MessageCircle, Shield, Send, X, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,6 @@ import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/l
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
-import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
 import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
@@ -73,27 +72,15 @@ export function AccessPackModal({
   variant = "floorplans",
   source = "modal",
 }: AccessPackModalProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
-  const [pendingData, setPendingData] = useState<FormData | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
-  const triggerSendRef = useRef<((phone: string) => Promise<void>) | null>(null);
-  const hasSentRef = useRef(false);
   const { toast } = useToast();
   const isMobileOrTablet = useIsMobileOrTablet();
   const { submitLead } = useLeadSubmission();
 
   useEffect(() => {
-    const fetchWhatsapp = async () => {
-      const { data } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "whatsapp_number")
-        .maybeSingle();
-      if (data?.value) setWhatsappNumber(data.value as string);
-    };
-    fetchWhatsapp();
+    supabase.from("app_settings").select("value").eq("key", "whatsapp_number").maybeSingle()
+      .then(({ data }) => { if (data?.value) setWhatsappNumber(data.value as string); });
   }, []);
 
   useEffect(() => {
@@ -109,9 +96,6 @@ export function AccessPackModal({
     }
     if (!open) {
       setIsSuccess(false);
-      setVerifiedPhone(null);
-      setPendingData(null);
-      hasSentRef.current = false;
       form.reset();
     }
   }, [open]);
@@ -131,8 +115,7 @@ export function AccessPackModal({
     },
   });
 
-  const completeLead = async (phone: string, data: FormData) => {
-    setIsSubmitting(true);
+  const onSubmit = async (data: FormData) => {
     try {
       const utmSource = sessionStorage.getItem("utm_source") || null;
       const utmMedium = sessionStorage.getItem("utm_medium") || null;
@@ -169,7 +152,7 @@ export function AccessPackModal({
         project_id: projectId || null,
         name: fullName,
         email: data.email,
-        phone,
+        phone: data.phone,
         message: messageData,
         persona: actualPersona,
         timeline: data.timeline,
@@ -199,13 +182,12 @@ export function AccessPackModal({
 
       if (error) throw error;
 
-      // Fire Lofty CRM sync + patch DB row with tracking data (fire-and-forget)
       submitLead({
         leadId,
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
-        phone,
+        phone: data.phone,
         formType: "vip_access",
         projectName: projectName,
         projectUrl: window.location.href,
@@ -220,7 +202,7 @@ export function AccessPackModal({
         first_name: data.firstName,
         last_name: data.lastName,
         email: data.email,
-        phone,
+        phone: data.phone,
         user_type: actualPersona,
         project_name: projectName,
       });
@@ -231,7 +213,7 @@ export function AccessPackModal({
         body: {
           event_name: "Lead",
           email: data.email,
-          phone,
+          phone: data.phone,
           first_name: data.firstName,
           last_name: data.lastName,
           event_source_url: window.location.href,
@@ -245,46 +227,23 @@ export function AccessPackModal({
 
       localStorage.setItem("presale_persona", actualPersona);
 
-      if (typeof window !== "undefined") {
-        (window as any).gtag?.("event", "submit_access_pack", {
-          page_path: window.location.pathname,
-          project_name: projectName || "general",
-          persona: actualPersona,
-          timeline: data.timeline,
-          working_with_agent: data.workingWithAgent,
-        });
-        (window as any).fbq?.("track", "Lead", {
-          content_name: projectName || "Access Pack",
-          content_category: actualPersona,
-        });
-      }
+      (window as any).gtag?.("event", "submit_access_pack", {
+        page_path: window.location.pathname,
+        project_name: projectName || "general",
+        persona: actualPersona,
+        timeline: data.timeline,
+        working_with_agent: data.workingWithAgent,
+      });
+      (window as any).fbq?.("track", "Lead", {
+        content_name: projectName || "Access Pack",
+        content_category: actualPersona,
+      });
 
       setIsSuccess(true);
     } catch (error: any) {
       console.error("Error:", error);
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
-      setPendingData(null);
-    } finally {
-      setIsSubmitting(false);
     }
-  };
-
-  const handleVerified = (phone: string) => {
-    setVerifiedPhone(phone);
-    if (pendingData) completeLead(phone, pendingData);
-  };
-
-  const handleReady = ({ triggerSend }: { triggerSend: (phone: string) => Promise<void> }) => {
-    triggerSendRef.current = triggerSend;
-    if (pendingData && !hasSentRef.current) {
-      hasSentRef.current = true;
-      triggerSend(pendingData.phone);
-    }
-  };
-
-  const onSubmit = async (data: FormData) => {
-    hasSentRef.current = false;
-    setPendingData(data);
   };
 
   const whatsappMessage = encodeURIComponent(
@@ -298,7 +257,7 @@ export function AccessPackModal({
     return "Request a Call Back";
   };
 
-  const isAwaitingOTP = !!pendingData && !verifiedPhone;
+  const { isSubmitting } = form.formState;
 
   const FormContent = () => (
     <>
@@ -315,216 +274,183 @@ export function AccessPackModal({
                 <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               )}
             </div>
-            <h2 className="text-lg sm:text-xl font-bold">
-              {isAwaitingOTP ? "Verify Your Phone" : getTitle()}
-            </h2>
+            <h2 className="text-lg sm:text-xl font-bold">{getTitle()}</h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              {isAwaitingOTP
-                ? "Enter the 6-digit code we just sent you"
-                : variant === "general_interest"
+              {variant === "general_interest"
                 ? "Be first to see new move-in-ready inventory"
                 : projectName
                 ? `Get expert guidance on ${projectName}`
                 : "Connect with our presale experts"}
             </p>
-            {!isAwaitingOTP && (
-              <p className="text-xs text-green-600 font-medium mt-1">✓ Same-day callback available</p>
-            )}
+            <p className="text-xs text-green-600 font-medium mt-1">✓ Same-day callback available</p>
           </div>
 
-          {/* OTP Step */}
-          {isAwaitingOTP ? (
-            <div className="space-y-4">
-              <PhoneVerificationField
-                autoTrigger
-                defaultPhone={pendingData?.phone ?? ""}
-                onVerified={handleVerified}
-                onReady={handleReady}
-              />
-              {isSubmitting && (
-                <div className="flex items-center justify-center gap-2 py-2">
-                  <span className="h-4 w-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                  <span className="text-sm text-muted-foreground">Submitting your information…</span>
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => { setPendingData(null); hasSentRef.current = false; }}
-                className="w-full text-xs text-muted-foreground hover:text-foreground underline text-center"
-              >
-                ← Go back and edit
-              </button>
-            </div>
-          ) : (
-            /* Form Step */
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label htmlFor="firstName" className="text-xs sm:text-sm">
-                      First Name <span className="text-destructive">*</span>
-                    </Label>
-                    <Input id="firstName" name="fname" placeholder="John" autoComplete="given-name" autoCapitalize="words"
-                      {...form.register("firstName")} className="h-11 mt-1 text-[16px]" />
-                    {form.formState.errors.firstName && (
-                      <p className="text-xs text-destructive mt-1">{form.formState.errors.firstName.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName" className="text-xs sm:text-sm">
-                      Last Name <span className="text-destructive">*</span>
-                    </Label>
-                    <Input id="lastName" name="lname" placeholder="Smith" autoComplete="family-name" autoCapitalize="words"
-                      {...form.register("lastName")} className="h-11 mt-1 text-[16px]" />
-                    {form.formState.errors.lastName && (
-                      <p className="text-xs text-destructive mt-1">{form.formState.errors.lastName.message}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="email" className="text-xs sm:text-sm">
-                    Email <span className="text-destructive">*</span>
-                  </Label>
-                  <Input id="email" name="email" type="email" inputMode="email" placeholder="john@email.com"
-                    autoComplete="email" autoCapitalize="none"
-                    {...form.register("email")} className="h-11 mt-1 text-[16px]" />
-                  {form.formState.errors.email && (
-                    <p className="text-xs text-destructive mt-1">{form.formState.errors.email.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="apm-phone" className="text-xs sm:text-sm">
-                    Phone <span className="text-destructive">*</span>
-                  </Label>
-                  <Input id="apm-phone" type="tel" inputMode="tel" placeholder="604-555-0123" autoComplete="tel"
-                    {...form.register("phone")} className="h-11 mt-1 text-[16px]" />
-                  {form.formState.errors.phone && (
-                    <p className="text-xs text-destructive mt-1">{form.formState.errors.phone.message}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* I am a... */}
-              <div>
-                <Label className="text-xs sm:text-sm font-medium">
-                  I am a... <span className="text-destructive">*</span>
-                </Label>
-                <RadioGroup value={form.watch("persona")} onValueChange={(v) => form.setValue("persona", v as any)}
-                  className="grid grid-cols-2 gap-2 mt-1.5">
-                  {PERSONAS.map((p) => (
-                    <Label key={p.value}
-                      className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-sm transition-all ${
-                        form.watch("persona") === p.value
-                          ? "border-primary bg-primary/10 text-primary font-medium"
-                          : "border-border hover:border-muted-foreground/50"
-                      }`}>
-                      <RadioGroupItem value={p.value} className="sr-only" />
-                      {p.label}
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </div>
-
-              {/* Working with agent */}
-              <div>
-                <Label className="text-xs sm:text-sm font-medium">
-                  Working with a Realtor? <span className="text-destructive">*</span>
-                </Label>
-                <RadioGroup value={form.watch("workingWithAgent")} onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
-                  className="grid grid-cols-3 gap-2 mt-1.5">
-                  {AGENT_OPTIONS.map((a) => (
-                    <Label key={a.value}
-                      className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
-                        form.watch("workingWithAgent") === a.value
-                          ? "border-primary bg-primary/10 text-primary font-medium"
-                          : "border-border hover:border-muted-foreground/50"
-                      }`}>
-                      <RadioGroupItem value={a.value} className="sr-only" />
-                      {a.label}
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </div>
-
-              {/* Timeline & Property Type */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
+            <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs sm:text-sm font-medium">
-                    Timeline <span className="text-destructive">*</span>
+                  <Label htmlFor="firstName" className="text-xs sm:text-sm">
+                    First Name <span className="text-destructive">*</span>
                   </Label>
-                  <RadioGroup value={form.watch("timeline")} onValueChange={(v) => form.setValue("timeline", v as any)}
-                    className="grid grid-cols-1 gap-2 mt-1.5">
-                    {TIMELINES.map((t) => (
-                      <Label key={t.value}
-                        className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
-                          form.watch("timeline") === t.value
-                            ? "border-primary bg-primary/10 text-primary font-medium"
-                            : "border-border hover:border-muted-foreground/50"
-                        }`}>
-                        <RadioGroupItem value={t.value} className="sr-only" />
-                        {t.label}
-                      </Label>
-                    ))}
-                  </RadioGroup>
+                  <Input id="firstName" name="fname" placeholder="John" autoComplete="given-name" autoCapitalize="words"
+                    {...form.register("firstName")} className="h-11 mt-1 text-[16px]" />
+                  {form.formState.errors.firstName && (
+                    <p className="text-xs text-destructive mt-1">{form.formState.errors.firstName.message}</p>
+                  )}
                 </div>
                 <div>
-                  <Label className="text-xs sm:text-sm font-medium">
-                    Property Type <span className="text-destructive">*</span>
+                  <Label htmlFor="lastName" className="text-xs sm:text-sm">
+                    Last Name <span className="text-destructive">*</span>
                   </Label>
-                  <RadioGroup value={form.watch("propertyType")} onValueChange={(v) => form.setValue("propertyType", v as any)}
-                    className="grid grid-cols-1 gap-2 mt-1.5">
-                    {PROPERTY_TYPES.map((pt) => (
-                      <Label key={pt.value}
-                        className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
-                          form.watch("propertyType") === pt.value
-                            ? "border-primary bg-primary/10 text-primary font-medium"
-                            : "border-border hover:border-muted-foreground/50"
-                        }`}>
-                        <RadioGroupItem value={pt.value} className="sr-only" />
-                        {pt.label}
-                      </Label>
-                    ))}
-                  </RadioGroup>
+                  <Input id="lastName" name="lname" placeholder="Smith" autoComplete="family-name" autoCapitalize="words"
+                    {...form.register("lastName")} className="h-11 mt-1 text-[16px]" />
+                  {form.formState.errors.lastName && (
+                    <p className="text-xs text-destructive mt-1">{form.formState.errors.lastName.message}</p>
+                  )}
                 </div>
               </div>
 
-              <Button type="submit" size="lg"
-                className="w-full h-12 font-semibold text-sm gap-2">
-                <Send className="h-4 w-4" />
-                {variant === "floorplans" ? "Get Instant Access" : variant === "general_interest" ? "Get Updates" : "Request Call Back"}
-              </Button>
+              <div>
+                <Label htmlFor="email" className="text-xs sm:text-sm">
+                  Email <span className="text-destructive">*</span>
+                </Label>
+                <Input id="email" name="email" type="email" inputMode="email" placeholder="john@email.com"
+                  autoComplete="email" autoCapitalize="none"
+                  {...form.register("email")} className="h-11 mt-1 text-[16px]" />
+                {form.formState.errors.email && (
+                  <p className="text-xs text-destructive mt-1">{form.formState.errors.email.message}</p>
+                )}
+              </div>
 
-              <p className="text-center text-[10px] text-muted-foreground/60">
-                <span className="text-primary/70">✓</span> No spam ·{" "}
-                <a href="/privacy" className="underline hover:text-foreground/60">Privacy Policy</a>
-              </p>
-            </form>
-          )}
+              <div>
+                <Label htmlFor="apm-phone" className="text-xs sm:text-sm">
+                  Phone <span className="text-destructive">*</span>
+                </Label>
+                <Input id="apm-phone" type="tel" inputMode="tel" placeholder="604-555-0123" autoComplete="tel"
+                  {...form.register("phone")} className="h-11 mt-1 text-[16px]" />
+                {form.formState.errors.phone && (
+                  <p className="text-xs text-destructive mt-1">{form.formState.errors.phone.message}</p>
+                )}
+              </div>
+            </div>
+
+            {/* I am a... */}
+            <div>
+              <Label className="text-xs sm:text-sm font-medium">
+                I am a... <span className="text-destructive">*</span>
+              </Label>
+              <RadioGroup value={form.watch("persona")} onValueChange={(v) => form.setValue("persona", v as any)}
+                className="grid grid-cols-2 gap-2 mt-1.5">
+                {PERSONAS.map((p) => (
+                  <Label key={p.value}
+                    className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-sm transition-all ${
+                      form.watch("persona") === p.value
+                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        : "border-border hover:border-muted-foreground/50"
+                    }`}>
+                    <RadioGroupItem value={p.value} className="sr-only" />
+                    {p.label}
+                  </Label>
+                ))}
+              </RadioGroup>
+            </div>
+
+            {/* Working with agent */}
+            <div>
+              <Label className="text-xs sm:text-sm font-medium">
+                Working with a Realtor? <span className="text-destructive">*</span>
+              </Label>
+              <RadioGroup value={form.watch("workingWithAgent")} onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
+                className="grid grid-cols-3 gap-2 mt-1.5">
+                {AGENT_OPTIONS.map((a) => (
+                  <Label key={a.value}
+                    className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
+                      form.watch("workingWithAgent") === a.value
+                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        : "border-border hover:border-muted-foreground/50"
+                    }`}>
+                    <RadioGroupItem value={a.value} className="sr-only" />
+                    {a.label}
+                  </Label>
+                ))}
+              </RadioGroup>
+            </div>
+
+            {/* Timeline */}
+            <div>
+              <Label className="text-xs sm:text-sm font-medium">
+                Purchase Timeline <span className="text-destructive">*</span>
+              </Label>
+              <RadioGroup value={form.watch("timeline")} onValueChange={(v) => form.setValue("timeline", v as any)}
+                className="grid grid-cols-2 gap-2 mt-1.5">
+                {TIMELINES.map((t) => (
+                  <Label key={t.value}
+                    className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-sm transition-all ${
+                      form.watch("timeline") === t.value
+                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        : "border-border hover:border-muted-foreground/50"
+                    }`}>
+                    <RadioGroupItem value={t.value} className="sr-only" />
+                    {t.label}
+                  </Label>
+                ))}
+              </RadioGroup>
+            </div>
+
+            {/* Property type */}
+            <div>
+              <Label className="text-xs sm:text-sm font-medium">
+                Property Type <span className="text-destructive">*</span>
+              </Label>
+              <RadioGroup value={form.watch("propertyType")} onValueChange={(v) => form.setValue("propertyType", v as any)}
+                className="grid grid-cols-2 gap-2 mt-1.5">
+                {PROPERTY_TYPES.map((pt) => (
+                  <Label key={pt.value}
+                    className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-sm transition-all ${
+                      form.watch("propertyType") === pt.value
+                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        : "border-border hover:border-muted-foreground/50"
+                    }`}>
+                    <RadioGroupItem value={pt.value} className="sr-only" />
+                    {pt.label}
+                  </Label>
+                ))}
+              </RadioGroup>
+            </div>
+
+            <Button type="submit" className="w-full h-12 font-bold text-sm" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting…</>
+              ) : (
+                <><Send className="h-4 w-4 mr-2" /> {getTitle()}</>
+              )}
+            </Button>
+
+            <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <Shield className="h-3 w-3" />
+              <span>Your information is secure and never shared</span>
+            </div>
+          </form>
         </div>
       ) : (
-        /* Success State */
-        <div className="p-6 sm:p-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-            <CheckCircle className="h-8 w-8 text-primary" />
+        /* Success */
+        <div className="p-6 text-center space-y-4">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-full">
+            <CheckCircle className="h-7 w-7 text-primary" />
           </div>
-          <h2 className="text-xl font-bold mb-2">You're All Set!</h2>
-          <p className="text-muted-foreground text-sm mb-6">
-            {variant === "general_interest"
-              ? "You're on the list! We'll notify you as soon as new inventory becomes available."
-              : "One of our agents will follow up within 24 hours."}
-          </p>
-          <Button asChild size="lg"
-            className="w-full h-12 text-sm font-semibold bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
+          <div>
+            <h3 className="text-xl font-bold">You're All Set!</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              One of our agents will contact you shortly with all the details.
+            </p>
+          </div>
+          <Button asChild className="w-full h-12 bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
               <MessageCircle className="h-4 w-4 mr-2" />
-              Chat Now on WhatsApp
+              Chat on WhatsApp Now
             </a>
           </Button>
-          <p className="text-xs text-muted-foreground mt-3">
-            We're available 7 days a week to answer your questions.
-          </p>
+          <p className="text-xs text-muted-foreground">Available 7 days a week</p>
         </div>
       )}
     </>
@@ -533,7 +459,7 @@ export function AccessPackModal({
   if (isMobileOrTablet) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="bottom" className="p-0 rounded-t-3xl max-h-[90vh] overflow-y-auto">
+        <SheetContent side="bottom" className="p-0 rounded-t-2xl max-h-[90vh] overflow-y-auto">
           <SheetHeader className="sr-only">
             <SheetTitle>{getTitle()}</SheetTitle>
           </SheetHeader>
@@ -545,11 +471,13 @@ export function AccessPackModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+      <DialogContent className="p-0 max-w-md overflow-hidden">
         <VisuallyHidden>
           <DialogTitle>{getTitle()}</DialogTitle>
         </VisuallyHidden>
-        <FormContent />
+        <div className="overflow-y-auto max-h-[85vh]">
+          <FormContent />
+        </div>
       </DialogContent>
     </Dialog>
   );
