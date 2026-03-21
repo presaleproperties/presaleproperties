@@ -1175,7 +1175,7 @@ export default function DashboardDeckBuilder() {
                   className={slugTaken ? "border-destructive" : ""}
                 />
                 {slug && (
-                  <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/deck/${slug}`); toast.success("Link copied!"); }}
+                  <button onClick={() => { navigator.clipboard.writeText(`https://presaleproperties.com/deck/${slug}`); toast.success("Link copied!"); }}
                     className="shrink-0 text-muted-foreground hover:text-primary transition-colors">
                     <Copy className="h-4 w-4" />
                   </button>
