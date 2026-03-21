@@ -326,8 +326,10 @@ export function AccessPackModal({
                 <Label htmlFor="apm-phone" className="text-xs sm:text-sm">
                   Phone <span className="text-destructive">*</span>
                 </Label>
-                <Input id="apm-phone" type="tel" inputMode="tel" placeholder="604-555-0123" autoComplete="tel"
-                  {...form.register("phone")} className="h-11 mt-1 text-[16px]" />
+                <Input id="apm-phone" type="tel" inputMode="numeric" placeholder="(604) 555-0123" autoComplete="tel"
+                  value={form.watch("phone")}
+                  onChange={(e) => { const { formatPhoneNumber } = require("@/lib/formatPhone"); form.setValue("phone", formatPhoneNumber(e.target.value), { shouldValidate: form.formState.isSubmitted }); }}
+                  className="h-11 mt-1 text-[16px]" />
                 {form.formState.errors.phone && (
                   <p className="text-xs text-destructive mt-1">{form.formState.errors.phone.message}</p>
                 )}
