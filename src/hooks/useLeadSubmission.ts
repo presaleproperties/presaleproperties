@@ -13,6 +13,8 @@ export interface LeadSubmissionPayload {
   projectCity?: string;
   projectUrl?: string;
   message?: string;
+  /** If provided, also patches this project_leads row with tracking + score data */
+  leadId?: string;
 }
 
 export interface LeadSubmissionResult {
@@ -81,7 +83,36 @@ export function useLeadSubmission(): LeadSubmissionResult {
         userLanguage: tracking.userLanguage,
       };
 
-      // Fire-and-forget: call edge function. Lead is already saved in Supabase by the form itself.
+      // If a leadId was provided, patch the project_leads row with tracking + score data
+      if (payload.leadId) {
+        supabase.from("project_leads").update({
+          form_type: payload.formType,
+          lead_score: score,
+          lead_temperature: temperature,
+          pages_viewed: tracking.pagesViewed,
+          time_on_site: tracking.timeOnSite,
+          session_count: tracking.sessionCount,
+          used_calculator: tracking.usedCalculator,
+          device_type: tracking.deviceType,
+          tracking_data: {
+            pagesVisited: tracking.pagesVisited,
+            firstVisitDate: tracking.firstVisitDate,
+            userLanguage: tracking.userLanguage,
+            referrerUrl: tracking.referrerUrl,
+            landingPage: tracking.landingPage,
+            currentPageUrl: tracking.currentPageUrl,
+            currentPageTitle: tracking.currentPageTitle,
+            calculatorData: tracking.calculatorData,
+            utmTerm: tracking.utmTerm,
+            utmContent: tracking.utmContent,
+          },
+        }).eq("id", payload.leadId).then(({ error: patchErr }) => {
+          if (patchErr) console.warn("[useLeadSubmission] DB patch failed:", patchErr);
+          else console.log("[useLeadSubmission] DB row patched with tracking data");
+        });
+      }
+
+      // Fire-and-forget: call edge function to sync to Lofty CRM.
       // We deliberately do NOT await this — never block form success on CRM sync.
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const supabaseUrl = `https://${projectId}.supabase.co`;
