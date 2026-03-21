@@ -248,7 +248,8 @@ export default function AssignmentDetail() {
           name="description"
           content={`${listing.beds}BR assignment at ${listing.project_name} in ${listing.city}. ${formatPrice(listing.assignment_price)}.`}
         />
-        <meta name="robots" content="noindex, nofollow" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href={`https://presaleproperties.com/assignments/${listing.id}`} />
       </Helmet>
 
       <ConversionHeader />

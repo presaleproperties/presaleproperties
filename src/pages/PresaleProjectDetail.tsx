@@ -610,6 +610,7 @@ export default function PresaleProjectDetail() {
       <Helmet>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <meta name="keywords" content={`${project.name}, ${project.name} presale, ${project.neighborhood} presale ${projectTypeSingular}, ${project.city} presale ${projectTypeSingular}, new construction ${project.city}, ${project.developer_name || ""} ${project.city}, pre-construction ${project.neighborhood}, VIP presale ${project.city}`} />
         <link rel="canonical" href={canonicalUrl} />
         

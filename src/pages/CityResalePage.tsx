@@ -617,6 +617,7 @@ export default function CityResalePage() {
       <Helmet>
         <title>{cityConfig.metaTitle}</title>
         <meta name="description" content={cityConfig.metaDescription} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <link rel="canonical" href={`https://presaleproperties.com/properties/${citySlug}`} />
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>

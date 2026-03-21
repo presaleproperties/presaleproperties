@@ -26,13 +26,11 @@ import { useMemo } from "react";
 
 const SITE_URL = "https://presaleproperties.com";
 
-// ⚠️ TIGHT noindex params — ONLY true UI/map params, NOT content filters
-// Removed: beds, baths, price, type, deposit, year, status — these are content filters
-// that should be crawlable (they have canonical city pages to point to)
+// ⚠️ TIGHT noindex params — ONLY true UI/map coordinate params
+// sort, filter, view, q, search are NOT noindex — they either have canonical
+// targets or are content signals that should remain crawlable
 const NOINDEX_PARAMS = [
   "lat", "lng", "zoom", "mode",   // map/UI-only coordinates
-  "filter", "q", "search",         // search UI state (no canonical target)
-  "view",                           // UI layout toggle
 ];
 
 // Routes that should ALWAYS be noindexed
