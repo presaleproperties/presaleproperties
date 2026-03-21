@@ -349,6 +349,8 @@ export default function DashboardDeckBuilder() {
       setDeckAmenities(data.amenities || []);
       setSlug(data.slug || "");
       setIsPublished(data.is_published || false);
+      setGateEnabled(data.gate_enabled !== false); // default true if null
+      setGatedSections(data.gated_sections?.length ? data.gated_sections : ["floor-plans", "deposit-timeline", "projections"]);
       if (data.linked_project_id) {
         setLinkedProjectId(data.linked_project_id);
         setLinkedProjectName(data.project_name || "");
