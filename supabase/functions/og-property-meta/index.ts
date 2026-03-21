@@ -145,10 +145,9 @@ Deno.serve(async (req) => {
       const description = parts.join(" ");
       const metaDesc = description.length > 160 ? description.slice(0, 157) + "…" : description;
 
-      if (!isBot(userAgent)) {
-        return new Response(null, { status: 302, headers: { ...corsHeaders, "Location": canonicalUrl } });
-      }
-
+      // Always serve OG HTML — never HTTP-redirect from this URL.
+      // Crawlers (WhatsApp, iMessage, etc.) ignore JS so they read the meta tags.
+      // Real humans get instant JS redirect to the canonical deck page.
       const html = `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -167,6 +166,7 @@ Deno.serve(async (req) => {
 <meta name="twitter:description" content="${metaDesc}">
 <meta name="twitter:image" content="${heroImage}">
 <link rel="canonical" href="${canonicalUrl}">
+<script>window.location.replace("${canonicalUrl}");</script>
 </head><body>
 <img src="${heroImage}" alt="${deck.project_name}" style="max-width:100%;border-radius:8px;">
 <h1>${title}</h1><p>${metaDesc}</p>
