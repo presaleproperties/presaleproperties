@@ -24,6 +24,7 @@ import {
 
 interface DashboardLayoutProps {
   children: ReactNode;
+  noPadding?: boolean;
 }
 
 const navItems = [
