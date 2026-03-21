@@ -261,8 +261,8 @@ export default function Contact() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="phone" className="text-sm">Phone *</Label>
-                          <Input id="phone" name="phone" type="tel" placeholder="(672) 258-1100"
-                            value={formData.phone} onChange={handleChange} inputMode="tel"
+                          <Input id="phone" name="phone" type="tel" inputMode="numeric" placeholder="(604) 555-0123"
+                            value={formData.phone} onChange={handleChange}
                             className={`text-base text-[16px] ${errors.phone ? "border-destructive" : ""}`} />
                           {errors.phone && <p className="text-xs sm:text-sm text-destructive">{errors.phone}</p>}
                         </div>
