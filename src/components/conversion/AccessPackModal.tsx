@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
