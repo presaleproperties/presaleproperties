@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FloorPlanModal, FloorPlan } from "./FloorPlanModal";
-import { LayoutPanelTop, ArrowRight, Square, TrendingUp, Car, Archive, Wind, CheckCircle2, Flame, TrendingUp as TrendUp, BedDouble, Bath } from "lucide-react";
+import { LayoutPanelTop, ArrowRight, Square, TrendingUp, Car, Archive, Wind, CheckCircle2, Flame, TrendingUp as TrendUp, BedDouble, Bath, Lock as LockIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function derivePsf(plan: FloorPlan): string | null {
@@ -51,6 +51,8 @@ interface DeckFloorPlansSectionProps {
   unitsRemaining?: number | null;
   nextPriceIncrease?: string | null;
   incentives?: string[] | null;
+  isUnlocked?: boolean;
+  onUnlockRequest?: () => void;
 }
 
 export function DeckFloorPlansSection({
@@ -61,6 +63,7 @@ export function DeckFloorPlansSection({
   unitsRemaining,
   nextPriceIncrease,
   incentives,
+  isUnlocked = false,
 }: DeckFloorPlansSectionProps) {
   const [selected, setSelected] = useState<FloorPlan | null>(null);
 
@@ -73,6 +76,18 @@ export function DeckFloorPlansSection({
 
   return (
     <section id="floor-plans" className="relative py-16 sm:py-24 bg-muted/20 overflow-hidden">
+      {/* Lock overlay when not unlocked */}
+      {!isUnlocked && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm px-4">
+          <div className="bg-card border border-border rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
+            <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <LockIcon className="h-7 w-7 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-2">Floor Plans & Pricing Locked</h3>
+            <p className="text-sm text-muted-foreground">Fill out the form above to instantly unlock floor plans, unit pricing, and the investment calculator.</p>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         {/* Header */}

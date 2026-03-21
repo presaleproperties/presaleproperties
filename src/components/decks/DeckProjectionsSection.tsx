@@ -3,7 +3,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { TrendingUp, Home, Users, Building2, DollarSign, PiggyBank, CheckCircle2, AlertCircle, ArrowUpRight, Info } from "lucide-react";
+import { TrendingUp, Home, Users, Building2, DollarSign, PiggyBank, CheckCircle2, AlertCircle, ArrowUpRight, Info, Lock as LockIcon } from "lucide-react";
 import {
   calculatePTT,
   calculateGST,
@@ -20,6 +20,7 @@ interface DeckProjectionsSectionProps {
   projections: Projections;
   defaultPrice?: number;
   floorPlans?: FloorPlan[];
+  isUnlocked?: boolean;
 }
 
 const fmt = (n: number) =>
@@ -69,7 +70,7 @@ function BreakdownRow({ label, value, green, sub, strikethrough }: { label: stri
   );
 }
 
-export function DeckProjectionsSection({ projections, defaultPrice, floorPlans = [] }: DeckProjectionsSectionProps) {
+export function DeckProjectionsSection({ projections, defaultPrice, floorPlans = [], isUnlocked = false }: DeckProjectionsSectionProps) {
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
   const [selectedPlanId, setSelectedPlanId] = useState<string>(() => floorPlans?.[0]?.id ?? "");
   const [downPct, setDownPct] = useState(20);
@@ -138,7 +139,19 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
   const isPositiveCF = (results.monthlyCashFlow ?? 0) >= 0;
 
   return (
-    <div id="projections" className="w-full">
+    <div id="projections" className="relative w-full">
+      {/* Lock overlay */}
+      {!isUnlocked && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm px-4">
+          <div className="bg-card border border-border rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
+            <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <LockIcon className="h-7 w-7 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-2">Investment Calculator Locked</h3>
+            <p className="text-sm text-muted-foreground">Unlock the full calculator with your details to run your numbers — mortgage, cash flow, ROI and more.</p>
+          </div>
+        </div>
+      )}
 
         <div className="mb-10">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-3">06 — Your Numbers</p>

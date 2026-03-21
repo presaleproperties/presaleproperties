@@ -14,7 +14,9 @@ import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
 import { DeckFAQSection } from "@/components/decks/DeckFAQSection";
+import { DeckLeadGate } from "@/components/decks/DeckLeadGate";
 import { Loader2 } from "lucide-react";
+import { getVisitorId } from "@/lib/tracking/identifiers";
 
 const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
   { id: "d1", label: "Upon Signing", percent: 2.5, timing: "Due within 7 days", note: "Paid to the developer's trust account on execution of the Purchase Agreement." },
@@ -68,6 +70,7 @@ export default function DeckPublicPage() {
   const [loading, setLoading] = useState(true);
   const [navVisible, setNavVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
+  const [isUnlocked, setIsUnlocked] = useState(false);
   // Scroll position to restore when closing gallery
   const scrollYBeforeGallery = useRef<number>(0);
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -75,6 +78,11 @@ export default function DeckPublicPage() {
   useEffect(() => {
     if (!slug) return;
     let deckId: string | null = null;
+
+    // Check localStorage first (fastest)
+    if (localStorage.getItem(`deck_unlocked_${slug}`)) {
+      setIsUnlocked(true);
+    }
 
     const fetchDeck = async () => {
       const { data, error } = await (supabase as any)
@@ -89,8 +97,26 @@ export default function DeckPublicPage() {
       return data.id as string;
     };
 
-    fetchDeck().then((id) => {
+    fetchDeck().then(async (id) => {
       if (!id) return;
+
+      // Secondary check: visitor_id in project_leads (covers different browsers / cleared storage)
+      if (!localStorage.getItem(`deck_unlocked_${slug}`)) {
+        const visitorId = getVisitorId();
+        if (visitorId) {
+          const { data: existingLead } = await (supabase as any)
+            .from("project_leads")
+            .select("id")
+            .eq("visitor_id", visitorId)
+            .ilike("message", "Pitch Deck:%")
+            .maybeSingle();
+          if (existingLead) {
+            localStorage.setItem(`deck_unlocked_${slug}`, "1");
+            setIsUnlocked(true);
+          }
+        }
+      }
+
       // Subscribe to realtime updates so reorders/edits in the builder reflect immediately
       const channel = supabase
         .channel(`pitch_deck_${id}`)
@@ -217,6 +243,17 @@ export default function DeckPublicPage() {
         }
       `}</style>
     </Helmet>
+    {/* Lead gate — shown until user fills form */}
+    {!isUnlocked && deck && (
+      <DeckLeadGate
+        slug={slug!}
+        projectName={deck.project_name}
+        projectId={(deck as any).project_id || null}
+        heroImageUrl={deck.hero_image_url}
+        onUnlock={() => setIsUnlocked(true)}
+      />
+    )}
+
     <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip", scrollPaddingTop: "80px" }}>
 
       <DeckStickyNav
@@ -271,6 +308,8 @@ export default function DeckPublicPage() {
           unitsRemaining={deck.units_remaining}
           nextPriceIncrease={deck.next_price_increase}
           incentives={deck.incentives}
+          isUnlocked={isUnlocked}
+          onUnlockRequest={() => {}}
         />
       </div>
 
@@ -321,6 +360,7 @@ export default function DeckPublicPage() {
               completionYear={deck.completion_year || undefined}
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
+              isUnlocked={isUnlocked}
             />
           </div>
         </section>
@@ -336,6 +376,7 @@ export default function DeckPublicPage() {
               projections={deck.projections || {}}
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
+              isUnlocked={isUnlocked}
             />
           </div>
         </section>

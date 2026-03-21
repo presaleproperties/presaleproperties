@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Check, KeyRound, Clock } from "lucide-react";
+import { Check, KeyRound, Clock, Lock as LockIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DepositStep {
@@ -23,6 +23,7 @@ interface DeckDepositTimelineSectionProps {
   completionYear?: string;
   defaultPrice?: number;
   floorPlans?: FloorPlan[];
+  isUnlocked?: boolean;
 }
 
 const DEFAULT_PRICE = 799_000;
@@ -41,6 +42,7 @@ export function DeckDepositTimelineSection({
   completionYear,
   defaultPrice,
   floorPlans = [],
+  isUnlocked = false,
 }: DeckDepositTimelineSectionProps) {
   const plansWithPrice = floorPlans.filter(
     (fp) => fp.price_from && parsePrice(fp.price_from) > 0
@@ -71,7 +73,19 @@ export function DeckDepositTimelineSection({
   const balanceAtCompletion = price - totalDepositAmt;
 
   return (
-    <div id="deposit-timeline" className="w-full">
+    <div id="deposit-timeline" className="relative w-full">
+      {/* Lock overlay */}
+      {!isUnlocked && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm px-4">
+          <div className="bg-card border border-border rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
+            <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <LockIcon className="h-7 w-7 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-2">Deposit Schedule Locked</h3>
+            <p className="text-sm text-muted-foreground">Unlock the full deposit timeline and payment breakdown by filling out your details above.</p>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="mb-10">
