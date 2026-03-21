@@ -192,7 +192,7 @@ export function ProjectLeadForm({
             <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl">
               <a href={brochureUrl!} target="_blank" rel="noopener noreferrer">
                 <FileText className="h-4 w-4 mr-2" />
-                {isGoogleDriveLink(brochureUrl!) ? "View Brochure" : "Download Brochure"}
+                View Brochure
                 {isGoogleDriveLink(brochureUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
               </a>
             </Button>
