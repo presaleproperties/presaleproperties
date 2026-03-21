@@ -135,8 +135,9 @@ export function ProjectLeadForm({
 
       if (error) throw error;
 
-      // Fire Lofty CRM sync with full tracking data (fire-and-forget)
+      // Fire Lofty CRM sync + patch DB row with tracking data (fire-and-forget)
       submitLead({
+        leadId,
         firstName: data.fullName.split(" ")[0] ?? data.fullName,
         lastName: data.fullName.split(" ").slice(1).join(" ") || "",
         email: data.email,
