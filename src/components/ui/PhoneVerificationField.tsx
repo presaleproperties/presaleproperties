@@ -212,7 +212,15 @@ export function PhoneVerificationField({
 
   // ── IDLE / ERROR — only shown in manual mode (autoTrigger=false) ──────────────
   if (autoTrigger) {
-    // In autoTrigger mode, when idle/error we render nothing — phone input lives in the parent
+    // In autoTrigger mode, show error if SMS send failed; otherwise nothing (phone input lives in parent)
+    if (state === "error" && error) {
+      return (
+        <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-3">
+          <p className="text-sm text-destructive text-center">{error}</p>
+          <p className="text-xs text-muted-foreground text-center mt-1">Please go back and try again.</p>
+        </div>
+      );
+    }
     return null;
   }
 
