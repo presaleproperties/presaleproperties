@@ -310,7 +310,7 @@ export default function DeckPublicPage() {
           unitsRemaining={deck.units_remaining}
           nextPriceIncrease={deck.next_price_increase}
           incentives={deck.incentives}
-          isUnlocked={isUnlocked}
+          isUnlocked={isUnlocked || deck.gate_enabled === false || !deck.gated_sections?.includes("floor-plans")}
           onUnlockRequest={() => {}}
         />
       </div>
