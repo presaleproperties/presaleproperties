@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Check, KeyRound, Clock, Lock } from "lucide-react";
+import { Check, KeyRound, Clock, Lock as LockIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DepositStep {
