@@ -102,7 +102,7 @@ export function ProjectLeadForm({
         project_id: projectId || null,
         name: data.fullName,
         email: data.email,
-        phone: data.phone,
+        phone: verifiedPhone || "",
         persona: actualPersona,
         agent_status: data.workingWithAgent ? "working_with_agent" : data.isRealtor ? "i_am_realtor" : "no",
         message: [
