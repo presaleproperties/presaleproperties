@@ -496,41 +496,65 @@ function getLeadSourceLabel(source: string | null): string {
   }
 }
 
-function buildNotes(data: LoftySyncRequest["leadData"]): string {
+function buildNotes(data: any): string {
   const sections: string[] = [];
-  
-  // Header
-  sections.push("═══ LEAD FROM PRESALEPROPERTIES.COM ═══");
-  
-  // Project Interest
-  if (data?.projectName || data?.projectCity) {
-    sections.push("");
-    sections.push("📍 PRIMARY INTEREST");
-    if (data?.projectName) sections.push(`   Project: ${data.projectName}`);
-    if (data?.projectCity) sections.push(`   City: ${data.projectCity}`);
-  }
-  
-  // Lead Quality
+
+  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  sections.push("LEAD FROM PRESALEPROPERTIES.COM");
+  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   sections.push("");
-  sections.push("📊 LEAD QUALITY");
-  sections.push(`   Intent Score: ${data?.intentScore || 0}/100`);
-  
-  // Message
-  if (data?.notes) {
+  sections.push(`FORM: ${data?.formType || data?.form_type || "website"}`);
+  if (data?.projectName) sections.push(`PROJECT: ${data.projectName}${data?.projectCity ? ` — ${data.projectCity}` : ""}`);
+  if (data?.currentPageTitle) sections.push(`PAGE: ${data.currentPageTitle}`);
+  if (data?.currentPageUrl || data?.projectUrl) sections.push(`URL: ${data?.currentPageUrl || data?.projectUrl}`);
+
+  if (data?.message) {
     sections.push("");
-    sections.push("💬 MESSAGE");
-    sections.push(`   ${data.notes}`);
+    sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    sections.push("MESSAGE");
+    sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    sections.push(data.message);
   }
-  
-  // Traffic Source
-  if (data?.utmSource || data?.utmMedium || data?.utmCampaign) {
-    sections.push("");
-    sections.push("🔗 TRAFFIC SOURCE");
-    if (data?.utmSource) sections.push(`   Source: ${data.utmSource}`);
-    if (data?.utmMedium) sections.push(`   Medium: ${data.utmMedium}`);
-    if (data?.utmCampaign) sections.push(`   Campaign: ${data.utmCampaign}`);
+
+  sections.push("");
+  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  sections.push("LEAD INTELLIGENCE");
+  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  sections.push(`Score: ${data?.leadScore ?? data?.intentScore ?? 0}/10 (${(data?.leadTemperature || "cold").toUpperCase()})`);
+  sections.push(`Device: ${data?.deviceType || "unknown"}`);
+  if (data?.userLanguage) sections.push(`Language: ${data.userLanguage}`);
+
+  sections.push("");
+  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  sections.push("TRAFFIC SOURCE");
+  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  sections.push(`UTM Source:   ${data?.utmSource || "direct"}`);
+  if (data?.utmMedium) sections.push(`UTM Medium:   ${data.utmMedium}`);
+  if (data?.utmCampaign) sections.push(`UTM Campaign: ${data.utmCampaign}`);
+  if (data?.utmTerm) sections.push(`UTM Term:     ${data.utmTerm}`);
+  sections.push(`Referrer:     ${data?.referrerUrl || "direct"}`);
+  if (data?.landingPage) sections.push(`Landing Page: ${data.landingPage}`);
+
+  sections.push("");
+  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  sections.push("BEHAVIOUR ON SITE");
+  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  sections.push(`Pages Viewed:    ${data?.pagesViewed ?? 0}`);
+  sections.push(`Time on Site:    ${data?.timeOnSite ?? 0}s`);
+  sections.push(`Visit Number:    ${data?.sessionCount ?? 1}`);
+  if (data?.firstVisitDate) sections.push(`First Visit:     ${data.firstVisitDate}`);
+  sections.push(`Used Calculator: ${data?.usedCalculator ? "YES" : "No"}`);
+
+  if (data?.pagesVisited) {
+    let pages: string[] = [];
+    try { pages = typeof data.pagesVisited === "string" ? JSON.parse(data.pagesVisited) : data.pagesVisited; } catch { pages = []; }
+    if (pages.length > 0) sections.push(`Pages Visited:   ${pages.join(", ")}`);
   }
-  
+
+  if (data?.calculatorData) {
+    sections.push(`Calculator Data: ${typeof data.calculatorData === "string" ? data.calculatorData : JSON.stringify(data.calculatorData)}`);
+  }
+
   return sections.join("\n");
 }
 

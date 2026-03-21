@@ -199,8 +199,9 @@ export function AccessPackModal({
 
       if (error) throw error;
 
-      // Fire Lofty CRM sync with full tracking data (fire-and-forget)
+      // Fire Lofty CRM sync + patch DB row with tracking data (fire-and-forget)
       submitLead({
+        leadId,
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
