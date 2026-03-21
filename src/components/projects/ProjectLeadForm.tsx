@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   CheckCircle, Download, MessageCircle, X, ExternalLink,
-  FileText, LayoutGrid, DollarSign, Lock, Clock
+  FileText, Lock, Clock
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,9 +19,12 @@ import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId } from "@/l
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 
+const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
+
 const formSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required").max(100),
   email: z.string().trim().email("Please enter a valid email").max(255),
+  phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Please enter a valid phone number"),
   workingWithAgent: z.boolean().default(false),
   isRealtor: z.boolean().default(false),
 });
@@ -59,6 +62,9 @@ export function ProjectLeadForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("16722581100");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  // pendingData holds the validated form data while awaiting OTP
+  const [pendingData, setPendingData] = useState<FormData | null>(null);
+  const triggerSendRef = useRef<((phone: string) => Promise<void>) | null>(null);
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);
@@ -78,12 +84,12 @@ export function ProjectLeadForm({
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { fullName: "", email: "", workingWithAgent: false, isRealtor: false },
+    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: false, isRealtor: false },
   });
 
-  const onSubmit = async (data: FormData) => {
+  // Called once OTP is verified — actually submit the lead
+  const completeLead = async (phone: string, data: FormData) => {
     setIsSubmitting(true);
-
     try {
       const leadId = crypto.randomUUID();
       const utmData = getUtmDataForSubmission();
@@ -96,13 +102,12 @@ export function ProjectLeadForm({
 
       trackFormStart({ form_name: "floor_plan_request", form_location: "project_lead_form" });
 
-      // Insert full lead in one shot
       const { error } = await supabase.from("project_leads").insert({
         id: leadId,
         project_id: projectId || null,
         name: data.fullName,
         email: data.email,
-        phone: verifiedPhone || "",
+        phone,
         persona: actualPersona,
         agent_status: data.workingWithAgent ? "working_with_agent" : data.isRealtor ? "i_am_realtor" : "no",
         message: [
@@ -129,77 +134,45 @@ export function ProjectLeadForm({
 
       if (error) throw error;
 
-      trackCTAClick({
-        cta_type: "lead_form_submit",
-        cta_label: "Get Instant Access",
-        cta_location: "project_lead_form",
-        project_id: projectId,
-        project_name: projectName,
-      });
+      trackCTAClick({ cta_type: "lead_form_submit", cta_label: "Get Instant Access", cta_location: "project_lead_form", project_id: projectId, project_name: projectName });
+      trackFormSubmit({ form_name: "floor_plan_request", form_location: "project_lead_form", first_name: data.fullName, last_name: "", email: data.email, phone, user_type: actualPersona, project_id: projectId, project_name: projectName });
 
-      trackFormSubmit({
-        form_name: "floor_plan_request",
-        form_location: "project_lead_form",
-        first_name: data.fullName,
-        last_name: "",
-        email: data.email,
-        phone: verifiedPhone || "",
-        user_type: actualPersona,
-        project_id: projectId,
-        project_name: projectName,
-      });
-
-      // Non-blocking workflows
-      supabase.functions.invoke("trigger-workflow", {
-        body: {
-          event: "project_inquiry",
-          data: { email: data.email, first_name: data.fullName, last_name: "", project_name: projectName, project_id: projectId },
-          meta: { lead_id: leadId, source: leadSource },
-        },
-      }).catch(console.error);
-
+      supabase.functions.invoke("trigger-workflow", { body: { event: "project_inquiry", data: { email: data.email, first_name: data.fullName, last_name: "", project_name: projectName, project_id: projectId }, meta: { lead_id: leadId, source: leadSource } } }).catch(console.error);
       supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
-
-      supabase.functions.invoke("meta-conversions-api", {
-        body: {
-          event_name: "Lead",
-          email: data.email,
-          phone: verifiedPhone || "",
-          first_name: data.fullName,
-          last_name: "",
-          event_source_url: window.location.href,
-          content_name: projectName,
-          content_category: actualPersona,
-          client_user_agent: navigator.userAgent,
-          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
-          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
-        },
-      }).catch(console.error);
+      supabase.functions.invoke("meta-conversions-api", { body: { event_name: "Lead", email: data.email, phone, first_name: data.fullName, last_name: "", event_source_url: window.location.href, content_name: projectName, content_category: actualPersona, client_user_agent: navigator.userAgent, fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1], fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] } }).catch(console.error);
 
       localStorage.setItem("presale_persona", actualPersona);
       localStorage.setItem("pp_form_submitted", "true");
       localStorage.setItem("presale_lead_converted", "true");
 
       if (typeof window !== "undefined") {
-        if ((window as any).gtag) {
-          (window as any).gtag("event", "submit_access_pack", {
-            page_path: window.location.pathname,
-            project_name: projectName,
-            persona: actualPersona,
-            source: "project_lead_form",
-          });
-        }
-        if ((window as any).fbq) {
-          (window as any).fbq("track", "Lead", { content_name: projectName, content_category: actualPersona });
-        }
+        (window as any).gtag?.("event", "submit_access_pack", { page_path: window.location.pathname, project_name: projectName, persona: actualPersona, source: "project_lead_form" });
+        (window as any).fbq?.("track", "Lead", { content_name: projectName, content_category: actualPersona });
       }
 
       setSubmitted(true);
     } catch (err: any) {
       console.error("Lead form error:", err);
       form.setError("root", { message: "Something went wrong. Please try again." });
+      setPendingData(null);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // When OTP is verified, fire off the lead submission
+  const handleVerified = (phone: string) => {
+    setVerifiedPhone(phone);
+    if (pendingData) {
+      completeLead(phone, pendingData);
+    }
+  };
+
+  // Form submit: validate, store pending data, auto-send OTP
+  const onSubmit = async (data: FormData) => {
+    setPendingData(data);
+    if (triggerSendRef.current) {
+      await triggerSendRef.current(data.phone);
     }
   };
 
@@ -211,7 +184,6 @@ export function ProjectLeadForm({
     return (
       <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium">
         <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
-
         <div className="bg-foreground px-5 py-5">
           <div className="flex items-center gap-3">
             <div className="inline-flex items-center justify-center w-11 h-11 bg-primary/15 rounded-xl shrink-0">
@@ -223,7 +195,6 @@ export function ProjectLeadForm({
             </div>
           </div>
         </div>
-
         <div className="p-5 space-y-3">
           {hasBrochure ? (
             <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl">
@@ -244,7 +215,6 @@ export function ProjectLeadForm({
               </div>
             </div>
           )}
-
           <div className={hasBrochure ? "pt-2 border-t border-border/40" : ""}>
             {hasBrochure && <p className="text-[11px] text-muted-foreground text-center mb-2.5">Want to talk to an agent right now?</p>}
             <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
@@ -254,7 +224,6 @@ export function ProjectLeadForm({
               </a>
             </Button>
           </div>
-
           <p className="text-center text-[11px] text-muted-foreground">
             We're available 7 days a week to answer your questions.
           </p>
@@ -262,6 +231,8 @@ export function ProjectLeadForm({
       </div>
     );
   }
+
+  const isAwaitingOTP = !!pendingData && !verifiedPhone;
 
   // ─── FORM ────────────────────────────────────────────────────
   return (
@@ -275,11 +246,8 @@ export function ProjectLeadForm({
           <X className="h-4 w-4" />
         </button>
       )}
-
-      {/* Accent line */}
       <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
 
-      {/* Header */}
       <div className="bg-foreground px-5 py-4 pr-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.06),_transparent_60%)]" />
         <div className="relative flex items-start gap-3">
@@ -288,11 +256,13 @@ export function ProjectLeadForm({
           </div>
           <div>
             <h3 className="text-base font-bold text-background leading-snug">
-              {hasAnyDocuments ? "Instant Access to Floor Plans & Pricing" : "Request Project Information"}
+              {isAwaitingOTP ? "Verify Your Phone" : hasAnyDocuments ? "Instant Access to Floor Plans & Pricing" : "Request Project Information"}
             </h3>
             <p className="text-[11px] text-background/45 mt-0.5 flex items-center gap-1">
               <Lock className="h-2.5 w-2.5" />
-              {hasAnyDocuments
+              {isAwaitingOTP
+                ? "Enter the 6-digit code we just sent you"
+                : hasAnyDocuments
                 ? (
                   <span className="flex items-center gap-1.5">
                     {hasFloorplan && <span>Floor Plans</span>}
@@ -307,102 +277,125 @@ export function ProjectLeadForm({
         </div>
       </div>
 
-      {/* Form body */}
       <div className="p-5">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5">
-          {/* Full Name */}
-          <div className="space-y-1">
-            <Label htmlFor="lf-name" className="text-xs font-semibold text-foreground/80">Full Name</Label>
-            <Input
-              id="lf-name"
-              placeholder="John Smith"
-              autoComplete="name"
-              autoCapitalize="words"
-              {...form.register("fullName")}
-              className="h-11 text-[16px] sm:text-sm rounded-lg"
+        {/* OTP verification step — shown after form submit */}
+        {isAwaitingOTP ? (
+          <div className="space-y-4">
+            <PhoneVerificationField
+              autoTrigger
+              onVerified={handleVerified}
+              onReady={({ triggerSend }) => { triggerSendRef.current = triggerSend; }}
             />
-            {form.formState.errors.fullName && (
-              <p className="text-xs text-destructive">{form.formState.errors.fullName.message}</p>
+            {isSubmitting && (
+              <div className="flex items-center justify-center gap-2 py-2">
+                <span className="h-4 w-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                <span className="text-sm text-muted-foreground">Submitting your information…</span>
+              </div>
             )}
-          </div>
-
-          {/* Email */}
-          <div className="space-y-1">
-            <Label htmlFor="lf-email" className="text-xs font-semibold text-foreground/80">Email Address</Label>
-            <Input
-              id="lf-email"
-              type="email"
-              inputMode="email"
-              placeholder="john@email.com"
-              autoComplete="email"
-              autoCapitalize="none"
-              {...form.register("email")}
-              className="h-11 text-[16px] sm:text-sm rounded-lg"
-            />
-            {form.formState.errors.email && (
-              <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
+            {form.formState.errors.root && (
+              <p className="text-xs text-destructive text-center">{form.formState.errors.root.message}</p>
             )}
+            <button
+              type="button"
+              onClick={() => { setPendingData(null); }}
+              className="w-full text-xs text-muted-foreground hover:text-foreground underline text-center"
+            >
+              ← Go back and edit
+            </button>
           </div>
-
-          {/* Phone */}
-          <PhoneVerificationField
-            label="Phone Number"
-            onVerified={(phone) => setVerifiedPhone(phone)}
-          />
-
-          {/* Checkboxes */}
-          <div className="space-y-2.5 pt-1 pb-0.5">
-            <div className="flex items-center gap-3">
-              <Checkbox
-                id="lf-agent"
-                checked={form.watch("workingWithAgent")}
-                onCheckedChange={(v) => form.setValue("workingWithAgent", v === true)}
-                className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+        ) : (
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5">
+            <div className="space-y-1">
+              <Label htmlFor="lf-name" className="text-xs font-semibold text-foreground/80">Full Name</Label>
+              <Input
+                id="lf-name"
+                placeholder="John Smith"
+                autoComplete="name"
+                autoCapitalize="words"
+                {...form.register("fullName")}
+                className="h-11 text-[16px] sm:text-sm rounded-lg"
               />
-              <Label htmlFor="lf-agent" className="text-sm text-foreground/70 cursor-pointer select-none leading-tight">
-                I'm working with a real estate agent
-              </Label>
+              {form.formState.errors.fullName && (
+                <p className="text-xs text-destructive">{form.formState.errors.fullName.message}</p>
+              )}
             </div>
-            <div className="flex items-center gap-3">
-              <Checkbox
-                id="lf-realtor"
-                checked={form.watch("isRealtor")}
-                onCheckedChange={(v) => form.setValue("isRealtor", v === true)}
-                className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+
+            <div className="space-y-1">
+              <Label htmlFor="lf-email" className="text-xs font-semibold text-foreground/80">Email Address</Label>
+              <Input
+                id="lf-email"
+                type="email"
+                inputMode="email"
+                placeholder="john@email.com"
+                autoComplete="email"
+                autoCapitalize="none"
+                {...form.register("email")}
+                className="h-11 text-[16px] sm:text-sm rounded-lg"
               />
-              <Label htmlFor="lf-realtor" className="text-sm text-foreground/70 cursor-pointer select-none leading-tight">
-                I am a Realtor
-              </Label>
+              {form.formState.errors.email && (
+                <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
+              )}
             </div>
-          </div>
 
-          {form.formState.errors.root && (
-            <p className="text-xs text-destructive text-center">{form.formState.errors.root.message}</p>
-          )}
+            <div className="space-y-1">
+              <Label htmlFor="lf-phone" className="text-xs font-semibold text-foreground/80">Phone Number</Label>
+              <Input
+                id="lf-phone"
+                type="tel"
+                inputMode="tel"
+                placeholder="604-555-0123"
+                autoComplete="tel"
+                {...form.register("phone")}
+                className="h-11 text-[16px] sm:text-sm rounded-lg"
+              />
+              {form.formState.errors.phone && (
+                <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>
+              )}
+            </div>
 
-          <Button
-            type="submit"
-            className="w-full h-12 text-sm font-semibold rounded-lg gap-2 shadow-gold hover:shadow-gold-glow transition-all"
-            size="lg"
-            disabled={isSubmitting || !verifiedPhone}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                Submitting...
-              </span>
-            ) : (
-              <>
-                <Download className="h-4 w-4" />
-                {hasAnyDocuments ? "Get Instant Access" : "Request Information"}
-              </>
+            <div className="space-y-2.5 pt-1 pb-0.5">
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="lf-agent"
+                  checked={form.watch("workingWithAgent")}
+                  onCheckedChange={(v) => form.setValue("workingWithAgent", v === true)}
+                  className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                />
+                <Label htmlFor="lf-agent" className="text-sm text-foreground/70 cursor-pointer select-none leading-tight">
+                  I'm working with a real estate agent
+                </Label>
+              </div>
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="lf-realtor"
+                  checked={form.watch("isRealtor")}
+                  onCheckedChange={(v) => form.setValue("isRealtor", v === true)}
+                  className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                />
+                <Label htmlFor="lf-realtor" className="text-sm text-foreground/70 cursor-pointer select-none leading-tight">
+                  I am a Realtor
+                </Label>
+              </div>
+            </div>
+
+            {form.formState.errors.root && (
+              <p className="text-xs text-destructive text-center">{form.formState.errors.root.message}</p>
             )}
-          </Button>
 
-          <p className="text-center text-[10px] text-muted-foreground/60">
-            <span className="text-primary/70">✓</span> No spam · <a href="/privacy" className="underline hover:text-foreground/60">Privacy Policy</a>
-          </p>
-        </form>
+            <Button
+              type="submit"
+              className="w-full h-12 text-sm font-semibold rounded-lg gap-2 shadow-gold hover:shadow-gold-glow transition-all"
+              size="lg"
+            >
+              <Download className="h-4 w-4" />
+              {hasAnyDocuments ? "Get Instant Access" : "Request Information"}
+            </Button>
+
+            <p className="text-center text-[10px] text-muted-foreground/60">
+              <span className="text-primary/70">✓</span> No spam · <a href="/privacy" className="underline hover:text-foreground/60">Privacy Policy</a>
+            </p>
+          </form>
+        )}
       </div>
     </div>
   );
