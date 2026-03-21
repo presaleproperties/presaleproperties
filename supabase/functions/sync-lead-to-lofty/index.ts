@@ -369,16 +369,33 @@ serve(async (req: Request): Promise<Response> => {
     }
     
     // Create new contact if no existing one found
+    // Lofty API accepts snake_case field names — send both variants to maximise compatibility
     const loftyPayload = {
-      firstName: contactData.first_name,
-      lastName: contactData.last_name,
+      // snake_case (primary — Lofty REST API standard)
+      first_name: contactData.first_name,
+      last_name: contactData.last_name || "",
       email: contactData.email,
-      phone: contactData.phone,
+      phone: contactData.phone || "",
+      note: contactData.notes,          // Lofty uses 'note' (singular)
       source: leadSource,
+      tags: contactData.tags || [],
+      inquiry_source: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
+      // camelCase aliases (some Lofty API versions accept these)
+      firstName: contactData.first_name,
+      lastName: contactData.last_name || "",
       notes: contactData.notes,
-      tags: contactData.tags,
       inquirySource: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
     };
+
+    console.log("Lofty payload fields:", {
+      first_name: loftyPayload.first_name,
+      last_name: loftyPayload.last_name,
+      email: loftyPayload.email,
+      phone: loftyPayload.phone,
+      source: loftyPayload.source,
+      tags: loftyPayload.tags,
+      note_length: loftyPayload.note?.length ?? 0,
+    });
 
     const loftyUrls = baseUrl ? [baseUrl] : [
       "https://api.lofty.com/v1.0/leads",
