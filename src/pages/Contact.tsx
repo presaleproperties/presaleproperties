@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -38,7 +39,8 @@ export default function Contact() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const formatted = name === "phone" ? formatPhoneNumber(value) : value;
+    setFormData((prev) => ({ ...prev, [name]: formatted }));
     if (errors[name as keyof ContactFormData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -259,8 +261,8 @@ export default function Contact() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="phone" className="text-sm">Phone *</Label>
-                          <Input id="phone" name="phone" type="tel" placeholder="(672) 258-1100"
-                            value={formData.phone} onChange={handleChange} inputMode="tel"
+                          <Input id="phone" name="phone" type="tel" inputMode="numeric" placeholder="(604) 555-0123"
+                            value={formData.phone} onChange={handleChange}
                             className={`text-base text-[16px] ${errors.phone ? "border-destructive" : ""}`} />
                           {errors.phone && <p className="text-xs sm:text-sm text-destructive">{errors.phone}</p>}
                         </div>

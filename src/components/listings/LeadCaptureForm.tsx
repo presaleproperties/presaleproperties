@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Download, CheckCircle, Sparkles } from "lucide-react";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,7 +37,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitted: formIsSubmitted },
     reset,
     watch,
     setValue,
@@ -180,9 +181,11 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
             <Input
               id="phone"
               type="tel"
+              inputMode="numeric"
               placeholder="(604) 555-0123"
               autoComplete="tel"
-              {...register("phone")}
+              value={watch("phone")}
+              onChange={(e) => setValue("phone", formatPhoneNumber(e.target.value), { shouldValidate: formIsSubmitted })}
               className={`h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all ${errors.phone ? "border-destructive" : ""}`}
             />
             {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}

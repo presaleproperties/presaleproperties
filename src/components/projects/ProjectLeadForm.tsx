@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 import {
   CheckCircle, Download, MessageCircle, X, ExternalLink,
   FileText, Lock, Clock, Loader2,
@@ -303,10 +304,11 @@ export function ProjectLeadForm({
             <Input
               id="lf-phone"
               type="tel"
-              inputMode="tel"
-              placeholder="604-555-0123"
+              inputMode="numeric"
+              placeholder="(604) 555-0123"
               autoComplete="tel"
-              {...form.register("phone")}
+              value={form.watch("phone")}
+              onChange={(e) => form.setValue("phone", formatPhoneNumber(e.target.value), { shouldValidate: form.formState.isSubmitted })}
               className="h-11 text-[16px] sm:text-sm rounded-lg"
             />
             {form.formState.errors.phone && (

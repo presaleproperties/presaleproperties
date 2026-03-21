@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -222,7 +223,8 @@ export function AboutContactForm({
                   <Input
                     type="tel"
                     placeholder="(604) 555-0123"
-                    {...field}
+                    value={field.value}
+                    onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
                     className="h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
                   />
                 </FormControl>

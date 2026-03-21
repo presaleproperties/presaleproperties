@@ -1,4 +1,5 @@
 import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle, Lock, FileText, LayoutGrid, DollarSign, ExternalLink, Clock, Loader2 } from "lucide-react";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -269,8 +270,9 @@ export function ProjectMobileCTA({
 
                     <div className="space-y-1">
                       <Label htmlFor="mcta-phone" className="text-xs font-semibold text-foreground/80">Phone Number</Label>
-                      <Input id="mcta-phone" type="tel" inputMode="tel" placeholder="604-555-0123" autoComplete="tel"
-                        {...form.register("phone")}
+                      <Input id="mcta-phone" type="tel" inputMode="numeric" placeholder="(604) 555-0123" autoComplete="tel"
+                        value={form.watch("phone")}
+                        onChange={(e) => form.setValue("phone", formatPhoneNumber(e.target.value), { shouldValidate: form.formState.isSubmitted })}
                         className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
                       {form.formState.errors.phone && <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>}
                     </div>

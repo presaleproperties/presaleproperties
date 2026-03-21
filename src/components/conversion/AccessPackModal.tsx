@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
@@ -326,8 +327,10 @@ export function AccessPackModal({
                 <Label htmlFor="apm-phone" className="text-xs sm:text-sm">
                   Phone <span className="text-destructive">*</span>
                 </Label>
-                <Input id="apm-phone" type="tel" inputMode="tel" placeholder="604-555-0123" autoComplete="tel"
-                  {...form.register("phone")} className="h-11 mt-1 text-[16px]" />
+                <Input id="apm-phone" type="tel" inputMode="numeric" placeholder="(604) 555-0123" autoComplete="tel"
+                  value={form.watch("phone")}
+                  onChange={(e) => form.setValue("phone", formatPhoneNumber(e.target.value), { shouldValidate: form.formState.isSubmitted })}
+                  className="h-11 mt-1 text-[16px]" />
                 {form.formState.errors.phone && (
                   <p className="text-xs text-destructive mt-1">{form.formState.errors.phone.message}</p>
                 )}
