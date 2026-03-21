@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { collectTrackingData } from "@/lib/collectTrackingData";
 import { calculateLeadScore } from "@/lib/leadScoring";
 
+
 export interface LeadSubmissionPayload {
   firstName: string;
   lastName?: string;
