@@ -183,18 +183,18 @@ export function CalculatorLeadCapture({
           />
         </div>
       </div>
-      <div className="relative">
-        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="tel"
-          inputMode="tel"
-          placeholder="Phone Number (e.g. 604-555-0123)"
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          className={`pl-9 h-11 text-[16px] ${errors.phone ? "border-destructive" : ""}`}
-          autoComplete="tel"
-        />
-      </div>
+        <div className="relative">
+          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="tel"
+            inputMode="numeric"
+            placeholder="(604) 555-0123"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: formatPhoneNumber(e.target.value) })}
+            className={`pl-9 h-11 text-[16px] ${errors.phone ? "border-destructive" : ""}`}
+            autoComplete="tel"
+          />
+        </div>
       {(errors.name || errors.email || errors.phone) && (
         <p className="text-xs text-destructive">{errors.name || errors.email || errors.phone}</p>
       )}
