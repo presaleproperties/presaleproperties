@@ -176,7 +176,7 @@ export function AccessPackModal({
           project_id: projectId || null,
           name: fullName,
           email: data.email,
-          phone: data.phone,
+          phone: verifiedPhone, // use verified phone
           message: messageData,
           persona: actualPersona,
           timeline: data.timeline,
