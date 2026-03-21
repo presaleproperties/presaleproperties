@@ -1,0 +1,14 @@
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS tracking_data jsonb;
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS lead_score integer DEFAULT 0;
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS lead_temperature text DEFAULT 'cold';
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS form_type text;
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS lofty_id text;
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS lofty_synced_at timestamptz;
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS pages_viewed integer DEFAULT 0;
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS time_on_site integer DEFAULT 0;
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS session_count integer DEFAULT 1;
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS used_calculator boolean DEFAULT false;
+ALTER TABLE project_leads ADD COLUMN IF NOT EXISTS device_type text;
+CREATE INDEX IF NOT EXISTS idx_leads_lead_score ON project_leads(lead_score DESC);
+CREATE INDEX IF NOT EXISTS idx_leads_lofty_id ON project_leads(lofty_id);
+CREATE INDEX IF NOT EXISTS idx_leads_form_type ON project_leads(form_type);
