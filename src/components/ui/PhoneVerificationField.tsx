@@ -120,15 +120,18 @@ export function PhoneVerificationField({
     );
   }
 
+  const isOtpStep = state === "awaiting_code" || state === "verifying";
+  const isSendingStep = state === "sending";
+
   // ── OTP ENTRY (auto-trigger: shown after parent calls triggerSend) ─────────────
-  if (state === "awaiting_code" || state === "verifying" || state === "sending") {
+  if (isOtpStep || isSendingStep) {
     return (
       <div className={cn("space-y-3", className)}>
         <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
             <p className="text-xs text-muted-foreground flex-1">
-              {state === "sending" ? (
+              {isSendingStep ? (
                 <span className="flex items-center gap-1.5">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   Sending code to <span className="font-medium text-foreground">{currentPhone}</span>…
@@ -148,7 +151,7 @@ export function PhoneVerificationField({
             )}
           </div>
 
-          {(state === "awaiting_code" || state === "verifying") && (
+          {isOtpStep && (
             <div className="flex flex-col items-center gap-3">
               <p className="text-xs font-medium text-foreground">Enter your 6-digit verification code</p>
               <InputOTP
@@ -200,8 +203,8 @@ export function PhoneVerificationField({
             </div>
           )}
         </div>
-        {(phoneError || (state === "error" && error)) && (
-          <p className="text-xs text-destructive">{phoneError || error}</p>
+        {phoneError && (
+          <p className="text-xs text-destructive">{phoneError}</p>
         )}
       </div>
     );
@@ -209,7 +212,7 @@ export function PhoneVerificationField({
 
   // ── IDLE / ERROR — only shown in manual mode (autoTrigger=false) ──────────────
   if (autoTrigger) {
-    // In autoTrigger mode, when idle we render nothing — the phone input lives in the parent form
+    // In autoTrigger mode, when idle/error we render nothing — phone input lives in the parent
     return null;
   }
 
@@ -246,7 +249,7 @@ export function PhoneVerificationField({
           )}
         </Button>
       </div>
-      {(phoneError || (state === "error" && error)) && (
+      {(phoneError || error) && (
         <p className="text-xs text-destructive">{phoneError || error}</p>
       )}
     </div>
