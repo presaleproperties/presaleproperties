@@ -209,6 +209,8 @@ serve(async (req: Request): Promise<Response> => {
 
       // Also update the contact record to merge tags
       const updatePayload = {
+        firstName: firstName,
+        lastName: lastName,
         first_name: firstName,
         last_name: lastName,
         email: email,
