@@ -125,6 +125,11 @@ export function AccessPackModal({
   });
 
   const onSubmit = async (data: FormData) => {
+    // Block submission if phone not verified
+    if (!verifiedPhone) {
+      toast({ title: "Phone verification required", description: "Please verify your phone number before submitting.", variant: "destructive" });
+      return;
+    }
     setIsSubmitting(true);
 
     try {
