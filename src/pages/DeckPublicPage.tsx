@@ -378,7 +378,7 @@ export default function DeckPublicPage() {
               projections={deck.projections || {}}
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
-              isUnlocked={isUnlocked}
+              isUnlocked={isUnlocked || deck.gate_enabled === false || !deck.gated_sections?.includes("projections")}
             />
           </div>
         </section>
