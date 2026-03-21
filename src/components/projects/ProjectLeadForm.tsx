@@ -281,8 +281,14 @@ export function ProjectLeadForm({
           <div className="space-y-4">
             <PhoneVerificationField
               autoTrigger
+              defaultPhone={pendingData?.phone ?? ""}
               onVerified={handleVerified}
-              onReady={({ triggerSend }) => { triggerSendRef.current = triggerSend; }}
+              onReady={({ triggerSend }) => {
+                if (!hasSentRef.current && pendingData) {
+                  hasSentRef.current = true;
+                  triggerSend(pendingData.phone);
+                }
+              }}
             />
             {isSubmitting && (
               <div className="flex items-center justify-center gap-2 py-2">
