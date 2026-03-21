@@ -444,22 +444,28 @@ serve(async (req: Request): Promise<Response> => {
           const loftyId = loftyData?.leadId || loftyData?.id || loftyData?.lead_id || loftyData?.contact_id;
           console.log("Lofty created contact ID:", loftyId);
 
-          // Post the full note as a separate notes call (Lofty stores notes separately)
+          // Try to append note via PUT update on the lead (Lofty /notes endpoint doesn't exist)
           if (loftyId && contactData.notes) {
             try {
-              const noteRes = await fetch(`${url}/${loftyId}/notes`, {
-                method: "POST",
+              const noteUpdateRes = await fetch(`${url}/${loftyId}`, {
+                method: "PUT",
                 headers: {
                   "Content-Type": "application/json",
                   "Accept": "application/json",
                   "Authorization": auth,
                 },
-                body: JSON.stringify({ note: contactData.notes, content: contactData.notes }),
+                body: JSON.stringify({
+                  note: contactData.notes,
+                  notes: contactData.notes,
+                  description: contactData.notes,
+                  remark: contactData.notes,
+                  comment: contactData.notes,
+                }),
               });
-              const noteBody = await noteRes.text();
-              console.log("Lofty note POST:", noteRes.status, noteBody.substring(0, 200));
+              const noteUpdateBody = await noteUpdateRes.text();
+              console.log("Lofty note via PUT:", noteUpdateRes.status, noteUpdateBody.substring(0, 300));
             } catch (noteErr) {
-              console.log("Note post failed (non-critical):", noteErr);
+              console.log("Note update failed (non-critical):", noteErr);
             }
           }
 
