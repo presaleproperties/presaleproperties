@@ -565,8 +565,8 @@ export default function DashboardDeckBuilder() {
       {/* Two-column layout: builder left, live preview right */}
       <div className="flex gap-0 min-h-screen">
         {/* Builder column */}
-        <div className="flex-1 min-w-0 xl:max-w-2xl xl:mx-auto">
-        <div className="space-y-3 pb-28 px-0">
+        <div className="flex-1 min-w-0 overflow-y-auto h-screen">
+        <div className="max-w-2xl mx-auto space-y-3 pb-28 px-4 md:px-6 pt-6">
 
         {/* Page header */}
         <div className="flex items-center justify-between gap-4 pb-1">
