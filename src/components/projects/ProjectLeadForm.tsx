@@ -58,6 +58,7 @@ export function ProjectLeadForm({
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("16722581100");
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);
@@ -77,7 +78,7 @@ export function ProjectLeadForm({
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: false, isRealtor: false },
+    defaultValues: { fullName: "", email: "", workingWithAgent: false, isRealtor: false },
   });
 
   const onSubmit = async (data: FormData) => {

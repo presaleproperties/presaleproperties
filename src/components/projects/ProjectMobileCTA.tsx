@@ -56,6 +56,7 @@ export function ProjectMobileCTA({
   const [isHidden, setIsHidden] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);
@@ -64,7 +65,7 @@ export function ProjectMobileCTA({
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: false, isRealtor: false },
+    defaultValues: { fullName: "", email: "", workingWithAgent: false, isRealtor: false },
   });
 
   useEffect(() => {
