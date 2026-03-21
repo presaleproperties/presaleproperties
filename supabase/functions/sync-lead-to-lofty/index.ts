@@ -288,20 +288,24 @@ serve(async (req: Request): Promise<Response> => {
               const mergedTags = [...new Set([...existingTags, ...newTags])];
               
               // Append to notes instead of replacing
-              const existingNotes = existingContacts[0].notes || "";
+              const existingNotes = existingContacts[0].notes || existingContacts[0].note || "";
               const timestamp = new Date().toISOString().split("T")[0];
               const newNotes = `\n\n═══ NEW ACTIVITY (${timestamp}) ═══\n${contactData.notes}`;
               const mergedNotes = existingNotes + newNotes;
               
               const updatePayload = {
-                firstName: contactData.first_name,
-                lastName: contactData.last_name,
+                // snake_case (Lofty REST API standard)
+                first_name: contactData.first_name,
+                last_name: contactData.last_name || "",
                 email: contactData.email,
-                phone: contactData.phone || existingContacts[0].phone,
+                phone: contactData.phone || existingContacts[0].phone || "",
                 tags: mergedTags,
+                note: mergedNotes,
                 notes: mergedNotes,
-                // Update source to reflect latest interaction
                 source: existingContacts[0].source || "PresaleProperties.com",
+                // camelCase aliases
+                firstName: contactData.first_name,
+                lastName: contactData.last_name || "",
               };
               
               console.log(`Updating existing contact ${existingId} with merged tags:`, mergedTags);
