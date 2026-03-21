@@ -551,7 +551,7 @@ export default function DashboardDeckBuilder() {
   }
 
   return (
-    <DashboardLayout fullWidth>
+    <DashboardLayout noPadding>
       {/* Hidden file inputs */}
       <input type="file" ref={heroInputRef} className="hidden" accept="image/*" onChange={handleHeroUpload} />
       <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" multiple onChange={handleGalleryUpload} />
