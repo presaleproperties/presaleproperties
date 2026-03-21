@@ -145,37 +145,73 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log("Prepared contact:", { firstName, lastName, email, phone, tags });
 
-    // ── Search for existing contact by email ──────────────────────────────
+    // ── Search for existing contact ───────────────────────────────────────
+    // Strategy 1: check our own DB for a stored lofty_id (most reliable)
+    // Strategy 2: try Lofty keyword search
     let existingLoftyId: string | null = null;
 
+    // Check our DB first — if we already have a lofty_id for this email, use it
     try {
-      const searchRes = await fetch(
-        `${LOFTY_BASE_URL}?email=${encodeURIComponent(email)}&limit=1`,
-        {
-          method: "GET",
-          headers: { "Accept": "application/json", "Authorization": authHeader },
+      const { data: existingLead } = await supabase
+        .from("project_leads" as any)
+        .select("lofty_id")
+        .eq("email", email)
+        .not("lofty_id", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (existingLead?.lofty_id) {
+        existingLoftyId = existingLead.lofty_id;
+        console.log("Found existing lofty_id in DB:", existingLoftyId);
+      }
+    } catch { /* no existing record with lofty_id */ }
+
+    // If not found in DB, try Lofty keyword search
+    if (!existingLoftyId) {
+      try {
+        // Try multiple search param names — Lofty API is inconsistent
+        const searchAttempts = [
+          `${LOFTY_BASE_URL}?keyword=${encodeURIComponent(email)}&limit=1`,
+          `${LOFTY_BASE_URL}?q=${encodeURIComponent(email)}&limit=1`,
+          `${LOFTY_BASE_URL}?email=${encodeURIComponent(email)}&limit=1`,
+        ];
+
+        for (const searchUrl of searchAttempts) {
+          const searchRes = await fetch(searchUrl, {
+            method: "GET",
+            headers: { "Accept": "application/json", "Authorization": authHeader },
+          });
+
+          if (searchRes.ok) {
+            const searchText = await searchRes.text();
+            console.log(`Lofty search (${searchUrl.split("?")[1]}):`, searchRes.status, searchText.substring(0, 200));
+
+            let searchData: any;
+            try { searchData = JSON.parse(searchText); } catch { searchData = null; }
+
+            const contacts: any[] = Array.isArray(searchData)
+              ? searchData
+              : (searchData?.leads || searchData?.data || searchData?.results || []);
+
+            if (contacts.length > 0) {
+              existingLoftyId = String(
+                contacts[0].leadId || contacts[0].lead_id || contacts[0].id || ""
+              ) || null;
+              if (existingLoftyId) {
+                console.log("Found Lofty contact via search:", existingLoftyId, "keys:", Object.keys(contacts[0]));
+                break;
+              }
+            }
+          }
         }
-      );
+      } catch (searchErr) {
+        console.warn("Lofty search error:", searchErr);
+      }
+    }
 
-      if (searchRes.ok) {
-        const searchText = await searchRes.text();
-        console.log("Lofty search response:", searchRes.status, searchText.substring(0, 300));
-
-        let searchData: any;
-        try { searchData = JSON.parse(searchText); } catch { searchData = null; }
-
-        // Lofty returns { data: [...] } or array directly — extract list
-        const contacts: any[] = Array.isArray(searchData)
-          ? searchData
-          : (searchData?.data || searchData?.leads || searchData?.results || []);
-
-        if (contacts.length > 0) {
-          // Lofty uses "leadId" as primary identifier (not "id")
-          existingLoftyId = String(
-            contacts[0].leadId || contacts[0].lead_id || contacts[0].id || ""
-          ) || null;
-          console.log("Found existing Lofty contact:", existingLoftyId, "raw keys:", Object.keys(contacts[0]));
-        }
+    // Dummy block to close the old if — will be continued below
+    if (false) {
       } else {
         console.warn("Lofty search failed:", searchRes.status);
       }
