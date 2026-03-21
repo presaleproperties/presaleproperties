@@ -130,23 +130,7 @@ export function useLeadSubmission(): LeadSubmissionResult {
         });
       }
 
-      // Fire-and-forget: call edge function to sync to Lofty CRM.
-      // Never block form success on CRM sync.
-      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const supabaseUrl = `https://${projectId}.supabase.co`;
-      fetch(`${supabaseUrl}/functions/v1/sync-lead-to-lofty`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: JSON.stringify({ leadData: body }),
-      }).then(async (res) => {
-        const text = await res.text();
-        console.log("[Lofty sync]", res.status, text);
-      }).catch((err) => {
-        console.warn("[Lofty sync failed — lead still saved in DB]", err);
-      });
+      // Lofty direct API sync is disabled — leads go via Zapier (send-project-lead edge function).
 
       setIsSuccess(true);
     } catch (err: any) {
