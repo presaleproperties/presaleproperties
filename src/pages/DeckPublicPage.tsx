@@ -60,6 +60,8 @@ interface PitchDeck {
   highlights: string[] | null;
   amenities: string[] | null;
   incentives: string[] | null;
+  gate_enabled: boolean | null;
+  gated_sections: string[] | null;
 }
 
 const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "deposit-timeline", "projections", "faq", "contact"];
