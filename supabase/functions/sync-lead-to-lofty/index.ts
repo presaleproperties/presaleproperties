@@ -380,14 +380,16 @@ serve(async (req: Request): Promise<Response> => {
       last_name: contactData.last_name || "",
       email: contactData.email,
       phone: contactData.phone || "",
-      note: contactData.notes,          // Lofty uses 'note' (singular)
+      note: contactData.notes,
+      notes: contactData.notes,
+      description: contactData.notes,
+      remark: contactData.notes,
       source: leadSource,
       tags: contactData.tags || [],
       inquiry_source: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
       // camelCase aliases (some Lofty API versions accept these)
       firstName: contactData.first_name,
       lastName: contactData.last_name || "",
-      notes: contactData.notes,
       inquirySource: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
     };
 
