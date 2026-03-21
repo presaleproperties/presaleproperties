@@ -377,6 +377,7 @@ export function AccessPackModal({
               </div>
 
 
+
               <PhoneVerificationField
                 label="Phone"
                 onVerified={(phone) => {
@@ -385,6 +386,7 @@ export function AccessPackModal({
                 }}
                 className="mt-1"
               />
+            </div>
 
             {/* I am a... */}
             <div>
