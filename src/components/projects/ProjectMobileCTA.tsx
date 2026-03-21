@@ -265,13 +265,10 @@ export function ProjectMobileCTA({
                     </div>
 
                     {/* Phone */}
-                    <div className="space-y-1">
-                      <Label htmlFor="mcta-phone" className="text-xs font-semibold text-foreground/80">Phone Number</Label>
-                      <Input id="mcta-phone" type="tel" inputMode="tel" placeholder="(604) 555-0123" autoComplete="tel"
-                        {...form.register("phone")}
-                        className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
-                      {form.formState.errors.phone && <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>}
-                    </div>
+                    <PhoneVerificationField
+                      label="Phone Number"
+                      onVerified={(phone) => setVerifiedPhone(phone)}
+                    />
 
                     {/* Checkboxes */}
                     <div className="space-y-2.5 pt-1">

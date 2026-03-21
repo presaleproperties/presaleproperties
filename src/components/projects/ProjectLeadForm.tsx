@@ -345,21 +345,10 @@ export function ProjectLeadForm({
           </div>
 
           {/* Phone */}
-          <div className="space-y-1">
-            <Label htmlFor="lf-phone" className="text-xs font-semibold text-foreground/80">Phone Number</Label>
-            <Input
-              id="lf-phone"
-              type="tel"
-              inputMode="tel"
-              placeholder="(604) 555-0123"
-              autoComplete="tel"
-              {...form.register("phone")}
-              className="h-11 text-[16px] sm:text-sm rounded-lg"
-            />
-            {form.formState.errors.phone && (
-              <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>
-            )}
-          </div>
+          <PhoneVerificationField
+            label="Phone Number"
+            onVerified={(phone) => setVerifiedPhone(phone)}
+          />
 
           {/* Checkboxes */}
           <div className="space-y-2.5 pt-1 pb-0.5">
