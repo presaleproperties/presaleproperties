@@ -226,6 +226,15 @@ export default function DashboardDeckBuilder() {
   const [unitsRemaining, setUnitsRemaining] = useState<string>("");
   const [nextPriceIncrease, setNextPriceIncrease] = useState<string>("");
 
+  // Lead Gate
+  const ALL_GATE_SECTIONS = [
+    { id: "floor-plans", label: "Floor Plans & Pricing" },
+    { id: "deposit-timeline", label: "Deposit Timeline" },
+    { id: "projections", label: "Investment Calculator" },
+  ] as const;
+  const [gateEnabled, setGateEnabled] = useState(true);
+  const [gatedSections, setGatedSections] = useState<string[]>(["floor-plans", "deposit-timeline", "projections"]);
+
   // Publishing
   const [slug, setSlug] = useState("");
   const [slugTaken, setSlugTaken] = useState(false);
@@ -340,6 +349,8 @@ export default function DashboardDeckBuilder() {
       setDeckAmenities(data.amenities || []);
       setSlug(data.slug || "");
       setIsPublished(data.is_published || false);
+      setGateEnabled(data.gate_enabled !== false); // default true if null
+      setGatedSections(data.gated_sections?.length ? data.gated_sections : ["floor-plans", "deposit-timeline", "projections"]);
       if (data.linked_project_id) {
         setLinkedProjectId(data.linked_project_id);
         setLinkedProjectName(data.project_name || "");
@@ -505,6 +516,8 @@ export default function DashboardDeckBuilder() {
       description: description || null,
       highlights: deckHighlights.filter(Boolean),
       amenities: deckAmenities.filter(Boolean),
+      gate_enabled: gateEnabled,
+      gated_sections: gatedSections,
     };
     let error;
     if (isEdit && id) {
@@ -1083,12 +1096,72 @@ export default function DashboardDeckBuilder() {
           </div>
         </Section>
 
-        {/* ── STEP 10: URL & Publishing ── */}
-        <Section step={10} title="URL & Publishing" defaultOpen={false}
+        {/* ── Lead Gate ── */}
+        <Section step={10} title="Lead Gate" defaultOpen={true}
+          badge={gateEnabled ? "Active" : "Off"}
+          subtitle="Lock high-value sections behind a lead capture form">
+          <div className="space-y-5">
+
+            {/* Master toggle */}
+            <div className="flex items-center justify-between p-4 rounded-xl border border-border/60 bg-muted/20">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Lead Gate {gateEnabled ? "Enabled" : "Disabled"}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {gateEnabled
+                    ? "Visitors must submit their name, phone & email to unlock gated sections."
+                    : "Deck is fully open — no form required."}
+                </p>
+              </div>
+              <Switch checked={gateEnabled} onCheckedChange={setGateEnabled} />
+            </div>
+
+            {/* Section toggles */}
+            {gateEnabled && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Locked Sections</p>
+                {ALL_GATE_SECTIONS.map(({ id, label }) => {
+                  const isLocked = gatedSections.includes(id);
+                  return (
+                    <div
+                      key={id}
+                      className="flex items-center justify-between px-4 py-2.5 rounded-lg border border-border/50 bg-background"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-sm text-foreground">{label}</span>
+                        {isLocked
+                          ? <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">Locked</span>
+                          : <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/40">Open</span>
+                        }
+                      </div>
+                      <Switch
+                        checked={isLocked}
+                        onCheckedChange={(checked) =>
+                          setGatedSections((prev) =>
+                            checked ? [...prev, id] : prev.filter((s) => s !== id)
+                          )
+                        }
+                      />
+                    </div>
+                  );
+                })}
+                {gatedSections.length === 0 && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
+                    No sections are locked — the gate will still appear but unlock immediately.
+                  </p>
+                )}
+              </div>
+            )}
+
+          </div>
+        </Section>
+
+        {/* ── STEP 11: URL & Publishing ── */}
+        <Section step={11} title="URL & Publishing" defaultOpen={false}
           badge={isPublished ? "Live" : "Draft"}>
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label className="text-sm">Deck URL</Label>
+
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground shrink-0 font-mono">/deck/</span>
                 <Input

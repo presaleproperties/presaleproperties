@@ -60,6 +60,8 @@ interface PitchDeck {
   highlights: string[] | null;
   amenities: string[] | null;
   incentives: string[] | null;
+  gate_enabled: boolean | null;
+  gated_sections: string[] | null;
 }
 
 const SECTION_IDS = ["overview", "floor-plans", "gallery", "location", "deposit-timeline", "projections", "faq", "contact"];
@@ -244,7 +246,7 @@ export default function DeckPublicPage() {
       `}</style>
     </Helmet>
     {/* Lead gate — shown until user fills form */}
-    {!isUnlocked && deck && (
+    {!isUnlocked && deck && deck.gate_enabled !== false && (
       <DeckLeadGate
         slug={slug!}
         projectName={deck.project_name}
@@ -308,7 +310,7 @@ export default function DeckPublicPage() {
           unitsRemaining={deck.units_remaining}
           nextPriceIncrease={deck.next_price_increase}
           incentives={deck.incentives}
-          isUnlocked={isUnlocked}
+          isUnlocked={isUnlocked || deck.gate_enabled === false || !deck.gated_sections?.includes("floor-plans")}
           onUnlockRequest={() => {}}
         />
       </div>
@@ -360,7 +362,7 @@ export default function DeckPublicPage() {
               completionYear={deck.completion_year || undefined}
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
-              isUnlocked={isUnlocked}
+              isUnlocked={isUnlocked || deck.gate_enabled === false || !deck.gated_sections?.includes("deposit-timeline")}
             />
           </div>
         </section>
@@ -376,7 +378,7 @@ export default function DeckPublicPage() {
               projections={deck.projections || {}}
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
-              isUnlocked={isUnlocked}
+              isUnlocked={isUnlocked || deck.gate_enabled === false || !deck.gated_sections?.includes("projections")}
             />
           </div>
         </section>

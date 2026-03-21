@@ -2075,6 +2075,8 @@ export type Database = {
           floor_plans: Json
           floor_plans_pdf_url: string | null
           gallery: Json
+          gate_enabled: boolean
+          gated_sections: string[]
           hero_image_url: string | null
           highlights: string[] | null
           id: string
@@ -2114,6 +2116,8 @@ export type Database = {
           floor_plans?: Json
           floor_plans_pdf_url?: string | null
           gallery?: Json
+          gate_enabled?: boolean
+          gated_sections?: string[]
           hero_image_url?: string | null
           highlights?: string[] | null
           id?: string
@@ -2153,6 +2157,8 @@ export type Database = {
           floor_plans?: Json
           floor_plans_pdf_url?: string | null
           gallery?: Json
+          gate_enabled?: boolean
+          gated_sections?: string[]
           hero_image_url?: string | null
           highlights?: string[] | null
           id?: string
