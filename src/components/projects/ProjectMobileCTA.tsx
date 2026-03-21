@@ -1,10 +1,9 @@
-import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle, Lock, FileText, LayoutGrid, DollarSign, ExternalLink, Clock } from "lucide-react";
+import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle, Lock, FileText, LayoutGrid, DollarSign, ExternalLink, Clock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -59,10 +58,6 @@ export function ProjectMobileCTA({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
-  const [pendingData, setPendingData] = useState<FormData | null>(null);
-  const hasSentRef = useRef(false);
   const { submitLead } = useLeadSubmission();
 
   const hasBrochure = hasValidUrl(brochureUrl);
@@ -87,8 +82,6 @@ export function ProjectMobileCTA({
     }
     if (!isExpanded && !submitted) {
       form.reset();
-      setPendingData(null);
-      setVerifiedPhone(null);
     }
   }, [isExpanded]);
 
@@ -106,8 +99,7 @@ export function ProjectMobileCTA({
     };
   }, []);
 
-  const completeLead = async (phone: string, data: FormData) => {
-    setIsSubmitting(true);
+  const onSubmit = async (data: FormData) => {
     try {
       const leadId = crypto.randomUUID();
       const utmData = getUtmDataForSubmission();
@@ -123,7 +115,7 @@ export function ProjectMobileCTA({
         project_id: projectId || null,
         name: data.fullName,
         email: data.email,
-        phone,
+        phone: data.phone,
         persona: actualPersona,
         agent_status: data.workingWithAgent ? "working_with_agent" : data.isRealtor ? "i_am_realtor" : "no",
         message: [
@@ -150,13 +142,12 @@ export function ProjectMobileCTA({
 
       if (error) throw error;
 
-      // Fire Lofty CRM sync + patch DB row with tracking data (fire-and-forget)
       submitLead({
         leadId,
         firstName: data.fullName.split(" ")[0] ?? data.fullName,
         lastName: data.fullName.split(" ").slice(1).join(" ") || "",
         email: data.email,
-        phone,
+        phone: data.phone,
         formType: "project_inquiry",
         projectName,
         projectUrl: window.location.href,
@@ -167,11 +158,11 @@ export function ProjectMobileCTA({
       });
 
       trackCTAClick({ cta_type: "lead_form_submit", cta_label: "Get Instant Access", cta_location: "mobile_cta_footer", project_id: projectId, project_name: projectName });
-      trackFormSubmit({ form_name: "floor_plan_request", form_location: "mobile_cta_footer", first_name: data.fullName, last_name: "", email: data.email, phone, user_type: actualPersona, project_id: projectId, project_name: projectName });
+      trackFormSubmit({ form_name: "floor_plan_request", form_location: "mobile_cta_footer", first_name: data.fullName, last_name: "", email: data.email, phone: data.phone, user_type: actualPersona, project_id: projectId, project_name: projectName });
 
       supabase.functions.invoke("trigger-workflow", { body: { event: "project_inquiry", data: { email: data.email, first_name: data.fullName, last_name: "", project_name: projectName, project_id: projectId }, meta: { lead_id: leadId, source: "floor_plan_request" } } }).catch(console.error);
       supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
-      supabase.functions.invoke("meta-conversions-api", { body: { event_name: "Lead", email: data.email, phone, first_name: data.fullName, last_name: "", event_source_url: window.location.href, content_name: projectName, content_category: actualPersona, client_user_agent: navigator.userAgent, fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1], fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] } }).catch(console.error);
+      supabase.functions.invoke("meta-conversions-api", { body: { event_name: "Lead", email: data.email, phone: data.phone, first_name: data.fullName, last_name: "", event_source_url: window.location.href, content_name: projectName, content_category: actualPersona, client_user_agent: navigator.userAgent, fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1], fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] } }).catch(console.error);
 
       MetaEvents.lead({ content_name: projectName, content_category: actualPersona });
 
@@ -179,37 +170,20 @@ export function ProjectMobileCTA({
       localStorage.setItem("pp_form_submitted", "true");
       localStorage.setItem("presale_lead_converted", "true");
 
-      if (typeof window !== "undefined") {
-        (window as any).gtag?.("event", "submit_access_pack", { page_path: window.location.pathname, project_name: projectName, persona: actualPersona, source: "mobile_cta_footer" });
-        (window as any).fbq?.("track", "Lead", { content_name: projectName, content_category: actualPersona });
-      }
+      (window as any).gtag?.("event", "submit_access_pack", { page_path: window.location.pathname, project_name: projectName, persona: actualPersona, source: "mobile_cta_footer" });
+      (window as any).fbq?.("track", "Lead", { content_name: projectName, content_category: actualPersona });
 
       setSubmitted(true);
     } catch (err: any) {
       console.error("Lead form error:", err);
       form.setError("root", { message: "Something went wrong. Please try again." });
-      setPendingData(null);
-    } finally {
-      setIsSubmitting(false);
     }
-  };
-
-  const handleVerified = (phone: string) => {
-    setVerifiedPhone(phone);
-    if (pendingData) {
-      completeLead(phone, pendingData);
-    }
-  };
-
-  const onSubmit = async (data: FormData) => {
-    hasSentRef.current = false;
-    setPendingData(data);
   };
 
   const whatsappMsg = encodeURIComponent(`Hello! Can I get more details about "${projectName}"?`);
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMsg}` : null;
 
-  const isAwaitingOTP = !!pendingData && !verifiedPhone;
+  const { isSubmitting } = form.formState;
 
   return (
     <>
@@ -229,14 +203,12 @@ export function ProjectMobileCTA({
                 <div className="px-5 pt-4 pb-3 border-b border-border/40 flex items-center justify-between">
                   <div>
                     <h3 className="font-bold text-base tracking-tight">
-                      {submitted ? "You're All Set!" : isAwaitingOTP ? "Verify Your Phone" : "Get Instant Access"}
+                      {submitted ? "You're All Set!" : "Get Instant Access"}
                     </h3>
                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                       {!submitted && <Lock className="h-3 w-3" />}
                       {submitted
                         ? "An email with full details will be sent to you shortly."
-                        : isAwaitingOTP
-                        ? "Enter the 6-digit code we just sent you"
                         : hasAnyDocuments ? "Floor plans & brochures · No obligation" : "An agent will contact you within 24 hrs"}
                     </p>
                   </div>
@@ -270,7 +242,7 @@ export function ProjectMobileCTA({
                 </div>
               ) : (
                 <div className="p-5 pb-8">
-                  {hasAnyDocuments && !isAwaitingOTP && (
+                  {hasAnyDocuments && (
                     <div className="flex items-center gap-1.5 flex-wrap mb-4">
                       {hasFloorplan && <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-md"><LayoutGrid className="h-2.5 w-2.5" /> Floor Plans</span>}
                       {hasPricing && <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-md"><DollarSign className="h-2.5 w-2.5" /> Pricing</span>}
@@ -278,89 +250,60 @@ export function ProjectMobileCTA({
                     </div>
                   )}
 
-                  {isAwaitingOTP ? (
-                    <div className="space-y-4">
-                      <PhoneVerificationField
-                        autoTrigger
-                        defaultPhone={pendingData?.phone ?? ""}
-                        onVerified={handleVerified}
-                        onReady={({ triggerSend }) => {
-                          if (!hasSentRef.current && pendingData) {
-                            hasSentRef.current = true;
-                            triggerSend(pendingData.phone);
-                          }
-                        }}
-                      />
-                      {isSubmitting && (
-                        <div className="flex items-center justify-center gap-2 py-2">
-                          <span className="h-4 w-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                          <span className="text-sm text-muted-foreground">Submitting your information…</span>
-                        </div>
-                      )}
-                      {form.formState.errors.root && (
-                        <p className="text-xs text-destructive text-center">{form.formState.errors.root.message}</p>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => { setPendingData(null); setVerifiedPhone(null); }}
-                        className="w-full text-xs text-muted-foreground hover:text-foreground underline text-center"
-                      >
-                        ← Go back and edit
-                      </button>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5">
+                    <div className="space-y-1">
+                      <Label htmlFor="mcta-name" className="text-xs font-semibold text-foreground/80">Full Name</Label>
+                      <Input id="mcta-name" placeholder="John Smith" autoComplete="name" autoCapitalize="words"
+                        {...form.register("fullName")}
+                        className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                      {form.formState.errors.fullName && <p className="text-xs text-destructive">{form.formState.errors.fullName.message}</p>}
                     </div>
-                  ) : (
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5">
-                      <div className="space-y-1">
-                        <Label htmlFor="mcta-name" className="text-xs font-semibold text-foreground/80">Full Name</Label>
-                        <Input id="mcta-name" placeholder="John Smith" autoComplete="name" autoCapitalize="words"
-                          {...form.register("fullName")}
-                          className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
-                        {form.formState.errors.fullName && <p className="text-xs text-destructive">{form.formState.errors.fullName.message}</p>}
-                      </div>
 
-                      <div className="space-y-1">
-                        <Label htmlFor="mcta-email" className="text-xs font-semibold text-foreground/80">Email Address</Label>
-                        <Input id="mcta-email" type="email" inputMode="email" placeholder="john@email.com" autoComplete="email" autoCapitalize="none"
-                          {...form.register("email")}
-                          className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
-                        {form.formState.errors.email && <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>}
-                      </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="mcta-email" className="text-xs font-semibold text-foreground/80">Email Address</Label>
+                      <Input id="mcta-email" type="email" inputMode="email" placeholder="john@email.com" autoComplete="email" autoCapitalize="none"
+                        {...form.register("email")}
+                        className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                      {form.formState.errors.email && <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>}
+                    </div>
 
-                      <div className="space-y-1">
-                        <Label htmlFor="mcta-phone" className="text-xs font-semibold text-foreground/80">Phone Number</Label>
-                        <Input id="mcta-phone" type="tel" inputMode="tel" placeholder="604-555-0123" autoComplete="tel"
-                          {...form.register("phone")}
-                          className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
-                        {form.formState.errors.phone && <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>}
-                      </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="mcta-phone" className="text-xs font-semibold text-foreground/80">Phone Number</Label>
+                      <Input id="mcta-phone" type="tel" inputMode="tel" placeholder="604-555-0123" autoComplete="tel"
+                        {...form.register("phone")}
+                        className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                      {form.formState.errors.phone && <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>}
+                    </div>
 
-                      <div className="space-y-2.5 pt-1">
-                        <div className="flex items-center gap-3">
-                          <Checkbox id="mcta-agent" checked={form.watch("workingWithAgent")} onCheckedChange={(v) => form.setValue("workingWithAgent", v === true)}
-                            className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                          <Label htmlFor="mcta-agent" className="text-sm text-foreground/70 cursor-pointer select-none">I'm working with a real estate agent</Label>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Checkbox id="mcta-realtor" checked={form.watch("isRealtor")} onCheckedChange={(v) => form.setValue("isRealtor", v === true)}
-                            className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                          <Label htmlFor="mcta-realtor" className="text-sm text-foreground/70 cursor-pointer select-none">I am a Realtor</Label>
-                        </div>
+                    <div className="space-y-2.5 pt-1">
+                      <div className="flex items-center gap-3">
+                        <Checkbox id="mcta-agent" checked={form.watch("workingWithAgent")} onCheckedChange={(v) => form.setValue("workingWithAgent", v === true)}
+                          className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+                        <Label htmlFor="mcta-agent" className="text-sm text-foreground/70 cursor-pointer select-none">I'm working with a real estate agent</Label>
                       </div>
+                      <div className="flex items-center gap-3">
+                        <Checkbox id="mcta-realtor" checked={form.watch("isRealtor")} onCheckedChange={(v) => form.setValue("isRealtor", v === true)}
+                          className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+                        <Label htmlFor="mcta-realtor" className="text-sm text-foreground/70 cursor-pointer select-none">I am a Realtor</Label>
+                      </div>
+                    </div>
 
-                      {form.formState.errors.root && (
-                        <p className="text-xs text-destructive text-center">{form.formState.errors.root.message}</p>
+                    {form.formState.errors.root && (
+                      <p className="text-xs text-destructive text-center">{form.formState.errors.root.message}</p>
+                    )}
+
+                    <Button type="submit" className="w-full h-12 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all gap-2" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" /> Submitting…</>
+                      ) : (
+                        <><Download className="h-4 w-4" />{hasAnyDocuments ? "Get Instant Access" : "Request Information"}</>
                       )}
+                    </Button>
 
-                      <Button type="submit" className="w-full h-12 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all gap-2">
-                        <Download className="h-4 w-4" />
-                        {hasAnyDocuments ? "Get Instant Access" : "Request Information"}
-                      </Button>
-
-                      <p className="text-center text-[10px] text-muted-foreground/60">
-                        <span className="text-primary/70">✓</span> No spam · <a href="/privacy" className="underline hover:text-foreground/60">Privacy Policy</a>
-                      </p>
-                    </form>
-                  )}
+                    <p className="text-center text-[10px] text-muted-foreground/60">
+                      <span className="text-primary/70">✓</span> No spam · <a href="/privacy" className="underline hover:text-foreground/60">Privacy Policy</a>
+                    </p>
+                  </form>
                 </div>
               )}
             </div>
