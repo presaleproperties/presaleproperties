@@ -551,7 +551,7 @@ export default function DashboardDeckBuilder() {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout fullWidth>
       {/* Hidden file inputs */}
       <input type="file" ref={heroInputRef} className="hidden" accept="image/*" onChange={handleHeroUpload} />
       <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" multiple onChange={handleGalleryUpload} />
@@ -562,7 +562,11 @@ export default function DashboardDeckBuilder() {
           onChange={(e) => handleFloorPlanUpload(e, fp.id)} />
       ))}
 
-      <div className="max-w-2xl mx-auto space-y-3 pb-28 px-0">
+      {/* Two-column layout: builder left, live preview right */}
+      <div className="flex gap-0 min-h-screen">
+        {/* Builder column */}
+        <div className="flex-1 min-w-0 xl:max-w-2xl xl:mx-auto">
+        <div className="space-y-3 pb-28 px-0">
 
         {/* Page header */}
         <div className="flex items-center justify-between gap-4 pb-1">
