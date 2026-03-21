@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,12 +15,9 @@ import { trackCTAClick } from "@/hooks/useLoftyTracking";
 import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId } from "@/lib/tracking";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 
-const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
-
 const formSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required").max(100),
   email: z.string().trim().email("Please enter a valid email").max(255),
-  phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
   workingWithAgent: z.boolean().default(false),
   isRealtor: z.boolean().default(false),
 });
@@ -58,6 +56,7 @@ export function ProjectMobileCTA({
   const [isHidden, setIsHidden] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);
@@ -66,7 +65,7 @@ export function ProjectMobileCTA({
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: false, isRealtor: false },
+    defaultValues: { fullName: "", email: "", workingWithAgent: false, isRealtor: false },
   });
 
   useEffect(() => {
@@ -116,7 +115,7 @@ export function ProjectMobileCTA({
         project_id: projectId || null,
         name: data.fullName,
         email: data.email,
-        phone: data.phone,
+        phone: verifiedPhone || "",
         persona: actualPersona,
         agent_status: data.workingWithAgent ? "working_with_agent" : data.isRealtor ? "i_am_realtor" : "no",
         message: [
@@ -144,11 +143,11 @@ export function ProjectMobileCTA({
       if (error) throw error;
 
       trackCTAClick({ cta_type: "lead_form_submit", cta_label: "Get Instant Access", cta_location: "mobile_cta_footer", project_id: projectId, project_name: projectName });
-      trackFormSubmit({ form_name: "floor_plan_request", form_location: "mobile_cta_footer", first_name: data.fullName, last_name: "", email: data.email, phone: data.phone, user_type: actualPersona, project_id: projectId, project_name: projectName });
+      trackFormSubmit({ form_name: "floor_plan_request", form_location: "mobile_cta_footer", first_name: data.fullName, last_name: "", email: data.email, phone: verifiedPhone || "", user_type: actualPersona, project_id: projectId, project_name: projectName });
 
       supabase.functions.invoke("trigger-workflow", { body: { event: "project_inquiry", data: { email: data.email, first_name: data.fullName, last_name: "", project_name: projectName, project_id: projectId }, meta: { lead_id: leadId, source: "floor_plan_request" } } }).catch(console.error);
       supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
-      supabase.functions.invoke("meta-conversions-api", { body: { event_name: "Lead", email: data.email, phone: data.phone, first_name: data.fullName, last_name: "", event_source_url: window.location.href, content_name: projectName, content_category: actualPersona, client_user_agent: navigator.userAgent, fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1], fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] } }).catch(console.error);
+      supabase.functions.invoke("meta-conversions-api", { body: { event_name: "Lead", email: data.email, phone: verifiedPhone || "", first_name: data.fullName, last_name: "", event_source_url: window.location.href, content_name: projectName, content_category: actualPersona, client_user_agent: navigator.userAgent, fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1], fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] } }).catch(console.error);
 
       MetaEvents.lead({ content_name: projectName, content_category: actualPersona });
 
@@ -266,13 +265,10 @@ export function ProjectMobileCTA({
                     </div>
 
                     {/* Phone */}
-                    <div className="space-y-1">
-                      <Label htmlFor="mcta-phone" className="text-xs font-semibold text-foreground/80">Phone Number</Label>
-                      <Input id="mcta-phone" type="tel" inputMode="tel" placeholder="(604) 555-0123" autoComplete="tel"
-                        {...form.register("phone")}
-                        className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
-                      {form.formState.errors.phone && <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>}
-                    </div>
+                    <PhoneVerificationField
+                      label="Phone Number"
+                      onVerified={(phone) => setVerifiedPhone(phone)}
+                    />
 
                     {/* Checkboxes */}
                     <div className="space-y-2.5 pt-1">
@@ -292,7 +288,7 @@ export function ProjectMobileCTA({
                       <p className="text-xs text-destructive text-center">{form.formState.errors.root.message}</p>
                     )}
 
-                    <Button type="submit" className="w-full h-12 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all gap-2" disabled={isSubmitting}>
+                    <Button type="submit" className="w-full h-12 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all gap-2" disabled={isSubmitting || !verifiedPhone}>
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
                           <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
