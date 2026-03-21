@@ -320,17 +320,7 @@ Deno.serve(async (req) => {
     const addressSlug = slugify(`${address} ${listing.city} bc`);
     const canonicalUrl = `${SITE_URL}/properties/${addressSlug}-${listingKey}`;
 
-    // If not a bot, redirect to the actual listing page
-    if (!isBot(userAgent)) {
-      return new Response(null, {
-        status: 302,
-        headers: { ...corsHeaders, "Location": canonicalUrl },
-      });
-    }
-
-    // Generate HTML with OG meta tags for bots/crawlers
-    // NOTE: This is a complete HTML document that social crawlers can parse
-    // The page includes a link to the actual listing for users who land here
+    // Always serve OG HTML — JS redirect handles humans, crawlers read the meta tags
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -360,6 +350,7 @@ Deno.serve(async (req) => {
   <meta name="twitter:image" content="${heroImage}">
   
   <link rel="canonical" href="${canonicalUrl}">
+  <script>window.location.replace("${canonicalUrl}");</script>
   
   <style>
     body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
