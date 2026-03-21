@@ -79,7 +79,7 @@ const navItems = [
   },
 ];
 
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user, isAdmin } = useAuth();
