@@ -1175,7 +1175,12 @@ export default function DashboardDeckBuilder() {
                   className={slugTaken ? "border-destructive" : ""}
                 />
                 {slug && (
-                  <button onClick={() => { navigator.clipboard.writeText(`https://presaleproperties.com/deck/${slug}`); toast.success("Link copied!"); }}
+                  <button onClick={() => {
+                    // OG proxy URL — gives rich WhatsApp/social previews, redirects humans to the real deck
+                    const shareUrl = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${slug}`;
+                    navigator.clipboard.writeText(shareUrl);
+                    toast.success("Share link copied! WhatsApp & social previews will show the deck image.");
+                  }}
                     className="shrink-0 text-muted-foreground hover:text-primary transition-colors">
                     <Copy className="h-4 w-4" />
                   </button>
