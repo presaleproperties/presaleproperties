@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { collectTrackingData } from "@/lib/collectTrackingData";
 import { calculateLeadScore } from "@/lib/leadScoring";
 
+
 export interface LeadSubmissionPayload {
   firstName: string;
   lastName?: string;
@@ -102,6 +103,7 @@ export function useLeadSubmission(): LeadSubmissionResult {
       };
 
       // If a leadId was provided, patch the project_leads row with tracking + score data
+      // then fire send-project-lead → Zapier
       if (payload.leadId) {
         supabase.from("project_leads").update({
           form_type: payload.formType,
@@ -126,11 +128,20 @@ export function useLeadSubmission(): LeadSubmissionResult {
           })),
         }).eq("id", payload.leadId).then(({ error: patchErr }) => {
           if (patchErr) console.warn("[useLeadSubmission] DB patch failed:", patchErr);
-          else console.log("[useLeadSubmission] DB row patched with tracking data");
+          else {
+            console.log("[useLeadSubmission] DB row patched with tracking data");
+            // Fire Zapier webhook now that tracking data is saved
+            supabase.functions.invoke("send-project-lead", { body: { leadId: payload.leadId } })
+              .then(({ error: fnErr }) => {
+                if (fnErr) console.warn("[useLeadSubmission] send-project-lead failed:", fnErr);
+                else console.log("[useLeadSubmission] Zapier webhook fired successfully");
+              })
+              .catch((e) => console.warn("[useLeadSubmission] send-project-lead error:", e));
+          }
         });
       }
 
-      // Lofty direct API sync is disabled — leads go via Zapier (send-project-lead edge function).
+      // Leads go via Zapier through send-project-lead edge function.
 
       setIsSuccess(true);
     } catch (err: any) {

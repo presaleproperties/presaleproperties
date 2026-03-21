@@ -183,6 +183,7 @@ export function AccessPackModal({
 
       if (error) throw error;
 
+      // submitLead patches tracking data then fires send-project-lead → Zapier automatically
       submitLead({
         leadId,
         firstName: data.firstName,
@@ -194,8 +195,6 @@ export function AccessPackModal({
         projectUrl: window.location.href,
         message: messageData,
       });
-
-      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 
       trackFormSubmit({
         form_name: variant === "floorplans" ? "access_pack" : variant === "general_interest" ? "general_interest" : "callback_request",

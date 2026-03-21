@@ -41,15 +41,17 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
       const visitorId = getVisitorId();
       const sessionId = getSessionId();
       const utmData = getUtmDataForSubmission();
+      const leadId = crypto.randomUUID();
 
       const { error } = await (supabase as any).from("project_leads").insert({
+        id: leadId,
         name: fullName.trim(),
         email: email.trim().toLowerCase(),
         phone: verPhone,
         message: `Pitch Deck: ${projectName}`,
         persona: "buyer",
         agent_status: "no",
-        lead_source: "floor_plan_request",
+        lead_source: "pitch_deck",
         project_id: projectId || null,
         visitor_id: visitorId,
         session_id: sessionId,
@@ -70,6 +72,9 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
       supabase.functions.invoke("send-whatsapp-notification", {
         body: { leadName: fullName.trim(), leadPhone: verPhone, leadEmail: email.trim().toLowerCase(), projectName, deckSlug: slug },
       }).catch(console.error);
+
+      // Send to Zapier via send-project-lead with the correct leadId
+      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 
       supabase.functions.invoke("trigger-workflow", {
         body: {
