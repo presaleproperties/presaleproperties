@@ -16,6 +16,7 @@ import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/l
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
+import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
