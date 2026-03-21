@@ -351,7 +351,7 @@ export function ProjectLeadForm({
             {isSubmitting ? (
               <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting…</>
             ) : (
-              <><Download className="h-4 w-4 mr-2" /> Get Instant Access</>
+              <><Download className="h-4 w-4 mr-2" /> Download Info Package</>
             )}
           </Button>
 
