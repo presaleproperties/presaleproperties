@@ -233,20 +233,14 @@ export function PhoneVerificationField({
           value={currentPhone}
           onChange={(e) => { setCurrentPhone(e.target.value); setPhoneError(null); }}
           className="h-11 flex-1 text-[16px]"
-          disabled={state === "sending"}
         />
         <Button
           type="button"
           variant="outline"
           className="h-11 px-3 shrink-0 text-xs font-semibold border-primary text-primary hover:bg-primary hover:text-primary-foreground"
           onClick={handleSend}
-          disabled={state === "sending"}
         >
-          {state === "sending" ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            "Send Code"
-          )}
+          Send Code
         </Button>
       </div>
       {(phoneError || error) && (
