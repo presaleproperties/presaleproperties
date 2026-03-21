@@ -6,37 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const LOFTY_BASE_URL = "https://api.lofty.com/v1.0/leads";
+const LOFTY_SOURCE = "presaleproperties.com";
+
 interface LoftySyncRequest {
   leadId?: string;
   bookingId?: string;
-  leadData?: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone?: string;
-    notes?: string;
-    tags?: string[];
-    source?: string;
-    projectName?: string;
-    projectCity?: string;
-    intentScore?: number;
-    visitorId?: string;
-    sessionId?: string;
-    utmSource?: string;
-    utmMedium?: string;
-    utmCampaign?: string;
-  };
-}
-
-interface LoftyContact {
-  first_name: string;
-  last_name: string;
-  email?: string;
-  phone?: string;
-  source?: string;
-  tags?: string[];
-  notes?: string;
-  custom_fields?: Record<string, string>;
+  leadData?: Record<string, any>;
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -46,446 +22,326 @@ serve(async (req: Request): Promise<Response> => {
 
   try {
     const loftyApiKey = Deno.env.get("LOFTY_API_KEY");
-    
     if (!loftyApiKey) {
-      console.log("LOFTY_API_KEY not configured, skipping direct sync");
       return new Response(
         JSON.stringify({ success: false, skipped: true, reason: "LOFTY_API_KEY not configured" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const { leadId, bookingId, leadData }: LoftySyncRequest = await req.json();
-    console.log("Syncing to Lofty:", { leadId, bookingId, hasDirectData: !!leadData });
+    const authHeader = `token ${loftyApiKey}`;
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
 
-    let contactData: LoftyContact;
-    let leadSource = "Website";
-    let projectContext = "";
+    const body: LoftySyncRequest = await req.json();
+    const { leadId, bookingId, leadData } = body;
 
-    // If direct lead data is provided, use it
+    console.log("sync-lead-to-lofty called:", { leadId, bookingId, hasDirectData: !!leadData });
+
+    // ── Build contact payload ──────────────────────────────────────────────
+    let firstName = "";
+    let lastName = "";
+    let email = "";
+    let phone = "";
+    let tags: string[] = [];
+    let notesText = "";
+    let supabaseLeadId: string | undefined;
+
     if (leadData) {
-      // Build tags from provided data
-      const tags: string[] = [];
-      if (leadData.projectName) tags.push(leadData.projectName);
-      if (leadData.projectCity) tags.push(leadData.projectCity);
-      if (leadData.tags) tags.push(...leadData.tags.filter(t => !tags.includes(t)));
-      if (tags.length === 0) tags.push("Website Lead");
-      tags.push("Presale");
-      
-      console.log("Direct leadData tags:", tags);
-      
-      contactData = {
-        first_name: leadData.firstName,
-        last_name: leadData.lastName,
-        email: leadData.email,
-        phone: leadData.phone || undefined,
-        source: leadData.source || "PresaleProperties.com",
-        tags,
-        notes: buildNotes(leadData),
-        custom_fields: {
-          visitor_id: leadData.visitorId || "",
-          session_id: leadData.sessionId || "",
-          intent_score: String(leadData.intentScore || 0),
-          utm_source: leadData.utmSource || "",
-          utm_medium: leadData.utmMedium || "",
-          utm_campaign: leadData.utmCampaign || "",
-        },
-      };
-      projectContext = leadData.projectName || "";
-    }
-    // Fetch from project_leads table
-    else if (leadId) {
+      // ── Direct data from useLeadSubmission hook ─────────────────────────
+      firstName = leadData.firstName || "";
+      lastName = leadData.lastName || "";
+      email = leadData.email || "";
+      phone = leadData.phone || "";
+      supabaseLeadId = leadData.leadId;
+
+      // Tags: project name, city, form type, temperature, source, property type
+      const rawTags: (string | null | undefined)[] = [
+        "presale",
+        leadData.projectName ? leadData.projectName.toLowerCase().replace(/\s+/g, "-") : null,
+        leadData.projectCity ? leadData.projectCity.toLowerCase().replace(/\s+/g, "-") : null,
+        leadData.propertyType ? leadData.propertyType.toLowerCase().replace(/\s+/g, "-") : null,
+        leadData.formType ? leadData.formType.replace(/_/g, "-") : null,
+        leadData.leadTemperature || null,
+        leadData.usedCalculator ? "used-calculator" : null,
+        leadData.utmSource ? `src-${leadData.utmSource}` : null,
+        leadData.sessionCount >= 2 ? "returning-visitor" : "new-visitor",
+        leadData.isRealtor ? "realtor" : null,
+      ];
+      tags = rawTags.filter(Boolean) as string[];
+
+      notesText = buildDirectNotes(leadData);
+    } else if (leadId) {
+      // ── Fetch from project_leads table ──────────────────────────────────
       const { data: lead, error } = await supabase
         .from("project_leads")
-        .select(`
-          *,
-          presale_projects (name, city, neighborhood, developer_name, status)
-        `)
+        .select(`*, presale_projects (name, city, neighborhood, developer_name, status, property_type)`)
         .eq("id", leadId)
         .single();
 
-      if (error || !lead) {
-        throw new Error(`Lead not found: ${leadId}`);
-      }
+      if (error || !lead) throw new Error(`Lead not found: ${leadId}`);
 
-      const { firstName, lastName } = parseNames(lead.name, lead.message);
+      supabaseLeadId = leadId;
+      const parsed = parseNames(lead.name, lead.message);
+      firstName = parsed.firstName;
+      lastName = parsed.lastName;
+      email = lead.email;
+      phone = lead.phone || "";
+
       const project = lead.presale_projects as any;
-      projectContext = project?.name || "";
+      const rawTags: (string | null | undefined)[] = [
+        "presale",
+        project?.name ? project.name.toLowerCase().replace(/\s+/g, "-") : null,
+        project?.city ? project.city.toLowerCase().replace(/\s+/g, "-") : null,
+        project?.property_type ? project.property_type.toLowerCase().replace(/\s+/g, "-") : null,
+        lead.lead_source ? lead.lead_source.replace(/_/g, "-") : null,
+        lead.lead_temperature || null,
+        lead.persona ? lead.persona.replace(/_/g, "-") : null,
+        lead.agent_status === "i_am_realtor" ? "realtor" : null,
+        lead.used_calculator ? "used-calculator" : null,
+        lead.utm_source ? `src-${lead.utm_source}` : null,
+      ];
+      tags = rawTags.filter(Boolean) as string[];
 
-      // Build tags based on lead attributes - these appear in Lofty's Tag field
-      const tags: string[] = [];
-      
-      // Priority tags: Project and City (most important for filtering)
-      if (project?.name) tags.push(project.name);
-      if (project?.city) tags.push(project.city);
-      if (project?.neighborhood) tags.push(project.neighborhood);
-      
-      // Lead source/form type
-      if (lead.lead_source === "scheduler") tags.push("Tour Request");
-      else if (lead.lead_source === "floor_plan_request") tags.push("Floor Plan Request");
-      else if (lead.lead_source === "callback_request") tags.push("Callback Request");
-      else tags.push("Website Lead");
-      
-      // Buyer type
-      if (lead.persona === "investor") tags.push("Investor");
-      if (lead.persona === "first_time_buyer") tags.push("First Time Buyer");
-      if (lead.persona === "family") tags.push("Upsizer");
-      
-      // Agent status
-      if (lead.agent_status === "i_am_realtor") tags.push("Realtor");
-      
-      // Intent level
-      if (lead.intent_score && lead.intent_score >= 70) tags.push("High Intent");
-      else if (lead.intent_score && lead.intent_score >= 40) tags.push("Medium Intent");
-      
-      // Always add presale interest
-      tags.push("Presale");
-      
-      console.log("Lead tags to sync:", tags);
-
-      contactData = {
-        first_name: firstName,
-        last_name: lastName,
-        email: lead.email,
-        phone: lead.phone || undefined,
-        source: "PresaleProperties.com",
-        tags,
-        notes: buildLeadNotes(lead, project),
-        custom_fields: {
-          visitor_id: lead.visitor_id || "",
-          session_id: lead.session_id || "",
-          intent_score: String(lead.intent_score || 0),
-          project_name: project?.name || "",
-          project_city: project?.city || "",
-          project_neighborhood: project?.neighborhood || "",
-          home_size: lead.home_size || "",
-          persona: lead.persona || "",
-          utm_source: lead.utm_source || "",
-          utm_medium: lead.utm_medium || "",
-          utm_campaign: lead.utm_campaign || "",
-        },
-      };
-      leadSource = getLeadSourceLabel(lead.lead_source);
-    }
-    // Fetch from bookings table
-    else if (bookingId) {
+      notesText = buildLeadNotes(lead, project);
+    } else if (bookingId) {
+      // ── Fetch from bookings table ───────────────────────────────────────
       const { data: booking, error } = await supabase
         .from("bookings")
-        .select(`
-          *,
-          presale_projects (name, city, neighborhood, developer_name)
-        `)
+        .select(`*, presale_projects (name, city, neighborhood, developer_name)`)
         .eq("id", bookingId)
         .single();
 
-      if (error || !booking) {
-        throw new Error(`Booking not found: ${bookingId}`);
-      }
+      if (error || !booking) throw new Error(`Booking not found: ${bookingId}`);
 
-      const { firstName, lastName } = parseNames(booking.name, null);
+      supabaseLeadId = bookingId;
+      const parsed = parseNames(booking.name, null);
+      firstName = parsed.firstName;
+      lastName = parsed.lastName;
+      email = booking.email;
+      phone = booking.phone || "";
+
       const project = booking.presale_projects as any;
-      projectContext = booking.project_name || project?.name || "";
+      const rawTags: (string | null | undefined)[] = [
+        "presale",
+        "tour-request",
+        (booking.project_name || project?.name) ? (booking.project_name || project?.name).toLowerCase().replace(/\s+/g, "-") : null,
+        booking.project_city ? booking.project_city.toLowerCase().replace(/\s+/g, "-") : null,
+        booking.buyer_type ? booking.buyer_type.replace(/_/g, "-") : null,
+        booking.intent_score >= 70 ? "high-intent" : booking.intent_score >= 40 ? "medium-intent" : null,
+        booking.utm_source ? `src-${booking.utm_source}` : null,
+      ];
+      tags = rawTags.filter(Boolean) as string[];
 
-      // Build tags - project and city first for filtering
-      const tags: string[] = [];
-      if (projectContext) tags.push(projectContext);
-      if (booking.project_city) tags.push(booking.project_city);
-      if (booking.project_neighborhood) tags.push(booking.project_neighborhood);
-      tags.push("Tour Request");
-      if (booking.buyer_type === "investor") tags.push("Investor");
-      if (booking.buyer_type === "first_time_buyer") tags.push("First Time Buyer");
-      if (booking.intent_score && booking.intent_score >= 70) tags.push("High Intent");
-      else if (booking.intent_score && booking.intent_score >= 40) tags.push("Medium Intent");
-      tags.push("Presale");
-      
-      console.log("Booking tags to sync:", tags);
-
-      contactData = {
-        first_name: firstName,
-        last_name: lastName,
-        email: booking.email,
-        phone: booking.phone || undefined,
-        source: "PresaleProperties.com",
-        tags,
-        notes: buildBookingNotes(booking, project),
-        custom_fields: {
-          visitor_id: booking.visitor_id || "",
-          session_id: booking.session_id || "",
-          intent_score: String(booking.intent_score || 0),
-          project_name: projectContext,
-          appointment_date: booking.appointment_date || "",
-          appointment_time: booking.appointment_time || "",
-          appointment_type: booking.appointment_type || "",
-          buyer_type: booking.buyer_type || "",
-          timeline: booking.timeline || "",
-          utm_source: booking.utm_source || "",
-          utm_medium: booking.utm_medium || "",
-          utm_campaign: booking.utm_campaign || "",
-        },
-      };
-      leadSource = "Tour Booking";
+      notesText = buildBookingNotes(booking, project);
     } else {
-      throw new Error("Either leadId, bookingId, or leadData is required");
+      throw new Error("leadId, bookingId, or leadData required");
     }
 
-    // Determine working auth header first
-    const authHeadersToTry = [
-      `token ${loftyApiKey}`,
-      `Bearer ${loftyApiKey}`,
-    ];
-    
-    let workingAuth = "";
-    let baseUrl = "";
-    
-    // Find working auth by testing with a search request
-    const searchUrls = [
-      "https://api.lofty.com/v1.0/leads",
-      "https://api.lofty.com/v1/leads",
-    ];
-    
-    for (const url of searchUrls) {
-      for (const auth of authHeadersToTry) {
-        try {
-          // Search for existing contact by email
-          const searchUrl = `${url}?email=${encodeURIComponent(contactData.email || "")}`;
-          console.log(`Searching for existing contact: ${searchUrl}`);
-          
+    if (!email) throw new Error("Email is required to sync to Lofty");
+
+    console.log("Prepared contact:", { firstName, lastName, email, phone, tags });
+
+    // ── Search for existing contact ───────────────────────────────────────
+    // Strategy 1: check our own DB for a stored lofty_id (most reliable)
+    // Strategy 2: try Lofty keyword search
+    let existingLoftyId: string | null = null;
+
+    // Check our DB first — if we already have a lofty_id for this email, use it
+    try {
+      const { data: existingLead } = await supabase
+        .from("project_leads" as any)
+        .select("lofty_id")
+        .eq("email", email)
+        .not("lofty_id", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (existingLead?.lofty_id) {
+        existingLoftyId = existingLead.lofty_id;
+        console.log("Found existing lofty_id in DB:", existingLoftyId);
+      }
+    } catch { /* no existing record with lofty_id */ }
+
+    // If not found in DB, try Lofty keyword search
+    if (!existingLoftyId) {
+      try {
+        // Try multiple search param names — Lofty API is inconsistent
+        const searchAttempts = [
+          `${LOFTY_BASE_URL}?keyword=${encodeURIComponent(email)}&limit=1`,
+          `${LOFTY_BASE_URL}?q=${encodeURIComponent(email)}&limit=1`,
+          `${LOFTY_BASE_URL}?email=${encodeURIComponent(email)}&limit=1`,
+        ];
+
+        for (const searchUrl of searchAttempts) {
           const searchRes = await fetch(searchUrl, {
             method: "GET",
-            headers: {
-              "Accept": "application/json",
-              "Authorization": auth,
-            },
+            headers: { "Accept": "application/json", "Authorization": authHeader },
           });
-          
+
           if (searchRes.ok) {
-            workingAuth = auth;
-            baseUrl = url;
-            
-            const searchBody = await searchRes.text();
-            let existingContacts: any[] = [];
-            
-            try {
-              const parsed = JSON.parse(searchBody);
-              existingContacts = Array.isArray(parsed) ? parsed : (parsed.data || parsed.leads || []);
-            } catch {
-              existingContacts = [];
-            }
-            
-            console.log(`Found ${existingContacts.length} existing contacts for email: ${contactData.email}`);
-            
-            // If contact exists, update it instead of creating new
-            if (existingContacts.length > 0) {
-              const existingId = existingContacts[0].id || existingContacts[0].lead_id;
-              
-              // Merge tags - add new tags without removing existing ones
-              const existingTags = existingContacts[0].tags || [];
-              const newTags = contactData.tags || [];
-              const mergedTags = [...new Set([...existingTags, ...newTags])];
-              
-              // Append to notes instead of replacing
-              const existingNotes = existingContacts[0].notes || existingContacts[0].note || "";
-              const timestamp = new Date().toISOString().split("T")[0];
-              const newNotes = `\n\n═══ NEW ACTIVITY (${timestamp}) ═══\n${contactData.notes}`;
-              const mergedNotes = existingNotes + newNotes;
-              
-              const updatePayload = {
-                // snake_case (Lofty REST API standard)
-                first_name: contactData.first_name,
-                last_name: contactData.last_name || "",
-                email: contactData.email,
-                phone: contactData.phone || existingContacts[0].phone || "",
-                tags: mergedTags,
-                note: mergedNotes,
-                notes: mergedNotes,
-                source: existingContacts[0].source || "PresaleProperties.com",
-                // camelCase aliases
-                firstName: contactData.first_name,
-                lastName: contactData.last_name || "",
-              };
-              
-              console.log(`Updating existing contact ${existingId} with merged tags:`, mergedTags);
-              
-              const updateRes = await fetch(`${baseUrl}/${existingId}`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Accept": "application/json",
-                  "Authorization": workingAuth,
-                },
-                body: JSON.stringify(updatePayload),
-              });
-              
-              const updateBody = await updateRes.text();
-              console.log("Lofty UPDATE response:", updateRes.status, updateBody);
-              
-              if (updateRes.ok) {
-                return new Response(
-                  JSON.stringify({
-                    success: true,
-                    loftyId: existingId,
-                    message: "Existing contact updated in Lofty CRM",
-                    action: "updated",
-                  }),
-                  { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-                );
-              }
-              
-              // If PUT fails, try PATCH
-              const patchRes = await fetch(`${baseUrl}/${existingId}`, {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Accept": "application/json",
-                  "Authorization": workingAuth,
-                },
-                body: JSON.stringify(updatePayload),
-              });
-              
-              const patchBody = await patchRes.text();
-              console.log("Lofty PATCH response:", patchRes.status, patchBody);
-              
-              if (patchRes.ok) {
-                return new Response(
-                  JSON.stringify({
-                    success: true,
-                    loftyId: existingId,
-                    message: "Existing contact patched in Lofty CRM",
-                    action: "patched",
-                  }),
-                  { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-                );
+            const searchText = await searchRes.text();
+            console.log(`Lofty search (${searchUrl.split("?")[1]}):`, searchRes.status, searchText.substring(0, 200));
+
+            let searchData: any;
+            try { searchData = JSON.parse(searchText); } catch { searchData = null; }
+
+            const contacts: any[] = Array.isArray(searchData)
+              ? searchData
+              : (searchData?.leads || searchData?.data || searchData?.results || []);
+
+            if (contacts.length > 0) {
+              existingLoftyId = String(
+                contacts[0].leadId || contacts[0].lead_id || contacts[0].id || ""
+              ) || null;
+              if (existingLoftyId) {
+                console.log("Found Lofty contact via search:", existingLoftyId, "keys:", Object.keys(contacts[0]));
+                break;
               }
             }
-            
-            break; // Found working auth, proceed to create new contact
           }
-        } catch (err) {
-          console.log(`Search attempt failed: ${err}`);
-          continue;
         }
+      } catch (searchErr) {
+        console.warn("Lofty search error:", searchErr);
       }
-      if (workingAuth) break;
     }
-    
-    // Create new contact if no existing one found
-    // Lofty API accepts snake_case field names — send both variants to maximise compatibility
-    const loftyPayload = {
-      // snake_case (primary — Lofty REST API standard)
-      first_name: contactData.first_name,
-      last_name: contactData.last_name || "",
-      email: contactData.email,
-      phone: contactData.phone || "",
-      note: contactData.notes,
-      notes: contactData.notes,
-      description: contactData.notes,
-      remark: contactData.notes,
-      source: leadSource,
-      tags: contactData.tags || [],
-      inquiry_source: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
-      // camelCase aliases (some Lofty API versions accept these)
-      firstName: contactData.first_name,
-      lastName: contactData.last_name || "",
-      inquirySource: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
-    };
 
-    console.log("Lofty payload fields:", {
-      first_name: loftyPayload.first_name,
-      last_name: loftyPayload.last_name,
-      email: loftyPayload.email,
-      phone: loftyPayload.phone,
-      source: loftyPayload.source,
-      tags: loftyPayload.tags,
-      note_length: loftyPayload.note?.length ?? 0,
-    });
+    // ── UPDATE existing contact ───────────────────────────────────────────
+    if (existingLoftyId && existingLoftyId !== "null" && existingLoftyId !== "undefined") {
+      console.log("Updating existing Lofty contact:", existingLoftyId);
 
-    const loftyUrls = baseUrl ? [baseUrl] : [
-      "https://api.lofty.com/v1.0/leads",
-      "https://api.lofty.com/v1/leads",
-    ];
-    
-    const authsToUse = workingAuth ? [workingAuth] : authHeadersToTry;
+      // Build a "return visit" note to append
+      const returnNote = buildReturnVisitNote(notesText);
 
-    let lastStatus: number | null = null;
-    let lastBody = "";
-
-    for (const url of loftyUrls) {
-      for (const auth of authsToUse) {
-        const authMode = auth.startsWith("token ") ? "token" : "bearer";
-        console.log(`Creating new lead via Lofty API (${authMode}) -> ${url}`);
-
-        const res = await fetch(url, {
+      // Try to add a note via the notes endpoint first
+      try {
+        const noteRes = await fetch(`${LOFTY_BASE_URL}/${existingLoftyId}/notes`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "Authorization": auth,
+            "Authorization": authHeader,
           },
-          body: JSON.stringify(loftyPayload),
+          body: JSON.stringify({ content: returnNote, note: returnNote }),
         });
-
-        const bodyText = await res.text();
-        lastStatus = res.status;
-        lastBody = bodyText;
-
-        console.log("Lofty POST response:", res.status, bodyText.substring(0, 500));
-
-        if (res.ok) {
-          let loftyData: any;
-          try {
-            loftyData = JSON.parse(bodyText);
-          } catch {
-            loftyData = { raw: bodyText };
-          }
-
-          // Lofty returns { leadId: ... } — capture it
-          const loftyId = loftyData?.leadId || loftyData?.id || loftyData?.lead_id || loftyData?.contact_id;
-          console.log("Lofty created contact loftyId:", loftyId);
-
-          return new Response(
-            JSON.stringify({
-              success: true,
-              loftyId,
-              message: "New lead created in Lofty CRM",
-              action: "created",
-            }),
-            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-
-        if (res.status === 401 || res.status === 403) {
-          continue;
-        }
-
-        return new Response(
-          JSON.stringify({
-            success: false,
-            error: "Lofty API error",
-            status: res.status,
-            details: bodyText,
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        const noteBody = await noteRes.text();
+        console.log("Lofty add note response:", noteRes.status, noteBody.substring(0, 200));
+      } catch (noteErr) {
+        console.warn("Notes endpoint failed:", noteErr);
       }
+
+      // Also update the contact record to merge tags
+      const updatePayload = {
+        firstName: firstName,
+        lastName: lastName,
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        phone: phone || undefined,
+        tags: tags,
+        source: LOFTY_SOURCE,
+        note: returnNote,
+        notes: returnNote,
+      };
+
+      const updateRes = await fetch(`${LOFTY_BASE_URL}/${existingLoftyId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": authHeader,
+        },
+        body: JSON.stringify(updatePayload),
+      });
+
+      const updateBody = await updateRes.text();
+      console.log("Lofty PUT update response:", updateRes.status, updateBody.substring(0, 300));
+
+      // Update supabase lofty_id regardless
+      if (supabaseLeadId) {
+        await supabase.from("project_leads" as any).update({
+          lofty_id: existingLoftyId,
+          lofty_synced_at: new Date().toISOString(),
+        }).eq("id", supabaseLeadId);
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          loftyId: existingLoftyId,
+          action: "updated",
+          message: "Existing Lofty contact updated with return visit note",
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // All attempts failed
+    // ── CREATE new contact ────────────────────────────────────────────────
+    console.log("Creating new Lofty contact for:", email);
+
+    const createPayload = {
+      // Both camelCase (Lofty requires) and snake_case aliases
+      firstName: firstName,
+      lastName: lastName,
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      phone: phone || undefined,
+      source: LOFTY_SOURCE,
+      tags: tags,
+      note: notesText,
+      notes: notesText,
+    };
+
+    console.log("Lofty CREATE payload:", {
+      ...createPayload,
+      note: `[${createPayload.note?.length ?? 0} chars]`,
+    });
+
+    const createRes = await fetch(LOFTY_BASE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": authHeader,
+      },
+      body: JSON.stringify(createPayload),
+    });
+
+    const createBody = await createRes.text();
+    console.log("Lofty CREATE response:", createRes.status, createBody.substring(0, 500));
+
+    if (createRes.ok) {
+      let createData: any;
+      try { createData = JSON.parse(createBody); } catch { createData = {}; }
+
+      const loftyId = String(createData?.leadId || createData?.id || createData?.lead_id || "");
+
+      // Save loftyId back to supabase
+      if (supabaseLeadId && loftyId) {
+        await supabase.from("project_leads" as any).update({
+          lofty_id: loftyId,
+          lofty_synced_at: new Date().toISOString(),
+        }).eq("id", supabaseLeadId);
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, loftyId, action: "created" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     return new Response(
-      JSON.stringify({
-        success: false,
-        error: "Lofty API error",
-        status: lastStatus,
-        details: lastBody,
-      }),
+      JSON.stringify({ success: false, error: "Lofty API error", status: createRes.status, details: createBody }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (error: any) {
-    console.error("Error syncing to Lofty:", error);
+    console.error("sync-lead-to-lofty error:", error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -493,303 +349,298 @@ serve(async (req: Request): Promise<Response> => {
   }
 });
 
-// Helper functions
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 function parseNames(name: string, message: string | null): { firstName: string; lastName: string } {
   if (message) {
-    const firstNameMatch = message.match(/First Name:\s*([^|]+)/i);
-    const lastNameMatch = message.match(/Last Name:\s*([^|]+)/i);
-    if (firstNameMatch && lastNameMatch) {
-      return {
-        firstName: firstNameMatch[1].trim(),
-        lastName: lastNameMatch[1].trim(),
-      };
+    const firstMatch = message.match(/First Name:\s*([^|]+)/i);
+    const lastMatch = message.match(/Last Name:\s*([^|]+)/i);
+    if (firstMatch && lastMatch) {
+      return { firstName: firstMatch[1].trim(), lastName: lastMatch[1].trim() };
     }
   }
   const parts = (name || "").trim().split(/\s+/);
-  if (parts.length >= 2) {
-    return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
-  }
-  return { firstName: parts[0] || "", lastName: "" };
+  return parts.length >= 2
+    ? { firstName: parts[0], lastName: parts.slice(1).join(" ") }
+    : { firstName: parts[0] || "", lastName: "" };
 }
 
-function getLeadSourceLabel(source: string | null): string {
-  switch (source) {
-    case "scheduler": return "Tour Request";
-    case "floor_plan_request": return "Floor Plan Request";
-    case "callback_request": return "Callback Request";
-    case "general_inquiry": return "General Inquiry";
-    default: return "Website Lead";
-  }
+function buildReturnVisitNote(latestActivity: string): string {
+  const ts = new Date().toLocaleString("en-CA", {
+    timeZone: "America/Vancouver",
+    year: "numeric", month: "short", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+  return [
+    `════════════════════════════════`,
+    `🔄 LEAD RETURNED TO SITE`,
+    `   ${ts} (Pacific Time)`,
+    `════════════════════════════════`,
+    "",
+    latestActivity,
+  ].join("\n");
 }
 
-function buildNotes(data: any): string {
-  const sections: string[] = [];
+function buildDirectNotes(d: any): string {
+  const lines: string[] = [];
 
-  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  sections.push("LEAD FROM PRESALEPROPERTIES.COM");
-  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  sections.push("");
-  sections.push(`FORM: ${data?.formType || data?.form_type || "website"}`);
-  if (data?.projectName) sections.push(`PROJECT: ${data.projectName}${data?.projectCity ? ` — ${data.projectCity}` : ""}`);
-  if (data?.currentPageTitle) sections.push(`PAGE: ${data.currentPageTitle}`);
-  if (data?.currentPageUrl || data?.projectUrl) sections.push(`URL: ${data?.currentPageUrl || data?.projectUrl}`);
+  lines.push("════════════════════════════════════");
+  lines.push("  LEAD FROM PRESALEPROPERTIES.COM");
+  lines.push("════════════════════════════════════");
+  lines.push("");
 
-  if (data?.message) {
-    sections.push("");
-    sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    sections.push("MESSAGE");
-    sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    sections.push(data.message);
+  // ── Contact Details ──
+  lines.push("📋 CONTACT DETAILS");
+  lines.push(`   Name:    ${d.firstName || ""} ${d.lastName || ""}`.trim());
+  lines.push(`   Email:   ${d.email || ""}`);
+  if (d.phone) lines.push(`   Phone:   ${d.phone}`);
+  lines.push("");
+
+  // ── Form / Project ──
+  lines.push("📍 FORM & PROJECT");
+  lines.push(`   Form Type:  ${(d.formType || "website").replace(/_/g, " ")}`);
+  if (d.projectName) lines.push(`   Project:    ${d.projectName}`);
+  if (d.projectCity) lines.push(`   City:       ${d.projectCity}`);
+  if (d.propertyType) lines.push(`   Type:       ${d.propertyType}`);
+  lines.push("");
+
+  // ── Page Context ──
+  lines.push("🔗 PAGE SUBMITTED FROM");
+  if (d.currentPageTitle) lines.push(`   Title: ${d.currentPageTitle}`);
+  if (d.currentPageUrl) lines.push(`   URL:   ${d.currentPageUrl}`);
+  if (d.landingPage && d.landingPage !== d.currentPageUrl) lines.push(`   Landed On: ${d.landingPage}`);
+  lines.push("");
+
+  // ── Lead Selections ──
+  const hasSelections = d.isRealtor || d.persona || d.homeSize || d.timeline || d.agentStatus;
+  if (hasSelections) {
+    lines.push("✅ FORM SELECTIONS");
+    if (d.persona) {
+      const personaMap: Record<string, string> = {
+        investor: "Investor",
+        first_time_buyer: "First-Time Buyer",
+        family: "Upsizer/Family",
+        downsizer: "Downsizer",
+      };
+      lines.push(`   Buyer Type: ${personaMap[d.persona] || d.persona}`);
+    }
+    if (d.homeSize) {
+      const sizeMap: Record<string, string> = {
+        studio: "Studio", "1bed": "1 Bedroom", "2bed": "2 Bedroom",
+        "3bed": "3+ Bedroom", townhome: "Townhome",
+      };
+      lines.push(`   Looking For: ${sizeMap[d.homeSize] || d.homeSize}`);
+    }
+    if (d.timeline) {
+      const tlMap: Record<string, string> = {
+        "0_3_months": "0-3 months (Ready Now)",
+        "3_6_months": "3-6 months",
+        "6_12_months": "6-12 months",
+        "12_plus_months": "12+ months",
+      };
+      lines.push(`   Timeline: ${tlMap[d.timeline] || d.timeline}`);
+    }
+    if (d.agentStatus) {
+      const agentMap: Record<string, string> = {
+        i_am_realtor: "Is a Realtor",
+        yes: "Working with a Realtor",
+        no: "No Realtor",
+      };
+      lines.push(`   Realtor Status: ${agentMap[d.agentStatus] || d.agentStatus}`);
+    }
+    if (d.isRealtor) lines.push(`   Is Realtor: Yes`);
+    lines.push("");
   }
 
-  sections.push("");
-  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  sections.push("LEAD INTELLIGENCE");
-  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  sections.push(`Score: ${data?.leadScore ?? data?.intentScore ?? 0}/10 (${(data?.leadTemperature || "cold").toUpperCase()})`);
-  sections.push(`Device: ${data?.deviceType || "unknown"}`);
-  if (data?.userLanguage) sections.push(`Language: ${data.userLanguage}`);
+  // ── Message ──
+  if (d.message) {
+    lines.push("💬 MESSAGE");
+    lines.push(`   "${d.message}"`);
+    lines.push("");
+  }
 
-  sections.push("");
-  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  sections.push("TRAFFIC SOURCE");
-  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  sections.push(`UTM Source:   ${data?.utmSource || "direct"}`);
-  if (data?.utmMedium) sections.push(`UTM Medium:   ${data.utmMedium}`);
-  if (data?.utmCampaign) sections.push(`UTM Campaign: ${data.utmCampaign}`);
-  if (data?.utmTerm) sections.push(`UTM Term:     ${data.utmTerm}`);
-  sections.push(`Referrer:     ${data?.referrerUrl || "direct"}`);
-  if (data?.landingPage) sections.push(`Landing Page: ${data.landingPage}`);
+  // ── Lead Intelligence ──
+  lines.push("📊 LEAD INTELLIGENCE");
+  lines.push(`   Score:   ${d.leadScore ?? 0}/12`);
+  lines.push(`   Temp:    ${(d.leadTemperature || "cold").toUpperCase()}`);
+  lines.push(`   Device:  ${d.deviceType || "unknown"}`);
+  if (d.userLanguage) lines.push(`   Language: ${d.userLanguage}`);
+  lines.push("");
 
-  sections.push("");
-  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  sections.push("BEHAVIOUR ON SITE");
-  sections.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  sections.push(`Pages Viewed:    ${data?.pagesViewed ?? 0}`);
-  sections.push(`Time on Site:    ${data?.timeOnSite ?? 0}s`);
-  sections.push(`Visit Number:    ${data?.sessionCount ?? 1}`);
-  if (data?.firstVisitDate) sections.push(`First Visit:     ${data.firstVisitDate}`);
-  sections.push(`Used Calculator: ${data?.usedCalculator ? "YES" : "No"}`);
+  // ── Traffic Source ──
+  lines.push("🎯 TRAFFIC SOURCE");
+  lines.push(`   Source:   ${d.utmSource || "direct"}`);
+  if (d.utmMedium) lines.push(`   Medium:   ${d.utmMedium}`);
+  if (d.utmCampaign) lines.push(`   Campaign: ${d.utmCampaign}`);
+  if (d.utmTerm) lines.push(`   Term:     ${d.utmTerm}`);
+  if (d.referrerUrl) lines.push(`   Referrer: ${d.referrerUrl}`);
+  lines.push("");
 
-  if (data?.pagesVisited) {
+  // ── Behaviour ──
+  lines.push("🧭 BEHAVIOUR ON SITE");
+  lines.push(`   Pages Viewed:    ${d.pagesViewed ?? 0}`);
+  lines.push(`   Time on Site:    ${d.timeOnSite ?? 0}s`);
+  lines.push(`   Visit Number:    ${d.sessionCount ?? 1}`);
+  if (d.firstVisitDate) lines.push(`   First Visit:     ${d.firstVisitDate}`);
+  lines.push(`   Used Calculator: ${d.usedCalculator ? "YES ✓" : "No"}`);
+
+  if (d.pagesVisited) {
     let pages: string[] = [];
-    try { pages = typeof data.pagesVisited === "string" ? JSON.parse(data.pagesVisited) : data.pagesVisited; } catch { pages = []; }
-    if (pages.length > 0) sections.push(`Pages Visited:   ${pages.join(", ")}`);
+    try { pages = typeof d.pagesVisited === "string" ? JSON.parse(d.pagesVisited) : (d.pagesVisited || []); } catch { pages = []; }
+    if (pages.length > 0) lines.push(`   Pages Visited:   ${pages.join(" → ")}`);
   }
 
-  if (data?.calculatorData) {
-    sections.push(`Calculator Data: ${typeof data.calculatorData === "string" ? data.calculatorData : JSON.stringify(data.calculatorData)}`);
+  if (d.calculatorData) {
+    lines.push("");
+    lines.push("🔢 CALCULATOR INPUTS");
+    const calc = typeof d.calculatorData === "string" ? d.calculatorData : JSON.stringify(d.calculatorData, null, 2);
+    lines.push(`   ${calc}`);
   }
 
-  return sections.join("\n");
+  return lines.join("\n");
 }
 
 function buildLeadNotes(lead: any, project: any): string {
-  const sections: string[] = [];
-  
-  // Header
-  sections.push("═══ LEAD FROM PRESALEPROPERTIES.COM ═══");
-  
-  // Primary Interest
-  sections.push("");
-  sections.push("📍 PRIMARY INTEREST");
-  if (project?.name) sections.push(`   Project: ${project.name}`);
-  if (project?.city) sections.push(`   Location: ${project.city}${project.neighborhood ? `, ${project.neighborhood}` : ""}`);
-  if (project?.developer_name) sections.push(`   Developer: ${project.developer_name}`);
-  if (project?.status) sections.push(`   Status: ${project.status}`);
-  
-  // Browsing Behavior
-  const projectInterest = Array.isArray(lead.project_interest) ? lead.project_interest : [];
-  const cityInterest = Array.isArray(lead.city_interest) ? lead.city_interest : [];
-  
-  if (projectInterest.length > 0 || cityInterest.length > 0) {
-    sections.push("");
-    sections.push("👁️ BROWSING BEHAVIOR");
-    if (projectInterest.length > 0) {
-      sections.push(`   Projects Viewed: ${projectInterest.join(", ")}`);
-    }
-    if (cityInterest.length > 0) {
-      sections.push(`   Cities Explored: ${cityInterest.join(", ")}`);
-    }
+  const lines: string[] = [];
+
+  lines.push("════════════════════════════════════");
+  lines.push("  LEAD FROM PRESALEPROPERTIES.COM");
+  lines.push("════════════════════════════════════");
+  lines.push("");
+
+  // Contact
+  lines.push("📋 CONTACT DETAILS");
+  lines.push(`   Name:  ${lead.name || ""}`);
+  lines.push(`   Email: ${lead.email || ""}`);
+  if (lead.phone) lines.push(`   Phone: ${lead.phone}`);
+  lines.push("");
+
+  // Project
+  lines.push("📍 PROJECT INTEREST");
+  if (project?.name) lines.push(`   Project:   ${project.name}`);
+  if (project?.city) lines.push(`   City:      ${project.city}${project.neighborhood ? `, ${project.neighborhood}` : ""}`);
+  if (project?.property_type) lines.push(`   Type:      ${project.property_type}`);
+  if (project?.developer_name) lines.push(`   Developer: ${project.developer_name}`);
+  if (project?.status) lines.push(`   Status:    ${project.status}`);
+  lines.push("");
+
+  // Page
+  if (lead.landing_page || lead.project_url) {
+    lines.push("🔗 PAGE SUBMITTED FROM");
+    if (lead.landing_page) lines.push(`   URL: ${lead.landing_page}`);
+    else if (lead.project_url) lines.push(`   URL: ${lead.project_url}`);
+    lines.push("");
   }
-  
+
   // Buyer Profile
-  sections.push("");
-  sections.push("👤 BUYER PROFILE");
-  if (lead.persona) {
-    const personaLabels: Record<string, string> = {
-      investor: "Investor",
-      first_time_buyer: "First-Time Buyer",
-      family: "Upsizer/Family",
-      downsizer: "Downsizer",
-    };
-    sections.push(`   Buyer Type: ${personaLabels[lead.persona] || lead.persona}`);
+  const hasProfile = lead.persona || lead.home_size || lead.timeline || lead.agent_status;
+  if (hasProfile) {
+    lines.push("✅ BUYER PROFILE");
+    if (lead.persona) {
+      const p: Record<string, string> = { investor: "Investor", first_time_buyer: "First-Time Buyer", family: "Upsizer/Family", downsizer: "Downsizer" };
+      lines.push(`   Buyer Type:  ${p[lead.persona] || lead.persona}`);
+    }
+    if (lead.home_size) {
+      const s: Record<string, string> = { studio: "Studio", "1bed": "1 Bedroom", "2bed": "2 Bedroom", "3bed": "3+ Bedroom", townhome: "Townhome" };
+      lines.push(`   Looking For: ${s[lead.home_size] || lead.home_size}`);
+    }
+    if (lead.timeline) {
+      const t: Record<string, string> = { "0_3_months": "0-3 months", "3_6_months": "3-6 months", "6_12_months": "6-12 months", "12_plus_months": "12+ months" };
+      lines.push(`   Timeline:    ${t[lead.timeline] || lead.timeline}`);
+    }
+    if (lead.agent_status) {
+      const a: Record<string, string> = { i_am_realtor: "Is a Realtor", yes: "Working with Realtor", no: "No Realtor" };
+      lines.push(`   Realtor:     ${a[lead.agent_status] || lead.agent_status}`);
+    }
+    lines.push("");
   }
-  if (lead.home_size) {
-    const sizeLabels: Record<string, string> = {
-      studio: "Studio",
-      "1bed": "1 Bedroom",
-      "2bed": "2 Bedroom",
-      "3bed": "3+ Bedroom",
-      townhome: "Townhome",
-    };
-    sections.push(`   Looking For: ${sizeLabels[lead.home_size] || lead.home_size}`);
-  }
-  if (lead.timeline) {
-    const timelineLabels: Record<string, string> = {
-      "0_3_months": "0-3 months (Ready Now)",
-      "3_6_months": "3-6 months",
-      "6_12_months": "6-12 months",
-      "12_plus_months": "12+ months",
-    };
-    sections.push(`   Timeline: ${timelineLabels[lead.timeline] || lead.timeline}`);
-  }
-  if (lead.agent_status) {
-    const agentLabels: Record<string, string> = {
-      i_am_realtor: "Is a Realtor",
-      yes: "Working with Realtor",
-      no: "No Realtor",
-      working_with_realtor: "Working with Realtor",
-    };
-    sections.push(`   Realtor: ${agentLabels[lead.agent_status] || lead.agent_status}`);
-  }
-  
-  // Lead Quality Score
-  sections.push("");
-  sections.push("📊 LEAD QUALITY");
-  sections.push(`   Intent Score: ${lead.intent_score || 0}/100`);
-  if (lead.intent_score >= 70) {
-    sections.push(`   ⭐ HIGH INTENT - Priority Follow-up`);
-  } else if (lead.intent_score >= 40) {
-    sections.push(`   📈 Medium Intent - Nurture Sequence`);
-  }
-  
-  // Message from Lead
+
   if (lead.message) {
-    // Extract just the message part, removing the First Name/Last Name prefix if present
-    let cleanMessage = lead.message;
-    const msgMatch = lead.message.match(/\|[^|]*$/);
-    if (msgMatch) {
-      cleanMessage = msgMatch[0].replace(/^\|\s*/, "").trim();
-    } else if (!lead.message.includes("First Name:")) {
-      cleanMessage = lead.message;
-    }
-    if (cleanMessage && cleanMessage.length > 5) {
-      sections.push("");
-      sections.push("💬 MESSAGE");
-      sections.push(`   "${cleanMessage}"`);
-    }
+    lines.push("💬 MESSAGE");
+    lines.push(`   "${lead.message}"`);
+    lines.push("");
   }
-  
-  // Traffic Attribution
-  if (lead.utm_source || lead.referrer || lead.landing_page) {
-    sections.push("");
-    sections.push("🔗 TRAFFIC SOURCE");
-    if (lead.utm_source) sections.push(`   Source: ${lead.utm_source}${lead.utm_medium ? ` / ${lead.utm_medium}` : ""}`);
-    if (lead.utm_campaign) sections.push(`   Campaign: ${lead.utm_campaign}`);
-    if (lead.referrer) sections.push(`   Referrer: ${lead.referrer}`);
-    if (lead.landing_page) {
-      // Extract just the path for readability
-      try {
-        const url = new URL(lead.landing_page);
-        sections.push(`   Converted On: ${url.pathname}`);
-      } catch {
-        sections.push(`   Converted On: ${lead.landing_page}`);
-      }
-    }
+
+  lines.push("📊 LEAD INTELLIGENCE");
+  lines.push(`   Score: ${lead.lead_score || lead.intent_score || 0}`);
+  lines.push(`   Temp:  ${(lead.lead_temperature || "cold").toUpperCase()}`);
+  if (lead.device_type) lines.push(`   Device: ${lead.device_type}`);
+  lines.push("");
+
+  if (lead.utm_source || lead.referrer) {
+    lines.push("🎯 TRAFFIC SOURCE");
+    if (lead.utm_source) lines.push(`   Source:   ${lead.utm_source}`);
+    if (lead.utm_medium) lines.push(`   Medium:   ${lead.utm_medium}`);
+    if (lead.utm_campaign) lines.push(`   Campaign: ${lead.utm_campaign}`);
+    if (lead.referrer) lines.push(`   Referrer: ${lead.referrer}`);
+    lines.push("");
   }
-  
-  // Tracking IDs (useful for support/debugging)
-  if (lead.visitor_id || lead.session_id) {
-    sections.push("");
-    sections.push("🔍 TRACKING");
-    if (lead.visitor_id) sections.push(`   Visitor ID: ${lead.visitor_id}`);
-    if (lead.session_id) sections.push(`   Session: ${lead.session_id}`);
+
+  lines.push("🧭 BEHAVIOUR");
+  lines.push(`   Pages Viewed: ${lead.pages_viewed || 0}`);
+  lines.push(`   Time on Site: ${lead.time_on_site || 0}s`);
+  lines.push(`   Session #:    ${lead.session_count || 1}`);
+  if (lead.used_calculator) lines.push(`   Used Calculator: YES ✓`);
+
+  const td = lead.tracking_data as any;
+  if (td?.pagesVisited?.length > 0) {
+    lines.push(`   Pages Visited: ${(td.pagesVisited as string[]).join(" → ")}`);
   }
-  
-  return sections.join("\n");
+
+  return lines.join("\n");
 }
 
 function buildBookingNotes(booking: any, project: any): string {
-  const sections: string[] = [];
-  
-  // Header
-  sections.push("═══ TOUR BOOKING FROM PRESALEPROPERTIES.COM ═══");
-  
-  // Appointment Details
-  sections.push("");
-  sections.push("📅 APPOINTMENT REQUEST");
-  sections.push(`   Project: ${booking.project_name || project?.name || "Unknown"}`);
-  if (booking.appointment_date) sections.push(`   Date: ${booking.appointment_date}`);
-  if (booking.appointment_time) sections.push(`   Time: ${booking.appointment_time}`);
-  if (booking.appointment_type) {
-    const typeLabel = booking.appointment_type === "preview" ? "Sales Center Preview" : "Private Showing";
-    sections.push(`   Type: ${typeLabel}`);
-  }
-  
-  // Location
-  if (project?.city || booking.project_city) {
-    sections.push("");
-    sections.push("📍 LOCATION");
-    sections.push(`   City: ${project?.city || booking.project_city}`);
-    if (project?.neighborhood || booking.project_neighborhood) {
-      sections.push(`   Area: ${project?.neighborhood || booking.project_neighborhood}`);
-    }
-  }
-  
-  // Buyer Profile
-  sections.push("");
-  sections.push("👤 BUYER PROFILE");
+  const lines: string[] = [];
+
+  lines.push("════════════════════════════════════");
+  lines.push("  TOUR BOOKING — PRESALEPROPERTIES.COM");
+  lines.push("════════════════════════════════════");
+  lines.push("");
+
+  lines.push("📋 CONTACT DETAILS");
+  lines.push(`   Name:  ${booking.name || ""}`);
+  lines.push(`   Email: ${booking.email || ""}`);
+  if (booking.phone) lines.push(`   Phone: ${booking.phone}`);
+  lines.push("");
+
+  lines.push("📅 APPOINTMENT");
+  lines.push(`   Project: ${booking.project_name || project?.name || "Unknown"}`);
+  if (booking.project_city || project?.city) lines.push(`   City:    ${booking.project_city || project?.city}`);
+  if (booking.appointment_date) lines.push(`   Date:    ${booking.appointment_date}`);
+  if (booking.appointment_time) lines.push(`   Time:    ${booking.appointment_time}`);
+  if (booking.appointment_type) lines.push(`   Type:    ${booking.appointment_type === "preview" ? "Sales Centre Preview" : "Private Showing"}`);
+  if (booking.project_url) lines.push(`   URL:     ${booking.project_url}`);
+  lines.push("");
+
+  lines.push("✅ BUYER PROFILE");
   if (booking.buyer_type) {
-    const buyerLabels: Record<string, string> = {
-      investor: "Investor",
-      first_time: "First-Time Buyer",
-      first_time_buyer: "First-Time Buyer",
-      upgrader: "Upgrading/Upsizing",
-      other: "Other",
-    };
-    sections.push(`   Type: ${buyerLabels[booking.buyer_type] || booking.buyer_type}`);
+    const b: Record<string, string> = { investor: "Investor", first_time: "First-Time Buyer", first_time_buyer: "First-Time Buyer", upgrader: "Upgrading/Upsizing" };
+    lines.push(`   Type:     ${b[booking.buyer_type] || booking.buyer_type}`);
   }
   if (booking.timeline) {
-    const timelineLabels: Record<string, string> = {
-      "0_3_months": "0-3 months (Ready Now)",
-      "3_6_months": "3-6 months",
-      "6_12_months": "6-12 months",
-      "12_plus_months": "12+ months",
-    };
-    sections.push(`   Timeline: ${timelineLabels[booking.timeline] || booking.timeline}`);
+    const t: Record<string, string> = { "0_3_months": "0-3 months (Ready Now)", "3_6_months": "3-6 months", "6_12_months": "6-12 months", "12_plus_months": "12+ months" };
+    lines.push(`   Timeline: ${t[booking.timeline] || booking.timeline}`);
   }
-  
-  // Lead Quality
-  sections.push("");
-  sections.push("📊 LEAD QUALITY");
-  sections.push(`   Intent Score: ${booking.intent_score || 0}/100`);
-  if (booking.intent_score >= 70) {
-    sections.push(`   ⭐ HIGH INTENT - Priority Follow-up`);
-  }
-  
-  // Notes
+  lines.push("");
+
   if (booking.notes) {
-    sections.push("");
-    sections.push("💬 NOTES");
-    sections.push(`   "${booking.notes}"`);
+    lines.push("💬 NOTES");
+    lines.push(`   "${booking.notes}"`);
+    lines.push("");
   }
-  
-  // Traffic Source
+
+  lines.push("📊 INTENT SCORE");
+  lines.push(`   Score: ${booking.intent_score || 0}/100`);
+  if ((booking.intent_score || 0) >= 70) lines.push(`   ⭐ HIGH INTENT - Priority Follow-up`);
+
   if (booking.utm_source || booking.referrer) {
-    sections.push("");
-    sections.push("🔗 TRAFFIC SOURCE");
-    if (booking.utm_source) sections.push(`   Source: ${booking.utm_source}${booking.utm_medium ? ` / ${booking.utm_medium}` : ""}`);
-    if (booking.utm_campaign) sections.push(`   Campaign: ${booking.utm_campaign}`);
+    lines.push("");
+    lines.push("🎯 TRAFFIC SOURCE");
+    if (booking.utm_source) lines.push(`   Source: ${booking.utm_source}${booking.utm_medium ? ` / ${booking.utm_medium}` : ""}`);
+    if (booking.utm_campaign) lines.push(`   Campaign: ${booking.utm_campaign}`);
+    if (booking.referrer) lines.push(`   Referrer: ${booking.referrer}`);
   }
-  
-  // Tracking
-  if (booking.visitor_id || booking.session_id) {
-    sections.push("");
-    sections.push("🔍 TRACKING");
-    if (booking.visitor_id) sections.push(`   Visitor ID: ${booking.visitor_id}`);
-    if (booking.session_id) sections.push(`   Session: ${booking.session_id}`);
-  }
-  
-  return sections.join("\n");
+
+  return lines.join("\n");
 }
