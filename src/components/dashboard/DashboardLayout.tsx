@@ -268,9 +268,11 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
 
         {/* Main content */}
         <main className="flex-1 overflow-auto">
-          <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
-            {children}
-          </div>
+          {noPadding ? children : (
+            <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+              {children}
+            </div>
+          )}
         </main>
       </div>
     </div>
