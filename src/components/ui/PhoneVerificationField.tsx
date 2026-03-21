@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle2, Loader2, Phone, ShieldCheck, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { cn } from "@/lib/utils";
-import { usePhoneVerification, VerificationState } from "@/hooks/usePhoneVerification";
+import { usePhoneVerification } from "@/hooks/usePhoneVerification";
 
 interface PhoneVerificationFieldProps {
   /** Called when phone is verified — receives the normalized phone string */
   onVerified: (phone: string) => void;
   /** Optional pre-filled phone value */
   defaultPhone?: string;
-  /** Optional label for the phone input */
+  /** Optional label override */
   label?: string;
   className?: string;
 }
@@ -35,10 +35,10 @@ export function PhoneVerificationField({
   const [otp, setOtp] = useState("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
-  // Mirror defaultPhone if provided and nothing typed yet
-  if (defaultPhone && !currentPhone) {
-    setCurrentPhone(defaultPhone);
-  }
+  // Seed default phone once
+  useEffect(() => {
+    if (defaultPhone && !currentPhone) setCurrentPhone(defaultPhone);
+  }, [defaultPhone]);
 
   const handleSend = async () => {
     setPhoneError(null);
@@ -54,7 +54,6 @@ export function PhoneVerificationField({
     if (otp.length !== 6) return;
     const ok = await verifyCode(otp);
     if (ok) {
-      // Notify parent with verified phone
       const digits = currentPhone.replace(/\D/g, "");
       const normalized = digits.length === 10 ? `+1${digits}` : `+${digits}`;
       onVerified(normalized);
@@ -68,18 +67,21 @@ export function PhoneVerificationField({
     await sendCode(currentPhone);
   };
 
-  // ── VERIFIED STATE ───────────────────────────────────────────────────────────
+  // ── VERIFIED ─────────────────────────────────────────────────────────────────
   if (state === "verified") {
     return (
-      <div className={cn("flex items-center gap-2 h-11 px-3 rounded-xl border border-green-500/50 bg-green-50 dark:bg-green-950/20", className)}>
+      <div className={cn(
+        "flex items-center gap-2 h-11 px-3 rounded-xl border border-green-600/40 bg-green-600/5",
+        className
+      )}>
         <ShieldCheck className="h-4 w-4 text-green-600 shrink-0" />
-        <span className="text-sm text-green-700 dark:text-green-400 font-medium">
-          {currentPhone} — verified
+        <span className="text-sm text-green-700 dark:text-green-400 font-medium flex-1 truncate">
+          {currentPhone} — verified ✓
         </span>
         <button
           type="button"
           onClick={reset}
-          className="ml-auto text-xs text-muted-foreground hover:text-foreground underline"
+          className="text-xs text-muted-foreground hover:text-foreground underline shrink-0"
         >
           Change
         </button>
@@ -87,26 +89,26 @@ export function PhoneVerificationField({
     );
   }
 
-  // ── OTP ENTRY STATE ──────────────────────────────────────────────────────────
+  // ── OTP ENTRY ─────────────────────────────────────────────────────────────────
   if (state === "awaiting_code" || state === "verifying") {
     return (
       <div className={cn("space-y-3", className)}>
-        <div className="rounded-xl border border-border bg-muted/30 p-3">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-3">
+          <div className="flex items-center gap-2">
             <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
-            <p className="text-xs text-muted-foreground">
-              Code sent to <span className="font-medium text-foreground">{currentPhone}</span>
+            <p className="text-xs text-muted-foreground flex-1">
+              Code sent to{" "}
+              <span className="font-medium text-foreground">{currentPhone}</span>
             </p>
             <button
               type="button"
               onClick={() => { reset(); setOtp(""); }}
-              className="ml-auto text-xs text-muted-foreground hover:text-foreground underline"
+              className="text-xs text-muted-foreground hover:text-foreground underline"
             >
               Change
             </button>
           </div>
 
-          {/* OTP Input */}
           <div className="flex flex-col items-center gap-3">
             <InputOTP
               maxLength={6}
@@ -159,13 +161,13 @@ export function PhoneVerificationField({
     );
   }
 
-  // ── IDLE / ERROR / SENDING STATE ─────────────────────────────────────────────
+  // ── IDLE / SENDING ────────────────────────────────────────────────────────────
   return (
     <div className={cn("space-y-1.5", className)}>
       {label && (
-        <label className="text-xs sm:text-sm font-medium">
+        <label className="text-xs sm:text-sm font-medium block">
           {label} <span className="text-destructive">*</span>
-          <span className="ml-1 text-muted-foreground font-normal">(verification required)</span>
+          {" "}<span className="text-muted-foreground font-normal text-[11px]">(verification required)</span>
         </label>
       )}
       <div className="flex gap-2">
@@ -193,7 +195,7 @@ export function PhoneVerificationField({
           )}
         </Button>
       </div>
-      {(phoneError || error) && (
+      {(phoneError || (state === "error" && error)) && (
         <p className="text-xs text-destructive">{phoneError || error}</p>
       )}
     </div>
