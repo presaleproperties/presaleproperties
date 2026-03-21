@@ -63,9 +63,9 @@ export function ProjectLeadForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("16722581100");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
-  // pendingData holds the validated form data while awaiting OTP
   const [pendingData, setPendingData] = useState<FormData | null>(null);
   const hasSentRef = useRef(false);
+  const { submitLead } = useLeadSubmission();
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);
