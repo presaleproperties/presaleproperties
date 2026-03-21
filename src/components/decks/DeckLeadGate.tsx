@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getVisitorId, getSessionId } from "@/lib/tracking/identifiers";
 import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 import { cn } from "@/lib/utils";
+import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
 
 interface DeckLeadGateProps {
   slug: string;
@@ -16,9 +17,8 @@ interface DeckLeadGateProps {
 
 export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnlock }: DeckLeadGateProps) {
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [isRealtor, setIsRealtor] = useState(false);
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
@@ -27,7 +27,7 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
     const e: Record<string, string> = {};
     if (!fullName.trim() || fullName.trim().length < 2) e.fullName = "Please enter your full name";
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) e.email = "Please enter a valid email";
-    if (!phone.trim() || phone.trim().length < 7) e.phone = "Please enter a valid phone number";
+    if (!verifiedPhone) e.phone = "Please verify your phone number";
     return e;
   };
 
@@ -48,15 +48,15 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
         .insert({
           name: fullName.trim(),
           email: email.trim().toLowerCase(),
-          phone: phone.trim(),
+          phone: verifiedPhone,
           message: `Pitch Deck: ${projectName}`,
-          persona: isRealtor ? "realtor" : "buyer",
-          agent_status: isRealtor ? "i_am_realtor" : "no",
+          persona: "buyer",
+          agent_status: "no",
           lead_source: "floor_plan_request",
           project_id: projectId || null,
           visitor_id: visitorId,
           session_id: sessionId,
-          drip_sequence: isRealtor ? "realtor" : "buyer",
+          drip_sequence: "buyer",
           last_drip_sent: 0,
           next_drip_at: new Date().toISOString(),
           utm_source: utmData.utm_source,
@@ -74,7 +74,7 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
       supabase.functions.invoke("send-whatsapp-notification", {
         body: {
           leadName: fullName.trim(),
-          leadPhone: phone.trim(),
+          leadPhone: verifiedPhone,
           leadEmail: email.trim().toLowerCase(),
           projectName,
           deckSlug: slug,
@@ -94,27 +94,23 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
         body: {
           event_name: "Lead",
           email: email.trim(),
-          phone: phone.trim(),
+          phone: verifiedPhone,
           first_name: fullName.trim().split(" ")[0],
           last_name: fullName.trim().split(" ").slice(1).join(" "),
           event_source_url: window.location.href,
           content_name: projectName,
-          content_category: isRealtor ? "realtor" : "buyer",
+          content_category: "buyer",
           client_user_agent: navigator.userAgent,
           fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
           fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
         },
       }).catch(console.error);
 
-      // Persist unlock across sessions
       localStorage.setItem(`deck_unlocked_${slug}`, "1");
       localStorage.setItem("pp_form_submitted", "true");
 
       if (typeof window !== "undefined" && (window as any).gtag) {
-        (window as any).gtag("event", "deck_lead_gate_unlock", {
-          project_name: projectName,
-          persona: isRealtor ? "realtor" : "buyer",
-        });
+        (window as any).gtag("event", "deck_lead_gate_unlock", { project_name: projectName });
       }
       if (typeof window !== "undefined" && (window as any).fbq) {
         (window as any).fbq("track", "Lead", { content_name: projectName });
@@ -132,10 +128,7 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
   return (
     <div className="fixed inset-0 z-[9000] flex items-center justify-center bg-background/80 backdrop-blur-md p-4">
       <div className="relative w-full max-w-md">
-
-        {/* Card */}
         <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
-
           {/* Hero strip */}
           <div
             className="relative h-32 bg-muted overflow-hidden"
@@ -180,21 +173,6 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
                 {errors.fullName && <p className="text-xs text-destructive mt-1">{errors.fullName}</p>}
               </div>
 
-              {/* Phone */}
-              <div>
-                <input
-                  type="tel"
-                  placeholder="Phone Number"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className={cn(
-                    "w-full h-11 px-4 rounded-xl border bg-background text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors",
-                    errors.phone ? "border-destructive" : "border-input"
-                  )}
-                />
-                {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone}</p>}
-              </div>
-
               {/* Email */}
               <div>
                 <input
@@ -210,10 +188,19 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
                 {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
               </div>
 
+              {/* Phone Verification */}
+              <PhoneVerificationField
+                onVerified={setVerifiedPhone}
+                label="Phone Number"
+              />
+              {errors.phone && !verifiedPhone && (
+                <p className="text-xs text-destructive -mt-2">{errors.phone}</p>
+              )}
+
               {/* Submit */}
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || !verifiedPhone}
                 className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1"
               >
                 {submitting ? (
