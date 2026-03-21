@@ -233,22 +233,6 @@ function parseNames(name: string, message: string | null): { firstName: string; 
     : { firstName: parts[0] || "", lastName: "" };
 }
 
-function buildReturnVisitNote(latestActivity: string): string {
-  const ts = new Date().toLocaleString("en-CA", {
-    timeZone: "America/Vancouver",
-    year: "numeric", month: "short", day: "numeric",
-    hour: "2-digit", minute: "2-digit",
-  });
-  return [
-    `════════════════════════════════`,
-    `🔄 LEAD RETURNED TO SITE`,
-    `   ${ts} (Pacific Time)`,
-    `════════════════════════════════`,
-    "",
-    latestActivity,
-  ].join("\n");
-}
-
 function buildDirectNotes(d: any): string {
   const lines: string[] = [];
 
