@@ -51,6 +51,8 @@ interface DeckFloorPlansSectionProps {
   unitsRemaining?: number | null;
   nextPriceIncrease?: string | null;
   incentives?: string[] | null;
+  isUnlocked?: boolean;
+  onUnlockRequest?: () => void;
 }
 
 export function DeckFloorPlansSection({
