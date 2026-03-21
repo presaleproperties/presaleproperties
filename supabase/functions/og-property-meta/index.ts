@@ -215,7 +215,7 @@ Deno.serve(async (req) => {
       const description = `${project.project_type === "condo" ? "Condo" : project.project_type === "townhome" ? "Townhome" : "Home"} project in ${project.neighborhood || project.city}. Starting from ${project.starting_price ? new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(project.starting_price) : "TBD"}.`;
 
       if (!isBot(userAgent)) {
-        return new Response(null, { status: 302, headers: { ...corsHeaders, "Location": canonicalUrl } });
+        // no-op: always serve OG HTML, JS redirect handles humans
       }
 
       const html = `<!DOCTYPE html>
@@ -229,6 +229,7 @@ Deno.serve(async (req) => {
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${title}">
 <meta name="twitter:description" content="${description}"><meta name="twitter:image" content="${heroImage}">
 <link rel="canonical" href="${canonicalUrl}">
+<script>window.location.replace("${canonicalUrl}");</script>
 </head><body><h1>${title}</h1><p>${description}</p><a href="${canonicalUrl}">View Project</a></body></html>`;
 
       const responseHeaders = new Headers();
