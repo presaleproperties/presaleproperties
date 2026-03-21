@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 
 const schema = z.object({
   email: z.string().email("Please enter a valid email").max(255),
