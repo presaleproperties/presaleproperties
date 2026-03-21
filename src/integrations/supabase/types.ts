@@ -2437,25 +2437,36 @@ export type Database = {
           contacted_at: string | null
           converted_at: string | null
           created_at: string
+          device_type: string | null
           drip_sequence: string | null
           email: string
+          form_type: string | null
           home_size: string | null
           id: string
           intent_score: number | null
           landing_page: string | null
           last_drip_sent: number | null
+          lead_score: number | null
           lead_source: string | null
           lead_status: string
+          lead_temperature: string | null
+          lofty_id: string | null
+          lofty_synced_at: string | null
           message: string | null
           name: string
           next_drip_at: string | null
+          pages_viewed: number | null
           persona: string | null
           phone: string | null
           project_id: string | null
           project_interest: Json | null
           referrer: string | null
+          session_count: number | null
           session_id: string | null
+          time_on_site: number | null
           timeline: string | null
+          tracking_data: Json | null
+          used_calculator: boolean | null
           utm_campaign: string | null
           utm_content: string | null
           utm_medium: string | null
@@ -2471,25 +2482,36 @@ export type Database = {
           contacted_at?: string | null
           converted_at?: string | null
           created_at?: string
+          device_type?: string | null
           drip_sequence?: string | null
           email: string
+          form_type?: string | null
           home_size?: string | null
           id?: string
           intent_score?: number | null
           landing_page?: string | null
           last_drip_sent?: number | null
+          lead_score?: number | null
           lead_source?: string | null
           lead_status?: string
+          lead_temperature?: string | null
+          lofty_id?: string | null
+          lofty_synced_at?: string | null
           message?: string | null
           name: string
           next_drip_at?: string | null
+          pages_viewed?: number | null
           persona?: string | null
           phone?: string | null
           project_id?: string | null
           project_interest?: Json | null
           referrer?: string | null
+          session_count?: number | null
           session_id?: string | null
+          time_on_site?: number | null
           timeline?: string | null
+          tracking_data?: Json | null
+          used_calculator?: boolean | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
@@ -2505,25 +2527,36 @@ export type Database = {
           contacted_at?: string | null
           converted_at?: string | null
           created_at?: string
+          device_type?: string | null
           drip_sequence?: string | null
           email?: string
+          form_type?: string | null
           home_size?: string | null
           id?: string
           intent_score?: number | null
           landing_page?: string | null
           last_drip_sent?: number | null
+          lead_score?: number | null
           lead_source?: string | null
           lead_status?: string
+          lead_temperature?: string | null
+          lofty_id?: string | null
+          lofty_synced_at?: string | null
           message?: string | null
           name?: string
           next_drip_at?: string | null
+          pages_viewed?: number | null
           persona?: string | null
           phone?: string | null
           project_id?: string | null
           project_interest?: Json | null
           referrer?: string | null
+          session_count?: number | null
           session_id?: string | null
+          time_on_site?: number | null
           timeline?: string | null
+          tracking_data?: Json | null
+          used_calculator?: boolean | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
