@@ -440,11 +440,33 @@ serve(async (req: Request): Promise<Response> => {
             loftyData = { raw: bodyText };
           }
 
-          console.log("Lofty created contact ID:", loftyData?.id || loftyData?.lead_id || loftyData?.contact_id || "unknown");
+          // Lofty returns { leadId: ... } — capture it
+          const loftyId = loftyData?.leadId || loftyData?.id || loftyData?.lead_id || loftyData?.contact_id;
+          console.log("Lofty created contact ID:", loftyId);
+
+          // Post the full note as a separate notes call (Lofty stores notes separately)
+          if (loftyId && contactData.notes) {
+            try {
+              const noteRes = await fetch(`${url}/${loftyId}/notes`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Accept": "application/json",
+                  "Authorization": auth,
+                },
+                body: JSON.stringify({ note: contactData.notes, content: contactData.notes }),
+              });
+              const noteBody = await noteRes.text();
+              console.log("Lofty note POST:", noteRes.status, noteBody.substring(0, 200));
+            } catch (noteErr) {
+              console.log("Note post failed (non-critical):", noteErr);
+            }
+          }
+
           return new Response(
             JSON.stringify({
               success: true,
-              loftyId: loftyData?.id || loftyData?.lead_id,
+              loftyId,
               message: "New lead created in Lofty CRM",
               action: "created",
             }),
