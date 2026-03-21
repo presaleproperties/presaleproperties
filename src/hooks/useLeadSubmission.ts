@@ -61,8 +61,16 @@ export function useLeadSubmission(): LeadSubmissionResult {
         formType: payload.formType,
         projectName: payload.projectName ?? "",
         projectCity: payload.projectCity ?? "",
+        propertyType: payload.propertyType ?? "",
         projectUrl: payload.projectUrl ?? window.location.href,
         message: payload.message ?? "",
+
+        // Form selections
+        isRealtor: payload.isRealtor ?? false,
+        persona: payload.persona ?? "",
+        homeSize: payload.homeSize ?? "",
+        timeline: payload.timeline ?? "",
+        agentStatus: payload.agentStatus ?? "",
 
         // Lead intelligence
         leadScore: score,
@@ -80,14 +88,17 @@ export function useLeadSubmission(): LeadSubmissionResult {
         currentPageUrl: tracking.currentPageUrl,
         currentPageTitle: tracking.currentPageTitle,
         pagesViewed: tracking.pagesViewed,
-        pagesVisited: JSON.stringify(tracking.pagesVisited),
+        pagesVisited: tracking.pagesVisited,
         timeOnSite: tracking.timeOnSite,
         sessionCount: tracking.sessionCount,
         firstVisitDate: tracking.firstVisitDate ?? "",
         usedCalculator: tracking.usedCalculator,
-        calculatorData: tracking.calculatorData ? JSON.stringify(tracking.calculatorData) : "",
+        calculatorData: tracking.calculatorData ?? null,
         deviceType: tracking.deviceType,
         userLanguage: tracking.userLanguage,
+
+        // Supabase lead ID for back-linking
+        leadId: payload.leadId ?? "",
       };
 
       // If a leadId was provided, patch the project_leads row with tracking + score data
@@ -120,7 +131,7 @@ export function useLeadSubmission(): LeadSubmissionResult {
       }
 
       // Fire-and-forget: call edge function to sync to Lofty CRM.
-      // We deliberately do NOT await this — never block form success on CRM sync.
+      // Never block form success on CRM sync.
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const supabaseUrl = `https://${projectId}.supabase.co`;
       fetch(`${supabaseUrl}/functions/v1/sync-lead-to-lofty`, {
