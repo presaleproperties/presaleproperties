@@ -24,6 +24,7 @@ export function ExitIntentPopup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
+  const { submitLead } = useLeadSubmission();
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
