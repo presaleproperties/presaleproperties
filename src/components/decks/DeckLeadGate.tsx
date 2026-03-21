@@ -173,6 +173,7 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
               <div className="space-y-4">
                 <PhoneVerificationField
                   autoTrigger
+                  defaultPhone={phone}
                   onVerified={handleVerified}
                   onReady={handleReady}
                 />

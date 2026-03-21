@@ -186,6 +186,7 @@ export function CalculatorLeadCapture({
     <div className="space-y-3">
       <PhoneVerificationField
         autoTrigger
+        defaultPhone={pendingData?.phone ?? ""}
         onVerified={handleVerified}
         onReady={handleReady}
       />

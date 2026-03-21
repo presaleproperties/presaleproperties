@@ -272,6 +272,7 @@ export default function Contact() {
                       <div className="space-y-4">
                         <PhoneVerificationField
                           autoTrigger
+                          defaultPhone={pendingData?.phone ?? ""}
                           onVerified={handleVerified}
                           onReady={handleReady}
                         />
