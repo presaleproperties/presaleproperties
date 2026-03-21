@@ -444,46 +444,7 @@ serve(async (req: Request): Promise<Response> => {
 
           // Lofty returns { leadId: ... } — capture it
           const loftyId = loftyData?.leadId || loftyData?.id || loftyData?.lead_id || loftyData?.contact_id;
-          console.log("Lofty created contact ID:", loftyId);
-
-          // Fetch the created lead back to see what fields Lofty actually stores
-          if (loftyId) {
-            try {
-              const getRes = await fetch(`${url}/${loftyId}`, {
-                method: "GET",
-                headers: { "Accept": "application/json", "Authorization": auth },
-              });
-              const getBody = await getRes.text();
-              console.log("Lofty GET created lead:", getRes.status, getBody.substring(0, 600));
-            } catch (getErr) {
-              console.log("GET check failed:", getErr);
-            }
-          }
-
-          // Try to update note via PUT (discovery - check which field name sticks)
-          if (loftyId && contactData.notes) {
-            try {
-              const noteUpdateRes = await fetch(`${url}/${loftyId}`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Accept": "application/json",
-                  "Authorization": auth,
-                },
-                body: JSON.stringify({
-                  note: contactData.notes,
-                  notes: contactData.notes,
-                  description: contactData.notes,
-                  remark: contactData.notes,
-                  comment: contactData.notes,
-                }),
-              });
-              const noteUpdateBody = await noteUpdateRes.text();
-              console.log("Lofty note via PUT:", noteUpdateRes.status, noteUpdateBody.substring(0, 300));
-            } catch (noteErr) {
-              console.log("Note update failed (non-critical):", noteErr);
-            }
-          }
+          console.log("Lofty created contact loftyId:", loftyId);
 
           return new Response(
             JSON.stringify({
