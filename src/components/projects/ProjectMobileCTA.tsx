@@ -1,4 +1,5 @@
 import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle, Lock, FileText, LayoutGrid, DollarSign, ExternalLink, Clock, Loader2 } from "lucide-react";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
