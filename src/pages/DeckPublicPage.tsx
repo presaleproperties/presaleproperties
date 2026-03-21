@@ -243,6 +243,17 @@ export default function DeckPublicPage() {
         }
       `}</style>
     </Helmet>
+    {/* Lead gate — shown until user fills form */}
+    {!isUnlocked && deck && (
+      <DeckLeadGate
+        slug={slug!}
+        projectName={deck.project_name}
+        projectId={(deck as any).project_id || null}
+        heroImageUrl={deck.hero_image_url}
+        onUnlock={() => setIsUnlocked(true)}
+      />
+    )}
+
     <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip", scrollPaddingTop: "80px" }}>
 
       <DeckStickyNav
