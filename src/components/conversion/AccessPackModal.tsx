@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -75,7 +75,10 @@ export function AccessPackModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  const [pendingData, setPendingData] = useState<FormData | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
+  const triggerSendRef = useRef<((phone: string) => Promise<void>) | null>(null);
+  const hasSentRef = useRef(false);
   const { toast } = useToast();
   const isMobileOrTablet = useIsMobileOrTablet();
 
@@ -105,6 +108,8 @@ export function AccessPackModal({
     if (!open) {
       setIsSuccess(false);
       setVerifiedPhone(null);
+      setPendingData(null);
+      hasSentRef.current = false;
       form.reset();
     }
   }, [open]);
@@ -124,16 +129,9 @@ export function AccessPackModal({
     },
   });
 
-  const onSubmit = async (data: FormData) => {
-    // Block submission if phone not verified
-    if (!verifiedPhone) {
-      toast({ title: "Phone verification required", description: "Please verify your phone number before submitting.", variant: "destructive" });
-      return;
-    }
+  const completeLead = async (phone: string, data: FormData) => {
     setIsSubmitting(true);
-
     try {
-      // Get UTM from sessionStorage (populated by UtmTracker)
       const utmSource = sessionStorage.getItem("utm_source") || null;
       const utmMedium = sessionStorage.getItem("utm_medium") || null;
       const utmCampaign = sessionStorage.getItem("utm_campaign") || null;
@@ -141,7 +139,7 @@ export function AccessPackModal({
       const utmTerm = sessionStorage.getItem("utm_term") || null;
       const referrer = sessionStorage.getItem("referrer") || document.referrer || null;
       const landingPage = sessionStorage.getItem("landing_page") || window.location.href;
-      
+
       const messageData = [
         `First Name: ${data.firstName}`,
         `Last Name: ${data.lastName}`,
@@ -156,134 +154,122 @@ export function AccessPackModal({
       const nextDripAt = new Date().toISOString();
       const dripSequence = data.persona === "investor" ? "investor" : "buyer";
       const actualPersona = data.workingWithAgent === "i_am_realtor" ? "realtor" : data.persona;
-
       const fullName = `${data.firstName} ${data.lastName}`.trim();
-      
-      // Get visitor tracking data for Zapier enrichment
       const visitorId = getVisitorId();
       const sessionId = getSessionId();
       const intentScore = getIntentScore();
       const cityInterest = getCityInterests();
       const projectInterest = getTopViewedProjects().map(p => p.project_id);
-      
-      // Use client-side generated ID to avoid RLS read issues
       const leadId = crypto.randomUUID();
-      
-      const { error } = await supabase
-        .from("project_leads")
-        .insert({
-          id: leadId,
-          project_id: projectId || null,
-          name: fullName,
-          email: data.email,
-          phone: verifiedPhone, // use verified phone
-          message: messageData,
-          persona: actualPersona,
-          timeline: data.timeline,
-          drip_sequence: dripSequence,
-          last_drip_sent: 0,
-          next_drip_at: nextDripAt,
-          lead_source: source === "fit_call" ? "callback_request" 
-            : source === "general_interest" ? "general_interest"
-            : source.startsWith("city_list_") ? source 
-            : source === "sticky_bar" ? "sticky_bar"
-            : source === "header" ? "header_inquiry"
-            : source === "modal" ? "floor_plan_request"
-            : source,
-          utm_source: utmSource,
-          utm_medium: utmMedium,
-          utm_campaign: utmCampaign,
-          utm_content: utmContent,
-          utm_term: utmTerm,
-          referrer: referrer,
-          landing_page: landingPage,
-          // Visitor tracking for Zapier enrichment
-          visitor_id: visitorId,
-          session_id: sessionId,
-          intent_score: intentScore,
-          city_interest: cityInterest,
-          project_interest: projectInterest,
-        });
+
+      const { error } = await supabase.from("project_leads").insert({
+        id: leadId,
+        project_id: projectId || null,
+        name: fullName,
+        email: data.email,
+        phone,
+        message: messageData,
+        persona: actualPersona,
+        timeline: data.timeline,
+        drip_sequence: dripSequence,
+        last_drip_sent: 0,
+        next_drip_at: nextDripAt,
+        lead_source: source === "fit_call" ? "callback_request"
+          : source === "general_interest" ? "general_interest"
+          : source.startsWith("city_list_") ? source
+          : source === "sticky_bar" ? "sticky_bar"
+          : source === "header" ? "header_inquiry"
+          : source === "modal" ? "floor_plan_request"
+          : source,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+        utm_content: utmContent,
+        utm_term: utmTerm,
+        referrer,
+        landing_page: landingPage,
+        visitor_id: visitorId,
+        session_id: sessionId,
+        intent_score: intentScore,
+        city_interest: cityInterest,
+        project_interest: projectInterest,
+      });
 
       if (error) throw error;
 
-      // Trigger edge function for Zapier webhook
-      supabase.functions
-        .invoke("send-project-lead", { body: { leadId } })
-        .catch(console.error);
+      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 
-      // Track behavioral form submission
       trackFormSubmit({
         form_name: variant === "floorplans" ? "access_pack" : variant === "general_interest" ? "general_interest" : "callback_request",
         form_location: "access_pack_modal",
         first_name: data.firstName,
         last_name: data.lastName,
         email: data.email,
-        phone: data.phone,
+        phone,
         user_type: actualPersona,
         project_name: projectName,
       });
 
-      // Track Meta Pixel Lead event
-      MetaEvents.lead({
-        content_name: projectName || "Access Pack",
-        content_category: actualPersona,
-      });
+      MetaEvents.lead({ content_name: projectName || "Access Pack", content_category: actualPersona });
 
-      // Send server-side Lead event to Meta Conversions API
-      supabase.functions
-        .invoke("meta-conversions-api", {
-          body: {
-            event_name: "Lead",
-            email: data.email,
-            phone: data.phone,
-            first_name: data.firstName,
-            last_name: data.lastName,
-            event_source_url: window.location.href,
-            content_name: projectName || "Access Pack",
-            content_category: actualPersona,
-            client_user_agent: navigator.userAgent,
-            fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
-            fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
-          },
-        })
-        .catch((err) => console.error("Meta CAPI error:", err));
+      supabase.functions.invoke("meta-conversions-api", {
+        body: {
+          event_name: "Lead",
+          email: data.email,
+          phone,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          event_source_url: window.location.href,
+          content_name: projectName || "Access Pack",
+          content_category: actualPersona,
+          client_user_agent: navigator.userAgent,
+          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+        },
+      }).catch(console.error);
 
       localStorage.setItem("presale_persona", actualPersona);
 
       if (typeof window !== "undefined") {
-        if ((window as any).gtag) {
-          (window as any).gtag("event", "submit_access_pack", {
-            page_path: window.location.pathname,
-            project_name: projectName || "general",
-            persona: actualPersona,
-            timeline: data.timeline,
-            working_with_agent: data.workingWithAgent,
-          });
-        }
-        if ((window as any).fbq) {
-          (window as any).fbq("track", "Lead", {
-            content_name: projectName || "Access Pack",
-            content_category: actualPersona,
-          });
-        }
+        (window as any).gtag?.("event", "submit_access_pack", {
+          page_path: window.location.pathname,
+          project_name: projectName || "general",
+          persona: actualPersona,
+          timeline: data.timeline,
+          working_with_agent: data.workingWithAgent,
+        });
+        (window as any).fbq?.("track", "Lead", {
+          content_name: projectName || "Access Pack",
+          content_category: actualPersona,
+        });
       }
 
       setIsSuccess(true);
-      toast({
-        title: "Request submitted!",
-        description: "We'll be in touch shortly.",
-      });
     } catch (error: any) {
       console.error("Error:", error);
-      toast({
-        title: "Something went wrong",
-        description: "Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
+      setPendingData(null);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleVerified = (phone: string) => {
+    setVerifiedPhone(phone);
+    if (pendingData) completeLead(phone, pendingData);
+  };
+
+  const handleReady = ({ triggerSend }: { triggerSend: (phone: string) => Promise<void> }) => {
+    triggerSendRef.current = triggerSend;
+    if (pendingData && !hasSentRef.current) {
+      hasSentRef.current = true;
+      triggerSend(pendingData.phone);
+    }
+  };
+
+  const onSubmit = async (data: FormData) => {
+    hasSentRef.current = false;
+    setPendingData(data);
   };
 
   const whatsappMessage = encodeURIComponent(
@@ -297,11 +283,13 @@ export function AccessPackModal({
     return "Request a Call Back";
   };
 
-  // Form content - shared between Dialog and Sheet
+  const isAwaitingOTP = !!pendingData && !verifiedPhone;
+
   const FormContent = () => (
     <>
       {!isSuccess ? (
         <div className="p-5 sm:p-6 pb-8">
+          {/* Header */}
           <div className="text-center mb-4 sm:mb-6">
             <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full mb-2">
               {variant === "floorplans" ? (
@@ -312,269 +300,236 @@ export function AccessPackModal({
                 <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               )}
             </div>
-            <h2 className="text-lg sm:text-xl font-bold">{getTitle()}</h2>
+            <h2 className="text-lg sm:text-xl font-bold">
+              {isAwaitingOTP ? "Verify Your Phone" : getTitle()}
+            </h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              {variant === "general_interest"
+              {isAwaitingOTP
+                ? "Enter the 6-digit code we just sent you"
+                : variant === "general_interest"
                 ? "Be first to see new move-in-ready inventory"
-                : projectName 
-                  ? `Get expert guidance on ${projectName}` 
-                  : "Connect with our presale experts"}
+                : projectName
+                ? `Get expert guidance on ${projectName}`
+                : "Connect with our presale experts"}
             </p>
-            <p className="text-xs text-green-600 font-medium mt-1">
-              ✓ Same-day callback available
-            </p>
+            {!isAwaitingOTP && (
+              <p className="text-xs text-green-600 font-medium mt-1">✓ Same-day callback available</p>
+            )}
           </div>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
-            {/* Contact Info - First/Last Name side by side */}
-            <div className="space-y-3">
+          {/* OTP Step */}
+          {isAwaitingOTP ? (
+            <div className="space-y-4">
+              <PhoneVerificationField
+                autoTrigger
+                onVerified={handleVerified}
+                onReady={handleReady}
+              />
+              {isSubmitting && (
+                <div className="flex items-center justify-center gap-2 py-2">
+                  <span className="h-4 w-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  <span className="text-sm text-muted-foreground">Submitting your information…</span>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => { setPendingData(null); hasSentRef.current = false; }}
+                className="w-full text-xs text-muted-foreground hover:text-foreground underline text-center"
+              >
+                ← Go back and edit
+              </button>
+            </div>
+          ) : (
+            /* Form Step */
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="firstName" className="text-xs sm:text-sm">
+                      First Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input id="firstName" name="fname" placeholder="John" autoComplete="given-name" autoCapitalize="words"
+                      {...form.register("firstName")} className="h-11 mt-1 text-[16px]" />
+                    {form.formState.errors.firstName && (
+                      <p className="text-xs text-destructive mt-1">{form.formState.errors.firstName.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName" className="text-xs sm:text-sm">
+                      Last Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input id="lastName" name="lname" placeholder="Smith" autoComplete="family-name" autoCapitalize="words"
+                      {...form.register("lastName")} className="h-11 mt-1 text-[16px]" />
+                    {form.formState.errors.lastName && (
+                      <p className="text-xs text-destructive mt-1">{form.formState.errors.lastName.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="email" className="text-xs sm:text-sm">
+                    Email <span className="text-destructive">*</span>
+                  </Label>
+                  <Input id="email" name="email" type="email" inputMode="email" placeholder="john@email.com"
+                    autoComplete="email" autoCapitalize="none"
+                    {...form.register("email")} className="h-11 mt-1 text-[16px]" />
+                  {form.formState.errors.email && (
+                    <p className="text-xs text-destructive mt-1">{form.formState.errors.email.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="apm-phone" className="text-xs sm:text-sm">
+                    Phone <span className="text-destructive">*</span>
+                  </Label>
+                  <Input id="apm-phone" type="tel" inputMode="tel" placeholder="604-555-0123" autoComplete="tel"
+                    {...form.register("phone")} className="h-11 mt-1 text-[16px]" />
+                  {form.formState.errors.phone && (
+                    <p className="text-xs text-destructive mt-1">{form.formState.errors.phone.message}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* I am a... */}
+              <div>
+                <Label className="text-xs sm:text-sm font-medium">
+                  I am a... <span className="text-destructive">*</span>
+                </Label>
+                <RadioGroup value={form.watch("persona")} onValueChange={(v) => form.setValue("persona", v as any)}
+                  className="grid grid-cols-2 gap-2 mt-1.5">
+                  {PERSONAS.map((p) => (
+                    <Label key={p.value}
+                      className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-sm transition-all ${
+                        form.watch("persona") === p.value
+                          ? "border-primary bg-primary/10 text-primary font-medium"
+                          : "border-border hover:border-muted-foreground/50"
+                      }`}>
+                      <RadioGroupItem value={p.value} className="sr-only" />
+                      {p.label}
+                    </Label>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              {/* Working with agent */}
+              <div>
+                <Label className="text-xs sm:text-sm font-medium">
+                  Working with a Realtor? <span className="text-destructive">*</span>
+                </Label>
+                <RadioGroup value={form.watch("workingWithAgent")} onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
+                  className="grid grid-cols-3 gap-2 mt-1.5">
+                  {AGENT_OPTIONS.map((a) => (
+                    <Label key={a.value}
+                      className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
+                        form.watch("workingWithAgent") === a.value
+                          ? "border-primary bg-primary/10 text-primary font-medium"
+                          : "border-border hover:border-muted-foreground/50"
+                      }`}>
+                      <RadioGroupItem value={a.value} className="sr-only" />
+                      {a.label}
+                    </Label>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              {/* Timeline & Property Type */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="firstName" className="text-xs sm:text-sm">
-                    First Name <span className="text-destructive">*</span>
+                  <Label className="text-xs sm:text-sm font-medium">
+                    Timeline <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="firstName"
-                    name="fname"
-                    placeholder="John"
-                    autoComplete="given-name"
-                    autoCapitalize="words"
-                    {...form.register("firstName")}
-                    className="h-11 mt-1 text-[16px]"
-                  />
+                  <RadioGroup value={form.watch("timeline")} onValueChange={(v) => form.setValue("timeline", v as any)}
+                    className="grid grid-cols-1 gap-2 mt-1.5">
+                    {TIMELINES.map((t) => (
+                      <Label key={t.value}
+                        className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
+                          form.watch("timeline") === t.value
+                            ? "border-primary bg-primary/10 text-primary font-medium"
+                            : "border-border hover:border-muted-foreground/50"
+                        }`}>
+                        <RadioGroupItem value={t.value} className="sr-only" />
+                        {t.label}
+                      </Label>
+                    ))}
+                  </RadioGroup>
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className="text-xs sm:text-sm">
-                    Last Name <span className="text-destructive">*</span>
+                  <Label className="text-xs sm:text-sm font-medium">
+                    Property Type <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="lastName"
-                    name="lname"
-                    placeholder="Smith"
-                    autoComplete="family-name"
-                    autoCapitalize="words"
-                    {...form.register("lastName")}
-                    className="h-11 mt-1 text-[16px]"
-                  />
+                  <RadioGroup value={form.watch("propertyType")} onValueChange={(v) => form.setValue("propertyType", v as any)}
+                    className="grid grid-cols-1 gap-2 mt-1.5">
+                    {PROPERTY_TYPES.map((pt) => (
+                      <Label key={pt.value}
+                        className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
+                          form.watch("propertyType") === pt.value
+                            ? "border-primary bg-primary/10 text-primary font-medium"
+                            : "border-border hover:border-muted-foreground/50"
+                        }`}>
+                        <RadioGroupItem value={pt.value} className="sr-only" />
+                        {pt.label}
+                      </Label>
+                    ))}
+                  </RadioGroup>
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="email" className="text-xs sm:text-sm">
-                  Email <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  inputMode="email"
-                  placeholder="john@email.com"
-                  autoComplete="email"
-                  autoCapitalize="none"
-                  {...form.register("email")}
-                  className="h-11 mt-1 text-[16px]"
-                />
-              </div>
+              <Button type="submit" size="lg"
+                className="w-full h-12 font-semibold text-sm gap-2">
+                <Send className="h-4 w-4" />
+                {variant === "floorplans" ? "Get Instant Access" : variant === "general_interest" ? "Get Updates" : "Request Call Back"}
+              </Button>
 
-
-
-              <PhoneVerificationField
-                label="Phone"
-                onVerified={(phone) => {
-                  setVerifiedPhone(phone);
-                  form.setValue("phone", phone);
-                }}
-                className="mt-1"
-              />
-            </div>
-
-            {/* I am a... */}
-            <div>
-              <Label className="text-xs sm:text-sm font-medium">
-                I am a... <span className="text-destructive">*</span>
-              </Label>
-              <RadioGroup
-                value={form.watch("persona")}
-                onValueChange={(v) => form.setValue("persona", v as any)}
-                className="grid grid-cols-2 gap-2 mt-1.5"
-              >
-                {PERSONAS.map((p) => (
-                  <Label
-                    key={p.value}
-                    className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-sm transition-all ${
-                      form.watch("persona") === p.value
-                        ? "border-primary bg-primary/10 text-primary font-medium"
-                        : "border-border hover:border-muted-foreground/50"
-                    }`}
-                  >
-                    <RadioGroupItem value={p.value} className="sr-only" />
-                    {p.label}
-                  </Label>
-                ))}
-              </RadioGroup>
-            </div>
-
-            {/* Working with agent */}
-            <div>
-              <Label className="text-xs sm:text-sm font-medium">
-                Working with a Realtor? <span className="text-destructive">*</span>
-              </Label>
-              <RadioGroup
-                value={form.watch("workingWithAgent")}
-                onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
-                className="grid grid-cols-3 gap-2 mt-1.5"
-              >
-                {AGENT_OPTIONS.map((a) => (
-                  <Label
-                    key={a.value}
-                    className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
-                      form.watch("workingWithAgent") === a.value
-                        ? "border-primary bg-primary/10 text-primary font-medium"
-                        : "border-border hover:border-muted-foreground/50"
-                    }`}
-                  >
-                    <RadioGroupItem value={a.value} className="sr-only" />
-                    {a.label}
-                  </Label>
-                ))}
-              </RadioGroup>
-            </div>
-
-            {/* Timeline & Property Type - side by side on mobile */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs sm:text-sm font-medium">
-                  Timeline <span className="text-destructive">*</span>
-                </Label>
-                <RadioGroup
-                  value={form.watch("timeline")}
-                  onValueChange={(v) => form.setValue("timeline", v as any)}
-                  className="grid grid-cols-1 gap-2 mt-1.5"
-                >
-                  {TIMELINES.map((t) => (
-                    <Label
-                      key={t.value}
-                      className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
-                        form.watch("timeline") === t.value
-                          ? "border-primary bg-primary/10 text-primary font-medium"
-                          : "border-border hover:border-muted-foreground/50"
-                      }`}
-                    >
-                      <RadioGroupItem value={t.value} className="sr-only" />
-                      {t.label}
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </div>
-
-              <div>
-                <Label className="text-xs sm:text-sm font-medium">
-                  Looking for <span className="text-destructive">*</span>
-                </Label>
-                <RadioGroup
-                  value={form.watch("propertyType")}
-                  onValueChange={(v) => form.setValue("propertyType", v as any)}
-                  className="grid grid-cols-1 gap-2 mt-1.5"
-                >
-                  {PROPERTY_TYPES.map((pt) => (
-                    <Label
-                      key={pt.value}
-                      className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
-                        form.watch("propertyType") === pt.value
-                          ? "border-primary bg-primary/10 text-primary font-medium"
-                          : "border-border hover:border-muted-foreground/50"
-                      }`}
-                    >
-                      <RadioGroupItem value={pt.value} className="sr-only" />
-                      {pt.label}
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full h-12 font-semibold text-sm sm:text-base mt-2" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Sending...
-                </span>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Submit Request
-                </>
-              )}
-            </Button>
-
-            <p className="text-[10px] text-center text-muted-foreground leading-relaxed pb-2">
-              By submitting, you agree to receive communications from PresaleProperties. 
-              This is not a condition of purchase. View our{" "}
-              <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
-            </p>
-          </form>
+              <p className="text-center text-[10px] text-muted-foreground/60">
+                <span className="text-primary/70">✓</span> No spam ·{" "}
+                <a href="/privacy" className="underline hover:text-foreground/60">Privacy Policy</a>
+              </p>
+            </form>
+          )}
         </div>
       ) : (
-        <div className="p-4 sm:p-6 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-green-500/10 rounded-full mb-3">
-            <CheckCircle className="h-7 w-7 sm:h-8 sm:w-8 text-green-500" />
+        /* Success State */
+        <div className="p-6 sm:p-8 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+            <CheckCircle className="h-8 w-8 text-primary" />
           </div>
-          <h2 className="text-lg sm:text-xl font-bold mb-2">Thank You!</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            We've received your request and will be in touch shortly.
+          <h2 className="text-xl font-bold mb-2">You're All Set!</h2>
+          <p className="text-muted-foreground text-sm mb-6">
+            {variant === "general_interest"
+              ? "You're on the list! We'll notify you as soon as new inventory becomes available."
+              : "One of our agents will follow up within 24 hours."}
           </p>
-
-          <div className="space-y-2">
-            <Button asChild className="w-full h-10 sm:h-12 bg-green-600 hover:bg-green-700">
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                Chat with Us on WhatsApp
-              </a>
-            </Button>
-            
-            <Button variant="outline" className="w-full h-10 sm:h-12" onClick={() => onOpenChange(false)}>
-              Close
-            </Button>
-          </div>
+          <Button asChild size="lg"
+            className="w-full h-12 text-sm font-semibold bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Chat Now on WhatsApp
+            </a>
+          </Button>
+          <p className="text-xs text-muted-foreground mt-3">
+            We're available 7 days a week to answer your questions.
+          </p>
         </div>
       )}
     </>
   );
 
-  // Mobile/Tablet: Use bottom Sheet
-  // Mobile/Tablet: Use bottom Sheet (< 1024px)
   if (isMobileOrTablet) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent 
-          side="bottom" 
-          className="h-auto max-h-[92vh] rounded-t-2xl p-0 overflow-hidden"
-        >
+        <SheetContent side="bottom" className="p-0 rounded-t-3xl max-h-[90vh] overflow-y-auto">
           <SheetHeader className="sr-only">
             <SheetTitle>{getTitle()}</SheetTitle>
           </SheetHeader>
-          
-          {/* Drag handle indicator */}
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
-          </div>
-          
-          {/* Scrollable form content */}
-          <div className="overflow-y-auto max-h-[calc(92vh-24px)] scroll-smooth-mobile pb-safe">
-            <FormContent />
-          </div>
+          <FormContent />
         </SheetContent>
       </Sheet>
     );
   }
 
-  // Desktop: Use Dialog (modal)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className="sm:max-w-lg p-0 overflow-hidden bg-background max-h-[90dvh] overflow-y-auto"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
+      <DialogContent className="sm:max-w-lg p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
         <VisuallyHidden>
           <DialogTitle>{getTitle()}</DialogTitle>
         </VisuallyHidden>
