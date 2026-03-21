@@ -199,6 +199,18 @@ export function AccessPackModal({
 
       if (error) throw error;
 
+      // Fire Lofty CRM sync with full tracking data (fire-and-forget)
+      submitLead({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone,
+        formType: "vip_access",
+        projectName: projectName,
+        projectUrl: window.location.href,
+        message: messageData,
+      });
+
       supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 
       trackFormSubmit({
