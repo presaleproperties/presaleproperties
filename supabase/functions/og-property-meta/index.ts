@@ -145,10 +145,9 @@ Deno.serve(async (req) => {
       const description = parts.join(" ");
       const metaDesc = description.length > 160 ? description.slice(0, 157) + "…" : description;
 
-      if (!isBot(userAgent)) {
-        return new Response(null, { status: 302, headers: { ...corsHeaders, "Location": canonicalUrl } });
-      }
-
+      // Always serve OG HTML — never HTTP-redirect from this URL.
+      // Crawlers (WhatsApp, iMessage, etc.) ignore JS so they read the meta tags.
+      // Real humans get instant JS redirect to the canonical deck page.
       const html = `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -167,6 +166,7 @@ Deno.serve(async (req) => {
 <meta name="twitter:description" content="${metaDesc}">
 <meta name="twitter:image" content="${heroImage}">
 <link rel="canonical" href="${canonicalUrl}">
+<script>window.location.replace("${canonicalUrl}");</script>
 </head><body>
 <img src="${heroImage}" alt="${deck.project_name}" style="max-width:100%;border-radius:8px;">
 <h1>${title}</h1><p>${metaDesc}</p>
@@ -215,7 +215,7 @@ Deno.serve(async (req) => {
       const description = `${project.project_type === "condo" ? "Condo" : project.project_type === "townhome" ? "Townhome" : "Home"} project in ${project.neighborhood || project.city}. Starting from ${project.starting_price ? new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(project.starting_price) : "TBD"}.`;
 
       if (!isBot(userAgent)) {
-        return new Response(null, { status: 302, headers: { ...corsHeaders, "Location": canonicalUrl } });
+        // no-op: always serve OG HTML, JS redirect handles humans
       }
 
       const html = `<!DOCTYPE html>
@@ -229,6 +229,7 @@ Deno.serve(async (req) => {
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${title}">
 <meta name="twitter:description" content="${description}"><meta name="twitter:image" content="${heroImage}">
 <link rel="canonical" href="${canonicalUrl}">
+<script>window.location.replace("${canonicalUrl}");</script>
 </head><body><h1>${title}</h1><p>${description}</p><a href="${canonicalUrl}">View Project</a></body></html>`;
 
       const responseHeaders = new Headers();
@@ -319,17 +320,7 @@ Deno.serve(async (req) => {
     const addressSlug = slugify(`${address} ${listing.city} bc`);
     const canonicalUrl = `${SITE_URL}/properties/${addressSlug}-${listingKey}`;
 
-    // If not a bot, redirect to the actual listing page
-    if (!isBot(userAgent)) {
-      return new Response(null, {
-        status: 302,
-        headers: { ...corsHeaders, "Location": canonicalUrl },
-      });
-    }
-
-    // Generate HTML with OG meta tags for bots/crawlers
-    // NOTE: This is a complete HTML document that social crawlers can parse
-    // The page includes a link to the actual listing for users who land here
+    // Always serve OG HTML — JS redirect handles humans, crawlers read the meta tags
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -359,6 +350,7 @@ Deno.serve(async (req) => {
   <meta name="twitter:image" content="${heroImage}">
   
   <link rel="canonical" href="${canonicalUrl}">
+  <script>window.location.replace("${canonicalUrl}");</script>
   
   <style>
     body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
