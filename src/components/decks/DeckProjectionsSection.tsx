@@ -145,7 +145,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm px-4">
           <div className="bg-card border border-border rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
             <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <Lock className="h-7 w-7 text-primary" />
+              <LockIcon className="h-7 w-7 text-primary" />
             </div>
             <h3 className="text-lg font-bold text-foreground mb-2">Investment Calculator Locked</h3>
             <p className="text-sm text-muted-foreground">Unlock the full calculator with your details to run your numbers — mortgage, cash flow, ROI and more.</p>
