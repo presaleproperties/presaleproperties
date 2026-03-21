@@ -74,6 +74,7 @@ export function AccessPackModal({
 }: AccessPackModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
   const { toast } = useToast();
   const isMobileOrTablet = useIsMobileOrTablet();
@@ -92,12 +93,10 @@ export function AccessPackModal({
 
   useEffect(() => {
     if (open) {
-      // Track form start for Meta Pixel
       MetaEvents.formStart({
         content_name: projectName || "Access Pack",
         content_category: variant === "floorplans" ? "floorplans" : variant === "general_interest" ? "general_interest" : "callback",
       });
-      // Track form start for behavioral tracking
       trackFormStart({
         form_name: variant === "floorplans" ? "access_pack" : variant === "general_interest" ? "general_interest" : "callback_request",
         form_location: "access_pack_modal",
@@ -105,6 +104,7 @@ export function AccessPackModal({
     }
     if (!open) {
       setIsSuccess(false);
+      setVerifiedPhone(null);
       form.reset();
     }
   }, [open]);
