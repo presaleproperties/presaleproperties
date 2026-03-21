@@ -168,12 +168,10 @@ export function ProjectLeadForm({
     }
   };
 
-  // Form submit: validate, store pending data, auto-send OTP
+  // Form submit: validate, store pending data — OTP auto-fires via onReady once PhoneVerificationField mounts
   const onSubmit = async (data: FormData) => {
+    hasSentRef.current = false;
     setPendingData(data);
-    if (triggerSendRef.current) {
-      await triggerSendRef.current(data.phone);
-    }
   };
 
   const whatsappMessage = encodeURIComponent(`Hello! Can I get more details about "${projectName}"?`);

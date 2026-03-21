@@ -184,10 +184,8 @@ export function ProjectMobileCTA({
   };
 
   const onSubmit = async (data: FormData) => {
+    hasSentRef.current = false;
     setPendingData(data);
-    if (triggerSendRef.current) {
-      await triggerSendRef.current(data.phone);
-    }
   };
 
   const whatsappMsg = encodeURIComponent(`Hello! Can I get more details about "${projectName}"?`);
