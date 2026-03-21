@@ -164,7 +164,7 @@ export function ProjectLeadForm({
         body: {
           event_name: "Lead",
           email: data.email,
-          phone: data.phone,
+          phone: verifiedPhone || "",
           first_name: data.fullName,
           last_name: "",
           event_source_url: window.location.href,
