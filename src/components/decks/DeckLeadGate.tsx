@@ -70,6 +70,17 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
 
       if (error) throw error;
 
+      // Trigger WhatsApp notifications non-blocking
+      supabase.functions.invoke("send-whatsapp-notification", {
+        body: {
+          leadName: fullName.trim(),
+          leadPhone: phone.trim(),
+          leadEmail: email.trim().toLowerCase(),
+          projectName,
+          deckSlug: slug,
+        },
+      }).catch((err) => console.error("WhatsApp notification error:", err));
+
       // Trigger workflows non-blocking
       supabase.functions.invoke("trigger-workflow", {
         body: {
