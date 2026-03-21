@@ -98,6 +98,7 @@ Deno.serve(async (req) => {
 
       // Extract starting price from first floor plan with a price
       let startingPrice: string | null = null;
+      let unitTypes: string[] = [];
       try {
         const plans = Array.isArray(deck.floor_plans) ? deck.floor_plans : [];
         const firstPriced = plans.find((p: any) => p?.price_from && p.price_from.trim());
@@ -107,21 +108,41 @@ Deno.serve(async (req) => {
             startingPrice = new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(num);
           }
         }
+        // Collect unique bed counts for the description
+        unitTypes = [...new Set(plans.map((p: any) => p?.bedrooms).filter(Boolean))].sort();
       } catch (_) { /* ignore */ }
 
       const locationLabel = deck.neighborhood && deck.city
         ? `${deck.neighborhood}, ${deck.city}`
         : deck.neighborhood || deck.city || "BC";
 
+      // Build a unique, specific title
       const title = startingPrice
         ? `${deck.project_name} — From ${startingPrice} | ${locationLabel}`
         : `${deck.project_name} — Exclusive Presale | ${locationLabel}`;
 
-      const rawDesc = (deck.description || deck.tagline || `Exclusive presale opportunity${deck.city ? ` in ${deck.city}` : ""}.`).replace(/[#*_`>]/g, "").trim();
-      const descBase = rawDesc.length > 120 ? rawDesc.slice(0, 117) + "…" : rawDesc;
-      const description = startingPrice
-        ? `Starting from ${startingPrice}. ${descBase}`
-        : descBase;
+      // Build a rich, unique description using all available signals
+      const bedsLabel = unitTypes.length > 0
+        ? unitTypes.map((b: any) => `${b} bed`).join(", ") + " units"
+        : null;
+      const devLabel = deck.developer_name ? `by ${deck.developer_name}` : null;
+      const completionLabel = deck.completion_year ? `Est. completion ${deck.completion_year}.` : null;
+
+      // Prefer tagline/description, fall back to constructed sentence
+      const rawDesc = (deck.tagline || deck.description || "").replace(/[#*_`>]/g, "").trim();
+
+      // Build description parts from specific data points
+      const parts: string[] = [];
+      if (startingPrice) parts.push(`Starting from ${startingPrice}.`);
+      if (bedsLabel) parts.push(`${bedsLabel.charAt(0).toUpperCase()}${bedsLabel.slice(1)}.`);
+      if (rawDesc) parts.push(rawDesc.length > 80 ? rawDesc.slice(0, 77) + "…" : rawDesc);
+      else {
+        if (devLabel) parts.push(`New presale ${devLabel} in ${locationLabel}.`);
+        if (completionLabel) parts.push(completionLabel);
+      }
+      if (!parts.length) parts.push(`Exclusive presale opportunity in ${locationLabel}.`);
+
+      const description = parts.join(" ");
       const metaDesc = description.length > 160 ? description.slice(0, 157) + "…" : description;
 
       if (!isBot(userAgent)) {
@@ -154,7 +175,8 @@ Deno.serve(async (req) => {
 
       const responseHeaders = new Headers();
       responseHeaders.set("Content-Type", "text/html; charset=utf-8");
-      responseHeaders.set("Cache-Control", "public, max-age=3600, s-maxage=86400");
+      // Short cache so updates to deck content reflect quickly in new shares
+      responseHeaders.set("Cache-Control", "public, max-age=300, s-maxage=600");
       responseHeaders.set("Access-Control-Allow-Origin", "*");
       return new Response(html, { status: 200, headers: responseHeaders });
     }
