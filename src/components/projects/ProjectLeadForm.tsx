@@ -18,6 +18,7 @@ import { trackCTAClick } from "@/hooks/useLoftyTracking";
 import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId } from "@/lib/tracking";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -62,9 +63,9 @@ export function ProjectLeadForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("16722581100");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
-  // pendingData holds the validated form data while awaiting OTP
   const [pendingData, setPendingData] = useState<FormData | null>(null);
   const hasSentRef = useRef(false);
+  const { submitLead } = useLeadSubmission();
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);
@@ -133,6 +134,22 @@ export function ProjectLeadForm({
       });
 
       if (error) throw error;
+
+      // Fire Lofty CRM sync with full tracking data (fire-and-forget)
+      submitLead({
+        firstName: data.fullName.split(" ")[0] ?? data.fullName,
+        lastName: data.fullName.split(" ").slice(1).join(" ") || "",
+        email: data.email,
+        phone,
+        formType: "project_inquiry",
+        projectName,
+        projectCity: "",
+        projectUrl: window.location.href,
+        message: [
+          data.workingWithAgent ? "Working with agent" : null,
+          data.isRealtor ? "Is a Realtor" : null,
+        ].filter(Boolean).join(", ") || undefined,
+      });
 
       trackCTAClick({ cta_type: "lead_form_submit", cta_label: "Get Instant Access", cta_location: "project_lead_form", project_id: projectId, project_name: projectName });
       trackFormSubmit({ form_name: "floor_plan_request", form_location: "project_lead_form", first_name: data.fullName, last_name: "", email: data.email, phone, user_type: actualPersona, project_id: projectId, project_name: projectName });

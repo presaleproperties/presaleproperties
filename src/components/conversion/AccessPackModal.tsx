@@ -17,6 +17,7 @@ import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tr
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
+import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -81,6 +82,7 @@ export function AccessPackModal({
   const hasSentRef = useRef(false);
   const { toast } = useToast();
   const isMobileOrTablet = useIsMobileOrTablet();
+  const { submitLead } = useLeadSubmission();
 
   useEffect(() => {
     const fetchWhatsapp = async () => {
@@ -196,6 +198,18 @@ export function AccessPackModal({
       });
 
       if (error) throw error;
+
+      // Fire Lofty CRM sync with full tracking data (fire-and-forget)
+      submitLead({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone,
+        formType: "vip_access",
+        projectName: projectName,
+        projectUrl: window.location.href,
+        message: messageData,
+      });
 
       supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 

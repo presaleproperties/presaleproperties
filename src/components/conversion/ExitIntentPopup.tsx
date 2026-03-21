@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 
 const schema = z.object({
   email: z.string().email("Please enter a valid email").max(255),
@@ -23,6 +24,7 @@ export function ExitIntentPopup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
+  const { submitLead } = useLeadSubmission();
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -169,6 +171,17 @@ export function ExitIntentPopup() {
         utm_source: utmSource,
         utm_medium: utmMedium,
         utm_campaign: utmCampaign,
+      });
+
+      // Fire Lofty CRM sync with full tracking (fire-and-forget)
+      submitLead({
+        firstName: "Guide",
+        lastName: "Download",
+        email: data.email.trim(),
+        phone: "",
+        formType: "exit_popup",
+        message: "7 Red Flags Guide - Exit Intent Download",
+        projectUrl: window.location.href,
       });
 
       // Send to Zapier via edge function
