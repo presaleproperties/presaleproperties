@@ -256,7 +256,7 @@ export function ProjectLeadForm({
                   {hasBrochure && <><span className="opacity-40">·</span><span>Brochure</span></>}
                   <span className="opacity-40">·</span><span>No obligation</span>
                 </span>
-              ) : "An agent will contact you within 24 hours"}
+              ) : "Instant access to information package, plans and pricing"}
             </p>
           </div>
         </div>
@@ -351,7 +351,7 @@ export function ProjectLeadForm({
             {isSubmitting ? (
               <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting…</>
             ) : (
-              <><Download className="h-4 w-4 mr-2" /> Get Instant Access</>
+              <><Download className="h-4 w-4 mr-2" /> Download Info Package</>
             )}
           </Button>
 
