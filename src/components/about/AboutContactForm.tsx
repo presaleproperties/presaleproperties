@@ -224,10 +224,7 @@ export function AboutContactForm({
                     type="tel"
                     placeholder="(604) 555-0123"
                     value={field.value}
-                    onChange={(e) => {
-                      const { formatPhoneNumber } = await import("@/lib/formatPhone").then(m => m);
-                      field.onChange(formatPhoneNumber(e.target.value));
-                    }}
+                    onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
                     className="h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
                   />
                 </FormControl>
