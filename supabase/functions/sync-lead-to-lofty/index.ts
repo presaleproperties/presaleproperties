@@ -288,20 +288,24 @@ serve(async (req: Request): Promise<Response> => {
               const mergedTags = [...new Set([...existingTags, ...newTags])];
               
               // Append to notes instead of replacing
-              const existingNotes = existingContacts[0].notes || "";
+              const existingNotes = existingContacts[0].notes || existingContacts[0].note || "";
               const timestamp = new Date().toISOString().split("T")[0];
               const newNotes = `\n\n═══ NEW ACTIVITY (${timestamp}) ═══\n${contactData.notes}`;
               const mergedNotes = existingNotes + newNotes;
               
               const updatePayload = {
-                firstName: contactData.first_name,
-                lastName: contactData.last_name,
+                // snake_case (Lofty REST API standard)
+                first_name: contactData.first_name,
+                last_name: contactData.last_name || "",
                 email: contactData.email,
-                phone: contactData.phone || existingContacts[0].phone,
+                phone: contactData.phone || existingContacts[0].phone || "",
                 tags: mergedTags,
+                note: mergedNotes,
                 notes: mergedNotes,
-                // Update source to reflect latest interaction
                 source: existingContacts[0].source || "PresaleProperties.com",
+                // camelCase aliases
+                firstName: contactData.first_name,
+                lastName: contactData.last_name || "",
               };
               
               console.log(`Updating existing contact ${existingId} with merged tags:`, mergedTags);
@@ -369,16 +373,35 @@ serve(async (req: Request): Promise<Response> => {
     }
     
     // Create new contact if no existing one found
+    // Lofty API accepts snake_case field names — send both variants to maximise compatibility
     const loftyPayload = {
-      firstName: contactData.first_name,
-      lastName: contactData.last_name,
+      // snake_case (primary — Lofty REST API standard)
+      first_name: contactData.first_name,
+      last_name: contactData.last_name || "",
       email: contactData.email,
-      phone: contactData.phone,
-      source: leadSource,
+      phone: contactData.phone || "",
+      note: contactData.notes,
       notes: contactData.notes,
-      tags: contactData.tags,
+      description: contactData.notes,
+      remark: contactData.notes,
+      source: leadSource,
+      tags: contactData.tags || [],
+      inquiry_source: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
+      // camelCase aliases (some Lofty API versions accept these)
+      firstName: contactData.first_name,
+      lastName: contactData.last_name || "",
       inquirySource: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
     };
+
+    console.log("Lofty payload fields:", {
+      first_name: loftyPayload.first_name,
+      last_name: loftyPayload.last_name,
+      email: loftyPayload.email,
+      phone: loftyPayload.phone,
+      source: loftyPayload.source,
+      tags: loftyPayload.tags,
+      note_length: loftyPayload.note?.length ?? 0,
+    });
 
     const loftyUrls = baseUrl ? [baseUrl] : [
       "https://api.lofty.com/v1.0/leads",
@@ -409,7 +432,7 @@ serve(async (req: Request): Promise<Response> => {
         lastStatus = res.status;
         lastBody = bodyText;
 
-        console.log("Lofty POST response:", res.status);
+        console.log("Lofty POST response:", res.status, bodyText.substring(0, 500));
 
         if (res.ok) {
           let loftyData: any;
@@ -419,11 +442,14 @@ serve(async (req: Request): Promise<Response> => {
             loftyData = { raw: bodyText };
           }
 
-          console.log("New lead created in Lofty successfully");
+          // Lofty returns { leadId: ... } — capture it
+          const loftyId = loftyData?.leadId || loftyData?.id || loftyData?.lead_id || loftyData?.contact_id;
+          console.log("Lofty created contact loftyId:", loftyId);
+
           return new Response(
             JSON.stringify({
               success: true,
-              loftyId: loftyData?.id || loftyData?.lead_id,
+              loftyId,
               message: "New lead created in Lofty CRM",
               action: "created",
             }),
