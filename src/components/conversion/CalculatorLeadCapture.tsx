@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
 const leadSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
   email: z.string().trim().email("Valid email required").max(255),
+  phone: z.string().trim().min(10, "Valid phone required"),
 });
 
 export type CalculatorType = "roi" | "mortgage";
@@ -58,35 +59,19 @@ export function CalculatorLeadCapture({
   showPdfButton = false,
   variant = "card",
 }: CalculatorLeadCaptureProps) {
-  const [formData, setFormData] = useState({ name: "", email: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  const [pendingData, setPendingData] = useState<typeof formData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const triggerSendRef = useRef<((phone: string) => Promise<void>) | null>(null);
+  const hasSentRef = useRef(false);
 
   const config = CALCULATOR_CONFIG[calculatorData.calculatorType];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-
-    if (!verifiedPhone) {
-      toast.error("Please verify your phone number before submitting.");
-      return;
-    }
-
-    const validation = leadSchema.safeParse(formData);
-    if (!validation.success) {
-      const fieldErrors: Record<string, string> = {};
-      validation.error.errors.forEach((err) => {
-        if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
-      });
-      setErrors(fieldErrors);
-      return;
-    }
-
+  const completeLead = async (phone: string, data: typeof formData) => {
     setIsSubmitting(true);
-
     try {
       const visitorId = localStorage.getItem("pp_vid") || crypto.randomUUID();
       const sessionId = sessionStorage.getItem("pp_sid") || crypto.randomUUID();
@@ -99,15 +84,15 @@ export function CalculatorLeadCapture({
       const leadId = crypto.randomUUID();
       const { error } = await supabase.from("project_leads").insert({
         id: leadId,
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: verifiedPhone,
+        name: data.name.trim(),
+        email: data.email.trim(),
+        phone,
         lead_source: config.leadSource,
         message: `${calculatorData.calculatorType === "roi" ? "ROI" : "Mortgage"} Calculator Analysis:\n${calculatorData.summary}`,
         persona: "buyer",
         timeline: "0-3 months",
         landing_page: landingPage,
-        referrer: referrer,
+        referrer,
         visitor_id: visitorId,
         session_id: sessionId,
         utm_source: utmSource,
@@ -127,9 +112,41 @@ export function CalculatorLeadCapture({
     } catch (error) {
       console.error("Error submitting lead:", error);
       toast.error("Something went wrong. Please try again.");
+      setPendingData(null);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleVerified = (phone: string) => {
+    setVerifiedPhone(phone);
+    if (pendingData) completeLead(phone, pendingData);
+  };
+
+  const handleReady = ({ triggerSend }: { triggerSend: (phone: string) => Promise<void> }) => {
+    triggerSendRef.current = triggerSend;
+    if (pendingData && !hasSentRef.current) {
+      hasSentRef.current = true;
+      triggerSend(pendingData.phone);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+
+    const validation = leadSchema.safeParse(formData);
+    if (!validation.success) {
+      const fieldErrors: Record<string, string> = {};
+      validation.error.errors.forEach((err) => {
+        if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    hasSentRef.current = false;
+    setPendingData(formData);
   };
 
   const handleDownloadPDF = () => {
@@ -163,7 +180,30 @@ export function CalculatorLeadCapture({
     );
   }
 
-  const formContent = (
+  const isAwaitingOTP = !!pendingData && !verifiedPhone;
+
+  const formContent = isAwaitingOTP ? (
+    <div className="space-y-3">
+      <PhoneVerificationField
+        autoTrigger
+        onVerified={handleVerified}
+        onReady={handleReady}
+      />
+      {isSubmitting && (
+        <div className="flex items-center justify-center gap-2 py-1">
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+          <span className="text-sm text-muted-foreground">Submitting…</span>
+        </div>
+      )}
+      <button
+        type="button"
+        onClick={() => { setPendingData(null); hasSentRef.current = false; }}
+        className="w-full text-xs text-muted-foreground hover:text-foreground underline text-center"
+      >
+        ← Go back and edit
+      </button>
+    </div>
+  ) : (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="grid sm:grid-cols-2 gap-3">
         <div className="relative">
@@ -189,26 +229,25 @@ export function CalculatorLeadCapture({
           />
         </div>
       </div>
-      {(errors.name || errors.email) && (
-        <p className="text-xs text-destructive">{errors.name || errors.email}</p>
+      <div>
+        <Input
+          type="tel"
+          inputMode="tel"
+          placeholder="Phone Number (e.g. 604-555-0123)"
+          value={formData.phone}
+          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          className={`h-11 text-[16px] ${errors.phone ? "border-destructive" : ""}`}
+          autoComplete="tel"
+        />
+      </div>
+      {(errors.name || errors.email || errors.phone) && (
+        <p className="text-xs text-destructive">{errors.name || errors.email || errors.phone}</p>
       )}
 
-      <PhoneVerificationField
-        label="Phone"
-        onVerified={setVerifiedPhone}
-      />
-
       <div className="flex flex-col sm:flex-row gap-3">
-        <Button
-          type="submit"
-          className="flex-1 h-11"
-          disabled={isSubmitting || !verifiedPhone}
-        >
-          {isSubmitting ? (
-            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Sending...</>
-          ) : (
-            <>{config.submitText}<ArrowRight className="h-4 w-4 ml-1" /></>
-          )}
+        <Button type="submit" className="flex-1 h-11" disabled={isSubmitting}>
+          {config.submitText}
+          <ArrowRight className="h-4 w-4 ml-1" />
         </Button>
         {showPdfButton && onDownloadPdf && (
           <Button type="button" variant="outline" onClick={handleDownloadPDF}>
@@ -233,8 +272,12 @@ export function CalculatorLeadCapture({
             <Mail className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">{config.title}</h3>
-            <p className="text-sm text-muted-foreground">{config.subtitle}</p>
+            <h3 className="font-semibold text-foreground">
+              {isAwaitingOTP ? "Verify Your Phone" : config.title}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {isAwaitingOTP ? "Enter the 6-digit code we just texted you" : config.subtitle}
+            </p>
           </div>
         </div>
         {formContent}
