@@ -82,6 +82,7 @@ export function AccessPackModal({
   const hasSentRef = useRef(false);
   const { toast } = useToast();
   const isMobileOrTablet = useIsMobileOrTablet();
+  const { submitLead } = useLeadSubmission();
 
   useEffect(() => {
     const fetchWhatsapp = async () => {
