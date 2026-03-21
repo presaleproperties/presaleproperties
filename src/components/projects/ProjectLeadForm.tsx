@@ -216,9 +216,6 @@ export function ProjectLeadForm({
               </a>
             </Button>
           </div>
-          <p className="text-center text-[11px] text-muted-foreground">
-            Immediately speak with a Presale Expert
-          </p>
         </div>
       </div>
     );
