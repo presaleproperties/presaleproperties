@@ -196,6 +196,7 @@ export default function BlogPost() {
       <Helmet>
         <title>{post.seo_title || `${post.title} | PresaleProperties.com`}</title>
         <meta name="description" content={post.seo_description || post.excerpt || post.title} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={post.seo_title || post.title} />
