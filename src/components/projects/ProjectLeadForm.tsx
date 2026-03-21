@@ -212,12 +212,12 @@ export function ProjectLeadForm({
             <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-4 w-4 mr-2" />
-                Chat Now on WhatsApp
+                Chat Now
               </a>
             </Button>
           </div>
           <p className="text-center text-[11px] text-muted-foreground">
-            We're available 7 days a week to answer your questions.
+            Immediately speak with a Presale Expert
           </p>
         </div>
       </div>
