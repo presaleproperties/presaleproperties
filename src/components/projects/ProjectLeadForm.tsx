@@ -143,7 +143,7 @@ export function ProjectLeadForm({
         first_name: data.fullName,
         last_name: "",
         email: data.email,
-        phone: data.phone,
+        phone: verifiedPhone || "",
         user_type: actualPersona,
         project_id: projectId,
         project_name: projectName,
