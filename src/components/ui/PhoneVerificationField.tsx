@@ -46,12 +46,8 @@ export function PhoneVerificationField({
   const [otp, setOtp] = useState("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
-  // Seed default phone once
-  useEffect(() => {
-    if (defaultPhone && !currentPhone) setCurrentPhone(defaultPhone);
-  }, [defaultPhone]);
-
   // Expose triggerSend to parent when in autoTrigger mode
+  // Runs once on mount — parent calls triggerSend(phone) which sets the phone and fires the SMS
   useEffect(() => {
     if (autoTrigger && onReady) {
       onReady({
@@ -67,7 +63,8 @@ export function PhoneVerificationField({
         },
       });
     }
-  }, [autoTrigger, onReady]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSend = async () => {
     setPhoneError(null);
