@@ -14,7 +14,9 @@ import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
 import { DeckFAQSection } from "@/components/decks/DeckFAQSection";
+import { DeckLeadGate } from "@/components/decks/DeckLeadGate";
 import { Loader2 } from "lucide-react";
+import { getVisitorId } from "@/lib/tracking/identifiers";
 
 const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
   { id: "d1", label: "Upon Signing", percent: 2.5, timing: "Due within 7 days", note: "Paid to the developer's trust account on execution of the Purchase Agreement." },
