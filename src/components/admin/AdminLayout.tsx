@@ -39,6 +39,7 @@ import {
   PanelLeftOpen,
   Bell,
   Presentation,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -119,6 +120,7 @@ const navSections = [
       { href: "/admin/email-workflows",    label: "Email Workflows", icon: Workflow,      color: "text-pink-500",   badgeKey: null },
       { href: "/admin/scheduler-settings", label: "Scheduler",      icon: CalendarCog,   color: "text-amber-500",  badgeKey: null },
       { href: "/admin/mls-sync",           label: "MLS Sync",        icon: RefreshCw,     color: "text-sky-500",    badgeKey: null },
+      { href: "/admin/lofty-crm",          label: "Lofty CRM",       icon: Zap,           color: "text-emerald-500",badgeKey: null },
       { href: "/admin/system",             label: "System Health",   icon: Shield,        color: "text-slate-400",  badgeKey: null },
       { href: "/admin/tech-stack",         label: "Tech Stack",      icon: Cpu,           color: "text-purple-500", badgeKey: null },
     ],
