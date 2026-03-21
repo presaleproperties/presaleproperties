@@ -63,6 +63,7 @@ export function ProjectMobileCTA({
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [pendingData, setPendingData] = useState<FormData | null>(null);
   const hasSentRef = useRef(false);
+  const { submitLead } = useLeadSubmission();
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);
