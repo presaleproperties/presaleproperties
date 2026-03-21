@@ -516,6 +516,8 @@ export default function DashboardDeckBuilder() {
       description: description || null,
       highlights: deckHighlights.filter(Boolean),
       amenities: deckAmenities.filter(Boolean),
+      gate_enabled: gateEnabled,
+      gated_sections: gatedSections,
     };
     let error;
     if (isEdit && id) {
