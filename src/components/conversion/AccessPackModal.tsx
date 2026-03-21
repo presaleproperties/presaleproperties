@@ -322,6 +322,7 @@ export function AccessPackModal({
             <div className="space-y-4">
               <PhoneVerificationField
                 autoTrigger
+                defaultPhone={pendingData?.phone ?? ""}
                 onVerified={handleVerified}
                 onReady={handleReady}
               />

@@ -64,7 +64,7 @@ export function ProjectLeadForm({
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   // pendingData holds the validated form data while awaiting OTP
   const [pendingData, setPendingData] = useState<FormData | null>(null);
-  const triggerSendRef = useRef<((phone: string) => Promise<void>) | null>(null);
+  const hasSentRef = useRef(false);
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);
@@ -168,12 +168,10 @@ export function ProjectLeadForm({
     }
   };
 
-  // Form submit: validate, store pending data, auto-send OTP
+  // Form submit: validate, store pending data — OTP auto-fires via onReady once PhoneVerificationField mounts
   const onSubmit = async (data: FormData) => {
+    hasSentRef.current = false;
     setPendingData(data);
-    if (triggerSendRef.current) {
-      await triggerSendRef.current(data.phone);
-    }
   };
 
   const whatsappMessage = encodeURIComponent(`Hello! Can I get more details about "${projectName}"?`);
@@ -283,8 +281,14 @@ export function ProjectLeadForm({
           <div className="space-y-4">
             <PhoneVerificationField
               autoTrigger
+              defaultPhone={pendingData?.phone ?? ""}
               onVerified={handleVerified}
-              onReady={({ triggerSend }) => { triggerSendRef.current = triggerSend; }}
+              onReady={({ triggerSend }) => {
+                if (!hasSentRef.current && pendingData) {
+                  hasSentRef.current = true;
+                  triggerSend(pendingData.phone);
+                }
+              }}
             />
             {isSubmitting && (
               <div className="flex items-center justify-center gap-2 py-2">
