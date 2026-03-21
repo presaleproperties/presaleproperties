@@ -11,8 +11,15 @@ export interface LeadSubmissionPayload {
   formType: string;
   projectName?: string;
   projectCity?: string;
+  propertyType?: string;
   projectUrl?: string;
   message?: string;
+  /** Extra form selections to surface in Lofty notes */
+  isRealtor?: boolean;
+  persona?: string;
+  homeSize?: string;
+  timeline?: string;
+  agentStatus?: string;
   /** If provided, also patches this project_leads row with tracking + score data */
   leadId?: string;
 }
