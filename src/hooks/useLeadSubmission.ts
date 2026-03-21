@@ -94,7 +94,7 @@ export function useLeadSubmission(): LeadSubmissionResult {
           session_count: tracking.sessionCount,
           used_calculator: tracking.usedCalculator,
           device_type: tracking.deviceType,
-          tracking_data: {
+          tracking_data: JSON.parse(JSON.stringify({
             pagesVisited: tracking.pagesVisited,
             firstVisitDate: tracking.firstVisitDate,
             userLanguage: tracking.userLanguage,
@@ -102,10 +102,10 @@ export function useLeadSubmission(): LeadSubmissionResult {
             landingPage: tracking.landingPage,
             currentPageUrl: tracking.currentPageUrl,
             currentPageTitle: tracking.currentPageTitle,
-            calculatorData: tracking.calculatorData,
+            calculatorData: tracking.calculatorData ?? null,
             utmTerm: tracking.utmTerm,
             utmContent: tracking.utmContent,
-          },
+          })),
         }).eq("id", payload.leadId).then(({ error: patchErr }) => {
           if (patchErr) console.warn("[useLeadSubmission] DB patch failed:", patchErr);
           else console.log("[useLeadSubmission] DB row patched with tracking data");
