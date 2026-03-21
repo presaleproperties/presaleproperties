@@ -1,44 +1,94 @@
 
-## Assessment: Assignment Detail Page — Public-Facing State
+## How This Will Work — Strategy Explanation
 
-The current `AssignmentDetail.tsx` has the right bones but is missing several important elements that match the quality of the presale project detail pages. Here's what needs to be improved:
+**Recommended approach: Soft gate on Floor Plans, Pricing & Projections**
 
-### What's Currently Missing / Weak
+Show the hero, about section, and gallery freely (social proof + hook). Gate the high-value sections — floor plans with pricing, deposit timeline, and the investment calculator — behind the lead form. This is standard practice for presale lead magnets and maximises conversion.
 
-1. **No Expert Advisory Card** — The sidebar has a pricing card, deposit info, and key dates, but no `ExpertAdvisoryCard` (which exists and is used on resale/presale pages). The "Inquire About This Unit" button goes nowhere — it has no `onClick` handler and no lead form wired up.
-
-2. **No lead capture / inquiry form** — The CTA button renders but does nothing. There's no `AboutContactForm` connected to it. Leads from assignment pages are not being captured.
-
-3. **No document download section on the sidebar** — Documents (floor plan, brochure, one-pager) are only shown in the left column mid-page. They should also have a prominent download bundle section, especially for verified agent visitors.
-
-4. **No agent-gate UX** — The route in `App.tsx` shows `/assignments/:id` is accessible to anyone, but the map restricts non-verified agents from clicking through. The detail page itself has no verification check — a non-agent who navigates directly sees full pricing and details with no lead capture.
-
-5. **SEO is set to `noindex, nofollow`** — This is intentional for agent-gated content, which is fine.
-
-6. **"Inquire About This Unit" sends no context** — When wired up, it should pre-fill the listing title/project/price into the contact form.
+**Why not gate the entire deck?**
+- Google and social crawlers need open access to the hero for link previews (already set up)
+- Showing the building, gallery, and location builds trust before asking for contact info
+- People who fill the form are warmer leads with real intent
 
 ---
 
-### Plan
+## How "Fill Once" Works
 
-**1. Wire up the "Inquire About This Unit" CTA**
-- Import `AboutContactForm` into `AssignmentDetail.tsx`
-- Add `formOpen` state and connect the button's `onClick`
-- Pass `selectedAgentName` as `listing.title` so the form is pre-contextualized
+**The challenge:** You cannot reliably track users by IP address alone on the front-end (browsers don't expose IPs). Instead, the plan uses a combination of:
 
-**2. Add `ExpertAdvisoryCard` to the right sidebar**
-- Place it below the pricing card in the right column
-- This adds trust signals and a second conversion path (same pattern as presale/resale pages)
+1. **localStorage key** (primary) — after form submit, write `deck_unlocked_[slug]` to localStorage. On next visit, same browser = instant access.
+2. **Visitor ID cookie** (secondary) — the site already generates a `pp_vid` persistent cookie/localStorage ID per visitor. We check this against submitted leads in the database on page load.
 
-**3. Prominent Documents Download section in the sidebar**
-- Add a dedicated "Downloads" card in the right sidebar showing floor plan, brochure, and a note about the one-pager being available on request
-- Keep the existing documents section in the left column too, but the sidebar version is more visible for agents
+**Trade-offs to be aware of:**
+- Clearing browser data = form appears again (very rare in practice, acceptable)
+- Different device = form appears again (actually good — captures the lead on that device too)
+- Incognito = form appears again (also good — different session)
+- IP blocking is not reliable (shared IPs, VPNs, mobile networks)
 
-**4. Non-verified agent soft gate**
-- If the user is not a verified agent (using `useVerifiedAgent` hook), show a blurred/locked overlay on the pricing card with a CTA to verify — consistent with how the map already handles it
-- This creates a lead capture moment instead of a dead end
+This approach matches how Netflix, HubSpot, and every major presale site handles it.
 
-**Files to edit:**
-- `src/pages/AssignmentDetail.tsx` — primary changes (CTA form, expert card, sidebar downloads, agent gate)
+---
 
-This is a single-file change with no DB migrations needed.
+## Technical Plan
+
+### 1. New component: `DeckLeadGate`
+
+A full-screen overlay modal using the existing `usePresaleLeadCapture` hook. Collects name, phone, email in a single clean step (no email-first two-step — simpler for a social lead magnet). Tags the lead with:
+- `lead_source: "pitch_deck"`
+- `project_name` from the deck
+- `project_id` from the deck (if linked)
+- A message field: `"Pitch Deck: [project_name]"`
+
+### 2. Unlock logic in `DeckPublicPage`
+
+On mount:
+1. Check `localStorage.getItem("deck_unlocked_" + slug)` → if exists, skip gate
+2. Check if `pp_vid` visitor ID has already submitted a lead for this deck (query `project_leads` where `visitor_id = X AND message LIKE 'Pitch Deck:%'`) → if found, skip gate and write localStorage
+
+State: `isUnlocked: boolean`
+
+### 3. Gated sections
+
+Replace the real content of these sections with a blur/lock overlay when `!isUnlocked`:
+- Floor Plans section (prices visible but blurred, lock icon)
+- Deposit Timeline
+- Investment Calculator
+
+### 4. Lead form UI
+
+Clean single-step modal overlay (not a two-step like the existing form). Fields:
+- Full Name (required)
+- Phone (required)
+- Email (required)
+- "I'm a Realtor" checkbox (optional)
+- Submit button: "Unlock Full Details →"
+
+On success → write localStorage → `isUnlocked = true` → sections animate in.
+
+### 5. Backend tagging
+
+Reuses the existing `project_leads` table. The `message` field will be `"Pitch Deck: [project_name]"` and `lead_source` will be `"floor_plan_request"` (already mapped to `ZAPIER_PROJECT_LEADS_WEBHOOK`). This ensures it flows through to Lofty CRM automatically.
+
+---
+
+## Files to Create/Edit
+
+```text
+NEW   src/components/decks/DeckLeadGate.tsx        — gate overlay modal component
+EDIT  src/pages/DeckPublicPage.tsx                  — unlock state, check localStorage/visitor_id, pass isUnlocked to sections
+EDIT  src/components/decks/DeckFloorPlansSection.tsx — blur overlay when locked
+EDIT  src/components/decks/DeckDepositTimelineSection.tsx — blur overlay when locked
+EDIT  src/components/decks/DeckProjectionsSection.tsx    — blur overlay when locked
+```
+
+No database changes needed — uses the existing `project_leads` table and existing RLS.
+
+---
+
+## What It Will Look Like
+
+- Hero, About, Gallery, Location → always visible (social proof)
+- Floor Plans section → visible but blurred with a lock card: "Unlock Floor Plans & Pricing — Enter your details for instant access"
+- Deposit & Calculator → same blur treatment
+- On form submit → smooth fade-in unlock of all sections
+- Revisit same browser → no gate, full access immediately
