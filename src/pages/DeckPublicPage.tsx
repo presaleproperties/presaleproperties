@@ -246,7 +246,7 @@ export default function DeckPublicPage() {
       `}</style>
     </Helmet>
     {/* Lead gate — shown until user fills form */}
-    {!isUnlocked && deck && (
+    {!isUnlocked && deck && deck.gate_enabled !== false && (
       <DeckLeadGate
         slug={slug!}
         projectName={deck.project_name}
