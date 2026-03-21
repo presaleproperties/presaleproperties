@@ -145,143 +145,11 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log("Prepared contact:", { firstName, lastName, email, phone, tags });
 
-    // ── Search for existing contact ───────────────────────────────────────
-    // Strategy 1: check our own DB for a stored lofty_id (most reliable)
-    // Strategy 2: try Lofty keyword search
-    let existingLoftyId: string | null = null;
-
-    // Check our DB first — if we already have a lofty_id for this email, use it
-    try {
-      const { data: existingLead } = await supabase
-        .from("project_leads" as any)
-        .select("lofty_id")
-        .eq("email", email)
-        .not("lofty_id", "is", null)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-
-      if (existingLead?.lofty_id) {
-        existingLoftyId = existingLead.lofty_id;
-        console.log("Found existing lofty_id in DB:", existingLoftyId);
-      }
-    } catch { /* no existing record with lofty_id */ }
-
-    // If not found in DB, try Lofty keyword search
-    if (!existingLoftyId) {
-      try {
-        // Try multiple search param names — Lofty API is inconsistent
-        const searchAttempts = [
-          `${LOFTY_BASE_URL}?keyword=${encodeURIComponent(email)}&limit=1`,
-          `${LOFTY_BASE_URL}?q=${encodeURIComponent(email)}&limit=1`,
-          `${LOFTY_BASE_URL}?email=${encodeURIComponent(email)}&limit=1`,
-        ];
-
-        for (const searchUrl of searchAttempts) {
-          const searchRes = await fetch(searchUrl, {
-            method: "GET",
-            headers: { "Accept": "application/json", "Authorization": authHeader },
-          });
-
-          if (searchRes.ok) {
-            const searchText = await searchRes.text();
-            console.log(`Lofty search (${searchUrl.split("?")[1]}):`, searchRes.status, searchText.substring(0, 200));
-
-            let searchData: any;
-            try { searchData = JSON.parse(searchText); } catch { searchData = null; }
-
-            const contacts: any[] = Array.isArray(searchData)
-              ? searchData
-              : (searchData?.leads || searchData?.data || searchData?.results || []);
-
-            if (contacts.length > 0) {
-              existingLoftyId = String(
-                contacts[0].leadId || contacts[0].lead_id || contacts[0].id || ""
-              ) || null;
-              if (existingLoftyId) {
-                console.log("Found Lofty contact via search:", existingLoftyId, "keys:", Object.keys(contacts[0]));
-                break;
-              }
-            }
-          }
-        }
-      } catch (searchErr) {
-        console.warn("Lofty search error:", searchErr);
-      }
-    }
-
-    // ── UPDATE existing contact ───────────────────────────────────────────
-    if (existingLoftyId && existingLoftyId !== "null" && existingLoftyId !== "undefined") {
-      console.log("Updating existing Lofty contact:", existingLoftyId);
-
-      // Build a "return visit" note to append
-      const returnNote = buildReturnVisitNote(notesText);
-
-      // Try to add a note via the notes endpoint first
-      try {
-        const noteRes = await fetch(`${LOFTY_BASE_URL}/${existingLoftyId}/notes`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Authorization": authHeader,
-          },
-          body: JSON.stringify({ content: returnNote, note: returnNote }),
-        });
-        const noteBody = await noteRes.text();
-        console.log("Lofty add note response:", noteRes.status, noteBody.substring(0, 200));
-      } catch (noteErr) {
-        console.warn("Notes endpoint failed:", noteErr);
-      }
-
-      // Also update the contact record to merge tags
-      const updatePayload = {
-        firstName: firstName,
-        lastName: lastName,
-        first_name: firstName,
-        last_name: lastName,
-        email: email,
-        phone: phone || undefined,
-        tags: tags,
-        source: LOFTY_SOURCE,
-        note: returnNote,
-        notes: returnNote,
-      };
-
-      const updateRes = await fetch(`${LOFTY_BASE_URL}/${existingLoftyId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": authHeader,
-        },
-        body: JSON.stringify(updatePayload),
-      });
-
-      const updateBody = await updateRes.text();
-      console.log("Lofty PUT update response:", updateRes.status, updateBody.substring(0, 300));
-
-      // Update supabase lofty_id regardless
-      if (supabaseLeadId) {
-        await supabase.from("project_leads" as any).update({
-          lofty_id: existingLoftyId,
-          lofty_synced_at: new Date().toISOString(),
-        }).eq("id", supabaseLeadId);
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          loftyId: existingLoftyId,
-          action: "updated",
-          message: "Existing Lofty contact updated with return visit note",
-        }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // ── CREATE new contact ────────────────────────────────────────────────
-    console.log("Creating new Lofty contact for:", email);
+    // ── Always CREATE a new lead — Lofty handles deduplication ──────────────
+    // We never search for or PUT/update existing contacts. This prevents
+    // overwriting names, removing tags, or corrupting existing Lofty data.
+    // Lofty will automatically merge by email/phone on their side.
+    console.log("Creating new Lofty lead for:", email);
 
     const createPayload = {
       // Both camelCase (Lofty requires) and snake_case aliases
@@ -363,22 +231,6 @@ function parseNames(name: string, message: string | null): { firstName: string; 
   return parts.length >= 2
     ? { firstName: parts[0], lastName: parts.slice(1).join(" ") }
     : { firstName: parts[0] || "", lastName: "" };
-}
-
-function buildReturnVisitNote(latestActivity: string): string {
-  const ts = new Date().toLocaleString("en-CA", {
-    timeZone: "America/Vancouver",
-    year: "numeric", month: "short", day: "numeric",
-    hour: "2-digit", minute: "2-digit",
-  });
-  return [
-    `════════════════════════════════`,
-    `🔄 LEAD RETURNED TO SITE`,
-    `   ${ts} (Pacific Time)`,
-    `════════════════════════════════`,
-    "",
-    latestActivity,
-  ].join("\n");
 }
 
 function buildDirectNotes(d: any): string {
