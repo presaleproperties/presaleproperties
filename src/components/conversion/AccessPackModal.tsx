@@ -376,22 +376,15 @@ export function AccessPackModal({
                 />
               </div>
 
-              <div>
-                <Label htmlFor="phone" className="text-xs sm:text-sm">
-                  Phone <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  inputMode="tel"
-                  placeholder="604-555-0123"
-                  autoComplete="tel"
-                  {...form.register("phone")}
-                  className="h-11 mt-1 text-[16px]"
-                />
-              </div>
-            </div>
+
+              <PhoneVerificationField
+                label="Phone"
+                onVerified={(phone) => {
+                  setVerifiedPhone(phone);
+                  form.setValue("phone", phone);
+                }}
+                className="mt-1"
+              />
 
             {/* I am a... */}
             <div>
