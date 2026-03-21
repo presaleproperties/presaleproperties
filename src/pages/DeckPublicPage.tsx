@@ -308,6 +308,8 @@ export default function DeckPublicPage() {
           unitsRemaining={deck.units_remaining}
           nextPriceIncrease={deck.next_price_increase}
           incentives={deck.incentives}
+          isUnlocked={isUnlocked}
+          onUnlockRequest={() => {}}
         />
       </div>
 
@@ -358,6 +360,7 @@ export default function DeckPublicPage() {
               completionYear={deck.completion_year || undefined}
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
+              isUnlocked={isUnlocked}
             />
           </div>
         </section>
@@ -373,6 +376,7 @@ export default function DeckPublicPage() {
               projections={deck.projections || {}}
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
+              isUnlocked={isUnlocked}
             />
           </div>
         </section>
