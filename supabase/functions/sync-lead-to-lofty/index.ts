@@ -257,6 +257,9 @@ serve(async (req: Request): Promise<Response> => {
     console.log("Creating new Lofty contact for:", email);
 
     const createPayload = {
+      // Both camelCase (Lofty requires) and snake_case aliases
+      firstName: firstName,
+      lastName: lastName,
       first_name: firstName,
       last_name: lastName,
       email: email,
