@@ -16,6 +16,7 @@ import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/l
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
+import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -73,6 +74,7 @@ export function AccessPackModal({
 }: AccessPackModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
   const { toast } = useToast();
   const isMobileOrTablet = useIsMobileOrTablet();
@@ -91,12 +93,10 @@ export function AccessPackModal({
 
   useEffect(() => {
     if (open) {
-      // Track form start for Meta Pixel
       MetaEvents.formStart({
         content_name: projectName || "Access Pack",
         content_category: variant === "floorplans" ? "floorplans" : variant === "general_interest" ? "general_interest" : "callback",
       });
-      // Track form start for behavioral tracking
       trackFormStart({
         form_name: variant === "floorplans" ? "access_pack" : variant === "general_interest" ? "general_interest" : "callback_request",
         form_location: "access_pack_modal",
@@ -104,6 +104,7 @@ export function AccessPackModal({
     }
     if (!open) {
       setIsSuccess(false);
+      setVerifiedPhone(null);
       form.reset();
     }
   }, [open]);
@@ -124,6 +125,11 @@ export function AccessPackModal({
   });
 
   const onSubmit = async (data: FormData) => {
+    // Block submission if phone not verified
+    if (!verifiedPhone) {
+      toast({ title: "Phone verification required", description: "Please verify your phone number before submitting.", variant: "destructive" });
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -170,7 +176,7 @@ export function AccessPackModal({
           project_id: projectId || null,
           name: fullName,
           email: data.email,
-          phone: data.phone,
+          phone: verifiedPhone, // use verified phone
           message: messageData,
           persona: actualPersona,
           timeline: data.timeline,
@@ -370,21 +376,16 @@ export function AccessPackModal({
                 />
               </div>
 
-              <div>
-                <Label htmlFor="phone" className="text-xs sm:text-sm">
-                  Phone <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  inputMode="tel"
-                  placeholder="604-555-0123"
-                  autoComplete="tel"
-                  {...form.register("phone")}
-                  className="h-11 mt-1 text-[16px]"
-                />
-              </div>
+
+
+              <PhoneVerificationField
+                label="Phone"
+                onVerified={(phone) => {
+                  setVerifiedPhone(phone);
+                  form.setValue("phone", phone);
+                }}
+                className="mt-1"
+              />
             </div>
 
             {/* I am a... */}
