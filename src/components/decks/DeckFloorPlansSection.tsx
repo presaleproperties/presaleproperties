@@ -110,7 +110,7 @@ export function DeckFloorPlansSection({
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">02 — Hand-Picked For You</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Top Picked Units</h2>
           <p className="text-muted-foreground text-sm max-w-lg">
-            The best available units — tap any to see the full floor plan.{!isUnlocked && " Pricing is hidden — tap Reveal to unlock."}
+            The best available units — tap any to see the full floor plan.{!isUnlocked && " Pricing is exclusive and invite-only — tap Reveal Price to unlock."}
           </p>
 
           {/* Scarcity strip */}
@@ -228,33 +228,23 @@ export function DeckFloorPlansSection({
                         )}
                       </div>
 
-                      {/* Price — clear when unlocked, blurred with CTA when locked */}
-                      <div className="text-right shrink-0">
-                        {isUnlocked ? (
-                          <>
-                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
-                            <p className="text-primary font-bold text-base sm:text-lg leading-tight">{plan.price_from || "—"}</p>
-                          </>
-                        ) : (
-                          <button
-                            onClick={handleRevealPrice}
-                            className="flex flex-col items-end gap-0.5 group/price"
-                          >
-                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
-                            <div className="relative">
-                              <p className="text-primary font-bold text-base sm:text-lg leading-tight blur-sm select-none pointer-events-none">
-                                {plan.price_from || "$XXX,XXX"}
-                              </p>
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 border border-primary/30 px-1.5 py-0.5 rounded-full whitespace-nowrap group-hover/price:bg-primary group-hover/price:text-primary-foreground transition-colors">
-                                  <LockIcon className="h-2.5 w-2.5 shrink-0" />
-                                  Reveal
-                                </span>
-                              </div>
-                            </div>
-                          </button>
-                        )}
-                      </div>
+                      {/* Price — clear when unlocked, full-width CTA when locked */}
+                       <div className="text-right shrink-0">
+                         {isUnlocked ? (
+                           <>
+                             <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
+                             <p className="text-primary font-bold text-base sm:text-lg leading-tight">{plan.price_from || "—"}</p>
+                           </>
+                         ) : (
+                           <button
+                             onClick={handleRevealPrice}
+                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/90 active:scale-95 transition-all shadow-sm shadow-primary/30"
+                           >
+                             <LockIcon className="h-3 w-3 shrink-0" />
+                             Reveal Price
+                           </button>
+                         )}
+                       </div>
                     </div>
 
                     {/* Size + PSF row */}
@@ -301,21 +291,22 @@ export function DeckFloorPlansSection({
 
         {/* Reveal pricing banner — below the grid when locked */}
         {!isUnlocked && floorPlans.length > 0 && (
-          <div className="mt-8 p-5 rounded-2xl border border-primary/25 bg-primary/5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-            <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+          <div className="mt-8 p-5 sm:p-6 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/8 to-primary/3 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left shadow-sm">
+            <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center shrink-0 shadow-inner">
               <LockIcon className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-foreground text-sm">Pricing is available — it's just hidden</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Enter your info to instantly reveal unit prices, price-per-sqft, and the full investment calculator.
+              <p className="font-bold text-foreground text-sm sm:text-base">This pricing is exclusive — not publicly listed</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-md">
+                This deck was shared with a select group of buyers only. To protect the integrity of this offering, pricing is revealed only after we know who's on the other side. It takes 30 seconds.
               </p>
             </div>
             <button
               onClick={() => setPriceGateOpen(true)}
-              className="shrink-0 h-10 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center gap-2 hover:bg-primary/90 transition-colors"
+              className="shrink-0 h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center gap-2 hover:bg-primary/90 active:scale-95 transition-all shadow-lg shadow-primary/25"
             >
-              Reveal Pricing <ArrowRight className="h-4 w-4" />
+              <LockIcon className="h-4 w-4" />
+              Unlock Exclusive Pricing <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         )}
@@ -327,6 +318,8 @@ export function DeckFloorPlansSection({
         whatsappNumber={whatsappNumber}
         projectName={projectName}
         includedItems={displayItems}
+        isUnlocked={isUnlocked}
+        onUnlockRequest={() => { setSelected(null); setTimeout(() => setPriceGateOpen(true), 150); }}
       />
     </section>
   );

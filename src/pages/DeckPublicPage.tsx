@@ -14,6 +14,7 @@ import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
 import { DeckFAQSection } from "@/components/decks/DeckFAQSection";
+import { DeckPriceGate } from "@/components/decks/DeckPriceGate";
 // DeckLeadGate removed — pricing is now gated inline via DeckPriceGate
 import { Loader2 } from "lucide-react";
 import { getVisitorId } from "@/lib/tracking/identifiers";
@@ -73,6 +74,8 @@ export default function DeckPublicPage() {
   const [navVisible, setNavVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [globalPriceGateOpen, setGlobalPriceGateOpen] = useState(false);
+  const openPriceGate = useCallback(() => setGlobalPriceGateOpen(true), []);
   // Scroll position to restore when closing gallery
   const scrollYBeforeGallery = useRef<number>(0);
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -246,6 +249,16 @@ export default function DeckPublicPage() {
       `}</style>
     </Helmet>
     {/* No full-page gate — content is freely browsable; only pricing is gated */}
+    {/* Global price gate — triggered from anywhere on the page */}
+    {globalPriceGateOpen && !(isUnlocked || deck.gate_enabled === false) && (
+      <DeckPriceGate
+        slug={slug || ""}
+        projectName={deck.project_name}
+        projectId={(deck as any).project_id || null}
+        onUnlock={() => { setGlobalPriceGateOpen(false); setIsUnlocked(true); }}
+        onClose={() => setGlobalPriceGateOpen(false)}
+      />
+    )}
 
     <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip", scrollPaddingTop: "80px" }}>
 
@@ -356,6 +369,7 @@ export default function DeckPublicPage() {
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
               isUnlocked={isUnlocked || deck.gate_enabled === false}
+            onUnlockRequest={openPriceGate}
             />
           </div>
         </section>
@@ -372,6 +386,7 @@ export default function DeckPublicPage() {
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
               isUnlocked={isUnlocked || deck.gate_enabled === false}
+              onUnlockRequest={openPriceGate}
             />
           </div>
         </section>

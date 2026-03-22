@@ -21,6 +21,7 @@ interface DeckProjectionsSectionProps {
   defaultPrice?: number;
   floorPlans?: FloorPlan[];
   isUnlocked?: boolean;
+  onUnlockRequest?: () => void;
 }
 
 const fmt = (n: number) =>
@@ -70,7 +71,7 @@ function BreakdownRow({ label, value, green, sub, strikethrough }: { label: stri
   );
 }
 
-export function DeckProjectionsSection({ projections, defaultPrice, floorPlans = [], isUnlocked = false }: DeckProjectionsSectionProps) {
+export function DeckProjectionsSection({ projections, defaultPrice, floorPlans = [], isUnlocked = false, onUnlockRequest }: DeckProjectionsSectionProps) {
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
   const [selectedPlanId, setSelectedPlanId] = useState<string>(() => floorPlans?.[0]?.id ?? "");
   const [downPct, setDownPct] = useState(20);
@@ -142,13 +143,25 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
     <div id="projections" className="relative w-full">
       {/* Lock overlay */}
       {!isUnlocked && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm px-4">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/75 backdrop-blur-sm px-4">
           <div className="bg-card border border-border rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
             <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <LockIcon className="h-7 w-7 text-primary" />
             </div>
-            <h3 className="text-lg font-bold text-foreground mb-2">Investment Calculator Locked</h3>
-            <p className="text-sm text-muted-foreground">Unlock the full calculator with your details to run your numbers — mortgage, cash flow, ROI and more.</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">Exclusive Access Only</p>
+            <h3 className="text-lg font-bold text-foreground mb-2">Investment Numbers Are Private</h3>
+            <p className="text-sm text-muted-foreground mb-5">
+              The full mortgage breakdown, cash flow projections, and ROI calculator are reserved for verified buyers. This is not publicly listed — it's sent only to a select group of investors.
+            </p>
+            {onUnlockRequest && (
+              <button
+                onClick={onUnlockRequest}
+                className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors shadow-lg"
+              >
+                <LockIcon className="h-4 w-4" />
+                Unlock Investment Calculator
+              </button>
+            )}
           </div>
         </div>
       )}
