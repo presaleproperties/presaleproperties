@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, buildLoopEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, buildLoopEmailHtml, buildPitchDeckEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
@@ -86,10 +86,37 @@ function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
-  layoutVersion?: "classic" | "loop",
+  layoutVersion?: "classic" | "loop" | "pitch-deck",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
 ): string {
+  // ── PITCH DECK template ───────────────────────────────────────────────────
+  if (layoutVersion === "pitch-deck") {
+    const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
+    return buildPitchDeckEmailHtml({
+      projectName:    fields.projectName || "",
+      city:           fields.city,
+      developerName:  fields.developerName,
+      heroImage:      heroImage || undefined,
+      headline:       fields.headline,
+      bodyCopy:       fields.bodyCopy,
+      subjectLine:    fields.subjectLine,
+      previewText:    fields.previewText,
+      startingPrice:  fields.startingPrice,
+      deposit:        fields.deposit,
+      completion:     fields.completion,
+      infoRows:       fields.infoRows,
+      incentiveText:  fields.incentiveText,
+      parkingIncluded: saved?._deckParking   || "1 Parking Stall Included",
+      lockerIncluded:  saved?._deckLocker    || "1 Storage Locker Included",
+      floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
+        id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
+        price: (fp as any).price || undefined,
+      })),
+      fpHeading,
+      fpSubheading,
+    }, agent);
+  }
   // ── LOOP template ──────────────────────────────────────────────────────────
   if (layoutVersion === "loop") {
     // Prefer project gallery slides; fall back to heroImage + imageCards
@@ -302,7 +329,7 @@ export default function AdminEmailBuilderPage() {
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // Layout version
-  const [layoutVersion, setLayoutVersion] = useState<"classic" | "loop">(savedDraft?.layoutVersion ?? "classic");
+  const [layoutVersion, setLayoutVersion] = useState<"classic" | "loop" | "pitch-deck">(savedDraft?.layoutVersion ?? "classic");
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
@@ -933,7 +960,7 @@ export default function AdminEmailBuilderPage() {
               {/* ── LAYOUT VERSION TOGGLE ── */}
               <div className="px-3 py-2.5 border-b border-border bg-muted/10">
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold block mb-2">Layout</Label>
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-3 gap-1.5">
                   <button
                     onClick={() => setLayoutVersion("classic")}
                     className={cn(
@@ -944,7 +971,7 @@ export default function AdminEmailBuilderPage() {
                     )}
                   >
                     <div className="text-[11px] font-semibold text-foreground">Classic</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Header · Stats · Body · CTA</div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Header · Stats · Body</div>
                     {layoutVersion === "classic" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-primary" />}
                   </button>
                   <button
@@ -957,12 +984,28 @@ export default function AdminEmailBuilderPage() {
                     )}
                   >
                     <div className="text-[11px] font-semibold text-foreground">The Loop</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Slideshow hero · Editorial</div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Slideshow · Editorial</div>
                     {layoutVersion === "loop" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-amber-500" />}
+                  </button>
+                  <button
+                    onClick={() => setLayoutVersion("pitch-deck")}
+                    className={cn(
+                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                      layoutVersion === "pitch-deck"
+                        ? "border-emerald-500 bg-emerald-500/8 shadow-sm"
+                        : "border-border bg-muted/10 hover:border-emerald-400/50"
+                    )}
+                  >
+                    <div className="text-[11px] font-semibold text-foreground">Pitch Deck</div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Floor plans + pricing</div>
+                    {layoutVersion === "pitch-deck" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-emerald-500" />}
                   </button>
                 </div>
                 {layoutVersion === "loop" && (
                   <p className="text-[9px] text-amber-600/70 mt-1.5 leading-relaxed">Hero + Image Cards cycle as a CSS slideshow. Add images in the Images step below.</p>
+                )}
+                {layoutVersion === "pitch-deck" && (
+                  <p className="text-[9px] text-emerald-600/70 mt-1.5 leading-relaxed">Optimized for pitch deck sends. Plus Jakarta Sans font, floor plans with pricing, parking &amp; locker included row, Call Now CTA only.</p>
                 )}
               </div>
 
