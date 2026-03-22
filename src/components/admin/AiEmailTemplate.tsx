@@ -1119,27 +1119,28 @@ export function buildPitchDeckEmailHtml(
     </td>
   </tr>` : ""}
 
-  <!-- CALL NOW CTA -->
+  <!-- CALL NOW CTA — full-width button for mobile -->
   <tr>
     <td class="mobile-pad" style="background:#f7f5f1;padding:28px 36px 28px;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
-          <td align="center" style="background:${DARK};padding:18px 24px;text-align:center;">
+          <td align="center" style="background:${DARK};padding:18px 24px;text-align:center;width:100%;">
             <a href="tel:${phone.replace(/\D/g,'')}"
-               style="font-family:${BODY_FONT};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;line-height:1;">
+               style="font-family:${BODY_FONT};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;line-height:1;white-space:nowrap;">
               &#128222;&nbsp; CALL NOW — ${phone}
             </a>
           </td>
         </tr>
       </table>
       <p style="margin:14px 0 0 0;font-family:${BODY_FONT};font-size:11px;color:#999999;text-align:center;line-height:1.5;">
-        Questions? Reply to this email or call ${phone} directly.
+        Questions? Reply to this email or call <a href="tel:${phone.replace(/\D/g,'')}" style="color:#999999;">${phone}</a> directly.
       </p>
     </td>
   </tr>
 
   <!-- DIVIDER -->
-  <tr><td style="padding:0 36px;"><div style="height:1px;background:#ece8e0;"></div></td></tr>
+  <tr><td style="height:1px;font-size:0;line-height:0;background:#ece8e0;padding:0;margin:0;">&nbsp;</td></tr>
+
 
   <!-- AGENT CARD — DESKTOP (hidden on mobile) -->
   <tr class="agent-desktop" style="display:table-row;">
