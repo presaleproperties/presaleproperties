@@ -953,7 +953,7 @@ export function buildPitchDeckEmailHtml(
 
   <!-- HEADER -->
   <tr>
-    <td class="mobile-pad" style="background:${DARK};padding:14px 36px 12px;">
+    <td class="mobile-pad" style="background:${DARK};padding:7px 36px 6px;">
       <p style="margin:0 0 6px 0;font-family:${BODY_FONT};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES</p>
       <p class="hero-headline" style="margin:0 0 8px 0;font-family:${DISPLAY_FONT};font-size:32px;font-weight:800;color:#ffffff;line-height:1.1;letter-spacing:-0.5px;">${data.projectName || "New Presale Release"}</p>
       ${byLine ? `<p style="margin:0 0 10px 0;font-family:${BODY_FONT};font-size:11px;color:#7a9a86;">${byLine}</p>` : ""}
