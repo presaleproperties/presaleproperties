@@ -1227,11 +1227,15 @@ export function buildPitchDeckEmailHtml(
 
 // ─────────────────────────────────────────────────────────────────────────────
 // buildPitchDeckEmailHtmlLofty
-// 100% inline-style version — NO <style> tags, NO media queries.
-// Uses a fixed 600px center table so desktop stays 600px wide.
-// On mobile, Lofty (and most CRMs) force tables to 100% of screen width
-// when width attribute is omitted or set to percentage — so we use
-// max-width:600px on the wrapper TD instead of a fixed pixel width on the table.
+// Fluid hybrid layout:
+//  - Container uses width="100%" + max-width:600px inline → caps at 600px on
+//    desktop, collapses to full screen on mobile — no media queries needed.
+//  - Stats bar: 3 side-by-side cols using percentage widths (stays side-by-side
+//    on desktop AND mobile — no stacking needed, each cell is compact).
+//  - All other sections single-column full-width.
+//  - Includes <style> block with media queries as a bonus for clients that keep
+//    them (Gmail iOS, Apple Mail). If Lofty strips it, the fluid layout still
+//    works correctly.
 // ─────────────────────────────────────────────────────────────────────────────
 export function buildPitchDeckEmailHtmlLofty(
   data: PitchDeckEmailData,
