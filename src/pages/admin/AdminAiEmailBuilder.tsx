@@ -1393,9 +1393,9 @@ export default function AdminEmailBuilderPage() {
                 )}
               </StepSection>
 
-              {/* ── STEP 4: INBOX COPY ── */}
+              {/* ── STEP 5: INBOX COPY ── */}
               <StepSection
-                step={4} title="Inbox Copy" icon={<Mail className="h-3.5 w-3.5" />}
+                step={5} title="Inbox Copy" icon={<Mail className="h-3.5 w-3.5" />}
                 done={!!subjectLine} doneLabel={subjectLine ? `"${subjectLine.slice(0, 28)}…"` : undefined}
                 defaultOpen={false}
               >
