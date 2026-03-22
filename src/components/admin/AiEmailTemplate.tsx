@@ -1013,7 +1013,7 @@ export function buildPitchDeckEmailHtml(
   <tr>
     <td class="mobile-pad" style="padding:32px 36px 24px;">
       ${data.headline ? `
-      <p style="margin:0 0 16px 0;font-family:${DISPLAY_FONT};font-size:26px;font-weight:800;color:#0d1f18;line-height:1.2;letter-spacing:-0.5px;">${data.headline}</p>
+      <p style="margin:0 0 16px 0;font-family:${DISPLAY_FONT};font-size:26px;font-weight:800;color:#0d1f18;line-height:1.2;letter-spacing:-0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
       <div style="width:40px;height:3px;background:${ACCENT};margin-bottom:18px;"></div>` : ""}
       <div style="font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.8;">
         ${bodyHtml}
