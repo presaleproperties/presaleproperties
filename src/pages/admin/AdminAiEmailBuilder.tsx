@@ -1291,7 +1291,7 @@ export default function AdminEmailBuilderPage() {
               <StepSection
                 step={3} title="Project Details" icon={<Building2 className="h-3.5 w-3.5" />}
                 done={!!projectName} doneLabel={projectName}
-                defaultOpen={false}
+                defaultOpen={true}
               >
                 <div className="grid grid-cols-2 gap-1.5">
                   <div className="col-span-2">
