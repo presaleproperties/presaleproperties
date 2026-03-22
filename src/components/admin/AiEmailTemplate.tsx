@@ -1470,21 +1470,21 @@ export function buildPitchDeckEmailHtmlLofty(
       ${fps.length > 0 ? `
       <tr><td style="background:${DARK};padding:0;"><div style="height:3px;background:${ACCENT};"></div></td></tr>
       <tr>
-        <td style="background:${DARK};padding:22px 20px 10px;">
+        <td class="mobile-pad" style="background:${DARK};padding:22px 32px 10px;">
           <p style="margin:0 0 4px 0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
           <p style="margin:0 0 6px 0;${FONT}font-size:22px;font-weight:700;color:#ffffff;line-height:1.15;letter-spacing:-0.3px;">${fpHeading}</p>
           <p style="margin:0;${FONT}font-size:12px;color:#8aaa96;line-height:1.6;">${fpSubheading}</p>
         </td>
       </tr>
       <tr>
-        <td style="background:${DARK};padding:10px 20px 20px;">
+        <td class="mobile-pad" style="background:${DARK};padding:10px 32px 20px;">
           <table cellpadding="0" cellspacing="0" border="0" width="100%">
             ${fpRowsHtml}
           </table>
         </td>
       </tr>
       <tr>
-        <td style="background:${DARK};padding:0 20px 24px;">
+        <td class="mobile-pad" style="background:${DARK};padding:0 32px 24px;">
           <table cellpadding="0" cellspacing="0" border="0"><tr>
             <td style="background:${ACCENT};padding:13px 32px;">
               <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName}. Can you send me more details?`)}"
@@ -1496,7 +1496,7 @@ export function buildPitchDeckEmailHtmlLofty(
 
       <!-- CALL NOW CTA -->
       <tr>
-        <td style="background:#f7f5f1;padding:24px 24px;">
+        <td class="mobile-pad" style="background:#f7f5f1;padding:24px 32px;">
           <table cellpadding="0" cellspacing="0" border="0" width="100%">
             <tr>
               <td align="center" style="background:${DARK};padding:18px 24px;text-align:center;">
