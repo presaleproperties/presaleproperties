@@ -74,6 +74,8 @@ export default function DeckPublicPage() {
   const [navVisible, setNavVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [globalPriceGateOpen, setGlobalPriceGateOpen] = useState(false);
+  const openPriceGate = useCallback(() => setGlobalPriceGateOpen(true), []);
   // Scroll position to restore when closing gallery
   const scrollYBeforeGallery = useRef<number>(0);
   const [galleryOpen, setGalleryOpen] = useState(false);
