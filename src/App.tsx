@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ProtectedRoute } from "@/components/dashboard/ProtectedRoute";
@@ -140,6 +140,14 @@ const queryClient = new QueryClient({
 
 // Minimal loading fallback — splash screen covers initial load
 const PageFallback = () => null;
+
+// Keyed wrapper so the email builder fully remounts when navigating from a pitch deck
+// (the ?t= timestamp param changes, causing a new key and fresh state)
+function AdminAiEmailBuilderKeyed() {
+  const [searchParams] = useSearchParams();
+  const t = searchParams.get("t") ?? "0";
+  return <AdminAiEmailBuilder key={t} />;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -349,7 +357,7 @@ const App = () => (
             <Route path="/admin/email-workflows" element={<AdminProtectedRoute><AdminEmailWorkflows /></AdminProtectedRoute>} />
             {/* Unified Marketing Hub — replaces old email-builder-hub & campaign-hub */}
             <Route path="/admin/marketing-hub" element={<AdminProtectedRoute><AdminMarketingHub /></AdminProtectedRoute>} />
-            <Route path="/admin/email-builder" element={<AdminProtectedRoute><AdminAiEmailBuilder /></AdminProtectedRoute>} />
+            <Route path="/admin/email-builder" element={<AdminProtectedRoute><AdminAiEmailBuilderKeyed /></AdminProtectedRoute>} />
             {/* Legacy redirects so old bookmarks still work */}
             <Route path="/admin/email-builder-hub" element={<Navigate to="/admin/marketing-hub" replace />} />
             <Route path="/admin/ai-email-builder" element={<Navigate to="/admin/email-builder" replace />} />
