@@ -349,7 +349,7 @@ const App = () => (
             <Route path="/admin/email-workflows" element={<AdminProtectedRoute><AdminEmailWorkflows /></AdminProtectedRoute>} />
             {/* Unified Marketing Hub — replaces old email-builder-hub & campaign-hub */}
             <Route path="/admin/marketing-hub" element={<AdminProtectedRoute><AdminMarketingHub /></AdminProtectedRoute>} />
-            <Route path="/admin/email-builder" element={<AdminProtectedRoute><AdminAiEmailBuilder /></AdminProtectedRoute>} />
+            <Route path="/admin/email-builder" element={<AdminProtectedRoute><AdminAiEmailBuilderKeyed /></AdminProtectedRoute>} />
             {/* Legacy redirects so old bookmarks still work */}
             <Route path="/admin/email-builder-hub" element={<Navigate to="/admin/marketing-hub" replace />} />
             <Route path="/admin/ai-email-builder" element={<Navigate to="/admin/email-builder" replace />} />
