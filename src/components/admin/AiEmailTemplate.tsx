@@ -1345,11 +1345,17 @@ export function buildPitchDeckEmailHtmlLofty(
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="x-apple-disable-message-reformatting"/>
   <title>${data.subjectLine || `${data.projectName} — Exclusive Presale Details`}</title>
   ${data.previewText ? `<span style="display:none;max-height:0;overflow:hidden;font-size:1px;color:#ffffff;line-height:0;">${data.previewText}</span>` : ""}
   <link href="${GOOGLE_FONT}" rel="stylesheet"/>
+  <style>
+    body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
+    table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
+    img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;max-width:100%!important;}
+    body{margin:0!important;padding:0!important;background:${BODY_BG};}
+  </style>
 </head>
 <body style="margin:0;padding:0;background:${BODY_BG};">
 
@@ -1357,8 +1363,9 @@ export function buildPitchDeckEmailHtmlLofty(
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BODY_BG};">
 <tr>
   <td align="center" style="padding:0;">
-    <!-- Fixed 600px container — CRM clients honour max-width; mobile clients collapse to 100% -->
-    <table cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:#ffffff;border:1px solid #e0dbd3;">
+    <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+    <!-- Fluid container: 100% wide up to 600px. Works in all email clients. -->
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e0dbd3;">
 
       <!-- HEADER -->
       <tr>
