@@ -97,10 +97,10 @@ export default function DashboardDecks() {
       const { data: deckData, error } = await (supabase as any)
         .from("pitch_decks")
         .select(`
-          id, slug, project_name, city, neighborhood, developer_name,
+          id, slug, project_name, city, developer_name,
           hero_image_url, tagline, completion_year, assignment_fee,
-          included_items, next_price_increase, units_remaining, incentives,
-          deposit_steps, highlights, description, amenities, whatsapp_number,
+          included_items, next_price_increase, units_remaining,
+          deposit_steps, highlights, description, amenities,
           floor_plans
         `)
         .eq("id", deck.id)
