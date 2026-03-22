@@ -1450,7 +1450,7 @@ export function buildPitchDeckEmailHtmlLofty(
       <!-- WHAT'S INCLUDED -->
       ${includedItems.length > 0 ? `
       <tr>
-        <td style="background:${DARK};padding:22px 24px;">
+        <td class="mobile-pad" style="background:${DARK};padding:22px 32px;">
           <p style="margin:0 0 12px 0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
           <table cellpadding="0" cellspacing="0" border="0" width="100%">
             ${includedItems.map((item: string) => `
@@ -1459,7 +1459,7 @@ export function buildPitchDeckEmailHtmlLofty(
                 <div style="width:5px;height:5px;background:${ACCENT};margin-top:7px;"></div>
               </td>
               <td style="padding:0 0 10px 12px;vertical-align:top;">
-                <p style="margin:0;${FONT}font-size:13px;font-weight:500;color:#c8d8cc;line-height:1.7;">${item}</p>
+                <p style="margin:0;${FONT}font-size:14px;font-weight:500;color:#c8d8cc;line-height:1.75;">${item}</p>
               </td>
             </tr>`).join("")}
           </table>
