@@ -47,12 +47,15 @@ interface DeckFloorPlansSectionProps {
   floorPlans: FloorPlan[];
   whatsappNumber?: string;
   projectName?: string;
+  projectId?: string | null;
+  slug?: string;
   assignmentFee?: string | null;
   includedItems?: string[] | null;
   unitsRemaining?: number | null;
   nextPriceIncrease?: string | null;
   incentives?: string[] | null;
   isUnlocked?: boolean;
+  onUnlock?: () => void;
   onUnlockRequest?: () => void;
 }
 
