@@ -1534,4 +1534,3 @@ export function buildPitchDeckEmailHtmlLofty(
 </body>
 </html>`;
 }
-}
