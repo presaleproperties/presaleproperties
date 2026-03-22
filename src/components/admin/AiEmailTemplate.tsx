@@ -899,11 +899,20 @@ export function buildPitchDeckEmailHtml(
 
   // ── Body copy → HTML ──────────────────────────────────────────────────────
   const bodyHtml = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
-    // Replace **bold** markers with semi-bold, then strip any remaining lone * characters
-    const bold = p
-      .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:500;color:#333333;">$1</strong>`)
+    const isList = /^[✦•\-–]/.test(p.trim());
+    const content = p
+      .replace(/^[✦•\-–]\s*/, "")
+      .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:600;color:#222222;">$1</strong>`)
       .replace(/\*/g, "");
-    return `<p style="margin:0 0 8px 0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.65;">${bold}</p>`;
+    if (isList) {
+      return `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 10px 0;">
+        <tr>
+          <td valign="top" width="24" style="width:24px;padding-left:20px;vertical-align:top;font-family:${BODY_FONT};font-size:15px;line-height:1.65;color:#C9A55A;">•</td>
+          <td valign="top" style="padding-left:8px;vertical-align:top;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.65;">${content}</td>
+        </tr>
+      </table>`;
+    }
+    return `<p style="margin:0 0 12px 0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.75;">${content}</p>`;
   }).join("");
 
   return `<!DOCTYPE html>
@@ -1279,8 +1288,8 @@ export function buildPitchDeckEmailHtmlLofty(
       if (isList) {
         return `
         <tr>
-          <td valign="top" width="16" style="padding:0 0 10px 0;vertical-align:top;width:16px;">
-            <p style="margin:0;${F}font-size:16px;line-height:1;color:${ACCENT};">&#8226;</p>
+          <td valign="top" width="32" style="padding:0 0 10px 20px;vertical-align:top;width:32px;">
+            <p style="margin:0;${F}font-size:15px;line-height:1.65;color:${ACCENT};">&#8226;</p>
           </td>
           <td valign="top" style="padding:0 0 10px 10px;vertical-align:top;">
             <p style="margin:0;${F}font-size:14px;color:#444444;line-height:1.75;">${html}</p>

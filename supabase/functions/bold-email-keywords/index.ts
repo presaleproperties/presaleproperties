@@ -33,7 +33,11 @@ FORMATTING RULES:
 3. **Bold markers** — wrap 3-8 high-impact words/phrases with **double asterisks**. Target: prices, dates, project names, locations, key numbers (%, sqft, bedrooms), strong action phrases, urgency words
 4. **Do NOT bold**: filler words, prepositions, articles, generic phrases
 5. **Short lines** — if a single sentence is very long, it can stand alone as its own paragraph
-6. **Bullet lines** — if the copy already has bullet/list lines (starting with -, •, ✦), keep them as separate lines (\\n between each)
+6. **Bullet lines** — if the copy already has bullet/list lines (starting with -, •, ✦, *):
+   - Normalise each bullet to start with "✦ " (the ✦ character followed by a space)
+   - Keep each bullet on its own line (\\n between bullets)
+   - Add a blank line (\\n\\n) before the first bullet and after the last bullet to visually separate the list from surrounding paragraphs
+   - Do NOT merge bullets into a single paragraph
 7. **Salutation & sign-off** — keep the greeting and sign-off on their own separate lines
 8. **Do NOT add exclamation marks, emojis, or any punctuation not already present**
 9. **Do NOT add new sentences, context, or ideas**
