@@ -1413,9 +1413,9 @@ export default function AdminEmailBuilderPage() {
                 </div>
               </StepSection>
 
-              {/* ── STEP 5: IMAGES ── */}
+              {/* ── STEP 6: IMAGES & FLOOR PLANS ── */}
               <StepSection
-                step={5} title="Images" icon={<Image className="h-3.5 w-3.5" />}
+                step={6} title="Images & Floor Plans" icon={<Image className="h-3.5 w-3.5" />}
                 done={!!(heroImage || floorPlans.length)} doneLabel={[heroImage && "Hero", floorPlans.length && `${floorPlans.length} FP`].filter(Boolean).join(" · ")}
                 defaultOpen={false}
               >
