@@ -122,13 +122,24 @@ export default function DashboardDecks() {
       const floorPlanEntries = rawFloorPlans
         .filter((fp: any) => fp.image_url)
         .slice(0, 6)
-        .map((fp: any) => ({
-          id: fp.id || String(Math.random()),
-          url: fp.image_url || "",
-          label: fp.unit_type || "",
-          sqft: fp.size_range || "",
-          price: fp.price_from || "",
-        }));
+        .map((fp: any) => {
+          // Build label from beds + baths when both are present, so it's always accurate
+          const beds = fp.beds != null ? fp.beds : null;
+          const baths = fp.baths != null ? fp.baths : null;
+          let label = fp.unit_type || "";
+          if (beds != null && baths != null) {
+            const bedStr = `${beds} Bed${beds !== 1 ? "" : ""}`;
+            const bathStr = `${baths} Bath${baths !== 1 ? "" : ""}`;
+            label = `${bedStr} + ${bathStr}`;
+          }
+          return {
+            id: fp.id || String(Math.random()),
+            url: fp.image_url || "",
+            label,
+            sqft: fp.size_range || "",
+            price: fp.price_from || "",
+          };
+        });
 
       // Extract starting price from first floor plan that has one
       const firstPricedPlan = rawFloorPlans.find((fp: any) => fp.price_from);
