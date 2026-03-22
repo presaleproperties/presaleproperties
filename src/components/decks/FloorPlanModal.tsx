@@ -210,11 +210,29 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, inc
             <h3 className="text-xl font-bold text-foreground leading-tight">{plan.unit_type}</h3>
           </div>
 
-          {/* Price */}
-          <div className="rounded-xl bg-primary/8 border border-primary/15 px-4 py-3 mb-4">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Starting From</p>
-            <p className="text-2xl font-bold text-primary leading-tight">{plan.price_from || "—"}</p>
-          </div>
+          {/* Price — gated when locked */}
+          {isUnlocked ? (
+            <div className="rounded-xl bg-primary/8 border border-primary/15 px-4 py-3 mb-4">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Starting From</p>
+              <p className="text-2xl font-bold text-primary leading-tight">{plan.price_from || "—"}</p>
+            </div>
+          ) : (
+            <button
+              onClick={onUnlockRequest}
+              className="w-full rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 px-4 py-3 mb-4 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/60 transition-all group"
+            >
+              <div className="flex items-center gap-2">
+                <LockIcon className="h-4 w-4 text-primary shrink-0" />
+                <p className="text-sm font-bold text-primary">Exclusive Pricing</p>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-snug">
+                This is private, invite-only pricing.
+              </p>
+              <span className="flex items-center gap-1 text-[11px] font-bold text-primary-foreground bg-primary px-3 py-1 rounded-full mt-0.5 group-hover:bg-primary/80 transition-colors">
+                Unlock Price <ArrowRight className="h-3 w-3" />
+              </span>
+            </button>
+          )}
 
           {/* Details */}
           <div className="space-y-3 mb-4">
