@@ -111,7 +111,7 @@ function buildFinalHtml(
       lockerIncluded:  saved?._deckLocker    || "1 Storage Locker Included",
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
-        price: (fp as any).price || undefined,
+        price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
       })),
       fpHeading,
       fpSubheading,
