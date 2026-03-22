@@ -238,13 +238,15 @@ export default function AdminEmailBuilderPage() {
   const iframeRef       = useRef<HTMLIFrameElement>(null);
 
   // Resolve URL template preset (only on first mount, before reading draft)
-  const urlTemplate = searchParams.get("template") ?? "";
-  const urlPreset   = TEMPLATE_PRESETS[urlTemplate] ?? null;
+  const urlTemplate  = searchParams.get("template") ?? "";
+  const urlPreset    = TEMPLATE_PRESETS[urlTemplate] ?? null;
+  const fromDeck     = searchParams.get("source") === "deck";
 
   // ── Restore draft from localStorage ─────────────────────────────────────────
   // If a URL template preset is specified, skip the saved draft and use preset values
+  // If source=deck, always load the draft (it was written by DashboardDecks)
   const savedDraft = useMemo(() => {
-    if (urlPreset) return null; // fresh start when navigating from hub
+    if (urlPreset && !fromDeck) return null; // fresh start when navigating from hub
     try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch { return null; }
   }, []); // eslint-disable-line
 
