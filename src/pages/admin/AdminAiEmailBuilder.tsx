@@ -1564,16 +1564,25 @@ export default function AdminEmailBuilderPage() {
             </div>
 
             {/* Bottom action bar */}
-            <div className="px-3 pb-3 pt-2.5 border-t border-border shrink-0 bg-muted/5">
+            <div className="px-3 pb-3 pt-2.5 border-t border-border shrink-0 bg-muted/5 space-y-2">
               <Button
                 className={cn("w-full h-9 gap-2 font-semibold text-sm transition-all duration-200",
                   copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"
                 )}
                 onClick={handleCopy}
               >
-                {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Mailchimp</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML</>}
+                {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Mailchimp</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML — Mailchimp</>}
               </Button>
-              <p className="text-[9px] text-muted-foreground/40 text-center mt-1.5 uppercase tracking-wide">Inline CSS · Mailchimp-ready</p>
+              <Button
+                variant="outline"
+                className={cn("w-full h-9 gap-2 font-semibold text-sm transition-all duration-200",
+                  copiedLofty ? "bg-blue-600 hover:bg-blue-600 text-white border-blue-600" : ""
+                )}
+                onClick={handleCopyLofty}
+              >
+                {copiedLofty ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Lofty</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML — Lofty / CRM</>}
+              </Button>
+              <p className="text-[9px] text-muted-foreground/40 text-center uppercase tracking-wide">Lofty version: fluid layout · no media queries</p>
             </div>
           </div>
 
