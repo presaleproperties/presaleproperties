@@ -1325,11 +1325,11 @@ export function buildPitchDeckEmailHtmlLofty(
   const statsHtml = stats.length > 0 ? `
   <tr>
     <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <table class="mobile-stack" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           ${stats.map((s, i) => `
-          <td width="${colPct}" style="width:${colPct};padding:14px 10px 12px;${i < stats.length - 1 ? "border-right:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
-            <p style="margin:0 0 3px 0;${FONT}font-size:16px;font-weight:700;color:#111111;letter-spacing:-0.3px;line-height:1.2;">${s.val}</p>
+          <td width="${colPct}" style="width:${colPct};padding:16px 12px 14px;${i < stats.length - 1 ? "border-right:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
+            <p class="stat-val" style="margin:0 0 4px 0;${FONT}font-size:18px;font-weight:700;color:#111111;letter-spacing:-0.3px;line-height:1.2;">${s.val}</p>
             <p style="margin:0;${FONT}font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
           </td>`).join("")}
         </tr>
