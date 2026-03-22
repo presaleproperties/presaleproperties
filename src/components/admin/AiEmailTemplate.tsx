@@ -1170,8 +1170,6 @@ export function buildPitchDeckEmailHtml(
 </body>
 </html>`;
 }
-  const BODY_FONT    = "'Plus Jakarta Sans', 'DM Sans', Helvetica, Arial, sans-serif";
-  const GOOGLE_FONT  = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap";
 
   const phone       = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
   const whatsapp    = data.ctaWhatsApp || "16722581100";
