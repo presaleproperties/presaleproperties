@@ -816,10 +816,10 @@ export interface PitchDeckEmailData {
   deposit?: string;
   completion?: string;
   assignmentFee?: string;
-  parkingIncluded?: string;   // e.g. "1 Parking Stall"
-  lockerIncluded?: string;    // e.g. "1 Storage Locker"
+  parkingIncluded?: string;
+  lockerIncluded?: string;
   incentiveText?: string;
-  infoRows?: string[];        // "Label|Value" pairs
+  infoRows?: string[];
   floorPlans?: PitchDeckEmailFloorPlan[];
   fpHeading?: string;
   fpSubheading?: string;
@@ -827,6 +827,8 @@ export interface PitchDeckEmailData {
   previewText?: string;
   ctaPhone?: string;
   ctaWhatsApp?: string;
+  /** Public URL of the pitch deck — floor plans + hero image link here */
+  deckUrl?: string;
 }
 
 export function buildPitchDeckEmailHtml(

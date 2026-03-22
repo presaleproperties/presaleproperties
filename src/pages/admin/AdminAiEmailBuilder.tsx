@@ -109,6 +109,7 @@ function buildFinalHtml(
       incentiveText:  fields.incentiveText,
       parkingIncluded: saved?._deckParking   || "1 Parking Stall Included",
       lockerIncluded:  saved?._deckLocker    || "1 Storage Locker Included",
+      deckUrl:         saved?._deckUrl       || undefined,
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
