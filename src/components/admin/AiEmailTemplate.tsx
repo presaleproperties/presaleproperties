@@ -192,8 +192,8 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
       .outer-td{padding:0!important;}
       .mobile-pad{padding-left:16px!important;padding-right:16px!important;}
       .mobile-pad-sm{padding-left:12px!important;padding-right:12px!important;}
-      .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:14px 16px!important;border-right:none!important;}
-      .mobile-stack td:not(:last-child){border-bottom:1px solid #e8e3db!important;}
+      .mobile-stack td,.stat-cell{display:block!important;width:100%!important;text-align:center!important;padding:14px 16px!important;border-right:none!important;border-left:none!important;}
+      .mobile-stack td:not(:last-child),.stat-cell:not(:last-child){border-bottom:1px solid #e8e3db!important;}
       .mobile-hero-img{min-height:200px!important;}
       .hero-headline{font-size:24px!important;line-height:1.2!important;}
       .body-headline{font-size:22px!important;}
