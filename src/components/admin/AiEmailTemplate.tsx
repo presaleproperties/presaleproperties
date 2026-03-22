@@ -1437,7 +1437,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
 
       <!-- ═══ EMAIL CONTAINER: 100% wide, capped at 600px ═══ -->
       <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%"
-             style="max-width: 600px; width: 100%; background-color: #ffffff;">
+             style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e0dbd3;">
 
         <!-- ── HEADER ── -->
         <tr>
