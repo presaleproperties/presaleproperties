@@ -1295,23 +1295,28 @@ export function buildPitchDeckEmailHtmlLofty(
     return `<p style="margin:0 0 8px 0;${FONT}font-size:14px;color:#444444;line-height:1.65;">${bold}</p>`;
   }).join("");
 
-  // Stats bar: each stat as its own row (stacks naturally without media queries)
+  // Stats bar: side-by-side columns using percentage widths.
+  // Percentage-based columns stay side-by-side on BOTH desktop and mobile
+  // naturally — no media queries needed. Each cell is compact enough to fit.
   const stats = [
     data.startingPrice ? { val: data.startingPrice, label: "Starting Price" } : null,
     data.deposit       ? { val: data.deposit,       label: "Deposit Structure" } : null,
     data.completion    ? { val: data.completion,    label: "Est. Completion" } : null,
   ].filter(Boolean) as { val: string; label: string }[];
 
+  const colPct = stats.length === 3 ? "33.33%" : stats.length === 2 ? "50%" : "100%";
+
   const statsHtml = stats.length > 0 ? `
   <tr>
     <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        ${stats.map((s, i) => `<tr>
-          <td style="padding:14px 20px 12px;${i < stats.length - 1 ? "border-bottom:1px solid #e8e3db;" : ""}text-align:center;">
-            <p style="margin:0 0 3px 0;${FONT}font-size:20px;font-weight:700;color:#111111;letter-spacing:-0.3px;">${s.val}</p>
-            <p style="margin:0;${FONT}font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
-          </td>
-        </tr>`).join("")}
+        <tr>
+          ${stats.map((s, i) => `
+          <td width="${colPct}" style="width:${colPct};padding:14px 10px 12px;${i < stats.length - 1 ? "border-right:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
+            <p style="margin:0 0 3px 0;${FONT}font-size:16px;font-weight:700;color:#111111;letter-spacing:-0.3px;line-height:1.2;">${s.val}</p>
+            <p style="margin:0;${FONT}font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
+          </td>`).join("")}
+        </tr>
       </table>
     </td>
   </tr>` : "";
