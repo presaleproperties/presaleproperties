@@ -1224,3 +1224,313 @@ export function buildPitchDeckEmailHtml(
 </body>
 </html>`;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// buildPitchDeckEmailHtmlLofty
+// 100% inline-style version — NO <style> tags, NO media queries.
+// Uses a fixed 600px center table so desktop stays 600px wide.
+// On mobile, Lofty (and most CRMs) force tables to 100% of screen width
+// when width attribute is omitted or set to percentage — so we use
+// max-width:600px on the wrapper TD instead of a fixed pixel width on the table.
+// ─────────────────────────────────────────────────────────────────────────────
+export function buildPitchDeckEmailHtmlLofty(
+  data: PitchDeckEmailData,
+  agent: AgentInfo = DEFAULT_AGENT,
+): string {
+  const ACCENT       = "#C9A55A";
+  const DARK         = "#0d1f18";
+  const BODY_BG      = "#f0ede8";
+  const FONT         = "font-family:'Plus Jakarta Sans','DM Sans',Helvetica,Arial,sans-serif;";
+  const GOOGLE_FONT  = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap";
+
+  const phone    = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
+  const whatsapp = data.ctaWhatsApp || "16722581100";
+  const locationLine = data.city ? data.city.toUpperCase() : "";
+  const byLine       = data.developerName ? `by ${data.developerName}` : "";
+  const deckLink     = data.deckUrl || "";
+
+  const fps = (data.floorPlans || []).filter(fp => fp.url);
+
+  // Floor plan rows — each one is a full-width single-column card
+  const fpRowsHtml = fps.map(fp => `
+    <tr>
+      <td style="padding:0 0 16px 0;">
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid rgba(201,165,90,0.25);background:#0f2920;border-radius:4px;overflow:hidden;">
+          <tr>
+            <td style="padding:0;line-height:0;font-size:0;">
+              ${deckLink
+                ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="560" style="display:block;width:100%;max-width:100%;height:auto;" /></a>`
+                : `<img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="560" style="display:block;width:100%;max-width:100%;height:auto;" />`}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:14px 18px 18px;">
+              ${fp.label ? `<p style="margin:0 0 4px 0;${FONT}font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0 0 8px 0;${FONT}font-size:12px;color:#8aaa96;">${fp.sqft}</p>` : ""}
+              ${fp.price ? `<p style="margin:0;${FONT}font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
+              ${deckLink ? `<p style="margin:8px 0 0 0;${FONT}font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;"><a href="${deckLink}" target="_blank" style="color:${ACCENT};text-decoration:none;">View Full Details &rarr;</a></p>` : ""}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>`).join("");
+
+  const fpHeading    = data.fpHeading    || "Available Floor Plans";
+  const fpSubheading = data.fpSubheading || "Limited units remaining — exclusive pricing for selected buyers";
+
+  const incentiveLines = (data.incentiveText || "")
+    .split("\n").map((l: string) => l.replace(/^[✦•\-–]\s*/, "").trim()).filter(Boolean);
+  const includedItems: string[] = incentiveLines.length > 0
+    ? incentiveLines
+    : [data.parkingIncluded, data.lockerIncluded].filter(Boolean) as string[];
+
+  const bodyHtml = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
+    const bold = p
+      .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:500;color:#333333;">$1</strong>`)
+      .replace(/\*/g, "");
+    return `<p style="margin:0 0 8px 0;${FONT}font-size:14px;color:#444444;line-height:1.65;">${bold}</p>`;
+  }).join("");
+
+  // Stats bar: each stat as its own row (stacks naturally without media queries)
+  const stats = [
+    data.startingPrice ? { val: data.startingPrice, label: "Starting Price" } : null,
+    data.deposit       ? { val: data.deposit,       label: "Deposit Structure" } : null,
+    data.completion    ? { val: data.completion,    label: "Est. Completion" } : null,
+  ].filter(Boolean) as { val: string; label: string }[];
+
+  const statsHtml = stats.length > 0 ? `
+  <tr>
+    <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        ${stats.map((s, i) => `<tr>
+          <td style="padding:14px 20px 12px;${i < stats.length - 1 ? "border-bottom:1px solid #e8e3db;" : ""}text-align:center;">
+            <p style="margin:0 0 3px 0;${FONT}font-size:20px;font-weight:700;color:#111111;letter-spacing:-0.3px;">${s.val}</p>
+            <p style="margin:0;${FONT}font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
+          </td>
+        </tr>`).join("")}
+      </table>
+    </td>
+  </tr>` : "";
+
+  const infoRowsFiltered = (data.infoRows || []).filter((r: string) => r.includes("|"));
+  const infoRowsHtml = infoRowsFiltered.length > 0 ? `
+  <tr>
+    <td style="padding:20px 20px 0;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e8e3db;overflow:hidden;">
+        ${infoRowsFiltered.map((row: string, i: number) => {
+          const [label, value] = row.split("|").map((s: string) => s.trim());
+          return `<tr>
+            <td style="padding:10px 16px;background:#f7f5f1;border-right:1px solid #e8e3db;width:45%;${i < infoRowsFiltered.length-1 ? "border-bottom:1px solid #e8e3db;" : ""}">
+              <p style="margin:0;${FONT}font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#999999;">${label}</p>
+            </td>
+            <td style="padding:10px 16px;background:#ffffff;${i < infoRowsFiltered.length-1 ? "border-bottom:1px solid #e8e3db;" : ""}">
+              <p style="margin:0;${FONT}font-size:13px;font-weight:600;color:#222222;">${value}</p>
+            </td>
+          </tr>`;
+        }).join("")}
+      </table>
+    </td>
+  </tr>` : "";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+  <meta name="x-apple-disable-message-reformatting"/>
+  <title>${data.subjectLine || `${data.projectName} — Exclusive Presale Details`}</title>
+  ${data.previewText ? `<span style="display:none;max-height:0;overflow:hidden;font-size:1px;color:#ffffff;line-height:0;">${data.previewText}</span>` : ""}
+  <link href="${GOOGLE_FONT}" rel="stylesheet"/>
+</head>
+<body style="margin:0;padding:0;background:${BODY_BG};">
+
+<!-- outer wrapper -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BODY_BG};">
+<tr>
+  <td align="center" style="padding:0;">
+    <!-- Fixed 600px container — CRM clients honour max-width; mobile clients collapse to 100% -->
+    <table cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:#ffffff;border:1px solid #e0dbd3;">
+
+      <!-- HEADER -->
+      <tr>
+        <td style="background:${DARK};padding:28px 24px 24px;">
+          <p style="margin:0 0 6px 0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES</p>
+          <p style="margin:0 0 8px 0;${FONT}font-size:28px;font-weight:800;color:#ffffff;line-height:1.1;letter-spacing:-0.5px;">${data.projectName || "New Presale Release"}</p>
+          ${byLine ? `<p style="margin:0 0 10px 0;${FONT}font-size:11px;color:#7a9a86;">${byLine}</p>` : ""}
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="width:32px;height:2px;background:${ACCENT};"></td>
+            <td style="width:8px;"></td>
+            <td style="width:8px;height:2px;background:${ACCENT};opacity:0.4;"></td>
+          </tr></table>
+        </td>
+      </tr>
+
+      <!-- LOCATION BANNER -->
+      ${locationLine ? `
+      <tr>
+        <td style="background:${ACCENT};padding:9px 24px;">
+          <p style="margin:0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;">${locationLine}</p>
+        </td>
+      </tr>` : ""}
+
+      <!-- HERO IMAGE -->
+      ${data.heroImage ? `
+      <tr>
+        <td style="padding:0;line-height:0;font-size:0;">
+          ${deckLink
+            ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display:block;width:100%;max-width:600px;height:auto;" /></a>`
+            : `<img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display:block;width:100%;max-width:600px;height:auto;" />`}
+        </td>
+      </tr>` : ""}
+
+      <!-- STATS BAR — stacked single column (no media queries needed) -->
+      ${statsHtml}
+
+      <!-- INFO ROWS -->
+      ${infoRowsHtml}
+
+      <!-- BODY COPY -->
+      <tr>
+        <td style="padding:28px 24px 20px;">
+          ${data.headline ? `
+          <p style="margin:0 0 14px 0;${FONT}font-size:24px;font-weight:800;color:#0d1f18;line-height:1.2;letter-spacing:-0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
+          <div style="width:40px;height:3px;background:${ACCENT};margin-bottom:16px;"></div>` : ""}
+          <div>${bodyHtml}</div>
+        </td>
+      </tr>
+
+      <!-- WHAT'S INCLUDED -->
+      ${includedItems.length > 0 ? `
+      <tr>
+        <td style="background:${DARK};padding:22px 24px;">
+          <p style="margin:0 0 12px 0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
+          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            ${includedItems.map((item: string) => `
+            <tr>
+              <td style="padding:0 0 10px 0;vertical-align:top;width:16px;">
+                <div style="width:5px;height:5px;background:${ACCENT};margin-top:7px;"></div>
+              </td>
+              <td style="padding:0 0 10px 12px;vertical-align:top;">
+                <p style="margin:0;${FONT}font-size:13px;font-weight:500;color:#c8d8cc;line-height:1.7;">${item}</p>
+              </td>
+            </tr>`).join("")}
+          </table>
+        </td>
+      </tr>` : ""}
+
+      <!-- FLOOR PLANS -->
+      ${fps.length > 0 ? `
+      <tr><td style="background:${DARK};padding:0;"><div style="height:3px;background:${ACCENT};"></div></td></tr>
+      <tr>
+        <td style="background:${DARK};padding:22px 20px 10px;">
+          <p style="margin:0 0 4px 0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
+          <p style="margin:0 0 6px 0;${FONT}font-size:22px;font-weight:700;color:#ffffff;line-height:1.15;letter-spacing:-0.3px;">${fpHeading}</p>
+          <p style="margin:0;${FONT}font-size:12px;color:#8aaa96;line-height:1.6;">${fpSubheading}</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="background:${DARK};padding:10px 20px 20px;">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            ${fpRowsHtml}
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="background:${DARK};padding:0 20px 24px;">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="background:${ACCENT};padding:13px 32px;">
+              <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName}. Can you send me more details?`)}"
+                 style="${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:700;">I'M INTERESTED &rarr;</a>
+            </td>
+          </tr></table>
+        </td>
+      </tr>` : ""}
+
+      <!-- CALL NOW CTA -->
+      <tr>
+        <td style="background:#f7f5f1;padding:24px 24px;">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+              <td align="center" style="background:${DARK};padding:18px 24px;text-align:center;">
+                <a href="tel:${phone.replace(/\D/g,"")}"
+                   style="${FONT}font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;line-height:1;">
+                  &#128222;&nbsp; CALL NOW &mdash; ${phone}
+                </a>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:12px 0 0 0;${FONT}font-size:11px;color:#999999;text-align:center;line-height:1.5;">
+            Questions? Reply to this email or call ${phone} directly.
+          </p>
+        </td>
+      </tr>
+
+      <!-- DIVIDER -->
+      <tr><td style="padding:0 24px;"><div style="height:1px;background:#ece8e0;"></div></td></tr>
+
+      <!-- AGENT CARD — single layout (works on all clients) -->
+      <tr>
+        <td style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+            ${agent.photo_url ? `
+            <tr>
+              <td align="center" style="padding:24px 24px 12px;text-align:center;">
+                <img src="${agent.photo_url}" alt="${agent.full_name}" width="90" height="90" border="0"
+                     style="display:inline-block;width:90px;height:90px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};" />
+              </td>
+            </tr>` : ""}
+            <tr>
+              <td align="center" style="padding:0 24px 14px;text-align:center;">
+                <div style="${FONT}font-size:18px;font-weight:700;color:#111111;line-height:1.2;margin-bottom:4px;">${agent.full_name}</div>
+                <div style="${FONT}font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};line-height:1.5;margin-bottom:10px;">${agent.title}</div>
+                ${agent.phone ? `<div style="${FONT}font-size:12px;color:#555555;margin-bottom:4px;">&#128222; <a href="tel:${agent.phone.replace(/\D/g,"")}" style="color:#555555;text-decoration:none;">${agent.phone}</a></div>` : ""}
+                ${agent.email ? `<div style="${FONT}font-size:11px;color:#777777;">&#9993; <a href="mailto:${agent.email}" style="color:#777777;text-decoration:none;">${agent.email}</a></div>` : ""}
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:12px 24px 20px;border-top:1px solid #e8e3db;text-align:center;">
+                <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" border="0"
+                     style="display:inline-block;width:110px;height:auto;" />
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- FOOTER -->
+      <tr>
+        <td style="padding:20px 24px;background-color:${DARK};">
+          <div style="${FONT}font-size:9px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};margin-bottom:6px;line-height:1.5;">PRESALE PROPERTIES &nbsp;&middot;&nbsp; ${data.city ? `${data.city.toUpperCase()}, BC` : "VANCOUVER, BC"}</div>
+          <div style="${FONT}font-size:12px;font-weight:300;color:#8aaa96;line-height:1.6;"><a href="https://presaleproperties.com" style="color:#8aaa96;text-decoration:none;">presaleproperties.com</a>${agent.phone ? ` &nbsp;&middot;&nbsp; ${agent.phone}` : ""}</div>
+        </td>
+      </tr>
+
+      <!-- LEGAL -->
+      <tr>
+        <td style="padding:22px 24px 26px;background-color:#f8f7f4;border-top:1px solid #e8e8e4;">
+          <div style="${FONT}font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555555;margin-bottom:10px;line-height:1.4;">L E G A L &nbsp; D I S C L A I M E R</div>
+          <div style="${FONT}font-size:11px;font-weight:300;color:#888888;line-height:1.8;margin-bottom:10px;">
+            This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer's agents &mdash; we represent <strong style="font-weight:500;color:#666666;">you</strong>, not the developer. This is <strong style="font-weight:500;color:#666666;">not an offering for sale</strong>. An offering can only be made after a Disclosure Statement is filed under REDMA. Prices, availability, and incentives are subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions are subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E.
+          </div>
+          <div style="${FONT}font-size:11px;font-weight:300;color:#888888;line-height:1.8;margin-bottom:16px;">
+            You are receiving this because you opted in to presale updates from Presale Properties. Per Canada's Anti-Spam Legislation (CASL), you may withdraw consent at any time.
+          </div>
+          <div>
+            <a href="*|UNSUB|*" style="${FONT}font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Unsubscribe</a>
+            <span style="color:#cccccc;margin:0 10px;">&middot;</span>
+            <a href="*|UPDATE_PROFILE|*" style="${FONT}font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Update Preferences</a>
+            <span style="color:#cccccc;margin:0 10px;">&middot;</span>
+            <a href="*|EMAIL_WEB_VERSION_URL|*" style="${FONT}font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">View in Browser</a>
+          </div>
+        </td>
+      </tr>
+
+    </table>
+    <!-- /Fixed container -->
+  </td>
+</tr>
+</table>
+
+</body>
+</html>`;
+}

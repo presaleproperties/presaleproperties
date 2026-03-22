@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, buildLoopEmailHtml, buildPitchDeckEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, buildLoopEmailHtml, buildPitchDeckEmailHtml, buildPitchDeckEmailHtmlLofty, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
@@ -747,32 +747,51 @@ export default function AdminEmailBuilderPage() {
 
   // ── Lofty / CRM-safe export (no media queries, fully fluid) ──────────────────
   const getLoftyHtml = useCallback((): string => {
+    // For pitch-deck layout, use the dedicated Lofty-safe builder (no <style>, fixed 600px, inline-only)
+    if (layoutVersion === "pitch-deck") {
+      const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
+      const agentForEmail = selectedAgent ?? DEFAULT_AGENT;
+      return buildPitchDeckEmailHtmlLofty({
+        projectName:    projectName || "",
+        city:           city || undefined,
+        developerName:  developerName || undefined,
+        heroImage:      heroImage || undefined,
+        headline,
+        bodyCopy,
+        subjectLine,
+        previewText,
+        startingPrice,
+        deposit,
+        completion,
+        infoRows,
+        incentiveText,
+        parkingIncluded: saved?._deckParking || "1 Parking Stall Included",
+        lockerIncluded:  saved?._deckLocker  || "1 Storage Locker Included",
+        deckUrl:         saved?._deckUrl     || undefined,
+        floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
+          id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
+          price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
+        })),
+        fpHeading,
+        fpSubheading,
+      }, agentForEmail);
+    }
+    // For other layouts: strip <style> and convert fixed widths to fluid
     let html = finalHtml;
-    // 1. Remove all <style> blocks (Lofty strips them anyway)
     html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
-    // 2. Force every table/td that has a fixed pixel width to be 100% fluid
-    //    so it stacks naturally without needing media queries
     html = html.replace(/width:\s*(\d+)px/g, (match, px) => {
       const n = parseInt(px, 10);
-      // Keep tiny icon/avatar sizes as-is; convert layout widths to 100%
       return n >= 200 ? "width:100%" : match;
     });
-    // 3. Replace width="600" / width="300" HTML attributes on tables with width="100%"
     html = html.replace(/<(table|td)([^>]*)\swidth="(\d+)"([^>]*)>/gi, (match, tag, before, px, after) => {
       const n = parseInt(px, 10);
       return n >= 200 ? `<${tag}${before} width="100%"${after}>` : match;
     });
-    // 4. Make floor plan images full width single column
-    //    Two-cell floor plan rows: force each cell to display block, 100% width
-    html = html.replace(
-      /(<td[^>]*style="[^"]*width:\s*\d+%[^"]*"[^>]*>\s*<a[^>]*>[\s\S]*?<\/a>\s*<\/td>\s*){2,}/gi,
-      (match) => match.replace(/width:\s*\d+%/g, "width:100%").replace(/<td/gi, '<td style="display:block;width:100%;padding-bottom:16px;"')
-    );
-    // 5. Add a max-width:600px center wrapper if not present, and ensure outer padding=0
-    html = html.replace(/padding:\s*0\s+12px/g, "padding:0");
-    html = html.replace(/padding:\s*24px\s+12px/g, "padding:0");
     return html;
-  }, [finalHtml]);
+  }, [layoutVersion, finalHtml, projectName, city, developerName, heroImage, headline, bodyCopy,
+      subjectLine, previewText, startingPrice, deposit, completion, infoRows, incentiveText,
+      floorPlans, fpHeading, fpSubheading, selectedAgent]);
+
 
   
 
