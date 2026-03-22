@@ -110,7 +110,7 @@ export function DeckFloorPlansSection({
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">02 — Hand-Picked For You</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Top Picked Units</h2>
           <p className="text-muted-foreground text-sm max-w-lg">
-            The best available units — tap any to see the full floor plan.{!isUnlocked && " Pricing is hidden — tap Reveal to unlock."}
+            The best available units — tap any to see the full floor plan.{!isUnlocked && " Pricing is exclusive and invite-only — tap Reveal Price to unlock."}
           </p>
 
           {/* Scarcity strip */}
