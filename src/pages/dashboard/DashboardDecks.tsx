@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,12 +36,15 @@ interface PitchDeck {
   created_at: string;
 }
 
+const DRAFT_KEY = "ai-email-builder-draft";
+
 export default function DashboardDecks() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [decks, setDecks] = useState<PitchDeck[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [emailLoadingId, setEmailLoadingId] = useState<string | null>(null);
 
   const fetchDecks = async () => {
     if (!user) return;
@@ -81,11 +84,147 @@ export default function DashboardDecks() {
   };
 
   const copyLink = (slug: string) => {
-    // Use the OG proxy so WhatsApp/iMessage/social previews show the deck hero image & details.
-    // Humans who click the link are redirected to the real deck page by the edge function.
     const url = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${slug}`;
     navigator.clipboard.writeText(url);
     toast.success("Public link copied! Send this to your clients.");
+  };
+
+  // ── Build email from deck ────────────────────────────────────────────────────
+  const handleSendEmail = async (deck: PitchDeck) => {
+    setEmailLoadingId(deck.id);
+    try {
+      // Fetch the full deck data including floor plans
+      const { data: deckData, error } = await (supabase as any)
+        .from("pitch_decks")
+        .select(`
+          id, slug, project_name, city, neighborhood, developer_name,
+          hero_image_url, tagline, completion_year, assignment_fee,
+          included_items, next_price_increase, units_remaining, incentives,
+          deposit_steps, highlights, description, amenities, whatsapp_number,
+          floor_plans
+        `)
+        .eq("id", deck.id)
+        .single();
+
+      if (error || !deckData) {
+        toast.error("Could not load deck data");
+        return;
+      }
+
+      // Parse floor plans — stored as JSON in pitch_decks
+      const rawFloorPlans: any[] = Array.isArray(deckData.floor_plans)
+        ? deckData.floor_plans
+        : (typeof deckData.floor_plans === "string"
+          ? JSON.parse(deckData.floor_plans || "[]")
+          : []);
+
+      // Map to email builder FloorPlanEntry format
+      const floorPlanEntries = rawFloorPlans
+        .filter((fp: any) => fp.image_url)
+        .slice(0, 6) // cap at 6 for email
+        .map((fp: any) => ({
+          id: fp.id || String(Math.random()),
+          url: fp.image_url || "",
+          label: fp.unit_type || "",
+          sqft: fp.size_range || "",
+        }));
+
+      // Extract starting price from first floor plan that has one
+      const firstPricedPlan = rawFloorPlans.find((fp: any) => fp.price_from);
+      const startingPrice = firstPricedPlan?.price_from || "";
+
+      // Build deposit string from deposit steps
+      const depositSteps: any[] = Array.isArray(deckData.deposit_steps)
+        ? deckData.deposit_steps
+        : [];
+      const depositStr = depositSteps.length > 0
+        ? depositSteps.map((s: any) => `${s.percent}% ${s.label}`).join(" · ")
+        : "";
+
+      // Build incentive text from incentives array
+      const incentives: string[] = Array.isArray(deckData.incentives) ? deckData.incentives : [];
+      const incentiveText = incentives.map((i: string) => `✦ ${i}`).join("\n");
+
+      // Build highlights / body copy bullet from deck highlights
+      const highlights: string[] = Array.isArray(deckData.highlights) ? deckData.highlights : [];
+      const highlightBullets = highlights.slice(0, 5).map((h: string) => `• ${h}`).join("\n");
+      const completionStr = deckData.completion_year ? `${deckData.completion_year}` : "";
+
+      // Compose a smart default body copy seeded from deck content
+      const bodyCopy = [
+        `Hi {{lead_name}},`,
+        ``,
+        `I wanted to personally reach out with the full details on ${deckData.project_name}${deckData.city ? ` in ${deckData.city}` : ""}.`,
+        highlightBullets ? `\n${highlightBullets}` : "",
+        `\nBelow you'll find the floor plans, pricing, and deposit structure. I work exclusively with buyers — my job is to make sure you have everything you need to make the right call.`,
+        `\nGive me a call or reply whenever you're ready.`,
+        `\nUzair Muhammad`,
+      ].filter(Boolean).join("\n");
+
+      const subjectLine = `${deckData.project_name}${deckData.city ? ` · ${deckData.city}` : ""} — Exclusive Presale Details`;
+      const previewText = startingPrice
+        ? `Starting from ${startingPrice} · floor plans + pricing inside`
+        : `Floor plans, pricing & deposit structure inside`;
+
+      const headline = deckData.tagline || `Exclusive Access — ${deckData.project_name}`;
+
+      // Write the draft to localStorage — email builder picks this up on load
+      const draft = {
+        _savedAt: new Date().toISOString(),
+        _source: "deck",
+        _deckId: deck.id,
+        prompt: `Write a concise project intro email for ${deckData.project_name} in ${deckData.city || "BC"}. Focus on floor plans, pricing, and the deposit structure.`,
+        templateType: "project-intro",
+        selProjectId: "none",
+        activeVersion: "A",
+        aiResult: null,
+        projectName: deckData.project_name || "",
+        developerName: deckData.developer_name || "",
+        showProjectName: true,
+        showDeveloperName: !!deckData.developer_name,
+        customHeader: "",
+        city: deckData.city || "",
+        neighborhood: deckData.neighborhood || "",
+        startingPrice,
+        deposit: depositStr,
+        completion: completionStr,
+        infoRows: [
+          deckData.assignment_fee ? `Assignment Fee|${deckData.assignment_fee}` : "",
+          deckData.next_price_increase ? `Next Price Increase|${deckData.next_price_increase}` : "",
+          deckData.units_remaining ? `Units Remaining|${deckData.units_remaining}` : "",
+        ].filter(Boolean),
+        subjectLine,
+        previewText,
+        headline,
+        bodyCopy,
+        incentiveText,
+        heroImage: deckData.hero_image_url || "",
+        floorPlans: floorPlanEntries,
+        fpHeading: "Available Floor Plans",
+        fpSubheading: floorPlanEntries.length > 0
+          ? `${floorPlanEntries.length} unit type${floorPlanEntries.length > 1 ? "s" : ""} available — contact us for full pricing`
+          : "Contact us for available floor plans",
+        imageCards: [],
+        loopSlides: [],
+        selectedAssetId: "none",
+        directCtaUrl: deck.is_published
+          ? `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${deck.slug}`
+          : "",
+        selAgent: "Uzair Muhammad",
+        fontId: "cormorant-dm",
+        layoutVersion: "classic",
+      };
+
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+
+      toast.success(`Email pre-loaded for ${deck.project_name} — opening builder…`);
+      navigate("/admin/email-builder?source=deck");
+    } catch (err) {
+      console.error("handleSendEmail error:", err);
+      toast.error("Failed to prepare email");
+    } finally {
+      setEmailLoadingId(null);
+    }
   };
 
   return (
@@ -147,6 +286,12 @@ export default function DashboardDecks() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleSendEmail(deck)} disabled={emailLoadingId === deck.id}>
+                          {emailLoadingId === deck.id
+                            ? <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            : <Mail className="h-4 w-4 mr-2" />}
+                          Send Email Campaign
+                        </DropdownMenuItem>
                         {deck.is_published && (
                           <DropdownMenuItem asChild>
                             <a
@@ -221,16 +366,28 @@ export default function DashboardDecks() {
                       <Pencil className="h-3 w-3 mr-1" />
                       Edit
                     </Button>
+                    <Button
+                      size="sm"
+                      className="flex-1 text-xs"
+                      onClick={() => handleSendEmail(deck)}
+                      disabled={emailLoadingId === deck.id}
+                    >
+                      {emailLoadingId === deck.id ? (
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      ) : (
+                        <Mail className="h-3 w-3 mr-1" />
+                      )}
+                      Send Email
+                    </Button>
                     {deck.is_published && (
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 text-xs"
+                        className="text-xs px-3"
                         asChild
                       >
                         <a href={`/deck/${deck.slug}`} target="_blank" rel="noopener noreferrer">
-                          <Eye className="h-3 w-3 mr-1" />
-                          Preview
+                          <Eye className="h-3 w-3" />
                         </a>
                       </Button>
                     )}
