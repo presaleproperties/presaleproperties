@@ -23,6 +23,7 @@ import {
   ExternalLink,
   Loader2,
   Presentation,
+  Mail,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
