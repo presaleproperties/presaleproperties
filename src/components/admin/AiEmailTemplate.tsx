@@ -854,21 +854,24 @@ export function buildPitchDeckEmailHtml(
     fpRows.push(fps.slice(i, i + 2));
   }
 
+  // On mobile each floor plan stacks full-width; on desktop 2-col
+  // We render each plan as its own <tr> with a single full-width <td> wrapping
+  // a nested 2-col table.  The inner table collapses to 1-col via the media query.
   const fpRowsHtml = fpRows.map(row => {
     const cells = row.map(fp => `
-      <td class="fp-cell" style="padding:8px;width:50%;vertical-align:top;text-align:center;">
-        <div style="border:1px solid rgba(201,165,90,0.25);overflow:hidden;background:#0f2920;">
-          <img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="100%"
-               style="display:block;width:100%;height:auto;max-width:250px;" />
-          <div style="padding:12px 14px 14px;text-align:left;">
-            ${fp.label ? `<p style="margin:0 0 3px 0;font-family:${BODY_FONT};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
-            ${fp.sqft  ? `<p style="margin:0 0 6px 0;font-family:${BODY_FONT};font-size:11px;color:#8aaa96;">${fp.sqft}</p>` : ""}
-            ${fp.price ? `<p style="margin:0;font-family:${DISPLAY_FONT};font-size:18px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">${fp.price}</p>` : ""}
+      <td class="fp-cell" style="width:50%;vertical-align:top;padding:0 8px 16px;">
+        <div style="border:1px solid rgba(201,165,90,0.25);overflow:hidden;background:#0f2920;border-radius:4px;">
+          <img src="${fp.url}" alt="${fp.label || "Floor Plan"}"
+               style="display:block;width:100%;height:auto;" />
+          <div style="padding:14px 16px 16px;text-align:left;">
+            ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${BODY_FONT};font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
+            ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${BODY_FONT};font-size:11px;color:#8aaa96;">${fp.sqft}</p>` : ""}
+            ${fp.price ? `<p style="margin:0;font-family:${DISPLAY_FONT};font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">$${fp.price.replace(/^\$/, "")}</p>` : ""}
           </div>
         </div>
       </td>`).join("");
-    // Pad odd row with empty cell
-    const padding = row.length === 1 ? `<td style="padding:8px;width:50%;"></td>` : "";
+    // Pad odd row with empty cell to keep grid balanced on desktop
+    const padding = row.length === 1 ? `<td class="fp-cell" style="width:50%;padding:0 8px 16px;"></td>` : "";
     return `<tr>${cells}${padding}</tr>`;
   }).join("");
 
@@ -911,15 +914,20 @@ export function buildPitchDeckEmailHtml(
     #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
     @media only screen and (max-width:620px){
       .email-container{width:100%!important;max-width:100%!important;}
-      .mobile-pad{padding-left:20px!important;padding-right:20px!important;}
+      .mobile-pad{padding-left:16px!important;padding-right:16px!important;}
       .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:12px 20px!important;border-right:none!important;border-bottom:1px solid #e8e3db!important;}
       .mobile-stack td:last-child{border-bottom:none!important;}
-      .fp-cell{display:block!important;width:100%!important;padding:8px 4px!important;}
-      .hero-headline{font-size:26px!important;}
+      /* Floor plan cards: full-width single column on mobile */
+      .fp-cell{display:block!important;width:100%!important;box-sizing:border-box!important;padding:0 0 16px 0!important;}
+      .fp-cell div{border-radius:4px!important;}
+      .fp-cell img{width:100%!important;max-width:100%!important;height:auto!important;}
+      /* fp wrapper table: full width, no side padding */
+      .fp-wrap{padding-left:16px!important;padding-right:16px!important;}
+      .hero-headline{font-size:24px!important;}
       .stat-val{font-size:20px!important;}
       .agent-logo{display:none!important;}
-      .agent-photo{width:44px!important;height:44px!important;}
-      .agent-photo-cell{padding:14px 0 14px 16px!important;width:60px!important;}
+      .agent-photo{width:52px!important;height:52px!important;}
+      .agent-photo-cell{padding:14px 0 14px 16px!important;width:68px!important;}
       .agent-info-cell{padding:14px 16px!important;}
       .agent-logo-cell{display:none!important;}
     }
@@ -1052,8 +1060,8 @@ export function buildPitchDeckEmailHtml(
     </td>
   </tr>
   <tr>
-    <td style="background:${DARK};padding:12px 20px 24px;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" class="mobile-full">
+    <td class="fp-wrap" style="background:${DARK};padding:12px 20px 24px;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${fpRowsHtml}
       </table>
     </td>
