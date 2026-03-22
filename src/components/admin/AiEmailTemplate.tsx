@@ -1060,8 +1060,8 @@ export function buildPitchDeckEmailHtml(
     </td>
   </tr>
   <tr>
-    <td style="background:${DARK};padding:12px 20px 24px;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" class="mobile-full">
+    <td class="fp-wrap" style="background:${DARK};padding:12px 20px 24px;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${fpRowsHtml}
       </table>
     </td>
