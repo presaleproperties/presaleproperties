@@ -916,7 +916,7 @@ export function buildPitchDeckEmailHtml(
     a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;}
     u+#body a{color:inherit!important;text-decoration:none!important;}
     #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
-    @media only screen and (max-width:620px){
+    @media only screen and (max-width:680px){
       .email-container{width:100%!important;max-width:100%!important;}
       .mobile-pad{padding-left:16px!important;padding-right:16px!important;}
       .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:12px 20px!important;border-right:none!important;border-bottom:1px solid #e8e3db!important;}
