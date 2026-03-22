@@ -63,7 +63,7 @@ EMAIL STRUCTURE:
 5. Project overview — brief, 2-3 sentences on the project
 6. Key highlights — bullet points, 4-5 max, only the best info
 7. Call to action — offer help, invite a call, keep it low pressure
-8. Sign-off — always: Uzair Muhammad, Presale Specialist, Presale Properties, presaleproperties.com
+8. Sign-off — a warm closing line only (no name — the agent card handles that)
 
 COPY RULES:
 - Never mention the developer's presentation centre address
