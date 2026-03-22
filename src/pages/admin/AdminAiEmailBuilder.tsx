@@ -86,10 +86,37 @@ function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
-  layoutVersion?: "classic" | "loop",
+  layoutVersion?: "classic" | "loop" | "pitch-deck",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
 ): string {
+  // ── PITCH DECK template ───────────────────────────────────────────────────
+  if (layoutVersion === "pitch-deck") {
+    const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
+    return buildPitchDeckEmailHtml({
+      projectName:    fields.projectName || "",
+      city:           fields.city,
+      developerName:  fields.developerName,
+      heroImage:      heroImage || undefined,
+      headline:       fields.headline,
+      bodyCopy:       fields.bodyCopy,
+      subjectLine:    fields.subjectLine,
+      previewText:    fields.previewText,
+      startingPrice:  fields.startingPrice,
+      deposit:        fields.deposit,
+      completion:     fields.completion,
+      infoRows:       fields.infoRows,
+      incentiveText:  fields.incentiveText,
+      parkingIncluded: saved?._deckParking   || "1 Parking Stall Included",
+      lockerIncluded:  saved?._deckLocker    || "1 Storage Locker Included",
+      floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
+        id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
+        price: (fp as any).price || undefined,
+      })),
+      fpHeading,
+      fpSubheading,
+    }, agent);
+  }
   // ── LOOP template ──────────────────────────────────────────────────────────
   if (layoutVersion === "loop") {
     // Prefer project gallery slides; fall back to heroImage + imageCards
