@@ -337,6 +337,7 @@ export default function AdminEmailBuilderPage() {
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile-sm" | "mobile-lg">("desktop");
   const [copied,        setCopied]        = useState(false);
+  const [copiedLofty,   setCopiedLofty]   = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
@@ -744,12 +745,51 @@ export default function AdminEmailBuilderPage() {
     return finalHtml;
   }, [previewMode, finalHtml]);
 
+  // ── Lofty / CRM-safe export (no media queries, fully fluid) ──────────────────
+  const getLoftyHtml = useCallback((): string => {
+    let html = finalHtml;
+    // 1. Remove all <style> blocks (Lofty strips them anyway)
+    html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
+    // 2. Force every table/td that has a fixed pixel width to be 100% fluid
+    //    so it stacks naturally without needing media queries
+    html = html.replace(/width:\s*(\d+)px/g, (match, px) => {
+      const n = parseInt(px, 10);
+      // Keep tiny icon/avatar sizes as-is; convert layout widths to 100%
+      return n >= 200 ? "width:100%" : match;
+    });
+    // 3. Replace width="600" / width="300" HTML attributes on tables with width="100%"
+    html = html.replace(/<(table|td)([^>]*)\swidth="(\d+)"([^>]*)>/gi, (match, tag, before, px, after) => {
+      const n = parseInt(px, 10);
+      return n >= 200 ? `<${tag}${before} width="100%"${after}>` : match;
+    });
+    // 4. Make floor plan images full width single column
+    //    Two-cell floor plan rows: force each cell to display block, 100% width
+    html = html.replace(
+      /(<td[^>]*style="[^"]*width:\s*\d+%[^"]*"[^>]*>\s*<a[^>]*>[\s\S]*?<\/a>\s*<\/td>\s*){2,}/gi,
+      (match) => match.replace(/width:\s*\d+%/g, "width:100%").replace(/<td/gi, '<td style="display:block;width:100%;padding-bottom:16px;"')
+    );
+    // 5. Add a max-width:600px center wrapper if not present, and ensure outer padding=0
+    html = html.replace(/padding:\s*0\s+12px/g, "padding:0");
+    html = html.replace(/padding:\s*24px\s+12px/g, "padding:0");
+    return html;
+  }, [finalHtml]);
+
+  
+
   // ── Export ────────────────────────────────────────────────────────────────────
   const handleCopy = () => {
     navigator.clipboard.writeText(getExportHtml()).then(() => {
       setCopied(true);
-      toast.success("HTML copied to clipboard");
+      toast.success("HTML copied — paste into Mailchimp");
       setTimeout(() => setCopied(false), 2500);
+    });
+  };
+
+  const handleCopyLofty = () => {
+    navigator.clipboard.writeText(getLoftyHtml()).then(() => {
+      setCopiedLofty(true);
+      toast.success("Lofty-optimized HTML copied — paste into Lofty");
+      setTimeout(() => setCopiedLofty(false), 2500);
     });
   };
 
@@ -833,6 +873,11 @@ export default function AdminEmailBuilderPage() {
             )}
             <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save to Hub
+            </Button>
+            <Button variant="outline" size="sm"
+              className={cn("h-9 gap-1.5 font-semibold transition-all duration-200", copiedLofty ? "bg-blue-600 hover:bg-blue-600 text-white border-blue-600" : "")}
+              onClick={handleCopyLofty}>
+              {copiedLofty ? <><CheckCircle2 className="h-3.5 w-3.5" /> Lofty Copied!</> : <><Copy className="h-3.5 w-3.5" /> Copy for Lofty</>}
             </Button>
             <Button size="sm"
               className={cn("h-9 gap-1.5 font-semibold transition-all duration-200", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
@@ -1519,16 +1564,25 @@ export default function AdminEmailBuilderPage() {
             </div>
 
             {/* Bottom action bar */}
-            <div className="px-3 pb-3 pt-2.5 border-t border-border shrink-0 bg-muted/5">
+            <div className="px-3 pb-3 pt-2.5 border-t border-border shrink-0 bg-muted/5 space-y-2">
               <Button
                 className={cn("w-full h-9 gap-2 font-semibold text-sm transition-all duration-200",
                   copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"
                 )}
                 onClick={handleCopy}
               >
-                {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Mailchimp</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML</>}
+                {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Mailchimp</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML — Mailchimp</>}
               </Button>
-              <p className="text-[9px] text-muted-foreground/40 text-center mt-1.5 uppercase tracking-wide">Inline CSS · Mailchimp-ready</p>
+              <Button
+                variant="outline"
+                className={cn("w-full h-9 gap-2 font-semibold text-sm transition-all duration-200",
+                  copiedLofty ? "bg-blue-600 hover:bg-blue-600 text-white border-blue-600" : ""
+                )}
+                onClick={handleCopyLofty}
+              >
+                {copiedLofty ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Lofty</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML — Lofty / CRM</>}
+              </Button>
+              <p className="text-[9px] text-muted-foreground/40 text-center uppercase tracking-wide">Lofty version: fluid layout · no media queries</p>
             </div>
           </div>
 
