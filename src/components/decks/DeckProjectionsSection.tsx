@@ -21,6 +21,7 @@ interface DeckProjectionsSectionProps {
   defaultPrice?: number;
   floorPlans?: FloorPlan[];
   isUnlocked?: boolean;
+  onUnlockRequest?: () => void;
 }
 
 const fmt = (n: number) =>
