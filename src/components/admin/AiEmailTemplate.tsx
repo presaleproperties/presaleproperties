@@ -1371,6 +1371,15 @@ export function buildPitchDeckEmailHtmlLofty(
     table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
     img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;max-width:100%!important;}
     body{margin:0!important;padding:0!important;background:${BODY_BG};}
+    /* Force fluid container on mobile — critical for CRMs that preserve style blocks */
+    @media only screen and (max-width:620px){
+      .lofty-container{width:100%!important;max-width:100%!important;}
+      .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:10px 16px!important;border-right:none!important;border-bottom:1px solid #e8e3db!important;}
+      .mobile-stack td:last-child{border-bottom:none!important;}
+      .mobile-pad{padding-left:16px!important;padding-right:16px!important;}
+      h1,.hero-headline{font-size:22px!important;}
+      .stat-val{font-size:18px!important;}
+    }
   </style>
 </head>
 <body style="margin:0;padding:0;background:${BODY_BG};">
