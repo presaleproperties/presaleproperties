@@ -1542,7 +1542,8 @@ export function buildPitchDeckEmailHtmlLofty(
       </tr>
 
     </table>
-    <!-- /Fixed container -->
+    <!--[if mso]></td></tr></table><![endif]-->
+    <!-- /Fluid container -->
   </td>
 </tr>
 </table>
@@ -1550,3 +1551,4 @@ export function buildPitchDeckEmailHtmlLofty(
 </body>
 </html>`;
 }
+
