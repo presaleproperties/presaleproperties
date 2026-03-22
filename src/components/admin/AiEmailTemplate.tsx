@@ -1,8 +1,12 @@
 /**
  * AiEmailTemplate
  * ─────────────────────────────────────────────────────────────
- * Two email templates:
- *  1. buildAiEmailHtml  — Classic editorial layout (existing)
+ * Email templates:
+ *  1. buildAiEmailHtml            — Classic editorial layout
+ *  2. buildPitchDeckEmailHtml     — Pitch deck / Mailchimp
+ *  3. buildPitchDeckEmailHtmlLofty — Lofty / CRM table-based
+ * ─────────────────────────────────────────────────────────────
+ *  Last updated: 2026-03-22
  *  2. buildLoopEmailHtml — Loop/magazine layout with CSS hero slideshow
  *
  * Brand: dark forest green header (#0d1f18), gold accent (#C9A55A),
