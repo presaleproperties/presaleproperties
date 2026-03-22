@@ -1382,21 +1382,28 @@ export function buildPitchDeckEmailHtmlLofty(
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:${BODY_BG};">
+<body style="margin:0;padding:0;background:${BODY_BG};" id="body">
+
+<!--
+  MOBILE VIEWPORT FIX — injected in body for CRMs (e.g. Lofty) that strip <head>.
+  The meta tag in <head> is the proper place; this hidden div is a fallback.
+  CSS @media in <style> above handles responsive if preserved.
+  The container max-width:600px + width:100% makes it fluid on all screen widths.
+-->
 
 <!-- outer wrapper -->
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BODY_BG};">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;padding:0;width:100%;background:${BODY_BG};">
 <tr>
-  <td align="center" style="padding:0;">
-    <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-    <!-- Fluid container: 100% wide up to 600px. Works in all email clients. -->
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e0dbd3;">
+  <td align="center" style="padding:0;width:100%;">
+    <!--[if mso]><table width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+    <!-- lofty-container: fluid up to 600px. On mobile: fills screen. On desktop: 600px. -->
+    <table class="lofty-container" cellpadding="0" cellspacing="0" border="0" align="center" width="100%" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e0dbd3;">
 
       <!-- HEADER -->
       <tr>
-        <td style="background:${DARK};padding:28px 24px 24px;">
+        <td class="mobile-pad" style="background:${DARK};padding:28px 32px 24px;">
           <p style="margin:0 0 6px 0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES</p>
-          <p style="margin:0 0 8px 0;${FONT}font-size:28px;font-weight:800;color:#ffffff;line-height:1.1;letter-spacing:-0.5px;">${data.projectName || "New Presale Release"}</p>
+          <p class="hero-headline" style="margin:0 0 8px 0;${FONT}font-size:28px;font-weight:800;color:#ffffff;line-height:1.1;letter-spacing:-0.5px;">${data.projectName || "New Presale Release"}</p>
           ${byLine ? `<p style="margin:0 0 10px 0;${FONT}font-size:11px;color:#7a9a86;">${byLine}</p>` : ""}
           <table cellpadding="0" cellspacing="0" border="0"><tr>
             <td style="width:32px;height:2px;background:${ACCENT};"></td>
@@ -1409,7 +1416,7 @@ export function buildPitchDeckEmailHtmlLofty(
       <!-- LOCATION BANNER -->
       ${locationLine ? `
       <tr>
-        <td style="background:${ACCENT};padding:9px 24px;">
+        <td class="mobile-pad" style="background:${ACCENT};padding:9px 32px;">
           <p style="margin:0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;">${locationLine}</p>
         </td>
       </tr>` : ""}
@@ -1424,7 +1431,7 @@ export function buildPitchDeckEmailHtmlLofty(
         </td>
       </tr>` : ""}
 
-      <!-- STATS BAR — stacked single column (no media queries needed) -->
+      <!-- STATS BAR -->
       ${statsHtml}
 
       <!-- INFO ROWS -->
@@ -1432,11 +1439,11 @@ export function buildPitchDeckEmailHtmlLofty(
 
       <!-- BODY COPY -->
       <tr>
-        <td style="padding:28px 24px 20px;">
+        <td class="mobile-pad" style="padding:28px 32px 22px;">
           ${data.headline ? `
           <p style="margin:0 0 14px 0;${FONT}font-size:24px;font-weight:800;color:#0d1f18;line-height:1.2;letter-spacing:-0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
-          <div style="width:40px;height:3px;background:${ACCENT};margin-bottom:16px;"></div>` : ""}
-          <div>${bodyHtml}</div>
+          <div style="width:40px;height:3px;background:${ACCENT};margin-bottom:18px;"></div>` : ""}
+          <div style="max-width:100%;">${bodyHtml}</div>
         </td>
       </tr>
 
