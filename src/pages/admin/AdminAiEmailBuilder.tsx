@@ -15,7 +15,7 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
-  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold,
+  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Presentation,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -238,13 +238,15 @@ export default function AdminEmailBuilderPage() {
   const iframeRef       = useRef<HTMLIFrameElement>(null);
 
   // Resolve URL template preset (only on first mount, before reading draft)
-  const urlTemplate = searchParams.get("template") ?? "";
-  const urlPreset   = TEMPLATE_PRESETS[urlTemplate] ?? null;
+  const urlTemplate  = searchParams.get("template") ?? "";
+  const urlPreset    = TEMPLATE_PRESETS[urlTemplate] ?? null;
+  const fromDeck     = searchParams.get("source") === "deck";
 
   // ── Restore draft from localStorage ─────────────────────────────────────────
   // If a URL template preset is specified, skip the saved draft and use preset values
+  // If source=deck, always load the draft (it was written by DashboardDecks)
   const savedDraft = useMemo(() => {
-    if (urlPreset) return null; // fresh start when navigating from hub
+    if (urlPreset && !fromDeck) return null; // fresh start when navigating from hub
     try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch { return null; }
   }, []); // eslint-disable-line
 
@@ -720,7 +722,7 @@ export default function AdminEmailBuilderPage() {
         {/* ── Top bar ── */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/admin/marketing-hub")}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(fromDeck ? "/dashboard/decks" : "/admin/marketing-hub")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-sm">
@@ -729,12 +731,23 @@ export default function AdminEmailBuilderPage() {
             <div>
               <h1 className="text-base font-bold leading-none">
                 Email Builder
-                {urlTemplate === "exclusive-offer" && <span className="ml-2 text-[11px] font-normal text-amber-600">· Exclusive Offer</span>}
-                {urlTemplate === "project-email"   && <span className="ml-2 text-[11px] font-normal text-emerald-600">· Project Email</span>}
+                {fromDeck && <span className="ml-2 text-[11px] font-normal text-primary">· From Pitch Deck</span>}
+                {!fromDeck && urlTemplate === "exclusive-offer" && <span className="ml-2 text-[11px] font-normal text-amber-600">· Exclusive Offer</span>}
+                {!fromDeck && urlTemplate === "project-email"   && <span className="ml-2 text-[11px] font-normal text-emerald-600">· Project Email</span>}
               </h1>
-              <p className="text-[11px] text-muted-foreground mt-0.5">Paste copy → Bold keywords → Copy HTML</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {fromDeck ? "Deck data pre-loaded — review, generate AI copy, then send" : "Paste copy → Bold keywords → Copy HTML"}
+              </p>
             </div>
           </div>
+
+          {/* Deck source banner */}
+          {fromDeck && savedDraft?._source === "deck" && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/8 border border-primary/20 text-xs text-primary font-medium">
+              <Presentation className="h-3.5 w-3.5 shrink-0" />
+              <span>Pre-loaded: <strong>{savedDraft?.projectName || "Deck"}</strong> — floor plans + pricing ready</span>
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             {/* Draft saved indicator */}
