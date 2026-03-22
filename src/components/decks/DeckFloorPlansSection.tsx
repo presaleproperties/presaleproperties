@@ -228,33 +228,23 @@ export function DeckFloorPlansSection({
                         )}
                       </div>
 
-                      {/* Price — clear when unlocked, blurred with CTA when locked */}
-                      <div className="text-right shrink-0">
-                        {isUnlocked ? (
-                          <>
-                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
-                            <p className="text-primary font-bold text-base sm:text-lg leading-tight">{plan.price_from || "—"}</p>
-                          </>
-                        ) : (
-                          <button
-                            onClick={handleRevealPrice}
-                            className="flex flex-col items-end gap-0.5 group/price"
-                          >
-                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
-                            <div className="relative">
-                              <p className="text-primary font-bold text-base sm:text-lg leading-tight blur-sm select-none pointer-events-none">
-                                {plan.price_from || "$XXX,XXX"}
-                              </p>
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 border border-primary/30 px-1.5 py-0.5 rounded-full whitespace-nowrap group-hover/price:bg-primary group-hover/price:text-primary-foreground transition-colors">
-                                  <LockIcon className="h-2.5 w-2.5 shrink-0" />
-                                  Reveal
-                                </span>
-                              </div>
-                            </div>
-                          </button>
-                        )}
-                      </div>
+                      {/* Price — clear when unlocked, full-width CTA when locked */}
+                       <div className="text-right shrink-0">
+                         {isUnlocked ? (
+                           <>
+                             <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
+                             <p className="text-primary font-bold text-base sm:text-lg leading-tight">{plan.price_from || "—"}</p>
+                           </>
+                         ) : (
+                           <button
+                             onClick={handleRevealPrice}
+                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/90 active:scale-95 transition-all shadow-sm shadow-primary/30"
+                           >
+                             <LockIcon className="h-3 w-3 shrink-0" />
+                             Reveal Price
+                           </button>
+                         )}
+                       </div>
                     </div>
 
                     {/* Size + PSF row */}
