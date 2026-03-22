@@ -1624,8 +1624,8 @@ export default function AdminEmailBuilderPage() {
               <div className="h-4" />
             </div>
 
-            {/* Bottom action bar */}
-            <div className="px-3 pb-3 pt-2 border-t border-border shrink-0 bg-muted/5">
+            {/* Bottom action bar — desktop only (mobile uses sticky bar below) */}
+            <div className="hidden lg:block px-3 pb-3 pt-2 border-t border-border shrink-0 bg-muted/5">
               <Button
                 className={cn("w-full h-9 gap-1.5 font-semibold text-sm transition-all duration-200",
                   copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -1640,7 +1640,36 @@ export default function AdminEmailBuilderPage() {
           </div>
 
         </div>
+
+        {/* ── Mobile sticky bottom bar ── */}
+        <div className="lg:hidden fixed inset-x-0 bottom-0 z-50 bg-background/95 backdrop-blur border-t border-border px-4 py-3 flex gap-3"
+          style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 12px))" }}>
+          <Button
+            variant="outline"
+            size="lg"
+            className="flex-1 h-12 gap-2 font-semibold"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Save
+          </Button>
+          <Button
+            size="lg"
+            className={cn("flex-1 h-12 gap-2 font-semibold transition-all",
+              copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground"
+            )}
+            onClick={handleCopy}
+          >
+            {copied ? <><CheckCircle2 className="h-4 w-4" /> Copied!</> : <><Copy className="h-4 w-4" /> Copy HTML</>}
+          </Button>
+        </div>
+
+        {/* Spacer so sticky bar doesn't cover content on mobile */}
+        <div className="lg:hidden h-20" />
+
       </div>
     </AdminLayout>
   );
 }
+
