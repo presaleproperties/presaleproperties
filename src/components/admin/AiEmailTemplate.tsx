@@ -1096,14 +1096,15 @@ export function buildPitchDeckEmailHtml(
   <!-- AGENT CARD -->
   <tr>
     <td bgcolor="#fafaf8" style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+      <!--[if mso]><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><![endif]-->
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="agent-card-row">
         <tr>
           ${agent.photo_url ? `
-          <td width="100" valign="middle" class="agent-photo-cell" style="padding:14px 0 14px 20px;vertical-align:middle;line-height:0;font-size:0;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="84" height="84" border="0" class="agent-photo"
-                 style="display:block;width:84px;height:84px;border-radius:50%;object-fit:cover;object-position:center top;border:2.5px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+          <td width="94" valign="top" class="agent-photo-cell" style="padding:18px 0 18px 20px;vertical-align:top;line-height:0;font-size:0;width:94px;">
+            <img src="${agent.photo_url}" alt="${agent.full_name}" width="74" height="74" border="0" class="agent-photo"
+                 style="display:block;width:74px;height:74px;border-radius:50%;object-fit:cover;object-position:center top;border:2.5px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
           </td>` : ""}
-          <td valign="middle" class="agent-info-cell" style="padding:14px 12px 14px ${agent.photo_url ? "14px" : "20px"};vertical-align:middle;">
+          <td valign="top" class="agent-info-cell" style="padding:18px 10px 18px ${agent.photo_url ? "12px" : "20px"};vertical-align:top;">
             <div style="font-family:${DISPLAY_FONT};font-size:16px;font-weight:700;color:#111111;line-height:1.2;margin-bottom:2px;">${agent.full_name}</div>
             <div style="font-family:${BODY_FONT};font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};line-height:1.5;margin-bottom:6px;">${agent.title}</div>
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -1117,12 +1118,13 @@ export function buildPitchDeckEmailHtml(
               </tr>` : ""}
             </table>
           </td>
-          <td align="right" valign="middle" class="agent-logo-cell" style="padding:18px 24px 18px 12px;vertical-align:middle;">
-            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="150" border="0" class="agent-logo"
-                 style="display:block;width:150px;max-width:150px;height:auto;-ms-interpolation-mode:bicubic;" />
+          <td align="right" valign="middle" class="agent-logo-cell" style="padding:18px 20px 18px 8px;vertical-align:middle;white-space:nowrap;">
+            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="130" border="0" class="agent-logo"
+                 style="display:block;width:130px;max-width:130px;height:auto;-ms-interpolation-mode:bicubic;" />
           </td>
         </tr>
       </table>
+      <!--[if mso]></td></tr></table><![endif]-->
     </td>
   </tr>
 
