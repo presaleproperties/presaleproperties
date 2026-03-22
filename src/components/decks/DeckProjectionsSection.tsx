@@ -71,7 +71,7 @@ function BreakdownRow({ label, value, green, sub, strikethrough }: { label: stri
   );
 }
 
-export function DeckProjectionsSection({ projections, defaultPrice, floorPlans = [], isUnlocked = false }: DeckProjectionsSectionProps) {
+export function DeckProjectionsSection({ projections, defaultPrice, floorPlans = [], isUnlocked = false, onUnlockRequest }: DeckProjectionsSectionProps) {
   const [buyerType, setBuyerType] = useState<"investor" | "ftb">("investor");
   const [selectedPlanId, setSelectedPlanId] = useState<string>(() => floorPlans?.[0]?.id ?? "");
   const [downPct, setDownPct] = useState(20);
