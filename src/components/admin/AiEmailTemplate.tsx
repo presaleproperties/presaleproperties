@@ -1301,10 +1301,8 @@ export function buildPitchDeckEmailHtmlLofty(
       if (isList) {
         return `
         <tr>
-          <td valign="top" width="32" style="padding:0 0 10px 20px;vertical-align:top;width:32px;">
-            <p style="margin:0;${F}font-size:15px;line-height:1.65;color:${ACCENT};">&#8226;</p>
-          </td>
-          <td valign="top" style="padding:0 0 10px 10px;vertical-align:top;">
+          <td class="bullet-dot" valign="top" width="32" style="padding:0 0 10px 20px;vertical-align:top;width:32px;${F}font-size:15px;line-height:1.65;color:${ACCENT};">&#8226;</td>
+          <td class="bullet-text" valign="top" style="padding:0 0 10px 10px;vertical-align:top;">
             <p style="margin:0;${F}font-size:14px;color:#444444;line-height:1.75;">${html}</p>
           </td>
         </tr>`;
