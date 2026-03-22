@@ -63,13 +63,17 @@ export function DeckFloorPlansSection({
   floorPlans,
   whatsappNumber,
   projectName,
+  projectId,
+  slug,
   includedItems,
   unitsRemaining,
   nextPriceIncrease,
   incentives,
   isUnlocked = false,
+  onUnlock,
 }: DeckFloorPlansSectionProps) {
   const [selected, setSelected] = useState<FloorPlan | null>(null);
+  const [priceGateOpen, setPriceGateOpen] = useState(false);
 
   const rawItems = (includedItems && includedItems.length > 0)
     ? includedItems
