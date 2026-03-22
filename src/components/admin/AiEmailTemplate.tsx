@@ -918,9 +918,10 @@ export function buildPitchDeckEmailHtml(
       .fp-wrap{padding-left:12px!important;padding-right:12px!important;}
       .hero-headline{font-size:24px!important;}
       .stat-val{font-size:20px!important;}
-      /* Hide desktop agent card, show mobile version */
-      .agent-desktop{display:none!important;max-height:0!important;overflow:hidden!important;mso-hide:all!important;}
-      .agent-mobile{display:block!important;max-height:none!important;}
+      /* Hide desktop agent card on mobile — use table-row for iOS Mail compatibility */
+      .agent-desktop{display:none!important;max-height:0!important;overflow:hidden!important;}
+      /* Show mobile agent card — must be table-row not block for <tr> in iOS Mail */
+      .agent-mobile{display:table-row!important;max-height:none!important;overflow:visible!important;}
     }
   </style>
 </head>
