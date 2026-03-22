@@ -44,6 +44,7 @@ export function DeckDepositTimelineSection({
   defaultPrice,
   floorPlans = [],
   isUnlocked = false,
+  onUnlockRequest,
 }: DeckDepositTimelineSectionProps) {
   const plansWithPrice = floorPlans.filter(
     (fp) => fp.price_from && parsePrice(fp.price_from) > 0

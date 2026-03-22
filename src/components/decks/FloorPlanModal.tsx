@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
-import { X, ZoomIn, ZoomOut, Square, TrendingUp, MessageCircle, Maximize2, Car, Archive, Wind, CheckCircle2 } from "lucide-react";
+import { X, ZoomIn, ZoomOut, Square, TrendingUp, MessageCircle, Maximize2, Car, Archive, Wind, CheckCircle2, Lock as LockIcon, ArrowRight } from "lucide-react";
 
 export interface FloorPlan {
   id: string;
