@@ -211,12 +211,12 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
 </head>
 <body style="margin:0;padding:0;background-color:#f0ede8;word-spacing:normal;" id="body">
 
-<!-- Outer wrapper — use 100% width table, no fixed pixel widths -->
+<!-- Outer wrapper — truly 100%, zero padding so iOS doesn't clip -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0ede8;width:100%;min-width:100%;">
-<tr><td align="center" class="outer-td" style="padding:24px 12px;">
+<tr><td align="center" style="padding:0;">
 
-<!-- Email container — fluid, max 600px -->
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e0dbd3;margin:0 auto;">
+<!-- Email container — fluid, max 600px, centered via margin auto -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;margin:0 auto;">
 
   <!-- ─── HEADER ─── -->
   <tr>
