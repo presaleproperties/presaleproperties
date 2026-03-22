@@ -874,6 +874,11 @@ export default function AdminEmailBuilderPage() {
             <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save to Hub
             </Button>
+            <Button variant="outline" size="sm"
+              className={cn("h-9 gap-1.5 font-semibold transition-all duration-200", copiedLofty ? "bg-blue-600 hover:bg-blue-600 text-white border-blue-600" : "")}
+              onClick={handleCopyLofty}>
+              {copiedLofty ? <><CheckCircle2 className="h-3.5 w-3.5" /> Lofty Copied!</> : <><Copy className="h-3.5 w-3.5" /> Copy for Lofty</>}
+            </Button>
             <Button size="sm"
               className={cn("h-9 gap-1.5 font-semibold transition-all duration-200", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
               onClick={handleCopy}>
