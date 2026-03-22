@@ -951,6 +951,7 @@ export default function AdminEmailBuilderPage() {
                   title="Email Preview"
                   onLoad={previewMode === "edit" ? enableIframeEdit : undefined}
                 />
+              </div>
             ) : (
               <div className="flex-1 overflow-auto" style={{ background: "#0d1117" }}>
                 <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5" style={{ background: "#161b22" }}>
