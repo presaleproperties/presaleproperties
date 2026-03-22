@@ -78,13 +78,25 @@ export function DeckDepositTimelineSection({
     <div id="deposit-timeline" className="relative w-full">
       {/* Lock overlay */}
       {!isUnlocked && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm px-4">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/75 backdrop-blur-sm px-4">
           <div className="bg-card border border-border rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
             <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <LockIcon className="h-7 w-7 text-primary" />
             </div>
-            <h3 className="text-lg font-bold text-foreground mb-2">Deposit Schedule Locked</h3>
-            <p className="text-sm text-muted-foreground">Unlock the full deposit timeline and payment breakdown by filling out your details above.</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">Exclusive Access Only</p>
+            <h3 className="text-lg font-bold text-foreground mb-2">Deposit Schedule Is Private</h3>
+            <p className="text-sm text-muted-foreground mb-5">
+              This deposit structure is part of an exclusive, invite-only offering. To protect the privacy of this deal, we need to know who's reviewing it before we reveal the full breakdown.
+            </p>
+            {onUnlockRequest && (
+              <button
+                onClick={onUnlockRequest}
+                className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors shadow-lg"
+              >
+                <LockIcon className="h-4 w-4" />
+                Unlock Deposit Timeline
+              </button>
+            )}
           </div>
         </div>
       )}
