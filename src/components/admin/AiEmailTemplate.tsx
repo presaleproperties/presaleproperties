@@ -919,7 +919,7 @@ export function buildPitchDeckEmailHtml(
     body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
     table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
     img{-ms-interpolation-mode:bicubic;border:0;height:auto;line-height:100%;outline:none;text-decoration:none;}
-    body{margin:0!important;padding:0!important;background:${BODY_BG};}
+    body{margin:0!important;padding:0!important;background:#ffffff;}
     *{box-sizing:border-box;}
     a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;}
     u+#body a{color:inherit!important;text-decoration:none!important;}
@@ -939,13 +939,13 @@ export function buildPitchDeckEmailHtml(
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:${BODY_BG};" id="body">
+<body style="margin:0;padding:0;background:#ffffff;" id="body">
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BODY_BG};">
-<tr><td align="center" style="padding:24px 12px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;">
+<tr><td align="center" style="padding:0;margin:0;">
 
 <!-- Email container -->
-<table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e0dbd3;">
+<table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;">
 
   <!-- HEADER -->
   <tr>
@@ -1423,21 +1423,21 @@ export function buildPitchDeckEmailHtmlLofty(
     }
   </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: ${BODY_BG}; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+<body style="margin: 0; padding: 0; background-color: #ffffff; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
 
 ${data.previewText ? `<!-- Preview text (hidden) -->
-<span style="display:none;font-size:1px;color:${BODY_BG};line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${data.previewText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</span>` : ""}
+<span style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${data.previewText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</span>` : ""}
 
 <!-- ═══ OUTER WRAPPER ═══ -->
 <table cellpadding="0" cellspacing="0" border="0" width="100%"
-       style="margin: 0; padding: 0; width: 100%; background-color: ${BODY_BG};">
+       style="margin: 0; padding: 0; width: 100%; background-color: #ffffff;">
   <tr>
-    <td align="center" valign="top" style="padding: 0;">
+    <td align="center" valign="top" style="padding: 0; margin: 0;">
       <!--[if mso]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td><![endif]-->
 
       <!-- ═══ EMAIL CONTAINER: 100% wide, capped at 600px ═══ -->
       <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%"
-             style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e0dbd3;">
+             style="max-width: 600px; width: 100%; background-color: #ffffff;">
 
         <!-- ── HEADER ── -->
         <tr>
