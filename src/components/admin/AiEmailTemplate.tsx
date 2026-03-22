@@ -247,17 +247,17 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
       <table width="100%" cellpadding="0" cellspacing="0" border="0" class="mobile-stack">
         <tr>
           ${copy.startingPrice ? `
-          <td style="padding:16px 20px 14px;border-right:1px solid #e8e3db;text-align:center;">
+          <td class="stat-cell" style="padding:16px 20px 14px;border-right:1px solid #e8e3db;text-align:center;width:33%;">
             <p class="stat-value" style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.startingPrice}</p>
             <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Starting Price</p>
           </td>` : ""}
           ${copy.deposit ? `
-          <td style="padding:16px 20px 14px;border-right:1px solid #e8e3db;text-align:center;">
+          <td class="stat-cell" style="padding:16px 20px 14px;border-right:1px solid #e8e3db;text-align:center;width:33%;">
             <p class="stat-value" style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.deposit}</p>
             <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Deposit Structure</p>
           </td>` : ""}
           ${copy.completion ? `
-          <td style="padding:16px 20px 14px;text-align:center;">
+          <td class="stat-cell" style="padding:16px 20px 14px;text-align:center;width:34%;">
             <p class="stat-value" style="margin:0 0 3px 0;font-family:${displayFont};font-size:22px;font-weight:600;color:#111111;">${copy.completion}</p>
             <p style="margin:0;font-family:${bodyFont};font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Est. Completion</p>
           </td>` : ""}
