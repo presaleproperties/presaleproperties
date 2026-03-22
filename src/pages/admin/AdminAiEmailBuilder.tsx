@@ -1259,9 +1259,9 @@ export default function AdminEmailBuilderPage() {
                 </div>
               </StepSection>
 
-              {/* ── STEP 3: AGENT ── */}
+              {/* ── STEP 2: AGENT ── */}
               <StepSection
-                step={3} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
+                step={2} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
                 done={!!selAgent && selAgent !== "default"}
                 doneLabel={selectedAgent.full_name}
                 defaultOpen={false}
