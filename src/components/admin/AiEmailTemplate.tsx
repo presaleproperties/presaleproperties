@@ -1656,8 +1656,6 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
 </body>
 </html>`;
 }
-  const ACCENT       = "#C9A55A";
-  const DARK         = "#0d1f18";
   const BODY_BG      = "#f0ede8";
   const FONT         = "font-family:'Plus Jakarta Sans','DM Sans',Helvetica,Arial,sans-serif;";
   const GOOGLE_FONT  = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap";
