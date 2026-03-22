@@ -847,33 +847,24 @@ export function buildPitchDeckEmailHtml(
   const byLine       = data.developerName ? `by ${data.developerName}` : "";
 
   // ── Floor plans grid ─────────────────────────────────────────────────────
+  // Each floor plan renders full-width (1 per row) on BOTH desktop and mobile
+  // so images are large and legible. Each card links to the deck for "zoom".
   const fps = (data.floorPlans || []).filter(fp => fp.url);
-  // Responsive: 2 per row on desktop, 1 per row on mobile (via mso hack)
-  const fpRows: PitchDeckEmailFloorPlan[][] = [];
-  for (let i = 0; i < fps.length; i += 2) {
-    fpRows.push(fps.slice(i, i + 2));
-  }
 
-  // On mobile each floor plan stacks full-width; on desktop 2-col
-  // We render each plan as its own <tr> with a single full-width <td> wrapping
-  // a nested 2-col table.  The inner table collapses to 1-col via the media query.
-  const fpRowsHtml = fpRows.map(row => {
-    const cells = row.map(fp => `
-      <td class="fp-cell" style="width:50%;vertical-align:top;padding:0 8px 16px;">
+  const fpRowsHtml = fps.map(fp => `
+    <tr>
+      <td style="padding:0 0 20px 0;">
         <div style="border:1px solid rgba(201,165,90,0.25);overflow:hidden;background:#0f2920;border-radius:4px;">
           <img src="${fp.url}" alt="${fp.label || "Floor Plan"}"
-               style="display:block;width:100%;height:auto;" />
-          <div style="padding:14px 16px 16px;text-align:left;">
+               style="display:block;width:100%;max-width:100%;height:auto;" />
+          <div style="padding:14px 18px 18px;text-align:left;">
             ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${BODY_FONT};font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
-            ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${BODY_FONT};font-size:11px;color:#8aaa96;">${fp.sqft}</p>` : ""}
-            ${fp.price ? `<p style="margin:0;font-family:${DISPLAY_FONT};font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">$${fp.price.replace(/^\$/, "")}</p>` : ""}
+            ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${BODY_FONT};font-size:12px;color:#8aaa96;">${fp.sqft}</p>` : ""}
+            ${fp.price ? `<p style="margin:0;font-family:${DISPLAY_FONT};font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
           </div>
         </div>
-      </td>`).join("");
-    // Pad odd row with empty cell to keep grid balanced on desktop
-    const padding = row.length === 1 ? `<td class="fp-cell" style="width:50%;padding:0 8px 16px;"></td>` : "";
-    return `<tr>${cells}${padding}</tr>`;
-  }).join("");
+      </td>
+    </tr>`).join("");
 
   const fpHeading    = data.fpHeading    || "Available Floor Plans";
   const fpSubheading = data.fpSubheading || "Limited units remaining — exclusive pricing for selected buyers";
