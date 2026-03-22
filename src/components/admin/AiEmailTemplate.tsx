@@ -919,7 +919,7 @@ export function buildPitchDeckEmailHtml(
     body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
     table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
     img{-ms-interpolation-mode:bicubic;border:0;height:auto;line-height:100%;outline:none;text-decoration:none;}
-    body{margin:0!important;padding:0!important;background:${BODY_BG};}
+    body{margin:0!important;padding:0!important;background:#ffffff;}
     *{box-sizing:border-box;}
     a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;}
     u+#body a{color:inherit!important;text-decoration:none!important;}
@@ -939,7 +939,7 @@ export function buildPitchDeckEmailHtml(
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:${BODY_BG};" id="body">
+<body style="margin:0;padding:0;background:#ffffff;" id="body">
 
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;">
 <tr><td align="center" style="padding:0;margin:0;">
