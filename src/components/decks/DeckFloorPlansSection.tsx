@@ -112,9 +112,233 @@ export function DeckFloorPlansSection({
           <div>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Top Picked Units</h2>
             <p className="text-muted-foreground text-sm max-w-lg">
-              The best available units — tap any to see the full floor plan, size, and pricing.
+              The best available units — tap any to see the full floor plan.{!isUnlocked && " Reveal pricing below."}
             </p>
           </div>
+
+          {/* Scarcity strip */}
+          {hasScarcity && (
+            <div className="flex flex-wrap items-center gap-3 mt-5">
+              {unitsRemaining !== null && unitsRemaining !== undefined && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-destructive/8 border border-destructive/25">
+                  <span className="relative flex h-2 w-2 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-60" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive" />
+                  </span>
+                  <Flame className="h-3.5 w-3.5 text-destructive shrink-0" />
+                  <p className="text-sm font-semibold text-destructive">
+                    {unitsRemaining === 1 ? "Only 1 unit remaining at this price" : `Only ${unitsRemaining} units remaining at this price`}
+                  </p>
+                </div>
+              )}
+              {nextPriceIncrease && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/8 border border-primary/25">
+                  <TrendUp className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <p className="text-sm font-semibold text-primary">Next price increase: {nextPriceIncrease}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Incentives banner */}
+          {incentives && incentives.length > 0 && (
+            <div className="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/20 flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">Developer Incentives</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {incentives.map((item, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-sm"
+                  >
+                    <CheckCircle2 className="h-3 w-3 shrink-0" />
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Floor plan grid */}
+        {floorPlans.length === 0 ? (
+          <div className="py-24 text-center">
+            <LayoutPanelTop className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground">Floor plans coming soon.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {floorPlans.map((plan, idx) => {
+              const psf = derivePsf(plan);
+              return (
+                <button
+                  key={plan.id}
+                  className="group relative text-left rounded-2xl overflow-hidden border-2 border-border bg-background hover:border-primary hover:shadow-2xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.98] touch-manipulation"
+                  onClick={() => setSelected(plan)}
+                >
+                  {/* Floor plan image */}
+                  <div className="relative overflow-hidden bg-muted/20" style={{ aspectRatio: "4/3" }}>
+                    {plan.image_url ? (
+                      <>
+                        <img
+                          src={plan.image_url}
+                          alt={plan.unit_type}
+                          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.04] p-3"
+                        />
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <div className="flex items-center gap-2 bg-background/95 backdrop-blur-sm text-foreground font-semibold text-sm px-5 py-2.5 rounded-full shadow-lg border border-border/40">
+                            <span>View Floor Plan</span>
+                            <ArrowRight className="h-4 w-4 text-primary" />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-muted/40 to-muted/20 gap-3">
+                        <LayoutPanelTop className="h-12 w-12 text-muted-foreground/20" />
+                        <span className="text-xs text-muted-foreground/50">Floor plan coming soon</span>
+                      </div>
+                    )}
+
+                    {/* Unit number badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
+                        #{idx + 1}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Card info */}
+                  <div className="p-4 sm:p-5 space-y-3">
+                    {/* Unit type + price row */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-foreground font-bold text-base sm:text-lg leading-tight">{plan.unit_type}</p>
+                        {/* Beds / Baths */}
+                        {(plan.beds || plan.baths) && (
+                          <div className="flex items-center gap-2.5 mt-1">
+                            {plan.beds && (
+                              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <BedDouble className="h-3 w-3 shrink-0" />
+                                {plan.beds} Bed
+                              </span>
+                            )}
+                            {plan.baths && (
+                              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Bath className="h-3 w-3 shrink-0" />
+                                {plan.baths} Bath
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Price — shown clearly if unlocked, blurred with CTA if locked */}
+                      <div className="text-right shrink-0">
+                        {isUnlocked ? (
+                          <>
+                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
+                            <p className="text-primary font-bold text-base sm:text-lg leading-tight">{plan.price_from || "—"}</p>
+                          </>
+                        ) : (
+                          <button
+                            onClick={handleRevealPrice}
+                            className="flex flex-col items-end gap-0.5 group/price"
+                          >
+                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
+                            <div className="relative">
+                              <p className="text-primary font-bold text-base sm:text-lg leading-tight blur-sm select-none pointer-events-none">
+                                {plan.price_from || "$XXX,XXX"}
+                              </p>
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 border border-primary/30 px-1.5 py-0.5 rounded-full whitespace-nowrap group-hover/price:bg-primary group-hover/price:text-primary-foreground transition-colors">
+                                  <LockIcon className="h-2.5 w-2.5 shrink-0" />
+                                  Reveal
+                                </span>
+                              </div>
+                            </div>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Size + PSF row */}
+                    <div className="flex items-center gap-3 pt-1 border-t border-border/40">
+                      {plan.size_range && (
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Square className="h-3 w-3 shrink-0" />
+                          {plan.size_range}
+                        </span>
+                      )}
+                      {psf && (
+                        isUnlocked ? (
+                          <span className="ml-auto flex items-center gap-1 text-[11px] bg-primary/8 border border-primary/20 text-primary font-semibold px-2.5 py-1 rounded-full">
+                            <TrendingUp className="h-2.5 w-2.5 shrink-0" />
+                            {psf}/sqft
+                          </span>
+                        ) : (
+                          <span className="ml-auto flex items-center gap-1 text-[11px] bg-muted/60 border border-border/40 text-muted-foreground px-2.5 py-1 rounded-full blur-sm select-none">
+                            <TrendingUp className="h-2.5 w-2.5 shrink-0" />
+                            {psf}/sqft
+                          </span>
+                        )
+                      )}
+                    </div>
+
+                    {/* Included items */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/30">
+                      {displayItems.map((item, i) => (
+                        <span
+                          key={item}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium bg-muted/60 border border-border/50 text-muted-foreground"
+                        >
+                          {getIncludedIcon(rawItems[i] || item)}
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* CTA banner when locked — below grid */}
+        {!isUnlocked && floorPlans.length > 0 && (
+          <div className="mt-8 p-5 rounded-2xl border border-primary/25 bg-primary/5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <LockIcon className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-foreground text-sm">Pricing is available — it's just hidden</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Enter your info to instantly reveal unit prices, price-per-sqft, and the full investment calculator.</p>
+            </div>
+            <button
+              onClick={() => setPriceGateOpen(true)}
+              className="shrink-0 h-10 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center gap-2 hover:bg-primary/90 transition-colors"
+            >
+              Reveal Pricing <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <FloorPlanModal
+        plan={selected}
+        onClose={() => setSelected(null)}
+        whatsappNumber={whatsappNumber}
+        projectName={projectName}
+        includedItems={displayItems}
+        isUnlocked={isUnlocked}
+        onRevealPrice={() => setPriceGateOpen(true)}
+      />
+    </section>
+  );
+}
+
 
           {/* Scarcity strip */}
           {hasScarcity && (
