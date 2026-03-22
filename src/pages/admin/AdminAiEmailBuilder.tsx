@@ -1374,6 +1374,10 @@ export default function AdminEmailBuilderPage() {
                           <Label className="text-[9px]">Size</Label>
                           <Input value={fp.sqft} onChange={e => updateFp(fp.id, "sqft", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="678 sq ft" />
                         </div>
+                        <div className="col-span-2">
+                          <Label className="text-[9px]">Price</Label>
+                          <Input value={fp.price ?? ""} onChange={e => updateFp(fp.id, "price", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="579,900" />
+                        </div>
                       </div>
                     </div>
                   ))}
