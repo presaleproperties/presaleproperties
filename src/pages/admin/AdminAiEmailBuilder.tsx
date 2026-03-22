@@ -336,6 +336,7 @@ export default function AdminEmailBuilderPage() {
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile-sm" | "mobile-lg">("desktop");
+  const [codeViewTarget, setCodeViewTarget] = useState<"mailchimp" | "lofty">("mailchimp");
   const [copied,        setCopied]        = useState(false);
   const [copiedLofty,   setCopiedLofty]   = useState(false);
   const [saving,        setSaving]        = useState(false);
@@ -938,8 +939,9 @@ export default function AdminEmailBuilderPage() {
           {/* ── LEFT: Email preview ── */}
           <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
             {/* Preview toolbar */}
-            <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/10 shrink-0">
-              <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/10 shrink-0 gap-2">
+              {/* Left: View mode tabs */}
+              <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5 shrink-0">
                 <Button variant="ghost" size="sm"
                   className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "preview" && "bg-card shadow-sm text-foreground")}
                   onClick={() => setPreviewMode("preview")}>
@@ -958,6 +960,7 @@ export default function AdminEmailBuilderPage() {
                 </Button>
               </div>
 
+              {/* Centre: device sizes (preview/edit only) */}
               {(previewMode === "preview" || previewMode === "edit") && (
                 <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
                   <Button variant="ghost" size="sm"
@@ -965,49 +968,17 @@ export default function AdminEmailBuilderPage() {
                     onClick={() => setPreviewDevice("desktop")} title="Desktop (600px)"><Monitor className="h-3 w-3" /></Button>
                   <Button variant="ghost" size="sm"
                     className={cn("h-6 px-2 rounded-md transition-all text-[9px] font-bold", previewDevice === "mobile-sm" && "bg-card shadow-sm text-foreground")}
-                    onClick={() => setPreviewDevice("mobile-sm")} title="iPhone SE / small (375px)"><Smartphone className="h-3 w-3" /><span className="ml-0.5">SE</span></Button>
+                    onClick={() => setPreviewDevice("mobile-sm")} title="iPhone SE (375px)"><Smartphone className="h-3 w-3" /><span className="ml-0.5">SE</span></Button>
                   <Button variant="ghost" size="sm"
                     className={cn("h-6 px-2 rounded-md transition-all text-[9px] font-bold", previewDevice === "mobile-lg" && "bg-card shadow-sm text-foreground")}
-                    onClick={() => setPreviewDevice("mobile-lg")} title="iPhone Pro Max / large (430px)"><Smartphone className="h-3.5 w-3.5" /><span className="ml-0.5">Max</span></Button>
+                    onClick={() => setPreviewDevice("mobile-lg")} title="iPhone Pro Max (430px)"><Smartphone className="h-3.5 w-3.5" /><span className="ml-0.5">Max</span></Button>
                 </div>
               )}
 
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-muted-foreground/50 hidden xl:block mr-1">
-                  {previewMode === "code" ? `${Math.round(finalHtml.length / 1024)}KB` : previewDevice === "desktop" ? "600px" : previewDevice === "mobile-sm" ? "375px" : "430px"}
-                </span>
-                {/* ── Copy toggle buttons always visible in preview toolbar ── */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "h-6 px-2.5 text-[10px] gap-1 font-semibold transition-all duration-200 border",
-                    copied
-                      ? "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600"
-                      : "border-border hover:border-emerald-500/60 hover:text-emerald-600"
-                  )}
-                  onClick={handleCopy}
-                  title="Copy Mailchimp-ready HTML"
-                >
-                  <Copy className="h-2.5 w-2.5" />
-                  {copied ? "Copied!" : "Mailchimp"}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "h-6 px-2.5 text-[10px] gap-1 font-semibold transition-all duration-200 border",
-                    copiedLofty
-                      ? "bg-blue-600 hover:bg-blue-600 text-white border-blue-600"
-                      : "border-border hover:border-blue-500/60 hover:text-blue-600"
-                  )}
-                  onClick={handleCopyLofty}
-                  title="Copy Lofty/CRM table-based HTML"
-                >
-                  <Copy className="h-2.5 w-2.5" />
-                  {copiedLofty ? "Copied!" : "Lofty"}
-                </Button>
-              </div>
+              {/* Right: size label */}
+              <span className="text-[10px] text-muted-foreground/40 hidden lg:block ml-auto">
+                {previewMode === "code" ? `${Math.round(finalHtml.length / 1024)}KB` : previewDevice === "desktop" ? "600px" : previewDevice === "mobile-sm" ? "375px" : "430px"}
+              </span>
             </div>
 
             {/* Edit mode hint bar */}
@@ -1043,30 +1014,43 @@ export default function AdminEmailBuilderPage() {
                 />
               </div>
             ) : (
-              <div className="flex-1 overflow-auto" style={{ background: "#0d1117" }}>
-                <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5" style={{ background: "#161b22" }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-emerald-400">email.html</span>
-                    <Badge className="text-[9px] h-4 px-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Mailchimp-ready</Badge>
-                    <Badge className="text-[9px] h-4 px-1.5 bg-blue-500/10 text-blue-400 border-blue-500/20">Lofty uses separate copy</Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars</span>
+              <div className="flex-1 overflow-auto flex flex-col" style={{ background: "#0d1117" }}>
+                {/* Code view header with Mailchimp / Lofty toggle */}
+                <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5 shrink-0" style={{ background: "#161b22" }}>
+                  <div className="flex items-center gap-1.5 bg-white/5 rounded-lg p-0.5">
                     <button
-                      onClick={handleCopy}
-                      className={cn("text-[10px] px-2 py-0.5 rounded font-medium transition-all", copied ? "bg-emerald-600 text-white" : "bg-white/10 text-white/70 hover:bg-emerald-600/30 hover:text-emerald-300")}
+                      onClick={() => setCodeViewTarget("mailchimp")}
+                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "mailchimp" ? "bg-emerald-600 text-white" : "text-white/50 hover:text-white/80")}
                     >
-                      {copied ? "✓ Copied" : "Copy Mailchimp"}
+                      Mailchimp
                     </button>
                     <button
-                      onClick={handleCopyLofty}
-                      className={cn("text-[10px] px-2 py-0.5 rounded font-medium transition-all", copiedLofty ? "bg-blue-600 text-white" : "bg-white/10 text-white/70 hover:bg-blue-600/30 hover:text-blue-300")}
+                      onClick={() => setCodeViewTarget("lofty")}
+                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "lofty" ? "bg-blue-600 text-white" : "text-white/50 hover:text-white/80")}
                     >
-                      {copiedLofty ? "✓ Copied" : "Copy Lofty"}
+                      Lofty / CRM
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-white/30">
+                      {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : finalHtml.length.toLocaleString()} chars
+                    </span>
+                    <button
+                      onClick={codeViewTarget === "lofty" ? handleCopyLofty : handleCopy}
+                      className={cn(
+                        "text-[10px] px-2.5 py-1 rounded font-medium transition-all",
+                        (codeViewTarget === "lofty" ? copiedLofty : copied)
+                          ? "bg-emerald-600 text-white"
+                          : "bg-white/10 text-white/70 hover:bg-white/20"
+                      )}
+                    >
+                      {(codeViewTarget === "lofty" ? copiedLofty : copied) ? "✓ Copied!" : "Copy HTML"}
                     </button>
                   </div>
                 </div>
-                <pre className="p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed" style={{ color: "#e6edf3" }}>{finalHtml}</pre>
+                <pre className="flex-1 p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed overflow-auto" style={{ color: "#e6edf3" }}>
+                  {codeViewTarget === "lofty" ? getLoftyHtml() : finalHtml}
+                </pre>
               </div>
             )}
           </div>
@@ -1275,9 +1259,9 @@ export default function AdminEmailBuilderPage() {
                 </div>
               </StepSection>
 
-              {/* ── STEP 3: AGENT ── */}
+              {/* ── STEP 2: AGENT ── */}
               <StepSection
-                step={3} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
+                step={2} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
                 done={!!selAgent && selAgent !== "default"}
                 doneLabel={selectedAgent.full_name}
                 defaultOpen={false}
@@ -1307,7 +1291,7 @@ export default function AdminEmailBuilderPage() {
               <StepSection
                 step={3} title="Project Details" icon={<Building2 className="h-3.5 w-3.5" />}
                 done={!!projectName} doneLabel={projectName}
-                defaultOpen={false}
+                defaultOpen={true}
               >
                 <div className="grid grid-cols-2 gap-1.5">
                   <div className="col-span-2">
@@ -1360,9 +1344,10 @@ export default function AdminEmailBuilderPage() {
                 </div>
               </StepSection>
 
-              {/* ── DEPOSIT & OTHER INFO ── */}
+
+              {/* ── STEP 4: DEPOSIT & OTHER INFO ── */}
               <StepSection
-                step={3} title="Deposit & Other Info" icon={<FileText className="h-3.5 w-3.5" />}
+                step={4} title="Deposit & Other Info" icon={<FileText className="h-3.5 w-3.5" />}
                 done={infoRows.some(r => r.includes("|"))}
                 doneLabel={infoRows.filter(r => r.includes("|")).length > 0 ? `${infoRows.filter(r => r.includes("|")).length} row${infoRows.filter(r => r.includes("|")).length > 1 ? "s" : ""}` : undefined}
                 defaultOpen={false}
@@ -1408,9 +1393,9 @@ export default function AdminEmailBuilderPage() {
                 )}
               </StepSection>
 
-              {/* ── STEP 4: INBOX COPY ── */}
+              {/* ── STEP 5: INBOX COPY ── */}
               <StepSection
-                step={4} title="Inbox Copy" icon={<Mail className="h-3.5 w-3.5" />}
+                step={5} title="Inbox Copy" icon={<Mail className="h-3.5 w-3.5" />}
                 done={!!subjectLine} doneLabel={subjectLine ? `"${subjectLine.slice(0, 28)}…"` : undefined}
                 defaultOpen={false}
               >
@@ -1428,9 +1413,9 @@ export default function AdminEmailBuilderPage() {
                 </div>
               </StepSection>
 
-              {/* ── STEP 5: IMAGES ── */}
+              {/* ── STEP 6: IMAGES & FLOOR PLANS ── */}
               <StepSection
-                step={5} title="Images" icon={<Image className="h-3.5 w-3.5" />}
+                step={6} title="Images & Floor Plans" icon={<Image className="h-3.5 w-3.5" />}
                 done={!!(heroImage || floorPlans.length)} doneLabel={[heroImage && "Hero", floorPlans.length && `${floorPlans.length} FP`].filter(Boolean).join(" · ")}
                 defaultOpen={false}
               >
@@ -1517,9 +1502,9 @@ export default function AdminEmailBuilderPage() {
                 </div>
               </StepSection>
 
-              {/* ── IMAGE CARDS (below What's Included) ── */}
+              {/* ── STEP 7: IMAGE CARDS ── */}
               <StepSection
-                step={5} title="Image Cards" icon={<Image className="h-3.5 w-3.5" />}
+                step={7} title="Image Cards" icon={<Image className="h-3.5 w-3.5" />}
                 done={imageCards.length > 0} doneLabel={imageCards.length > 0 ? `${imageCards.length} card${imageCards.length > 1 ? "s" : ""}` : undefined}
                 defaultOpen={false}
               >
@@ -1549,9 +1534,9 @@ export default function AdminEmailBuilderPage() {
                 ))}
               </StepSection>
 
-              {/* ── STEP 6: CAMPAIGN ASSETS ── */}
+              {/* ── STEP 8: PLANS & PRICING CTA ── */}
               <StepSection
-                step={6} title="Plans & Pricing CTA" icon={<FileText className="h-3.5 w-3.5" />}
+                step={8} title="Plans & Pricing CTA" icon={<FileText className="h-3.5 w-3.5" />}
                 done={!!(ctaUrl)} doneLabel={directCtaUrl ? "PDF uploaded" : selectedAsset?.name}
                 defaultOpen={false}
               >
@@ -1624,25 +1609,31 @@ export default function AdminEmailBuilderPage() {
             </div>
 
             {/* Bottom action bar */}
-            <div className="px-3 pb-3 pt-2.5 border-t border-border shrink-0 bg-muted/5 space-y-2">
-              <Button
-                className={cn("w-full h-9 gap-2 font-semibold text-sm transition-all duration-200",
-                  copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"
-                )}
-                onClick={handleCopy}
-              >
-                {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Mailchimp</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML — Mailchimp</>}
-              </Button>
-              <Button
-                variant="outline"
-                className={cn("w-full h-9 gap-2 font-semibold text-sm transition-all duration-200",
-                  copiedLofty ? "bg-blue-600 hover:bg-blue-600 text-white border-blue-600" : ""
-                )}
-                onClick={handleCopyLofty}
-              >
-                {copiedLofty ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Lofty</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML — Lofty / CRM</>}
-              </Button>
-              <p className="text-[9px] text-muted-foreground/40 text-center uppercase tracking-wide">Lofty version: fluid layout · no media queries</p>
+            <div className="px-3 pb-3 pt-2 border-t border-border shrink-0 bg-muted/5">
+              <div className="grid grid-cols-2 gap-1.5">
+                <Button
+                  className={cn("h-9 gap-1.5 font-semibold text-sm transition-all duration-200",
+                    copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"
+                  )}
+                  onClick={handleCopy}
+                >
+                  {copied
+                    ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied!</>
+                    : <><Copy className="h-3.5 w-3.5" /> Mailchimp</>}
+                </Button>
+                <Button
+                  variant="outline"
+                  className={cn("h-9 gap-1.5 font-semibold text-sm transition-all duration-200",
+                    copiedLofty ? "bg-blue-600 hover:bg-blue-600 text-white border-blue-600" : "border-blue-500/40 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                  )}
+                  onClick={handleCopyLofty}
+                >
+                  {copiedLofty
+                    ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied!</>
+                    : <><Copy className="h-3.5 w-3.5" /> Lofty / CRM</>}
+                </Button>
+              </div>
+              <p className="text-[9px] text-muted-foreground/40 text-center mt-1.5">Mailchimp = modern HTML · Lofty = table-based mobile-safe</p>
             </div>
           </div>
 
