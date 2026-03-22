@@ -816,10 +816,10 @@ export interface PitchDeckEmailData {
   deposit?: string;
   completion?: string;
   assignmentFee?: string;
-  parkingIncluded?: string;   // e.g. "1 Parking Stall"
-  lockerIncluded?: string;    // e.g. "1 Storage Locker"
+  parkingIncluded?: string;
+  lockerIncluded?: string;
   incentiveText?: string;
-  infoRows?: string[];        // "Label|Value" pairs
+  infoRows?: string[];
   floorPlans?: PitchDeckEmailFloorPlan[];
   fpHeading?: string;
   fpSubheading?: string;
@@ -827,6 +827,8 @@ export interface PitchDeckEmailData {
   previewText?: string;
   ctaPhone?: string;
   ctaWhatsApp?: string;
+  /** Public URL of the pitch deck — floor plans + hero image link here */
+  deckUrl?: string;
 }
 
 export function buildPitchDeckEmailHtml(
@@ -848,19 +850,23 @@ export function buildPitchDeckEmailHtml(
 
   // ── Floor plans grid ─────────────────────────────────────────────────────
   // Each floor plan renders full-width (1 per row) on BOTH desktop and mobile
-  // so images are large and legible. Each card links to the deck for "zoom".
+  // so images are large and legible. Each card links to the deck for zoom/detail.
   const fps = (data.floorPlans || []).filter(fp => fp.url);
+  const deckLink = data.deckUrl || "";
 
   const fpRowsHtml = fps.map(fp => `
     <tr>
       <td style="padding:0 0 20px 0;">
         <div style="border:1px solid rgba(201,165,90,0.25);overflow:hidden;background:#0f2920;border-radius:4px;">
-          <img src="${fp.url}" alt="${fp.label || "Floor Plan"}"
-               style="display:block;width:100%;max-width:100%;height:auto;" />
+          ${deckLink
+            ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${fp.url}" alt="${fp.label || "Floor Plan"}" style="display:block;width:100%;max-width:100%;height:auto;" /></a>`
+            : `<img src="${fp.url}" alt="${fp.label || "Floor Plan"}" style="display:block;width:100%;max-width:100%;height:auto;" />`
+          }
           <div style="padding:14px 18px 18px;text-align:left;">
             ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${BODY_FONT};font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
             ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${BODY_FONT};font-size:12px;color:#8aaa96;">${fp.sqft}</p>` : ""}
             ${fp.price ? `<p style="margin:0;font-family:${DISPLAY_FONT};font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
+            ${deckLink ? `<p style="margin:8px 0 0 0;font-family:${BODY_FONT};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};"><a href="${deckLink}" target="_blank" style="color:${ACCENT};text-decoration:none;">View Full Details →</a></p>` : ""}
           </div>
         </div>
       </td>
@@ -959,8 +965,10 @@ export function buildPitchDeckEmailHtml(
   ${data.heroImage ? `
   <tr>
     <td style="padding:0;line-height:0;font-size:0;">
-      <img src="${data.heroImage}" alt="${data.projectName}" width="600"
-           style="display:block;width:100%;max-width:600px;height:auto;" />
+      ${deckLink
+        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display:block;width:100%;max-width:600px;height:auto;" /></a>`
+        : `<img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display:block;width:100%;max-width:600px;height:auto;" />`
+      }
     </td>
   </tr>` : ""}
 

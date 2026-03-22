@@ -170,10 +170,12 @@ export default function DashboardDecks() {
       const headline = deckData.tagline || `Exclusive Access — ${deckData.project_name}`;
 
       // Write the draft to localStorage — email builder picks this up on load
+      const deckPublicUrl = `https://presaleproperties.lovable.app/deck/${deck.slug}`;
       const draft = {
         _savedAt: new Date().toISOString(),
         _source: "deck",
         _deckId: deck.id,
+        _deckUrl: deckPublicUrl,
         // Stash parking/locker for the pitch-deck template
         _deckParking: "1 Parking Stall Included",
         _deckLocker:  "1 Storage Locker Included",
@@ -211,9 +213,7 @@ export default function DashboardDecks() {
         imageCards: [],
         loopSlides: [],
         selectedAssetId: "none",
-        directCtaUrl: deck.is_published
-          ? `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${deck.slug}`
-          : "",
+        directCtaUrl: deckPublicUrl,
         selAgent: "Uzair Muhammad",
         fontId: "jakarta-jakarta",
         layoutVersion: "pitch-deck",
