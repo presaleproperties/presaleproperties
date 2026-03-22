@@ -1344,9 +1344,10 @@ export default function AdminEmailBuilderPage() {
                 </div>
               </StepSection>
 
-              {/* ── DEPOSIT & OTHER INFO ── */}
+
+              {/* ── STEP 4: DEPOSIT & OTHER INFO ── */}
               <StepSection
-                step={3} title="Deposit & Other Info" icon={<FileText className="h-3.5 w-3.5" />}
+                step={4} title="Deposit & Other Info" icon={<FileText className="h-3.5 w-3.5" />}
                 done={infoRows.some(r => r.includes("|"))}
                 doneLabel={infoRows.filter(r => r.includes("|")).length > 0 ? `${infoRows.filter(r => r.includes("|")).length} row${infoRows.filter(r => r.includes("|")).length > 1 ? "s" : ""}` : undefined}
                 defaultOpen={false}
