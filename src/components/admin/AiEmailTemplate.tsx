@@ -1442,6 +1442,9 @@ export function buildPitchDeckEmailHtmlLofty(
       .hero-text    { font-size: 22px !important; }
       .stat-value   { font-size: 15px !important; }
       .fp-price     { font-size: 20px !important; }
+      /* Bullet indentation on mobile */
+      .bullet-dot   { padding-left: 12px !important; font-size: 15px !important; }
+      .bullet-text p { font-size: 15px !important; }
     }
   </style>
 </head>
