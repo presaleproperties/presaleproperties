@@ -364,17 +364,13 @@ export default function BlogPost() {
                 borderLeft: "4px solid hsl(40 65% 55%)",
               }}
             >
-              {/* Avatar monogram */}
-              <div
-                className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center text-xl font-black"
-                style={{
-                  background: "hsl(40 65% 55% / 0.15)",
-                  border: "2px solid hsl(40 65% 55% / 0.5)",
-                  color: "hsl(40 80% 70%)",
-                }}
-              >
-                UM
-              </div>
+              {/* Author headshot */}
+              <img
+                src="https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769974057981-u5d1e1f.jpg"
+                alt="Uzair Muhammad"
+                className="flex-shrink-0 w-14 h-14 rounded-full object-cover"
+                style={{ border: "2px solid hsl(40 65% 55% / 0.6)" }}
+              />
 
               <div className="flex-1 min-w-0">
                 <p
