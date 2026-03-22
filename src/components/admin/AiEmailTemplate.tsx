@@ -885,7 +885,10 @@ export function buildPitchDeckEmailHtml(
 
   // ── Body copy → HTML ──────────────────────────────────────────────────────
   const bodyHtml = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
-    const bold = p.replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:700;color:#222222;">$1</strong>`);
+    // Replace **bold** markers with semi-bold, then strip any remaining lone * characters
+    const bold = p
+      .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:500;color:#333333;">$1</strong>`)
+      .replace(/\*/g, "");
     return `<p style="margin:0 0 8px 0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.65;">${bold}</p>`;
   }).join("");
 
