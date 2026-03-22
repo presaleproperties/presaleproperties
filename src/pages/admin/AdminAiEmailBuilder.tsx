@@ -898,16 +898,19 @@ export default function AdminEmailBuilderPage() {
                 <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
                   <Button variant="ghost" size="sm"
                     className={cn("h-6 w-7 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm text-foreground")}
-                    onClick={() => setPreviewDevice("desktop")}><Monitor className="h-3 w-3" /></Button>
+                    onClick={() => setPreviewDevice("desktop")} title="Desktop (600px)"><Monitor className="h-3 w-3" /></Button>
                   <Button variant="ghost" size="sm"
-                    className={cn("h-6 w-7 p-0 rounded-md transition-all", previewDevice === "mobile" && "bg-card shadow-sm text-foreground")}
-                    onClick={() => setPreviewDevice("mobile")}><Smartphone className="h-3 w-3" /></Button>
+                    className={cn("h-6 px-2 rounded-md transition-all text-[9px] font-bold", previewDevice === "mobile-sm" && "bg-card shadow-sm text-foreground")}
+                    onClick={() => setPreviewDevice("mobile-sm")} title="iPhone SE / small (375px)"><Smartphone className="h-3 w-3" /><span className="ml-0.5">SE</span></Button>
+                  <Button variant="ghost" size="sm"
+                    className={cn("h-6 px-2 rounded-md transition-all text-[9px] font-bold", previewDevice === "mobile-lg" && "bg-card shadow-sm text-foreground")}
+                    onClick={() => setPreviewDevice("mobile-lg")} title="iPhone Pro Max / large (430px)"><Smartphone className="h-3.5 w-3.5" /><span className="ml-0.5">Max</span></Button>
                 </div>
               )}
 
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-muted-foreground/50 hidden lg:block">
-                  {previewMode === "code" ? `${Math.round(finalHtml.length / 1024)}KB` : previewDevice === "desktop" ? "600px" : "375px"}
+                  {previewMode === "code" ? `${Math.round(finalHtml.length / 1024)}KB` : previewDevice === "desktop" ? "600px" : previewDevice === "mobile-sm" ? "375px" : "430px"}
                 </span>
                 {previewMode === "code" && (
                   <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px] gap-1" onClick={handleCopy}>
@@ -926,12 +929,16 @@ export default function AdminEmailBuilderPage() {
             )}
 
             {previewMode === "preview" || previewMode === "edit" ? (
-              <div className={cn("flex-1 overflow-auto", previewDevice === "mobile" ? "bg-[#e8e5e0] flex justify-center" : "bg-[#e8e5e0]")}>
+              <div className={cn("flex-1 overflow-auto", (previewDevice === "mobile-sm" || previewDevice === "mobile-lg") ? "bg-[#e8e5e0] flex justify-center" : "bg-[#e8e5e0]")}>
                 <iframe
                   ref={iframeRef}
                   srcDoc={previewHtml}
                   className="border-0 h-full"
-                  style={previewDevice === "mobile" ? { width: "375px", minHeight: "100%" } : { width: "100%" }}
+                  style={
+                    previewDevice === "mobile-sm" ? { width: "375px", minHeight: "100%" } :
+                    previewDevice === "mobile-lg" ? { width: "430px", minHeight: "100%" } :
+                    { width: "100%" }
+                  }
                   sandbox="allow-same-origin"
                   title="Email Preview"
                   onLoad={previewMode === "edit" ? enableIframeEdit : undefined}
