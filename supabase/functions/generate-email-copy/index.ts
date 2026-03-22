@@ -33,7 +33,6 @@ When the email type is "project-intro" (auto-generated on project select), write
 3. 4–5 punchy bullet point highlights (best features, price, timeline, deposit, location advantages)
 4. A highlights/incentives section if incentives data is provided — use ✦ bullets
 5. Soft CTA — invite a call or reply, low pressure
-6. Sign-off: Uzair Muhammad, Presale Specialist, Presale Properties, presaleproperties.com
 
 Keep this tight. Under 180 words for Version A, under 90 words for Version B.
 
@@ -64,7 +63,7 @@ EMAIL STRUCTURE:
 5. Project overview — brief, 2-3 sentences on the project
 6. Key highlights — bullet points, 4-5 max, only the best info
 7. Call to action — offer help, invite a call, keep it low pressure
-8. Sign-off — always: Uzair Muhammad, Presale Specialist, Presale Properties, presaleproperties.com
+8. Sign-off — a warm closing line only (no name — the agent card handles that)
 
 COPY RULES:
 - Never mention the developer's presentation centre address
@@ -85,12 +84,12 @@ Return ONLY a valid JSON object with these exact fields (no markdown, no code fe
   "subjectLine": "Version A subject line (max 60 chars)",
   "previewText": "Version A preheader text (max 90 chars)",
   "headline": "Version A headline for the email body (8-14 words, can use em dash)",
-  "bodyCopy": "Version A full body copy. Greeting → hook → project overview → bullet highlights → soft CTA → sign-off. Use \\n for line breaks between sections. Keep under 200 words. Use **double asterisks** around 2–4 key phrases per version to bold them in the email (e.g. prices, dates, locations, key benefits).",
+  "bodyCopy": "Version A full body copy. Greeting → hook → project overview → bullet highlights → soft CTA. Do NOT include a name sign-off — the agent card in the email handles that. Use \\n for line breaks between sections. Keep under 200 words. Use **double asterisks** around 2–4 key phrases per version to bold them in the email (e.g. prices, dates, locations, key benefits).",
   "incentiveText": "if incentives mentioned: 3-5 bullet lines starting with ✦, one per line. Empty string if none.",
   "subjectLineB": "Version B subject line — shorter, punchier",
   "previewTextB": "Version B preheader",
   "headlineB": "Version B headline — more direct",
-  "bodyCopyB": "Version B body copy — tighter, under 100 words. Same structure but stripped back. Use **double asterisks** around 1–3 key phrases to bold them.",
+  "bodyCopyB": "Version B body copy — tighter, under 100 words. Same structure but stripped back. No name sign-off. Use **double asterisks** around 1–3 key phrases to bold them.",
   "startingPrice": "extracted price if mentioned (e.g. '$649,900') or empty string",
   "deposit": "extracted deposit structure if mentioned or empty string",
   "completion": "extracted completion date if mentioned (e.g. 'Spring 2027') or empty string",

@@ -1288,12 +1288,28 @@ export function buildPitchDeckEmailHtmlLofty(
     ? incentiveLines
     : [data.parkingIncluded, data.lockerIncluded].filter(Boolean) as string[];
 
-  const bodyHtml = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
-    const bold = p
-      .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:500;color:#333333;">$1</strong>`)
-      .replace(/\*/g, "");
-    return `<p style="margin:0 0 8px 0;${FONT}font-size:14px;color:#444444;line-height:1.65;">${bold}</p>`;
-  }).join("");
+  const bodyHtml = (data.bodyCopy || "")
+    .split("\n")
+    .map(l => l.trim())
+    // Remove sign-off lines like "Uzair Muhammad" or just a bare name
+    .filter(l => {
+      if (!l) return false;
+      const lower = l.toLowerCase();
+      // Strip bare sign-off name lines (no punctuation, just a name)
+      if (/^uzair\b/i.test(l) && l.split(" ").length <= 3 && !/[,.:!?]/.test(l)) return false;
+      return true;
+    })
+    .map(p => {
+      const isListItem = /^[✦•\-–]/.test(p);
+      const bold = p
+        .replace(/^[✦•\-–]\s*/, "")
+        .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:500;color:#333333;">$1</strong>`)
+        .replace(/\*/g, "");
+      if (isListItem) {
+        return `<p style="margin:0 0 10px 0;${FONT}font-size:14px;color:#444444;line-height:1.7;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:#C9A55A;">&#8226;</span> ${bold}</p>`;
+      }
+      return `<p style="margin:0 0 14px 0;${FONT}font-size:14px;color:#444444;line-height:1.75;">${bold}</p>`;
+    }).join("");
 
   // Stats bar: side-by-side columns using percentage widths.
   // Percentage-based columns stay side-by-side on BOTH desktop and mobile
@@ -1309,11 +1325,11 @@ export function buildPitchDeckEmailHtmlLofty(
   const statsHtml = stats.length > 0 ? `
   <tr>
     <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <table class="mobile-stack" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           ${stats.map((s, i) => `
-          <td width="${colPct}" style="width:${colPct};padding:14px 10px 12px;${i < stats.length - 1 ? "border-right:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
-            <p style="margin:0 0 3px 0;${FONT}font-size:16px;font-weight:700;color:#111111;letter-spacing:-0.3px;line-height:1.2;">${s.val}</p>
+          <td width="${colPct}" style="width:${colPct};padding:16px 12px 14px;${i < stats.length - 1 ? "border-right:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
+            <p class="stat-val" style="margin:0 0 4px 0;${FONT}font-size:18px;font-weight:700;color:#111111;letter-spacing:-0.3px;line-height:1.2;">${s.val}</p>
             <p style="margin:0;${FONT}font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
           </td>`).join("")}
         </tr>
@@ -1355,23 +1371,39 @@ export function buildPitchDeckEmailHtmlLofty(
     table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
     img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;max-width:100%!important;}
     body{margin:0!important;padding:0!important;background:${BODY_BG};}
+    /* Force fluid container on mobile — critical for CRMs that preserve style blocks */
+    @media only screen and (max-width:620px){
+      .lofty-container{width:100%!important;max-width:100%!important;}
+      .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:10px 16px!important;border-right:none!important;border-bottom:1px solid #e8e3db!important;}
+      .mobile-stack td:last-child{border-bottom:none!important;}
+      .mobile-pad{padding-left:16px!important;padding-right:16px!important;}
+      h1,.hero-headline{font-size:22px!important;}
+      .stat-val{font-size:18px!important;}
+    }
   </style>
 </head>
-<body style="margin:0;padding:0;background:${BODY_BG};">
+<body style="margin:0;padding:0;background:${BODY_BG};" id="body">
+
+<!--
+  MOBILE VIEWPORT FIX — injected in body for CRMs (e.g. Lofty) that strip <head>.
+  The meta tag in <head> is the proper place; this hidden div is a fallback.
+  CSS @media in <style> above handles responsive if preserved.
+  The container max-width:600px + width:100% makes it fluid on all screen widths.
+-->
 
 <!-- outer wrapper -->
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BODY_BG};">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;padding:0;width:100%;background:${BODY_BG};">
 <tr>
-  <td align="center" style="padding:0;">
-    <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-    <!-- Fluid container: 100% wide up to 600px. Works in all email clients. -->
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e0dbd3;">
+  <td align="center" style="padding:0;width:100%;">
+    <!--[if mso]><table width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+    <!-- lofty-container: fluid up to 600px. On mobile: fills screen. On desktop: 600px. -->
+    <table class="lofty-container" cellpadding="0" cellspacing="0" border="0" align="center" width="100%" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e0dbd3;">
 
       <!-- HEADER -->
       <tr>
-        <td style="background:${DARK};padding:28px 24px 24px;">
+        <td class="mobile-pad" style="background:${DARK};padding:28px 32px 24px;">
           <p style="margin:0 0 6px 0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES</p>
-          <p style="margin:0 0 8px 0;${FONT}font-size:28px;font-weight:800;color:#ffffff;line-height:1.1;letter-spacing:-0.5px;">${data.projectName || "New Presale Release"}</p>
+          <p class="hero-headline" style="margin:0 0 8px 0;${FONT}font-size:28px;font-weight:800;color:#ffffff;line-height:1.1;letter-spacing:-0.5px;">${data.projectName || "New Presale Release"}</p>
           ${byLine ? `<p style="margin:0 0 10px 0;${FONT}font-size:11px;color:#7a9a86;">${byLine}</p>` : ""}
           <table cellpadding="0" cellspacing="0" border="0"><tr>
             <td style="width:32px;height:2px;background:${ACCENT};"></td>
@@ -1384,7 +1416,7 @@ export function buildPitchDeckEmailHtmlLofty(
       <!-- LOCATION BANNER -->
       ${locationLine ? `
       <tr>
-        <td style="background:${ACCENT};padding:9px 24px;">
+        <td class="mobile-pad" style="background:${ACCENT};padding:9px 32px;">
           <p style="margin:0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;">${locationLine}</p>
         </td>
       </tr>` : ""}
@@ -1399,7 +1431,7 @@ export function buildPitchDeckEmailHtmlLofty(
         </td>
       </tr>` : ""}
 
-      <!-- STATS BAR — stacked single column (no media queries needed) -->
+      <!-- STATS BAR -->
       ${statsHtml}
 
       <!-- INFO ROWS -->
@@ -1407,18 +1439,18 @@ export function buildPitchDeckEmailHtmlLofty(
 
       <!-- BODY COPY -->
       <tr>
-        <td style="padding:28px 24px 20px;">
+        <td class="mobile-pad" style="padding:28px 32px 22px;">
           ${data.headline ? `
           <p style="margin:0 0 14px 0;${FONT}font-size:24px;font-weight:800;color:#0d1f18;line-height:1.2;letter-spacing:-0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
-          <div style="width:40px;height:3px;background:${ACCENT};margin-bottom:16px;"></div>` : ""}
-          <div>${bodyHtml}</div>
+          <div style="width:40px;height:3px;background:${ACCENT};margin-bottom:18px;"></div>` : ""}
+          <div style="max-width:100%;">${bodyHtml}</div>
         </td>
       </tr>
 
       <!-- WHAT'S INCLUDED -->
       ${includedItems.length > 0 ? `
       <tr>
-        <td style="background:${DARK};padding:22px 24px;">
+        <td class="mobile-pad" style="background:${DARK};padding:22px 32px;">
           <p style="margin:0 0 12px 0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
           <table cellpadding="0" cellspacing="0" border="0" width="100%">
             ${includedItems.map((item: string) => `
@@ -1427,7 +1459,7 @@ export function buildPitchDeckEmailHtmlLofty(
                 <div style="width:5px;height:5px;background:${ACCENT};margin-top:7px;"></div>
               </td>
               <td style="padding:0 0 10px 12px;vertical-align:top;">
-                <p style="margin:0;${FONT}font-size:13px;font-weight:500;color:#c8d8cc;line-height:1.7;">${item}</p>
+                <p style="margin:0;${FONT}font-size:14px;font-weight:500;color:#c8d8cc;line-height:1.75;">${item}</p>
               </td>
             </tr>`).join("")}
           </table>
@@ -1438,21 +1470,21 @@ export function buildPitchDeckEmailHtmlLofty(
       ${fps.length > 0 ? `
       <tr><td style="background:${DARK};padding:0;"><div style="height:3px;background:${ACCENT};"></div></td></tr>
       <tr>
-        <td style="background:${DARK};padding:22px 20px 10px;">
+        <td class="mobile-pad" style="background:${DARK};padding:22px 32px 10px;">
           <p style="margin:0 0 4px 0;${FONT}font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
           <p style="margin:0 0 6px 0;${FONT}font-size:22px;font-weight:700;color:#ffffff;line-height:1.15;letter-spacing:-0.3px;">${fpHeading}</p>
           <p style="margin:0;${FONT}font-size:12px;color:#8aaa96;line-height:1.6;">${fpSubheading}</p>
         </td>
       </tr>
       <tr>
-        <td style="background:${DARK};padding:10px 20px 20px;">
+        <td class="mobile-pad" style="background:${DARK};padding:10px 32px 20px;">
           <table cellpadding="0" cellspacing="0" border="0" width="100%">
             ${fpRowsHtml}
           </table>
         </td>
       </tr>
       <tr>
-        <td style="background:${DARK};padding:0 20px 24px;">
+        <td class="mobile-pad" style="background:${DARK};padding:0 32px 24px;">
           <table cellpadding="0" cellspacing="0" border="0"><tr>
             <td style="background:${ACCENT};padding:13px 32px;">
               <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName}. Can you send me more details?`)}"
@@ -1464,7 +1496,7 @@ export function buildPitchDeckEmailHtmlLofty(
 
       <!-- CALL NOW CTA -->
       <tr>
-        <td style="background:#f7f5f1;padding:24px 24px;">
+        <td class="mobile-pad" style="background:#f7f5f1;padding:24px 32px;">
           <table cellpadding="0" cellspacing="0" border="0" width="100%">
             <tr>
               <td align="center" style="background:${DARK};padding:18px 24px;text-align:center;">
