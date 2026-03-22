@@ -898,22 +898,34 @@ export function buildPitchDeckEmailHtml(
       ].filter(Boolean) as string[];
 
   // ── Body copy → HTML ──────────────────────────────────────────────────────
-  const bodyHtml = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
+  // Renders as a flat list of table rows — bullets get indented dot+text columns.
+  // All rows go into a single wrapper table (no div wrappers that break in email clients).
+  const bodyRows = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
     const isList = /^[✦•\-–]/.test(p.trim());
     const content = p
       .replace(/^[✦•\-–]\s*/, "")
       .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:600;color:#222222;">$1</strong>`)
       .replace(/\*/g, "");
     if (isList) {
-      return `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 10px 0;">
-        <tr>
-          <td valign="top" width="24" style="width:24px;padding-left:20px;vertical-align:top;font-family:${BODY_FONT};font-size:15px;line-height:1.65;color:#C9A55A;">•</td>
-          <td valign="top" style="padding-left:8px;vertical-align:top;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.65;">${content}</td>
-        </tr>
-      </table>`;
+      return `
+      <tr>
+        <td class="bullet-dot" valign="top" width="28" style="width:28px;padding:0 0 10px 20px;vertical-align:top;font-family:${BODY_FONT};font-size:16px;line-height:1.65;color:#C9A55A;">•</td>
+        <td class="bullet-text" valign="top" style="padding:0 0 10px 8px;vertical-align:top;">
+          <p style="margin:0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.75;">${content}</p>
+        </td>
+      </tr>`;
     }
-    return `<p style="margin:0 0 12px 0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.75;">${content}</p>`;
+    return `
+      <tr>
+        <td colspan="2" style="padding:0 0 13px 0;">
+          <p style="margin:0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.75;">${content}</p>
+        </td>
+      </tr>`;
   }).join("");
+
+  const bodyHtml = bodyRows
+    ? `<table cellpadding="0" cellspacing="0" border="0" width="100%">${bodyRows}</table>`
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -941,6 +953,9 @@ export function buildPitchDeckEmailHtml(
       .fp-wrap{padding-left:12px!important;padding-right:12px!important;}
       .hero-headline{font-size:24px!important;}
       .stat-val{font-size:20px!important;}
+      /* Bullet indentation on mobile */
+      .bullet-dot{padding-left:12px!important;font-size:15px!important;}
+      .bullet-text p{font-size:15px!important;}
       /* Hide desktop agent card on mobile — use table-row for iOS Mail compatibility */
       .agent-desktop{display:none!important;max-height:0!important;overflow:hidden!important;}
       /* Show mobile agent card — must be table-row not block for <tr> in iOS Mail */
@@ -1040,10 +1055,8 @@ export function buildPitchDeckEmailHtml(
     <td class="mobile-pad" style="padding:32px 36px 24px;background-color:#ffffff;">
       ${data.headline ? `
       <p style="margin:0 0 16px 0;font-family:${DISPLAY_FONT};font-size:26px;font-weight:800;color:#0d1f18;line-height:1.2;letter-spacing:-0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
-      <div style="width:40px;height:3px;background:${ACCENT};margin-bottom:18px;"></div>` : ""}
-      <div style="font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.8;">
-        ${bodyHtml}
-      </div>
+      <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:18px;"><tr><td width="40" height="3" style="width:40px;height:3px;background:${ACCENT};font-size:0;line-height:0;">&nbsp;</td></tr></table>` : ""}
+      ${bodyHtml}
     </td>
   </tr>
 
@@ -1288,10 +1301,8 @@ export function buildPitchDeckEmailHtmlLofty(
       if (isList) {
         return `
         <tr>
-          <td valign="top" width="32" style="padding:0 0 10px 20px;vertical-align:top;width:32px;">
-            <p style="margin:0;${F}font-size:15px;line-height:1.65;color:${ACCENT};">&#8226;</p>
-          </td>
-          <td valign="top" style="padding:0 0 10px 10px;vertical-align:top;">
+          <td class="bullet-dot" valign="top" width="32" style="padding:0 0 10px 20px;vertical-align:top;width:32px;${F}font-size:15px;line-height:1.65;color:${ACCENT};">&#8226;</td>
+          <td class="bullet-text" valign="top" style="padding:0 0 10px 10px;vertical-align:top;">
             <p style="margin:0;${F}font-size:14px;color:#444444;line-height:1.75;">${html}</p>
           </td>
         </tr>`;
@@ -1429,6 +1440,9 @@ export function buildPitchDeckEmailHtmlLofty(
       .hero-text    { font-size: 22px !important; }
       .stat-value   { font-size: 15px !important; }
       .fp-price     { font-size: 20px !important; }
+      /* Bullet indentation on mobile */
+      .bullet-dot   { padding-left: 12px !important; font-size: 15px !important; }
+      .bullet-text p { font-size: 15px !important; }
     }
   </style>
 </head>
@@ -1530,11 +1544,10 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
           <td height="3" style="height: 3px; background-color: ${ACCENT}; font-size: 0; line-height: 0; padding: 0;">&nbsp;</td>
         </tr>
         <tr>
-          <td class="mobile-pad" valign="top"
+           <td class="mobile-pad" valign="top"
               style="background-color: ${DARK}; padding: 24px 36px 12px;">
             <p style="margin: 0 0 4px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">FLOOR PLANS</p>
-            <p style="margin: 0 0 6px 0; ${F} font-size: 22px; font-weight: 700; color: #ffffff; line-height: 1.15;">${fpHeading}</p>
-            <p style="margin: 0; ${F} font-size: 12px; color: #8aaa96; line-height: 1.6;">${fpSubheading}</p>
+            <p style="margin: 0; ${F} font-size: 22px; font-weight: 700; color: #ffffff; line-height: 1.15;">${fpHeading}</p>
           </td>
         </tr>
 
