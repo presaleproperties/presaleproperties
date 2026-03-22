@@ -1227,11 +1227,15 @@ export function buildPitchDeckEmailHtml(
 
 // ─────────────────────────────────────────────────────────────────────────────
 // buildPitchDeckEmailHtmlLofty
-// 100% inline-style version — NO <style> tags, NO media queries.
-// Uses a fixed 600px center table so desktop stays 600px wide.
-// On mobile, Lofty (and most CRMs) force tables to 100% of screen width
-// when width attribute is omitted or set to percentage — so we use
-// max-width:600px on the wrapper TD instead of a fixed pixel width on the table.
+// Fluid hybrid layout:
+//  - Container uses width="100%" + max-width:600px inline → caps at 600px on
+//    desktop, collapses to full screen on mobile — no media queries needed.
+//  - Stats bar: 3 side-by-side cols using percentage widths (stays side-by-side
+//    on desktop AND mobile — no stacking needed, each cell is compact).
+//  - All other sections single-column full-width.
+//  - Includes <style> block with media queries as a bonus for clients that keep
+//    them (Gmail iOS, Apple Mail). If Lofty strips it, the fluid layout still
+//    works correctly.
 // ─────────────────────────────────────────────────────────────────────────────
 export function buildPitchDeckEmailHtmlLofty(
   data: PitchDeckEmailData,
@@ -1291,23 +1295,28 @@ export function buildPitchDeckEmailHtmlLofty(
     return `<p style="margin:0 0 8px 0;${FONT}font-size:14px;color:#444444;line-height:1.65;">${bold}</p>`;
   }).join("");
 
-  // Stats bar: each stat as its own row (stacks naturally without media queries)
+  // Stats bar: side-by-side columns using percentage widths.
+  // Percentage-based columns stay side-by-side on BOTH desktop and mobile
+  // naturally — no media queries needed. Each cell is compact enough to fit.
   const stats = [
     data.startingPrice ? { val: data.startingPrice, label: "Starting Price" } : null,
     data.deposit       ? { val: data.deposit,       label: "Deposit Structure" } : null,
     data.completion    ? { val: data.completion,    label: "Est. Completion" } : null,
   ].filter(Boolean) as { val: string; label: string }[];
 
+  const colPct = stats.length === 3 ? "33.33%" : stats.length === 2 ? "50%" : "100%";
+
   const statsHtml = stats.length > 0 ? `
   <tr>
     <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        ${stats.map((s, i) => `<tr>
-          <td style="padding:14px 20px 12px;${i < stats.length - 1 ? "border-bottom:1px solid #e8e3db;" : ""}text-align:center;">
-            <p style="margin:0 0 3px 0;${FONT}font-size:20px;font-weight:700;color:#111111;letter-spacing:-0.3px;">${s.val}</p>
-            <p style="margin:0;${FONT}font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
-          </td>
-        </tr>`).join("")}
+        <tr>
+          ${stats.map((s, i) => `
+          <td width="${colPct}" style="width:${colPct};padding:14px 10px 12px;${i < stats.length - 1 ? "border-right:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
+            <p style="margin:0 0 3px 0;${FONT}font-size:16px;font-weight:700;color:#111111;letter-spacing:-0.3px;line-height:1.2;">${s.val}</p>
+            <p style="margin:0;${FONT}font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
+          </td>`).join("")}
+        </tr>
       </table>
     </td>
   </tr>` : "";
@@ -1336,11 +1345,17 @@ export function buildPitchDeckEmailHtmlLofty(
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="x-apple-disable-message-reformatting"/>
   <title>${data.subjectLine || `${data.projectName} — Exclusive Presale Details`}</title>
   ${data.previewText ? `<span style="display:none;max-height:0;overflow:hidden;font-size:1px;color:#ffffff;line-height:0;">${data.previewText}</span>` : ""}
   <link href="${GOOGLE_FONT}" rel="stylesheet"/>
+  <style>
+    body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
+    table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
+    img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;max-width:100%!important;}
+    body{margin:0!important;padding:0!important;background:${BODY_BG};}
+  </style>
 </head>
 <body style="margin:0;padding:0;background:${BODY_BG};">
 
@@ -1348,8 +1363,9 @@ export function buildPitchDeckEmailHtmlLofty(
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BODY_BG};">
 <tr>
   <td align="center" style="padding:0;">
-    <!-- Fixed 600px container — CRM clients honour max-width; mobile clients collapse to 100% -->
-    <table cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:#ffffff;border:1px solid #e0dbd3;">
+    <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+    <!-- Fluid container: 100% wide up to 600px. Works in all email clients. -->
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e0dbd3;">
 
       <!-- HEADER -->
       <tr>
@@ -1526,7 +1542,8 @@ export function buildPitchDeckEmailHtmlLofty(
       </tr>
 
     </table>
-    <!-- /Fixed container -->
+    <!--[if mso]></td></tr></table><![endif]-->
+    <!-- /Fluid container -->
   </td>
 </tr>
 </table>
@@ -1534,3 +1551,4 @@ export function buildPitchDeckEmailHtmlLofty(
 </body>
 </html>`;
 }
+
