@@ -166,54 +166,57 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   const byLine = copy.developerName ? `by ${copy.developerName}` : "";
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
   <meta name="x-apple-disable-message-reformatting"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <title>${copy.subjectLine || "New Presale Opportunity"}</title>
-  ${copy.previewText ? `<div style="display:none;max-height:0;overflow:hidden;font-size:1px;color:#fff;">${copy.previewText}</div>` : ""}
+  ${copy.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;max-height:0;max-width:0;opacity:0;overflow:hidden;">${copy.previewText}</span>` : ""}
   <link href="${googleFontUrl}" rel="stylesheet"/>
   <style>
     body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
-    table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
-    img{-ms-interpolation-mode:bicubic;border:0;height:auto;line-height:100%;outline:none;text-decoration:none;}
-    body{margin:0!important;padding:0!important;background:#f0ede8;}
-    *{box-sizing:border-box;}
+    table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;}
+    img{-ms-interpolation-mode:bicubic;border:0;height:auto;line-height:100%;outline:none;text-decoration:none;display:block;}
+    body{margin:0!important;padding:0!important;background:#f0ede8;min-width:100%!important;width:100%!important;}
     /* ── Apple Mail / Gmail link colour reset ── */
     a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;}
     u+#body a{color:inherit!important;text-decoration:none!important;}
     #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
+    /* Force email-container to be fluid — critical for iOS Mail */
+    .email-container{width:100%!important;max-width:600px!important;}
     /* ── Mobile ── */
-    @media only screen and (max-width:680px){
+    @media screen and (max-width:600px){
       .email-container{width:100%!important;max-width:100%!important;}
-      .outer-wrapper td{padding-left:0!important;padding-right:0!important;padding-top:0!important;padding-bottom:0!important;}
-      .mobile-pad{padding-left:0!important;padding-right:0!important;padding-top:12px!important;padding-bottom:12px!important;}
-      .mobile-pad-sm{padding-left:0!important;padding-right:0!important;}
-      .mobile-stack td{display:block!important;width:100%!important;text-align:left!important;padding-left:0!important;padding-right:0!important;}
-      .mobile-stack td:first-child{border-right:none!important;border-bottom:1px solid #e8e3db!important;}
+      .outer-td{padding:0!important;}
+      .mobile-pad{padding-left:16px!important;padding-right:16px!important;}
+      .mobile-pad-sm{padding-left:12px!important;padding-right:12px!important;}
+      .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:14px 16px!important;border-right:none!important;}
+      .mobile-stack td:not(:last-child){border-bottom:1px solid #e8e3db!important;}
       .mobile-hero-img{min-height:200px!important;}
-      .hero-headline{font-size:24px!important;}
+      .hero-headline{font-size:24px!important;line-height:1.2!important;}
       .body-headline{font-size:22px!important;}
       .stat-value{font-size:22px!important;}
       .agent-logo{display:none!important;}
-      .agent-photo{width:44px!important;height:44px!important;}
-      .agent-photo-cell{padding:14px 0 14px 8px!important;width:60px!important;}
-      .agent-info-cell{padding:14px 8px!important;}
+      .agent-photo{width:80px!important;height:80px!important;}
+      .agent-photo-cell{padding:16px 0 16px 16px!important;width:96px!important;}
+      .agent-info-cell{padding:16px!important;}
       .agent-logo-cell{display:none!important;}
-      .fp-cell{display:block!important;width:100%!important;}
+      .fp-cell{display:block!important;width:100%!important;padding:0 0 24px 0!important;}
       table.mobile-full{width:100%!important;}
+      .section-pad{padding-left:16px!important;padding-right:16px!important;}
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#f0ede8;" id="body">
+<body style="margin:0;padding:0;background-color:#f0ede8;word-spacing:normal;" id="body">
 
-<!-- Outer wrapper -->
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0ede8;">
-<tr><td align="center" class="outer-wrapper" style="padding:24px 12px;">
+<!-- Outer wrapper — use 100% width table, no fixed pixel widths -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0ede8;width:100%;min-width:100%;">
+<tr><td align="center" class="outer-td" style="padding:24px 12px;">
 
-<!-- Email container -->
-<table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e0dbd3;">
+<!-- Email container — fluid, max 600px -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e0dbd3;margin:0 auto;">
 
   <!-- ─── HEADER ─── -->
   <tr>
