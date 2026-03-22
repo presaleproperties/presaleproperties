@@ -328,6 +328,8 @@ export function DeckFloorPlansSection({
         whatsappNumber={whatsappNumber}
         projectName={projectName}
         includedItems={displayItems}
+        isUnlocked={isUnlocked}
+        onUnlockRequest={() => { setSelected(null); setTimeout(() => setPriceGateOpen(true), 150); }}
       />
     </section>
   );
