@@ -931,7 +931,7 @@ export function buildPitchDeckEmailHtml(
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
   <meta name="x-apple-disable-message-reformatting"/>
   <title>${data.subjectLine || `${data.projectName} — Exclusive Presale Details`}</title>
   ${data.previewText ? `<div style="display:none;max-height:0;overflow:hidden;font-size:1px;color:#fff;">${data.previewText}</div>` : ""}
@@ -945,31 +945,42 @@ export function buildPitchDeckEmailHtml(
     a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;}
     u+#body a{color:inherit!important;text-decoration:none!important;}
     #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
-    @media only screen and (max-width:680px){
-      .email-container{width:100%!important;max-width:100%!important;}
-      .mobile-pad{padding-left:16px!important;padding-right:16px!important;}
-      .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:12px 20px!important;border-right:none!important;border-bottom:1px solid #e8e3db!important;}
+    @media only screen and (max-width:620px){
+      /* TRUE edge-to-edge on iPhone — remove all outer spacing and border */
+      .email-outer{padding:0!important;}
+      .email-container{width:100%!important;max-width:100%!important;border:none!important;border-left:none!important;border-right:none!important;}
+      /* Section padding: tighter on mobile */
+      .mobile-pad{padding-left:20px!important;padding-right:20px!important;}
+      /* Stats bar: stack vertically */
+      .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:14px 20px!important;border-right:none!important;border-bottom:1px solid #e8e3db!important;}
       .mobile-stack td:last-child{border-bottom:none!important;}
-      .fp-wrap{padding-left:12px!important;padding-right:12px!important;}
-      .hero-headline{font-size:24px!important;}
-      .stat-val{font-size:20px!important;}
+      /* Floor plan section */
+      .fp-wrap{padding-left:16px!important;padding-right:16px!important;}
+      /* Typography scale-up */
+      .hero-headline{font-size:26px!important;line-height:1.15!important;}
+      .stat-val{font-size:22px!important;}
+      /* Body copy */
+      .body-copy p{font-size:15px!important;line-height:1.8!important;}
       /* Bullet indentation on mobile */
-      .bullet-dot{padding-left:12px!important;font-size:15px!important;}
-      .bullet-text p{font-size:15px!important;}
-      /* Hide desktop agent card on mobile — use table-row for iOS Mail compatibility */
+      .bullet-dot{padding-left:16px!important;font-size:16px!important;}
+      .bullet-text p{font-size:15px!important;line-height:1.8!important;}
+      /* Full-width CTA button on mobile */
+      .cta-btn{width:100%!important;display:block!important;}
+      .cta-btn td{width:100%!important;text-align:center!important;padding:18px 20px!important;}
+      /* Hide desktop agent card on mobile */
       .agent-desktop{display:none!important;max-height:0!important;overflow:hidden!important;}
-      /* Show mobile agent card — must be table-row not block for <tr> in iOS Mail */
+      /* Show mobile agent card */
       .agent-mobile{display:table-row!important;max-height:none!important;overflow:visible!important;}
     }
   </style>
 </head>
 <body style="margin:0;padding:0;background:#ffffff;" id="body">
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;">
-<tr><td align="center" style="padding:0;margin:0;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;margin:0;padding:0;">
+<tr><td class="email-outer" align="center" style="padding:0;margin:0;">
 
-<!-- Email container -->
-<table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e0dbd3;">
+<!-- Email container: capped at 600px on desktop, true full-width on mobile -->
+<table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:600px;background:#ffffff;border:1px solid #e0dbd3;">
 
   <!-- HEADER -->
   <tr>
