@@ -774,7 +774,7 @@ export default function AdminEmailBuilderPage() {
     return html;
   }, [finalHtml]);
 
-  const [copiedLofty, setCopiedLofty] = useState(false);
+  
 
   // ── Export ────────────────────────────────────────────────────────────────────
   const handleCopy = () => {
