@@ -916,28 +916,55 @@ export default function AdminEmailBuilderPage() {
           </div>
         </div>
 
-        {/* ── Main 2-panel layout ── */}
-        <div className="grid grid-cols-[1fr_360px] gap-3 h-[calc(100vh-220px)] min-h-[600px]">
+        {/* ── Mobile tab switcher (shown only on small screens) ── */}
+        <div className="flex lg:hidden items-center bg-muted/40 rounded-xl p-1 gap-1">
+          <button
+            onClick={() => setMobileTab("build")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all",
+              mobileTab === "build" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
+            )}
+          >
+            <Sparkles className="h-4 w-4" /> Build
+          </button>
+          <button
+            onClick={() => setMobileTab("preview")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all",
+              mobileTab === "preview" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
+            )}
+          >
+            <Eye className="h-4 w-4" /> Preview
+          </button>
+        </div>
 
-          {/* ── LEFT: Email preview ── */}
-          <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+        {/* ── Main layout: side-by-side on desktop, tabs on mobile ── */}
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_360px] gap-3 lg:h-[calc(100vh-220px)] lg:min-h-[600px]">
+
+          {/* ── Email preview panel — hidden on mobile when "build" tab active ── */}
+          <div className={cn(
+            "flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm",
+            "lg:flex",
+            mobileTab === "preview" ? "flex" : "hidden lg:flex",
+            "h-[calc(100svh-220px)] lg:h-auto"
+          )}>
             {/* Preview toolbar */}
             <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/10 shrink-0 gap-2">
               {/* Left: View mode tabs */}
               <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5 shrink-0">
                 <Button variant="ghost" size="sm"
-                  className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "preview" && "bg-card shadow-sm text-foreground")}
+                  className={cn("h-7 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "preview" && "bg-card shadow-sm text-foreground")}
                   onClick={() => setPreviewMode("preview")}>
                   <Eye className="h-3 w-3" /> Preview
                 </Button>
                 <Button variant="ghost" size="sm"
-                  className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "edit" && "bg-amber-500/90 shadow-sm text-white")}
+                  className={cn("h-7 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "edit" && "bg-amber-500/90 shadow-sm text-white")}
                   onClick={() => setPreviewMode("edit")}
                   title="Click to edit text directly in the email">
                   <Bold className="h-3 w-3" /> Edit
                 </Button>
                 <Button variant="ghost" size="sm"
-                  className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "code" && "bg-card shadow-sm text-foreground")}
+                  className={cn("h-7 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "code" && "bg-card shadow-sm text-foreground")}
                   onClick={() => setPreviewMode("code")}>
                   <Code2 className="h-3 w-3" /> HTML
                 </Button>
@@ -947,28 +974,35 @@ export default function AdminEmailBuilderPage() {
               {(previewMode === "preview" || previewMode === "edit") && (
                 <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
                   <Button variant="ghost" size="sm"
-                    className={cn("h-6 w-7 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm text-foreground")}
-                    onClick={() => setPreviewDevice("desktop")} title="Desktop (600px)"><Monitor className="h-3 w-3" /></Button>
+                    className={cn("h-7 w-8 p-0 rounded-md transition-all", previewDevice === "desktop" && "bg-card shadow-sm text-foreground")}
+                    onClick={() => setPreviewDevice("desktop")} title="Desktop (600px)"><Monitor className="h-3.5 w-3.5" /></Button>
                   <Button variant="ghost" size="sm"
-                    className={cn("h-6 px-2 rounded-md transition-all text-[9px] font-bold", previewDevice === "mobile-sm" && "bg-card shadow-sm text-foreground")}
-                    onClick={() => setPreviewDevice("mobile-sm")} title="iPhone SE (375px)"><Smartphone className="h-3 w-3" /><span className="ml-0.5">SE</span></Button>
+                    className={cn("h-7 px-2 rounded-md transition-all text-[10px] font-bold", previewDevice === "mobile-sm" && "bg-card shadow-sm text-foreground")}
+                    onClick={() => setPreviewDevice("mobile-sm")} title="iPhone SE (375px)"><Smartphone className="h-3.5 w-3.5" /><span className="ml-0.5">SE</span></Button>
                   <Button variant="ghost" size="sm"
-                    className={cn("h-6 px-2 rounded-md transition-all text-[9px] font-bold", previewDevice === "mobile-lg" && "bg-card shadow-sm text-foreground")}
-                    onClick={() => setPreviewDevice("mobile-lg")} title="iPhone Pro Max (430px)"><Smartphone className="h-3.5 w-3.5" /><span className="ml-0.5">Max</span></Button>
+                    className={cn("h-7 px-2 rounded-md transition-all text-[10px] font-bold", previewDevice === "mobile-lg" && "bg-card shadow-sm text-foreground")}
+                    onClick={() => setPreviewDevice("mobile-lg")} title="iPhone Pro Max (430px)"><Smartphone className="h-4 w-4" /><span className="ml-0.5">Max</span></Button>
                 </div>
               )}
 
-              {/* Right: size label */}
-              <span className="text-[10px] text-muted-foreground/40 hidden lg:block ml-auto">
-                {previewMode === "code" ? `${Math.round(finalHtml.length / 1024)}KB` : previewDevice === "desktop" ? "600px" : previewDevice === "mobile-sm" ? "375px" : "430px"}
-              </span>
+              {/* Right: Copy HTML quick button on mobile preview */}
+              <Button
+                size="sm"
+                className={cn("h-7 gap-1 font-semibold transition-all duration-200 text-xs px-2.5 lg:hidden shrink-0",
+                  copied ? "bg-emerald-600 text-white" : "bg-primary text-primary-foreground"
+                )}
+                onClick={handleCopy}
+              >
+                {copied ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? "Copied!" : "Copy"}
+              </Button>
             </div>
 
             {/* Edit mode hint bar */}
             {previewMode === "edit" && (
               <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border-b border-amber-500/20 shrink-0">
                 <Bold className="h-3 w-3 text-amber-500 shrink-0" />
-                <span className="text-[10px] text-amber-600 dark:text-amber-400">Click any text in the email to edit it directly. Changes are included when you copy the HTML.</span>
+                <span className="text-[10px] text-amber-600 dark:text-amber-400">Tap any text in the email to edit directly.</span>
               </div>
             )}
 
@@ -979,7 +1013,6 @@ export default function AdminEmailBuilderPage() {
                   srcDoc={(() => {
                     const w = previewDevice === "mobile-sm" ? 375 : previewDevice === "mobile-lg" ? 430 : null;
                     if (!w) return previewHtml;
-                    // Inject a viewport override so the iframe renders at mobile width and triggers media queries
                     return previewHtml.replace(
                       /<meta name="viewport"[^>]*>/i,
                       `<meta name="viewport" content="width=${w}, initial-scale=1, maximum-scale=1"/>`
@@ -998,21 +1031,17 @@ export default function AdminEmailBuilderPage() {
               </div>
             ) : (
               <div className="flex-1 overflow-auto flex flex-col" style={{ background: "#0d1117" }}>
-                {/* Code view header with Mailchimp / Lofty toggle */}
+                {/* Code view header */}
                 <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5 shrink-0" style={{ background: "#161b22" }}>
                   <div className="flex items-center gap-1.5 bg-white/5 rounded-lg p-0.5">
                     <button
                       onClick={() => setCodeViewTarget("mailchimp")}
                       className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "mailchimp" ? "bg-emerald-600 text-white" : "text-white/50 hover:text-white/80")}
-                    >
-                      Mailchimp
-                    </button>
+                    >Mailchimp</button>
                     <button
                       onClick={() => setCodeViewTarget("lofty")}
                       className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "lofty" ? "bg-blue-600 text-white" : "text-white/50 hover:text-white/80")}
-                    >
-                      Lofty / CRM
-                    </button>
+                    >Lofty / CRM</button>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-white/30">
@@ -1038,8 +1067,12 @@ export default function AdminEmailBuilderPage() {
             )}
           </div>
 
-          {/* ── RIGHT: Editor panel ── */}
-          <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+          {/* ── RIGHT / BOTTOM: Editor panel — hidden on mobile when "preview" tab active ── */}
+          <div className={cn(
+            "flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm",
+            mobileTab === "build" ? "flex" : "hidden lg:flex",
+            "h-[calc(100svh-220px)] lg:h-auto"
+          )}>
             {/* Panel header */}
             <div className="px-4 pt-3 pb-2.5 border-b border-border bg-gradient-to-r from-primary/5 to-transparent shrink-0">
               <div className="flex items-center gap-2">
