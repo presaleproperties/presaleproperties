@@ -249,6 +249,16 @@ export default function DeckPublicPage() {
       `}</style>
     </Helmet>
     {/* No full-page gate — content is freely browsable; only pricing is gated */}
+    {/* Global price gate — triggered from anywhere on the page */}
+    {globalPriceGateOpen && !(isUnlocked || deck.gate_enabled === false) && (
+      <DeckPriceGate
+        slug={slug || ""}
+        projectName={deck.project_name}
+        projectId={(deck as any).project_id || null}
+        onUnlock={() => { setGlobalPriceGateOpen(false); setIsUnlocked(true); }}
+        onClose={() => setGlobalPriceGateOpen(false)}
+      />
+    )}
 
     <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip", scrollPaddingTop: "80px" }}>
 
