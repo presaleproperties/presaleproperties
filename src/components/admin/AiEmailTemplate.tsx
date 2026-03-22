@@ -1610,13 +1610,6 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
                   ${agent.email ? `<p style="margin: 0; ${F} font-size: 12px; color: #777777;">&#9993; <a href="mailto:${agent.email}" style="color: #777777; text-decoration: none;">${agent.email}</a></p>` : ""}
                 </td>
               </tr>
-              <tr>
-                <td align="center" valign="top"
-                    style="padding: 12px 24px 20px; border-top: 1px solid #e8e3db; text-align: center;">
-                  <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" border="0"
-                       style="display: inline-block; width: 110px; height: auto; border: 0;" />
-                </td>
-              </tr>
             </table>
           </td>
         </tr>
