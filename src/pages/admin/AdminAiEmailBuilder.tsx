@@ -826,6 +826,9 @@ export default function AdminEmailBuilderPage() {
     setSaving(false);
   };
 
+  // Mobile tab: "build" (editor panel) or "preview" (iframe)
+  const [mobileTab, setMobileTab] = useState<"build" | "preview">("build");
+
   // ─────────────────────────────────────────────────────────────────────────────
   return (
     <AdminLayout>
@@ -835,7 +838,7 @@ export default function AdminEmailBuilderPage() {
       <input ref={imgCardInputRef}  type="file" accept="image/*" multiple className="hidden" onChange={handleImgCardUpload} />
       <input ref={ctaPdfInputRef}   type="file" accept="application/pdf" className="hidden" onChange={handleCtaPdfUpload} />
 
-      <div className="p-4 md:p-6 max-w-[1400px] mx-auto space-y-3">
+      <div className="p-3 md:p-6 max-w-[1400px] mx-auto space-y-3">
 
         {/* ── Top bar ── */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
