@@ -841,68 +841,53 @@ export default function AdminEmailBuilderPage() {
       <div className="p-3 md:p-6 max-w-[1400px] mx-auto space-y-3">
 
         {/* ── Top bar ── */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(fromDeck ? "/dashboard/decks" : "/admin/marketing-hub")}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-sm">
-              <Mail className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold leading-none">
-                Email Builder
-                {fromDeck && <span className="ml-2 text-[11px] font-normal text-primary">· From Pitch Deck</span>}
-                {!fromDeck && urlTemplate === "exclusive-offer" && <span className="ml-2 text-[11px] font-normal text-amber-600">· Exclusive Offer</span>}
-                {!fromDeck && urlTemplate === "project-email"   && <span className="ml-2 text-[11px] font-normal text-emerald-600">· Project Email</span>}
-              </h1>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                {fromDeck ? "Deck data pre-loaded — review, generate AI copy, then send" : "Paste copy → Bold keywords → Copy HTML"}
-              </p>
-            </div>
+        <div className="flex items-center gap-2 min-w-0">
+          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate(fromDeck ? "/dashboard/decks" : "/admin/marketing-hub")}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-sm shrink-0">
+            <Mail className="h-4 w-4 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-sm font-bold leading-none truncate">
+              Email Builder
+              {fromDeck && <span className="ml-1.5 text-[11px] font-normal text-primary">· Deck</span>}
+            </h1>
+            <p className="text-[10px] text-muted-foreground mt-0.5 truncate hidden sm:block">
+              {fromDeck ? "Deck pre-loaded" : "Paste copy → Bold → Copy HTML"}
+            </p>
           </div>
 
-          {/* Deck source banner */}
-          {fromDeck && savedDraft?._source === "deck" && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/8 border border-primary/20 text-xs text-primary font-medium">
-              <Presentation className="h-3.5 w-3.5 shrink-0" />
-              <span>Pre-loaded: <strong>{savedDraft?.projectName || "Deck"}</strong> — floor plans + pricing ready</span>
+          {/* Draft indicator */}
+          {draftSavedAt && (
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0 hidden sm:flex">
+              <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+              <span className="hidden md:inline">Saved</span>
+              <button onClick={() => { localStorage.removeItem(DRAFT_KEY); window.location.reload(); }} className="text-muted-foreground/50 hover:text-destructive transition-colors">
+                <X className="h-3 w-3" />
+              </button>
             </div>
           )}
 
-          <div className="flex items-center gap-2">
-            {/* Draft saved indicator */}
-            {draftSavedAt && (
-              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                <span>Draft saved {draftSavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-                <button
-                  onClick={() => { localStorage.removeItem(DRAFT_KEY); window.location.reload(); }}
-                  className="ml-1 text-muted-foreground/50 hover:text-destructive transition-colors"
-                  title="Clear draft & start fresh"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            )}
-            {/* Version tabs */}
-            {aiResult && (
-              <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
-                <button onClick={() => handleVersionSwitch("A")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "A" ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver A</button>
-                {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
-                  <button onClick={() => handleVersionSwitch("B")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "B" ? "bg-amber-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver B</button>
-                )}
-              </div>
-            )}
-            <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save to Hub
-            </Button>
-            <Button size="sm"
-              className={cn("h-9 gap-1.5 font-semibold transition-all duration-200", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
-              onClick={handleCopy}>
-              {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied!</> : <><Copy className="h-3.5 w-3.5" /> Copy HTML</>}
-            </Button>
-          </div>
+          {/* Version tabs (desktop only) */}
+          {aiResult && (
+            <div className="hidden md:flex items-center bg-muted rounded-lg p-0.5 gap-0.5 shrink-0">
+              <button onClick={() => handleVersionSwitch("A")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "A" ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver A</button>
+              {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
+                <button onClick={() => handleVersionSwitch("B")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "B" ? "bg-amber-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver B</button>
+              )}
+            </div>
+          )}
+
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 shrink-0 hidden sm:flex text-xs px-2.5" onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            <span className="hidden md:inline">Save</span>
+          </Button>
+          <Button size="sm"
+            className={cn("h-8 gap-1.5 font-semibold transition-all duration-200 shrink-0 text-xs px-2.5", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
+            onClick={handleCopy}>
+            {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /><span className="hidden sm:inline"> Copied!</span></> : <><Copy className="h-3.5 w-3.5" /><span className="hidden sm:inline"> Copy HTML</span></>}
+          </Button>
         </div>
 
         {/* ── Inbox preview bar ── */}
