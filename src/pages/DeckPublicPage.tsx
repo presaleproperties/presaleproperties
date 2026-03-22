@@ -355,7 +355,7 @@ export default function DeckPublicPage() {
               completionYear={deck.completion_year || undefined}
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
-              isUnlocked={isUnlocked || deck.gate_enabled === false || !deck.gated_sections?.includes("deposit-timeline")}
+              isUnlocked={isUnlocked || deck.gate_enabled === false}
             />
           </div>
         </section>
