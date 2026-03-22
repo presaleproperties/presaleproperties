@@ -14,7 +14,7 @@ import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
 import { DeckFAQSection } from "@/components/decks/DeckFAQSection";
-import { DeckLeadGate } from "@/components/decks/DeckLeadGate";
+// DeckLeadGate removed — pricing is now gated inline via DeckPriceGate
 import { Loader2 } from "lucide-react";
 import { getVisitorId } from "@/lib/tracking/identifiers";
 
@@ -245,16 +245,7 @@ export default function DeckPublicPage() {
         }
       `}</style>
     </Helmet>
-    {/* Lead gate — shown until user fills form */}
-    {!isUnlocked && deck && deck.gate_enabled !== false && (
-      <DeckLeadGate
-        slug={slug!}
-        projectName={deck.project_name}
-        projectId={(deck as any).project_id || null}
-        heroImageUrl={deck.hero_image_url}
-        onUnlock={() => setIsUnlocked(true)}
-      />
-    )}
+    {/* No full-page gate — content is freely browsable; only pricing is gated */}
 
     <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip", scrollPaddingTop: "80px" }}>
 
@@ -277,7 +268,7 @@ export default function DeckPublicPage() {
         assignmentFee={deck.assignment_fee || undefined}
         city={deck.city || undefined}
         neighborhood={deck.neighborhood || undefined}
-        startingPrice={deck.floor_plans?.[0]?.price_from || undefined}
+        startingPrice={isUnlocked || deck.gate_enabled === false ? (deck.floor_plans?.[0]?.price_from || undefined) : undefined}
         whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
         onFloorPlansClick={() => document.getElementById("floor-plans")?.scrollIntoView({ behavior: "smooth" })}
         onContactClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
@@ -285,7 +276,7 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-      {/* ── 2. About / Description — pulled from project ── */}
+      {/* ── 2. About / Description ── */}
       {(deck.description || (deck.highlights && deck.highlights.length > 0) || (deck.amenities && deck.amenities.length > 0)) && (
         <div className="deck-animate">
           <DeckAboutSection
@@ -299,19 +290,21 @@ export default function DeckPublicPage() {
 
       <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
 
-      {/* ── 3. Floor Plans — scarcity inline ── */}
+      {/* ── 3. Floor Plans — floor plans visible freely; only price is gated ── */}
       <div className="deck-animate">
         <DeckFloorPlansSection
           floorPlans={deck.floor_plans || []}
           whatsappNumber={deck.contact_whatsapp || deck.contact_phone || undefined}
           projectName={deck.project_name}
+          projectId={(deck as any).project_id || null}
+          slug={slug}
           assignmentFee={deck.assignment_fee}
           includedItems={deck.included_items}
           unitsRemaining={deck.units_remaining}
           nextPriceIncrease={deck.next_price_increase}
           incentives={deck.incentives}
-          isUnlocked={isUnlocked || deck.gate_enabled === false || !deck.gated_sections?.includes("floor-plans")}
-          onUnlockRequest={() => {}}
+          isUnlocked={isUnlocked || deck.gate_enabled === false}
+          onUnlock={() => setIsUnlocked(true)}
         />
       </div>
 
@@ -362,7 +355,7 @@ export default function DeckPublicPage() {
               completionYear={deck.completion_year || undefined}
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
-              isUnlocked={isUnlocked || deck.gate_enabled === false || !deck.gated_sections?.includes("deposit-timeline")}
+              isUnlocked={isUnlocked || deck.gate_enabled === false}
             />
           </div>
         </section>
@@ -378,7 +371,7 @@ export default function DeckPublicPage() {
               projections={deck.projections || {}}
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
-              isUnlocked={isUnlocked || deck.gate_enabled === false || !deck.gated_sections?.includes("projections")}
+              isUnlocked={isUnlocked || deck.gate_enabled === false}
             />
           </div>
         </section>

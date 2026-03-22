@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { FloorPlanModal, FloorPlan } from "./FloorPlanModal";
-import { LayoutPanelTop, ArrowRight, Square, TrendingUp, Car, Archive, Wind, CheckCircle2, Flame, TrendingUp as TrendUp, BedDouble, Bath, Lock as LockIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { DeckPriceGate } from "./DeckPriceGate";
+import {
+  LayoutPanelTop, ArrowRight, Square, TrendingUp, Car, Archive, Wind,
+  CheckCircle2, Flame, TrendingUp as TrendUp, BedDouble, Bath, Lock as LockIcon,
+} from "lucide-react";
 
 function derivePsf(plan: FloorPlan): string | null {
   if (plan.price_per_sqft && plan.price_per_sqft.trim()) return plan.price_per_sqft;
@@ -46,12 +49,15 @@ interface DeckFloorPlansSectionProps {
   floorPlans: FloorPlan[];
   whatsappNumber?: string;
   projectName?: string;
+  projectId?: string | null;
+  slug?: string;
   assignmentFee?: string | null;
   includedItems?: string[] | null;
   unitsRemaining?: number | null;
   nextPriceIncrease?: string | null;
   incentives?: string[] | null;
   isUnlocked?: boolean;
+  onUnlock?: () => void;
   onUnlockRequest?: () => void;
 }
 
@@ -59,46 +65,53 @@ export function DeckFloorPlansSection({
   floorPlans,
   whatsappNumber,
   projectName,
+  projectId,
+  slug,
   includedItems,
   unitsRemaining,
   nextPriceIncrease,
   incentives,
   isUnlocked = false,
+  onUnlock,
 }: DeckFloorPlansSectionProps) {
   const [selected, setSelected] = useState<FloorPlan | null>(null);
+  const [priceGateOpen, setPriceGateOpen] = useState(false);
 
-  const rawItems = (includedItems && includedItems.length > 0)
-    ? includedItems
-    : ["Parking", "Storage", "AC"];
+  const rawItems = (includedItems && includedItems.length > 0) ? includedItems : ["Parking", "Storage", "AC"];
   const displayItems = rawItems.map(normalizeIncludedItem);
-
   const hasScarcity = (unitsRemaining !== null && unitsRemaining !== undefined) || nextPriceIncrease;
+
+  const handleRevealPrice = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isUnlocked) setPriceGateOpen(true);
+  };
 
   return (
     <section id="floor-plans" className="relative py-16 sm:py-24 bg-muted/20 overflow-hidden">
-      {/* Lock overlay when not unlocked */}
-      {!isUnlocked && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm px-4">
-          <div className="bg-card border border-border rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
-            <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <LockIcon className="h-7 w-7 text-primary" />
-            </div>
-            <h3 className="text-lg font-bold text-foreground mb-2">Floor Plans & Pricing Locked</h3>
-            <p className="text-sm text-muted-foreground">Fill out the form above to instantly unlock floor plans, unit pricing, and the investment calculator.</p>
-          </div>
-        </div>
+
+      {/* Price gate modal — only triggered on demand, never on page load */}
+      {priceGateOpen && !isUnlocked && (
+        <DeckPriceGate
+          slug={slug || ""}
+          projectName={projectName || ""}
+          projectId={projectId}
+          onUnlock={() => {
+            setPriceGateOpen(false);
+            onUnlock?.();
+          }}
+          onClose={() => setPriceGateOpen(false)}
+        />
       )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         {/* Header */}
         <div className="mb-10 sm:mb-14">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">02 — Hand-Picked For You</p>
-          <div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Top Picked Units</h2>
-            <p className="text-muted-foreground text-sm max-w-lg">
-              The best available units — tap any to see the full floor plan, size, and pricing.
-            </p>
-          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Top Picked Units</h2>
+          <p className="text-muted-foreground text-sm max-w-lg">
+            The best available units — tap any to see the full floor plan.{!isUnlocked && " Pricing is hidden — tap Reveal to unlock."}
+          </p>
 
           {/* Scarcity strip */}
           {hasScarcity && (
@@ -162,7 +175,7 @@ export function DeckFloorPlansSection({
                   className="group relative text-left rounded-2xl overflow-hidden border-2 border-border bg-background hover:border-primary hover:shadow-2xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.98] touch-manipulation"
                   onClick={() => setSelected(plan)}
                 >
-                  {/* Floor plan image — large proportion */}
+                  {/* Floor plan image */}
                   <div className="relative overflow-hidden bg-muted/20" style={{ aspectRatio: "4/3" }}>
                     {plan.image_url ? (
                       <>
@@ -171,7 +184,6 @@ export function DeckFloorPlansSection({
                           alt={plan.unit_type}
                           className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.04] p-3"
                         />
-                        {/* Hover overlay */}
                         <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                           <div className="flex items-center gap-2 bg-background/95 backdrop-blur-sm text-foreground font-semibold text-sm px-5 py-2.5 rounded-full shadow-lg border border-border/40">
                             <span>View Floor Plan</span>
@@ -185,8 +197,6 @@ export function DeckFloorPlansSection({
                         <span className="text-xs text-muted-foreground/50">Floor plan coming soon</span>
                       </div>
                     )}
-
-                    {/* Unit number badge */}
                     <div className="absolute top-3 left-3">
                       <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
                         #{idx + 1}
@@ -200,7 +210,6 @@ export function DeckFloorPlansSection({
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="text-foreground font-bold text-base sm:text-lg leading-tight">{plan.unit_type}</p>
-                        {/* Beds / Baths */}
                         {(plan.beds || plan.baths) && (
                           <div className="flex items-center gap-2.5 mt-1">
                             {plan.beds && (
@@ -218,13 +227,37 @@ export function DeckFloorPlansSection({
                           </div>
                         )}
                       </div>
+
+                      {/* Price — clear when unlocked, blurred with CTA when locked */}
                       <div className="text-right shrink-0">
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
-                        <p className="text-primary font-bold text-base sm:text-lg leading-tight">{plan.price_from || "—"}</p>
+                        {isUnlocked ? (
+                          <>
+                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
+                            <p className="text-primary font-bold text-base sm:text-lg leading-tight">{plan.price_from || "—"}</p>
+                          </>
+                        ) : (
+                          <button
+                            onClick={handleRevealPrice}
+                            className="flex flex-col items-end gap-0.5 group/price"
+                          >
+                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
+                            <div className="relative">
+                              <p className="text-primary font-bold text-base sm:text-lg leading-tight blur-sm select-none pointer-events-none">
+                                {plan.price_from || "$XXX,XXX"}
+                              </p>
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 border border-primary/30 px-1.5 py-0.5 rounded-full whitespace-nowrap group-hover/price:bg-primary group-hover/price:text-primary-foreground transition-colors">
+                                  <LockIcon className="h-2.5 w-2.5 shrink-0" />
+                                  Reveal
+                                </span>
+                              </div>
+                            </div>
+                          </button>
+                        )}
                       </div>
                     </div>
 
-                  {/* Size + PSF row */}
+                    {/* Size + PSF row */}
                     <div className="flex items-center gap-3 pt-1 border-t border-border/40">
                       {plan.size_range && (
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -233,10 +266,17 @@ export function DeckFloorPlansSection({
                         </span>
                       )}
                       {psf && (
-                        <span className="ml-auto flex items-center gap-1 text-[11px] bg-primary/8 border border-primary/20 text-primary font-semibold px-2.5 py-1 rounded-full">
-                          <TrendingUp className="h-2.5 w-2.5 shrink-0" />
-                          {psf}/sqft
-                        </span>
+                        isUnlocked ? (
+                          <span className="ml-auto flex items-center gap-1 text-[11px] bg-primary/8 border border-primary/20 text-primary font-semibold px-2.5 py-1 rounded-full">
+                            <TrendingUp className="h-2.5 w-2.5 shrink-0" />
+                            {psf}/sqft
+                          </span>
+                        ) : (
+                          <span className="ml-auto flex items-center gap-1 text-[11px] bg-muted/60 border border-border/40 text-muted-foreground px-2.5 py-1 rounded-full blur-sm select-none">
+                            <TrendingUp className="h-2.5 w-2.5 shrink-0" />
+                            {psf}/sqft
+                          </span>
+                        )
                       )}
                     </div>
 
@@ -256,6 +296,27 @@ export function DeckFloorPlansSection({
                 </button>
               );
             })}
+          </div>
+        )}
+
+        {/* Reveal pricing banner — below the grid when locked */}
+        {!isUnlocked && floorPlans.length > 0 && (
+          <div className="mt-8 p-5 rounded-2xl border border-primary/25 bg-primary/5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <LockIcon className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-foreground text-sm">Pricing is available — it's just hidden</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Enter your info to instantly reveal unit prices, price-per-sqft, and the full investment calculator.
+              </p>
+            </div>
+            <button
+              onClick={() => setPriceGateOpen(true)}
+              className="shrink-0 h-10 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center gap-2 hover:bg-primary/90 transition-colors"
+            >
+              Reveal Pricing <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
         )}
       </div>
