@@ -60,7 +60,7 @@ interface FloorPlanModalProps {
   onUnlockRequest?: () => void;
 }
 
-export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, includedItems }: FloorPlanModalProps) {
+export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, includedItems, isUnlocked = false, onUnlockRequest }: FloorPlanModalProps) {
   const [zoomed, setZoomed] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const isDragging = useRef(false);
