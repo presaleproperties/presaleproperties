@@ -118,15 +118,16 @@ export default function DashboardDecks() {
           ? JSON.parse(deckData.floor_plans || "[]")
           : []);
 
-      // Map to email builder FloorPlanEntry format
+      // Map to email builder FloorPlanEntry format — include price per floor plan
       const floorPlanEntries = rawFloorPlans
         .filter((fp: any) => fp.image_url)
-        .slice(0, 6) // cap at 6 for email
+        .slice(0, 6)
         .map((fp: any) => ({
           id: fp.id || String(Math.random()),
           url: fp.image_url || "",
           label: fp.unit_type || "",
           sqft: fp.size_range || "",
+          price: fp.price_from || "",
         }));
 
       // Extract starting price from first floor plan that has one
@@ -173,6 +174,9 @@ export default function DashboardDecks() {
         _savedAt: new Date().toISOString(),
         _source: "deck",
         _deckId: deck.id,
+        // Stash parking/locker for the pitch-deck template
+        _deckParking: "1 Parking Stall Included",
+        _deckLocker:  "1 Storage Locker Included",
         prompt: `Write a concise project intro email for ${deckData.project_name} in ${deckData.city || "BC"}. Focus on floor plans, pricing, and the deposit structure.`,
         templateType: "project-intro",
         selProjectId: "none",
@@ -184,7 +188,7 @@ export default function DashboardDecks() {
         showDeveloperName: !!deckData.developer_name,
         customHeader: "",
         city: deckData.city || "",
-        neighborhood: deckData.neighborhood || "",
+        neighborhood: "",
         startingPrice,
         deposit: depositStr,
         completion: completionStr,
@@ -202,7 +206,7 @@ export default function DashboardDecks() {
         floorPlans: floorPlanEntries,
         fpHeading: "Available Floor Plans",
         fpSubheading: floorPlanEntries.length > 0
-          ? `${floorPlanEntries.length} unit type${floorPlanEntries.length > 1 ? "s" : ""} available — contact us for full pricing`
+          ? `${floorPlanEntries.length} unit type${floorPlanEntries.length > 1 ? "s" : ""} available — exclusive pricing inside`
           : "Contact us for available floor plans",
         imageCards: [],
         loopSlides: [],
@@ -211,8 +215,8 @@ export default function DashboardDecks() {
           ? `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${deck.slug}`
           : "",
         selAgent: "Uzair Muhammad",
-        fontId: "cormorant-dm",
-        layoutVersion: "classic",
+        fontId: "jakarta-jakarta",
+        layoutVersion: "pitch-deck",
       };
 
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
