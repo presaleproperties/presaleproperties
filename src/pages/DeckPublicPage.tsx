@@ -14,7 +14,7 @@ import { DeckContactSection } from "@/components/decks/DeckContactSection";
 import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
 import { DeckFAQSection } from "@/components/decks/DeckFAQSection";
-import { DeckLeadGate } from "@/components/decks/DeckLeadGate";
+// DeckLeadGate removed — pricing is now gated inline via DeckPriceGate
 import { Loader2 } from "lucide-react";
 import { getVisitorId } from "@/lib/tracking/identifiers";
 
