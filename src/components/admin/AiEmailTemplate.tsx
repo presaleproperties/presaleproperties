@@ -1098,11 +1098,11 @@ export function buildPitchDeckEmailHtml(
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
           ${agent.photo_url ? `
-          <td width="80" valign="middle" class="agent-photo-cell" style="padding:18px 0 18px 20px;vertical-align:middle;line-height:0;font-size:0;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="60" height="60" border="0" class="agent-photo"
-                 style="display:block;width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+          <td width="100" valign="middle" class="agent-photo-cell" style="padding:14px 0 14px 20px;vertical-align:middle;line-height:0;font-size:0;">
+            <img src="${agent.photo_url}" alt="${agent.full_name}" width="84" height="84" border="0" class="agent-photo"
+                 style="display:block;width:84px;height:84px;border-radius:50%;object-fit:cover;object-position:center top;border:2.5px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
           </td>` : ""}
-          <td valign="middle" class="agent-info-cell" style="padding:18px 12px 18px ${agent.photo_url ? "10px" : "20px"};vertical-align:middle;">
+          <td valign="middle" class="agent-info-cell" style="padding:14px 12px 14px ${agent.photo_url ? "14px" : "20px"};vertical-align:middle;">
             <div style="font-family:${DISPLAY_FONT};font-size:16px;font-weight:700;color:#111111;line-height:1.2;margin-bottom:2px;">${agent.full_name}</div>
             <div style="font-family:${BODY_FONT};font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};line-height:1.5;margin-bottom:6px;">${agent.title}</div>
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
