@@ -360,6 +360,35 @@ export default function AdminEmailBuilderPage() {
     short_description?: string | null;
   }>>([]);
 
+  // ── Force-hydrate state from localStorage when coming from a pitch deck ────
+  // useState initializers only run once, so if the component was already mounted
+  // we need a useEffect to push the fresh draft values into state.
+  useEffect(() => {
+    if (!fromDeck) return;
+    try {
+      const fresh = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      if (!fresh || fresh._source !== "deck") return;
+      setProjectName(fresh.projectName ?? "");
+      setDevName(fresh.developerName ?? "");
+      setCity(fresh.city ?? "");
+      setStartingPrice(fresh.startingPrice ?? "");
+      setDeposit(fresh.deposit ?? "");
+      setCompletion(fresh.completion ?? "");
+      setInfoRows(fresh.infoRows ?? []);
+      setSubjectLine(fresh.subjectLine ?? "");
+      setPreviewText(fresh.previewText ?? "");
+      setHeadline(fresh.headline ?? "");
+      setBodyCopy(fresh.bodyCopy ?? "");
+      setIncentiveText(fresh.incentiveText ?? "");
+      setHeroImage(fresh.heroImage ?? "");
+      setFloorPlans(fresh.floorPlans ?? []);
+      setFpHeading(fresh.fpHeading ?? "Available Floor Plans");
+      setFpSubheading(fresh.fpSubheading ?? "");
+      setLayoutVersion(fresh.layoutVersion ?? "pitch-deck");
+      if (fresh.selAgent) setSelAgent(fresh.selAgent);
+    } catch { /* ignore */ }
+  }, []); // eslint-disable-line
+
   useEffect(() => {
     supabase.from("presale_projects")
       .select("id, name, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, gallery_images, incentives, brochure_files, pricing_sheets, floorplan_files, highlights, short_description")
