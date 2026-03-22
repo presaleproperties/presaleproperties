@@ -945,7 +945,7 @@ export function buildPitchDeckEmailHtml(
 <tr><td align="center" style="padding:0;margin:0;">
 
 <!-- Email container -->
-<table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;">
+<table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e0dbd3;">
 
   <!-- HEADER -->
   <tr>
