@@ -1534,9 +1534,9 @@ export default function AdminEmailBuilderPage() {
                 ))}
               </StepSection>
 
-              {/* ── STEP 6: CAMPAIGN ASSETS ── */}
+              {/* ── STEP 8: PLANS & PRICING CTA ── */}
               <StepSection
-                step={6} title="Plans & Pricing CTA" icon={<FileText className="h-3.5 w-3.5" />}
+                step={8} title="Plans & Pricing CTA" icon={<FileText className="h-3.5 w-3.5" />}
                 done={!!(ctaUrl)} doneLabel={directCtaUrl ? "PDF uploaded" : selectedAsset?.name}
                 defaultOpen={false}
               >
