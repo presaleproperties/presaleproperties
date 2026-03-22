@@ -972,15 +972,41 @@ export default function AdminEmailBuilderPage() {
                 </div>
               )}
 
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-muted-foreground/50 hidden lg:block">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-muted-foreground/50 hidden xl:block mr-1">
                   {previewMode === "code" ? `${Math.round(finalHtml.length / 1024)}KB` : previewDevice === "desktop" ? "600px" : previewDevice === "mobile-sm" ? "375px" : "430px"}
                 </span>
-                {previewMode === "code" && (
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px] gap-1" onClick={handleCopy}>
-                    <Copy className="h-3 w-3" /> {copied ? "Copied!" : "Copy"}
-                  </Button>
-                )}
+                {/* ── Copy toggle buttons always visible in preview toolbar ── */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-6 px-2.5 text-[10px] gap-1 font-semibold transition-all duration-200 border",
+                    copied
+                      ? "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600"
+                      : "border-border hover:border-emerald-500/60 hover:text-emerald-600"
+                  )}
+                  onClick={handleCopy}
+                  title="Copy Mailchimp-ready HTML"
+                >
+                  <Copy className="h-2.5 w-2.5" />
+                  {copied ? "Copied!" : "Mailchimp"}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-6 px-2.5 text-[10px] gap-1 font-semibold transition-all duration-200 border",
+                    copiedLofty
+                      ? "bg-blue-600 hover:bg-blue-600 text-white border-blue-600"
+                      : "border-border hover:border-blue-500/60 hover:text-blue-600"
+                  )}
+                  onClick={handleCopyLofty}
+                  title="Copy Lofty/CRM table-based HTML"
+                >
+                  <Copy className="h-2.5 w-2.5" />
+                  {copiedLofty ? "Copied!" : "Lofty"}
+                </Button>
               </div>
             </div>
 
@@ -1022,8 +1048,23 @@ export default function AdminEmailBuilderPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-mono text-emerald-400">email.html</span>
                     <Badge className="text-[9px] h-4 px-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Mailchimp-ready</Badge>
+                    <Badge className="text-[9px] h-4 px-1.5 bg-blue-500/10 text-blue-400 border-blue-500/20">Lofty uses separate copy</Badge>
                   </div>
-                  <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars</span>
+                    <button
+                      onClick={handleCopy}
+                      className={cn("text-[10px] px-2 py-0.5 rounded font-medium transition-all", copied ? "bg-emerald-600 text-white" : "bg-white/10 text-white/70 hover:bg-emerald-600/30 hover:text-emerald-300")}
+                    >
+                      {copied ? "✓ Copied" : "Copy Mailchimp"}
+                    </button>
+                    <button
+                      onClick={handleCopyLofty}
+                      className={cn("text-[10px] px-2 py-0.5 rounded font-medium transition-all", copiedLofty ? "bg-blue-600 text-white" : "bg-white/10 text-white/70 hover:bg-blue-600/30 hover:text-blue-300")}
+                    >
+                      {copiedLofty ? "✓ Copied" : "Copy Lofty"}
+                    </button>
+                  </div>
                 </div>
                 <pre className="p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed" style={{ color: "#e6edf3" }}>{finalHtml}</pre>
               </div>
