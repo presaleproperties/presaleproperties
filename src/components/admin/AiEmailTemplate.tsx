@@ -1288,12 +1288,28 @@ export function buildPitchDeckEmailHtmlLofty(
     ? incentiveLines
     : [data.parkingIncluded, data.lockerIncluded].filter(Boolean) as string[];
 
-  const bodyHtml = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
-    const bold = p
-      .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:500;color:#333333;">$1</strong>`)
-      .replace(/\*/g, "");
-    return `<p style="margin:0 0 8px 0;${FONT}font-size:14px;color:#444444;line-height:1.65;">${bold}</p>`;
-  }).join("");
+  const bodyHtml = (data.bodyCopy || "")
+    .split("\n")
+    .map(l => l.trim())
+    // Remove sign-off lines like "Uzair Muhammad" or just a bare name
+    .filter(l => {
+      if (!l) return false;
+      const lower = l.toLowerCase();
+      // Strip bare sign-off name lines (no punctuation, just a name)
+      if (/^uzair\b/i.test(l) && l.split(" ").length <= 3 && !/[,.:!?]/.test(l)) return false;
+      return true;
+    })
+    .map(p => {
+      const isListItem = /^[✦•\-–]/.test(p);
+      const bold = p
+        .replace(/^[✦•\-–]\s*/, "")
+        .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:500;color:#333333;">$1</strong>`)
+        .replace(/\*/g, "");
+      if (isListItem) {
+        return `<p style="margin:0 0 10px 0;${FONT}font-size:14px;color:#444444;line-height:1.7;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:#C9A55A;">&#8226;</span> ${bold}</p>`;
+      }
+      return `<p style="margin:0 0 14px 0;${FONT}font-size:14px;color:#444444;line-height:1.75;">${bold}</p>`;
+    }).join("");
 
   // Stats bar: side-by-side columns using percentage widths.
   // Percentage-based columns stay side-by-side on BOTH desktop and mobile
