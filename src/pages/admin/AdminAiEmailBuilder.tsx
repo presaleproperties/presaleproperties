@@ -938,8 +938,9 @@ export default function AdminEmailBuilderPage() {
           {/* ── LEFT: Email preview ── */}
           <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm">
             {/* Preview toolbar */}
-            <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/10 shrink-0">
-              <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/10 shrink-0 gap-2">
+              {/* Left: View mode tabs */}
+              <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5 shrink-0">
                 <Button variant="ghost" size="sm"
                   className={cn("h-6 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "preview" && "bg-card shadow-sm text-foreground")}
                   onClick={() => setPreviewMode("preview")}>
@@ -958,6 +959,7 @@ export default function AdminEmailBuilderPage() {
                 </Button>
               </div>
 
+              {/* Centre: device sizes (preview/edit only) */}
               {(previewMode === "preview" || previewMode === "edit") && (
                 <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
                   <Button variant="ghost" size="sm"
@@ -965,49 +967,17 @@ export default function AdminEmailBuilderPage() {
                     onClick={() => setPreviewDevice("desktop")} title="Desktop (600px)"><Monitor className="h-3 w-3" /></Button>
                   <Button variant="ghost" size="sm"
                     className={cn("h-6 px-2 rounded-md transition-all text-[9px] font-bold", previewDevice === "mobile-sm" && "bg-card shadow-sm text-foreground")}
-                    onClick={() => setPreviewDevice("mobile-sm")} title="iPhone SE / small (375px)"><Smartphone className="h-3 w-3" /><span className="ml-0.5">SE</span></Button>
+                    onClick={() => setPreviewDevice("mobile-sm")} title="iPhone SE (375px)"><Smartphone className="h-3 w-3" /><span className="ml-0.5">SE</span></Button>
                   <Button variant="ghost" size="sm"
                     className={cn("h-6 px-2 rounded-md transition-all text-[9px] font-bold", previewDevice === "mobile-lg" && "bg-card shadow-sm text-foreground")}
-                    onClick={() => setPreviewDevice("mobile-lg")} title="iPhone Pro Max / large (430px)"><Smartphone className="h-3.5 w-3.5" /><span className="ml-0.5">Max</span></Button>
+                    onClick={() => setPreviewDevice("mobile-lg")} title="iPhone Pro Max (430px)"><Smartphone className="h-3.5 w-3.5" /><span className="ml-0.5">Max</span></Button>
                 </div>
               )}
 
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-muted-foreground/50 hidden xl:block mr-1">
-                  {previewMode === "code" ? `${Math.round(finalHtml.length / 1024)}KB` : previewDevice === "desktop" ? "600px" : previewDevice === "mobile-sm" ? "375px" : "430px"}
-                </span>
-                {/* ── Copy toggle buttons always visible in preview toolbar ── */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "h-6 px-2.5 text-[10px] gap-1 font-semibold transition-all duration-200 border",
-                    copied
-                      ? "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600"
-                      : "border-border hover:border-emerald-500/60 hover:text-emerald-600"
-                  )}
-                  onClick={handleCopy}
-                  title="Copy Mailchimp-ready HTML"
-                >
-                  <Copy className="h-2.5 w-2.5" />
-                  {copied ? "Copied!" : "Mailchimp"}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "h-6 px-2.5 text-[10px] gap-1 font-semibold transition-all duration-200 border",
-                    copiedLofty
-                      ? "bg-blue-600 hover:bg-blue-600 text-white border-blue-600"
-                      : "border-border hover:border-blue-500/60 hover:text-blue-600"
-                  )}
-                  onClick={handleCopyLofty}
-                  title="Copy Lofty/CRM table-based HTML"
-                >
-                  <Copy className="h-2.5 w-2.5" />
-                  {copiedLofty ? "Copied!" : "Lofty"}
-                </Button>
-              </div>
+              {/* Right: size label */}
+              <span className="text-[10px] text-muted-foreground/40 hidden lg:block ml-auto">
+                {previewMode === "code" ? `${Math.round(finalHtml.length / 1024)}KB` : previewDevice === "desktop" ? "600px" : previewDevice === "mobile-sm" ? "375px" : "430px"}
+              </span>
             </div>
 
             {/* Edit mode hint bar */}
