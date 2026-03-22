@@ -886,7 +886,7 @@ export function buildPitchDeckEmailHtml(
   // ── Body copy → HTML ──────────────────────────────────────────────────────
   const bodyHtml = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
     const bold = p.replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:700;color:#222222;">$1</strong>`);
-    return `<p style="margin:0 0 14px 0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.8;">${bold}</p>`;
+    return `<p style="margin:0 0 8px 0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.65;">${bold}</p>`;
   }).join("");
 
   return `<!DOCTYPE html>
