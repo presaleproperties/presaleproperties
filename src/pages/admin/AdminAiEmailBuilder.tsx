@@ -337,6 +337,7 @@ export default function AdminEmailBuilderPage() {
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile-sm" | "mobile-lg">("desktop");
   const [copied,        setCopied]        = useState(false);
+  const [copiedLofty,   setCopiedLofty]   = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
