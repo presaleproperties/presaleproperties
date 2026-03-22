@@ -960,7 +960,7 @@ export default function AdminEmailBuilderPage() {
               {/* ── LAYOUT VERSION TOGGLE ── */}
               <div className="px-3 py-2.5 border-b border-border bg-muted/10">
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold block mb-2">Layout</Label>
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-3 gap-1.5">
                   <button
                     onClick={() => setLayoutVersion("classic")}
                     className={cn(
@@ -971,7 +971,7 @@ export default function AdminEmailBuilderPage() {
                     )}
                   >
                     <div className="text-[11px] font-semibold text-foreground">Classic</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Header · Stats · Body · CTA</div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Header · Stats · Body</div>
                     {layoutVersion === "classic" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-primary" />}
                   </button>
                   <button
@@ -984,12 +984,28 @@ export default function AdminEmailBuilderPage() {
                     )}
                   >
                     <div className="text-[11px] font-semibold text-foreground">The Loop</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Slideshow hero · Editorial</div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Slideshow · Editorial</div>
                     {layoutVersion === "loop" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-amber-500" />}
+                  </button>
+                  <button
+                    onClick={() => setLayoutVersion("pitch-deck")}
+                    className={cn(
+                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                      layoutVersion === "pitch-deck"
+                        ? "border-emerald-500 bg-emerald-500/8 shadow-sm"
+                        : "border-border bg-muted/10 hover:border-emerald-400/50"
+                    )}
+                  >
+                    <div className="text-[11px] font-semibold text-foreground">Pitch Deck</div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Floor plans + pricing</div>
+                    {layoutVersion === "pitch-deck" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-emerald-500" />}
                   </button>
                 </div>
                 {layoutVersion === "loop" && (
                   <p className="text-[9px] text-amber-600/70 mt-1.5 leading-relaxed">Hero + Image Cards cycle as a CSS slideshow. Add images in the Images step below.</p>
+                )}
+                {layoutVersion === "pitch-deck" && (
+                  <p className="text-[9px] text-emerald-600/70 mt-1.5 leading-relaxed">Optimized for pitch deck sends. Plus Jakarta Sans font, floor plans with pricing, parking &amp; locker included row, Call Now CTA only.</p>
                 )}
               </div>
 
