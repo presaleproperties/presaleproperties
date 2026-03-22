@@ -915,17 +915,12 @@ export function buildPitchDeckEmailHtml(
       .mobile-pad{padding-left:16px!important;padding-right:16px!important;}
       .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:12px 20px!important;border-right:none!important;border-bottom:1px solid #e8e3db!important;}
       .mobile-stack td:last-child{border-bottom:none!important;}
-      /* fp wrapper: full width with comfortable padding */
       .fp-wrap{padding-left:12px!important;padding-right:12px!important;}
       .hero-headline{font-size:24px!important;}
       .stat-val{font-size:20px!important;}
-      /* Agent card — stack vertically on mobile */
-      .agent-card-row{display:block!important;width:100%!important;}
-      .agent-photo-cell{display:block!important;padding:16px 16px 0 16px!important;width:100%!important;text-align:center!important;}
-      .agent-info-cell{display:block!important;padding:10px 16px!important;width:100%!important;text-align:center!important;}
-      .agent-logo-cell{display:block!important;padding:10px 16px 16px!important;width:100%!important;text-align:center!important;}
-      .agent-logo{width:120px!important;max-width:120px!important;margin:0 auto!important;}
-      .agent-photo{width:64px!important;height:64px!important;}
+      /* Hide desktop agent card, show mobile version */
+      .agent-desktop{display:none!important;max-height:0!important;overflow:hidden!important;mso-hide:all!important;}
+      .agent-mobile{display:block!important;max-height:none!important;}
     }
   </style>
 </head>
@@ -1096,38 +1091,59 @@ export function buildPitchDeckEmailHtml(
   <!-- DIVIDER -->
   <tr><td style="padding:0 36px;"><div style="height:1px;background:#ece8e0;"></div></td></tr>
 
-  <!-- AGENT CARD -->
-  <tr>
+  <!-- AGENT CARD — DESKTOP (hidden on mobile via CSS) -->
+  <tr class="agent-desktop" style="display:table-row;">
     <td bgcolor="#fafaf8" style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
-      <!--[if mso]><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><![endif]-->
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="agent-card-row">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
           ${agent.photo_url ? `
-          <td width="94" valign="top" class="agent-photo-cell" style="padding:18px 0 18px 20px;vertical-align:top;line-height:0;font-size:0;width:94px;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="74" height="74" border="0" class="agent-photo"
+          <td width="94" valign="top" style="padding:18px 0 18px 20px;vertical-align:top;line-height:0;font-size:0;width:94px;">
+            <img src="${agent.photo_url}" alt="${agent.full_name}" width="74" height="74" border="0"
                  style="display:block;width:74px;height:74px;border-radius:50%;object-fit:cover;object-position:center top;border:2.5px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
           </td>` : ""}
-          <td valign="top" class="agent-info-cell" style="padding:18px 10px 18px ${agent.photo_url ? "12px" : "20px"};vertical-align:top;">
+          <td valign="top" style="padding:18px 10px 18px ${agent.photo_url ? "12px" : "20px"};vertical-align:top;">
             <div style="font-family:${DISPLAY_FONT};font-size:16px;font-weight:700;color:#111111;line-height:1.2;margin-bottom:2px;">${agent.full_name}</div>
             <div style="font-family:${BODY_FONT};font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};line-height:1.5;margin-bottom:6px;">${agent.title}</div>
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
-              ${agent.phone ? `<tr>
-                <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;line-height:1;">&#128222;</td>
-                <td style="padding-bottom:3px;vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:${BODY_FONT};font-size:12px;font-weight:400;color:#444444;text-decoration:none;">${agent.phone}</a></td>
-              </tr>` : ""}
-              ${agent.email ? `<tr>
-                <td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;line-height:1;">&#9993;</td>
-                <td style="padding-bottom:3px;vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${BODY_FONT};font-size:11px;font-weight:400;color:#444444;text-decoration:none;">${agent.email}</a></td>
-              </tr>` : ""}
+              ${agent.phone ? `<tr><td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;">&#128222;</td><td style="padding-bottom:3px;vertical-align:middle;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="font-family:${BODY_FONT};font-size:12px;color:#444444;text-decoration:none;">${agent.phone}</a></td></tr>` : ""}
+              ${agent.email ? `<tr><td style="padding-bottom:3px;padding-right:6px;vertical-align:middle;font-size:10px;color:#888888;">&#9993;</td><td style="padding-bottom:3px;vertical-align:middle;"><a href="mailto:${agent.email}" style="font-family:${BODY_FONT};font-size:11px;color:#444444;text-decoration:none;">${agent.email}</a></td></tr>` : ""}
             </table>
           </td>
-          <td align="right" valign="middle" class="agent-logo-cell" style="padding:18px 20px 18px 8px;vertical-align:middle;white-space:nowrap;">
-            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="130" border="0" class="agent-logo"
-                 style="display:block;width:130px;max-width:130px;height:auto;-ms-interpolation-mode:bicubic;" />
+          <td align="right" valign="middle" style="padding:18px 20px 18px 8px;vertical-align:middle;white-space:nowrap;">
+            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="130" border="0"
+                 style="display:block;width:130px;max-width:130px;height:auto;" />
           </td>
         </tr>
       </table>
-      <!--[if mso]></td></tr></table><![endif]-->
+    </td>
+  </tr>
+
+  <!-- AGENT CARD — MOBILE (shown only on mobile via CSS, hidden by default) -->
+  <tr class="agent-mobile" style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+    <td style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
+      <!-- Centered photo -->
+      ${agent.photo_url ? `
+      <div style="text-align:center;padding:24px 20px 12px;">
+        <img src="${agent.photo_url}" alt="${agent.full_name}" width="88" height="88" border="0"
+             style="display:inline-block;width:88px;height:88px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+      </div>` : ""}
+      <!-- Name + title centered -->
+      <div style="text-align:center;padding:0 20px 6px;">
+        <div style="font-family:${DISPLAY_FONT};font-size:18px;font-weight:700;color:#111111;line-height:1.2;margin-bottom:4px;">${agent.full_name}</div>
+        <div style="font-family:${BODY_FONT};font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};line-height:1.5;">${agent.title}</div>
+      </div>
+      <!-- Contact buttons row -->
+      <div style="text-align:center;padding:12px 20px 16px;">
+        ${agent.phone ? `
+        <a href="tel:${agent.phone.replace(/\D/g,"")}" style="display:inline-block;margin:4px 6px;padding:10px 20px;background:${DARK};border-radius:2px;font-family:${BODY_FONT};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ffffff;text-decoration:none;">&#128222; ${agent.phone}</a>` : ""}
+        ${agent.email ? `
+        <a href="mailto:${agent.email}" style="display:inline-block;margin:4px 6px;padding:10px 20px;background:#f0ede8;border:1px solid #d8d3ca;border-radius:2px;font-family:${BODY_FONT};font-size:11px;font-weight:600;letter-spacing:1px;color:#444444;text-decoration:none;">&#9993; Email</a>` : ""}
+      </div>
+      <!-- Logo centered -->
+      <div style="text-align:center;padding:0 20px 20px;border-top:1px solid #e8e3db;padding-top:14px;">
+        <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" border="0"
+             style="display:inline-block;width:110px;height:auto;" />
+      </div>
     </td>
   </tr>
 
