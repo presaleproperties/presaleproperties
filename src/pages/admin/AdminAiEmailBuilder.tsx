@@ -929,21 +929,28 @@ export default function AdminEmailBuilderPage() {
             )}
 
             {previewMode === "preview" || previewMode === "edit" ? (
-              <div className={cn("flex-1 overflow-auto", (previewDevice === "mobile-sm" || previewDevice === "mobile-lg") ? "bg-[#e8e5e0] flex justify-center" : "bg-[#e8e5e0]")}>
+              <div className={cn("flex-1 overflow-auto", (previewDevice === "mobile-sm" || previewDevice === "mobile-lg") ? "bg-[#e8e5e0] flex justify-center items-start" : "bg-[#e8e5e0]")}>
                 <iframe
                   ref={iframeRef}
-                  srcDoc={previewHtml}
-                  className="border-0 h-full"
+                  srcDoc={(() => {
+                    const w = previewDevice === "mobile-sm" ? 375 : previewDevice === "mobile-lg" ? 430 : null;
+                    if (!w) return previewHtml;
+                    // Inject a viewport override so the iframe renders at mobile width and triggers media queries
+                    return previewHtml.replace(
+                      /<meta name="viewport"[^>]*>/i,
+                      `<meta name="viewport" content="width=${w}, initial-scale=1, maximum-scale=1"/>`
+                    );
+                  })()}
+                  className="border-0"
                   style={
-                    previewDevice === "mobile-sm" ? { width: "375px", minHeight: "100%" } :
-                    previewDevice === "mobile-lg" ? { width: "430px", minHeight: "100%" } :
-                    { width: "100%" }
+                    previewDevice === "mobile-sm" ? { width: "375px", minHeight: "100%", height: "100%" } :
+                    previewDevice === "mobile-lg" ? { width: "430px", minHeight: "100%", height: "100%" } :
+                    { width: "100%", height: "100%" }
                   }
                   sandbox="allow-same-origin"
                   title="Email Preview"
                   onLoad={previewMode === "edit" ? enableIframeEdit : undefined}
                 />
-              </div>
             ) : (
               <div className="flex-1 overflow-auto" style={{ background: "#0d1117" }}>
                 <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5" style={{ background: "#161b22" }}>
