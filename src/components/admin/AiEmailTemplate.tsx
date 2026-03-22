@@ -1483,7 +1483,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
 
         <!-- ── BODY COPY ── -->
         <tr>
-          <td class="mobile-pad" valign="top" style="padding: 28px 36px 24px; background-color: #f7f5f1;">
+          <td class="mobile-pad" valign="top" style="padding: 28px 36px 24px; background-color: #ffffff;">
             ${data.headline ? `
             <p class="hero-text" style="margin: 0 0 14px 0; ${F} font-size: 24px; font-weight: 800; color: ${DARK}; line-height: 1.2; letter-spacing: -0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
             <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 18px;">
