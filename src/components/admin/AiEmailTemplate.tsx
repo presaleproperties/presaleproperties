@@ -185,11 +185,12 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
     u+#body a{color:inherit!important;text-decoration:none!important;}
     #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
     /* ── Mobile ── */
-    @media only screen and (max-width:620px){
+    @media only screen and (max-width:680px){
       .email-container{width:100%!important;max-width:100%!important;}
-      .mobile-pad{padding-left:20px!important;padding-right:20px!important;}
-      .mobile-pad-sm{padding-left:14px!important;padding-right:14px!important;}
-      .mobile-stack td{display:block!important;width:100%!important;text-align:left!important;padding-left:20px!important;padding-right:20px!important;}
+      .outer-wrapper td{padding-left:0!important;padding-right:0!important;padding-top:0!important;padding-bottom:0!important;}
+      .mobile-pad{padding-left:0!important;padding-right:0!important;padding-top:12px!important;padding-bottom:12px!important;}
+      .mobile-pad-sm{padding-left:0!important;padding-right:0!important;}
+      .mobile-stack td{display:block!important;width:100%!important;text-align:left!important;padding-left:0!important;padding-right:0!important;}
       .mobile-stack td:first-child{border-right:none!important;border-bottom:1px solid #e8e3db!important;}
       .mobile-hero-img{min-height:200px!important;}
       .hero-headline{font-size:24px!important;}
@@ -197,8 +198,8 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
       .stat-value{font-size:22px!important;}
       .agent-logo{display:none!important;}
       .agent-photo{width:44px!important;height:44px!important;}
-      .agent-photo-cell{padding:14px 0 14px 16px!important;width:60px!important;}
-      .agent-info-cell{padding:14px 16px!important;}
+      .agent-photo-cell{padding:14px 0 14px 8px!important;width:60px!important;}
+      .agent-info-cell{padding:14px 8px!important;}
       .agent-logo-cell{display:none!important;}
       .fp-cell{display:block!important;width:100%!important;}
       table.mobile-full{width:100%!important;}
