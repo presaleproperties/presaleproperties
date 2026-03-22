@@ -945,7 +945,7 @@ export function buildPitchDeckEmailHtml(
 
   <!-- LOGO HEADER -->
   <tr>
-    <td align="center" style="background:#ffffff;padding:18px 36px 14px;border-bottom:1px solid #e8e3db;">
+    <td align="center" style="background:#ffffff;padding:0;border-bottom:1px solid #e8e3db;">
       <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="130" border="0"
            style="display:inline-block;width:130px;height:auto;border:0;" />
     </td>
