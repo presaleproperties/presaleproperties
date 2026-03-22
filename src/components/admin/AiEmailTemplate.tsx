@@ -953,6 +953,9 @@ export function buildPitchDeckEmailHtml(
       .fp-wrap{padding-left:12px!important;padding-right:12px!important;}
       .hero-headline{font-size:24px!important;}
       .stat-val{font-size:20px!important;}
+      /* Bullet indentation on mobile */
+      .bullet-dot{padding-left:12px!important;font-size:15px!important;}
+      .bullet-text p{font-size:15px!important;}
       /* Hide desktop agent card on mobile — use table-row for iOS Mail compatibility */
       .agent-desktop{display:none!important;max-height:0!important;overflow:hidden!important;}
       /* Show mobile agent card — must be table-row not block for <tr> in iOS Mail */
