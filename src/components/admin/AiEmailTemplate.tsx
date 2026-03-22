@@ -912,19 +912,17 @@ export function buildPitchDeckEmailHtml(
       .mobile-pad{padding-left:16px!important;padding-right:16px!important;}
       .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:12px 20px!important;border-right:none!important;border-bottom:1px solid #e8e3db!important;}
       .mobile-stack td:last-child{border-bottom:none!important;}
-      /* Floor plan cards: full-width single column on mobile */
-      .fp-cell{display:block!important;width:100%!important;box-sizing:border-box!important;padding:0 0 16px 0!important;}
-      .fp-cell div{border-radius:4px!important;}
-      .fp-cell img{width:100%!important;max-width:100%!important;height:auto!important;}
-      /* fp wrapper table: full width, no side padding */
-      .fp-wrap{padding-left:16px!important;padding-right:16px!important;}
+      /* fp wrapper: full width with comfortable padding */
+      .fp-wrap{padding-left:12px!important;padding-right:12px!important;}
       .hero-headline{font-size:24px!important;}
       .stat-val{font-size:20px!important;}
-      .agent-logo{display:none!important;}
-      .agent-photo{width:52px!important;height:52px!important;}
-      .agent-photo-cell{padding:14px 0 14px 16px!important;width:68px!important;}
-      .agent-info-cell{padding:14px 16px!important;}
-      .agent-logo-cell{display:none!important;}
+      /* Agent card — stack vertically on mobile */
+      .agent-card-row{display:block!important;width:100%!important;}
+      .agent-photo-cell{display:block!important;padding:16px 16px 0 16px!important;width:100%!important;text-align:center!important;}
+      .agent-info-cell{display:block!important;padding:10px 16px!important;width:100%!important;text-align:center!important;}
+      .agent-logo-cell{display:block!important;padding:10px 16px 16px!important;width:100%!important;text-align:center!important;}
+      .agent-logo{width:120px!important;max-width:120px!important;margin:0 auto!important;}
+      .agent-photo{width:64px!important;height:64px!important;}
     }
   </style>
 </head>
