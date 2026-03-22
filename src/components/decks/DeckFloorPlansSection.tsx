@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { FloorPlanModal, FloorPlan } from "./FloorPlanModal";
 import { DeckPriceGate } from "./DeckPriceGate";
-import { LayoutPanelTop, ArrowRight, Square, TrendingUp, Car, Archive, Wind, CheckCircle2, Flame, TrendingUp as TrendUp, BedDouble, Bath, Lock as LockIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  LayoutPanelTop, ArrowRight, Square, TrendingUp, Car, Archive, Wind,
+  CheckCircle2, Flame, TrendingUp as TrendUp, BedDouble, Bath, Lock as LockIcon,
+} from "lucide-react";
 
 function derivePsf(plan: FloorPlan): string | null {
   if (plan.price_per_sqft && plan.price_per_sqft.trim()) return plan.price_per_sqft;
@@ -75,23 +77,19 @@ export function DeckFloorPlansSection({
   const [selected, setSelected] = useState<FloorPlan | null>(null);
   const [priceGateOpen, setPriceGateOpen] = useState(false);
 
-  const rawItems = (includedItems && includedItems.length > 0)
-    ? includedItems
-    : ["Parking", "Storage", "AC"];
+  const rawItems = (includedItems && includedItems.length > 0) ? includedItems : ["Parking", "Storage", "AC"];
   const displayItems = rawItems.map(normalizeIncludedItem);
-
   const hasScarcity = (unitsRemaining !== null && unitsRemaining !== undefined) || nextPriceIncrease;
 
   const handleRevealPrice = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isUnlocked) {
-      setPriceGateOpen(true);
-    }
+    if (!isUnlocked) setPriceGateOpen(true);
   };
 
   return (
     <section id="floor-plans" className="relative py-16 sm:py-24 bg-muted/20 overflow-hidden">
-      {/* Price gate modal — only opens when user clicks "Reveal Price" */}
+
+      {/* Price gate modal — only triggered on demand, never on page load */}
       {priceGateOpen && !isUnlocked && (
         <DeckPriceGate
           slug={slug || ""}
@@ -104,17 +102,16 @@ export function DeckFloorPlansSection({
           onClose={() => setPriceGateOpen(false)}
         />
       )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         {/* Header */}
         <div className="mb-10 sm:mb-14">
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">02 — Hand-Picked For You</p>
-          <div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Top Picked Units</h2>
-            <p className="text-muted-foreground text-sm max-w-lg">
-              The best available units — tap any to see the full floor plan.{!isUnlocked && " Reveal pricing below."}
-            </p>
-          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Top Picked Units</h2>
+          <p className="text-muted-foreground text-sm max-w-lg">
+            The best available units — tap any to see the full floor plan.{!isUnlocked && " Pricing is hidden — tap Reveal to unlock."}
+          </p>
 
           {/* Scarcity strip */}
           {hasScarcity && (
@@ -187,7 +184,6 @@ export function DeckFloorPlansSection({
                           alt={plan.unit_type}
                           className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.04] p-3"
                         />
-                        {/* Hover overlay */}
                         <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                           <div className="flex items-center gap-2 bg-background/95 backdrop-blur-sm text-foreground font-semibold text-sm px-5 py-2.5 rounded-full shadow-lg border border-border/40">
                             <span>View Floor Plan</span>
@@ -201,8 +197,6 @@ export function DeckFloorPlansSection({
                         <span className="text-xs text-muted-foreground/50">Floor plan coming soon</span>
                       </div>
                     )}
-
-                    {/* Unit number badge */}
                     <div className="absolute top-3 left-3">
                       <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
                         #{idx + 1}
@@ -216,7 +210,6 @@ export function DeckFloorPlansSection({
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="text-foreground font-bold text-base sm:text-lg leading-tight">{plan.unit_type}</p>
-                        {/* Beds / Baths */}
                         {(plan.beds || plan.baths) && (
                           <div className="flex items-center gap-2.5 mt-1">
                             {plan.beds && (
@@ -235,7 +228,7 @@ export function DeckFloorPlansSection({
                         )}
                       </div>
 
-                      {/* Price — shown clearly if unlocked, blurred with CTA if locked */}
+                      {/* Price — clear when unlocked, blurred with CTA when locked */}
                       <div className="text-right shrink-0">
                         {isUnlocked ? (
                           <>
@@ -306,7 +299,7 @@ export function DeckFloorPlansSection({
           </div>
         )}
 
-        {/* CTA banner when locked — below grid */}
+        {/* Reveal pricing banner — below the grid when locked */}
         {!isUnlocked && floorPlans.length > 0 && (
           <div className="mt-8 p-5 rounded-2xl border border-primary/25 bg-primary/5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
             <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -314,7 +307,9 @@ export function DeckFloorPlansSection({
             </div>
             <div className="flex-1">
               <p className="font-bold text-foreground text-sm">Pricing is available — it's just hidden</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Enter your info to instantly reveal unit prices, price-per-sqft, and the full investment calculator.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Enter your info to instantly reveal unit prices, price-per-sqft, and the full investment calculator.
+              </p>
             </div>
             <button
               onClick={() => setPriceGateOpen(true)}
@@ -332,57 +327,7 @@ export function DeckFloorPlansSection({
         whatsappNumber={whatsappNumber}
         projectName={projectName}
         includedItems={displayItems}
-        isUnlocked={isUnlocked}
-        onRevealPrice={() => setPriceGateOpen(true)}
       />
     </section>
   );
 }
-
-
-          {/* Scarcity strip */}
-          {hasScarcity && (
-            <div className="flex flex-wrap items-center gap-3 mt-5">
-              {unitsRemaining !== null && unitsRemaining !== undefined && (
-                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-destructive/8 border border-destructive/25">
-                  <span className="relative flex h-2 w-2 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-60" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive" />
-                  </span>
-                  <Flame className="h-3.5 w-3.5 text-destructive shrink-0" />
-                  <p className="text-sm font-semibold text-destructive">
-                    {unitsRemaining === 1 ? "Only 1 unit remaining at this price" : `Only ${unitsRemaining} units remaining at this price`}
-                  </p>
-                </div>
-              )}
-              {nextPriceIncrease && (
-                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/8 border border-primary/25">
-                  <TrendUp className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <p className="text-sm font-semibold text-primary">Next price increase: {nextPriceIncrease}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Incentives banner */}
-          {incentives && incentives.length > 0 && (
-            <div className="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/20 flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 shrink-0">
-                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-xs font-bold uppercase tracking-wider text-primary">Developer Incentives</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {incentives.map((item, i) => (
-                  <span
-                    key={i}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-sm"
-                  >
-                    <CheckCircle2 className="h-3 w-3 shrink-0" />
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-
