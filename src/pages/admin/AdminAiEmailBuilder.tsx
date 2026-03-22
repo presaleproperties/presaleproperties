@@ -1014,30 +1014,43 @@ export default function AdminEmailBuilderPage() {
                 />
               </div>
             ) : (
-              <div className="flex-1 overflow-auto" style={{ background: "#0d1117" }}>
-                <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5" style={{ background: "#161b22" }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-emerald-400">email.html</span>
-                    <Badge className="text-[9px] h-4 px-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Mailchimp-ready</Badge>
-                    <Badge className="text-[9px] h-4 px-1.5 bg-blue-500/10 text-blue-400 border-blue-500/20">Lofty uses separate copy</Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars</span>
+              <div className="flex-1 overflow-auto flex flex-col" style={{ background: "#0d1117" }}>
+                {/* Code view header with Mailchimp / Lofty toggle */}
+                <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5 shrink-0" style={{ background: "#161b22" }}>
+                  <div className="flex items-center gap-1.5 bg-white/5 rounded-lg p-0.5">
                     <button
-                      onClick={handleCopy}
-                      className={cn("text-[10px] px-2 py-0.5 rounded font-medium transition-all", copied ? "bg-emerald-600 text-white" : "bg-white/10 text-white/70 hover:bg-emerald-600/30 hover:text-emerald-300")}
+                      onClick={() => setCodeViewTarget("mailchimp")}
+                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "mailchimp" ? "bg-emerald-600 text-white" : "text-white/50 hover:text-white/80")}
                     >
-                      {copied ? "✓ Copied" : "Copy Mailchimp"}
+                      Mailchimp
                     </button>
                     <button
-                      onClick={handleCopyLofty}
-                      className={cn("text-[10px] px-2 py-0.5 rounded font-medium transition-all", copiedLofty ? "bg-blue-600 text-white" : "bg-white/10 text-white/70 hover:bg-blue-600/30 hover:text-blue-300")}
+                      onClick={() => setCodeViewTarget("lofty")}
+                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "lofty" ? "bg-blue-600 text-white" : "text-white/50 hover:text-white/80")}
                     >
-                      {copiedLofty ? "✓ Copied" : "Copy Lofty"}
+                      Lofty / CRM
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-white/30">
+                      {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : finalHtml.length.toLocaleString()} chars
+                    </span>
+                    <button
+                      onClick={codeViewTarget === "lofty" ? handleCopyLofty : handleCopy}
+                      className={cn(
+                        "text-[10px] px-2.5 py-1 rounded font-medium transition-all",
+                        (codeViewTarget === "lofty" ? copiedLofty : copied)
+                          ? "bg-emerald-600 text-white"
+                          : "bg-white/10 text-white/70 hover:bg-white/20"
+                      )}
+                    >
+                      {(codeViewTarget === "lofty" ? copiedLofty : copied) ? "✓ Copied!" : "Copy HTML"}
                     </button>
                   </div>
                 </div>
-                <pre className="p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed" style={{ color: "#e6edf3" }}>{finalHtml}</pre>
+                <pre className="flex-1 p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed overflow-auto" style={{ color: "#e6edf3" }}>
+                  {codeViewTarget === "lofty" ? getLoftyHtml() : finalHtml}
+                </pre>
               </div>
             )}
           </div>
