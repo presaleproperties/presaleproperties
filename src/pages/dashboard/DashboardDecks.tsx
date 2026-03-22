@@ -142,9 +142,9 @@ export default function DashboardDecks() {
         ? depositSteps.map((s: any) => `${s.percent}% ${s.label}`).join(" · ")
         : "";
 
-      // Build incentive text from incentives array
-      const incentives: string[] = Array.isArray(deckData.incentives) ? deckData.incentives : [];
-      const incentiveText = incentives.map((i: string) => `✦ ${i}`).join("\n");
+      // Build incentive text from included_items array (AC, parking upgrades, etc.)
+      const includedItemsList: string[] = Array.isArray(deckData.included_items) ? deckData.included_items : [];
+      const incentiveText = includedItemsList.map((i: string) => `✦ ${i}`).join("\n");
 
       // Build highlights / body copy bullet from deck highlights
       const highlights: string[] = Array.isArray(deckData.highlights) ? deckData.highlights : [];
