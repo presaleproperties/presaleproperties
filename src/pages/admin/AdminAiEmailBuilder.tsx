@@ -1048,8 +1048,23 @@ export default function AdminEmailBuilderPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-mono text-emerald-400">email.html</span>
                     <Badge className="text-[9px] h-4 px-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Mailchimp-ready</Badge>
+                    <Badge className="text-[9px] h-4 px-1.5 bg-blue-500/10 text-blue-400 border-blue-500/20">Lofty uses separate copy</Badge>
                   </div>
-                  <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars</span>
+                    <button
+                      onClick={handleCopy}
+                      className={cn("text-[10px] px-2 py-0.5 rounded font-medium transition-all", copied ? "bg-emerald-600 text-white" : "bg-white/10 text-white/70 hover:bg-emerald-600/30 hover:text-emerald-300")}
+                    >
+                      {copied ? "✓ Copied" : "Copy Mailchimp"}
+                    </button>
+                    <button
+                      onClick={handleCopyLofty}
+                      className={cn("text-[10px] px-2 py-0.5 rounded font-medium transition-all", copiedLofty ? "bg-blue-600 text-white" : "bg-white/10 text-white/70 hover:bg-blue-600/30 hover:text-blue-300")}
+                    >
+                      {copiedLofty ? "✓ Copied" : "Copy Lofty"}
+                    </button>
+                  </div>
                 </div>
                 <pre className="p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed" style={{ color: "#e6edf3" }}>{finalHtml}</pre>
               </div>
