@@ -882,11 +882,15 @@ export function buildPitchDeckEmailHtml(
   const incentiveLines = (data.incentiveText || "")
     .split("\n").map(l => l.replace(/^[✦•\-–]\s*/, "").trim()).filter(Boolean);
 
-  // ── What's Included (parking + locker) ───────────────────────────────────
-  const includedItems: string[] = [];
-  if (data.parkingIncluded) includedItems.push(data.parkingIncluded);
-  if (data.lockerIncluded)  includedItems.push(data.lockerIncluded);
-  incentiveLines.forEach(l => includedItems.push(l));
+  // ── What's Included ──────────────────────────────────────────────────────
+  // incentiveLines already contains all items (parking, locker, AC, etc.)
+  // Only fall back to parkingIncluded/lockerIncluded if incentiveLines is empty
+  const includedItems: string[] = incentiveLines.length > 0
+    ? incentiveLines
+    : [
+        data.parkingIncluded,
+        data.lockerIncluded,
+      ].filter(Boolean) as string[];
 
   // ── Body copy → HTML ──────────────────────────────────────────────────────
   const bodyHtml = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
