@@ -272,10 +272,11 @@ export default function AdminEmailBuilderPage() {
   // ── Restore draft from localStorage ─────────────────────────────────────────
   // If a URL template preset is specified, skip the saved draft and use preset values
   // If source=deck, always load the draft (it was written by DashboardDecks)
+  const draftTimestamp = searchParams.get("t") ?? "";
   const savedDraft = useMemo(() => {
     if (urlPreset && !fromDeck) return null; // fresh start when navigating from hub
     try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch { return null; }
-  }, []); // eslint-disable-line
+  }, [draftTimestamp]); // eslint-disable-line
 
   // AI state
   const [prompt,         setPrompt]         = useState(savedDraft?.prompt         ?? "");
