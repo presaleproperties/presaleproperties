@@ -301,21 +301,22 @@ export function DeckFloorPlansSection({
 
         {/* Reveal pricing banner — below the grid when locked */}
         {!isUnlocked && floorPlans.length > 0 && (
-          <div className="mt-8 p-5 rounded-2xl border border-primary/25 bg-primary/5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-            <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+          <div className="mt-8 p-5 sm:p-6 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/8 to-primary/3 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left shadow-sm">
+            <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center shrink-0 shadow-inner">
               <LockIcon className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-foreground text-sm">Pricing is available — it's just hidden</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Enter your info to instantly reveal unit prices, price-per-sqft, and the full investment calculator.
+              <p className="font-bold text-foreground text-sm sm:text-base">This pricing is exclusive — not publicly listed</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-md">
+                This deck was shared with a select group of buyers only. To protect the integrity of this offering, pricing is revealed only after we know who's on the other side. It takes 30 seconds.
               </p>
             </div>
             <button
               onClick={() => setPriceGateOpen(true)}
-              className="shrink-0 h-10 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center gap-2 hover:bg-primary/90 transition-colors"
+              className="shrink-0 h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center gap-2 hover:bg-primary/90 active:scale-95 transition-all shadow-lg shadow-primary/25"
             >
-              Reveal Pricing <ArrowRight className="h-4 w-4" />
+              <LockIcon className="h-4 w-4" />
+              Unlock Exclusive Pricing <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         )}
