@@ -943,6 +943,14 @@ export function buildPitchDeckEmailHtml(
 <!-- Email container -->
 <table width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e0dbd3;">
 
+  <!-- LOGO HEADER -->
+  <tr>
+    <td align="center" style="background:#ffffff;padding:18px 36px 14px;border-bottom:1px solid #e8e3db;">
+      <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="130" border="0"
+           style="display:inline-block;width:130px;height:auto;border:0;" />
+    </td>
+  </tr>
+
   <!-- HEADER -->
   <tr>
     <td class="mobile-pad" style="background:${DARK};padding:28px 36px 24px;">
@@ -1600,13 +1608,6 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
                   <p style="margin: 0 0 10px 0; ${F} font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: ${ACCENT}; line-height: 1.5;">${agent.title}</p>
                   ${agent.phone ? `<p style="margin: 0 0 4px 0; ${F} font-size: 13px; color: #555555;">&#128222; <a href="tel:${agent.phone.replace(/\D/g, "")}" style="color: #555555; text-decoration: none;">${agent.phone}</a></p>` : ""}
                   ${agent.email ? `<p style="margin: 0; ${F} font-size: 12px; color: #777777;">&#9993; <a href="mailto:${agent.email}" style="color: #777777; text-decoration: none;">${agent.email}</a></p>` : ""}
-                </td>
-              </tr>
-              <tr>
-                <td align="center" valign="top"
-                    style="padding: 12px 24px 20px; border-top: 1px solid #e8e3db; text-align: center;">
-                  <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" border="0"
-                       style="display: inline-block; width: 110px; height: auto; border: 0;" />
                 </td>
               </tr>
             </table>
