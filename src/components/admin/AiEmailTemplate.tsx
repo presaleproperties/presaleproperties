@@ -898,22 +898,34 @@ export function buildPitchDeckEmailHtml(
       ].filter(Boolean) as string[];
 
   // ── Body copy → HTML ──────────────────────────────────────────────────────
-  const bodyHtml = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
+  // Renders as a flat list of table rows — bullets get indented dot+text columns.
+  // All rows go into a single wrapper table (no div wrappers that break in email clients).
+  const bodyRows = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
     const isList = /^[✦•\-–]/.test(p.trim());
     const content = p
       .replace(/^[✦•\-–]\s*/, "")
       .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:600;color:#222222;">$1</strong>`)
       .replace(/\*/g, "");
     if (isList) {
-      return `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 10px 0;">
-        <tr>
-          <td valign="top" width="24" style="width:24px;padding-left:20px;vertical-align:top;font-family:${BODY_FONT};font-size:15px;line-height:1.65;color:#C9A55A;">•</td>
-          <td valign="top" style="padding-left:8px;vertical-align:top;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.65;">${content}</td>
-        </tr>
-      </table>`;
+      return `
+      <tr>
+        <td class="bullet-dot" valign="top" width="28" style="width:28px;padding:0 0 10px 20px;vertical-align:top;font-family:${BODY_FONT};font-size:16px;line-height:1.65;color:#C9A55A;">•</td>
+        <td class="bullet-text" valign="top" style="padding:0 0 10px 8px;vertical-align:top;">
+          <p style="margin:0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.75;">${content}</p>
+        </td>
+      </tr>`;
     }
-    return `<p style="margin:0 0 12px 0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.75;">${content}</p>`;
+    return `
+      <tr>
+        <td colspan="2" style="padding:0 0 13px 0;">
+          <p style="margin:0;font-family:${BODY_FONT};font-size:14px;color:#444444;line-height:1.75;">${content}</p>
+        </td>
+      </tr>`;
   }).join("");
+
+  const bodyHtml = bodyRows
+    ? `<table cellpadding="0" cellspacing="0" border="0" width="100%">${bodyRows}</table>`
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
