@@ -915,17 +915,12 @@ export function buildPitchDeckEmailHtml(
       .mobile-pad{padding-left:16px!important;padding-right:16px!important;}
       .mobile-stack td{display:block!important;width:100%!important;text-align:center!important;padding:12px 20px!important;border-right:none!important;border-bottom:1px solid #e8e3db!important;}
       .mobile-stack td:last-child{border-bottom:none!important;}
-      /* fp wrapper: full width with comfortable padding */
       .fp-wrap{padding-left:12px!important;padding-right:12px!important;}
       .hero-headline{font-size:24px!important;}
       .stat-val{font-size:20px!important;}
-      /* Agent card — stack vertically on mobile */
-      .agent-card-row{display:block!important;width:100%!important;}
-      .agent-photo-cell{display:block!important;padding:16px 16px 0 16px!important;width:100%!important;text-align:center!important;}
-      .agent-info-cell{display:block!important;padding:10px 16px!important;width:100%!important;text-align:center!important;}
-      .agent-logo-cell{display:block!important;padding:10px 16px 16px!important;width:100%!important;text-align:center!important;}
-      .agent-logo{width:120px!important;max-width:120px!important;margin:0 auto!important;}
-      .agent-photo{width:64px!important;height:64px!important;}
+      /* Hide desktop agent card, show mobile version */
+      .agent-desktop{display:none!important;max-height:0!important;overflow:hidden!important;mso-hide:all!important;}
+      .agent-mobile{display:block!important;max-height:none!important;}
     }
   </style>
 </head>
