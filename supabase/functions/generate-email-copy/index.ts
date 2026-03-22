@@ -33,7 +33,6 @@ When the email type is "project-intro" (auto-generated on project select), write
 3. 4–5 punchy bullet point highlights (best features, price, timeline, deposit, location advantages)
 4. A highlights/incentives section if incentives data is provided — use ✦ bullets
 5. Soft CTA — invite a call or reply, low pressure
-6. Sign-off: Uzair Muhammad, Presale Specialist, Presale Properties, presaleproperties.com
 
 Keep this tight. Under 180 words for Version A, under 90 words for Version B.
 

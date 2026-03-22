@@ -170,7 +170,6 @@ export default function DashboardDecks() {
         highlightBullets ? `\n${highlightBullets}` : "",
         `\nBelow you'll find the floor plans, pricing, and deposit structure. I work exclusively with buyers — my job is to make sure you have everything you need to make the right call.`,
         `\nGive me a call or reply whenever you're ready.`,
-        `\nUzair Muhammad`,
       ].filter(Boolean).join("\n");
 
       const subjectLine = `${deckData.project_name}${deckData.city ? ` · ${deckData.city}` : ""} — Exclusive Presale Details`;
