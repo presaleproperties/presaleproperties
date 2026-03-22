@@ -24,6 +24,7 @@ interface DeckDepositTimelineSectionProps {
   defaultPrice?: number;
   floorPlans?: FloorPlan[];
   isUnlocked?: boolean;
+  onUnlockRequest?: () => void;
 }
 
 const DEFAULT_PRICE = 799_000;

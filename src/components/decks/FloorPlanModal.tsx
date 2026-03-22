@@ -56,6 +56,8 @@ interface FloorPlanModalProps {
   projectName?: string;
   allPlans?: FloorPlan[];
   includedItems?: string[];
+  isUnlocked?: boolean;
+  onUnlockRequest?: () => void;
 }
 
 export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, includedItems }: FloorPlanModalProps) {
