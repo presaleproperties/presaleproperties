@@ -22,7 +22,7 @@ export interface AgentInfo {
 export const DEFAULT_AGENT: AgentInfo = {
   full_name: "Uzair Muhammad",
   title: "Presale Specialist",
-  photo_url: null,
+  photo_url: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1772579582217-unijnf.jpg",
   phone: "778-231-3592",
   email: "info@presaleproperties.com",
 };
