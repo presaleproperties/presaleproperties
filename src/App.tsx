@@ -141,6 +141,14 @@ const queryClient = new QueryClient({
 // Minimal loading fallback — splash screen covers initial load
 const PageFallback = () => null;
 
+// Keyed wrapper so the email builder fully remounts when navigating from a pitch deck
+// (the ?t= timestamp param changes, causing a new key and fresh state)
+function AdminAiEmailBuilderKeyed() {
+  const [searchParams] = useSearchParams();
+  const t = searchParams.get("t") ?? "0";
+  return <AdminAiEmailBuilder key={t} />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
