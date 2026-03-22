@@ -1502,9 +1502,9 @@ export default function AdminEmailBuilderPage() {
                 </div>
               </StepSection>
 
-              {/* ── IMAGE CARDS (below What's Included) ── */}
+              {/* ── STEP 7: IMAGE CARDS ── */}
               <StepSection
-                step={5} title="Image Cards" icon={<Image className="h-3.5 w-3.5" />}
+                step={7} title="Image Cards" icon={<Image className="h-3.5 w-3.5" />}
                 done={imageCards.length > 0} doneLabel={imageCards.length > 0 ? `${imageCards.length} card${imageCards.length > 1 ? "s" : ""}` : undefined}
                 defaultOpen={false}
               >
