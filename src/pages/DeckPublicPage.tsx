@@ -373,6 +373,7 @@ export default function DeckPublicPage() {
               defaultPrice={defaultPrice}
               floorPlans={deck.floor_plans || []}
               isUnlocked={isUnlocked || deck.gate_enabled === false}
+              onUnlockRequest={() => document.getElementById("floor-plans")?.scrollIntoView({ behavior: "smooth" })}
             />
           </div>
         </section>
