@@ -370,7 +370,7 @@ export function LightboxGallery({
                 >
                   <img
                     src={img}
-                    alt=""
+                    alt="Property photo"
                     className="w-full h-full object-cover"
                     loading="lazy"
                     decoding="async"
