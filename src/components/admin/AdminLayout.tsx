@@ -94,7 +94,8 @@ const navSections = [
       { href: "/admin/top-deals",           label: "Top Deals",     icon: Sparkles,      color: "text-primary",     badgeKey: null },
       { href: "/admin/blogs",               label: "Blog Posts",    icon: BookOpen,      color: "text-rose-500",    badgeKey: null },
       { href: "/admin/landing-pages",       label: "Campaigns",     icon: Megaphone,     color: "text-orange-500",  badgeKey: null },
-      { href: "/admin/marketing-hub",       label: "Marketing Hub", icon: Mail,          color: "text-emerald-500", badgeKey: null },
+      { href: "/admin/email-center",        label: "Email Center",  icon: Mail,          color: "text-emerald-500", badgeKey: null },
+      { href: "/admin/marketing-hub",       label: "Marketing Hub", icon: Zap,           color: "text-amber-500",   badgeKey: null },
       { href: "/admin/campaign-builder/new",label: "Flyer Builder", icon: FileStack,     color: "text-amber-400",   badgeKey: null },
       { href: "/admin/google-reviews",      label: "Reviews",       icon: Star,          color: "text-yellow-500",  badgeKey: null },
       { href: "/dashboard/decks",           label: "Pitch Decks",   icon: Presentation,  color: "text-sky-500",     badgeKey: null },
@@ -117,7 +118,7 @@ const navSections = [
     emoji: "⚙️",
     items: [
       { href: "/admin/tasks",              label: "Tasks",           icon: ClipboardList, color: "text-orange-500", badgeKey: null },
-      { href: "/admin/email-workflows",    label: "Email Workflows", icon: Workflow,      color: "text-pink-500",   badgeKey: null },
+      { href: "/admin/email-workflows",    label: "Automations",     icon: Workflow,      color: "text-pink-500",   badgeKey: null },
       { href: "/admin/scheduler-settings", label: "Scheduler",      icon: CalendarCog,   color: "text-amber-500",  badgeKey: null },
       { href: "/admin/mls-sync",           label: "MLS Sync",        icon: RefreshCw,     color: "text-sky-500",    badgeKey: null },
       { href: "/admin/lofty-crm",          label: "Lofty CRM",       icon: Zap,           color: "text-emerald-500",badgeKey: null },
