@@ -242,12 +242,12 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
                 <div>
                   <input
                     type="tel"
-                    inputMode="tel"
-                    placeholder="Phone Number (e.g. 604-555-0123)"
+                    inputMode="numeric"
+                    placeholder="(604) 555-0123"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
                     className={cn(
-                      "w-full h-11 px-4 rounded-xl border bg-background text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors text-[16px]",
+                      "w-full h-11 px-4 rounded-xl border bg-background text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors text-[16px]",
                       errors.phone ? "border-destructive" : "border-input"
                     )}
                     autoComplete="tel"
