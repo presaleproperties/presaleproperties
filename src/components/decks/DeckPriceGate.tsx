@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
-import { Lock, ArrowRight, Shield, CheckCircle2, Loader2, X, Tag } from "lucide-react";
+import { ArrowRight, Shield, CheckCircle2, Loader2, X, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getVisitorId, getSessionId } from "@/lib/tracking/identifiers";
 import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 import { cn } from "@/lib/utils";
 import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 
 interface DeckPriceGateProps {
   slug: string;
@@ -136,10 +137,22 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
   };
 
   return (
-    /* Backdrop */
-    <div className="fixed inset-0 z-[9000] flex items-end sm:items-center justify-center bg-background/70 backdrop-blur-md p-0 sm:p-4">
-      <div className="relative w-full sm:max-w-md animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:fade-in duration-300">
-        <div className="bg-card border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden">
+    /* Backdrop — taps outside closes */
+    <div
+      className="fixed inset-0 z-[9000] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      {/* Sheet — stop propagation so tapping inside doesn't close */}
+      <div
+        className="relative w-full sm:max-w-md sm:mx-4 animate-in slide-in-from-bottom duration-300 ease-out sm:slide-in-from-bottom-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Drag handle on mobile */}
+        <div className="sm:hidden flex justify-center pt-2 pb-1 bg-card rounded-t-3xl">
+          <div className="w-10 h-1 rounded-full bg-border" />
+        </div>
+        <div className="bg-card border border-border border-t-0 sm:border-t rounded-b-none rounded-t-none sm:rounded-2xl shadow-2xl overflow-hidden max-h-[90dvh] overflow-y-auto">
+
 
           {/* Header bar */}
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
@@ -164,7 +177,7 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
           </div>
 
           {/* Body */}
-          <div className="px-5 pb-6">
+          <div className="px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
             <div className="mb-4">
               <h2 className="text-lg font-bold text-foreground">
                 {pendingSubmit ? "Verify Your Phone" : "Get Instant Access to Pricing"}
@@ -207,9 +220,10 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className={cn(
-                      "w-full h-11 px-4 rounded-xl border bg-background text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors",
+                      "w-full h-11 px-4 rounded-xl border bg-background text-[16px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors",
                       errors.fullName ? "border-destructive" : "border-input"
                     )}
+                    autoComplete="name"
                   />
                   {errors.fullName && <p className="text-xs text-destructive mt-1">{errors.fullName}</p>}
                 </div>
@@ -220,21 +234,23 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className={cn(
-                      "w-full h-11 px-4 rounded-xl border bg-background text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors",
+                      "w-full h-11 px-4 rounded-xl border bg-background text-[16px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors",
                       errors.email ? "border-destructive" : "border-input"
                     )}
+                    autoComplete="email"
+                    inputMode="email"
                   />
                   {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
                 </div>
                 <div>
                   <input
                     type="tel"
-                    inputMode="tel"
-                    placeholder="Phone Number (e.g. 604-555-0123)"
+                    inputMode="numeric"
+                    placeholder="(604) 555-0123"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
                     className={cn(
-                      "w-full h-11 px-4 rounded-xl border bg-background text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors text-[16px]",
+                      "w-full h-11 px-4 rounded-xl border bg-background text-[16px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors",
                       errors.phone ? "border-destructive" : "border-input"
                     )}
                     autoComplete="tel"
@@ -243,7 +259,7 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
                 </div>
                 <button
                   type="submit"
-                  className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors mt-1"
+                  className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] transition-all mt-1"
                 >
                   Reveal Pricing <ArrowRight className="h-4 w-4" />
                 </button>
