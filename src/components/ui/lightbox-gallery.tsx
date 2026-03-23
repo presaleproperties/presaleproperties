@@ -583,7 +583,7 @@ export function GalleryWithLightbox({
                       : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={img} alt="Property photo" className="w-full h-full object-cover" loading="lazy" />
                 </button>
               ))}
             </div>
