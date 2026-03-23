@@ -739,12 +739,14 @@ export default function MapSearch() {
     });
   }, [filters.priceMin, filters.priceMax]);
 
-  // Fetch resale listings (2024+ builds only - move-in ready new construction)
-  // IMPORTANT: this page is frequently used right after admins change the enabled-city scope.
-  // We intentionally keep this query “hot” so the count and markers update immediately.
+  // Fetch resale listings (move-in ready new construction)
+  // PERFORMANCE FIX: Single request, 1000-row cap.
+  // Previously fetched 4x1000 rows in parallel = 4 round-trips & ~340KB+ JSON causing slow/no load.
   const { data: resaleListings, isLoading: resaleLoading } = useQuery<MLSListing[]>({
-    queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, filters.propertyType, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities],
+    queryKey: ["unified-map-resale-v3", selectedCities, selectedPropertyTypes, filters.propertyType, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities, adminMinYear],
     queryFn: async () => {
+      const minYear = adminMinYear ?? DEFAULT_MIN_YEAR_BUILT;
+
       let query = supabase
         .from("mls_listings_safe")
         .select(
@@ -753,7 +755,7 @@ export default function MapSearch() {
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
-        .gte("year_built", 2024)
+        .gte("year_built", minYear)
         // Bounding box: Metro Vancouver + Fraser Valley area only
         .gte("latitude", 48.9)
         .lte("latitude", 49.6)
@@ -768,7 +770,7 @@ export default function MapSearch() {
         query = query.in("city", enabledCities);
       }
 
-      // Property types and price ranges are filtered client-side for multi-select OR logic
+      // Server-side filters applied before the row cap
       if (filters.baths !== "any") {
         query = query.gte("bathrooms_total", parseInt(filters.baths));
       }
@@ -780,64 +782,28 @@ export default function MapSearch() {
       if (filters.beds !== "any") {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
       }
-      
-      // Sqft filter
       if (filters.sqftMin) {
         query = query.gte("living_area", filters.sqftMin);
       }
       if (filters.sqftMax) {
         query = query.lte("living_area", filters.sqftMax);
       }
+      // Server-side price filter when using legacy single-range (reduces rows returned)
+      if (!selectedPriceRanges.length && filters.priceMin) {
+        query = query.gte("listing_price", parseInt(filters.priceMin));
+      }
+      if (!selectedPriceRanges.length && filters.priceMax) {
+        query = query.lte("listing_price", parseInt(filters.priceMax));
+      }
 
-      // NOTE: The backend caps max rows per request, so we page in chunks and merge.
-      // PERFORMANCE: Fetch pages in PARALLEL for faster initial load
-      const pageSize = 1000;
-      const maxRows = 4000; // Reduced from 6000 for faster load
-
-      // First, get the first page
-      const { data: firstPage, error: firstError } = await query
+      // Single request — 1000 most-recent listings is plenty for map display
+      const { data, error } = await query
         .order("list_date", { ascending: false, nullsFirst: false })
         .order("listing_price", { ascending: false })
-        .range(0, pageSize - 1);
-      
-      if (firstError) throw firstError;
-      const firstChunk = (firstPage || []) as MLSListing[];
-      
-      let all: MLSListing[] = [...firstChunk];
-      
-      // If first page is full, fetch remaining pages in PARALLEL for speed
-      if (firstChunk.length === pageSize) {
-        const fetchPage = async (offset: number): Promise<MLSListing[]> => {
-          const citiesToQuery = selectedCities.length > 0 ? selectedCities : (enabledCities || []);
-          const { data, error } = await supabase
-            .from("mls_listings_safe")
-            .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
-            .eq("mls_status", "Active")
-            .not("latitude", "is", null)
-            .not("longitude", "is", null)
-            .gte("year_built", 2024)
-            .in("city", citiesToQuery)
-            .order("list_date", { ascending: false, nullsFirst: false })
-            .order("listing_price", { ascending: false })
-            .range(offset, offset + pageSize - 1);
-          
-          if (error) return [];
-          return (data || []) as MLSListing[];
-        };
-        
-        const offsets = [];
-        for (let offset = pageSize; offset < maxRows; offset += pageSize) {
-          offsets.push(offset);
-        }
-        
-        const additionalPages = await Promise.all(offsets.map(fetchPage));
-        all = [...firstChunk, ...additionalPages.flat()];
-      }
-      
-      // De-dupe defensively
-      const byId = new globalThis.Map<string, MLSListing>();
-      for (const l of all) byId.set(l.id, l);
-      let results = Array.from(byId.values());
+        .limit(1000);
+
+      if (error) throw error;
+      let results = (data || []) as MLSListing[];
       
       // Client-side filtering for multi-select property types (or legacy single-select)
       const typesToFilter = selectedPropertyTypes.length > 0 
