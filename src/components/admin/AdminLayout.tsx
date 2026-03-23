@@ -118,7 +118,7 @@ const navSections = [
     emoji: "⚙️",
     items: [
       { href: "/admin/tasks",              label: "Tasks",           icon: ClipboardList, color: "text-orange-500", badgeKey: null },
-      { href: "/admin/email-workflows",    label: "Email Workflows", icon: Workflow,      color: "text-pink-500",   badgeKey: null },
+      { href: "/admin/email-workflows",    label: "Automations",     icon: Workflow,      color: "text-pink-500",   badgeKey: null },
       { href: "/admin/scheduler-settings", label: "Scheduler",      icon: CalendarCog,   color: "text-amber-500",  badgeKey: null },
       { href: "/admin/mls-sync",           label: "MLS Sync",        icon: RefreshCw,     color: "text-sky-500",    badgeKey: null },
       { href: "/admin/lofty-crm",          label: "Lofty CRM",       icon: Zap,           color: "text-emerald-500",badgeKey: null },
