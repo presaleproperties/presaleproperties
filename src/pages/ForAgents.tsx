@@ -128,6 +128,25 @@ export default function ForAgents() {
         />
         <meta name="keywords" content="assignment sales Vancouver, presale assignment, contract assignment BC, off-market assignments, presale agent tools" />
         <link rel="canonical" href="https://presaleproperties.com/for-agents" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        <meta property="og:title" content="Assignment Sales & Agent Tools | PresaleProperties" />
+        <meta property="og:description" content="Browse off-market assignment sales and presale contract transfers. Connect with 500+ verified BC real estate agents." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://presaleproperties.com/for-agents" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Assignment Sales & Agent Tools | PresaleProperties",
+          "description": "Browse off-market assignment sales and presale contract transfers. Connect with 500+ verified BC real estate agents.",
+          "url": "https://presaleproperties.com/for-agents",
+          "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {"@type":"ListItem","position":1,"name":"Home","item":"https://presaleproperties.com"},
+              {"@type":"ListItem","position":2,"name":"For Agents","item":"https://presaleproperties.com/for-agents"}
+            ]
+          }
+        })}</script>
       </Helmet>
 
       <ConversionHeader />

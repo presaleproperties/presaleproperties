@@ -137,8 +137,8 @@ export default function Contact() {
     return (
       <>
         <Helmet>
-          <title>Contact Us | Presale Properties Vancouver | Expert Guidance</title>
-          <meta name="description" content="Contact Vancouver's new construction specialists. Expert guidance on presale & move-in ready properties in Surrey, Langley, Coquitlam. Call or email today." />
+          <title>Message Sent | Presale Properties Vancouver</title>
+          <meta name="description" content="Thank you for contacting Presale Properties. Our team will get back to you within 24-48 hours." />
         </Helmet>
         <div className="min-h-screen flex flex-col bg-background">
           <ConversionHeader />

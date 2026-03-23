@@ -259,7 +259,7 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
                         className="w-full flex items-center gap-2 p-2 rounded-lg bg-background border border-border hover:border-primary transition-colors text-left"
                       >
                         {p.featured_image && (
-                          <img src={p.featured_image} alt="" className="w-10 h-10 rounded-md object-cover" />
+                          <img src={p.featured_image} alt={p.name ? `${p.name} presale project` : "Presale project"} className="w-10 h-10 rounded-md object-cover" />
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-xs text-foreground truncate">{p.name}</p>
@@ -388,7 +388,7 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
                         className="w-full flex items-center gap-2 p-2 rounded-lg bg-background border border-border hover:border-primary transition-colors text-left"
                       >
                         {p.featured_image && (
-                          <img src={p.featured_image} alt="" className="w-10 h-10 rounded-md object-cover" />
+                          <img src={p.featured_image} alt={p.name ? `${p.name} presale project` : "Presale project"} className="w-10 h-10 rounded-md object-cover" />
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-xs text-foreground truncate">{p.name}</p>

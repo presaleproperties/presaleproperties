@@ -228,6 +228,28 @@ export default function Assignments() {
       <Helmet>
         <title>Assignment Sales in Metro Vancouver | PresaleProperties</title>
         <meta name="description" content="Browse presale assignment sales in Metro Vancouver & Fraser Valley. Find below-market condos and townhomes from verified sellers." />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        <link rel="canonical" href="https://presaleproperties.com/assignments" />
+        <meta property="og:title" content="Assignment Sales in Metro Vancouver | PresaleProperties" />
+        <meta property="og:description" content="Browse presale assignment sales in Metro Vancouver & Fraser Valley." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://presaleproperties.com/assignments" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "Presale Assignment Sales — Metro Vancouver",
+          "description": "Browse presale condo and townhome assignment sales across Metro Vancouver and Fraser Valley, BC.",
+          "url": "https://presaleproperties.com/assignments",
+          "itemListOrder": "https://schema.org/ItemListOrderDescending"
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type":"ListItem","position":1,"name":"Home","item":"https://presaleproperties.com"},
+            {"@type":"ListItem","position":2,"name":"Assignments","item":"https://presaleproperties.com/assignments"}
+          ]
+        })}</script>
       </Helmet>
 
       <ConversionHeader />

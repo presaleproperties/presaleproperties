@@ -100,9 +100,16 @@ Disallow: /properties?*beds=
 Disallow: /presale-projects?*type=
 Disallow: /presale-projects?*developer=
 Disallow: /presale-projects?*city=
+Disallow: /presale-projects?*sort=
+Disallow: /presale-projects?*view=
+Disallow: /presale-projects?*page=
+Disallow: /properties?*sort=
+Disallow: /properties?*view=
+Disallow: /properties?*page=
+Disallow: /properties?*filter=
+Disallow: /assignments?*sort=
+Disallow: /assignments?*filter=
 
 # Sitemap
 Sitemap: https://presaleproperties.com/sitemap.xml
-
-# Image Sitemap
-Sitemap: https://presaleproperties.com/image-sitemap.xml
+Sitemap: https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-image-sitemap

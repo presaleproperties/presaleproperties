@@ -161,8 +161,9 @@ export function HeroSection({
 
           {/* Headline */}
           <h1 className="text-5xl md:text-6xl lg:text-[4.8rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-3 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
-            Find New{" "}
-            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>Homes.</span>
+            Vancouver{" "}
+            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>Presale</span>
+            {" "}Condos
           </h1>
 
           {/* Subheadline */}

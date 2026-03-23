@@ -125,17 +125,44 @@ Deno.serve(async (req) => {
       }))
     );
 
-    // City + Type + Price Pages: /presale-projects/{city}/condos-under-500k
-    const cityTypePricePages = allCities.flatMap(city => 
-      propertyTypes.flatMap(type => 
-        pricePoints.map(price => ({
-          url: `/presale-projects/${city}/${type}-under-${price}`,
-          priority: primaryCities.includes(city) ? "0.85" : "0.75",
-          changefreq: "weekly",
-          lastmod: now
-        }))
-      )
-    );
+    // Price ceiling map for database-driven Soft 404 prevention
+    const PRICE_MAX_MAP: Record<string, number> = {
+      "500k": 500000, "600k": 600000, "700k": 700000,
+      "800k": 800000, "900k": 900000, "1m": 1000000
+    };
+    const TYPE_DB_MAP: Record<string, string> = { "condos": "condo", "townhomes": "townhome" };
+
+    // Fetch all published projects once for price/type/city matching
+    const { data: allProjects } = await supabase
+      .from("presale_projects")
+      .select("city, project_type, starting_price")
+      .eq("is_published", true)
+      .eq("is_indexed", true);
+
+    // City + Type + Price Pages — only generate if real content exists
+    const cityTypePricePages: { url: string; priority: string; changefreq: string; lastmod: string }[] = [];
+    for (const city of allCities) {
+      for (const type of propertyTypes) {
+        for (const price of pricePoints) {
+          const maxPrice = PRICE_MAX_MAP[price];
+          const dbType = TYPE_DB_MAP[type];
+          const hasMatch = (allProjects || []).some(p =>
+            p.city?.toLowerCase().replace(/\s+/g, "-") === city &&
+            p.project_type === dbType &&
+            p.starting_price != null &&
+            p.starting_price <= maxPrice
+          );
+          if (hasMatch) {
+            cityTypePricePages.push({
+              url: `/presale-projects/${city}/${type}-under-${price}`,
+              priority: primaryCities.includes(city) ? "0.85" : "0.75",
+              changefreq: "weekly",
+              lastmod: now
+            });
+          }
+        }
+      }
+    }
 
     // ==========================================
     // 3. LEGACY CITY PAGES — REMOVED from sitemap
