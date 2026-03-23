@@ -331,7 +331,7 @@ export default function AdminEmailBuilderPage() {
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // Layout version
-  const [layoutVersion, setLayoutVersion] = useState<"classic" | "loop" | "pitch-deck">(savedDraft?.layoutVersion ?? "classic");
+  const [layoutVersion, setLayoutVersion] = useState<"classic" | "loop" | "pitch-deck" | "modern">(savedDraft?.layoutVersion ?? "classic");
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
