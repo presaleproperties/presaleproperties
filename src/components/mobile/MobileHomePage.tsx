@@ -260,7 +260,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             <button
               key={city.slug}
               onClick={() => handleCityClick(city.slug)}
-              className="inline-flex px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-muted/60 border border-border active:scale-95 transition-all shrink-0"
+              className="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-muted/60 border border-border active:scale-95 transition-all shrink-0"
             >
               {city.name}
             </button>
