@@ -68,6 +68,37 @@ export default function PresaleProcess() {
           name="description"
           content="A complete 8-step guide to buying a presale condo in Vancouver, BC — from pre-approval to receiving your keys. Expert guidance at no extra cost."
         />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        <link rel="canonical" href="https://presaleproperties.com/presale-process" />
+        <meta property="og:title" content="How to Buy a Presale Condo in Vancouver — 8-Step Guide" />
+        <meta property="og:description" content="A complete 8-step guide to buying a presale condo in Vancouver BC from pre-approval to receiving keys." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://presaleproperties.com/presale-process" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          "name": "How to Buy a Presale Condo in Vancouver",
+          "description": "A complete 8-step guide to buying a presale condo in Vancouver BC from pre-approval to receiving keys.",
+          "url": "https://presaleproperties.com/presale-process",
+          "step": [
+            {"@type":"HowToStep","position":1,"name":"Get Pre-Approved","text":"Get mortgage pre-approval before searching presale condos in Vancouver."},
+            {"@type":"HowToStep","position":2,"name":"Get VIP Access","text":"Register for VIP access to get floor plans and pricing before public launch."},
+            {"@type":"HowToStep","position":3,"name":"Choose Your Unit","text":"Select your floor plan, unit, and finishes from available inventory."},
+            {"@type":"HowToStep","position":4,"name":"Sign the Contract","text":"Review and sign the presale contract with your lawyer during the rescission period."},
+            {"@type":"HowToStep","position":5,"name":"Pay Deposits","text":"Pay deposit installments per the schedule — typically 5-20% total over 12-18 months."},
+            {"@type":"HowToStep","position":6,"name":"Track Construction","text":"Monitor build progress and stay updated with developer communications."},
+            {"@type":"HowToStep","position":7,"name":"Walkthrough","text":"Inspect your unit with the developer before completion to document any deficiencies."},
+            {"@type":"HowToStep","position":8,"name":"Completion & Keys","text":"Complete the purchase, receive your keys, and move into your new presale home."}
+          ]
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type":"ListItem","position":1,"name":"Home","item":"https://presaleproperties.com"},
+            {"@type":"ListItem","position":2,"name":"Presale Process","item":"https://presaleproperties.com/presale-process"}
+          ]
+        })}</script>
       </Helmet>
 
       <style>{`

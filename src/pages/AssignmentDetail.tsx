@@ -248,8 +248,42 @@ export default function AssignmentDetail() {
           name="description"
           content={`${listing.beds}BR assignment at ${listing.project_name} in ${listing.city}. ${formatPrice(listing.assignment_price)}.`}
         />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <link rel="canonical" href={`https://presaleproperties.com/assignments/${listing.id}`} />
+        <meta property="og:title" content={`${listing.title} | Assignment Sale`} />
+        <meta property="og:description" content={`${listing.beds}BR at ${listing.project_name} in ${listing.city}. ${formatPrice(listing.assignment_price)}.`} />
+        <meta property="og:type" content="website" />
+        {listing.featured_image && <meta property="og:image" content={listing.featured_image} />}
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "RealEstateListing",
+          "name": listing.title,
+          "description": `${listing.beds} bed assignment at ${listing.project_name}, ${listing.city} BC`,
+          "url": `https://presaleproperties.com/assignments/${listing.id}`,
+          "image": listing.featured_image || undefined,
+          "offers": {
+            "@type": "Offer",
+            "price": listing.assignment_price,
+            "priceCurrency": "CAD",
+            "availability": "https://schema.org/InStock"
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": listing.city,
+            "addressRegion": "BC",
+            "addressCountry": "CA"
+          },
+          "numberOfRooms": listing.beds
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type":"ListItem","position":1,"name":"Home","item":"https://presaleproperties.com"},
+            {"@type":"ListItem","position":2,"name":"Assignments","item":"https://presaleproperties.com/assignments"},
+            {"@type":"ListItem","position":3,"name":listing.title,"item":`https://presaleproperties.com/assignments/${listing.id}`}
+          ]
+        })}</script>
       </Helmet>
 
       <ConversionHeader />

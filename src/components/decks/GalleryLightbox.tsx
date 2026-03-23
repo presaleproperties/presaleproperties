@@ -242,7 +242,7 @@ export function GalleryLightbox({
             >
               <img
                 src={img}
-                alt={`Gallery image ${i + 1}`}
+                alt="Project gallery photo"
                 className="w-full object-contain"
                 style={{
                   maxHeight: "82dvh",
