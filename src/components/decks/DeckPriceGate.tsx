@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
-import { Lock, ArrowRight, Shield, CheckCircle2, Loader2, X, Tag } from "lucide-react";
+import { ArrowRight, Shield, CheckCircle2, Loader2, X, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getVisitorId, getSessionId } from "@/lib/tracking/identifiers";
 import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 import { cn } from "@/lib/utils";
 import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 
 interface DeckPriceGateProps {
   slug: string;
