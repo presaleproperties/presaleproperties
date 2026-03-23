@@ -137,10 +137,22 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
   };
 
   return (
-    /* Backdrop */
-    <div className="fixed inset-0 z-[9000] flex items-end sm:items-center justify-center bg-background/70 backdrop-blur-md p-0 sm:p-4">
-      <div className="relative w-full sm:max-w-md animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:fade-in duration-300">
-        <div className="bg-card border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden">
+    /* Backdrop — taps outside closes */
+    <div
+      className="fixed inset-0 z-[9000] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      {/* Sheet — stop propagation so tapping inside doesn't close */}
+      <div
+        className="relative w-full sm:max-w-md sm:mx-4 animate-in slide-in-from-bottom duration-300 ease-out sm:slide-in-from-bottom-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Drag handle on mobile */}
+        <div className="sm:hidden flex justify-center pt-2 pb-1 bg-card rounded-t-3xl">
+          <div className="w-10 h-1 rounded-full bg-border" />
+        </div>
+        <div className="bg-card border border-border border-t-0 sm:border-t rounded-b-none rounded-t-none sm:rounded-2xl shadow-2xl overflow-hidden max-h-[90dvh] overflow-y-auto">
+
 
           {/* Header bar */}
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
