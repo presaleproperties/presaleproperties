@@ -145,12 +145,6 @@ function ComposePanel({
             startingPrice: fd.vars?.startingPrice || "",
             deposit:       fd.vars?.deposit       || "",
             completion:    fd.vars?.completion    || "",
-            featuredImage: fd.vars?.featuredImage || "",
-            brochureUrl:   fd.vars?.brochureUrl   || "",
-            floorplanUrl:  fd.vars?.floorplanUrl  || "",
-            pricingUrl:    fd.vars?.pricingUrl    || "",
-            projectUrl:    fd.vars?.projectUrl    || "",
-            bookUrl:       fd.vars?.bookUrl       || "https://presaleproperties.com/book",
           };
           setHtmlBody(buildAiEmailHtml(copy));
           if (fd.vars?.subjectLine) setSubject(fd.vars.subjectLine);
