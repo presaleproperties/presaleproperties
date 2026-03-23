@@ -4,32 +4,96 @@ import { Logo } from "@/components/ui/Logo";
 
 // Primary cities for condos
 const CONDO_CITY_LINKS = [
-  { slug: "surrey", name: "Surrey Presale Condos" },
-  { slug: "vancouver", name: "Vancouver Presale Condos" },
-  { slug: "langley", name: "Langley Presale Condos" },
-  { slug: "coquitlam", name: "Coquitlam Presale Condos" },
-  { slug: "burnaby", name: "Burnaby Presale Condos" },
-  { slug: "richmond", name: "Richmond Presale Condos" },
-  { slug: "delta", name: "Delta Presale Condos" },
-  { slug: "abbotsford", name: "Abbotsford Presale Condos" },
+  { label: "Surrey Presale Condos", href: "/presale-projects/surrey/condos" },
+  { label: "Vancouver Presale Condos", href: "/presale-projects/vancouver/condos" },
+  { label: "Langley Presale Condos", href: "/presale-projects/langley/condos" },
+  { label: "Coquitlam Presale Condos", href: "/presale-projects/coquitlam/condos" },
+  { label: "Burnaby Presale Condos", href: "/presale-projects/burnaby/condos" },
+  { label: "Richmond Presale Condos", href: "/presale-projects/richmond/condos" },
+  { label: "Delta Presale Condos", href: "/presale-projects/delta/condos" },
+  { label: "Abbotsford Presale Condos", href: "/presale-projects/abbotsford/condos" },
+  { label: "North Vancouver Condos", href: "/presale-projects/north-vancouver/condos" },
+  { label: "New Westminster Condos", href: "/presale-projects/new-westminster/condos" },
+  { label: "Port Moody Condos", href: "/presale-projects/port-moody/condos" },
+  { label: "Maple Ridge Condos", href: "/presale-projects/maple-ridge/condos" },
 ];
 
-// Primary cities for townhomes
+// Townhome links
 const TOWNHOME_CITY_LINKS = [
-  { slug: "surrey", name: "Surrey Presale Townhomes" },
-  { slug: "langley", name: "Langley Presale Townhomes" },
-  { slug: "coquitlam", name: "Coquitlam Presale Townhomes" },
-  { slug: "burnaby", name: "Burnaby Presale Townhomes" },
-  { slug: "vancouver", name: "Vancouver Presale Townhomes" },
-  { slug: "richmond", name: "Richmond Presale Townhomes" },
+  { label: "Surrey Presale Townhomes", href: "/presale-projects/surrey/townhomes" },
+  { label: "Langley Presale Townhomes", href: "/presale-projects/langley/townhomes" },
+  { label: "Coquitlam Presale Townhomes", href: "/presale-projects/coquitlam/townhomes" },
+  { label: "Burnaby Presale Townhomes", href: "/presale-projects/burnaby/townhomes" },
+  { label: "Vancouver Presale Townhomes", href: "/presale-projects/vancouver/townhomes" },
+  { label: "Richmond Presale Townhomes", href: "/presale-projects/richmond/townhomes" },
+  { label: "Abbotsford Townhomes", href: "/presale-projects/abbotsford/townhomes" },
+  { label: "North Van Townhomes", href: "/presale-projects/north-vancouver/townhomes" },
+  { label: "Maple Ridge Townhomes", href: "/presale-projects/maple-ridge/townhomes" },
+  { label: "Port Coquitlam Townhomes", href: "/presale-projects/port-coquitlam/townhomes" },
+  { label: "Assignments", href: "/assignments" },
+  { label: "Map Search", href: "/map-search" },
+];
+
+// Neighbourhood links
+const NEIGHBOURHOOD_LINKS = [
+  { label: "Surrey City Centre", href: "/surrey-city-centre-presale" },
+  { label: "Langley Willoughby", href: "/langley-willoughby-presale" },
+  { label: "Surrey Cloverdale", href: "/surrey-cloverdale-presale" },
+  { label: "South Surrey", href: "/south-surrey-presale" },
+  { label: "Burnaby Metrotown", href: "/burnaby-metrotown-presale" },
+  { label: "Burnaby Brentwood", href: "/burnaby-brentwood-presale" },
+  { label: "Coquitlam Burquitlam", href: "/coquitlam-burquitlam-presale" },
+  { label: "Mount Pleasant", href: "/vancouver-mount-pleasant-presale" },
+  { label: "Richmond Brighouse", href: "/richmond-brighouse-presale" },
+  { label: "North Van Lonsdale", href: "/north-vancouver-lonsdale-presale" },
+];
+
+// Move-in ready links
+const MOVE_IN_LINKS = [
+  { label: "All New Homes", href: "/properties" },
+  { label: "Map Search", href: "/map-search" },
+  { label: "Vancouver Homes", href: "/properties/vancouver" },
+  { label: "Surrey Homes", href: "/properties/surrey" },
+  { label: "Langley Homes", href: "/properties/langley" },
+  { label: "Abbotsford Homes", href: "/properties/abbotsford" },
+  { label: "North Vancouver Homes", href: "/properties/north-vancouver" },
+  { label: "Delta Homes", href: "/properties/delta" },
+  { label: "New Westminster Homes", href: "/properties/new-westminster" },
+  { label: "Popular Searches", href: "/properties/popular-searches" },
+];
+
+// Resources links
+const RESOURCE_LINKS = [
+  { label: "Guides & Resources", href: "/guides" },
+  { label: "Calculator", href: "/calculator" },
+  { label: "Presale Guides", href: "/guides/presale-guides" },
+  { label: "Market Updates", href: "/guides/market-updates" },
+  { label: "Blog", href: "/blog" },
+  { label: "Developers", href: "/developers" },
+  { label: "Agent Portal", href: "/for-agents" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "Presale Process", href: "/presale-process" },
+  { label: "ROI Calculator", href: "/roi-calculator" },
+];
+
+// Browse by price links
+const PRICE_LINKS = [
+  { label: "Surrey Condos Under $500K", href: "/presale-projects/surrey/condos-under-500k" },
+  { label: "Surrey Condos Under $600K", href: "/presale-projects/surrey/condos-under-600k" },
+  { label: "Langley Condos Under $500K", href: "/presale-projects/langley/condos-under-500k" },
+  { label: "Langley Condos Under $600K", href: "/presale-projects/langley/condos-under-600k" },
+  { label: "Burnaby Condos Under $700K", href: "/presale-projects/burnaby/condos-under-700k" },
+  { label: "Vancouver Condos Under $800K", href: "/presale-projects/vancouver/condos-under-800k" },
+  { label: "Abbotsford Condos Under $500K", href: "/presale-projects/abbotsford/condos-under-500k" },
+  { label: "Surrey Townhomes Under $700K", href: "/presale-projects/surrey/townhomes-under-700k" },
 ];
 
 export function Footer() {
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="py-8 sm:py-12 px-4 lg:container lg:px-4">
-        <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-6">
-          <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-1">
+        <div className="grid gap-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
+          <div className="space-y-4 col-span-2 sm:col-span-3 md:col-span-1">
             <Logo size="xl" className="-my-10 sm:-my-10 md:-my-10" />
             <p className="text-xs sm:text-sm text-muted-foreground">
               Metro Vancouver's #1 marketplace for presale condos, townhomes, and new construction homes with VIP pricing and floor plans.
@@ -45,32 +109,10 @@ export function Footer() {
                   All Presale Projects
                 </Link>
               </li>
-              {CONDO_CITY_LINKS.slice(0, 5).map((city) => (
-                <li key={city.slug}>
-                  <Link 
-                    to={`/${city.slug}-presale-condos`} 
-                    className="hover:text-foreground transition-colors"
-                    title={city.name}
-                  >
-                    {city.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* More Condos + Townhomes */}
-          <nav aria-label="More cities" className="space-y-3 sm:space-y-4">
-            <h4 className="text-xs sm:text-sm font-semibold">More Cities</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-              {CONDO_CITY_LINKS.slice(5).map((city) => (
-                <li key={city.slug}>
-                  <Link 
-                    to={`/${city.slug}-presale-condos`} 
-                    className="hover:text-foreground transition-colors"
-                    title={city.name}
-                  >
-                    {city.name}
+              {CONDO_CITY_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link to={link.href} className="hover:text-foreground transition-colors">
+                    {link.label}
                   </Link>
                 </li>
               ))}
@@ -81,14 +123,24 @@ export function Footer() {
           <nav aria-label="Presale townhomes by city" className="space-y-3 sm:space-y-4">
             <h4 className="text-xs sm:text-sm font-semibold">Presale Townhomes</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-              {TOWNHOME_CITY_LINKS.map((city) => (
-                <li key={city.slug}>
-                  <Link 
-                    to={`/${city.slug}-presale-townhomes`} 
-                    className="hover:text-foreground transition-colors"
-                    title={city.name}
-                  >
-                    {city.name}
+              {TOWNHOME_CITY_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link to={link.href} className="hover:text-foreground transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Neighbourhoods */}
+          <nav aria-label="Neighbourhoods" className="space-y-3 sm:space-y-4">
+            <h4 className="text-xs sm:text-sm font-semibold">Neighbourhoods</h4>
+            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+              {NEIGHBOURHOOD_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link to={link.href} className="hover:text-foreground transition-colors">
+                    {link.label}
                   </Link>
                 </li>
               ))}
@@ -99,79 +151,40 @@ export function Footer() {
           <nav aria-label="Move-in ready homes" className="space-y-3 sm:space-y-4">
             <h4 className="text-xs sm:text-sm font-semibold">Move-In Ready</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-              <li>
-                <Link to="/properties" className="hover:text-foreground transition-colors">
-                  All New Homes
-                </Link>
-              </li>
-              <li>
-                <Link to="/map-search" className="hover:text-foreground transition-colors">
-                  Map Search
-                </Link>
-              </li>
-              <li>
-                <Link to="/properties/vancouver" className="hover:text-foreground transition-colors">
-                  Vancouver Homes
-                </Link>
-              </li>
-              <li>
-                <Link to="/properties/surrey" className="hover:text-foreground transition-colors">
-                  Surrey Homes
-                </Link>
-              </li>
-              <li>
-                <Link to="/properties/langley" className="hover:text-foreground transition-colors">
-                  Langley Homes
-                </Link>
-              </li>
+              {MOVE_IN_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link to={link.href} className="hover:text-foreground transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
 
           <nav aria-label="Resources" className="space-y-3 sm:space-y-4">
             <h4 className="text-xs sm:text-sm font-semibold">Resources</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-              <li>
-                <Link to="/guides" className="hover:text-foreground transition-colors">
-                  Guides & Resources
-                </Link>
-              </li>
-              <li>
-                <Link to="/calculator" className="hover:text-foreground transition-colors">
-                  Calculator
-                </Link>
-              </li>
-              <li>
-                <Link to="/guides/presale-guides" className="hover:text-foreground transition-colors">
-                  Presale Guides
-                </Link>
-              </li>
-              <li>
-                <Link to="/guides/market-updates" className="hover:text-foreground transition-colors">
-                  Market Updates
-                </Link>
-              </li>
-              <li>
-                <Link to="/blog" className="hover:text-foreground transition-colors">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link to="/developers" className="hover:text-foreground transition-colors">
-                  Developers
-                </Link>
-              </li>
-              <li>
-                <Link to="/for-agents" className="hover:text-foreground transition-colors">
-                  Agent Portal
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-foreground transition-colors">
-                  Contact Us
-                </Link>
-              </li>
+              {RESOURCE_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link to={link.href} className="hover:text-foreground transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
+        </div>
+
+        {/* Browse by Price */}
+        <div className="mt-8 pt-6 border-t border-border">
+          <p className="text-xs font-semibold mb-3">Browse by Price</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+            {PRICE_LINKS.map((link) => (
+              <Link key={link.href} to={link.href} className="hover:text-foreground transition-colors">
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Brokerage Section */}
@@ -211,7 +224,9 @@ export function Footer() {
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
             <span>·</span>
-            <span>info@presaleproperties.com | 672-258-1100</span>
+            <a href="mailto:info@presaleproperties.com" className="hover:text-foreground transition-colors">info@presaleproperties.com</a>
+            <span>|</span>
+            <a href="tel:6722581100" className="hover:text-foreground transition-colors">672-258-1100</a>
           </div>
         </div>
       </div>

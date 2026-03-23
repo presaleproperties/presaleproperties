@@ -600,7 +600,7 @@ export function GalleryWithLightbox({
                       : "border-transparent hover:border-muted-foreground/50"
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={img} alt="Property photo" className="w-full h-full object-cover" loading="lazy" />
                 </button>
               ))}
               {images.length > 5 && (
