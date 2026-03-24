@@ -246,7 +246,7 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
             placeholder="Ask about presale projects..."
             className={cn(
               "w-full pl-4 pr-10 py-2.5 rounded-full border border-border/60 text-sm bg-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all placeholder:text-muted-foreground/70",
-              isListening && "border-red-400 focus:ring-red-300"
+              isListening && "border-destructive/60 focus:ring-destructive/30"
             )}
             disabled={isLoading}
           />
@@ -255,7 +255,7 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
               onClick={toggleVoice}
               className={cn(
                 "absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition-colors",
-                isListening ? "text-red-500 animate-pulse" : "text-muted-foreground/60"
+                isListening ? "text-destructive animate-pulse" : "text-muted-foreground/60"
               )}
             >
               {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
