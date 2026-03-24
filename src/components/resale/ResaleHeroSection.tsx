@@ -53,7 +53,7 @@ export function ResaleHeroSection() {
           >
             {/* Search Header */}
             <div className="flex items-center justify-between border-b border-border px-2.5 sm:px-4 py-2 sm:py-3">
-              <span className="px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold bg-foreground text-background shadow-sm">
+              <span className="px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold bg-gray-900 text-white shadow-sm">
                 New Homes
               </span>
               <Link
