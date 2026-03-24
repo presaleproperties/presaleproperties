@@ -60,12 +60,12 @@ export function WhoWeAre() {
             </div>
 
             {/* Right — cards grid */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {highlights.map((item, i) => (
                 <div
                   key={item.title}
-                  className={`rounded-2xl p-6 border border-border bg-card hover:border-primary/35 hover:shadow-lg transition-all duration-300 ${
-                    i % 2 === 1 ? "mt-7" : ""
+                  className={`rounded-2xl p-5 sm:p-6 border border-border bg-card hover:border-primary/35 hover:shadow-lg transition-all duration-300 ${
+                    i % 2 === 1 ? "sm:mt-7" : ""
                   }`}
                 >
                   <div className="p-2.5 bg-primary/10 rounded-xl w-fit mb-5">
