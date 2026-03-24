@@ -254,8 +254,8 @@
         height: 58px !important;
         border: 2.5px solid #D4A843 !important;
         box-shadow: 0 4px 20px rgba(0,0,0,.22), 0 0 0 4px rgba(212,168,67,.12) !important;
+        bottom: 20px !important;
         right: 20px !important;
-        /* bottom is controlled by scroll JS */
       }
       #zbbl:hover {
         box-shadow: 0 6px 28px rgba(0,0,0,.28), 0 0 0 6px rgba(212,168,67,.18) !important;
@@ -524,53 +524,13 @@
       }
     </style>
     <script>
-      /* Zara widget — scroll-aware positioning
-         Hero visible  → button sits high (clears the CTA bar)
-         User scrolled → button drops to normal bottom position
-      */
+      /* Fix Zara widget disclaimer name */
       (function () {
-        var HIGH   = '160px'; // above the hero CTA cluster
-        var LOW    = '20px';  // normal resting spot after scroll
-        var THRESH = 80;      // px scrolled before dropping down
-        var btn, panel;
-        var scrolled = false;
-
-        function setPos(high) {
-          if (!btn) return;
-          var b = high ? HIGH : LOW;
-          btn.style.bottom   = b;
-          btn.style.transition = 'bottom 0.4s cubic-bezier(0.4,0,0.2,1)';
-          // keep the panel anchored above the button
-          if (panel) {
-            panel.style.bottom = (parseInt(b) + 72) + 'px';
-            panel.style.transition = 'bottom 0.4s cubic-bezier(0.4,0,0.2,1)';
-          }
-        }
-
-        function onScroll() {
-          var y = window.scrollY || window.pageYOffset;
-          if (!scrolled && y > THRESH) {
-            scrolled = true;
-            setPos(false);
-          } else if (scrolled && y <= THRESH) {
-            scrolled = false;
-            setPos(true);
-          }
-        }
-
         function init() {
-          btn   = document.getElementById('zbbl');
-          panel = document.getElementById('zpnl');
-          if (!btn) { setTimeout(init, 200); return; }
-          // Fix disclaimer name
           var dis = document.getElementById('zdis');
-          if (dis) dis.textContent = 'AI assistant \u00b7 Licensed advice: Uzair Muhammad, REALTOR\u00ae';
-          // Start high (hero visible)
-          btn.style.bottom = HIGH;
-          if (panel) panel.style.bottom = (parseInt(HIGH) + 72) + 'px';
-          window.addEventListener('scroll', onScroll, { passive: true });
+          if (!dis) { setTimeout(init, 200); return; }
+          dis.textContent = 'AI assistant \u00b7 Licensed advice: Uzair Muhammad, REALTOR\u00ae';
         }
-
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 400); });
         } else {

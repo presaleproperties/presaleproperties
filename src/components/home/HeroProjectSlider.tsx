@@ -141,8 +141,8 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-1.5 shrink-0">
+            {/* Actions — desktop gets right padding to avoid overlap with Zara widget */}
+            <div className="flex items-center gap-1.5 shrink-0 lg:mr-20">
           {hasAnyDoc ? (
                 <>
                   {/* All sizes: open lead form modal to gate document access */}
