@@ -482,42 +482,124 @@
         flex-shrink: 0 !important;
       }
 
-      /* ── Mobile optimisation ─────────────────────────────────────── */
-      @media (max-width: 520px) {
+      /* ── iPhone SE (375px) and small phones ─────────────────────── */
+      @media (max-width: 390px) {
         #zbbl {
-          bottom: 16px !important;
+          bottom: max(16px, env(safe-area-inset-bottom)) !important;
+          right: 14px !important;
+          width: 50px !important;
+          height: 50px !important;
+        }
+        #zpnl {
+          position: fixed !important;
+          width: calc(100vw - 12px) !important;
+          right: 6px !important;
+          left: 6px !important;
+          bottom: max(76px, calc(env(safe-area-inset-bottom) + 72px)) !important;
+          top: max(60px, env(safe-area-inset-top)) !important;
+          max-height: none !important;
+          height: auto !important;
+          border-radius: 16px !important;
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        #zhdr {
+          padding: 12px 14px 11px !important;
+          flex-shrink: 0 !important;
+        }
+        #zmsg {
+          flex: 1 1 0% !important;
+          min-height: 0 !important;
+          padding: 12px 12px 8px !important;
+          overflow-y: auto !important;
+          -webkit-overflow-scrolling: touch !important;
+        }
+        .zm {
+          font-size: 13px !important;
+          max-width: 88% !important;
+        }
+        #zqas {
+          padding: 6px 10px 4px !important;
+          flex-wrap: wrap !important;
+          flex-shrink: 0 !important;
+        }
+        .zqa {
+          font-size: 11px !important;
+          padding: 5px 10px !important;
+        }
+        #zinp {
+          padding: 8px 10px max(10px, env(safe-area-inset-bottom)) !important;
+          flex-shrink: 0 !important;
+        }
+        #ztxt {
+          font-size: 16px !important; /* prevent iOS zoom */
+        }
+        #zpwr {
+          padding: 0 10px max(8px, env(safe-area-inset-bottom)) !important;
+          flex-shrink: 0 !important;
+        }
+        #zdis {
+          flex-shrink: 0 !important;
+        }
+      }
+
+      /* ── iPhone 14/15 Pro Max & large phones (391–520px) ─────────── */
+      @media (min-width: 391px) and (max-width: 520px) {
+        #zbbl {
+          bottom: max(18px, env(safe-area-inset-bottom)) !important;
           right: 16px !important;
           width: 54px !important;
           height: 54px !important;
         }
         #zpnl {
+          position: fixed !important;
           width: calc(100vw - 16px) !important;
           right: 8px !important;
           left: 8px !important;
-          bottom: 82px !important;
-          border-radius: 18px !important;
-          max-height: calc(100dvh - 110px) !important;
+          bottom: max(86px, calc(env(safe-area-inset-bottom) + 80px)) !important;
+          top: max(70px, env(safe-area-inset-top)) !important;
+          max-height: none !important;
+          height: auto !important;
+          border-radius: 20px !important;
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        #zhdr {
+          flex-shrink: 0 !important;
         }
         #zmsg {
-          min-height: 200px !important;
-          padding: 14px 12px 8px !important;
+          flex: 1 1 0% !important;
+          min-height: 0 !important;
+          padding: 14px 13px 10px !important;
+          overflow-y: auto !important;
+          -webkit-overflow-scrolling: touch !important;
         }
         .zm {
-          font-size: 13px !important;
-          max-width: 86% !important;
+          font-size: 13.5px !important;
+          max-width: 85% !important;
+        }
+        #zqas {
+          padding: 7px 12px 5px !important;
+          flex-wrap: wrap !important;
+          flex-shrink: 0 !important;
+        }
+        .zqa {
+          font-size: 12px !important;
+          padding: 5px 11px !important;
         }
         #zinp {
-          padding: 8px 12px max(12px, env(safe-area-inset-bottom)) !important;
+          padding: 9px 12px max(12px, env(safe-area-inset-bottom)) !important;
+          flex-shrink: 0 !important;
+        }
+        #ztxt {
+          font-size: 16px !important; /* prevent iOS zoom */
         }
         #zpwr {
           padding: 0 12px max(10px, env(safe-area-inset-bottom)) !important;
+          flex-shrink: 0 !important;
         }
-        #zqas {
-          padding: 6px 12px 4px !important;
-        }
-        .zqa {
-          font-size: 11.5px !important;
-          padding: 5px 11px !important;
+        #zdis {
+          flex-shrink: 0 !important;
         }
       }
 
