@@ -139,7 +139,7 @@ export function PresaleExpertsSection() {
                     </span>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">We serve clients in 6 languages.</p>
+                <p className="text-xs text-muted-foreground">We serve clients in 5 languages.</p>
                 <div className="flex gap-3 pt-2">
                   <Button asChild size="sm">
                     <Link to="/contact">Get VIP Access</Link>
