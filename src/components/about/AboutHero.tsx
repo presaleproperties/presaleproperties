@@ -9,7 +9,7 @@ const stats = [
   { value: "400+", label: "Homes Sold" },
   { value: "$200M+", label: "In Transactions" },
   { value: "5.0★", label: "Google Rating" },
-  { value: "6+", label: "Languages" },
+  { value: "5", label: "Languages" },
 ];
 
 const trust = [
