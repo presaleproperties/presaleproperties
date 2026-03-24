@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Sparkles } from "lucide-react";
 import { AIChatDrawer } from "./AIChatDrawer";
 import { cn } from "@/lib/utils";
+import zaraHeadshot from "@/assets/zara-headshot.png";
 
 export function FloatingAIOrb() {
   const [open, setOpen] = useState(false);
