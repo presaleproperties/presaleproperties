@@ -22,9 +22,9 @@ interface FaviconZooms {
 
 const DEFAULT_URLS: FaviconUrls = {
   favicon_32: "/favicon.png",
-  favicon_192: "/favicon.png",
-  favicon_512: "/favicon.png",
-  apple_touch_icon: "/favicon.png",
+  favicon_192: "/favicon-192.png",
+  favicon_512: "/favicon-512.png",
+  apple_touch_icon: "/favicon-192.png",
   og_image: "/og-image.png",
 };
 
