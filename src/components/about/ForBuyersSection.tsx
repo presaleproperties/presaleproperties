@@ -74,7 +74,7 @@ export function ForBuyersSection() {
       <div className="container px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
 
-          <div className="grid lg:grid-cols-[1fr_2fr] gap-12 lg:gap-16 items-end mb-14">
+          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_2fr] gap-6 lg:gap-16 lg:items-end mb-10 md:mb-14">
             <div>
               <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-primary block mb-5">
                 Who We Help

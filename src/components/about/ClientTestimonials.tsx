@@ -100,12 +100,12 @@ export function ClientTestimonials() {
             </div>
           </div>
 
-          {/* Reviews grid — masonry-feel with offset */}
+          {/* Reviews grid — offset only on sm+ */}
           <div className="grid sm:grid-cols-2 gap-5 mb-10">
             {displayReviews.map((review, i) => (
               <div
                 key={review.id}
-                className={`group rounded-2xl bg-card border border-border p-7 hover:border-primary/25 hover:shadow-lg transition-all duration-300 flex flex-col ${
+                className={`group rounded-2xl bg-card border border-border p-5 sm:p-7 hover:border-primary/25 hover:shadow-lg transition-all duration-300 flex flex-col ${
                   i === 1 ? "sm:mt-6" : i === 3 ? "sm:mt-6" : ""
                 }`}
               >

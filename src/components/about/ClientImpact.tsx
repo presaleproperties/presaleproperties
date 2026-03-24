@@ -52,11 +52,11 @@ export function ClientImpact() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {impactStats.map((item) => (
               <div
                 key={item.label}
-                className={`relative group rounded-2xl p-7 border transition-all duration-300 overflow-hidden ${
+                className={`relative group rounded-2xl p-4 sm:p-6 lg:p-7 border transition-all duration-300 overflow-hidden ${
                   item.accent
                     ? "bg-foreground border-foreground"
                     : "bg-card border-border hover:border-primary/30 hover:shadow-lg"
@@ -68,18 +68,18 @@ export function ClientImpact() {
                 )}
 
                 <div className="relative">
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-5 ${
+                  <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center mb-4 sm:mb-5 ${
                     item.accent ? "bg-primary/20" : "bg-primary/10 group-hover:bg-primary/15 transition-colors"
                   }`}>
-                    <item.icon className="h-5 w-5 text-primary" />
+                    <item.icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
-                  <div className={`text-4xl font-black mb-1.5 ${item.accent ? "text-primary" : "text-primary"}`}>
+                  <div className={`text-2xl sm:text-3xl lg:text-4xl font-black mb-1.5 text-primary`}>
                     {item.stat}
                   </div>
-                  <div className={`text-[13px] font-bold mb-1 ${item.accent ? "text-background" : "text-foreground"}`}>
+                  <div className={`text-[12px] sm:text-[13px] font-bold mb-1 ${item.accent ? "text-background" : "text-foreground"}`}>
                     {item.label}
                   </div>
-                  <div className={`text-[12px] leading-snug ${item.accent ? "text-background/50" : "text-muted-foreground"}`}>
+                  <div className={`text-[11px] sm:text-[12px] leading-snug ${item.accent ? "text-background/50" : "text-muted-foreground"}`}>
                     {item.desc}
                   </div>
                 </div>
