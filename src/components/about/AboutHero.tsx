@@ -22,7 +22,7 @@ export function AboutHero() {
   const [formOpen, setFormOpen] = useState(false);
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-end overflow-hidden">
+    <section className="relative min-h-[820px] lg:min-h-screen flex flex-col justify-end overflow-hidden">
 
       {/* ── Full-bleed photograph ── */}
       <div className="absolute inset-0">
