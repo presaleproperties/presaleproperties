@@ -22,10 +22,10 @@ export function AboutHero() {
   const [formOpen, setFormOpen] = useState(false);
 
   return (
-    <section className="relative min-h-[820px] lg:min-h-screen flex flex-col justify-end overflow-hidden">
+    <section className="relative flex flex-col overflow-x-hidden">
 
       {/* ── Full-bleed photograph ── */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 min-h-full">
         <img
           src={aboutHeroImage}
           alt="Presale Properties Group team"
@@ -41,8 +41,8 @@ export function AboutHero() {
       {/* ── Horizontal rule — top gold line ── */}
       <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent opacity-70" />
 
-      {/* ── Main content — anchored to bottom ── */}
-      <div className="relative w-full pt-32 pb-16 md:pt-40 md:pb-24">
+      {/* ── Main content — clears navbar at top, generous padding at bottom ── */}
+      <div className="relative w-full pt-28 pb-16 md:pt-36 md:pb-24 lg:pt-44 lg:pb-28 min-h-[820px] lg:min-h-screen flex flex-col justify-end">
         <div className="container px-4 sm:px-6">
 
           {/* Location chip */}
