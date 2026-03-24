@@ -284,11 +284,11 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
         <div className="flex items-center gap-3 px-4 py-3">
           <div className="relative shrink-0">
             <img src={zaraHeadshot} alt="Zara" className="w-9 h-9 rounded-full object-cover object-top ring-2 ring-primary/20" />
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ring-2 ring-card" style={{ backgroundColor: "hsl(142,71%,45%)" }} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-foreground">Zara</p>
-            <p className="text-xs text-emerald-600 font-medium">Online now</p>
+            <p className="text-xs font-medium" style={{ color: "hsl(142,71%,35%)" }}>Online now</p>
           </div>
           <button onClick={() => setIsMinimized(false)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
             <Maximize2 className="h-3.5 w-3.5 text-muted-foreground" />
