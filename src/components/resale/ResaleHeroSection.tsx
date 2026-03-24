@@ -25,7 +25,7 @@ export function ResaleHeroSection() {
       />
       
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70 sm:from-black/50 sm:via-black/40 sm:to-black/60" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
       
       {/* Content */}
       <div className="container relative z-10 py-5 sm:py-14 md:py-20 px-4">
