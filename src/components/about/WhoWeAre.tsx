@@ -14,7 +14,7 @@ const highlights = [
   {
     icon: Globe,
     title: "Multilingual Team",
-    description: "English, Hindi, Punjabi, Urdu, Arabic, Korean — and more. You should be understood in your language.",
+    description: "English, Hindi, Punjabi, Urdu, Arabic — and more. You should be understood in your language.",
   },
   {
     icon: Users,

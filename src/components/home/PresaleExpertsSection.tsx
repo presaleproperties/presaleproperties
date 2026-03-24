@@ -38,7 +38,7 @@ const benefits = [
   }
 ];
 
-const languages = ["English", "Hindi", "Punjabi", "Urdu", "Arabic", "Korean"];
+const languages = ["English", "Hindi", "Punjabi", "Urdu", "Arabic"];
 
 function VIPInlineForm() {
   const [form, setForm] = useState({ firstName: "", email: "" });
