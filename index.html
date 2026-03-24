@@ -242,5 +242,205 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script src="https://cplycyfgywxhlecazvra.supabase.co/functions/v1/zara-widget"></script>
+    <style>
+      /* ── Zara Widget Premium Overrides ───────────────────────────── */
+
+      /* Floating trigger button */
+      #zbbl {
+        width: 58px !important;
+        height: 58px !important;
+        border: 2.5px solid #D4A843 !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,.22), 0 0 0 4px rgba(212,168,67,.12) !important;
+        transition: transform .2s, box-shadow .2s !important;
+      }
+      #zbbl:hover {
+        box-shadow: 0 6px 28px rgba(0,0,0,.28), 0 0 0 6px rgba(212,168,67,.18) !important;
+      }
+      /* Notification badge */
+      #znot {
+        top: -2px !important;
+        right: -2px !important;
+        width: 16px !important;
+        height: 16px !important;
+        border: 2px solid #fff !important;
+        font-size: 8px !important;
+      }
+
+      /* Chat panel */
+      #zpnl {
+        border-radius: 20px !important;
+        box-shadow: 0 20px 80px rgba(0,0,0,.18), 0 4px 24px rgba(0,0,0,.12) !important;
+        max-height: 640px !important;
+        border: 1px solid rgba(255,255,255,.08) !important;
+      }
+
+      /* Header — premium dark gradient */
+      #zhdr {
+        padding: 14px 16px 13px !important;
+        background: linear-gradient(145deg, #111111, #222222) !important;
+        border-bottom: 1px solid rgba(212,168,67,.15) !important;
+      }
+
+      /* Avatar wrapper */
+      #zavtw {
+        width: 44px !important;
+        height: 44px !important;
+        border: 2px solid #D4A843 !important;
+        box-shadow: 0 0 0 3px rgba(212,168,67,.15) !important;
+        border-radius: 50% !important;
+        overflow: visible !important;
+      }
+      #zaimg {
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        object-position: top !important;
+      }
+
+      /* Online dot — properly positioned inside avatar */
+      #zdot {
+        position: absolute !important;
+        bottom: 1px !important;
+        right: 1px !important;
+        width: 11px !important;
+        height: 11px !important;
+        background: #22C55E !important;
+        border-radius: 50% !important;
+        border: 2px solid #1a1a1a !important;
+        box-shadow: 0 0 0 1px rgba(34,197,94,.3) !important;
+        z-index: 1 !important;
+      }
+
+      /* Online status text */
+      #zst {
+        color: #D4A843 !important;
+        font-size: 11px !important;
+        letter-spacing: 0.01em !important;
+        margin-top: 2px !important;
+      }
+      #zst::before {
+        background: #22C55E !important;
+        width: 5px !important;
+        height: 5px !important;
+        box-shadow: 0 0 4px rgba(34,197,94,.6) !important;
+      }
+
+      /* Name */
+      #zhdi h3 {
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.01em !important;
+      }
+
+      /* Messages area */
+      #zmsg {
+        background: #F9F9FB !important;
+        padding: 16px 14px 10px !important;
+        gap: 12px !important;
+        min-height: 260px !important;
+      }
+
+      /* Bot message bubble */
+      .zm.bot {
+        background: #ffffff !important;
+        border: 1px solid rgba(0,0,0,.06) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,.06) !important;
+        font-size: 13.5px !important;
+        line-height: 1.55 !important;
+        border-radius: 16px 16px 16px 3px !important;
+      }
+
+      /* User message bubble */
+      .zm.usr {
+        background: linear-gradient(135deg, #D4A843, #B8921E) !important;
+        box-shadow: 0 2px 12px rgba(212,168,67,.3) !important;
+        border-radius: 16px 16px 3px 16px !important;
+      }
+
+      /* Typing indicator */
+      .ztyp {
+        background: #fff !important;
+        border: 1px solid rgba(0,0,0,.06) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,.06) !important;
+        border-radius: 16px 16px 16px 3px !important;
+        padding: 10px 14px !important;
+      }
+      .ztyp span { background: #D4A843 !important; }
+
+      /* Quick reply chips */
+      #zqas {
+        padding: 8px 14px 6px !important;
+        background: #F9F9FB !important;
+        gap: 6px !important;
+      }
+      .zqa {
+        border-radius: 20px !important;
+        padding: 6px 13px !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        border: 1.5px solid #E5E5E5 !important;
+        color: #555 !important;
+        background: #fff !important;
+        transition: all .18s !important;
+      }
+      .zqa:hover {
+        border-color: #D4A843 !important;
+        color: #B8921E !important;
+        background: #FFFDF5 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 8px rgba(212,168,67,.15) !important;
+      }
+
+      /* Disclaimer */
+      #zdis {
+        padding: 4px 14px 3px !important;
+        font-size: 10px !important;
+        color: #BBBBBB !important;
+        background: #F9F9FB !important;
+      }
+
+      /* Input area */
+      #zinp {
+        background: #ffffff !important;
+        padding: 10px 14px 13px !important;
+        gap: 8px !important;
+        border-top: 1px solid #EFEFEF !important;
+      }
+      #ztxt {
+        border-radius: 22px !important;
+        background: #F5F5F7 !important;
+        border: 1.5px solid #E8E8E8 !important;
+        font-size: 13.5px !important;
+        padding: 9px 14px !important;
+        color: #1C1C1E !important;
+        transition: border-color .18s, box-shadow .18s !important;
+      }
+      #ztxt:focus {
+        border-color: #D4A843 !important;
+        background: #fff !important;
+        box-shadow: 0 0 0 3px rgba(212,168,67,.12) !important;
+      }
+
+      /* Send button */
+      #zsnd {
+        width: 38px !important;
+        height: 38px !important;
+        background: linear-gradient(135deg, #D4A843, #B8921E) !important;
+        box-shadow: 0 2px 12px rgba(212,168,67,.4) !important;
+        transition: transform .15s, box-shadow .15s !important;
+      }
+      #zsnd:hover {
+        transform: scale(1.08) !important;
+        box-shadow: 0 4px 16px rgba(212,168,67,.5) !important;
+      }
+
+      /* Powered by footer */
+      #zpwr {
+        font-size: 10px !important;
+        color: #C8C8C8 !important;
+        padding: 0 14px 11px !important;
+        background: #fff !important;
+        letter-spacing: 0.01em !important;
+      }
+    </style>
 </body>
 </html>
