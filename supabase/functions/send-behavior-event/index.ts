@@ -74,13 +74,13 @@ type BehaviorEventPayload = Record<string, unknown> & {
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
-  // Rate limit check
+  }
+
+  // Rate limit check — must be OUTSIDE the OPTIONS block
   if (await rateLimited(req, "send-behavior-event")) {
     return new Response(JSON.stringify({ error: "Too many requests" }), {
       status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "3600" }
     });
-  }
-
   }
 
   try {
