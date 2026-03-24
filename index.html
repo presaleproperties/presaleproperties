@@ -562,6 +562,9 @@
           btn   = document.getElementById('zbbl');
           panel = document.getElementById('zpnl');
           if (!btn) { setTimeout(init, 200); return; }
+          // Fix disclaimer name
+          var dis = document.getElementById('zdis');
+          if (dis) dis.textContent = 'AI assistant \u00b7 Licensed advice: Uzair Muhammad, REALTOR\u00ae';
           // Start high (hero visible)
           btn.style.bottom = HIGH;
           if (panel) panel.style.bottom = (parseInt(HIGH) + 72) + 'px';

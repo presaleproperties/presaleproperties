@@ -272,7 +272,7 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
         </Button>
       </div>
       <p className="text-[10px] text-muted-foreground/60 text-center mt-2.5 tracking-wide">
-        AI assistant · Licensed advice: Uzair Khalil, REALTOR®
+        AI assistant · Licensed advice: Uzair Muhammad, REALTOR®
       </p>
     </div>
   );
