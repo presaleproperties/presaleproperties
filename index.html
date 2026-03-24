@@ -341,19 +341,25 @@
         background: #F9F9FB !important;
         padding: 16px 14px 10px !important;
         gap: 12px !important;
-        flex: 1 !important;
+        flex: 1 1 0% !important;
         min-height: 0 !important;
         overflow-y: auto !important;
+        overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
+        display: flex !important;
+        flex-direction: column !important;
       }
 
       /* All bubbles — fix text overflow */
       .zm {
         max-width: 82% !important;
+        width: fit-content !important;
         word-break: break-word !important;
         overflow-wrap: break-word !important;
         hyphens: auto !important;
         white-space: normal !important;
+        flex-shrink: 0 !important;
+        box-sizing: border-box !important;
       }
 
       /* Bot bubble */
@@ -365,6 +371,7 @@
         line-height: 1.55 !important;
         border-radius: 16px 16px 16px 3px !important;
         padding: 11px 14px !important;
+        align-self: flex-start !important;
       }
 
       /* User bubble — gold gradient, text stays inside */
@@ -374,6 +381,7 @@
         border-radius: 16px 16px 3px 16px !important;
         padding: 11px 14px !important;
         color: #fff !important;
+        align-self: flex-end !important;
       }
 
       /* Typing indicator */
@@ -383,6 +391,8 @@
         box-shadow: 0 2px 8px rgba(0,0,0,.06) !important;
         border-radius: 16px 16px 16px 3px !important;
         padding: 10px 14px !important;
+        flex-shrink: 0 !important;
+        align-self: flex-start !important;
       }
       .ztyp span { background: #D4A843 !important; }
 
@@ -393,6 +403,7 @@
         gap: 6px !important;
         flex-shrink: 0 !important;
         flex-wrap: wrap !important;
+        border-top: 1px solid rgba(0,0,0,.04) !important;
       }
       .zqa {
         border-radius: 20px !important;
