@@ -33,7 +33,7 @@ const aboutPageSchema = {
         "name": "Fraser Valley, British Columbia"
       }
     ],
-    "knowsLanguage": ["English", "Hindi", "Punjabi", "Urdu", "Arabic", "Korean"],
+    "knowsLanguage": ["English", "Hindi", "Punjabi", "Urdu", "Arabic"],
     "slogan": "New Construction. Expert Help. No Extra Cost."
   }
 };
