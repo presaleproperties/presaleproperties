@@ -58,11 +58,11 @@ export function AboutHero() {
                 We Are
               </p>
 
-              {/* Title — tightly constrained so it NEVER overflows viewport height */}
-              <h1 className="font-extrabold text-white leading-[0.88] tracking-tight mb-4 sm:mb-5">
-                <span className="block text-[clamp(36px,5.5vw,72px)]">Presale</span>
-                <span className="block text-[clamp(36px,5.5vw,72px)]">Properties</span>
-                <span className="block text-[clamp(36px,5.5vw,72px)] text-primary">Group</span>
+              {/* Title */}
+              <h1 className="font-extrabold text-white leading-[0.9] tracking-tight mb-4 sm:mb-5">
+                <span className="block text-5xl sm:text-[clamp(40px,5.5vw,72px)]">Presale</span>
+                <span className="block text-5xl sm:text-[clamp(40px,5.5vw,72px)]">Properties</span>
+                <span className="block text-5xl sm:text-[clamp(40px,5.5vw,72px)] text-primary">Group</span>
               </h1>
 
               {/* Divider + tagline */}
