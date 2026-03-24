@@ -127,13 +127,13 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
           alt="Zara"
           className="w-11 h-11 rounded-full object-cover object-top ring-2 ring-primary/30 shadow-sm"
         />
-        {/* Green online dot — bottom-right of avatar, properly sized */}
-        <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white shadow-sm" />
+        {/* Online indicator dot */}
+        <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[hsl(142,71%,45%)] ring-2 ring-card shadow-sm" />
       </div>
 
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-sm text-foreground leading-tight tracking-tight">Zara</p>
-        <p className="text-xs text-emerald-600 font-medium mt-0.5">Online now · Presale Properties</p>
+        <p className="text-xs font-medium mt-0.5" style={{ color: "hsl(142,71%,35%)" }}>Online now · Presale Properties</p>
       </div>
 
       <div className="flex items-center gap-0.5">
