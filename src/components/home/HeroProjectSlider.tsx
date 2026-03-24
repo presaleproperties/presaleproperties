@@ -91,7 +91,8 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
             alt={`${p.name} presale condos in ${p.city || 'Metro Vancouver'} — VIP pricing & floor plans`}
             className="absolute inset-0 w-full h-full object-cover"
             loading={i === 0 ? "eager" : "lazy"}
-            fetchPriority={i === 0 ? "high" : "low"}
+            // eslint-disable-next-line react/no-unknown-property
+            fetchpriority={i === 0 ? "high" : "low"}
             decoding={i === 0 ? "sync" : "async"}
             {...(i === 0 ? { width: 1920, height: 1080 } : {})}
           />
