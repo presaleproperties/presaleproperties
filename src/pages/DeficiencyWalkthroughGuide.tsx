@@ -352,7 +352,7 @@ export default function DeficiencyWalkthroughGuide() {
         <link rel="canonical" href="https://presaleproperties.com/deficiency-walkthrough-guide" />
       </Helmet>
 
-      <Header />
+      <ConversionHeader />
 
       <main>
         {/* ── Hero ── */}
