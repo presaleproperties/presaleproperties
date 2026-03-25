@@ -14,6 +14,8 @@ interface TypeaheadSuggestion {
   sublabel?: string;
   slug?: string;
   city?: string;
+  neighborhood?: string;
+  project_type?: string;
 }
 
 interface AISearchPopupProps {
