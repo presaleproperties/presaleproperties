@@ -417,7 +417,7 @@ export default function AdminClientSearches() {
       if (!search.listing_types || search.listing_types.includes("presale")) {
         let query = supabase
           .from("presale_projects")
-          .select("id, name, slug, city, neighborhood, starting_price, featured_image, map_lat, map_lng")
+          .select("id, name, slug, city, neighborhood, project_type, starting_price, featured_image, map_lat, map_lng")
           .eq("is_published", true);
 
         if (search.cities?.length) {
