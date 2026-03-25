@@ -2,23 +2,20 @@ import { SectionCard, MilestoneTimeline, Checklist, SectionLabel, StatGrid } fro
 
 export function StepTrackConstruction() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
       <div className="space-y-5 sm:space-y-6">
         <div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight mb-2 sm:mb-3">
-            Track Construction
-          </h2>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            From groundbreaking to topping out, stay informed on your building's progress. Pay attention to the sunset clause date — if the developer can't complete by then, they can cancel the contract.
+            From groundbreaking to topping out, your building will take 2–3 years to complete. Stay proactive — monitor city permit updates, sign up for developer progress reports, and most importantly, watch the sunset clause date. If the developer cannot complete by that date, they have the right to cancel your contract.
           </p>
         </div>
         <Checklist
           items={[
-            "Sign up for developer construction updates",
-            "Monitor city building permit status online",
-            "Watch for sunset clause deadlines in your contract",
-            "Begin your mortgage financing 6–9 months before completion",
-            "Arrange home insurance before your completion date",
+            "Register for the developer's construction update newsletter",
+            "Monitor your city's building permit portal for milestone updates",
+            "Mark the sunset clause deadline in your calendar as a critical watch date",
+            "Start the mortgage financing process 6–9 months before estimated completion",
+            "Arrange home insurance coverage before your completion date arrives",
           ]}
         />
       </div>
@@ -29,9 +26,9 @@ export function StepTrackConstruction() {
           <MilestoneTimeline
             items={[
               { label: "Site prep & excavation", desc: "0–4 months", done: true },
-              { label: "Foundation & underground", desc: "4–8 months", done: true },
+              { label: "Foundation & underground parking", desc: "4–8 months", done: true },
               { label: "Structure & framing", desc: "8–18 months", done: true },
-              { label: "Building envelope", desc: "18–24 months", done: false },
+              { label: "Building envelope & cladding", desc: "18–24 months", done: false },
               { label: "Interior finishing", desc: "24–30 months", done: false },
               { label: "Occupancy & PDI", desc: "30–36 months", done: false },
             ]}
@@ -39,12 +36,12 @@ export function StepTrackConstruction() {
         </SectionCard>
 
         <SectionCard>
-          <SectionLabel text="Key milestones" />
+          <SectionLabel text="Key milestones to track" />
           <StatGrid
             stats={[
-              { value: "2–3 yr", label: "Avg. build time" },
+              { value: "2–3 yr", label: "Average build time" },
               { value: "6–9 mo", label: "Start mortgage process" },
-              { value: "30 days", label: "Completion notice" },
+              { value: "30 days", label: "Completion notice period" },
               { value: "Sunset", label: "Know your deadline" },
             ]}
           />

@@ -1,26 +1,22 @@
 import { SectionCard, CostRow, SectionLabel, StatGrid } from "./shared";
-import { cn } from "@/lib/utils";
 
 export function StepCompletionKeys() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
       <div className="space-y-5 sm:space-y-6">
         <div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight mb-2 sm:mb-3">
-            Completion &amp; Keys
-          </h2>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            This is closing day. Your lawyer handles the title transfer, your mortgage funds, and the balance of the purchase price is paid. Once everything clears, you receive your keys.
+            Completion day is the finish line. Your lawyer manages the title transfer, your mortgage funds flow to the developer's lawyer, and you pay the balance of the purchase price including taxes and closing costs. Once everything clears at the Land Title Office, your keys are released.
           </p>
         </div>
 
         <ul className="space-y-3">
           {[
-            "Mortgage funds are released by your lender to the developer's lawyer",
-            "Title transfers from the developer to you at the Land Title Office",
-            "PTT and any remaining closing costs are due on completion day",
-            "Your lawyer registers the title and mortgage",
-            "Keys are typically released same day or next business day",
+            "Your lender releases mortgage funds to the developer's lawyer on completion day",
+            "Title transfers from the developer to you at the BC Land Title Office",
+            "PTT and all remaining closing costs are due on the day of completion",
+            "Your lawyer registers both the title and the mortgage in your name",
+            "Keys are typically released same day or the following business day",
           ].map((item) => (
             <li key={item} className="flex items-start gap-2.5 sm:gap-3 text-sm text-muted-foreground min-w-0">
               <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0 mt-1.5" />
@@ -29,9 +25,8 @@ export function StepCompletionKeys() {
           ))}
         </ul>
 
-        {/* Buyer-type cost diff callout */}
-        <div className="rounded-lg border border-border bg-secondary/40 p-4 space-y-3">
-          <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">Cost differs by buyer type</p>
+        <div className="rounded-xl border border-border bg-secondary/50 p-4 space-y-3">
+          <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">Your costs differ by buyer type</p>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <p className="text-xs font-semibold text-foreground mb-1.5">First-Time Buyer</p>
@@ -45,8 +40,8 @@ export function StepCompletionKeys() {
               <p className="text-xs font-semibold text-foreground mb-1.5">Investor</p>
               <ul className="space-y-1 text-xs text-muted-foreground">
                 <li className="flex items-start gap-1.5"><span className="text-destructive flex-shrink-0">✕</span>Full PTT applies always</li>
-                <li className="flex items-start gap-1.5"><span className="text-destructive flex-shrink-0">✕</span>No GST rebate</li>
-                <li className="flex items-start gap-1.5"><span className="text-muted-foreground flex-shrink-0">→</span>Higher cash at closing</li>
+                <li className="flex items-start gap-1.5"><span className="text-destructive flex-shrink-0">✕</span>No GST rebate available</li>
+                <li className="flex items-start gap-1.5"><span className="text-muted-foreground flex-shrink-0">→</span>Higher cash needed at closing</li>
               </ul>
             </div>
           </div>
@@ -54,11 +49,8 @@ export function StepCompletionKeys() {
       </div>
 
       <div className="space-y-4">
-        {/* Investor scenario */}
         <SectionCard>
-          <div className="flex items-center justify-between mb-1">
-            <SectionLabel text="Closing costs — Investor ($600K unit)" />
-          </div>
+          <SectionLabel text="Closing costs — Investor ($600K unit)" />
           <CostRow label="Deposits paid (5% + 5% = 10%)" value="−$60,000" />
           <CostRow label="Remaining down payment (20% − deposits)" value="$60,000" />
           <CostRow label="GST (5% on $600K)" value="$30,000" />
@@ -71,7 +63,6 @@ export function StepCompletionKeys() {
           </div>
         </SectionCard>
 
-        {/* FTB scenario */}
         <SectionCard>
           <SectionLabel text="Closing costs — First-Time Buyer ($480K unit)" />
           <CostRow label="Deposits paid (5% + 5% = 10%)" value="−$48,000" />
@@ -86,12 +77,12 @@ export function StepCompletionKeys() {
             <span className="text-lg sm:text-xl font-bold text-primary whitespace-nowrap">~$45,100</span>
           </div>
           <p className="text-[10px] text-muted-foreground mt-2">
-            * CMHC premium added to mortgage, not paid upfront. PTT = $0 as price ≤ $500K.
+            * CMHC premium is added to the mortgage, not paid upfront. PTT = $0 as price is ≤ $500K.
           </p>
         </SectionCard>
 
         <SectionCard>
-          <SectionLabel text="Quick stats" />
+          <SectionLabel text="Quick reference" />
           <StatGrid
             stats={[
               { value: "$10K", label: "PTT on $600K (investor)" },

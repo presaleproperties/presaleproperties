@@ -2,36 +2,33 @@ import { SectionCard, StatGrid, Checklist, SectionLabel } from "./shared";
 
 export function StepRegisterAccess() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
       <div className="space-y-5 sm:space-y-6">
         <div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight mb-2 sm:mb-3">
-            Register for VIP Access
-          </h2>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            Most presale projects in Vancouver offer early access to registered buyers before going public. Working with an agent who has developer relationships gives you first pick at the best units and pricing.
+            The best presale units in Vancouver are rarely available to the general public. Developers prioritise registered Platinum-level buyers weeks before the public launch. If you want the highest floor, the best exposure, and the launch-day price — you need an agent with direct developer relationships to get you in first.
           </p>
         </div>
         <Checklist
           items={[
-            "Register directly through a Platinum agent for priority access",
-            "VIP events typically open 2–4 weeks before public launch",
-            "First-access buyers often get lower floors and better pricing",
-            "Agent registration is free — developers pay the commission",
-            "Ask about incentive packages (upgrades, deposit structures)",
+            "Register through a Platinum agent for true first-access priority",
+            "VIP events typically open 2–4 weeks ahead of the public launch",
+            "Early buyers secure lower floors at launch pricing before increases",
+            "There is no cost to register — developers pay the agent commission",
+            "Ask upfront about incentive packages: upgrades, deposit relief, and credits",
           ]}
         />
       </div>
 
       <div className="space-y-4">
         <SectionCard>
-          <SectionLabel text="Why VIP access matters" />
+          <SectionLabel text="Why being first matters" />
           <StatGrid
             stats={[
-              { value: "2–4 wk", label: "Early access window" },
-              { value: "70%", label: "Units sold before public" },
+              { value: "2–4 wk", label: "Ahead of the public" },
+              { value: "70%", label: "Sold before public launch" },
               { value: "$0", label: "Cost to register" },
-              { value: "5–15%", label: "Savings vs. resale" },
+              { value: "5–15%", label: "Potential savings vs. resale" },
             ]}
           />
         </SectionCard>
@@ -40,12 +37,12 @@ export function StepRegisterAccess() {
           <SectionLabel text="What happens after you register" />
           <div className="space-y-4">
             {[
-              { num: "01", text: "You receive floor plans and pricing ahead of the public" },
-              { num: "02", text: "Your agent reviews options and shortlists top units" },
-              { num: "03", text: "You attend the VIP event and sign your purchase contract" },
+              { num: "01", text: "You receive floor plans, pricing, and unit availability before anyone else." },
+              { num: "02", text: "Your agent reviews the options and shortlists the highest-value units for your goals." },
+              { num: "03", text: "You attend the VIP event, choose your unit, and sign your purchase contract." },
             ].map((item) => (
-              <div key={item.num} className="flex items-start gap-3 min-w-0">
-                <span className="text-lg sm:text-xl font-bold text-primary/40 leading-tight tabular-nums flex-shrink-0">{item.num}</span>
+              <div key={item.num} className="flex items-start gap-3.5 min-w-0">
+                <span className="text-xl font-bold text-primary/30 leading-tight tabular-nums flex-shrink-0 w-8">{item.num}</span>
                 <p className="text-sm text-muted-foreground leading-relaxed min-w-0">{item.text}</p>
               </div>
             ))}
