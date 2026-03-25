@@ -49,9 +49,7 @@ export default function DeveloperLogin() {
       {/* Left Panel */}
       <div className="hidden lg:flex flex-col justify-between bg-foreground text-background w-[420px] flex-shrink-0 p-10">
         <div>
-          <Link to="/" className="block mb-12">
-            <Logo className="h-8 w-auto brightness-0 invert" />
-          </Link>
+          <Logo size="sm" className="brightness-0 invert mb-12" />
           <h2 className="text-3xl font-bold leading-snug mb-4">
             Welcome back.<br />
             <span className="text-primary">Your inventory awaits.</span>
