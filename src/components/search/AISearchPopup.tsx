@@ -362,7 +362,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
       // Fetch matching projects from database
       const { data: projects, error } = await supabase
         .from("presale_projects")
-        .select("name, slug, city, neighborhood")
+        .select("name, slug, city, neighborhood, project_type")
         .eq("is_published", true)
         .or(`name.ilike.%${searchTerm}%,neighborhood.ilike.%${searchTerm}%`)
         .limit(5);
@@ -375,7 +375,9 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
             label: project.name,
             sublabel: `${project.neighborhood}, ${project.city}`,
             slug: project.slug,
-            city: project.city
+            city: project.city,
+            neighborhood: project.neighborhood,
+            project_type: project.project_type,
           });
         });
 
