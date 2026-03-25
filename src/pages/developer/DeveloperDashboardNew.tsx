@@ -257,7 +257,7 @@ export default function DeveloperDashboardNew() {
                         {project.view_count || 0}
                       </div>
                       {project.is_published ? (
-                        <Badge className="bg-green-100 text-green-700 border-0 text-xs rounded-lg">Published</Badge>
+                        <Badge className="bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] border-0 text-xs rounded-lg">Published</Badge>
                       ) : (
                         <Badge variant="outline" className="text-xs rounded-lg">Draft</Badge>
                       )}
