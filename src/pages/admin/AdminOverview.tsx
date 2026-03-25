@@ -26,6 +26,12 @@ import {
   CheckCircle2,
   Phone,
   Star,
+  Zap,
+  Mail,
+  BarChart3,
+  ExternalLink,
+  Presentation,
+  ClipboardList,
 } from "lucide-react";
 import { format, startOfMonth } from "date-fns";
 
