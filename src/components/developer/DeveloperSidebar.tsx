@@ -37,9 +37,7 @@ export function DeveloperSidebar() {
     <aside className="flex flex-col w-64 flex-shrink-0 bg-card border-r border-border min-h-screen">
       {/* Logo */}
       <div className="px-6 py-5 border-b border-border">
-        <Link to="/" className="block mb-1">
-          <Logo className="h-7 w-auto" />
-        </Link>
+        <Logo size="sm" />
         <p className="text-xs text-muted-foreground mt-1">Developer Portal</p>
       </div>
 

@@ -41,12 +41,10 @@ export function DeveloperPortalLayout({ children }: DeveloperPortalLayoutProps) 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-background border-b sticky top-0 z-40">
-          <button onClick={() => setMobileOpen(true)} className="p-1 text-muted-foreground hover:text-foreground">
+        <button onClick={() => setMobileOpen(true)} className="p-1 text-muted-foreground hover:text-foreground">
             <Menu className="h-5 w-5" />
           </button>
-          <Link to="/">
-            <Logo className="h-6 w-auto" />
-          </Link>
+          <Logo size="sm" />
           <button onClick={handleSignOut} className="p-1 text-muted-foreground hover:text-foreground">
             <LogOut className="h-4 w-4" />
           </button>
