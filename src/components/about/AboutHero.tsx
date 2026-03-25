@@ -61,9 +61,9 @@ export function AboutHero() {
 
               {/* Headline */}
               <h1 className="font-extrabold text-white leading-[0.9] tracking-tight mb-3 sm:mb-4">
-                <span className="block text-5xl sm:text-7xl md:text-8xl lg:text-[84px]">Presale</span>
-                <span className="block text-5xl sm:text-7xl md:text-8xl lg:text-[84px]">Properties</span>
-                <span className="block text-5xl sm:text-7xl md:text-8xl lg:text-[84px] text-primary">Group</span>
+                <span className="block text-[48px] min-[480px]:text-[56px] sm:text-[68px] md:text-[80px] lg:text-[84px]">Presale</span>
+                <span className="block text-[48px] min-[480px]:text-[56px] sm:text-[68px] md:text-[80px] lg:text-[84px]">Properties</span>
+                <span className="block text-[48px] min-[480px]:text-[56px] sm:text-[68px] md:text-[80px] lg:text-[84px] text-primary">Group</span>
               </h1>
 
               {/* Tagline */}
