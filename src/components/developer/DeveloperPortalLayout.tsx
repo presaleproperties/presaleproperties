@@ -1,9 +1,8 @@
 import { ReactNode, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { DeveloperSidebar } from "./DeveloperSidebar";
 import { Logo } from "@/components/ui/Logo";
-import { Button } from "@/components/ui/button";
 import { Menu, LogOut } from "lucide-react";
 
 interface DeveloperPortalLayoutProps {
