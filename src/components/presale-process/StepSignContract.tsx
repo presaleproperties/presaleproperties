@@ -11,7 +11,7 @@ export function StepSignContract() {
         </div>
         <Checklist
           items={[
-            "You have exactly 7 calendar days to rescind (a 0.25% penalty applies)",
+            "You have exactly 7 calendar days to rescind — presales carry no rescission penalty under REDMA",
             "Read the sunset clause carefully — it's the developer's right to cancel the project",
             "Confirm the 2-5-10 New Home Warranty is included in the contract",
             "Verify the estimated completion date and any permitted extension rights",
