@@ -11,7 +11,6 @@ export function StepPayDeposits() {
           items={[
             "Deposits sit in a lawyer's trust — the developer can't touch them",
             "Typical structure: 5% + 5% + 5% over 12–18 months",
-            "You earn interest on your deposits in BC",
             "Missing a deadline can void your contract — set reminders",
           ]}
         />
