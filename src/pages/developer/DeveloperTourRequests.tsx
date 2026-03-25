@@ -99,7 +99,7 @@ export default function DeveloperTourRequests() {
   }
 
   return (
-    <DeveloperLayout>
+    <DeveloperPortalLayout>
       <div className="container py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Tour Requests</h1>
@@ -175,6 +175,6 @@ export default function DeveloperTourRequests() {
           </div>
         )}
       </div>
-    </DeveloperLayout>
+    </DeveloperPortalLayout>
   );
 }
