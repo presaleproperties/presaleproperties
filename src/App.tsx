@@ -133,7 +133,6 @@ const PresaleProcess = lazy(() => import("./pages/PresaleProcess"));
 const DeckPublicPage = lazy(() => import("./pages/DeckPublicPage"));
 const DashboardDecks = lazy(() => import("./pages/dashboard/DashboardDecks"));
 const DashboardDeckBuilder = lazy(() => import("./pages/dashboard/DashboardDeckBuilder"));
-const ResourcesPage = lazy(() => import("./pages/ResourcesPage"));
 
 const BuyerAuth = lazy(() => import("./pages/BuyerAuth"));
 const BuyerLogin = lazy(() => import("./pages/BuyerLogin"));
@@ -283,7 +282,6 @@ const App = () => (
             
             <Route path="/buyers-guide" element={<BuyersGuide />} />
             <Route path="/presale-guide" element={<PresaleGuide />} />
-            <Route path="/resources" element={<ResourcesPage />} />
             <Route path="/presale-process" element={<PresaleProcess />} />
             <Route path="/deficiency-walkthrough-guide" element={<DeficiencyWalkthroughGuide />} />
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
