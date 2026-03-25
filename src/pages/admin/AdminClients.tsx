@@ -282,7 +282,7 @@ export default function AdminClients() {
             baths: null,
             sqft: null,
             image: project.featured_image,
-            url: `https://presaleproperties.com/presale-projects/${project.slug}`,
+            url: `https://presaleproperties.com${generateProjectUrl({ slug: project.slug, neighborhood: project.neighborhood || project.city, projectType: (project.project_type || "condo") as any })}`,
           });
         }
       }
