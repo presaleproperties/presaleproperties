@@ -281,6 +281,7 @@ const App = () => (
             <Route path="/buyers-guide" element={<BuyersGuide />} />
             <Route path="/presale-guide" element={<PresaleGuide />} />
             <Route path="/presale-process" element={<PresaleProcess />} />
+            <Route path="/deficiency-walkthrough-guide" element={<DeficiencyWalkthroughGuide />} />
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
             <Route path="/roi-calculator" element={<ROICalculator />} />
             <Route path="/calculator" element={<InvestmentSnapshotPage />} />
