@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
-  { number: 1, label: "Pre-Approval", sublabel: "Before you begin" },
+  { number: 1, label: "Pre-Qualify", sublabel: "Before you begin" },
   { number: 2, label: "VIP Access", sublabel: "Get in early" },
   { number: 3, label: "Choose Unit", sublabel: "Pick wisely" },
   { number: 4, label: "Sign Contract", sublabel: "Know your rights" },
