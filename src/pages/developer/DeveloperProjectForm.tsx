@@ -10,24 +10,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Building2 } from "lucide-react";
 import { toast } from "sonner";
+
+type ProjectType = "condo" | "townhome" | "mixed" | "duplex" | "single_family";
+type ProjectStatus = "coming_soon" | "registering" | "active" | "sold_out";
 
 const schema = z.object({
   name: z.string().min(2, "Project name is required"),
   city: z.string().min(2, "City is required"),
-  neighborhood: z.string().min(1, "Neighborhood is required"),
+  neighborhood: z.string().min(1, "Neighbourhood is required"),
   address: z.string().optional(),
-  property_type: z.enum(["condo", "townhome", "mixed"]),
-  status: z.enum(["coming_soon", "registering", "active", "sold_out"]),
-  description: z.string().optional(),
-  estimated_completion: z.string().optional(),
-  total_units: z.coerce.number().min(1).optional(),
-  developer_website: z.string().url().optional().or(z.literal("")),
+  project_type: z.enum(["condo", "townhome", "mixed", "duplex", "single_family"] as const),
+  status: z.enum(["coming_soon", "registering", "active", "sold_out"] as const),
+  short_description: z.string().optional(),
+  occupancy_estimate: z.string().optional(),
+  unit_mix: z.string().optional(),
+  starting_price: z.coerce.number().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
+
+function slugify(text: string) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
 
 export default function DeveloperProjectForm() {
   const { user, loading: authLoading } = useAuth();
@@ -41,7 +48,7 @@ export default function DeveloperProjectForm() {
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { status: "coming_soon", property_type: "condo" },
+    defaultValues: { status: "coming_soon", project_type: "condo" },
   });
 
   useEffect(() => {
@@ -65,7 +72,7 @@ export default function DeveloperProjectForm() {
     if (isEditing) {
       const { data: project } = await supabase
         .from("presale_projects")
-        .select("*")
+        .select("name, city, neighborhood, address, project_type, status, short_description, occupancy_estimate, unit_mix, starting_price")
         .eq("id", id)
         .eq("developer_id", dev.id)
         .maybeSingle();
@@ -76,12 +83,12 @@ export default function DeveloperProjectForm() {
         city: project.city,
         neighborhood: project.neighborhood,
         address: project.address || "",
-        property_type: (project.property_type as any) || "condo",
-        status: project.status as any,
-        description: project.description || "",
-        estimated_completion: project.estimated_completion || "",
-        total_units: project.total_units || undefined,
-        developer_website: project.developer_website || "",
+        project_type: project.project_type as ProjectType,
+        status: project.status as ProjectStatus,
+        short_description: project.short_description || "",
+        occupancy_estimate: project.occupancy_estimate || "",
+        unit_mix: project.unit_mix || "",
+        starting_price: project.starting_price || undefined,
       });
     }
     setInitializing(false);
@@ -100,12 +107,12 @@ export default function DeveloperProjectForm() {
             city: data.city,
             neighborhood: data.neighborhood,
             address: data.address || null,
-            property_type: data.property_type,
+            project_type: data.project_type,
             status: data.status,
-            description: data.description || null,
-            estimated_completion: data.estimated_completion || null,
-            total_units: data.total_units || null,
-            developer_website: data.developer_website || null,
+            short_description: data.short_description || null,
+            occupancy_estimate: data.occupancy_estimate || null,
+            unit_mix: data.unit_mix || null,
+            starting_price: data.starting_price || null,
           })
           .eq("id", id)
           .eq("developer_id", developerProfileId);
@@ -114,20 +121,24 @@ export default function DeveloperProjectForm() {
         toast.success("Project updated!");
         navigate(`/developer/projects/${id}/units`);
       } else {
+        const baseSlug = slugify(data.name);
+        const uniqueSlug = `${baseSlug}-${Date.now()}`;
+
         const { data: newProject, error } = await supabase
           .from("presale_projects")
           .insert({
             developer_id: developerProfileId,
             name: data.name,
+            slug: uniqueSlug,
             city: data.city,
             neighborhood: data.neighborhood,
             address: data.address || null,
-            property_type: data.property_type,
+            project_type: data.project_type,
             status: data.status,
-            description: data.description || null,
-            estimated_completion: data.estimated_completion || null,
-            total_units: data.total_units || null,
-            developer_website: data.developer_website || null,
+            short_description: data.short_description || null,
+            occupancy_estimate: data.occupancy_estimate || null,
+            unit_mix: data.unit_mix || null,
+            starting_price: data.starting_price || null,
             is_published: false,
           })
           .select("id")
@@ -147,7 +158,7 @@ export default function DeveloperProjectForm() {
   if (authLoading || initializing) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#C8A951]" />
+        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#C8A951" }} />
       </div>
     );
   }
@@ -155,70 +166,68 @@ export default function DeveloperProjectForm() {
   return (
     <DeveloperPortalLayout>
       <div className="px-6 md:px-10 py-8 max-w-2xl mx-auto">
-        <Link to="/developer/projects" className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#1F2937] mb-6">
+        <Link to="/developer/projects" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="h-4 w-4" />
           Back to Projects
         </Link>
 
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-[#1A1A2E] flex items-center justify-center">
-            <Building2 className="h-5 w-5 text-[#C8A951]" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#1A1A2E" }}>
+            <Building2 className="h-5 w-5" style={{ color: "#C8A951" }} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[#1F2937]">
+            <h1 className="text-2xl font-bold">
               {isEditing ? "Edit Project" : "Add a Project"}
             </h1>
-            <p className="text-[#6B7280] text-sm">
+            <p className="text-muted-foreground text-sm">
               {isEditing ? "Update your project details" : "Step 1 of 2 — Project details"}
             </p>
           </div>
         </div>
 
-        <Card className="rounded-xl shadow-sm border border-[#E5E7EB]">
+        <Card className="rounded-xl shadow-sm">
           <CardContent className="p-6">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              {/* Project Name */}
               <div>
-                <Label className="text-[#1F2937]">Project / Building Name *</Label>
+                <Label>Project / Building Name *</Label>
                 <Input {...register("name")} placeholder="e.g. The Grand at Brentwood" className="mt-1.5" />
-                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+                {errors.name && <p className="text-destructive text-xs mt-1">{errors.name.message}</p>}
               </div>
 
-              {/* City + Neighborhood */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-[#1F2937]">City *</Label>
+                  <Label>City *</Label>
                   <Input {...register("city")} placeholder="Burnaby" className="mt-1.5" />
-                  {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city.message}</p>}
+                  {errors.city && <p className="text-destructive text-xs mt-1">{errors.city.message}</p>}
                 </div>
                 <div>
-                  <Label className="text-[#1F2937]">Neighbourhood *</Label>
+                  <Label>Neighbourhood *</Label>
                   <Input {...register("neighborhood")} placeholder="Brentwood" className="mt-1.5" />
-                  {errors.neighborhood && <p className="text-red-500 text-xs mt-1">{errors.neighborhood.message}</p>}
+                  {errors.neighborhood && <p className="text-destructive text-xs mt-1">{errors.neighborhood.message}</p>}
                 </div>
               </div>
 
-              {/* Address */}
               <div>
-                <Label className="text-[#1F2937]">Street Address <span className="text-[#9CA3AF]">(optional)</span></Label>
+                <Label>Street Address <span className="text-muted-foreground">(optional)</span></Label>
                 <Input {...register("address")} placeholder="123 Main St" className="mt-1.5" />
               </div>
 
-              {/* Type + Status */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-[#1F2937]">Property Type *</Label>
+                  <Label>Property Type *</Label>
                   <select
-                    {...register("property_type")}
+                    {...register("project_type")}
                     className="mt-1.5 w-full h-10 rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   >
                     <option value="condo">Condo</option>
                     <option value="townhome">Townhome</option>
-                    <option value="mixed">Mixed (Condo + Townhome)</option>
+                    <option value="mixed">Mixed</option>
+                    <option value="duplex">Duplex</option>
+                    <option value="single_family">Single Family</option>
                   </select>
                 </div>
                 <div>
-                  <Label className="text-[#1F2937]">Project Status *</Label>
+                  <Label>Project Status *</Label>
                   <select
                     {...register("status")}
                     className="mt-1.5 w-full h-10 rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -231,40 +240,36 @@ export default function DeveloperProjectForm() {
                 </div>
               </div>
 
-              {/* Total Units + Completion */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-[#1F2937]">Total Units <span className="text-[#9CA3AF]">(optional)</span></Label>
-                  <Input {...register("total_units")} type="number" placeholder="e.g. 200" className="mt-1.5" />
+                  <Label>Starting Price ($) <span className="text-muted-foreground">(optional)</span></Label>
+                  <Input {...register("starting_price")} type="number" placeholder="499000" className="mt-1.5" />
                 </div>
                 <div>
-                  <Label className="text-[#1F2937]">Est. Completion <span className="text-[#9CA3AF]">(optional)</span></Label>
-                  <Input {...register("estimated_completion")} placeholder="Q4 2025" className="mt-1.5" />
+                  <Label>Est. Occupancy <span className="text-muted-foreground">(optional)</span></Label>
+                  <Input {...register("occupancy_estimate")} placeholder="Q4 2025" className="mt-1.5" />
                 </div>
               </div>
 
-              {/* Description */}
               <div>
-                <Label className="text-[#1F2937]">Project Description <span className="text-[#9CA3AF]">(optional)</span></Label>
-                <Textarea {...register("description")} placeholder="Describe the project, amenities, location highlights..." className="mt-1.5" rows={4} />
+                <Label>Unit Mix <span className="text-muted-foreground">(optional)</span></Label>
+                <Input {...register("unit_mix")} placeholder="Studios, 1BR, 2BR, 3BR" className="mt-1.5" />
               </div>
 
-              {/* Developer Website */}
               <div>
-                <Label className="text-[#1F2937]">Project Website <span className="text-[#9CA3AF]">(optional)</span></Label>
-                <Input {...register("developer_website")} type="url" placeholder="https://..." className="mt-1.5" />
+                <Label>Short Description <span className="text-muted-foreground">(optional)</span></Label>
+                <Textarea {...register("short_description")} placeholder="Brief summary of the project..." className="mt-1.5" rows={3} />
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 bg-[#C8A951] hover:bg-[#b8993f] text-[#1A1A2E] font-bold rounded-lg py-2.5"
-                >
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  {isEditing ? "Save Changes" : "Save & Add Units →"}
-                </Button>
-              </div>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full font-bold rounded-lg py-2.5"
+                style={{ background: "#C8A951", color: "#1A1A2E" }}
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {isEditing ? "Save Changes" : "Save & Add Units →"}
+              </Button>
             </form>
           </CardContent>
         </Card>
