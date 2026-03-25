@@ -35,18 +35,14 @@ export default function DeveloperSettings() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate("/login?type=developer");
+      navigate("/developer/login");
       return;
     }
-
-    if (user) {
-      fetchProfile();
-    }
+    if (user) fetchProfile();
   }, [user, authLoading, navigate]);
 
   const fetchProfile = async () => {
     if (!user) return;
-
     const { data } = await supabase
       .from("developer_profiles")
       .select("id, company_name, contact_name, phone, website_url, verification_status")
@@ -70,7 +66,6 @@ export default function DeveloperSettings() {
 
   const handleSave = async () => {
     if (!profile) return;
-
     setSaving(true);
     const { error } = await supabase
       .from("developer_profiles")
@@ -83,18 +78,10 @@ export default function DeveloperSettings() {
       .eq("id", profile.id);
 
     setSaving(false);
-
     if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save changes",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to save changes", variant: "destructive" });
     } else {
-      toast({
-        title: "Saved",
-        description: "Your profile has been updated",
-      });
+      toast({ title: "Saved", description: "Your profile has been updated" });
     }
   };
 
@@ -117,55 +104,27 @@ export default function DeveloperSettings() {
         <Card>
           <CardHeader>
             <CardTitle>Company Information</CardTitle>
-            <CardDescription>
-              This information is visible to agents
-            </CardDescription>
+            <CardDescription>This information is visible to agents</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="company_name">Company Name</Label>
-              <Input
-                id="company_name"
-                value={formData.company_name}
-                onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-              />
+              <Input id="company_name" value={formData.company_name} onChange={(e) => setFormData({ ...formData, company_name: e.target.value })} />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="contact_name">Contact Name</Label>
-              <Input
-                id="contact_name"
-                value={formData.contact_name}
-                onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
-              />
+              <Input id="contact_name" value={formData.contact_name} onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })} />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
+              <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="website_url">Website</Label>
-              <Input
-                id="website_url"
-                type="url"
-                placeholder="https://yourcompany.com"
-                value={formData.website_url}
-                onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-              />
+              <Input id="website_url" type="url" placeholder="https://yourcompany.com" value={formData.website_url} onChange={(e) => setFormData({ ...formData, website_url: e.target.value })} />
             </div>
-
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4 mr-2" />
-              )}
+              {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
               Save Changes
             </Button>
           </CardContent>
