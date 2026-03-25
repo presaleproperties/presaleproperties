@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ui/Logo";
-import { Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle2, Crown, Building2, Eye, BarChart2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 const schema = z.object({
@@ -21,6 +22,13 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>;
+
+const perks = [
+  { icon: Building2, text: "Unlimited project & unit listings" },
+  { icon: Eye, text: "Exposure to 12,000+ active buyers" },
+  { icon: BarChart2, text: "Real-time views & analytics" },
+  { icon: CheckCircle2, text: "Approved within 1–2 business days" },
+];
 
 export default function DeveloperSignup() {
   const navigate = useNavigate();
@@ -71,89 +79,110 @@ export default function DeveloperSignup() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left Panel */}
-      <div className="hidden lg:flex flex-col justify-between bg-foreground text-background w-[420px] flex-shrink-0 p-10">
-        <div>
-          <Logo size="sm" className="brightness-0 invert mb-12" />
+      {/* ── Left Panel ── */}
+      <div className="hidden lg:flex flex-col justify-between bg-foreground text-background w-[440px] flex-shrink-0 p-10 relative overflow-hidden">
+        {/* Radial glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.2),transparent_60%)]" />
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-[radial-gradient(circle,hsl(var(--primary)/0.1),transparent_70%)]" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+        </div>
+
+        <div className="relative z-10">
+          <div className="mb-10">
+            <Logo size="sm" className="brightness-0 invert" />
+          </div>
+          <Badge variant="outline" className="mb-6 border-primary/40 text-primary bg-primary/10 text-xs">
+            <Crown className="w-3 h-3 mr-1.5" />
+            Free for Developers
+          </Badge>
           <h2 className="text-3xl font-bold leading-snug mb-4">
-            List your inventory.<br />
-            <span className="text-primary">Reach buyers. Free.</span>
+            List your inventory.
+            <span className="block text-gradient-gold">Reach buyers. Free.</span>
           </h2>
-          <p className="text-background/50 leading-relaxed">
-            Join developers across BC who use our platform to connect their completed and near-completion units with thousands of active buyers and agents.
+          <p className="text-background/50 leading-relaxed mb-10">
+            Join developers across BC who use our platform to connect completed and near-completion units with thousands of active buyers and agents.
           </p>
+          <div className="space-y-4">
+            {perks.map(({ icon: Icon, text }) => (
+              <div key={text} className="flex items-center gap-3 bg-background/5 border border-background/10 rounded-xl px-4 py-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <Icon className="h-4 w-4 text-primary" />
+                </div>
+                <span className="text-sm text-background/80 font-medium">{text}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="space-y-3">
-          {[
-            "Always free to list",
-            "Approved within 1–2 business days",
-            "Exposure to 12,000+ active buyers",
-          ].map((t) => (
-            <div key={t} className="flex items-center gap-2.5 text-sm text-background/60">
-              <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-              {t}
-            </div>
-          ))}
-        </div>
+
+        <p className="relative z-10 text-xs text-background/30 mt-8">
+          © {new Date().getFullYear()} Presale Properties Group
+        </p>
       </div>
 
-      {/* Right Panel */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      {/* ── Right Panel ── */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-background">
         <div className="w-full max-w-md">
+          {/* Mobile logo */}
           <div className="lg:hidden mb-8">
             <Logo size="sm" />
           </div>
 
-          <Link to="/developer-portal" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+          <Link
+            to="/developer-portal"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to Developer Portal
           </Link>
 
-          <h1 className="text-2xl font-bold text-foreground mb-1">Create your account</h1>
-          <p className="text-muted-foreground mb-8">Get your inventory in front of BC's top buyers</p>
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-foreground mb-1">Create your account</h1>
+            <p className="text-muted-foreground">Get your inventory in front of BC's top buyers — free</p>
+          </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+              <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="company_name">Company Name *</Label>
-                <Input id="company_name" {...register("company_name")} placeholder="ABC Developments Inc." className="mt-1.5" />
-                {errors.company_name && <p className="text-destructive text-xs mt-1">{errors.company_name.message}</p>}
+                <Input id="company_name" {...register("company_name")} placeholder="ABC Developments Inc." />
+                {errors.company_name && <p className="text-destructive text-xs">{errors.company_name.message}</p>}
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="contact_name">Your Name *</Label>
-                <Input id="contact_name" {...register("contact_name")} placeholder="John Smith" className="mt-1.5" />
-                {errors.contact_name && <p className="text-destructive text-xs mt-1">{errors.contact_name.message}</p>}
+                <Input id="contact_name" {...register("contact_name")} placeholder="John Smith" />
+                {errors.contact_name && <p className="text-destructive text-xs">{errors.contact_name.message}</p>}
               </div>
 
-              <div>
+              <div className="space-y-1.5">
                 <Label htmlFor="email">Email *</Label>
-                <Input id="email" type="email" {...register("email")} placeholder="john@company.com" className="mt-1.5" />
-                {errors.email && <p className="text-destructive text-xs mt-1">{errors.email.message}</p>}
+                <Input id="email" type="email" {...register("email")} placeholder="john@company.com" />
+                {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
               </div>
 
-              <div>
+              <div className="space-y-1.5">
                 <Label htmlFor="phone">Phone *</Label>
-                <Input id="phone" type="tel" {...register("phone")} placeholder="604-555-0100" className="mt-1.5" />
-                {errors.phone && <p className="text-destructive text-xs mt-1">{errors.phone.message}</p>}
+                <Input id="phone" type="tel" {...register("phone")} placeholder="604-555-0100" />
+                {errors.phone && <p className="text-destructive text-xs">{errors.phone.message}</p>}
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="password">Password *</Label>
-                <Input id="password" type="password" {...register("password")} placeholder="Minimum 8 characters" className="mt-1.5" />
-                {errors.password && <p className="text-destructive text-xs mt-1">{errors.password.message}</p>}
+                <Input id="password" type="password" {...register("password")} placeholder="Minimum 8 characters" />
+                {errors.password && <p className="text-destructive text-xs">{errors.password.message}</p>}
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="website_url">
                   Website <span className="text-muted-foreground font-normal">(optional)</span>
                 </Label>
-                <Input id="website_url" type="url" {...register("website_url")} placeholder="https://yourdevelopment.com" className="mt-1.5" />
-                {errors.website_url && <p className="text-destructive text-xs mt-1">{errors.website_url.message}</p>}
+                <Input id="website_url" type="url" {...register("website_url")} placeholder="https://yourdevelopment.com" />
+                {errors.website_url && <p className="text-destructive text-xs">{errors.website_url.message}</p>}
               </div>
             </div>
 
-            <Button type="submit" disabled={loading} className="w-full font-bold py-3 text-base">
+            <Button type="submit" disabled={loading} className="w-full font-bold py-3 text-base shadow-gold hover:shadow-gold-glow mt-2">
               {loading && <Loader2 className="h-5 w-5 animate-spin mr-2" />}
               Create Developer Account
             </Button>
@@ -167,7 +196,8 @@ export default function DeveloperSignup() {
 
             <p className="text-center text-xs text-muted-foreground">
               By signing up, you agree to our{" "}
-              <Link to="/privacy" className="underline">Privacy Policy</Link>. Your account will be reviewed within 1–2 business days.
+              <Link to="/privacy" className="underline">Privacy Policy</Link>.{" "}
+              Your account will be reviewed within 1–2 business days.
             </p>
           </form>
         </div>
