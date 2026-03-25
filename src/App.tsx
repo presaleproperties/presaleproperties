@@ -45,10 +45,15 @@ const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling")
 const DashboardMessages = lazy(() => import("./pages/dashboard/DashboardMessages"));
 const DashboardProjectDocuments = lazy(() => import("./pages/dashboard/DashboardProjectDocuments"));
 const ListingForm = lazy(() => import("./pages/dashboard/ListingForm"));
-const DeveloperDashboard = lazy(() => import("./pages/developer/DeveloperDashboard"));
+const DeveloperDashboard = lazy(() => import("./pages/developer/DeveloperDashboardNew"));
 const DeveloperProjects = lazy(() => import("./pages/developer/DeveloperProjects"));
 const DeveloperTourRequests = lazy(() => import("./pages/developer/DeveloperTourRequests"));
 const DeveloperSettings = lazy(() => import("./pages/developer/DeveloperSettings"));
+const DeveloperPortalLanding = lazy(() => import("./pages/developer/DeveloperPortalLanding"));
+const DeveloperSignup = lazy(() => import("./pages/developer/DeveloperSignup"));
+const DeveloperLogin = lazy(() => import("./pages/developer/DeveloperLogin"));
+const DeveloperProjectForm = lazy(() => import("./pages/developer/DeveloperProjectForm"));
+const DeveloperUnitsPage = lazy(() => import("./pages/developer/DeveloperUnitsPage"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminProjects = lazy(() => import("./pages/admin/AdminProjects"));
 const AdminProjectForm = lazy(() => import("./pages/admin/AdminProjectForm"));
@@ -308,8 +313,14 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             
             {/* Developer Portal Routes */}
+            <Route path="/developer-portal" element={<DeveloperPortalLanding />} />
+            <Route path="/developer/signup" element={<DeveloperSignup />} />
+            <Route path="/developer/login" element={<DeveloperLogin />} />
             <Route path="/developer" element={<DeveloperDashboard />} />
             <Route path="/developer/projects" element={<DeveloperProjects />} />
+            <Route path="/developer/projects/new" element={<DeveloperProjectForm />} />
+            <Route path="/developer/projects/:id/edit" element={<DeveloperProjectForm />} />
+            <Route path="/developer/projects/:projectId/units" element={<DeveloperUnitsPage />} />
             <Route path="/developer/tour-requests" element={<DeveloperTourRequests />} />
             <Route path="/developer/settings" element={<DeveloperSettings />} />
             

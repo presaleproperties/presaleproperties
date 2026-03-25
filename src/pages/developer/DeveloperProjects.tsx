@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { DeveloperLayout } from "@/components/developer/DeveloperLayout";
+import { DeveloperPortalLayout } from "@/components/developer/DeveloperPortalLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -92,7 +92,7 @@ export default function DeveloperProjects() {
   }
 
   return (
-    <DeveloperLayout>
+    <DeveloperPortalLayout>
       <div className="container py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -194,6 +194,6 @@ export default function DeveloperProjects() {
           </div>
         )}
       </div>
-    </DeveloperLayout>
+    </DeveloperPortalLayout>
   );
 }

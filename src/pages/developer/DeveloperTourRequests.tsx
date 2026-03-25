@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { DeveloperLayout } from "@/components/developer/DeveloperLayout";
+import { DeveloperPortalLayout } from "@/components/developer/DeveloperPortalLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Calendar, Clock, User, Mail, Phone, Building2 } from "lucide-react";
@@ -99,7 +99,7 @@ export default function DeveloperTourRequests() {
   }
 
   return (
-    <DeveloperLayout>
+    <DeveloperPortalLayout>
       <div className="container py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Tour Requests</h1>
@@ -175,6 +175,6 @@ export default function DeveloperTourRequests() {
           </div>
         )}
       </div>
-    </DeveloperLayout>
+    </DeveloperPortalLayout>
   );
 }
