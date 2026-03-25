@@ -648,7 +648,17 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   const handleCompareViewProject = (slug: string) => {
     setShowCompare(false);
     onOpenChange(false);
-    navigate(`/presale-projects/${slug}`);
+    const project = selectedProjects.find(p => p.slug === slug);
+    if (project) {
+      navigate(generateProjectUrl({
+        slug: project.slug,
+        neighborhood: project.neighborhood || project.city,
+        projectType: (project.project_type || "condo") as any,
+      }));
+    } else {
+      // fallback — the redirect route will handle it
+      navigate(`/presale-projects/${slug}`);
+    }
   };
 
   const handleCompareViewListing = (id: string) => {
