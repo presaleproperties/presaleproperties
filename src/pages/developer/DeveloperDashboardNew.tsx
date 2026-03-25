@@ -104,8 +104,8 @@ export default function DeveloperDashboardNew() {
     return (
       <DeveloperPortalLayout>
         <div className="max-w-xl mx-auto px-6 py-20 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-5">
-            <Clock className="h-8 w-8 text-amber-600" />
+          <div className="w-16 h-16 rounded-2xl bg-warning/10 flex items-center justify-center mx-auto mb-5">
+            <Clock className="h-8 w-8 text-warning" />
           </div>
           <h1 className="text-2xl font-bold mb-2">Account Under Review</h1>
           <p className="text-muted-foreground mb-2">
