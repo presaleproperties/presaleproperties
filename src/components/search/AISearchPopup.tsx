@@ -14,6 +14,8 @@ interface TypeaheadSuggestion {
   sublabel?: string;
   slug?: string;
   city?: string;
+  neighborhood?: string;
+  project_type?: string;
 }
 
 interface AISearchPopupProps {
@@ -360,7 +362,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
       // Fetch matching projects from database
       const { data: projects, error } = await supabase
         .from("presale_projects")
-        .select("name, slug, city, neighborhood")
+        .select("name, slug, city, neighborhood, project_type")
         .eq("is_published", true)
         .or(`name.ilike.%${searchTerm}%,neighborhood.ilike.%${searchTerm}%`)
         .limit(5);
@@ -373,7 +375,9 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
             label: project.name,
             sublabel: `${project.neighborhood}, ${project.city}`,
             slug: project.slug,
-            city: project.city
+            city: project.city,
+            neighborhood: project.neighborhood,
+            project_type: project.project_type,
           });
         });
 
@@ -425,9 +429,13 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
     setShowTypeahead(false);
     
     if (suggestion.type === "project" && suggestion.slug) {
-      // Navigate directly to project
+      // Navigate directly to project using SEO URL
       onOpenChange(false);
-      navigate(`/presale-projects/${suggestion.slug}`);
+      navigate(generateProjectUrl({
+        slug: suggestion.slug,
+        neighborhood: suggestion.neighborhood || suggestion.city || "",
+        projectType: (suggestion.project_type || "condo") as any,
+      }));
     } else if (suggestion.type === "city") {
       // Search for projects in this city
       handleSearch(`projects in ${suggestion.label}`);
@@ -640,7 +648,17 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   const handleCompareViewProject = (slug: string) => {
     setShowCompare(false);
     onOpenChange(false);
-    navigate(`/presale-projects/${slug}`);
+    const project = selectedProjects.find(p => p.slug === slug);
+    if (project) {
+      navigate(generateProjectUrl({
+        slug: project.slug,
+        neighborhood: project.neighborhood || project.city,
+        projectType: (project.project_type || "condo") as any,
+      }));
+    } else {
+      // fallback — the redirect route will handle it
+      navigate(`/presale-projects/${slug}`);
+    }
   };
 
   const handleCompareViewListing = (id: string) => {

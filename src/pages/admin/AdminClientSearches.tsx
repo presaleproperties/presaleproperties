@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { generateProjectUrl } from "@/lib/seoUrls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -417,7 +418,7 @@ export default function AdminClientSearches() {
       if (!search.listing_types || search.listing_types.includes("presale")) {
         let query = supabase
           .from("presale_projects")
-          .select("id, name, slug, city, neighborhood, starting_price, featured_image, map_lat, map_lng")
+          .select("id, name, slug, city, neighborhood, project_type, starting_price, featured_image, map_lat, map_lng")
           .eq("is_published", true);
 
         if (search.cities?.length) {
@@ -446,7 +447,7 @@ export default function AdminClientSearches() {
               baths: null,
               sqft: null,
               image: project.featured_image,
-              url: `https://presaleproperties.com/presale-projects/${project.slug}`,
+              url: `https://presaleproperties.com${generateProjectUrl({ slug: project.slug, neighborhood: project.neighborhood || project.city, projectType: (project.project_type || "condo") as any })}`,
               lat: project.map_lat,
               lng: project.map_lng,
             });

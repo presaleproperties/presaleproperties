@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { generateProjectUrl } from "@/lib/seoUrls";
 import { 
   Mail, 
   Phone, 
@@ -35,6 +36,8 @@ interface ProjectLead {
     name: string;
     slug: string;
     city: string;
+    neighborhood: string | null;
+    project_type: string | null;
   } | null;
 }
 
@@ -141,7 +144,11 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                   <p className="text-sm text-muted-foreground">{projectLead.presale_projects.city}</p>
                   <Button variant="link" size="sm" className="h-auto p-0 mt-1" asChild>
                     <a 
-                      href={`/presale-projects/${projectLead.presale_projects.slug}`}
+                      href={generateProjectUrl({
+                        slug: projectLead.presale_projects.slug,
+                        neighborhood: projectLead.presale_projects.neighborhood || projectLead.presale_projects.city,
+                        projectType: (projectLead.presale_projects.project_type || "condo") as any,
+                      })}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

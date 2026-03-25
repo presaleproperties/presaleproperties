@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, startOfDay } from "date-fns";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { generateProjectUrl } from "@/lib/seoUrls";
 import {
   Users,
   Building2,
@@ -76,6 +77,8 @@ interface ProjectLead {
     name: string;
     slug: string;
     city: string;
+    neighborhood: string | null;
+    project_type: string | null;
   } | null;
 }
 
@@ -402,7 +405,11 @@ function ProjectLeadCard({
               {lead.presale_projects && (
                 <Button variant="ghost" size="icon" className="h-7 w-7" asChild title="View project">
                   <a
-                    href={`/presale-projects/${lead.presale_projects.slug}`}
+                    href={generateProjectUrl({
+                      slug: lead.presale_projects.slug,
+                      neighborhood: lead.presale_projects.neighborhood || lead.presale_projects.city,
+                      projectType: (lead.presale_projects.project_type || "condo") as any,
+                    })}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -526,7 +533,7 @@ export default function AdminLeads() {
           id, name, email, phone, message, persona, home_size, agent_status,
           lead_source, landing_page, created_at, project_id,
           lead_status, admin_notes, contacted_at, converted_at, intent_score,
-          presale_projects (name, slug, city)
+          presale_projects (name, slug, city, neighborhood, project_type)
         `)
         .neq("name", "Newsletter Signup")
         .order("created_at", { ascending: false });

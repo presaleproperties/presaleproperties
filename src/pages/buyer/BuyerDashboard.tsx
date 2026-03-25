@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 interface SavedProject {
   id: string;
@@ -27,6 +28,7 @@ interface SavedProject {
     price_from: number | null;
     status: string;
     slug: string;
+    project_type: string | null;
   };
 }
 
@@ -62,7 +64,8 @@ const BuyerDashboard = () => {
             main_image_url,
             price_from,
             status,
-            slug
+            slug,
+            project_type
           )
         `)
         .eq("buyer_id", buyerProfile.id)
@@ -252,7 +255,11 @@ const BuyerDashboard = () => {
                           />
                           <div className="flex-1 min-w-0">
                             <Link
-                              to={`/presale-projects/${saved.project.slug}`}
+                              to={generateProjectUrl({
+                                slug: saved.project.slug,
+                                neighborhood: saved.project.neighborhood || saved.project.city,
+                                projectType: (saved.project.project_type || "condo") as any,
+                              })}
                               className="font-semibold text-foreground hover:text-primary transition-colors line-clamp-1"
                             >
                               {saved.project.name}
