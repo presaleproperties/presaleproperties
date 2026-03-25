@@ -61,6 +61,7 @@ export default function DeveloperDashboardNew() {
     setProfile(dev);
 
     if (dev.verification_status === "approved") {
+      // Projects linked by developer_id
       const { data: proj } = await supabase
         .from("presale_projects")
         .select("id, name, city, neighborhood, status, is_published, view_count")
@@ -68,20 +69,33 @@ export default function DeveloperDashboardNew() {
         .order("created_at", { ascending: false })
         .limit(5);
 
-      setProjects(proj || []);
-      const totalProjects = proj?.length || 0;
-      const totalViews = (proj || []).reduce((sum, p) => sum + (p.view_count || 0), 0);
+      // Projects matched by company name (not yet linked)
+      const { data: nameMatched } = await supabase
+        .from("presale_projects")
+        .select("id, name, city, neighborhood, status, is_published, view_count")
+        .ilike("developer_name", `%${dev.company_name}%`)
+        .is("developer_id", null)
+        .limit(5);
 
+      const linkedIds = new Set((proj || []).map((p: any) => p.id));
+      const unlinked = (nameMatched || []).filter((p: any) => !linkedIds.has(p.id));
+      const allProjects = [...(proj || []), ...unlinked];
+
+      setProjects(allProjects);
+      const totalProjects = (proj || []).length;
+      const totalViews = allProjects.reduce((sum, p) => sum + (p.view_count || 0), 0);
+
+      const allIds = allProjects.map(p => p.id);
       const { count: availCount } = await supabase
         .from("listings")
         .select("*", { count: "exact", head: true })
-        .in("project_id", (proj || []).map(p => p.id))
+        .in("project_id", allIds.length ? allIds : ["none"])
         .eq("status", "published");
 
       const { count: soldCount } = await supabase
         .from("listings")
         .select("*", { count: "exact", head: true })
-        .in("project_id", (proj || []).map(p => p.id))
+        .in("project_id", allIds.length ? allIds : ["none"])
         .eq("status", "sold");
 
       setStats({ totalProjects, availableUnits: availCount || 0, unitsSold: soldCount || 0, totalViews });
