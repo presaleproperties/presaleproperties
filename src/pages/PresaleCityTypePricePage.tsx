@@ -42,44 +42,52 @@ const PRICE_POINTS = [500, 600, 700, 800, 900, 1000];
 const formatPriceLabel = (priceK: number) => priceK >= 1000 ? `$${priceK / 1000}M` : `$${priceK}K`;
 
 /**
- * SEO Page: /presale-projects/{city}/{type}-under-{price}k
- * Example: /presale-projects/surrey/condos-under-500k
+ * SEO Page: /presale-projects/{city}/{type} AND /presale-projects/{city}/{type}-under-{price}k
+ * Examples: /presale-projects/surrey/condos
+ *           /presale-projects/surrey/condos-under-500k
  */
 export default function PresaleCityTypePricePage() {
   const { citySlug, typePriceSlug } = useParams<{ citySlug: string; typePriceSlug: string }>();
   const [sortBy, setSortBy] = useState("price-low");
 
-  // Parse the type-price slug (e.g., "condos-under-500k")
-  const match = typePriceSlug?.match(/^(condos|townhomes)-under-(\d+)k$/);
-  const typeSlug = match?.[1] || null;
-  const priceK = match?.[2] ? parseInt(match[2]) : null;
+  // Parse the type-price slug:
+  //   - plain type: "condos" | "townhomes"
+  //   - with price:  "condos-under-500k" | "townhomes-under-700k"
+  const priceMatch = typePriceSlug?.match(/^(condos|townhomes)-under-(\d+)k$/);
+  const plainMatch = typePriceSlug?.match(/^(condos|townhomes)$/);
+
+  const typeSlug = priceMatch?.[1] || plainMatch?.[1] || null;
+  const priceK = priceMatch?.[2] ? parseInt(priceMatch[2]) : null;
   const maxPrice = priceK ? priceK * 1000 : null;
+  const hasPriceFilter = !!maxPrice;
 
   const cityName = citySlug ? CITY_NAMES[citySlug] : null;
   const isCondos = typeSlug === "condos";
   const productType = isCondos ? "condo" : "townhome";
   const productLabel = isCondos ? "Condos" : "Townhomes";
 
-  // Fetch projects
+  // Fetch projects — no price filter when plain /condos or /townhomes
   const { data: projects, isLoading } = useQuery({
     queryKey: ["city-type-price-projects", citySlug, productType, maxPrice],
     queryFn: async () => {
-      if (!cityName || !productType || !maxPrice) return [];
-      
-      const { data, error } = await supabase
+      if (!cityName || !productType) return [];
+
+      let query = supabase
         .from("presale_projects")
         .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, is_featured, last_verified_date")
         .eq("is_published", true)
         .ilike("city", cityName)
-        .eq("project_type", productType)
-        .not("starting_price", "is", null)
-        .lte("starting_price", maxPrice)
-        .order("starting_price", { ascending: true });
+        .eq("project_type", productType);
 
+      if (maxPrice) {
+        query = query.not("starting_price", "is", null).lte("starting_price", maxPrice);
+      }
+
+      const { data, error } = await query.order("starting_price", { ascending: true });
       if (error) throw error;
       return data || [];
     },
-    enabled: !!cityName && !!productType && !!maxPrice,
+    enabled: !!cityName && !!productType,
   });
 
   // Sort projects
@@ -98,7 +106,7 @@ export default function PresaleCityTypePricePage() {
   }, [projects, sortBy]);
 
   // 404 if invalid parameters
-  if (!cityName || !typeSlug || !priceK || !maxPrice) {
+  if (!cityName || !typeSlug) {
     return (
       <div className="min-h-screen flex flex-col">
         <ConversionHeader />
