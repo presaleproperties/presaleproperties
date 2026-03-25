@@ -35,6 +35,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const ForAgents = lazy(() => import("./pages/ForAgents"));
 const BuyersGuide = lazy(() => import("./pages/BuyersGuide"));
 const PresaleGuide = lazy(() => import("./pages/PresaleGuide"));
+const DeficiencyWalkthroughGuide = lazy(() => import("./pages/DeficiencyWalkthroughGuide"));
 const MortgageCalculatorPage = lazy(() => import("./pages/MortgageCalculatorPage"));
 const Login = lazy(() => import("./pages/Login"));
 const DashboardOverview = lazy(() => import("./pages/dashboard/DashboardOverview"));
