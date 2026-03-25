@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { EngagementFunnel } from "@/components/admin/dashboard/EngagementFunnel"
 import { TopProjectsTable } from "@/components/admin/dashboard/TopProjectsTable";
 import { TopListingsTable } from "@/components/admin/dashboard/TopListingsTable";
 import { TopMlsListingsTable } from "@/components/admin/dashboard/TopMlsListingsTable";
+import { useToast } from "@/hooks/use-toast";
 
 import {
   Users,
@@ -30,6 +31,12 @@ import {
   ExternalLink,
   Presentation,
   ClipboardList,
+  AlertCircle,
+  XCircle,
+  CheckCheck,
+  Home,
+  ShieldCheck,
+  UserCheck,
 } from "lucide-react";
 import { format, startOfMonth } from "date-fns";
 
