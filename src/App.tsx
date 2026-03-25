@@ -35,6 +35,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const ForAgents = lazy(() => import("./pages/ForAgents"));
 const BuyersGuide = lazy(() => import("./pages/BuyersGuide"));
 const PresaleGuide = lazy(() => import("./pages/PresaleGuide"));
+const DeficiencyWalkthroughGuide = lazy(() => import("./pages/DeficiencyWalkthroughGuide"));
 const MortgageCalculatorPage = lazy(() => import("./pages/MortgageCalculatorPage"));
 const Login = lazy(() => import("./pages/Login"));
 const DashboardOverview = lazy(() => import("./pages/dashboard/DashboardOverview"));
@@ -280,6 +281,7 @@ const App = () => (
             <Route path="/buyers-guide" element={<BuyersGuide />} />
             <Route path="/presale-guide" element={<PresaleGuide />} />
             <Route path="/presale-process" element={<PresaleProcess />} />
+            <Route path="/deficiency-walkthrough-guide" element={<DeficiencyWalkthroughGuide />} />
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
             <Route path="/roi-calculator" element={<ROICalculator />} />
             <Route path="/calculator" element={<InvestmentSnapshotPage />} />
