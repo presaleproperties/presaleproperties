@@ -4,29 +4,29 @@ const impactStats = [
   {
     icon: Home,
     stat: "400+",
-    label: "Homes Sold",
-    desc: "Across Metro Vancouver & Fraser Valley",
+    label: "Families Helped",
+    desc: "Real buyers, real homes, real outcomes",
     accent: false,
   },
   {
     icon: BadgeDollarSign,
     stat: "$200M+",
     label: "In Transactions",
-    desc: "Successfully closed for our clients",
+    desc: "Managed on behalf of our clients",
     accent: true,
   },
   {
     icon: Star,
     stat: "5.0★",
     label: "Google Rating",
-    desc: "Consistently 5-star service",
+    desc: "Every review is earned, not asked for",
     accent: false,
   },
   {
     icon: TrendingUp,
     stat: "5-Figure",
-    label: "Incentives Negotiated",
-    desc: "Average savings secured per client",
+    label: "Avg. Savings",
+    desc: "Incentives negotiated per client",
     accent: false,
   },
 ];
@@ -40,15 +40,15 @@ export function ClientImpact() {
           <div className="grid lg:grid-cols-[1fr_2.5fr] gap-12 lg:gap-16 items-center mb-14">
             <div>
               <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-primary block mb-4">
-                Our Track Record
+                Real Results
               </span>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground leading-[1.05] tracking-tight">
-                Numbers That<br />
-                <span className="text-primary">Don't Lie</span>
+                The proof is in<br />
+                <span className="text-primary">our clients' outcomes.</span>
               </h2>
             </div>
             <p className="text-[15px] text-muted-foreground leading-relaxed max-w-xl">
-              Every number below represents a real family, a real home, and real trust placed in our team. We take that seriously every single day.
+              These aren't vanity metrics. Every number represents a buyer who got better guidance, better terms, and a smoother experience than they would have had going it alone.
             </p>
           </div>
 
@@ -62,7 +62,6 @@ export function ClientImpact() {
                     : "bg-card border-border hover:border-primary/30 hover:shadow-lg"
                 }`}
               >
-                {/* Hover glow */}
                 {!item.accent && (
                   <div className="absolute inset-0 bg-primary/3 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
                 )}
@@ -73,7 +72,7 @@ export function ClientImpact() {
                   }`}>
                     <item.icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
-                  <div className={`text-2xl sm:text-3xl lg:text-4xl font-black mb-1.5 text-primary`}>
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-black mb-1.5 text-primary">
                     {item.stat}
                   </div>
                   <div className={`text-[12px] sm:text-[13px] font-bold mb-1 ${item.accent ? "text-background" : "text-foreground"}`}>

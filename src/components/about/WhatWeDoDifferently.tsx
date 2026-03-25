@@ -1,26 +1,26 @@
-import { Users, ShieldCheck, HeartHandshake } from "lucide-react";
+import { Lightbulb, ShieldCheck, HeartHandshake } from "lucide-react";
 
 const benefits = [
   {
-    icon: Users,
+    icon: Lightbulb,
     number: "01",
-    title: "Specialist Presale Team",
+    title: "You'll actually understand what you're signing",
     description:
-      "We understand developers, contracts, and deposit structures inside and out. Most agents occasionally do presales — we live and breathe them every single day.",
+      "Presale contracts are long and full of developer-friendly clauses. We walk through every page with you — deposits, assignment rights, disclosure timelines — until you feel completely confident.",
   },
   {
     icon: ShieldCheck,
     number: "02",
-    title: "True Buyer Representation",
+    title: "Your interests always come first",
     description:
-      "Expert advocacy at zero cost to you. Our fees are paid by the developer, so your interests always come first — no compromise, no conflict.",
+      "Our fees are paid by the developer, which means we work for you — not the sales centre. We will tell you when a project isn't worth it, even if it costs us a deal.",
   },
   {
     icon: HeartHandshake,
     number: "03",
-    title: "End-to-End Support",
+    title: "We're with you the whole way",
     description:
-      "From your first consult to key pickup and beyond — every step, including assignments, deficiency walkthroughs, and completions.",
+      "Most agents disappear after you sign. We stay — through the wait, the walkthrough, the deficiency list, and the keys. You'll have a real person to call at every stage.",
   },
 ];
 
@@ -36,10 +36,8 @@ export function WhatWeDoDifferently() {
           backgroundSize: "48px 48px",
         }}
       />
-      {/* Gold glow top-right */}
       <div className="absolute -top-32 right-0 w-[600px] h-[600px] bg-primary/12 rounded-full blur-[160px] pointer-events-none" />
 
-      {/* Top accent line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
       <div className="container relative px-4 sm:px-6">
@@ -47,26 +45,23 @@ export function WhatWeDoDifferently() {
 
           <div className="grid lg:grid-cols-[1fr_2fr] gap-12 lg:gap-20 items-start">
 
-            {/* Left label */}
             <div className="lg:sticky lg:top-24">
               <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-primary block mb-5">
-                Why Work With Us
+                How We Help
               </span>
               <h2 className="text-3xl sm:text-4xl md:text-[44px] font-extrabold text-background leading-[1.05] tracking-tight">
-                A Different Kind of
+                Three things you
                 <br />
-                <span className="text-primary">Real Estate Team</span>
+                <span className="text-primary">deserve to know</span>
               </h2>
             </div>
 
-            {/* Right — benefit cards */}
             <div className="space-y-5">
-              {benefits.map((item, i) => (
+              {benefits.map((item) => (
                 <div
                   key={item.title}
                   className="group relative rounded-2xl border border-background/10 bg-background/4 p-8 hover:border-primary/40 hover:bg-background/7 transition-all duration-300"
                 >
-                  {/* Ghost number */}
                   <div className="absolute top-7 right-7 text-6xl font-black text-background/[0.04] group-hover:text-primary/8 transition-colors leading-none select-none">
                     {item.number}
                   </div>
@@ -88,7 +83,6 @@ export function WhatWeDoDifferently() {
         </div>
       </div>
 
-      {/* Bottom accent */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
     </section>
   );

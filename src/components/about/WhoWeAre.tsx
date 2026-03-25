@@ -3,23 +3,23 @@ import { Building2, Globe, Users, MapPin } from "lucide-react";
 const highlights = [
   {
     icon: Building2,
-    title: "New Construction Only",
-    description: "80%+ of our business is presale and move-in ready new homes. It's all we do — and we're exceptional at it.",
+    title: "We only do new construction",
+    description: "80%+ of our business is presale. That depth of focus means you get advice that a generalist agent simply cannot give you.",
   },
   {
     icon: MapPin,
-    title: "Deep Local Roots",
-    description: "Metro Vancouver and Fraser Valley expertise, built neighbourhood by neighbourhood over years.",
+    title: "We know these neighbourhoods",
+    description: "Years of transactions across Metro Vancouver and Fraser Valley — we know which projects deliver and which ones to avoid.",
   },
   {
     icon: Globe,
-    title: "Multilingual Team",
-    description: "English, Hindi, Punjabi, Urdu, Arabic — and more. You should be understood in your language.",
+    title: "We speak your language",
+    description: "English, Hindi, Punjabi, Urdu, Arabic — and more. You should never have to navigate the biggest purchase of your life in a second language.",
   },
   {
     icon: Users,
-    title: "First-Gen Expertise",
-    description: "We deeply understand newcomer and first-generation buyer needs — no judgment, no jargon.",
+    title: "We understand your journey",
+    description: "Many of our clients are first-generation buyers. We cut out the jargon, slow down, and make sure you feel confident at every step.",
   },
 ];
 
@@ -33,27 +33,26 @@ export function WhoWeAre() {
             {/* Left — text */}
             <div className="lg:sticky lg:top-24">
               <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-primary block mb-5">
-                Who We Are
+                Why It Matters
               </span>
               <h2 className="text-3xl sm:text-4xl md:text-[44px] font-extrabold text-foreground leading-[1.05] tracking-tight mb-7">
-                Specialists in BC's<br />
-                <span className="text-primary">New Construction Market</span>
+                You deserve a specialist,<br />
+                <span className="text-primary">not a generalist.</span>
               </h2>
               <div className="space-y-4 text-[15px] text-muted-foreground leading-relaxed">
                 <p>
-                  Presale Properties Group is a team of licensed REALTORS® dedicated exclusively to new condos, townhomes, duplexes, and single-family homes across Metro Vancouver and the Fraser Valley.
+                  Most real estate agents sell everything — resale, rentals, commercial, the occasional presale. When presale is your only focus, you get a completely different level of expertise.
                 </p>
                 <p>
-                  Our multilingual team brings a deep understanding of first-generation and newcomer buyers. We're with you from your first showing all the way to key pickup.
+                  We know the developer reputations, the contract clauses that matter, and the incentives that never get advertised. That knowledge is yours — at zero cost.
                 </p>
               </div>
 
-              {/* Divider accent */}
               <div className="mt-9 pt-9 border-t border-border/50">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-5xl font-black text-primary">80%</span>
+                  <span className="text-5xl font-black text-primary">$0</span>
                   <span className="text-sm text-muted-foreground leading-snug max-w-[200px]">
-                    of our business is new construction — by choice, not chance.
+                    cost to you. Our fee is paid by the developer — your interests always come first.
                   </span>
                 </div>
               </div>

@@ -17,9 +17,9 @@ const fallbackTestimonials = [
   {
     id: "f1",
     reviewer_name: "Harpreet K.",
-    reviewer_location: "Surrey, BC",
+    reviewer_location: "First-time buyer · Surrey, BC",
     review_text:
-      "As first-time buyers, we were nervous about the presale process. The team at Presale Properties made everything crystal clear. They negotiated $25,000 in incentives and walked us through every single document.",
+      "I had no idea what I was getting into with presale. They walked me through every single document and negotiated $25,000 in incentives I didn't even know existed. I felt looked after the whole way.",
     rating: 5,
     review_date: null,
     is_featured: false,
@@ -27,9 +27,9 @@ const fallbackTestimonials = [
   {
     id: "f2",
     reviewer_name: "Jin & Sarah M.",
-    reviewer_location: "Coquitlam, BC",
+    reviewer_location: "Investors · Coquitlam, BC",
     review_text:
-      "We've bought 3 presales with this team now. Their knowledge of the market and developer relationships is unmatched. They've helped us build a portfolio that generates solid passive income.",
+      "We've bought 3 presales with this team now. They bring actual numbers — not just enthusiasm — and every project has performed. This is what good guidance looks like.",
     rating: 5,
     review_date: null,
     is_featured: false,
@@ -37,9 +37,9 @@ const fallbackTestimonials = [
   {
     id: "f3",
     reviewer_name: "Rajesh P.",
-    reviewer_location: "Langley, BC",
+    reviewer_location: "Newcomer buyer · Langley, BC",
     review_text:
-      "The multilingual support was a game-changer for my parents. Everything was explained in Punjabi, and they felt comfortable throughout. Professional, patient, and genuinely caring team.",
+      "My parents were nervous about the whole process. Having someone explain everything in Punjabi made it completely different. They felt heard, not rushed. Genuinely grateful.",
     rating: 5,
     review_date: null,
     is_featured: false,
@@ -47,9 +47,9 @@ const fallbackTestimonials = [
   {
     id: "f4",
     reviewer_name: "Amanda T.",
-    reviewer_location: "Vancouver, BC",
+    reviewer_location: "First-time buyer · Vancouver, BC",
     review_text:
-      "I thought I didn't need a realtor for presale — I was wrong. The contract review alone saved me from potential issues. Plus the legal credit they secured covered my lawyer fees entirely.",
+      "I almost went without an agent because I thought presale was straightforward. The contract review alone flagged three things I would have missed. The legal credit they secured covered my entire lawyer bill.",
     rating: 5,
     review_date: null,
     is_featured: false,
@@ -82,10 +82,10 @@ export function ClientTestimonials() {
           <div className="grid lg:grid-cols-[1fr_auto] gap-6 items-end mb-14">
             <div>
               <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-primary block mb-4">
-                Client Stories
+                In Their Words
               </span>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground leading-[1.05] tracking-tight">
-                What Our Clients <span className="text-primary">Say</span>
+                What it actually feels like <span className="text-primary">to work with us</span>
               </h2>
             </div>
             {/* Rating pill */}
@@ -100,7 +100,7 @@ export function ClientTestimonials() {
             </div>
           </div>
 
-          {/* Reviews grid — offset only on sm+ */}
+          {/* Reviews grid */}
           <div className="grid sm:grid-cols-2 gap-5 mb-10">
             {displayReviews.map((review, i) => (
               <div
@@ -109,7 +109,6 @@ export function ClientTestimonials() {
                   i === 1 ? "sm:mt-6" : i === 3 ? "sm:mt-6" : ""
                 }`}
               >
-                {/* Header */}
                 <div className="flex items-center justify-between mb-5">
                   <div className="p-2.5 bg-primary/10 rounded-xl group-hover:bg-primary/15 transition-colors">
                     <Quote className="h-4 w-4 text-primary" />
@@ -121,12 +120,10 @@ export function ClientTestimonials() {
                   </div>
                 </div>
 
-                {/* Quote */}
                 <p className="text-[14px] text-muted-foreground leading-[1.75] mb-6 flex-1 italic">
                   "{review.review_text}"
                 </p>
 
-                {/* Attribution */}
                 <div className="flex items-center gap-3 pt-5 border-t border-border/50 mt-auto">
                   <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0">
                     <span className="text-sm font-black text-primary">{review.reviewer_name.charAt(0)}</span>
@@ -145,7 +142,7 @@ export function ClientTestimonials() {
           <div className="flex justify-center">
             <Button variant="outline" size="lg" className="gap-2 h-12 px-8 rounded-xl font-semibold" asChild>
               <a href="https://share.google/CjsNKmTbLTlarIIN1" target="_blank" rel="noopener noreferrer">
-                See All Reviews on Google
+                Read More on Google
                 <ExternalLink className="h-4 w-4" />
               </a>
             </Button>
