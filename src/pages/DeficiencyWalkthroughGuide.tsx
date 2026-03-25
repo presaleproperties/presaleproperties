@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import {
   Download,
@@ -15,14 +15,9 @@ import {
   Building2,
   Home,
   Shield,
-  Camera,
-  Wrench,
   ArrowRight,
   Star,
-  Clock,
   FileText,
-  Flashlight,
-  Phone,
 } from "lucide-react";
 
 // ─── Checklist data ────────────────────────────────────────────────────────────
