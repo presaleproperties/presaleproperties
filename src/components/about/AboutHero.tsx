@@ -43,9 +43,9 @@ export function AboutHero() {
         <div className="container px-5 sm:px-8 md:px-10">
 
           {/* Location chip */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/25 bg-white/10 backdrop-blur-md mb-5 sm:mb-6">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/25 bg-white/10 backdrop-blur-md mb-5 sm:mb-6 max-w-fit">
             <MapPin className="h-3 w-3 text-primary shrink-0" />
-            <span className="text-[11px] font-semibold tracking-[0.14em] text-white/75 uppercase">
+            <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.12em] text-white/75 uppercase whitespace-nowrap">
               Metro Vancouver &amp; Fraser Valley
             </span>
           </div>
