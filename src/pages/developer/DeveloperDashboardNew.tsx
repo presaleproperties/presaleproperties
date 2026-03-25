@@ -188,12 +188,20 @@ export default function DeveloperDashboardNew() {
               <h1 className="text-2xl font-bold">Welcome back, {profile.contact_name}</h1>
               <p className="text-muted-foreground text-sm">{profile.company_name}</p>
             </div>
-            <Link to="/developer/projects/new">
-              <Button className="shadow-gold hover:shadow-gold-glow font-bold rounded-xl">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Project
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/developer/add-inventory">
+                <Button variant="outline" className="font-semibold rounded-xl gap-1.5">
+                  <Package className="h-4 w-4" />
+                  Add Inventory
+                </Button>
+              </Link>
+              <Link to="/developer/projects/new">
+                <Button className="shadow-gold hover:shadow-gold-glow font-bold rounded-xl">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Project
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
 
