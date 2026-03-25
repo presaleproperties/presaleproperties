@@ -10,7 +10,6 @@ export function StepTrackConstruction() {
         <Checklist
           items={[
             "Sign up for developer construction updates",
-            "Watch your sunset clause date — it's the developer's exit option",
             "Start your mortgage financing 6–9 months before completion",
             "Arrange home insurance before your completion date",
           ]}
