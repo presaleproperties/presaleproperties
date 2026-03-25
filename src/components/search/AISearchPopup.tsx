@@ -429,9 +429,13 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
     setShowTypeahead(false);
     
     if (suggestion.type === "project" && suggestion.slug) {
-      // Navigate directly to project
+      // Navigate directly to project using SEO URL
       onOpenChange(false);
-      navigate(`/presale-projects/${suggestion.slug}`);
+      navigate(generateProjectUrl({
+        slug: suggestion.slug,
+        neighborhood: suggestion.neighborhood || suggestion.city || "",
+        projectType: (suggestion.project_type || "condo") as any,
+      }));
     } else if (suggestion.type === "city") {
       // Search for projects in this city
       handleSearch(`projects in ${suggestion.label}`);
