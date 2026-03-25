@@ -528,7 +528,15 @@ export default function AdminOverview() {
     </AdminLayout>
   );
 }
-                              <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white ${intentColor}`} title={`Intent: ${lead.intent_score}/10`} />
+
+function EmptyPlaceholder({ icon: Icon, message }: { icon: React.ComponentType<{ className?: string }>; message: string }) {
+  return (
+    <div className="text-center py-8">
+      <Icon className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
+      <p className="text-xs text-muted-foreground">{message}</p>
+    </div>
+  );
+}
                             )}
                           </div>
                           <div className="min-w-0">
