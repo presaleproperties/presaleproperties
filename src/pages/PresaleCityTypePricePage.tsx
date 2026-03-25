@@ -123,37 +123,48 @@ export default function PresaleCityTypePricePage() {
     );
   }
 
-  const priceLabel = formatPriceLabel(priceK);
-  const metaTitle = `Presale ${productLabel} Under ${priceLabel} in ${cityName} (2026 Guide)`;
-  const metaDescription = `Browse all presale ${productType}s under ${priceLabel} in ${cityName}, BC. Updated pricing, floor plans, deposit structures & expert guidance.`;
+  const priceLabel = priceK ? formatPriceLabel(priceK) : null;
+
+  const metaTitle = hasPriceFilter
+    ? `Presale ${productLabel} Under ${priceLabel} in ${cityName} (2026 Guide)`
+    : `${cityName} Presale ${productLabel} 2026 | New Construction`;
+  const metaDescription = hasPriceFilter
+    ? `Browse all presale ${productType}s under ${priceLabel} in ${cityName}, BC. Updated pricing, floor plans, deposit structures & expert guidance.`
+    : `Browse all presale ${productType}s in ${cityName}, BC. Compare new construction projects, floor plans, pricing & get VIP early access.`;
 
   // Build structured data
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Presale Projects", "item": "https://presaleproperties.com/presale-projects" },
-      { "@type": "ListItem", "position": 3, "name": cityName, "item": `https://presaleproperties.com/presale-projects/${citySlug}` },
-      { "@type": "ListItem", "position": 4, "name": productLabel, "item": `https://presaleproperties.com/presale-projects/${citySlug}/${typeSlug}` },
-      { "@type": "ListItem", "position": 5, "name": `Under ${priceLabel}`, "item": `https://presaleproperties.com/presale-projects/${citySlug}/${typePriceSlug}` }
-    ]
-  };
-
-  const faqs = [
-    {
-      question: `What presale ${productType}s in ${cityName} are under ${priceLabel}?`,
-      answer: `We list all ${cityName} presale ${productType}s with starting prices under ${priceLabel}. Availability changes as projects sell, so register early for VIP access.`
-    },
-    {
-      question: `What deposit is required for ${cityName} presales under ${priceLabel}?`,
-      answer: `Most presales in this price range require 10-20% deposits paid over 12-18 months. Lower-priced projects often have more flexible deposit structures.`
-    },
-    {
-      question: `Are affordable ${cityName} ${productType}s a good investment?`,
-      answer: `Entry-level presales can offer strong appreciation as buyers seek affordability. Consider transit access, completion timeline, and rental potential.`
-    }
+  const breadcrumbItems: any[] = [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Presale Projects", "item": "https://presaleproperties.com/presale-projects" },
+    { "@type": "ListItem", "position": 3, "name": cityName, "item": `https://presaleproperties.com/presale-projects/${citySlug}` },
+    { "@type": "ListItem", "position": 4, "name": productLabel, "item": `https://presaleproperties.com/presale-projects/${citySlug}/${typeSlug}` },
   ];
+  if (hasPriceFilter) {
+    breadcrumbItems.push({ "@type": "ListItem", "position": 5, "name": `Under ${priceLabel}`, "item": `https://presaleproperties.com/presale-projects/${citySlug}/${typePriceSlug}` });
+  }
+  const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": breadcrumbItems };
+
+  const faqs = hasPriceFilter
+    ? [
+        {
+          question: `What presale ${productType}s in ${cityName} are under ${priceLabel}?`,
+          answer: `We list all ${cityName} presale ${productType}s with starting prices under ${priceLabel}. Availability changes as projects sell, so register early for VIP access.`
+        },
+        {
+          question: `What deposit is required for ${cityName} presales under ${priceLabel}?`,
+          answer: `Most presales in this price range require 10-20% deposits paid over 12-18 months. Lower-priced projects often have more flexible deposit structures.`
+        },
+      ]
+    : [
+        {
+          question: `What are the best presale ${productType}s in ${cityName}?`,
+          answer: `We list all active presale ${productType}s in ${cityName}. Browse floor plans, pricing, and register for VIP access to get early pricing before public launch.`
+        },
+        {
+          question: `How do I buy a presale ${productType} in ${cityName}?`,
+          answer: `Contact our team for VIP access. We'll walk you through the deposit structure, contract terms, and help you choose the best unit for your needs.`
+        },
+      ];
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -161,10 +172,7 @@ export default function PresaleCityTypePricePage() {
     "mainEntity": faqs.map(faq => ({
       "@type": "Question",
       "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.answer
-      }
+      "acceptedAnswer": { "@type": "Answer", "text": faq.answer }
     }))
   };
 
@@ -176,12 +184,15 @@ export default function PresaleCityTypePricePage() {
     .filter(([slug]) => slug !== citySlug)
     .slice(0, 6);
 
-  // Noindex when zero results — prevents soft 404 signals to Google
-  // Secondary cities (delta, chilliwack, etc.) often have no projects at certain price points
+  // Noindex when zero results
   const hasResults = sortedProjects.length > 0;
   const robotsContent = hasResults
     ? "index, follow, max-image-preview:large, max-snippet:-1"
     : "noindex, follow";
+
+  const canonicalPath = hasPriceFilter
+    ? `https://presaleproperties.com/presale-projects/${citySlug}/${typePriceSlug}`
+    : `https://presaleproperties.com/presale-projects/${citySlug}/${typeSlug}`;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -189,7 +200,7 @@ export default function PresaleCityTypePricePage() {
         <title>{metaTitle}</title>
         <meta name="description" content={metaDescription} />
         <meta name="robots" content={robotsContent} />
-        <link rel="canonical" href={`https://presaleproperties.com/presale-projects/${citySlug}/${typePriceSlug}`} />
+        <link rel="canonical" href={canonicalPath} />
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:type" content="website" />
@@ -209,9 +220,15 @@ export default function PresaleCityTypePricePage() {
             <ChevronRight className="h-4 w-4" />
             <Link to={`/presale-projects/${citySlug}`} className="hover:text-foreground transition-colors">{cityName}</Link>
             <ChevronRight className="h-4 w-4" />
-            <Link to={`/presale-projects/${citySlug}/${typeSlug}`} className="hover:text-foreground transition-colors">{productLabel}</Link>
-            <ChevronRight className="h-4 w-4" />
-            <span className="text-foreground">Under {priceLabel}</span>
+            {hasPriceFilter ? (
+              <>
+                <Link to={`/presale-projects/${citySlug}/${typeSlug}`} className="hover:text-foreground transition-colors">{productLabel}</Link>
+                <ChevronRight className="h-4 w-4" />
+                <span className="text-foreground">Under {priceLabel}</span>
+              </>
+            ) : (
+              <span className="text-foreground">{productLabel}</span>
+            )}
           </nav>
         </div>
 
@@ -219,53 +236,56 @@ export default function PresaleCityTypePricePage() {
         <section className="container px-4 py-8 md:py-12">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-primary/10 rounded-lg">
-              <TrendingDown className="h-6 w-6 text-primary" />
+              {isCondos ? <Building2 className="h-6 w-6 text-primary" /> : <Home className="h-6 w-6 text-primary" />}
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold">Presale {productLabel} Under {priceLabel} in {cityName}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold">
+              {hasPriceFilter
+                ? `Presale ${productLabel} Under ${priceLabel} in ${cityName}`
+                : `${cityName} Presale ${productLabel}`}
+            </h1>
           </div>
           <p className="text-lg text-muted-foreground max-w-3xl mb-6">
-            Looking for an affordable presale {productType} in {cityName}? Browse all new construction {productType}s with starting prices under {priceLabel}. Get VIP access to floor plans, pricing sheets, and early registration.
+            {hasPriceFilter
+              ? `Looking for an affordable presale ${productType} in ${cityName}? Browse all new construction ${productType}s with starting prices under ${priceLabel}. Get VIP access to floor plans, pricing sheets, and early registration.`
+              : `Browse all presale ${productType}s in ${cityName}, BC. Compare new developments, floor plans, and deposit structures — register early for VIP pricing.`}
           </p>
+
+          {/* Type switcher */}
+          <div className="flex gap-2 mb-6">
+            <Link to={`/presale-projects/${citySlug}/condos`}>
+              <Button variant={isCondos ? "default" : "outline"} size="sm">
+                <Building2 className="h-4 w-4 mr-2" />
+                Condos
+              </Button>
+            </Link>
+            <Link to={`/presale-projects/${citySlug}/townhomes`}>
+              <Button variant={!isCondos ? "default" : "outline"} size="sm">
+                <Home className="h-4 w-4 mr-2" />
+                Townhomes
+              </Button>
+            </Link>
+          </div>
 
           {/* Price point quick links */}
           <div className="flex flex-wrap gap-2 mb-8">
-            <span className="text-sm text-muted-foreground self-center mr-2">Price ranges:</span>
+            <span className="text-sm text-muted-foreground self-center mr-2">Filter by price:</span>
+            <Link to={`/presale-projects/${citySlug}/${typeSlug}`}>
+              <Button variant={!hasPriceFilter ? "default" : "outline"} size="sm">All Prices</Button>
+            </Link>
             {PRICE_POINTS.map((price) => (
-              <Link 
-                key={price} 
-                to={`/presale-projects/${citySlug}/${typeSlug}-under-${price}k`}
-              >
-                <Button 
-                  variant={price === priceK ? "default" : "outline"} 
-                  size="sm"
-                >
+              <Link key={price} to={`/presale-projects/${citySlug}/${typeSlug}-under-${price}k`}>
+                <Button variant={price === priceK ? "default" : "outline"} size="sm">
                   Under {formatPriceLabel(price)}
                 </Button>
               </Link>
             ))}
           </div>
 
-          {/* Type switcher */}
-          <div className="flex gap-2 mb-8">
-            <Link to={`/presale-projects/${citySlug}/condos-under-${priceK}k`}>
-              <Button variant={isCondos ? "default" : "outline"} size="sm">
-                <Building2 className="h-4 w-4 mr-2" />
-                Condos Under {priceLabel}
-              </Button>
-            </Link>
-            <Link to={`/presale-projects/${citySlug}/townhomes-under-${priceK}k`}>
-              <Button variant={!isCondos ? "default" : "outline"} size="sm">
-                <Home className="h-4 w-4 mr-2" />
-                Townhomes Under {priceLabel}
-              </Button>
-            </Link>
-          </div>
-
           {/* Sort controls */}
           <div className="flex items-center gap-4 mb-6">
             <span className="text-sm text-muted-foreground">Sort by:</span>
-            <select 
-              value={sortBy} 
+            <select
+              value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="text-sm border rounded px-3 py-1.5 bg-background"
             >
@@ -309,22 +329,23 @@ export default function PresaleCityTypePricePage() {
             </div>
           ) : (
             <div className="text-center py-16 bg-muted/30 rounded-xl">
-              <DollarSign className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No Projects Under {priceLabel}</h3>
+              <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold mb-2">
+                {hasPriceFilter ? `No ${productLabel} Under ${priceLabel}` : `No ${productLabel} Listed Yet`}
+              </h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                We don't currently have {cityName} {productType}s with starting prices under {priceLabel}. 
-                Try a higher price point or browse all projects.
+                {hasPriceFilter
+                  ? `We don't currently have ${cityName} ${productType}s with starting prices under ${priceLabel}. Try a higher price point or browse all projects.`
+                  : `We don't currently have active presale ${productType}s listed in ${cityName}. Browse all presale projects or check back soon.`}
               </p>
               <div className="flex flex-wrap justify-center gap-2">
-                {otherPricePoints.slice(0, 3).map((price) => (
+                {hasPriceFilter && otherPricePoints.slice(0, 3).map((price) => (
                   <Link key={price} to={`/presale-projects/${citySlug}/${typeSlug}-under-${price}k`}>
-                    <Button variant="outline" size="sm">
-                      Under {formatPriceLabel(price)}
-                    </Button>
+                    <Button variant="outline" size="sm">Under {formatPriceLabel(price)}</Button>
                   </Link>
                 ))}
-                <Link to={`/presale-projects/${citySlug}/${typeSlug}`}>
-                  <Button>All {cityName} {productLabel}</Button>
+                <Link to={`/presale-projects/${citySlug}`}>
+                  <Button>All {cityName} Presales</Button>
                 </Link>
               </div>
             </div>
@@ -334,14 +355,12 @@ export default function PresaleCityTypePricePage() {
         {/* Other Cities */}
         <section className="container px-4 py-12 border-t">
           <h2 className="text-xl font-semibold mb-6">
-            {productLabel} Under {priceLabel} in Other Cities
+            {hasPriceFilter ? `${productLabel} Under ${priceLabel} in Other Cities` : `${productLabel} in Other Cities`}
           </h2>
           <div className="flex flex-wrap gap-2">
             {otherCities.map(([slug, name]) => (
-              <Link key={slug} to={`/presale-projects/${slug}/${typeSlug}-under-${priceK}k`}>
-                <Button variant="outline" size="sm">
-                  {name}
-                </Button>
+              <Link key={slug} to={hasPriceFilter ? `/presale-projects/${slug}/${typeSlug}-under-${priceK}k` : `/presale-projects/${slug}/${typeSlug}`}>
+                <Button variant="outline" size="sm">{name}</Button>
               </Link>
             ))}
           </div>
@@ -350,15 +369,13 @@ export default function PresaleCityTypePricePage() {
         {/* FAQ Section */}
         <section className="container px-4 py-12 border-t">
           <h2 className="text-2xl font-bold mb-6">
-            FAQ: Affordable Presale {productLabel} in {cityName}
+            {hasPriceFilter ? `FAQ: Affordable Presale ${productLabel} in ${cityName}` : `FAQ: Presale ${productLabel} in ${cityName}`}
           </h2>
           <Accordion type="single" collapsible className="w-full max-w-3xl">
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={`faq-${index}`}>
                 <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {faq.answer}
-                </AccordionContent>
+                <AccordionContent className="text-muted-foreground">{faq.answer}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
@@ -368,18 +385,10 @@ export default function PresaleCityTypePricePage() {
         <section className="container px-4 py-12 border-t">
           <h2 className="text-xl font-semibold mb-6">Explore More</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link to={`/presale-projects/${citySlug}`} className="text-sm text-primary hover:underline">
-              All {cityName} Presales
-            </Link>
-            <Link to={`/presale-projects/${citySlug}/${typeSlug}`} className="text-sm text-primary hover:underline">
-              {cityName} {productLabel}
-            </Link>
-            <Link to="/buyers-guide" className="text-sm text-primary hover:underline">
-              Presale Buyer's Guide
-            </Link>
-            <Link to="/mortgage-calculator" className="text-sm text-primary hover:underline">
-              Mortgage Calculator
-            </Link>
+            <Link to={`/presale-projects/${citySlug}`} className="text-sm text-primary hover:underline">All {cityName} Presales</Link>
+            <Link to={`/presale-projects/${citySlug}/${isCondos ? "townhomes" : "condos"}`} className="text-sm text-primary hover:underline">{cityName} {isCondos ? "Townhomes" : "Condos"}</Link>
+            <Link to="/buyers-guide" className="text-sm text-primary hover:underline">Presale Buyer's Guide</Link>
+            <Link to="/mortgage-calculator" className="text-sm text-primary hover:underline">Mortgage Calculator</Link>
           </div>
         </section>
       </main>
