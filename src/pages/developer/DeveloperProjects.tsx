@@ -267,12 +267,20 @@ export default function DeveloperProjects() {
               Manage inventory for your presale projects on PresaleProperties.ca
             </p>
           </div>
-          <Link to="/developer/projects/new">
-            <Button className="h-9 gap-1.5 font-semibold shadow-gold">
-              <Plus className="h-4 w-4" />
-              New Project
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/developer/add-inventory">
+              <Button variant="outline" className="h-9 gap-1.5 font-semibold">
+                <Package className="h-4 w-4" />
+                Add Inventory
+              </Button>
+            </Link>
+            <Link to="/developer/projects/new">
+              <Button className="h-9 gap-1.5 font-semibold shadow-gold">
+                <Plus className="h-4 w-4" />
+                New Project
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* My Linked Projects */}
