@@ -194,6 +194,6 @@ export default function DeveloperProjects() {
           </div>
         )}
       </div>
-    </DeveloperLayout>
+    </DeveloperPortalLayout>
   );
 }
