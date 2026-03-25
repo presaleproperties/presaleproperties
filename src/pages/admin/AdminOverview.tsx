@@ -159,11 +159,16 @@ const statCardConfigs = [
 ];
 
 export default function AdminOverview() {
+  const { toast } = useToast();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [pendingListings, setPendingListings] = useState<PendingListing[]>([]);
+  const [pendingDevelopers, setPendingDevelopers] = useState<PendingDeveloper[]>([]);
+  const [pendingAgents, setPendingAgents] = useState<PendingAgent[]>([]);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
 
-  useEffect(() => { fetchStats(); }, []);
+  useEffect(() => { fetchStats(); fetchPendingApprovals(); }, []);
 
   const fetchStats = async () => {
     try {
