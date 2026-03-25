@@ -1,19 +1,19 @@
 import { Check, Home, TrendingUp } from "lucide-react";
 
 const firstTimeBuyerPoints = [
-  "Explain presale vs resale in simple, practical terms",
-  "Shortlist projects matching your budget, lifestyle & timeline",
-  "Negotiate deposit structures, credits, and incentives",
-  "Review contracts and disclosures — nothing hidden",
-  "Support you through financing, walkthroughs, and deficiencies",
+  "We explain the presale process in plain language — no jargon, no rushing",
+  "We match you to projects that fit your real budget, not just your max",
+  "We negotiate deposit structures, credits, and incentives on your behalf",
+  "We review every contract clause before you sign anything",
+  "We stay with you from first call all the way to key pickup",
 ];
 
 const investorPoints = [
-  "Identify projects with strong rental demand & reputable builders",
-  "Run full numbers on rents, costs, and projected values",
-  "Secure assignment rights and investor-friendly contract terms",
-  "Connect you with leasing and property management support",
-  "Plan future purchases around cash flow and completion timelines",
+  "We find projects with strong rental demand and builder track records",
+  "We run the real numbers — rent, costs, yield — before you commit",
+  "We secure assignment rights and investor-friendly contract terms",
+  "We connect you with leasing and property management when you're ready",
+  "We help you plan your next purchase around cash flow, not guesswork",
 ];
 
 interface BuyerCardProps {
@@ -80,12 +80,13 @@ export function ForBuyersSection() {
                 Who We Help
               </span>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground leading-[1.05] tracking-tight">
-                Guidance for Every{" "}
-                <span className="text-primary">Buyer</span>
+                Your path.{" "}
+                <br className="hidden sm:block" />
+                <span className="text-primary">Your pace.</span>
               </h2>
             </div>
             <p className="text-[15px] text-muted-foreground leading-relaxed">
-              Whether you're buying your first home or scaling an investment portfolio, our approach is tailored — not templated.
+              Whether you're buying your first home or adding to a growing portfolio — we adapt to you. No pressure, no template, no wasted time.
             </p>
           </div>
 
@@ -93,13 +94,13 @@ export function ForBuyersSection() {
             <BuyerCard
               icon={Home}
               title="First-Time Buyers"
-              subtitle="We turn a confusing presale process into a clear, step-by-step plan — no intimidation, no rushing."
+              subtitle="You don't need to know how presale works. That's our job. We'll guide you through every step so you buy with confidence — not anxiety."
               points={firstTimeBuyerPoints}
             />
             <BuyerCard
               icon={TrendingUp}
               title="Investors"
-              subtitle="We help you use presales to build a stronger, smarter portfolio with real numbers behind every decision."
+              subtitle="Good investment decisions start with good data. We bring the numbers, the market knowledge, and the contracts that protect your upside."
               points={investorPoints}
               dark
             />

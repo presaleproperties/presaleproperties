@@ -72,12 +72,12 @@ export function MeetTheTeam() {
         <div className="max-w-5xl mx-auto">
 
           <div className="text-center mb-14">
-            <span className="text-xs font-bold uppercase tracking-[0.25em] text-primary block mb-4">Our People</span>
+            <span className="text-xs font-bold uppercase tracking-[0.25em] text-primary block mb-4">Your Guides</span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground leading-tight mb-4">
-              Meet the <span className="text-primary">Team</span>
+              The people in <span className="text-primary">your corner</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Dedicated specialists bringing together decades of combined experience in presale real estate.
+              Each of us has helped dozens of buyers just like you. Pick the person you feel most comfortable with — and start with a free conversation.
             </p>
           </div>
 
@@ -102,16 +102,13 @@ export function MeetTheTeam() {
                       </span>
                     </div>
                   )}
-                  {/* Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
 
-                  {/* Name on image */}
                   <div className="absolute bottom-5 left-5 right-5">
                     <h3 className="text-xl font-extrabold text-white leading-tight">{member.full_name}</h3>
                     <p className="text-primary text-sm font-semibold mt-0.5">{member.title}</p>
                   </div>
 
-                  {/* Social links */}
                   {(member.linkedin_url || member.instagram_url) && (
                     <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       {member.linkedin_url && (
@@ -162,7 +159,7 @@ export function MeetTheTeam() {
                     onClick={() => handleWorkWithAgent(member.id, member.full_name, member.photo_url)}
                   >
                     <Calendar className="h-4 w-4" />
-                    Work with {member.full_name.split(" ")[0]}
+                    Talk to {member.full_name.split(" ")[0]}
                   </Button>
                 </div>
               </div>
