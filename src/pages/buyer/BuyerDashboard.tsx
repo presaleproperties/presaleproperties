@@ -64,7 +64,8 @@ const BuyerDashboard = () => {
             main_image_url,
             price_from,
             status,
-            slug
+            slug,
+            project_type
           )
         `)
         .eq("buyer_id", buyerProfile.id)
