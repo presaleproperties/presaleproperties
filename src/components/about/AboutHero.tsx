@@ -62,9 +62,9 @@ export function AboutHero() {
 
               {/* Headline — large on all devices */}
               <h1 className="font-extrabold text-white leading-[0.88] tracking-tight mb-5">
-                <span className="block text-[clamp(52px,12vw,88px)] sm:text-[clamp(56px,9vw,88px)] md:text-[clamp(60px,8vw,88px)]">Presale</span>
-                <span className="block text-[clamp(52px,12vw,88px)] sm:text-[clamp(56px,9vw,88px)] md:text-[clamp(60px,8vw,88px)]">Properties</span>
-                <span className="block text-[clamp(52px,12vw,88px)] sm:text-[clamp(56px,9vw,88px)] md:text-[clamp(60px,8vw,88px)] text-primary">Group</span>
+                <span className="block" style={{fontSize: "clamp(58px, 14vw, 96px)"}}>Presale</span>
+                <span className="block" style={{fontSize: "clamp(58px, 14vw, 96px)"}}>Properties</span>
+                <span className="block text-primary" style={{fontSize: "clamp(58px, 14vw, 96px)"}}>Group</span>
               </h1>
 
               {/* Tagline divider */}
