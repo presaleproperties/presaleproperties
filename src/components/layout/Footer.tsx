@@ -96,141 +96,97 @@ const PRICE_LINKS = [
 export function Footer() {
   return (
     <footer className="border-t border-border bg-muted/30">
-      <div className="py-8 sm:py-12 px-4 lg:container lg:px-4">
-        <div className="grid gap-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
-          <div className="space-y-4 col-span-2 sm:col-span-3 md:col-span-1">
-            <Logo size="xl" className="-my-10 sm:-my-10 md:-my-10" />
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Metro Vancouver's #1 marketplace for presale condos, townhomes, and new construction homes with VIP pricing and floor plans.
+      <div className="py-6 lg:py-8 px-4 lg:container lg:px-4">
+
+        {/* Main grid — tighter on desktop */}
+        <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+
+          {/* Brand */}
+          <div className="space-y-2 col-span-2 sm:col-span-3 lg:col-span-1">
+            <Logo size="xl" className="-my-10" />
+            <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+              Metro Vancouver's presale marketplace. VIP pricing, floor plans &amp; early access.
             </p>
           </div>
 
-          {/* Presale Condos by City */}
-          <nav aria-label="Presale condos by city" className="space-y-3 sm:space-y-4">
-            <h4 className="text-xs sm:text-sm font-semibold">Presale Condos</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-              <li>
-                <Link to="/presale-projects" className="hover:text-foreground transition-colors">
-                  All Presale Projects
-                </Link>
-              </li>
+          {/* Presale Condos */}
+          <nav aria-label="Presale condos by city">
+            <h4 className="text-xs font-semibold mb-2">Presale Condos</h4>
+            <ul className="space-y-1 text-xs text-muted-foreground">
+              <li><Link to="/presale-projects" className="hover:text-foreground transition-colors">All Projects</Link></li>
               {CONDO_CITY_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link to={link.href} className="hover:text-foreground transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
+                <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
               ))}
             </ul>
           </nav>
 
           {/* Presale Townhomes */}
-          <nav aria-label="Presale townhomes by city" className="space-y-3 sm:space-y-4">
-            <h4 className="text-xs sm:text-sm font-semibold">Presale Townhomes</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+          <nav aria-label="Presale townhomes by city">
+            <h4 className="text-xs font-semibold mb-2">Presale Townhomes</h4>
+            <ul className="space-y-1 text-xs text-muted-foreground">
               {TOWNHOME_CITY_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link to={link.href} className="hover:text-foreground transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
+                <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
               ))}
             </ul>
           </nav>
 
           {/* Neighbourhoods */}
-          <nav aria-label="Neighbourhoods" className="space-y-3 sm:space-y-4">
-            <h4 className="text-xs sm:text-sm font-semibold">Neighbourhoods</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+          <nav aria-label="Neighbourhoods">
+            <h4 className="text-xs font-semibold mb-2">Neighbourhoods</h4>
+            <ul className="space-y-1 text-xs text-muted-foreground">
               {NEIGHBOURHOOD_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link to={link.href} className="hover:text-foreground transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
+                <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
               ))}
             </ul>
           </nav>
 
-          {/* Move-In Ready Homes */}
-          <nav aria-label="Move-in ready homes" className="space-y-3 sm:space-y-4">
-            <h4 className="text-xs sm:text-sm font-semibold">Move-In Ready</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+          {/* Move-In Ready */}
+          <nav aria-label="Move-in ready homes">
+            <h4 className="text-xs font-semibold mb-2">Move-In Ready</h4>
+            <ul className="space-y-1 text-xs text-muted-foreground">
               {MOVE_IN_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link to={link.href} className="hover:text-foreground transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
+                <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
               ))}
             </ul>
           </nav>
 
-          <nav aria-label="Resources" className="space-y-3 sm:space-y-4">
-            <h4 className="text-xs sm:text-sm font-semibold">Resources</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+          {/* Resources */}
+          <nav aria-label="Resources">
+            <h4 className="text-xs font-semibold mb-2">Resources</h4>
+            <ul className="space-y-1 text-xs text-muted-foreground">
               {RESOURCE_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link to={link.href} className="hover:text-foreground transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
+                <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
               ))}
             </ul>
           </nav>
         </div>
 
-        {/* Browse by Price */}
-        <div className="mt-8 pt-6 border-t border-border">
-          <p className="text-xs font-semibold mb-3">Browse by Price</p>
-          <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
-            {PRICE_LINKS.map((link) => (
-              <Link key={link.href} to={link.href} className="hover:text-foreground transition-colors">
-                {link.label}
-              </Link>
+        {/* Browse by Price — compact inline */}
+        <div className="mt-5 pt-4 border-t border-border">
+          <span className="text-xs font-semibold mr-3">Browse by Price:</span>
+          <span className="text-xs text-muted-foreground">
+            {PRICE_LINKS.map((link, i) => (
+              <span key={link.href}>
+                <Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link>
+                {i < PRICE_LINKS.length - 1 && <span className="mx-2 text-border">·</span>}
+              </span>
             ))}
+          </span>
+        </div>
+
+        {/* Bottom bar — brokerage + legal in one row */}
+        <div className="mt-4 pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <img src={realBrokerLogo} alt="Real Broker" className="h-7 w-auto object-contain" />
+            <p className="text-xs text-muted-foreground">Real Broker · 666 Burrard St, Suite 500, Vancouver, BC V6C 3P6</p>
           </div>
-        </div>
-
-        {/* Brokerage Section */}
-        <div className="mt-8 pt-6 border-t border-border">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 justify-center">
-            <img 
-              src={realBrokerLogo} 
-              alt="Real Broker" 
-              className="h-10 sm:h-12 w-auto object-contain"
-            />
-            <div className="text-center sm:text-left">
-              <p className="text-sm font-medium text-foreground">Real Broker</p>
-              <p className="text-xs text-muted-foreground">
-                666 Burrard St, Suite 500, Vancouver, British Columbia V6C 3P6
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* SEO keyword footer section */}
-        <div className="mt-8 pt-6 border-t border-border">
-          <p className="text-xs text-muted-foreground text-center leading-relaxed max-w-4xl mx-auto">
-            PresaleProperties.com features new presale condos in Vancouver, Surrey presale townhomes, 
-            Langley new condos presale, Coquitlam pre-construction condos, Burnaby presale pricing, 
-            Delta presale condos, and Abbotsford presale developments. Get VIP access to floor plans, 
-            pricing, incentives, and early registration across Metro Vancouver and the Fraser Valley.
-          </p>
-          <p className="text-[10px] text-muted-foreground/70 text-center mt-3 max-w-2xl mx-auto">
-            We specialize exclusively in new construction: presale projects and move-in ready homes under 6 months old. No resale properties.
-          </p>
-        </div>
-
-        <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
-            © {new Date().getFullYear()} PresaleProperties.com. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
-            <span>·</span>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap justify-center">
+            <span>© {new Date().getFullYear()} PresaleProperties.com</span>
+            <span className="text-border">·</span>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <span className="text-border">·</span>
             <a href="mailto:info@presaleproperties.com" className="hover:text-foreground transition-colors">info@presaleproperties.com</a>
-            <span>|</span>
+            <span className="text-border">·</span>
             <a href="tel:6722581100" className="hover:text-foreground transition-colors">672-258-1100</a>
           </div>
         </div>
