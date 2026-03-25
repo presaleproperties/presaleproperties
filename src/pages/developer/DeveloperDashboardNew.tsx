@@ -275,6 +275,12 @@ export default function DeveloperDashboardNew() {
                       ) : (
                         <Badge variant="outline" className="text-xs rounded-lg">Draft</Badge>
                       )}
+                      <Link to={`/developer/projects/${project.id}/inventory`}>
+                        <Button size="sm" className="text-xs rounded-xl shadow-gold font-semibold">
+                          <Package className="h-3 w-3 mr-1" />
+                          Manage Inventory
+                        </Button>
+                      </Link>
                       <Link to={`/developer/projects/${project.id}/edit`}>
                         <Button variant="outline" size="sm" className="text-xs rounded-xl">Edit</Button>
                       </Link>
