@@ -219,10 +219,31 @@ const TOWNHOME_SECTIONS = [
 ];
 
 const WARRANTY_ROWS = [
-  { period: "15 Months", covers: "Materials & labour — drywall cracks, nail pops, paint imperfections from settling" },
-  { period: "2 Years", covers: "Delivery & distribution systems — electrical, plumbing, heating/cooling" },
-  { period: "5 Years", covers: "Building envelope — windows, doors, roofing, water ingress" },
-  { period: "10 Years", covers: "Structural defects — foundation, load-bearing components" },
+  {
+    period: "12 Months",
+    covers: "Materials & labour (individual unit) — workmanship defects: drywall cracks, nail pops, paint, flooring, cabinetry, tile",
+    note: null,
+  },
+  {
+    period: "15 Months",
+    covers: "Materials & labour for strata common property — lobby, corridors, amenities, parkade, common mechanical rooms",
+    note: "Strata / Condo only",
+  },
+  {
+    period: "24 Months",
+    covers: "Major systems — electrical, plumbing, heating & cooling, ventilation, exterior cladding, exterior doors & windows",
+    note: null,
+  },
+  {
+    period: "5 Years",
+    covers: "Building envelope — water penetration through roof, exterior walls, windows, doors, and foundation",
+    note: null,
+  },
+  {
+    period: "10 Years",
+    covers: "Structural defects — foundation, load-bearing walls, beams, columns, floor and roof framing",
+    note: null,
+  },
 ];
 
 const TOOLS = [
