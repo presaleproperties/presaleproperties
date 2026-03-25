@@ -262,7 +262,7 @@ const FAQS = [
   },
   {
     q: "What if the developer's rep dismisses my deficiency?",
-    a: "Write it down anyway. Sign the deficiency list only after all items are recorded. If something is listed, the developer is legally obligated to address it. Never skip adding an item because the rep says it's 'minor'.",
+    a: "Write it down anyway. Sign the deficiency list only after all items are recorded. If something is listed, the developer is legally obligated to address it under BC's Homeowner Protection Act. Never skip adding an item because the rep says it's 'minor'.",
   },
   {
     q: "How long does the walkthrough take?",
@@ -274,11 +274,11 @@ const FAQS = [
   },
   {
     q: "Are cosmetic deficiencies covered under BC Home Warranty?",
-    a: "Cosmetic defects (scratches, dents, paint issues) must be caught at the walkthrough — before possession. The 15-month materials warranty covers structural materials, not cosmetic touch-ups you missed at PDI.",
+    a: "Cosmetic defects (scratches, dents, paint issues) must be caught at the PDI walkthrough — before possession. The 12-month materials and labour warranty covers workmanship defects that emerge after possession (like settling cracks), not cosmetic damage you failed to note at PDI.",
   },
   {
     q: "What if I find deficiencies after moving in?",
-    a: "Document them immediately with photos and timestamps. Submit a written warranty claim to the developer. BC Home Warranty provides 15 months of materials coverage from your possession date for items like settling cracks and nail pops.",
+    a: "Document them immediately with photos and timestamps and submit a written warranty claim to your warranty provider. Under BC's 2-5-10 Home Warranty, you have 12 months from possession for materials and labour defects (individual unit), 15 months for strata common property defects, and 24 months for major system defects like plumbing or HVAC.",
   },
 ];
 
