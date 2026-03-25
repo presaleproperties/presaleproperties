@@ -60,10 +60,10 @@ export function AboutHero() {
               </p>
 
               {/* Headline */}
-              <h1 className="font-extrabold text-white leading-[0.88] tracking-tight mb-3 sm:mb-4">
-                <span className="block text-[42px] sm:text-[64px] md:text-[72px] lg:text-[80px]">Presale</span>
-                <span className="block text-[42px] sm:text-[64px] md:text-[72px] lg:text-[80px]">Properties</span>
-                <span className="block text-[42px] sm:text-[64px] md:text-[72px] lg:text-[80px] text-primary">Group</span>
+              <h1 className="font-extrabold text-white leading-[0.9] tracking-tight mb-3 sm:mb-4">
+                <span className="block text-5xl sm:text-7xl md:text-8xl lg:text-[84px]">Presale</span>
+                <span className="block text-5xl sm:text-7xl md:text-8xl lg:text-[84px]">Properties</span>
+                <span className="block text-5xl sm:text-7xl md:text-8xl lg:text-[84px] text-primary">Group</span>
               </h1>
 
               {/* Tagline */}
