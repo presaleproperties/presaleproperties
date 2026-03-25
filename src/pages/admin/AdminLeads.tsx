@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, startOfDay } from "date-fns";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { generateProjectUrl } from "@/lib/seoUrls";
 import {
   Users,
   Building2,
