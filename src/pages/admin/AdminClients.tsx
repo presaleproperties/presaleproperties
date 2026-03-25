@@ -263,8 +263,8 @@ export default function AdminClients() {
       
       // Search presale projects
       const { data: presaleProjects } = await supabase
-        .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, starting_price, featured_image")
+          .from("presale_projects")
+          .select("id, name, slug, city, neighborhood, project_type, starting_price, featured_image")
         .eq("is_published", true)
         .or(`name.ilike.%${query}%,city.ilike.%${query}%,neighborhood.ilike.%${query}%`)
         .limit(12);
