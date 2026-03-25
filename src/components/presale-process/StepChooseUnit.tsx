@@ -1,44 +1,56 @@
-import { SectionCard, StatGrid, Checklist, SectionLabel, CostRow } from "./shared";
+import { SectionCard, Checklist, SectionLabel } from "./shared";
 
 export function StepChooseUnit() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
-      <div className="space-y-5 sm:space-y-6">
-        <div>
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            Choosing a unit is about more than square footage. Floor level, orientation, view corridors, and proximity to building amenities all affect your lived experience and long-term resale value. Take your time — this decision will compound over years.
-          </p>
-        </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
+      <div className="space-y-5">
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+          Choosing a unit is more than picking a floor plan. Floor level, sun exposure, and view lines all affect both your daily life and long-term resale value.
+        </p>
         <Checklist
           items={[
-            "Higher floors carry a 1–3% price premium per level — know if it's worth it for your goals",
-            "South and west-facing exposure delivers more natural light and stronger resale appeal",
-            "Corner units offer dual-aspect views — a meaningful premium on the secondary market",
-            "Avoid units directly adjacent to elevators, garbage chutes, or loading bays",
-            "Always compare net livable square footage, not just the gross number in the brochure",
+            "Higher floors cost more but hold value better",
+            "South/west exposure = more natural light and stronger resale",
+            "Corner units have two views — worth paying for",
+            "Avoid units next to elevators or garbage rooms",
+            "Always check net livable sqft, not just the brochure number",
           ]}
         />
       </div>
 
       <div className="space-y-4">
         <SectionCard>
-          <SectionLabel text="Floor premium breakdown" />
-          <CostRow label="Floors 2–10" value="Base Price" />
-          <CostRow label="Floors 11–20" value="+$3K–$8K / floor" />
-          <CostRow label="Floors 21–30" value="+$5K–$12K / floor" />
-          <CostRow label="Penthouse levels" value="+15–25%" highlight />
+          <SectionLabel text="Typical floor premiums" />
+          <div className="space-y-0">
+            {[
+              { range: "Floors 2–10", price: "Base price" },
+              { range: "Floors 11–20", price: "+$3K–$8K per floor" },
+              { range: "Floors 21–30", price: "+$5K–$12K per floor" },
+              { range: "Penthouse", price: "+15–25%" },
+            ].map((item) => (
+              <div key={item.range} className="flex justify-between items-center py-2.5 border-b border-border last:border-0 text-sm">
+                <span className="text-muted-foreground">{item.range}</span>
+                <span className="font-semibold text-foreground">{item.price}</span>
+              </div>
+            ))}
+          </div>
         </SectionCard>
 
         <SectionCard>
-          <SectionLabel text="Value-add factors to look for" />
-          <StatGrid
-            stats={[
-              { value: "+8%", label: "Corner unit premium" },
-              { value: "+5%", label: "South exposure" },
+          <SectionLabel text="Value add-ons" />
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { value: "+8%", label: "Corner unit" },
+              { value: "+5%", label: "South facing" },
               { value: "+12%", label: "Unobstructed view" },
               { value: "+3%", label: "In-suite laundry" },
-            ]}
-          />
+            ].map((s) => (
+              <div key={s.label} className="rounded-lg bg-background border border-border p-3">
+                <p className="text-xl font-bold text-primary">{s.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
+              </div>
+            ))}
+          </div>
         </SectionCard>
       </div>
     </div>
