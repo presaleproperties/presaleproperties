@@ -56,6 +56,7 @@ const DeveloperLogin = lazy(() => import("./pages/developer/DeveloperLogin"));
 const DeveloperProjectForm = lazy(() => import("./pages/developer/DeveloperProjectForm"));
 const DeveloperUnitsPage = lazy(() => import("./pages/developer/DeveloperUnitsPage"));
 const DeveloperInventoryPage = lazy(() => import("./pages/developer/DeveloperInventoryPage"));
+const DeveloperAddInventoryWizard = lazy(() => import("./pages/developer/DeveloperAddInventoryWizard"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminProjects = lazy(() => import("./pages/admin/AdminProjects"));
 const AdminProjectForm = lazy(() => import("./pages/admin/AdminProjectForm"));
