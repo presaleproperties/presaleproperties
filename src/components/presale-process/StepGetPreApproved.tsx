@@ -6,7 +6,7 @@ export function StepGetPreApproved() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
       <div className="space-y-5">
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-          Before you can reserve a presale unit, you need a full mortgage pre-approval — not just a pre-qualification. Developers won't let you sign without written proof of financing.
+          Before you start looking at projects, get pre-qualified with a mortgage broker. This tells you what you can comfortably afford and what your deposit needs will be. A full pre-approval comes later — once you're ready to sign a contract.
         </p>
 
         <div>
