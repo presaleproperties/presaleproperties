@@ -5,12 +5,12 @@ export function StepPayDeposits() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
       <div className="space-y-5">
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-          Deposits are typically 15–20% of the purchase price, split into installments over 12–18 months. Your money is fully protected in a lawyer's trust account until you get your keys.
+          Deposits are typically 5–15% of the purchase price, split into installments over 12–18 months — up to 20% in a hot market. Your money is fully protected in a lawyer's trust account until you get your keys.
         </p>
         <Checklist
           items={[
             "Deposits sit in a lawyer's trust — the developer can't touch them",
-            "Typical structure: 5% + 5% + 5% over 18 months",
+            "Typical structure: 5% + 5% + 5% over 12–18 months",
             "You earn interest on your deposits in BC",
             "Missing a deadline can void your contract — set reminders",
           ]}
