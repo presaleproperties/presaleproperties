@@ -27,7 +27,7 @@ export function StepSignContract() {
           <StatGrid
             stats={[
               { value: "7 days", label: "Rescission window" },
-              { value: "0.25%", label: "Rescission penalty" },
+              { value: "$0", label: "No rescission penalty (presale)" },
               { value: "2-5-10", label: "BC home warranty" },
               { value: "Sunset", label: "Developer exit clause" },
             ]}
