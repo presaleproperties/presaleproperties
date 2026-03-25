@@ -313,8 +313,14 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             
             {/* Developer Portal Routes */}
+            <Route path="/developer-portal" element={<DeveloperPortalLanding />} />
+            <Route path="/developer/signup" element={<DeveloperSignup />} />
+            <Route path="/developer/login" element={<DeveloperLogin />} />
             <Route path="/developer" element={<DeveloperDashboard />} />
             <Route path="/developer/projects" element={<DeveloperProjects />} />
+            <Route path="/developer/projects/new" element={<DeveloperProjectForm />} />
+            <Route path="/developer/projects/:id/edit" element={<DeveloperProjectForm />} />
+            <Route path="/developer/projects/:projectId/units" element={<DeveloperUnitsPage />} />
             <Route path="/developer/tour-requests" element={<DeveloperTourRequests />} />
             <Route path="/developer/settings" element={<DeveloperSettings />} />
             
