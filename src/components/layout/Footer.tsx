@@ -54,11 +54,16 @@ const MOVE_IN_LINKS = [
   { label: "Map Search", href: "/map-search" },
   { label: "Vancouver Homes", href: "/properties/vancouver" },
   { label: "Surrey Homes", href: "/properties/surrey" },
+  { label: "Burnaby Homes", href: "/properties/burnaby" },
+  { label: "Coquitlam Homes", href: "/properties/coquitlam" },
+  { label: "Richmond Homes", href: "/properties/richmond" },
   { label: "Langley Homes", href: "/properties/langley" },
   { label: "Abbotsford Homes", href: "/properties/abbotsford" },
   { label: "North Vancouver Homes", href: "/properties/north-vancouver" },
   { label: "Delta Homes", href: "/properties/delta" },
   { label: "New Westminster Homes", href: "/properties/new-westminster" },
+  { label: "Port Moody Homes", href: "/properties/port-moody" },
+  { label: "Maple Ridge Homes", href: "/properties/maple-ridge" },
   { label: "Popular Searches", href: "/properties/popular-searches" },
 ];
 
