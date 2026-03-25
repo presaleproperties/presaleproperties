@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { DeveloperPortalLayout } from "@/components/developer/DeveloperPortalLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Calendar, Clock, User, Mail, Phone, Building2 } from "lucide-react";
 
@@ -41,7 +41,6 @@ export default function DeveloperTourRequests() {
   const fetchTourRequests = async () => {
     if (!user) return;
 
-    // Get developer profile
     const { data: devProfile } = await supabase
       .from("developer_profiles")
       .select("id, verification_status")
@@ -53,7 +52,6 @@ export default function DeveloperTourRequests() {
       return;
     }
 
-    // Get projects for this developer
     const { data: projects } = await supabase
       .from("presale_projects")
       .select("id")
@@ -66,7 +64,6 @@ export default function DeveloperTourRequests() {
 
     const projectIds = projects.map(p => p.id);
 
-    // Get bookings for these projects
     const { data: bookings } = await supabase
       .from("bookings")
       .select("*")
