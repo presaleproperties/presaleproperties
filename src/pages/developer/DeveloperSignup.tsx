@@ -7,7 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2, Loader2, ArrowLeft } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
+import { Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 const schema = z.object({
@@ -34,7 +35,6 @@ export default function DeveloperSignup() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
-      // 1. Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -47,7 +47,6 @@ export default function DeveloperSignup() {
       if (authError) throw authError;
       if (!authData.user) throw new Error("Signup failed — no user returned.");
 
-      // 2. Insert developer_profile
       const { error: profileError } = await supabase
         .from("developer_profiles")
         .insert({
@@ -71,137 +70,106 @@ export default function DeveloperSignup() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F8F5] flex">
+    <div className="min-h-screen bg-background flex">
       {/* Left Panel */}
-      <div className="hidden lg:flex flex-col justify-between bg-[#1A1A2E] text-white w-[420px] flex-shrink-0 p-10">
+      <div className="hidden lg:flex flex-col justify-between bg-foreground text-background w-[420px] flex-shrink-0 p-10">
         <div>
-          <div className="flex items-center gap-2 mb-12">
-            <Building2 className="h-6 w-6 text-[#C8A951]" />
-            <span className="font-semibold text-lg">Developer Portal</span>
-          </div>
+          <Link to="/" className="block mb-12">
+            <Logo className="h-8 w-auto brightness-0 invert" />
+          </Link>
           <h2 className="text-3xl font-bold leading-snug mb-4">
             List your inventory.<br />
-            <span className="text-[#C8A951]">Reach buyers. Free.</span>
+            <span className="text-primary">Reach buyers. Free.</span>
           </h2>
-          <p className="text-white/50 leading-relaxed">
+          <p className="text-background/50 leading-relaxed">
             Join developers across BC who use our platform to connect their completed and near-completion units with thousands of active buyers and agents.
           </p>
         </div>
-        <div className="space-y-3 text-sm text-white/40">
-          <p>✓ Always free to list</p>
-          <p>✓ Approved within 1–2 business days</p>
-          <p>✓ Exposure to 12,000+ active buyers</p>
+        <div className="space-y-3">
+          {[
+            "Always free to list",
+            "Approved within 1–2 business days",
+            "Exposure to 12,000+ active buyers",
+          ].map((t) => (
+            <div key={t} className="flex items-center gap-2.5 text-sm text-background/60">
+              <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+              {t}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Right Panel — Form */}
+      {/* Right Panel */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <Building2 className="h-5 w-5 text-[#C8A951]" />
-            <span className="font-semibold text-[#1A1A2E]">Developer Portal</span>
+          <div className="lg:hidden mb-8">
+            <Link to="/">
+              <Logo className="h-7 w-auto" />
+            </Link>
           </div>
 
-          <Link to="/developer-portal" className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#1F2937] mb-6">
+          <Link to="/developer-portal" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
             <ArrowLeft className="h-4 w-4" />
-            Back
+            Back to Developer Portal
           </Link>
 
-          <h1 className="text-2xl font-bold text-[#1F2937] mb-1">Create your account</h1>
-          <p className="text-[#6B7280] mb-8">Get your inventory in front of BC's top buyers</p>
+          <h1 className="text-2xl font-bold text-foreground mb-1">Create your account</h1>
+          <p className="text-muted-foreground mb-8">Get your inventory in front of BC's top buyers</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <Label htmlFor="company_name" className="text-[#1F2937]">Company Name *</Label>
-                <Input
-                  id="company_name"
-                  {...register("company_name")}
-                  placeholder="ABC Developments Inc."
-                  className="mt-1.5"
-                />
-                {errors.company_name && <p className="text-red-500 text-xs mt-1">{errors.company_name.message}</p>}
+                <Label htmlFor="company_name">Company Name *</Label>
+                <Input id="company_name" {...register("company_name")} placeholder="ABC Developments Inc." className="mt-1.5" />
+                {errors.company_name && <p className="text-destructive text-xs mt-1">{errors.company_name.message}</p>}
               </div>
 
               <div className="col-span-2">
-                <Label htmlFor="contact_name" className="text-[#1F2937]">Your Name *</Label>
-                <Input
-                  id="contact_name"
-                  {...register("contact_name")}
-                  placeholder="John Smith"
-                  className="mt-1.5"
-                />
-                {errors.contact_name && <p className="text-red-500 text-xs mt-1">{errors.contact_name.message}</p>}
+                <Label htmlFor="contact_name">Your Name *</Label>
+                <Input id="contact_name" {...register("contact_name")} placeholder="John Smith" className="mt-1.5" />
+                {errors.contact_name && <p className="text-destructive text-xs mt-1">{errors.contact_name.message}</p>}
               </div>
 
               <div>
-                <Label htmlFor="email" className="text-[#1F2937]">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register("email")}
-                  placeholder="john@company.com"
-                  className="mt-1.5"
-                />
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+                <Label htmlFor="email">Email *</Label>
+                <Input id="email" type="email" {...register("email")} placeholder="john@company.com" className="mt-1.5" />
+                {errors.email && <p className="text-destructive text-xs mt-1">{errors.email.message}</p>}
               </div>
 
               <div>
-                <Label htmlFor="phone" className="text-[#1F2937]">Phone *</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  {...register("phone")}
-                  placeholder="604-555-0100"
-                  className="mt-1.5"
-                />
-                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
+                <Label htmlFor="phone">Phone *</Label>
+                <Input id="phone" type="tel" {...register("phone")} placeholder="604-555-0100" className="mt-1.5" />
+                {errors.phone && <p className="text-destructive text-xs mt-1">{errors.phone.message}</p>}
               </div>
 
               <div className="col-span-2">
-                <Label htmlFor="password" className="text-[#1F2937]">Password *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...register("password")}
-                  placeholder="Minimum 8 characters"
-                  className="mt-1.5"
-                />
-                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+                <Label htmlFor="password">Password *</Label>
+                <Input id="password" type="password" {...register("password")} placeholder="Minimum 8 characters" className="mt-1.5" />
+                {errors.password && <p className="text-destructive text-xs mt-1">{errors.password.message}</p>}
               </div>
 
               <div className="col-span-2">
-                <Label htmlFor="website_url" className="text-[#1F2937]">
-                  Website <span className="text-[#9CA3AF]">(optional)</span>
+                <Label htmlFor="website_url">
+                  Website <span className="text-muted-foreground font-normal">(optional)</span>
                 </Label>
-                <Input
-                  id="website_url"
-                  type="url"
-                  {...register("website_url")}
-                  placeholder="https://yourdevelopment.com"
-                  className="mt-1.5"
-                />
-                {errors.website_url && <p className="text-red-500 text-xs mt-1">{errors.website_url.message}</p>}
+                <Input id="website_url" type="url" {...register("website_url")} placeholder="https://yourdevelopment.com" className="mt-1.5" />
+                {errors.website_url && <p className="text-destructive text-xs mt-1">{errors.website_url.message}</p>}
               </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#C8A951] hover:bg-[#b8993f] text-[#1A1A2E] font-bold py-3 rounded-lg text-base"
-            >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+            <Button type="submit" disabled={loading} className="w-full font-bold py-3 text-base">
+              {loading && <Loader2 className="h-5 w-5 animate-spin mr-2" />}
               Create Developer Account
             </Button>
 
-            <p className="text-center text-sm text-[#6B7280]">
+            <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/developer/login" className="text-[#C8A951] font-medium hover:underline">
+              <Link to="/developer/login" className="text-primary font-medium hover:underline">
                 Sign in
               </Link>
             </p>
 
-            <p className="text-center text-xs text-[#9CA3AF]">
+            <p className="text-center text-xs text-muted-foreground">
               By signing up, you agree to our{" "}
               <Link to="/privacy" className="underline">Privacy Policy</Link>. Your account will be reviewed within 1–2 business days.
             </p>

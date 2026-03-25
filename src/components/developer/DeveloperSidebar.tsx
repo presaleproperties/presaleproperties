@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { Logo } from "@/components/ui/Logo";
 import {
   LayoutDashboard,
   Building2,
@@ -8,14 +9,15 @@ import {
   HelpCircle,
   LogOut,
   ChevronRight,
+  Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/developer", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/developer/projects", label: "My Projects", icon: Building2, exact: false },
+  { href: "/developer/tour-requests", label: "Tour Requests", icon: Calendar, exact: true },
   { href: "/developer/settings", label: "Company Profile", icon: Settings, exact: true },
-  { href: "/developer/help", label: "Help", icon: HelpCircle, exact: true },
 ];
 
 export function DeveloperSidebar() {
@@ -32,20 +34,19 @@ export function DeveloperSidebar() {
   };
 
   return (
-    <aside className="flex flex-col w-64 flex-shrink-0 bg-[#1A1A2E] min-h-screen">
+    <aside className="flex flex-col w-64 flex-shrink-0 bg-card border-r border-border min-h-screen">
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-6 py-5 border-b border-white/10">
-        <Building2 className="h-5 w-5 text-[#C8A951]" />
-        <div>
-          <div className="text-white font-semibold text-sm leading-tight">Developer Portal</div>
-          <div className="text-white/30 text-xs">Presale Properties Group</div>
-        </div>
+      <div className="px-6 py-5 border-b border-border">
+        <Link to="/" className="block mb-1">
+          <Logo className="h-7 w-auto" />
+        </Link>
+        <p className="text-xs text-muted-foreground mt-1">Developer Portal</p>
       </div>
 
       {/* Add Project CTA */}
       <div className="px-4 pt-5 pb-2">
         <Link to="/developer/projects/new">
-          <button className="w-full flex items-center justify-center gap-2 bg-[#C8A951] hover:bg-[#b8993f] text-[#1A1A2E] font-bold text-sm py-2.5 rounded-lg transition-colors">
+          <button className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm py-2.5 rounded-lg transition-colors">
             <Plus className="h-4 w-4" />
             Add Project
           </button>
@@ -61,25 +62,32 @@ export function DeveloperSidebar() {
               key={item.href}
               to={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group",
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                 active
-                  ? "bg-[#C8A951]/15 text-[#C8A951]"
-                  : "text-white/50 hover:text-white hover:bg-white/5"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
-              <item.icon className={cn("h-4 w-4 flex-shrink-0", active ? "text-[#C8A951]" : "")} />
+              <item.icon className="h-4 w-4 flex-shrink-0" />
               <span>{item.label}</span>
-              {active && <ChevronRight className="h-3 w-3 ml-auto text-[#C8A951]/60" />}
+              {active && <ChevronRight className="h-3 w-3 ml-auto text-primary/60" />}
             </Link>
           );
         })}
       </nav>
 
-      {/* Sign Out */}
-      <div className="px-3 pb-6 border-t border-white/10 pt-4">
+      {/* Help + Sign Out */}
+      <div className="px-3 pb-6 border-t border-border pt-4 space-y-0.5">
+        <Link
+          to="/contact"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+        >
+          <HelpCircle className="h-4 w-4" />
+          Help & Support
+        </Link>
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/40 hover:text-white hover:bg-white/5 transition-all"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
         >
           <LogOut className="h-4 w-4" />
           Sign Out

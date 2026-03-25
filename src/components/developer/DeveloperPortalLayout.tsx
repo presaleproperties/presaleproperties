@@ -2,8 +2,9 @@ import { ReactNode, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { DeveloperSidebar } from "./DeveloperSidebar";
+import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Building2, LogOut } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 
 interface DeveloperPortalLayoutProps {
   children: ReactNode;
@@ -29,7 +30,7 @@ export function DeveloperPortalLayout({ children }: DeveloperPortalLayoutProps) 
       {/* Mobile Overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="fixed inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
+          <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
           <div className="fixed left-0 top-0 bottom-0">
             <DeveloperSidebar />
           </div>
@@ -40,15 +41,14 @@ export function DeveloperPortalLayout({ children }: DeveloperPortalLayoutProps) 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-background border-b sticky top-0 z-40">
-          <button onClick={() => setMobileOpen(true)} className="p-1">
+          <button onClick={() => setMobileOpen(true)} className="p-1 text-muted-foreground hover:text-foreground">
             <Menu className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-[#C8A951]" />
-            <span className="font-semibold text-sm">Developer Portal</span>
-          </div>
-          <button onClick={handleSignOut} className="p-1">
-            <LogOut className="h-4 w-4 text-muted-foreground" />
+          <Link to="/">
+            <Logo className="h-6 w-auto" />
+          </Link>
+          <button onClick={handleSignOut} className="p-1 text-muted-foreground hover:text-foreground">
+            <LogOut className="h-4 w-4" />
           </button>
         </header>
 
