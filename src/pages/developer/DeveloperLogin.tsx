@@ -76,9 +76,7 @@ export default function DeveloperLogin() {
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
           <div className="lg:hidden mb-8">
-            <Link to="/">
-              <Logo className="h-7 w-auto" />
-            </Link>
+            <Logo size="sm" />
           </div>
 
           <Link to="/developer-portal" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
