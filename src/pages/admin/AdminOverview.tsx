@@ -247,7 +247,66 @@ export default function AdminOverview() {
     }
   };
 
-  const handleRefresh = () => { setRefreshing(true); fetchStats(); };
+  const fetchPendingApprovals = async () => {
+    const [listingsRes, developersRes, agentsRes] = await Promise.allSettled([
+      (supabase as any).from("listings").select("id, title, project_name, city, beds, baths, assignment_price, created_at").eq("status", "pending_approval").order("created_at", { ascending: false }).limit(10),
+      supabase.from("developer_profiles").select("id, company_name, contact_name, phone, website_url, created_at").eq("verification_status", "pending").order("created_at", { ascending: false }).limit(10),
+      supabase.from("agent_profiles").select("id, user_id, license_number, brokerage_name, created_at").eq("verification_status", "unverified").order("created_at", { ascending: false }).limit(10),
+    ]);
+    if (listingsRes.status === "fulfilled") setPendingListings((listingsRes.value as any)?.data ?? []);
+    if (developersRes.status === "fulfilled") setPendingDevelopers((developersRes.value as any)?.data ?? []);
+    if (agentsRes.status === "fulfilled") setPendingAgents((agentsRes.value as any)?.data ?? []);
+  };
+
+  const approveListing = async (id: string) => {
+    setApprovingId(id);
+    const { error } = await (supabase as any).from("listings").update({ status: "published", published_at: new Date().toISOString() }).eq("id", id);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+    else { toast({ title: "Listing approved", description: "Assignment is now live." }); setPendingListings(p => p.filter(l => l.id !== id)); }
+    setApprovingId(null);
+  };
+
+  const rejectListing = async (id: string) => {
+    setApprovingId(id);
+    const { error } = await (supabase as any).from("listings").update({ status: "rejected", rejection_reason: "Rejected from dashboard" }).eq("id", id);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+    else { toast({ title: "Listing rejected" }); setPendingListings(p => p.filter(l => l.id !== id)); }
+    setApprovingId(null);
+  };
+
+  const approveDeveloper = async (id: string) => {
+    setApprovingId(id);
+    const { error } = await supabase.from("developer_profiles").update({ verification_status: "approved", verified_at: new Date().toISOString() } as any).eq("id", id);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+    else { toast({ title: "Developer approved" }); setPendingDevelopers(p => p.filter(d => d.id !== id)); }
+    setApprovingId(null);
+  };
+
+  const rejectDeveloper = async (id: string) => {
+    setApprovingId(id);
+    const { error } = await supabase.from("developer_profiles").update({ verification_status: "rejected" } as any).eq("id", id);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+    else { toast({ title: "Developer rejected" }); setPendingDevelopers(p => p.filter(d => d.id !== id)); }
+    setApprovingId(null);
+  };
+
+  const approveAgent = async (id: string) => {
+    setApprovingId(id);
+    const { error } = await supabase.from("agent_profiles").update({ verification_status: "verified", verified_at: new Date().toISOString() } as any).eq("id", id);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+    else { toast({ title: "Agent verified" }); setPendingAgents(p => p.filter(a => a.id !== id)); }
+    setApprovingId(null);
+  };
+
+  const rejectAgent = async (id: string) => {
+    setApprovingId(id);
+    const { error } = await supabase.from("agent_profiles").update({ verification_status: "rejected" } as any).eq("id", id);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+    else { toast({ title: "Agent rejected" }); setPendingAgents(p => p.filter(a => a.id !== id)); }
+    setApprovingId(null);
+  };
+
+  const handleRefresh = () => { setRefreshing(true); fetchStats(); fetchPendingApprovals(); };
 
   const leadGrowth = stats?.leadsLastMonth
     ? Math.round(((stats.leadsThisMonth - stats.leadsLastMonth) / stats.leadsLastMonth) * 100)
