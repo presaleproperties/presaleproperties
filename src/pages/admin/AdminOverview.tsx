@@ -47,6 +47,34 @@ interface LeadPipeline {
   converted: number;
 }
 
+interface PendingListing {
+  id: string;
+  title: string;
+  project_name: string;
+  city: string;
+  beds: number;
+  baths: number;
+  assignment_price: number;
+  created_at: string;
+}
+
+interface PendingDeveloper {
+  id: string;
+  company_name: string;
+  contact_name: string;
+  phone: string | null;
+  website_url: string | null;
+  created_at: string;
+}
+
+interface PendingAgent {
+  id: string;
+  user_id: string;
+  license_number: string;
+  brokerage_name: string;
+  created_at: string;
+}
+
 interface DashboardStats {
   totalProjects: number;
   publishedProjects: number;
