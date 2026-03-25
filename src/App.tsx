@@ -56,6 +56,7 @@ const DeveloperLogin = lazy(() => import("./pages/developer/DeveloperLogin"));
 const DeveloperProjectForm = lazy(() => import("./pages/developer/DeveloperProjectForm"));
 const DeveloperUnitsPage = lazy(() => import("./pages/developer/DeveloperUnitsPage"));
 const DeveloperInventoryPage = lazy(() => import("./pages/developer/DeveloperInventoryPage"));
+const DeveloperAddInventoryWizard = lazy(() => import("./pages/developer/DeveloperAddInventoryWizard"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminProjects = lazy(() => import("./pages/admin/AdminProjects"));
 const AdminProjectForm = lazy(() => import("./pages/admin/AdminProjectForm"));
@@ -325,6 +326,7 @@ const App = () => (
             <Route path="/developer/projects/:id/edit" element={<DeveloperProjectForm />} />
             <Route path="/developer/projects/:projectId/units" element={<DeveloperUnitsPage />} />
             <Route path="/developer/projects/:projectId/inventory" element={<DeveloperInventoryPage />} />
+            <Route path="/developer/add-inventory" element={<DeveloperAddInventoryWizard />} />
             <Route path="/developer/tour-requests" element={<DeveloperTourRequests />} />
             <Route path="/developer/settings" element={<DeveloperSettings />} />
             
