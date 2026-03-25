@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { generateProjectUrl } from "@/lib/seoUrls";
 import { 
   Mail, 
   Phone, 
