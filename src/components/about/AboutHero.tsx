@@ -130,11 +130,11 @@ export function AboutHero() {
           </div>
 
           {/* ── Stats row — mobile & tablet only ── */}
-          <div className="lg:hidden grid grid-cols-4 gap-px mt-6 rounded-xl overflow-hidden border border-white/15 bg-white/8">
+          <div className="lg:hidden grid grid-cols-2 sm:grid-cols-4 gap-px mt-6 rounded-xl overflow-hidden border border-white/15 bg-white/8">
             {stats.map((s) => (
-              <div key={s.label} className="bg-black/55 backdrop-blur-md px-2 py-4 text-center">
-                <div className="text-lg sm:text-2xl font-black text-primary leading-none">{s.value}</div>
-                <div className="text-[9px] sm:text-[10px] text-white/50 uppercase tracking-wide font-semibold mt-1 leading-snug">{s.label}</div>
+              <div key={s.label} className="bg-black/55 backdrop-blur-md px-3 py-4 text-center">
+                <div className="text-xl sm:text-2xl font-black text-primary leading-none">{s.value}</div>
+                <div className="text-[10px] text-white/50 uppercase tracking-wide font-semibold mt-1 leading-snug">{s.label}</div>
               </div>
             ))}
           </div>
