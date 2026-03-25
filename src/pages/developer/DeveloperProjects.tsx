@@ -81,37 +81,22 @@ export default function DeveloperProjects() {
   };
 
   const loadProjects = async (dev: DeveloperProfile) => {
-    // Look up the matching developers table entry by company name (FK target)
-    const { data: devEntry } = await (supabase as any)
-      .from("developers")
-      .select("id")
-      .ilike("name", dev.company_name)
-      .maybeSingle();
+    // 1. Projects explicitly linked by developer_id
+    const { data: linked } = await supabase
+      .from("presale_projects")
+      .select("id, name, city, neighborhood, status, is_published, featured_image, developer_id, developer_name, view_count")
+      .eq("developer_id", dev.id)
+      .order("created_at", { ascending: false });
 
-    const devTableId = devEntry?.id ?? null;
+    // 2. Projects matched by developer_name (case-insensitive contains)
+    const { data: nameMatched } = await supabase
+      .from("presale_projects")
+      .select("id, name, city, neighborhood, status, is_published, featured_image, developer_id, developer_name, view_count")
+      .ilike("developer_name", `%${dev.company_name}%`)
+      .is("developer_id", null)
+      .order("created_at", { ascending: false });
 
-    // Build query: projects linked by developer_id (via developers table) OR by developer_name match
-    const linkedQuery = devTableId
-      ? supabase
-          .from("presale_projects")
-          .select("id, name, city, neighborhood, status, is_published, featured_image, developer_id, developer_name, view_count")
-          .eq("developer_id", devTableId)
-          .order("created_at", { ascending: false })
-      : Promise.resolve({ data: [] });
-
-    const [linkedResult, nameMatchedResult] = await Promise.all([
-      linkedQuery,
-      supabase
-        .from("presale_projects")
-        .select("id, name, city, neighborhood, status, is_published, featured_image, developer_id, developer_name, view_count")
-        .ilike("developer_name", `%${dev.company_name}%`)
-        .is("developer_id", null)
-        .order("created_at", { ascending: false }),
-    ]);
-
-    const linked = (linkedResult as any).data || [];
-    const nameMatched = (nameMatchedResult as any).data || [];
-    const linkedIds = new Set(linked.map((p: any) => p.id));
+    const linkedIds = new Set((linked || []).map((p: any) => p.id));
 
     // Enrich with unit counts
     const enriched = async (projects: any[]): Promise<Project[]> => {
@@ -128,8 +113,8 @@ export default function DeveloperProjects() {
       return projects.map(p => ({ ...p, _unitCount: countMap[p.id] || 0, _claimed: !!p.developer_id }));
     };
 
-    const mine = await enriched(linked);
-    const suggested = await enriched(nameMatched.filter((p: any) => !linkedIds.has(p.id)));
+    const mine = await enriched(linked || []);
+    const suggested = await enriched((nameMatched || []).filter((p: any) => !linkedIds.has(p.id)));
 
     setMyProjects(mine);
     setMatchedProjects(suggested);
@@ -138,23 +123,9 @@ export default function DeveloperProjects() {
   const claimProject = async (projectId: string) => {
     if (!profile) return;
     setClaiming(projectId);
-
-    // Find the developers table ID for this company
-    const { data: devEntry } = await (supabase as any)
-      .from("developers")
-      .select("id")
-      .ilike("name", profile.company_name)
-      .maybeSingle();
-
-    if (!devEntry) {
-      toast.error("Could not find your company in our developer directory. Please contact support.");
-      setClaiming(null);
-      return;
-    }
-
     const { error } = await supabase
       .from("presale_projects")
-      .update({ developer_id: devEntry.id, developer_name: profile.company_name } as any)
+      .update({ developer_id: profile.id } as any)
       .eq("id", projectId);
 
     if (error) {
