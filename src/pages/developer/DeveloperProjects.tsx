@@ -92,7 +92,7 @@ export default function DeveloperProjects() {
   }
 
   return (
-    <DeveloperLayout>
+    <DeveloperPortalLayout>
       <div className="container py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
