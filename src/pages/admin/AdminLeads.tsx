@@ -405,7 +405,11 @@ function ProjectLeadCard({
               {lead.presale_projects && (
                 <Button variant="ghost" size="icon" className="h-7 w-7" asChild title="View project">
                   <a
-                    href={`/presale-projects/${lead.presale_projects.slug}`}
+                    href={generateProjectUrl({
+                      slug: lead.presale_projects.slug,
+                      neighborhood: lead.presale_projects.neighborhood || lead.presale_projects.city,
+                      projectType: (lead.presale_projects.project_type || "condo") as any,
+                    })}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
