@@ -528,7 +528,7 @@ export default function AdminLeads() {
           id, name, email, phone, message, persona, home_size, agent_status,
           lead_source, landing_page, created_at, project_id,
           lead_status, admin_notes, contacted_at, converted_at, intent_score,
-          presale_projects (name, slug, city)
+          presale_projects (name, slug, city, neighborhood, project_type)
         `)
         .neq("name", "Newsletter Signup")
         .order("created_at", { ascending: false });
