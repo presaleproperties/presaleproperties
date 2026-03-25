@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { generateProjectUrl } from "@/lib/seoUrls";
 import { useNavigate } from "react-router-dom";
 import { Send, Loader2, MapPin, DollarSign, ArrowRight, Mic, MicOff, X, Minus, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
