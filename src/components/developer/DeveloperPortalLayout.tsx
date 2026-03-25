@@ -29,7 +29,10 @@ export function DeveloperPortalLayout({ children }: DeveloperPortalLayoutProps) 
       {/* Mobile Overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <div
+            className="fixed inset-0 bg-foreground/60 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
           <div className="fixed left-0 top-0 bottom-0">
             <DeveloperSidebar />
           </div>
@@ -39,12 +42,18 @@ export function DeveloperPortalLayout({ children }: DeveloperPortalLayoutProps) 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
-        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-background border-b sticky top-0 z-40">
-        <button onClick={() => setMobileOpen(true)} className="p-1 text-muted-foreground hover:text-foreground">
+        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-foreground sticky top-0 z-40 border-b border-background/10">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="p-1.5 text-background/60 hover:text-background transition-colors"
+          >
             <Menu className="h-5 w-5" />
           </button>
-          <Logo size="sm" />
-          <button onClick={handleSignOut} className="p-1 text-muted-foreground hover:text-foreground">
+          <Logo size="sm" className="brightness-0 invert" />
+          <button
+            onClick={handleSignOut}
+            className="p-1.5 text-background/60 hover:text-background transition-colors"
+          >
             <LogOut className="h-4 w-4" />
           </button>
         </header>
