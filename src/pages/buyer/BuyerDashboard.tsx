@@ -255,7 +255,11 @@ const BuyerDashboard = () => {
                           />
                           <div className="flex-1 min-w-0">
                             <Link
-                              to={`/presale-projects/${saved.project.slug}`}
+                              to={generateProjectUrl({
+                                slug: saved.project.slug,
+                                neighborhood: saved.project.neighborhood || saved.project.city,
+                                projectType: (saved.project.project_type || "condo") as any,
+                              })}
                               className="font-semibold text-foreground hover:text-primary transition-colors line-clamp-1"
                             >
                               {saved.project.name}
