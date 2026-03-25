@@ -446,7 +446,7 @@ export default function AdminClientSearches() {
               baths: null,
               sqft: null,
               image: project.featured_image,
-              url: `https://presaleproperties.com/presale-projects/${project.slug}`,
+              url: `https://presaleproperties.com/${(project.neighborhood || project.city).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}-presale-${project.project_type === 'townhome' ? 'townhomes' : project.project_type === 'mixed' ? 'homes' : 'condos'}-${project.slug}`,
               lat: project.map_lat,
               lng: project.map_lng,
             });
