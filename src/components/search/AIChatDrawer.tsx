@@ -177,7 +177,7 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
                 {msg.projects.slice(0, 4).map((p) => (
                   <button
                     key={p.id}
-                    onClick={() => { onOpenChange(false); navigate(`/presale-projects/${p.slug}`); }}
+                    onClick={() => { onOpenChange(false); navigate(generateProjectUrl({ slug: p.slug, neighborhood: p.neighborhood || p.city, projectType: p.project_type as any })); }}
                     className="w-full flex items-center gap-2.5 p-2.5 rounded-xl bg-background border border-border/60 hover:border-primary/50 hover:shadow-sm transition-all text-left group"
                   >
                     {p.featured_image ? (
