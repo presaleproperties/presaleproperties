@@ -11,9 +11,9 @@ import { TopProjectsTable } from "@/components/admin/dashboard/TopProjectsTable"
 import { TopListingsTable } from "@/components/admin/dashboard/TopListingsTable";
 import { TopMlsListingsTable } from "@/components/admin/dashboard/TopMlsListingsTable";
 
-import { 
-  Users, 
-  Building2, 
+import {
+  Users,
+  Building2,
   Calendar,
   ArrowRight,
   ArrowUpRight,
@@ -21,12 +21,10 @@ import {
   Clock,
   FileStack,
   RefreshCw,
-  Sparkles,
   TrendingUp,
   CheckCircle2,
   Phone,
   Star,
-  Zap,
   Mail,
   BarChart3,
   ExternalLink,
@@ -136,7 +134,7 @@ export default function AdminOverview() {
     try {
       const startOfCurrentMonth = startOfMonth(new Date()).toISOString();
       const startOfLastMonth = startOfMonth(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).toISOString();
-      
+
       const [
         totalProjectsRes, publishedProjectsRes,
         leadsRes, leadsThisMonthRes, leadsLastMonthRes,
@@ -165,14 +163,12 @@ export default function AdminOverview() {
         supabase.rpc("get_engagement_funnel", { days_back: 90 }),
         (supabase as any).from("listings").select("id, title, project_name, city, assignment_price, status").eq("status", "published").order("created_at", { ascending: false }).limit(5),
         supabase.rpc("get_top_mls_listings_with_engagement", { days_back: 90, result_limit: 5 }),
-        // Pipeline counts
         supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "new"),
         supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "contacted"),
         supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "qualified"),
         supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "converted"),
       ]);
 
-      const get = <T,>(res: PromiseSettledResult<T>) => res.status === "fulfilled" ? res.value : null;
       const getCount = (res: PromiseSettledResult<any>) => res.status === "fulfilled" ? (res.value as any)?.count ?? 0 : 0;
       const getData = (res: PromiseSettledResult<any>) => res.status === "fulfilled" ? (res.value as any)?.data ?? [] : [];
 
@@ -213,17 +209,17 @@ export default function AdminOverview() {
 
   const handleRefresh = () => { setRefreshing(true); fetchStats(); };
 
-  const leadGrowth = stats?.leadsLastMonth 
+  const leadGrowth = stats?.leadsLastMonth
     ? Math.round(((stats.leadsThisMonth - stats.leadsLastMonth) / stats.leadsLastMonth) * 100)
     : 0;
 
   if (loading) {
     return (
       <AdminLayout>
-        <div className="space-y-6">
+        <div className="space-y-5">
           <Skeleton className="h-8 w-48" />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28" />)}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24" />)}
           </div>
           <Skeleton className="h-64" />
         </div>
@@ -235,7 +231,7 @@ export default function AdminOverview() {
     {
       value: stats?.totalLeads ?? 0,
       sub: (
-        <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${leadGrowth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+        <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${leadGrowth >= 0 ? "text-emerald-600" : "text-red-500"}`}>
           {leadGrowth >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
           {Math.abs(leadGrowth)}% vs last month
         </span>
@@ -305,7 +301,7 @@ export default function AdminOverview() {
           })}
         </div>
 
-        {/* ── Quick Actions + Developer Portal ── */}
+        {/* ── Quick Actions ── */}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Add Project", icon: Building2, href: "/admin/projects", desc: "Publish a new presale", color: "text-blue-500", bg: "bg-blue-50" },
@@ -330,10 +326,10 @@ export default function AdminOverview() {
           ))}
         </div>
 
-        {/* ── Developer Portal Card ── */}
+        {/* ── Developer Portal Banner ── */}
         <Card className="border border-amber-200/60 bg-gradient-to-r from-amber-50/60 to-orange-50/40 overflow-hidden">
           <CardContent className="p-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
                   <Presentation className="h-5 w-5 text-amber-600" />
@@ -343,7 +339,7 @@ export default function AdminOverview() {
                   <p className="text-xs text-muted-foreground">Manage developer inventory, projects & tour requests</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 ml-4 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <Link to="/developer/projects">
                   <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 border-amber-200 hover:bg-amber-100">
                     <ClipboardList className="h-3.5 w-3.5 text-amber-600" />
@@ -387,7 +383,7 @@ export default function AdminOverview() {
                   { label: "Contacted", value: stats.leadPipeline.contacted, color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: Phone },
                   { label: "Qualified", value: stats.leadPipeline.qualified, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: Star },
                   { label: "Converted", value: stats.leadPipeline.converted, color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: CheckCircle2 },
-                ].map(({ label, value, color, bg, border, icon: Icon }) => (
+                ].map(({ label, value, color, bg, border }) => (
                   <div key={label} className={`rounded-xl ${bg} border ${border} p-3 text-center`}>
                     <p className={`text-xl font-bold ${color}`}>{value}</p>
                     <p className="text-[10px] text-slate-400 mt-0.5">{label}</p>
@@ -404,7 +400,7 @@ export default function AdminOverview() {
         {/* ── Top Projects ── */}
         <TopProjectsTable projects={stats?.topProjects ?? []} />
 
-        {/* ── Recent Activity Grid ── */}
+        {/* ── Recent Activity ── */}
         <div className="grid gap-4 lg:grid-cols-2">
           {/* Recent Leads */}
           <Card>
@@ -422,11 +418,11 @@ export default function AdminOverview() {
               </Link>
             </CardHeader>
             <CardContent className="px-5 pb-4 pt-0">
-              {stats?.recentLeads.length === 0 ? (
+              {!stats?.recentLeads.length ? (
                 <EmptyPlaceholder icon={Users} message="No leads yet" />
               ) : (
                 <div className="space-y-0.5">
-                  {stats?.recentLeads.map(lead => {
+                  {stats.recentLeads.map(lead => {
                     const projectName = lead.presale_projects?.name || lead.landing_page || null;
                     const intentColor = (lead.intent_score ?? 0) >= 8 ? "bg-emerald-500" : (lead.intent_score ?? 0) >= 5 ? "bg-amber-400" : "bg-slate-300";
                     const statusColors: Record<string, string> = {
@@ -482,11 +478,11 @@ export default function AdminOverview() {
               </Link>
             </CardHeader>
             <CardContent className="px-5 pb-4 pt-0">
-              {stats?.recentBookings.length === 0 ? (
+              {!stats?.recentBookings.length ? (
                 <EmptyPlaceholder icon={Calendar} message="No bookings yet" />
               ) : (
                 <div className="space-y-0.5">
-                  {stats?.recentBookings.map(booking => (
+                  {stats.recentBookings.map(booking => (
                     <div key={booking.id} className="flex items-center justify-between py-2.5 px-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center text-xs font-bold text-amber-700 shrink-0">
@@ -523,98 +519,6 @@ export default function AdminOverview() {
         <TopListingsTable listings={stats?.topListings ?? []} />
 
         {/* ── Top MLS ── */}
-        <TopMlsListingsTable listings={stats?.topMlsListings ?? []} />
-      </div>
-    </AdminLayout>
-  );
-}
-
-function EmptyPlaceholder({ icon: Icon, message }: { icon: React.ComponentType<{ className?: string }>; message: string }) {
-  return (
-    <div className="text-center py-8">
-      <Icon className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
-      <p className="text-xs text-muted-foreground">{message}</p>
-    </div>
-  );
-}
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium truncate">{lead.name}</p>
-                            {projectName && <p className="text-xs text-muted-foreground truncate">{projectName}</p>}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 ml-3 shrink-0">
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusColors[lead.lead_status] ?? 'bg-slate-100 text-slate-500'}`}>
-                            {lead.lead_status}
-                          </span>
-                          <p className="text-[11px] text-muted-foreground whitespace-nowrap">
-                            {format(new Date(lead.created_at), "MMM d")}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Bookings */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between py-4 px-5">
-              <div className="flex items-center gap-2">
-                <div className="rounded-lg bg-amber-100 p-1.5">
-                  <Calendar className="h-3.5 w-3.5 text-amber-600" />
-                </div>
-                <CardTitle className="text-sm font-semibold">Recent Bookings</CardTitle>
-              </div>
-              <Link to="/admin/bookings">
-                <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground">
-                  View all <ArrowRight className="ml-1 h-3 w-3" />
-                </Button>
-              </Link>
-            </CardHeader>
-            <CardContent className="px-5 pb-4 pt-0">
-              {stats?.recentBookings.length === 0 ? (
-                <EmptyPlaceholder icon={Calendar} message="No bookings yet" />
-              ) : (
-                <div className="space-y-0.5">
-                  {stats?.recentBookings.map(booking => (
-                    <div key={booking.id} className="flex items-center justify-between py-2.5 px-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center text-xs font-bold text-amber-700 shrink-0">
-                          {booking.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">{booking.name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{booking.project_name}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 ml-3 shrink-0">
-                        <Badge 
-                          variant="outline"
-                          className={`text-[10px] px-1.5 py-0 ${
-                            booking.status === 'confirmed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                            booking.status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-200' : ''
-                          }`}
-                        >
-                          {booking.status}
-                        </Badge>
-                        <p className="text-[11px] text-muted-foreground whitespace-nowrap">
-                          {format(new Date(booking.appointment_date), "MMM d")}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Top Listings */}
-        <TopListingsTable listings={stats?.topListings ?? []} />
-
-        {/* Top Move-In Ready (MLS) */}
         <TopMlsListingsTable listings={stats?.topMlsListings ?? []} />
       </div>
     </AdminLayout>
