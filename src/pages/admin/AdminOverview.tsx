@@ -537,8 +537,6 @@ function EmptyPlaceholder({ icon: Icon, message }: { icon: React.ComponentType<{
     </div>
   );
 }
-                            )}
-                          </div>
                           <div className="min-w-0">
                             <p className="text-sm font-medium truncate">{lead.name}</p>
                             {projectName && <p className="text-xs text-muted-foreground truncate">{projectName}</p>}
