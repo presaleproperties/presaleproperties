@@ -518,14 +518,19 @@ export default function DeficiencyWalkthroughGuide() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-primary text-primary-foreground">
-                    <th className="px-5 py-3 text-left font-semibold">Coverage Period</th>
+                    <th className="px-5 py-3 text-left font-semibold w-36">Coverage Period</th>
                     <th className="px-5 py-3 text-left font-semibold">What It Covers</th>
                   </tr>
                 </thead>
                 <tbody>
                   {WARRANTY_ROWS.map((row, i) => (
                     <tr key={i} className={i % 2 === 0 ? "bg-card" : "bg-muted/40"}>
-                      <td className="px-5 py-4 font-semibold text-primary whitespace-nowrap">{row.period}</td>
+                      <td className="px-5 py-4 align-top">
+                        <span className="font-semibold text-primary whitespace-nowrap">{row.period}</span>
+                        {row.note && (
+                          <span className="block mt-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 rounded px-1.5 py-0.5 w-fit">{row.note}</span>
+                        )}
+                      </td>
                       <td className="px-5 py-4 text-foreground/80">{row.covers}</td>
                     </tr>
                   ))}
@@ -535,8 +540,12 @@ export default function DeficiencyWalkthroughGuide() {
 
             <div className="mt-6 p-5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40">
               <p className="text-sm text-amber-800 dark:text-amber-300">
-                <strong>💡 Pro Tip:</strong> Set a calendar reminder for <strong>12 months after possession</strong>. Walk through your home again and submit a warranty claim for any settling cracks, nail pops, or minor defects before your 15-month materials window closes.
+                <strong>💡 Pro Tip:</strong> Set a calendar reminder for <strong>10–11 months after possession</strong>. Walk through your home again and submit warranty claims for any settling cracks, nail pops, or minor defects before your <strong>12-month materials & labour warranty</strong> expires. Strata owners: you have until <strong>15 months</strong> for common property claims.
               </p>
+            </div>
+
+            <div className="mt-4 p-4 rounded-xl border border-border bg-card text-sm text-muted-foreground">
+              <p><strong>📋 BC's 2-5-10 Warranty</strong> is mandatory under the <em>Homeowner Protection Act</em>, regulated by BC Housing. It applies to all new homes in BC built by a licensed residential builder. Source: <a href="https://www.bchousing.org/licensing-consumer-protection/owner-built-homes/new-home-warranty" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">bchousing.org</a></p>
             </div>
           </div>
         </section>
