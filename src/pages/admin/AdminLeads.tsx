@@ -76,6 +76,8 @@ interface ProjectLead {
     name: string;
     slug: string;
     city: string;
+    neighborhood: string | null;
+    project_type: string | null;
   } | null;
 }
 
