@@ -28,6 +28,7 @@ interface SavedProject {
     price_from: number | null;
     status: string;
     slug: string;
+    project_type: string | null;
   };
 }
 
