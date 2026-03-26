@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useSearchParams, useLocation } from "react-router-dom";
+import { Link, useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
 import { ChevronRight, ChevronLeft, Home, Building2, Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
