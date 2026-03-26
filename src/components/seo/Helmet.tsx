@@ -51,7 +51,7 @@ const parseHelmetChildren = (children: ReactNode): UseHelmetConfig => {
 
       switch (child.type) {
         case "title":
-          config.title = extractText(props.children);
+          config.title = extractText(props.children as ReactNode);
           break;
         case "meta":
           config.metaTags?.push(extractAttributes(props));
@@ -67,7 +67,7 @@ const parseHelmetChildren = (children: ReactNode): UseHelmetConfig => {
               props.dangerouslySetInnerHTML !== null &&
               "__html" in props.dangerouslySetInnerHTML
                 ? String((props.dangerouslySetInnerHTML as { __html: unknown }).__html ?? "")
-                : extractText(props.children),
+                : extractText(props.children as ReactNode),
           };
 
           config.scriptTags?.push(scriptTag);
