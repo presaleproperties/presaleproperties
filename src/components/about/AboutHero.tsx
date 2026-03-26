@@ -127,21 +127,27 @@ export function AboutHero() {
 
             {/* RIGHT: social proof — desktop */}
             <div className="hidden lg:flex flex-col gap-3 shrink-0 w-64">
-              <div className="rounded-2xl border border-white/10 bg-black/50 backdrop-blur-md p-6">
-                <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40 mb-4">
-                  What clients say
-                </div>
-                <p className="text-[13px] text-white/70 leading-relaxed italic mb-4">
-                  "They explained everything I didn't know I needed to know. I saved $18,000 in negotiated credits."
-                </p>
-                <div className="flex items-center gap-2.5 pt-4 border-t border-white/8">
-                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-black">H</div>
-                  <div>
-                    <p className="text-[12px] font-bold text-white/80">Harpreet K.</p>
-                    <p className="text-[11px] text-white/40">First-time buyer, Surrey</p>
+              {featuredReview && (
+                <div className="rounded-2xl border border-white/10 bg-black/50 backdrop-blur-md p-6">
+                  <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40 mb-4">
+                    What clients say
+                  </div>
+                  <p className="text-[13px] text-white/70 leading-relaxed italic mb-4 line-clamp-4">
+                    "{featuredReview.review_text}"
+                  </p>
+                  <div className="flex items-center gap-2.5 pt-4 border-t border-white/8">
+                    <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-black">
+                      {featuredReview.reviewer_name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-[12px] font-bold text-white/80">{featuredReview.reviewer_name}</p>
+                      {featuredReview.reviewer_location && (
+                        <p className="text-[11px] text-white/40">{featuredReview.reviewer_location}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { value: "400+", label: "Homes guided" },
