@@ -317,7 +317,7 @@ export default function PresaleGuide() {
             }}
           />
 
-          <div className="relative container px-4 py-16 md:py-24">
+          <div className="relative container px-4 sm:px-6 py-16 md:py-24">
             <div className="max-w-3xl">
               <div className="flex items-center gap-2 mb-5">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold tracking-wide uppercase">
