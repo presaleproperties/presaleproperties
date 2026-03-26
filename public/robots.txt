@@ -67,14 +67,8 @@ Disallow: /privacy
 # These 301 redirect to canonical destinations already in sitemap
 Disallow: /resale/
 Disallow: /resale/*
-Disallow: /blogs/
-Disallow: /blogs/*
-Disallow: /market-report/
-Disallow: /market-report/*
 Disallow: /deposit/
 Disallow: /deposit/*
-Disallow: /presale-condos/
-Disallow: /presale-condos-*
 
 
 # ============================================
