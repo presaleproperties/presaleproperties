@@ -128,9 +128,16 @@ export default function PresaleCityTypePricePage() {
   const metaTitle = hasPriceFilter
     ? `Presale ${productLabel} Under ${priceLabel} in ${cityName} (2026 Guide)`
     : `${cityName} Presale ${productLabel} 2026 | New Construction`;
-  const metaDescription = hasPriceFilter
-    ? `Browse all presale ${productType}s under ${priceLabel} in ${cityName}, BC. Updated pricing, floor plans, deposit structures & expert guidance.`
-    : `Browse all presale ${productType}s in ${cityName}, BC. Compare new construction projects, floor plans, pricing & get VIP early access.`;
+  // Custom meta descriptions for key pages
+  const customDescriptions: Record<string, string> = {
+    "surrey-condos": "Browse new presale condos in Surrey, BC. Get VIP pricing, floor plans and early access to upcoming developments. Updated weekly.",
+    "burnaby-condos": "Browse new presale condos in Burnaby, BC. Get VIP pricing, floor plans and early access to Metrotown, Brentwood and Lougheed projects.",
+  };
+  const descKey = `${citySlug}-${typeSlug}`;
+  const metaDescription = customDescriptions[descKey]
+    || (hasPriceFilter
+      ? `Browse all presale ${productType}s under ${priceLabel} in ${cityName}, BC. Updated pricing, floor plans, deposit structures & expert guidance.`
+      : `Browse all presale ${productType}s in ${cityName}, BC. Compare new construction projects, floor plans, pricing & get VIP early access.`);
 
   // Build structured data
   const breadcrumbItems: any[] = [

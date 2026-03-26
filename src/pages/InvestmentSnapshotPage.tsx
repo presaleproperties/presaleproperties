@@ -25,7 +25,7 @@ export default function InvestmentSnapshotPage() {
         <title>Investment Cash Flow Calculator | Presale Properties Group</title>
         <meta
           name="description"
-          content="Instantly calculate your condo investment cash flow. Simple one-page tool to project monthly income, expenses, and returns for BC real estate."
+          content="Calculate your presale investment returns, mortgage payments and affordability. Free tools for Metro Vancouver new construction buyers."
         />
         <link rel="canonical" href={CANONICAL_URL} />
         {hasParams && <meta name="robots" content="noindex, follow" />}
