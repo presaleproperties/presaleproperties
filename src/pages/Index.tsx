@@ -229,8 +229,7 @@ const Index = () => {
           <meta name="description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing, floor plans & early access for Surrey, Langley, Burnaby, Coquitlam. New construction experts." />
           <link rel="canonical" href="https://presaleproperties.com/" />
           <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-          <link rel="dns-prefetch" href="https://thvlisplwqhtjpzpedhq.supabase.co" />
-          <link rel="preconnect" href="https://thvlisplwqhtjpzpedhq.supabase.co" crossOrigin="anonymous" />
+          {/* preconnect/dns-prefetch already in static index.html */}
           {/* Organization + WebSite schemas are in static index.html — only page-specific schemas here */}
           <script type="application/ld+json">
             {JSON.stringify(siteNavigationSchema)}
