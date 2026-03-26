@@ -354,16 +354,15 @@ export default function PresaleGuide() {
             </div>
 
             {/* Stats row */}
-            <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl">
+            <div className="mt-10 flex flex-wrap gap-3">
               {[
-                { label: "Avg. Deposit", value: "15–20%" },
-                { label: "BC Warranty", value: "2-5-10" },
+                { label: "Avg. Deposit", value: "5–15%" },
+                { label: "BC New Home Warranty", value: "2-5-10" },
                 { label: "Cooling-Off Period", value: "7 Days" },
-                { label: "GST on New Homes", value: "5%" },
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="bg-card border border-border/70 rounded-xl px-4 py-3 shadow-sm"
+                  className="bg-card border border-border/70 rounded-xl px-5 py-3 shadow-sm"
                 >
                   <p className="text-xl font-bold text-primary">{stat.value}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
