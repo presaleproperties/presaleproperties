@@ -15,7 +15,7 @@ const extractText = (children: ReactNode): string => {
     }
 
     if (!isValidElement(child)) return;
-    text += extractText(child.props.children);
+    text += extractText((child.props as { children?: ReactNode }).children);
   });
 
   return text;
@@ -41,7 +41,7 @@ const parseHelmetChildren = (children: ReactNode): UseHelmetConfig => {
       if (!isValidElement(child)) return;
 
       if (child.type === Fragment) {
-        walk(child.props.children);
+        walk((child.props as { children?: ReactNode }).children);
         return;
       }
 
