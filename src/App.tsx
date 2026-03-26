@@ -32,6 +32,7 @@ import Index from "./pages/Index";
 const Contact = lazy(() => import("./pages/Contact"));
 const About = lazy(() => import("./pages/About"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const ForAgents = lazy(() => import("./pages/ForAgents"));
 const BuyersGuide = lazy(() => import("./pages/BuyersGuide"));
 const PresaleGuide = lazy(() => import("./pages/PresaleGuide"));
@@ -414,6 +415,7 @@ const App = () => (
             {/* Legacy route redirects for soft 404 fixes */}
             <Route path="/guide" element={<Navigate to="/buyers-guide" replace />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             {/* Dead routes — redirect to relevant hub so Google sees 301, not soft 404 */}
             <Route path="/market-report/:city" element={<Navigate to="/blog" replace />} />
             <Route path="/market-report" element={<Navigate to="/blog" replace />} />
