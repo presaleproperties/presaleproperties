@@ -415,6 +415,7 @@ const App = () => (
             {/* Legacy route redirects for soft 404 fixes */}
             <Route path="/guide" element={<Navigate to="/buyers-guide" replace />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             {/* Dead routes — redirect to relevant hub so Google sees 301, not soft 404 */}
             <Route path="/market-report/:city" element={<Navigate to="/blog" replace />} />
             <Route path="/market-report" element={<Navigate to="/blog" replace />} />
