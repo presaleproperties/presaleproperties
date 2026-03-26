@@ -836,9 +836,10 @@ export default function MapSearch() {
       
       return results;
     },
-    staleTime: 3 * 60 * 1000, // Keep data fresh for 3 minutes - prevents re-fetch on back navigation
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-    refetchOnWindowFocus: false, // Don't refetch when returning to page
+    staleTime: 8 * 60 * 1000, // 8 min cache — avoids refetch on back navigation & filter tweaks
+    gcTime: 20 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev, // Keep showing previous data while new data loads (no flash)
   });
 
   // Fetch presale projects
