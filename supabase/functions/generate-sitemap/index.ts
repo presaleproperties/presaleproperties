@@ -265,17 +265,18 @@ Deno.serve(async (req) => {
     // ==========================================
     // 6. ACTIVE MLS LISTING PAGES (Canonical Address URLs)
     // ==========================================
-    // Include only Active listings with a full address slug to prevent Soft 404s.
-    // This ensures Google discovers the canonical /properties/address-city-bc-id URL,
-    // not the legacy /properties/{numericId} variants.
-    // Cap at 500 most recent to manage sitemap size and crawl budget.
+    // Include Active listings using canonical address-slug URLs.
+    // Sitemap XML limit is 50,000 URLs / 50MB — we cap at 5,000 most recently
+    // modified listings to stay well within budget while covering high-value inventory.
+    // The image sitemap covers all 47k+ listings for photo discovery.
     const { data: activeListings } = await supabase
       .from("mls_listings")
       .select("listing_key, unparsed_address, street_number, street_name, street_suffix, unit_number, city, modification_timestamp")
       .eq("mls_status", "Active")
       .not("city", "is", null)
+      .not("unparsed_address", "is", null)
       .order("modification_timestamp", { ascending: false })
-      .limit(500);
+      .limit(5000);
 
     const listingSlugify = (text: string): string =>
       text.toLowerCase().replace(/['']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').replace(/-+/g, '-');
