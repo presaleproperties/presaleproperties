@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/components/seo/Helmet";
 import { useLocation } from "react-router-dom";
 
 const SITE_URL = "https://presaleproperties.com";

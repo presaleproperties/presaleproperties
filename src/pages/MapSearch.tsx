@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, lazy, Suspense, useRef, useEffect } fro
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { generateProjectUrl } from "@/lib/seoUrls";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/components/seo/Helmet";
 import { toast } from "sonner";
 import { 
   SlidersHorizontal, X, Map, LayoutGrid, Menu,

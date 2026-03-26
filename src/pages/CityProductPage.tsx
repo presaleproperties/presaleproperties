@@ -4,7 +4,7 @@ import { useParams, Link, Navigate } from "react-router-dom";
 import NotFound from "./NotFound";
 import NeighbourhoodProductPage from "./NeighbourhoodProductPage";
 import PresaleProjectDetail from "./PresaleProjectDetail";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/components/seo/Helmet";
 import { ChevronRight, Building2, Home, MapPin, Shield, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

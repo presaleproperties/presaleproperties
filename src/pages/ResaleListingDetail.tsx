@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/components/seo/Helmet";
 import { useRef, useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Bed, Bath, Maximize, Building2, Calendar, MapPin, Car, Home, DollarSign, Clock, Layers, ChevronRight, Map, Navigation, Sparkles, Phone, User, Flame, Snowflake, Eye, FileText, Users, Waves, TreePine, MessageSquare, Share2, Heart, Lock as LockIcon } from "lucide-react";

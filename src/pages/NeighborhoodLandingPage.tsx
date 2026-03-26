@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import NotFound from "./NotFound";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/components/seo/Helmet";
 import { 
   ChevronRight, Home, MapPin, Building2, Shield, TrendingUp, 
   Users, School, ShoppingBag, TreePine, Bus, DollarSign, 
