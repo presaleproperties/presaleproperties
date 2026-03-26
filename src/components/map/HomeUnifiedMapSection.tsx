@@ -289,26 +289,9 @@ export function HomeUnifiedMapSection({
           </div>
         </div>
 
-        {/* Map Container */}
+        {/* Map Container — show skeleton only until section is visible; map renders immediately once in viewport */}
         {!isVisible ? (
           <LoadingPlaceholder />
-        ) : !shouldLoad || isLoading ? (
-          <LoadingPlaceholder />
-        ) : !hasData ? (
-          <div className="h-[450px] md:h-[550px] lg:h-[600px] rounded-xl bg-muted flex items-center justify-center border border-border">
-            <div className="text-center text-muted-foreground p-6">
-              <Map className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <h3 className="font-semibold text-foreground mb-2">Properties Loading</h3>
-              <p className="text-sm mb-4">
-                Map data is being prepared. Use our search to browse properties.
-              </p>
-              <Link to="/presale-projects">
-                <Button variant="default" size="sm">
-                  Browse All Properties
-                </Button>
-              </Link>
-            </div>
-          </div>
         ) : (
           <SafeMapWrapper height="h-[450px] md:h-[550px] lg:h-[600px]">
             <Suspense fallback={<LoadingPlaceholder />}>
