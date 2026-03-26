@@ -225,7 +225,7 @@ export default function Contact() {
                       </div>
                       <div>
                         <h3 className="font-semibold mb-1">Location</h3>
-                        <p className="text-muted-foreground">Vancouver, BC<br />Canada</p>
+                        <p className="text-muted-foreground">666 Burrard St, Suite 500<br />Vancouver, BC V6C 3P6</p>
                       </div>
                     </CardContent>
                   </Card>
