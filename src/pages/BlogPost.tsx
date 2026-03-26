@@ -119,7 +119,7 @@ export default function BlogPost() {
     const rawHtml = isHtml ? post.content : (marked.parse(post.content) as string);
     return DOMPurify.sanitize(rawHtml, {
       ALLOWED_TAGS: [
-        "h1","h2","h3","h4","h5","h6","p","strong","em","ul","ol","li","a",
+        "h2","h3","h4","h5","h6","p","strong","em","ul","ol","li","a",
         "br","div","span","table","thead","tbody","tr","th","td","img",
         "blockquote","code","pre","hr",
       ],

@@ -128,7 +128,7 @@ export default function ForAgents() {
         />
         <meta name="keywords" content="assignment sales Vancouver, presale assignment, contract assignment BC, off-market assignments, presale agent tools" />
         <link rel="canonical" href="https://presaleproperties.com/for-agents" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        <meta name="robots" content="noindex, follow" />
         <meta property="og:title" content="Assignment Sales & Agent Tools | PresaleProperties" />
         <meta property="og:description" content="Browse off-market assignment sales and presale contract transfers. Connect with 500+ verified BC real estate agents." />
         <meta property="og:type" content="website" />
