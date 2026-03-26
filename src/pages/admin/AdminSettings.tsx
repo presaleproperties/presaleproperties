@@ -200,6 +200,7 @@ export default function AdminSettings() {
         if (item.key === "email_sender") settingsMap.email_sender = item.value as string;
         if (item.key === "email_domain_verified") settingsMap.email_domain_verified = item.value as boolean;
         if (item.key === "admin_notification_email") settingsMap.admin_notification_email = item.value as string;
+        if (item.key === "exit_intent_pdf_url" && item.value) setPdfUrl(String(item.value).replace(/^"|"$/g, ""));
       });
 
       setSettings(prev => ({ ...prev, ...settingsMap }));
