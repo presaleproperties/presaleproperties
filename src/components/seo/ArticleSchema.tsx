@@ -32,16 +32,16 @@ export function ArticleSchema({
     "dateModified": dateModified || datePublished,
     "author": {
       "@type": "Organization",
-      "name": authorName,
+      "name": "Presale Properties",
       "url": "https://presaleproperties.com"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "PresaleProperties.com",
+      "name": "Presale Properties",
       "url": "https://presaleproperties.com",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://presaleproperties.com/logo.svg"
+        "url": "https://presaleproperties.com/lovable-uploads/f3790c27-57f0-4837-9047-f9da1e41c793.png"
       }
     },
     "mainEntityOfPage": {

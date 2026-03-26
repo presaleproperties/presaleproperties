@@ -44,6 +44,8 @@ type BlogPostType = {
   category: string | null;
   tags: string[] | null;
   publish_date: string | null;
+  created_at: string;
+  updated_at: string;
   seo_title: string | null;
   seo_description: string | null;
 };
@@ -211,7 +213,8 @@ export default function BlogPost() {
         description={post.seo_description || post.excerpt || post.title}
         url={canonicalUrl}
         image={heroImageUrl || undefined}
-        datePublished={post.publish_date || undefined}
+        datePublished={post.publish_date || post.created_at || undefined}
+        dateModified={post.updated_at || undefined}
         category={post.category || undefined}
       />
 
