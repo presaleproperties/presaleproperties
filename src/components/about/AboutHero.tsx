@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin, CheckCircle2 } from "lucide-react";
 import aboutHeroImage from "@/assets/about-hero-team.jpg";
 import { AboutContactForm } from "./AboutContactForm";
+import { supabase } from "@/integrations/supabase/client";
 
 const problems = [
   "Not sure if presale is right for you?",
