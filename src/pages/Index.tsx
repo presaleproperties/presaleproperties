@@ -255,8 +255,7 @@ const Index = () => {
         <meta name="keywords" content="presale condos Vancouver, presale townhomes Surrey, new construction Metro Vancouver, presale projects BC, VIP pricing 2026" />
         <link rel="canonical" href="https://presaleproperties.com/" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        <link rel="dns-prefetch" href="https://thvlisplwqhtjpzpedhq.supabase.co" />
-        <link rel="preconnect" href="https://thvlisplwqhtjpzpedhq.supabase.co" crossOrigin="anonymous" />
+        {/* preconnect/dns-prefetch already in static index.html */}
         
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://presaleproperties.com/" />
