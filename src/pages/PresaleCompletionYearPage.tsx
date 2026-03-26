@@ -75,11 +75,20 @@ const SORT_OPTIONS = [
 
 export default function PresaleCompletionYearPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const slug = location.pathname.replace(/^\//, "");
   const config = YEAR_CONFIGS[slug] || null;
+  const is2025 = slug === "presale-projects-completing-2025";
+
+  // Redirect stale 2025 page to 2026
+  useEffect(() => {
+    if (is2025) {
+      navigate("/presale-projects-completing-2026", { replace: true });
+    }
+  }, [is2025, navigate]);
 
   const filters = {
     city: searchParams.get("city") || "any",
