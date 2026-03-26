@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useSearchParams, useLocation } from "react-router-dom";
+import { Link, useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
 import { ChevronRight, ChevronLeft, Home, Building2, Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -75,11 +75,20 @@ const SORT_OPTIONS = [
 
 export default function PresaleCompletionYearPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const slug = location.pathname.replace(/^\//, "");
   const config = YEAR_CONFIGS[slug] || null;
+  const is2025 = slug === "presale-projects-completing-2025";
+
+  // Redirect stale 2025 page to 2026
+  useEffect(() => {
+    if (is2025) {
+      navigate("/presale-projects-completing-2026", { replace: true });
+    }
+  }, [is2025, navigate]);
 
   const filters = {
     city: searchParams.get("city") || "any",
