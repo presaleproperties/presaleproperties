@@ -173,7 +173,9 @@ export default function PresaleCompletionYearPage() {
 
   if (!config) return <NotFound />;
 
-  const pageTitle = `${config.seoTitle} | New Condos & Townhomes BC | PresaleProperties`;
+  const pageTitle = config.year === 2026
+    ? "Completing 2026 Presales | Presale Properties"
+    : `${config.seoTitle} | New Condos & Townhomes BC | PresaleProperties`;
   const pageDescription = `Browse ${totalCount}+ ${config.seoTitle.toLowerCase()} in Metro Vancouver & Fraser Valley. ${config.description}. VIP pricing, floor plans & incentives.`;
   const canonicalUrl = `https://presaleproperties.com/${slug}`;
 

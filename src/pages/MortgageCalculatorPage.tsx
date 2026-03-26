@@ -672,7 +672,7 @@ export default function MortgageCalculatorPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
-        <title>Presale Affordability Calculator | How Much Can I Afford? 2026</title>
+        <title>Mortgage Calculator | Presale Properties</title>
         <meta name="description" content="Calculate how much presale property you can afford in Vancouver. Free calculator includes down payment, deposits, closing costs. Get your budget instantly." />
         <meta name="keywords" content="presale mortgage calculator, mortgage payment calculator BC, presale condo affordability, mortgage estimate Vancouver, land transfer tax BC, closing costs calculator" />
         <link rel="canonical" href="https://presaleproperties.com/mortgage-calculator" />

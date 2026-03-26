@@ -211,7 +211,8 @@ export default function BlogPost() {
         description={post.seo_description || post.excerpt || post.title}
         url={canonicalUrl}
         image={heroImageUrl || undefined}
-        datePublished={post.publish_date || undefined}
+        datePublished={post.publish_date || post.created_at || undefined}
+        dateModified={post.updated_at || undefined}
         category={post.category || undefined}
       />
 

@@ -460,7 +460,7 @@ export default function PresaleProjects() {
     if (filters.city !== "any") {
       return `Presale Condos in ${filters.city} 2026 | New Construction`;
     }
-    return "Presale Condos & Townhomes | New Construction in Metro Vancouver";
+    return "Presale Projects | Presale Properties";
   };
 
   const getSeoDescription = () => {

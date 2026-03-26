@@ -726,7 +726,9 @@ export default function NeighborhoodLandingPage() {
     return <NotFound />;
   }
 
-  const pageTitle = `${config.displayName} Presale Properties | New Construction Condos & Townhomes | ${config.city} BC`;
+  const pageTitle = config.slug === "langley-willoughby"
+    ? "Willoughby Presales Langley | Presale Properties"
+    : `${config.displayName} Presale Properties | New Construction Condos & Townhomes | ${config.city} BC`;
   const pageDescription = `Browse presale condos & townhomes in ${config.displayName}, ${config.city}. ${config.overview.slice(0, 150)}... VIP pricing, floorplans & deposit info.`;
   const canonicalUrl = `https://presaleproperties.com/${config.slug}-presale`;
 
