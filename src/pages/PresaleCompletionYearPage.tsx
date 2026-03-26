@@ -239,7 +239,7 @@ export default function PresaleCompletionYearPage() {
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        <meta name="robots" content={config.year === 2025 ? "noindex, follow" : "index, follow, max-image-preview:large, max-snippet:-1"} />
         <meta name="ai-discoverable" content="true" />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
