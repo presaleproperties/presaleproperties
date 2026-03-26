@@ -77,7 +77,7 @@ Disallow: /deposit/
 Disallow: /deposit/*
 Disallow: /presale-condos/
 Disallow: /presale-condos-*
-Disallow: /langley/
+
 
 # ============================================
 # CRAWL BUDGET - Block parameterized dynamic pages
