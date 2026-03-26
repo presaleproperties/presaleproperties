@@ -12,8 +12,29 @@ const problems = [
   "Worried about making a costly mistake?",
 ];
 
+interface GoogleReview {
+  reviewer_name: string;
+  reviewer_location: string | null;
+  review_text: string;
+}
+
 export function AboutHero() {
   const [formOpen, setFormOpen] = useState(false);
+  const [featuredReview, setFeaturedReview] = useState<GoogleReview | null>(null);
+
+  useEffect(() => {
+    const fetchReview = async () => {
+      const { data } = await supabase
+        .from("google_reviews")
+        .select("reviewer_name, reviewer_location, review_text")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (data) setFeaturedReview(data);
+    };
+    fetchReview();
+  }, []);
 
   return (
     <section className="relative w-full min-h-[100svh] flex flex-col">
