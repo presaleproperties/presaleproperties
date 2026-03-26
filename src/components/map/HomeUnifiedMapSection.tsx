@@ -110,9 +110,13 @@ export function HomeUnifiedMapSection({
   // Only fetch if no external data provided
   const useExternalData = externalResaleListings !== undefined || externalPresaleProjects !== undefined;
 
-  // Fetch presale projects (skip if external data provided)
+  const citiesToUse = cityContext
+    ? [cityContext]
+    : (enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities);
+
+  // Fetch presale projects immediately — don't gate behind intersection observer
   const { data: presaleProjects, isLoading: presaleLoading } = useQuery({
-    queryKey: ["unified-map-presale-projects", cityContext],
+    queryKey: ["unified-map-presale-projects-v2", cityContext],
     queryFn: async () => {
       let query = supabase
         .from("presale_projects")
@@ -121,30 +125,22 @@ export function HomeUnifiedMapSection({
         .not("status", "eq", "sold_out")
         .not("map_lat", "is", null)
         .not("map_lng", "is", null);
-      
-      // Filter by city if context provided
-      if (cityContext) {
-        query = query.ilike("city", cityContext);
-      }
-      
+      if (cityContext) query = query.ilike("city", cityContext);
       query = query.order("is_featured", { ascending: false }).limit(200);
-
       const { data, error } = await query;
       if (error) throw error;
       return data || [];
     },
-    enabled: shouldLoad && !externalPresaleProjects,
-    staleTime: 5 * 60 * 1000,
+    enabled: !externalPresaleProjects,
+    staleTime: 10 * 60 * 1000, // 10 min — stable presale data
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
-  // Fetch resale listings (skip if external data provided)
+  // Fetch resale listings — single 1000-row request, lean fields, immediate fetch
   const { data: resaleListings, isLoading: resaleLoading } = useQuery({
-    queryKey: ["unified-map-resale-listings-2024", enabledCities, cityContext],
+    queryKey: ["unified-map-resale-v5", citiesToUse.slice().sort().join(","), cityContext],
     queryFn: async () => {
-      const citiesToUse = cityContext 
-        ? [cityContext]
-        : (enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities);
-      
       const { data, error } = await supabase
         .from("mls_listings_safe")
         .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
@@ -158,14 +154,14 @@ export function HomeUnifiedMapSection({
         .gte("longitude", -123.35)
         .lte("longitude", -121.7)
         .order("list_date", { ascending: false, nullsFirst: false })
-        .limit(5000);
-
+        .limit(1000); // 1000 is plenty for a homepage map section
       if (error) throw error;
       return data || [];
     },
-    enabled: shouldLoad && !externalResaleListings,
-    staleTime: 2 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    enabled: !externalResaleListings,
+    staleTime: 10 * 60 * 1000, // 10 min cache — avoids refetch on back nav
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   // Use external data if provided, otherwise use fetched data
