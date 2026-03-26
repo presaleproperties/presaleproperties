@@ -570,14 +570,15 @@ export default function PresaleProjectDetail() {
   };
 
   // Build breadcrumb items for visual and structured data
+  // Use canonical /presale-projects/{city} URLs — NOT legacy /{city}-presale-condos redirects
   const citySlugForBreadcrumb = slugify(project.city);
-  const neighborhoodSlugForBreadcrumb = slugify(project.neighborhood);
+  const projectTypeSlugForBreadcrumb = project.project_type === "townhome" ? "townhomes" : "condos";
   const breadcrumbItems = [{
     label: `${project.city} Presale`,
-    href: `/${citySlugForBreadcrumb}-presale-condos`
+    href: `/presale-projects/${citySlugForBreadcrumb}`
   }, {
-    label: project.neighborhood,
-    href: `/${citySlugForBreadcrumb}-${neighborhoodSlugForBreadcrumb}-presale`
+    label: `${project.city} ${project.project_type === "townhome" ? "Townhomes" : "Condos"}`,
+    href: `/presale-projects/${citySlugForBreadcrumb}/${projectTypeSlugForBreadcrumb}`
   }, {
     label: project.name
   }];
@@ -592,13 +593,13 @@ export default function PresaleProjectDetail() {
     }, {
       "@type": "ListItem",
       "position": 2,
-      "name": `${project.city} Presale Properties`,
-      "item": `https://presaleproperties.com/${citySlugForBreadcrumb}-presale-condos`
+      "name": `${project.city} Presale Projects`,
+      "item": `https://presaleproperties.com/presale-projects/${citySlugForBreadcrumb}`
     }, {
       "@type": "ListItem",
       "position": 3,
-      "name": project.neighborhood,
-      "item": `https://presaleproperties.com/${citySlugForBreadcrumb}-${neighborhoodSlugForBreadcrumb}-presale`
+      "name": `${project.city} Presale ${project.project_type === "townhome" ? "Townhomes" : "Condos"}`,
+      "item": `https://presaleproperties.com/presale-projects/${citySlugForBreadcrumb}/${projectTypeSlugForBreadcrumb}`
     }, {
       "@type": "ListItem",
       "position": 4,

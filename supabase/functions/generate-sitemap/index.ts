@@ -73,11 +73,14 @@ Deno.serve(async (req) => {
       // Main listing hubs - optimized for Google sitelinks
       { url: "/presale-projects", priority: "0.95", changefreq: "daily", lastmod: now },
       { url: "/properties", priority: "0.95", changefreq: "daily", lastmod: now },
+      { url: "/assignments", priority: "0.85", changefreq: "daily", lastmod: now },
       { url: "/for-agents", priority: "0.9", changefreq: "weekly", lastmod: now },
       
       // Educational / Guide pages
       { url: "/buyers-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
       { url: "/presale-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
+      { url: "/presale-process", priority: "0.8", changefreq: "monthly", lastmod: now },
+      { url: "/deficiency-walkthrough-guide", priority: "0.7", changefreq: "monthly", lastmod: now },
       { url: "/blog", priority: "0.8", changefreq: "weekly", lastmod: now },
       { url: "/guides", priority: "0.8", changefreq: "weekly", lastmod: now },
       
@@ -86,44 +89,31 @@ Deno.serve(async (req) => {
       { url: "/mortgage-calculator", priority: "0.75", changefreq: "monthly", lastmod: now },
       { url: "/calculator", priority: "0.75", changefreq: "monthly", lastmod: now },
       
+      // Completion year pages (programmatic SEO)
+      { url: "/presale-projects-completing-2025", priority: "0.85", changefreq: "weekly", lastmod: now },
+      { url: "/presale-projects-completing-2026", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/presale-projects-completing-2027", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/presale-projects-completing-2028", priority: "0.85", changefreq: "weekly", lastmod: now },
+
       // Company pages
       { url: "/about", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/contact", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/developers", priority: "0.7", changefreq: "weekly", lastmod: now },
-      { url: "/presale-process", priority: "0.8", changefreq: "monthly", lastmod: now },
       { url: "/privacy", priority: "0.3", changefreq: "yearly", lastmod: now },
     ];
     
-    // NOTE: /map-search is EXCLUDED (noindex page)
+    // NOTE: /map-search, /developer-portal, /admin, /dashboard, /buyer are EXCLUDED (noindex)
 
     // ==========================================
-    // 2. PROGRAMMATIC SEO PAGES (NEW STRUCTURE)
+    // 2. PROGRAMMATIC SEO PAGES (DATA-VALIDATED)
     // ==========================================
-    // City × Property Type × Price combinations for 1000+ pages
+    // City × Property Type × Price — only included when real DB content exists
     const primaryCities = ["surrey", "vancouver", "langley", "coquitlam", "burnaby", "richmond"];
     const secondaryCities = ["delta", "abbotsford", "port-coquitlam", "port-moody", 
       "new-westminster", "north-vancouver", "white-rock", "maple-ridge"];
     const allCities = [...primaryCities, ...secondaryCities];
     const propertyTypes = ["condos", "townhomes"];
     const pricePoints = ["500k", "600k", "700k", "800k", "900k", "1m"];
-
-    // City Hub Pages: /presale-projects/{city}
-    const cityHubPages = allCities.map(city => ({
-      url: `/presale-projects/${city}`,
-      priority: primaryCities.includes(city) ? "0.95" : "0.85",
-      changefreq: "daily",
-      lastmod: now
-    }));
-
-    // City + Type Pages: /presale-projects/{city}/condos
-    const cityTypePages = allCities.flatMap(city => 
-      propertyTypes.map(type => ({
-        url: `/presale-projects/${city}/${type}`,
-        priority: primaryCities.includes(city) ? "0.9" : "0.8",
-        changefreq: "daily",
-        lastmod: now
-      }))
-    );
 
     // Price ceiling map for database-driven Soft 404 prevention
     const PRICE_MAX_MAP: Record<string, number> = {
@@ -132,12 +122,54 @@ Deno.serve(async (req) => {
     };
     const TYPE_DB_MAP: Record<string, string> = { "condos": "condo", "townhomes": "townhome" };
 
-    // Fetch all published projects once for price/type/city matching
+    // Fetch all published projects once — used for all city/type/price validation
     const { data: allProjects } = await supabase
       .from("presale_projects")
       .select("city, project_type, starting_price")
       .eq("is_published", true)
       .eq("is_indexed", true);
+
+    // Build a set of cities with actual published projects for hard validation
+    const citiesWithProjects = new Set(
+      (allProjects || []).map(p => p.city?.toLowerCase().replace(/\s+/g, "-").trim())
+    );
+    const citiesWithCondos = new Set(
+      (allProjects || []).filter(p => p.project_type === "condo").map(p => p.city?.toLowerCase().replace(/\s+/g, "-").trim())
+    );
+    const citiesWithTownhomes = new Set(
+      (allProjects || []).filter(p => p.project_type === "townhome").map(p => p.city?.toLowerCase().replace(/\s+/g, "-").trim())
+    );
+
+    // City Hub Pages — only include if city has ANY published project
+    const cityHubPages = allCities
+      .filter(city => citiesWithProjects.has(city))
+      .map(city => ({
+        url: `/presale-projects/${city}`,
+        priority: primaryCities.includes(city) ? "0.95" : "0.85",
+        changefreq: "daily",
+        lastmod: now
+      }));
+
+    // City + Type Pages — only include if city has projects of that type
+    const cityTypePages: { url: string; priority: string; changefreq: string; lastmod: string }[] = [];
+    for (const city of allCities) {
+      if (citiesWithCondos.has(city)) {
+        cityTypePages.push({
+          url: `/presale-projects/${city}/condos`,
+          priority: primaryCities.includes(city) ? "0.9" : "0.8",
+          changefreq: "daily",
+          lastmod: now
+        });
+      }
+      if (citiesWithTownhomes.has(city)) {
+        cityTypePages.push({
+          url: `/presale-projects/${city}/townhomes`,
+          priority: primaryCities.includes(city) ? "0.9" : "0.8",
+          changefreq: "daily",
+          lastmod: now
+        });
+      }
+    }
 
     // City + Type + Price Pages — only generate if real content exists
     const cityTypePricePages: { url: string; priority: string; changefreq: string; lastmod: string }[] = [];
@@ -165,12 +197,10 @@ Deno.serve(async (req) => {
     }
 
     // ==========================================
-    // 3. LEGACY CITY PAGES — REMOVED from sitemap
+    // 3. LEGACY CITY PAGES — EXCLUDED from sitemap
     // ==========================================
-    // Legacy /{city}-presale-condos and /{city}-presale-townhomes
-    // are 301 redirects to /presale-projects/{city}/condos|townhomes.
-    // Google says: "Don't include redirecting URLs in your sitemap."
-    // These redirects are handled in React Router and still crawlable via internal links.
+    // /{city}-presale-condos are 301 redirects → excluded per Google guidelines.
+    // Only canonical /presale-projects/{city}/{type} URLs are included.
 
     // ==========================================
     // 4. NEIGHBORHOOD LANDING PAGES
@@ -193,7 +223,9 @@ Deno.serve(async (req) => {
     // ==========================================
     // 5. PROPERTIES CITY PAGES (Clean URLs - /properties/{city})
     // ==========================================
-    const propertiesCityPages = allCities.map(city => ({
+    // Also include west-vancouver (has separate city route in App.tsx)
+    const propertiesCities = [...allCities, "west-vancouver", "chilliwack"];
+    const propertiesCityPages = propertiesCities.map(city => ({
       url: `/properties/${city}`,
       priority: primaryCities.includes(city) ? "0.9" : "0.8",
       changefreq: "daily",
@@ -233,17 +265,18 @@ Deno.serve(async (req) => {
     // ==========================================
     // 6. ACTIVE MLS LISTING PAGES (Canonical Address URLs)
     // ==========================================
-    // Include only Active listings with a full address slug to prevent Soft 404s.
-    // This ensures Google discovers the canonical /properties/address-city-bc-id URL,
-    // not the legacy /properties/{numericId} variants.
-    // Cap at 500 most recent to manage sitemap size and crawl budget.
+    // Include Active listings using canonical address-slug URLs.
+    // Sitemap XML limit is 50,000 URLs / 50MB — we cap at 5,000 most recently
+    // modified listings to stay well within budget while covering high-value inventory.
+    // The image sitemap covers all 47k+ listings for photo discovery.
     const { data: activeListings } = await supabase
       .from("mls_listings")
       .select("listing_key, unparsed_address, street_number, street_name, street_suffix, unit_number, city, modification_timestamp")
       .eq("mls_status", "Active")
       .not("city", "is", null)
+      .not("unparsed_address", "is", null)
       .order("modification_timestamp", { ascending: false })
-      .limit(500);
+      .limit(5000);
 
     const listingSlugify = (text: string): string =>
       text.toLowerCase().replace(/['']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').replace(/-+/g, '-');

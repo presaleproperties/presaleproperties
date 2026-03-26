@@ -60,6 +60,7 @@ Disallow: /buyer
 Disallow: /buyer/*
 Disallow: /developer
 Disallow: /developer/*
+Disallow: /developer-portal
 Disallow: /exclusive-offer
 Disallow: /campaign/*
 
