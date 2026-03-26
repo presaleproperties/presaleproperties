@@ -341,6 +341,7 @@ ${urlEntries}
     console.log(`  - Presale projects: ${projectPages.length}`);
     console.log(`  - Properties city pages: ${propertiesCityPages.length}`);
     console.log(`  - Blog posts: ${blogPages.length}`);
+    console.log(`  - MLS active listings: ${mlsListingPages.length}`);
     console.log(`  - Developer pages: ${developerPages.length}`);
 
     // Store generation timestamp for monitoring
@@ -361,6 +362,7 @@ ${urlEntries}
             projects: projectPages.length,
             propertiesCities: propertiesCityPages.length,
             blog: blogPages.length,
+            mlsListings: mlsListingPages.length,
             developers: developerPages.length,
           }
         },
