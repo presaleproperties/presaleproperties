@@ -479,11 +479,27 @@ export default function ResaleListingDetail() {
     ? `new ${propertyTypeLabel.toLowerCase()} ${listing.city}, brand new home ${listing.city}, ${listing.year_built} built home, new construction ${listing.city}, move-in ready home ${listing.city}`
     : `${propertyTypeLabel.toLowerCase()} for sale ${listing.city}, ${listing.city} real estate, MLS listing ${listing.city}`;
 
+  // Determine robots directive:
+  // - Closed/Sold/Expired MLS listings → noindex (thin content, causes "crawled - not indexed")
+  // - Pure numeric slug → noindex + canonical to address URL (stops "alternative page" signals)
+  // - Active listings → index, follow
+  const isSoldOrClosed = listing.mls_status === "Closed" || 
+                         listing.mls_status === "Sold" || 
+                         listing.mls_status === "Expired" ||
+                         listing.mls_status === "Cancelled" ||
+                         listing.mls_status === "Withdrawn";
+  
+  const robotsDirective = isSoldOrClosed
+    ? "noindex, follow"
+    : isPureNumericSlug
+    ? "noindex, follow"
+    : "index, follow, max-image-preview:large, max-snippet:-1";
+
   return <div className="min-h-screen bg-background">
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        <meta name="robots" content={robotsDirective} />
         <meta name="keywords" content={keywords} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
