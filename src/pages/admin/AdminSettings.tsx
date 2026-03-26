@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,11 @@ import {
   ExternalLink,
   Zap,
   Palette,
-  Download
+  Download,
+  Upload,
+  FileText,
+  Trash2,
+  Eye
 } from "lucide-react";
 import { generateBrandKitPdf } from "@/lib/generateBrandKitPdf";
 
