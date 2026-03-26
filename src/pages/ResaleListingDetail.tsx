@@ -149,6 +149,11 @@ export default function ResaleListingDetail() {
   const listingKey = slug?.match(/-(\d{6,})$/)?.[1] || 
                      (slug?.match(/^\d+$/) ? slug : null); // Handle legacy pure numeric URLs
 
+  // Pure numeric slug (e.g. /properties/29284396) = legacy URL with no address.
+  // These should redirect to /properties to avoid "Alternative page" canonical signals.
+  // The listing detail page will still be accessible via the canonical address URL.
+  const isPureNumericSlug = !!slug?.match(/^\d+$/);
+
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({
       behavior: "smooth",
