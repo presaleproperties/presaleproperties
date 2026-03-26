@@ -76,7 +76,6 @@ export function HomeUnifiedMapSection({
   customHeading
 }: HomeUnifiedMapSectionProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [shouldLoad, setShouldLoad] = useState(false);
   const [mode, setMode] = useState<MapMode>(initialMode);
   const sectionRef = useRef<HTMLElement>(null);
 
