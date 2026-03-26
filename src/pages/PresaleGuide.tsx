@@ -655,9 +655,10 @@ export default function PresaleGuide() {
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <Link to="/buyers-guide">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    Assignment Buyer's Guide
+                <Link to="/presale-process">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
+                    <ArrowRight className="h-4 w-4" />
+                    Step-by-Step Process
                   </Button>
                 </Link>
               </div>
