@@ -75,11 +75,11 @@ const steps = [
     number: "04",
     title: "Secure Your Financing",
     description:
-      "Get pre-approved for a mortgage, but understand that presale financing is different. Deposits are typically 15–20% paid in installments. Since completion may be 1–5 years away, plan for rate changes.",
+      "Get pre-approved for a mortgage, but understand that presale financing is different. Deposits are typically 5–15% paid in installments. Since completion may be 1–5 years away, plan for rate changes.",
     icon: Landmark,
     tips: [
       "Work with a mortgage broker experienced in presales",
-      "Plan for deposits: typically 5% at signing, then staged",
+      "Plan for deposits: typically 5% at signing, then staged over 12–18 months",
       "Consider rate lock options for longer construction timelines",
     ],
   },
@@ -137,23 +137,23 @@ const costs = [
   {
     name: "Deposit (Staged Payments)",
     description:
-      "Typically 5–20% of purchase price, paid in installments during construction. Held in trust to protect both buyer and developer.",
-    typical: "5–20% of price",
+      "Typically 5–15% of the purchase price, paid in installments over 12–18 months (up to 20% in a hot market). Held in a lawyer's trust account — fully protected until completion.",
+    typical: "5–15% of price",
     color: "bg-blue-50 text-blue-700 border-blue-100",
-  },
-  {
-    name: "5% GST (New Home)",
-    description:
-      "GST applies to all new homes. Some buyers qualify for a partial rebate if using as a primary residence.",
-    typical: "5% of price",
-    color: "bg-purple-50 text-purple-700 border-purple-100",
   },
   {
     name: "Property Transfer Tax",
     description:
-      "1% on first $200K, 2% on $200K–$2M, 3% over $2M. First-time buyers may qualify for exemption on homes up to $835,000.",
+      "1% on first $200K, 2% on $200K–$2M, 3% over $2M. First-time buyers may qualify for full exemption on new construction up to $1.1M (2026 BC rules).",
     typical: "Varies",
     color: "bg-amber-50 text-amber-700 border-amber-100",
+  },
+  {
+    name: "GST (New Home)",
+    description:
+      "GST applies to all new homes. Full rebate (up to $50K) for primary residences priced at or under $1M. Partial rebate up to $1.5M. No rebate for investors.",
+    typical: "5% of price",
+    color: "bg-purple-50 text-purple-700 border-purple-100",
   },
   {
     name: "Legal Fees",
@@ -192,7 +192,7 @@ const faqs = [
   {
     question: "How much deposit do I need for a presale?",
     answer:
-      "Typically 15–20% of the purchase price, paid in stages during construction. A common structure is 5% at signing, 5% in 90–180 days, and 5–10% at later milestones. These deposits are held in a lawyer's trust account until completion.",
+      "Typically 5–15% of the purchase price (up to 20% in a hot market), paid in stages over 12–18 months. A common structure is 5% at signing, 5% at 90 days, and 5% at 180 days. These deposits are held in a lawyer's trust account until completion.",
   },
   {
     question: "What is the 7-day rescission period?",
@@ -317,7 +317,7 @@ export default function PresaleGuide() {
             }}
           />
 
-          <div className="relative container px-4 py-16 md:py-24">
+          <div className="relative container px-4 sm:px-6 py-16 md:py-24">
             <div className="max-w-3xl">
               <div className="flex items-center gap-2 mb-5">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold tracking-wide uppercase">
@@ -354,16 +354,15 @@ export default function PresaleGuide() {
             </div>
 
             {/* Stats row */}
-            <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl">
+            <div className="mt-10 flex flex-wrap gap-3">
               {[
-                { label: "Avg. Deposit", value: "15–20%" },
-                { label: "BC Warranty", value: "2-5-10" },
+                { label: "Avg. Deposit", value: "5–15%" },
+                { label: "BC New Home Warranty", value: "2-5-10" },
                 { label: "Cooling-Off Period", value: "7 Days" },
-                { label: "GST on New Homes", value: "5%" },
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="bg-card border border-border/70 rounded-xl px-4 py-3 shadow-sm"
+                  className="bg-card border border-border/70 rounded-xl px-5 py-3 shadow-sm"
                 >
                   <p className="text-xl font-bold text-primary">{stat.value}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
@@ -656,9 +655,10 @@ export default function PresaleGuide() {
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <Link to="/buyers-guide">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    Assignment Buyer's Guide
+                <Link to="/presale-process">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
+                    <ArrowRight className="h-4 w-4" />
+                    Step-by-Step Process
                   </Button>
                 </Link>
               </div>
