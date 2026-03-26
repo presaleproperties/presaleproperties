@@ -98,10 +98,8 @@ Disallow: /properties?*city=
 Disallow: /properties?*type=
 Disallow: /properties?*beds=
 
-# Presale project list filters
+# Presale project list filters (developer= is ALLOWED for SEO value)
 Disallow: /presale-projects?*type=
-Disallow: /presale-projects?*developer=
-Disallow: /presale-projects?*city=
 Disallow: /presale-projects?*sort=
 Disallow: /presale-projects?*view=
 Disallow: /presale-projects?*page=
