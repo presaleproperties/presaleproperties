@@ -181,7 +181,7 @@ export default function ContentHub() {
     <>
       <Helmet>
         <title>Guides & Resources | BC Presale Real Estate Education | PresaleProperties.com</title>
-        <meta name="description" content="Expert guides, market updates, neighborhood insights, and investment analysis for BC presale real estate. Learn everything you need to buy presale condos and townhomes with confidence." />
+        <meta name="description" content="Free guides and resources for buying presale condos in Metro Vancouver. Learn about deposits, assignments, completion and more." />
         <link rel="canonical" href="https://presaleproperties.com/guides" />
         
         {/* Schema.org for content hub */}

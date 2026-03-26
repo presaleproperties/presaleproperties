@@ -288,7 +288,7 @@ export default function PresaleGuide() {
         <title>Complete Guide to Buying New Construction Vancouver 2026</title>
         <meta
           name="description"
-          content="Everything you need to know about buying presale & new construction in Vancouver. Deposits, warranties, rebates, process, investment tips. Free guide."
+          content="The complete guide to buying a presale condo in BC. Everything first-time buyers need to know about deposits, timelines and the process."
         />
         <link rel="canonical" href="https://presaleproperties.com/presale-guide" />
       </Helmet>

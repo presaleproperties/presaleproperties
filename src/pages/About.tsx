@@ -46,7 +46,7 @@ export default function About() {
         <meta name="title" content="About Us | Presale Properties Group - New Construction Experts" />
         <meta 
           name="description" 
-          content="Specialized real estate team for new condos, townhomes, duplexes & single-family homes in Metro Vancouver & Fraser Valley. 400+ homes sold. Free expert guidance." 
+          content="Meet Uzair Muhammad and The Presale Properties Group — Surrey-based presale specialists. 400+ buyers helped across Metro Vancouver since 2020." 
         />
         <link rel="canonical" href="https://presaleproperties.com/about" />
         <meta name="robots" content="index, follow" />

@@ -168,7 +168,7 @@ export default function Contact() {
     <>
       <Helmet>
         <title>Contact Us | Presale Properties Vancouver | Expert Guidance</title>
-        <meta name="description" content="Contact Vancouver's new construction specialists. Expert guidance on presale & move-in ready properties in Surrey, Langley, Coquitlam. Call or email today." />
+        <meta name="description" content="Get in touch with The Presale Properties Group. Book a free 15-minute consultation about presale condos and townhomes in Metro Vancouver." />
         <meta name="keywords" content="contact presale properties, Vancouver real estate, presale condos Vancouver, new construction BC" />
         <link rel="canonical" href="https://presaleproperties.com/contact" />
         <meta property="og:type" content="website" />
