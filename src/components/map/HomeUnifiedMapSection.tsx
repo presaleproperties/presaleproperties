@@ -301,8 +301,8 @@ export function HomeUnifiedMapSection({
           </SafeMapWrapper>
         )}
 
-        {/* Legend */}
-        {hasData && mode === "all" && (
+        {/* Legend — only show when both data types are shown */}
+        {finalResaleListings.length > 0 && finalPresaleProjects.length > 0 && mode === "all" && (
           <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full" style={{ background: "hsl(30, 15%, 18%)", border: "2px solid hsl(40, 65%, 55%)" }} />
