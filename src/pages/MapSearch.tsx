@@ -885,9 +885,10 @@ export default function MapSearch() {
       
       return results;
     },
-    staleTime: 3 * 60 * 1000, // Keep data fresh for 3 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    staleTime: 8 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
     refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev, // Keep showing previous data while refreshing
   });
 
   // Fetch assignments (listings table)
