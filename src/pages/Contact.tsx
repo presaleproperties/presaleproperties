@@ -126,8 +126,10 @@ export default function Contact() {
     "email": "info@presaleproperties.com",
     "address": {
       "@type": "PostalAddress",
+      "streetAddress": "666 Burrard St, Suite 500",
       "addressLocality": "Vancouver",
       "addressRegion": "BC",
+      "postalCode": "V6C 3P6",
       "addressCountry": "CA"
     },
     "areaServed": ["Vancouver", "Surrey", "Langley", "Coquitlam", "Burnaby", "Delta", "Abbotsford", "Richmond"]
