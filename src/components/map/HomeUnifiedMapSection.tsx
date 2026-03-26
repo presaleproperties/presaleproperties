@@ -88,7 +88,6 @@ export function HomeUnifiedMapSection({
       (entries) => {
         if (entries[0]?.isIntersecting) {
           setIsVisible(true);
-          setShouldLoad(true);
           observer.disconnect();
         }
       },
