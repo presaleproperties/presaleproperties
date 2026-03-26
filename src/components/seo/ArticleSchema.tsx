@@ -27,21 +27,21 @@ export function ArticleSchema({
     "headline": title,
     "description": description,
     "url": url,
-    "image": image || "https://presaleproperties.com/og-image.jpg",
+    "image": image || "https://presaleproperties.com/og-image.png",
     "datePublished": datePublished,
     "dateModified": dateModified || datePublished,
     "author": {
-      "@type": "Organization",
-      "name": "Presale Properties",
+      "@type": "Person",
+      "name": "Uzair Muhammad",
       "url": "https://presaleproperties.com"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "Presale Properties",
+      "name": "Presale Properties Group",
       "url": "https://presaleproperties.com",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://presaleproperties.com/lovable-uploads/f3790c27-57f0-4837-9047-f9da1e41c793.png"
+        "url": "https://presaleproperties.com/logo.svg"
       }
     },
     "mainEntityOfPage": {

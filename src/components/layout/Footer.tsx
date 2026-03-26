@@ -185,6 +185,10 @@ export function Footer() {
             <span className="text-border">·</span>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
             <span className="text-border">·</span>
+            <Link to="/terms-of-service" className="hover:text-foreground transition-colors">Terms</Link>
+            <span className="text-border">·</span>
+            <a href="/sitemap.xml" className="hover:text-foreground transition-colors">Sitemap</a>
+            <span className="text-border">·</span>
             <a href="mailto:info@presaleproperties.com" className="hover:text-foreground transition-colors">info@presaleproperties.com</a>
             <span className="text-border">·</span>
             <a href="tel:6722581100" className="hover:text-foreground transition-colors">672-258-1100</a>
