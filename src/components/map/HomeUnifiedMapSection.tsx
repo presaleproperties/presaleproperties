@@ -166,9 +166,6 @@ export function HomeUnifiedMapSection({
   const finalResaleListings = externalResaleListings ?? resaleListings ?? [];
   const finalPresaleProjects = externalPresaleProjects ?? presaleProjects ?? [];
 
-  const isLoading = (!externalResaleListings && resaleLoading) || (!externalPresaleProjects && presaleLoading);
-  const hasData = finalPresaleProjects.length > 0 || finalResaleListings.length > 0;
-
   // Dynamic heading based on mode (can be overridden by customHeading)
   const getHeading = () => {
     if (customHeading) return customHeading;
