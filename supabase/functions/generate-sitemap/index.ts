@@ -307,6 +307,7 @@ Deno.serve(async (req) => {
       ...propertiesCityPages,        // /properties/{city}
       ...seoHubPages,
       ...blogPages,
+      ...mlsListingPages,            // /properties/address-city-bc-listingKey (active only, max 500)
       // developerPages intentionally empty — /developers/:slug redirects to /developers
     ];
     
