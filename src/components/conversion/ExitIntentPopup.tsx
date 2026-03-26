@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { X, Download, Shield, CheckCircle, Users } from "lucide-react";
+import { X, Download, Shield, CheckCircle, AlertTriangle, FileText, ExternalLink, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -14,48 +14,67 @@ import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 
 const schema = z.object({
+  name: z.string().min(1, "Name is required").max(100),
   email: z.string().email("Please enter a valid email").max(255),
 });
 
 type FormData = z.infer<typeof schema>;
 
+const MISTAKES = [
+  { icon: "⚠️", text: "Hidden contract clauses that cost buyers $50K+" },
+  { icon: "🔍", text: "Developer red flags most buyers overlook" },
+  { icon: "📋", text: "Deposit traps & assignment restriction risks" },
+  { icon: "💰", text: "GST, PTT & closing costs nobody warns you about" },
+  { icon: "🏗️", text: "Completion delay loopholes developers use" },
+  { icon: "📝", text: "What the sales centre won't tell you" },
+  { icon: "🤝", text: "Why you need YOUR own agent — not theirs" },
+];
+
 export function ExitIntentPopup() {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const { toast } = useToast();
   const { submitLead } = useLeadSubmission();
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "" },
+    defaultValues: { name: "", email: "" },
   });
 
+  // Fetch configured PDF URL from app_settings
   useEffect(() => {
-    // Check if already shown in this session or if user has already converted via ANY form
+    supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "exit_intent_pdf_url")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) setPdfUrl(String(data.value).replace(/^"|"$/g, ""));
+      });
+  }, []);
+
+  useEffect(() => {
     const hasShown = sessionStorage.getItem("exit_intent_shown");
     const hasConverted = localStorage.getItem("presale_lead_converted");
     const hasSubmittedAnyForm = localStorage.getItem("pp_form_submitted");
     const hasBooking = localStorage.getItem("pp_booking_submitted");
-    
-    // Don't show if user already engaged with any form
+
     if (hasShown || hasConverted || hasSubmittedAnyForm || hasBooking) return;
 
     const pathname = window.location.pathname;
-    
-    // Only show on consumer-facing pages (presale projects, resale, blog, guides, homepage)
-    const isConsumerPage = 
-      pathname === '/' ||
-      pathname.startsWith('/presale-projects') ||
-      pathname.endsWith('-presale-condos') ||
-      pathname.endsWith('-presale-townhomes') ||
-      pathname.startsWith('/resale') ||
-      pathname.startsWith('/blog') ||
-      pathname.startsWith('/guides') ||
-      pathname === '/calculator' ||
-      pathname === '/mortgage-calculator';
-    
-    // Skip non-consumer pages entirely
+    const isConsumerPage =
+      pathname === "/" ||
+      pathname.startsWith("/presale-projects") ||
+      pathname.endsWith("-presale-condos") ||
+      pathname.endsWith("-presale-townhomes") ||
+      pathname.startsWith("/resale") ||
+      pathname.startsWith("/blog") ||
+      pathname.startsWith("/guides") ||
+      pathname === "/calculator" ||
+      pathname === "/mortgage-calculator";
+
     if (!isConsumerPage) return;
 
     let timeout: NodeJS.Timeout;
@@ -65,54 +84,35 @@ export function ExitIntentPopup() {
       if (sessionStorage.getItem("exit_intent_shown")) return;
       setOpen(true);
       sessionStorage.setItem("exit_intent_shown", "true");
-      MetaEvents.formStart({
-        content_name: "Exit Intent Guide",
-        content_category: "lead_magnet",
-      });
-      trackFormStart({
-        form_name: "exit_intent_guide",
-        form_location: "exit_popup",
-      });
+      MetaEvents.formStart({ content_name: "Exit Intent Guide", content_category: "lead_magnet" });
+      trackFormStart({ form_name: "exit_intent_guide", form_location: "exit_popup" });
     };
 
-    const isMobile = window.innerWidth < 768 || 'ontouchstart' in window;
+    const isMobile = window.innerWidth < 768 || "ontouchstart" in window;
 
     if (isMobile) {
-      // Mobile: show after 12s if user has scrolled down at least 40% then comes back up
       let maxScrollY = 0;
       let scrolledDown = false;
-
       const handleMobileScroll = () => {
         const scrollPct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-        if (scrollPct > 0.4) {
-          scrolledDown = true;
-          maxScrollY = Math.max(maxScrollY, window.scrollY);
-        }
-        // User scrolled back up significantly after going down — exit intent
+        if (scrollPct > 0.4) { scrolledDown = true; maxScrollY = Math.max(maxScrollY, window.scrollY); }
         if (scrolledDown && maxScrollY > 200 && window.scrollY < maxScrollY * 0.3) {
           window.removeEventListener("scroll", handleMobileScroll);
           triggerPopup();
         }
       };
-
-      // Add scroll listener after 12 seconds (give user time to engage)
       mobileTimeout = setTimeout(() => {
         window.addEventListener("scroll", handleMobileScroll, { passive: true });
       }, 12000);
-
     } else {
-      // Desktop: mouseleave toward top of viewport
       const handleMouseLeave = (e: MouseEvent) => {
         if (e.clientY <= 5 && e.relatedTarget === null) {
           timeout = setTimeout(triggerPopup, 100);
         }
       };
-
-      // Reduced from 30s → 12s — most users bounce faster than 30s
       const addListener = setTimeout(() => {
         document.addEventListener("mouseleave", handleMouseLeave);
       }, 12000);
-
       return () => {
         clearTimeout(addListener);
         clearTimeout(timeout);
@@ -128,7 +128,6 @@ export function ExitIntentPopup() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-
     try {
       const visitorId = getVisitorId();
       const sessionId = getSessionId();
@@ -138,101 +137,74 @@ export function ExitIntentPopup() {
       const referrer = sessionStorage.getItem("referrer") || document.referrer || null;
       const landingPage = sessionStorage.getItem("landing_page") || window.location.href;
 
-      // Insert into newsletter_subscribers for guide download
-      const { error } = await supabase
-        .from("newsletter_subscribers")
-        .insert({
-          email: data.email,
-          source: "exit_intent_guide",
-          preferred_city: null,
-          wants_projects: true,
-          wants_assignments: false,
-          utm_source: utmSource,
-          utm_medium: utmMedium,
-          utm_campaign: utmCampaign,
-          referrer: referrer,
-          landing_page: landingPage,
-        });
+      const firstName = data.name.trim().split(" ")[0];
+
+      const { error } = await supabase.from("newsletter_subscribers").insert({
+        email: data.email,
+        source: "exit_intent_guide",
+        preferred_city: null,
+        wants_projects: true,
+        wants_assignments: false,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+        referrer,
+        landing_page: landingPage,
+      });
 
       if (error && !error.message.includes("duplicate")) throw error;
 
-      // Also create a project_lead for Zapier integration
       const leadId = crypto.randomUUID();
       await supabase.from("project_leads").insert({
         id: leadId,
-        name: "Guide Download",
+        name: data.name.trim(),
         email: data.email.trim(),
-        message: "7 Red Flags Guide - Exit Intent Download",
+        message: "7 Mistakes Guide - Exit Intent Download",
         lead_source: "exit_intent_guide",
         visitor_id: visitorId,
         session_id: sessionId,
         landing_page: landingPage,
-        referrer: referrer,
+        referrer,
         utm_source: utmSource,
         utm_medium: utmMedium,
         utm_campaign: utmCampaign,
       });
 
-      // Fire Lofty CRM sync with full tracking (fire-and-forget)
       submitLead({
-        firstName: "Guide",
-        lastName: "Download",
+        firstName,
+        lastName: "",
         email: data.email.trim(),
         phone: "",
         formType: "exit_popup",
-        message: "7 Red Flags Guide - Exit Intent Download",
+        message: "7 Mistakes Guide - Exit Intent Download",
         projectUrl: window.location.href,
       });
 
-      // Send to Zapier via edge function
-      supabase.functions
-        .invoke("send-project-lead", { body: { leadId } })
-        .catch(console.error);
+      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 
-      // Track form submission
-      trackFormSubmit({
-        form_name: "exit_intent_guide",
-        form_location: "exit_popup",
-        email: data.email,
-      });
+      trackFormSubmit({ form_name: "exit_intent_guide", form_location: "exit_popup", email: data.email });
 
-      // Track Meta Pixel Lead event
-      MetaEvents.lead({
-        content_name: "Exit Intent Guide",
-        content_category: "lead_magnet",
-      });
+      MetaEvents.lead({ content_name: "Exit Intent Guide", content_category: "lead_magnet" });
 
-      // Send server-side event
-      supabase.functions
-        .invoke("meta-conversions-api", {
-          body: {
-            event_name: "Lead",
-            email: data.email,
-            event_source_url: window.location.href,
-            content_name: "7 Red Flags Guide",
-            content_category: "lead_magnet",
-            client_user_agent: navigator.userAgent,
-            fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
-            fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
-          },
-        })
-        .catch(console.error);
+      supabase.functions.invoke("meta-conversions-api", {
+        body: {
+          event_name: "Lead",
+          email: data.email,
+          event_source_url: window.location.href,
+          content_name: "7 Mistakes Guide",
+          content_category: "lead_magnet",
+          client_user_agent: navigator.userAgent,
+          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+        },
+      }).catch(console.error);
 
       localStorage.setItem("presale_lead_converted", "true");
       localStorage.setItem("pp_form_submitted", "true");
       setIsSubmitted(true);
-      
-      toast({
-        title: "Check your email!",
-        description: "Your guide is on its way.",
-      });
     } catch (error: any) {
       console.error("Error:", error);
-      toast({
-        title: "Something went wrong",
-        description: "Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -240,102 +212,163 @@ export function ExitIntentPopup() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-background">
+      <DialogContent className="p-0 overflow-hidden border-0 shadow-2xl w-full max-w-[520px] rounded-2xl">
         <VisuallyHidden>
-          <DialogTitle>Get Free Presale Guide</DialogTitle>
+          <DialogTitle>Get Free Presale Mistakes Guide</DialogTitle>
         </VisuallyHidden>
 
-        {/* Close button */}
+        {/* Close */}
         <button
           onClick={() => setOpen(false)}
-          className="absolute right-3 top-3 z-10 p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
+          className="absolute right-4 top-4 z-20 p-1.5 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
           aria-label="Close"
         >
           <X className="h-4 w-4 text-white" />
         </button>
 
         {!isSubmitted ? (
-          <>
-            {/* Header */}
-            <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-6 py-8 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full mb-4">
-                <Shield className="h-8 w-8 text-primary" />
+          <div className="flex flex-col">
+            {/* ── Top panel ── */}
+            <div className="relative bg-foreground overflow-hidden px-6 pt-7 pb-6">
+              {/* Subtle glow */}
+              <div className="absolute -top-16 -right-16 w-48 h-48 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+
+              {/* Badge */}
+              <div className="inline-flex items-center gap-1.5 bg-primary/15 border border-primary/30 rounded-full px-3 py-1 mb-4">
+                <AlertTriangle className="h-3 w-3 text-primary" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">Free Guide</span>
               </div>
-              <h2 className="text-2xl font-bold text-background mb-2">
-                Wait! Before You Go...
+
+              <h2 className="text-[22px] sm:text-2xl font-extrabold text-background leading-[1.2] mb-2">
+                7 Costly Mistakes<br />
+                <span className="text-primary">Presale Buyers Make</span>
               </h2>
-              <p className="text-background/80 text-sm">
-                Get our FREE guide to avoid costly presale mistakes
+              <p className="text-background/60 text-sm leading-relaxed">
+                Most buyers don't find out until it's too late. This guide tells you exactly what to watch for before you sign anything.
               </p>
             </div>
 
-            {/* Content */}
-            <div className="p-6">
-              <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6">
-                <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                  <Download className="h-4 w-4 text-primary" />
-                  7 Red Flags to Avoid When Buying Presale
-                </h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                    Hidden contract clauses that cost buyers $50K+
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                    Developer reputation warning signs
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                    What the salesperson won't tell you
-                  </li>
-                </ul>
+            {/* ── Mistakes list ── */}
+            <div className="bg-muted/40 border-b border-border px-6 py-4">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">What's inside</p>
+              <div className="grid grid-cols-1 gap-1.5">
+                {MISTAKES.map((m, i) => (
+                  <div key={i} className="flex items-center gap-2.5">
+                    <span className="text-sm leading-none">{m.icon}</span>
+                    <span className="text-xs text-foreground/80 leading-tight">{m.text}</span>
+                  </div>
+                ))}
               </div>
+            </div>
 
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* ── Form ── */}
+            <div className="px-6 py-5 bg-background">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                <Input
+                  type="text"
+                  placeholder="First Name"
+                  autoComplete="given-name"
+                  {...form.register("name")}
+                  className="h-11"
+                />
+                {form.formState.errors.name && (
+                  <p className="text-xs text-destructive -mt-1">{form.formState.errors.name.message}</p>
+                )}
                 <Input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Email Address"
                   autoComplete="email"
                   {...form.register("email")}
-                  className="h-12 text-base"
+                  className="h-11"
                 />
-                
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 text-base font-semibold"
+                {form.formState.errors.email && (
+                  <p className="text-xs text-destructive -mt-1">{form.formState.errors.email.message}</p>
+                )}
+                <Button
+                  type="submit"
+                  className="w-full h-11 font-bold text-sm gap-2"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Sending..." : "Download Free Guide"}
+                  {isSubmitting ? "Sending…" : (
+                    <>
+                      Send Me the Free Guide
+                      <ChevronRight className="h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </form>
 
-              <div className="mt-4 flex items-center justify-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Shield className="h-3 w-3" />
-                  No spam, unsubscribe anytime
-                </span>
-                <span className="flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  12,847 investors trust us
-                </span>
+              <div className="mt-3 flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
+                <Shield className="h-3 w-3 shrink-0" />
+                <span>No spam. Unsubscribe anytime. 100% free.</span>
               </div>
             </div>
-          </>
+          </div>
         ) : (
-          <div className="p-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <CheckCircle className="h-8 w-8 text-green-600" />
+          /* ── Success State ── */
+          <div className="flex flex-col">
+            {/* Header */}
+            <div className="bg-foreground px-6 pt-7 pb-6 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-primary/5 pointer-events-none" />
+              <div className="relative">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/15 rounded-full mb-3">
+                  <CheckCircle className="h-8 w-8 text-primary" />
+                </div>
+                <h2 className="text-xl font-extrabold text-background mb-1">You're All Set! 🎉</h2>
+                <p className="text-background/60 text-sm">
+                  Check your inbox — the guide is on its way.
+                </p>
+              </div>
             </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">
-              Check Your Email!
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Your guide is on its way. While you wait, explore our latest presale projects.
-            </p>
-            <Button onClick={() => setOpen(false)}>
-              Continue Browsing
-            </Button>
+
+            {/* PDF Preview / Download */}
+            <div className="px-6 py-5 bg-background">
+              {pdfUrl ? (
+                <div className="space-y-4">
+                  <p className="text-sm font-semibold text-foreground text-center">Or download it right now:</p>
+
+                  {/* PDF Preview embed */}
+                  <div className="rounded-xl overflow-hidden border border-border shadow-sm bg-muted" style={{ height: 260 }}>
+                    <iframe
+                      src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                      className="w-full h-full"
+                      title="7 Mistakes Guide Preview"
+                    />
+                  </div>
+
+                  <a
+                    href={pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center justify-center gap-2 w-full h-11 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-colors"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download PDF Guide
+                  </a>
+                </div>
+              ) : (
+                <div className="text-center space-y-4">
+                  <div className="inline-flex items-center justify-center w-14 h-14 bg-muted rounded-xl">
+                    <FileText className="h-7 w-7 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Your guide will arrive in your inbox shortly. While you wait, explore our latest presale projects.
+                  </p>
+                  <Button className="w-full" onClick={() => setOpen(false)}>
+                    Continue Browsing
+                  </Button>
+                </div>
+              )}
+
+              <button
+                onClick={() => setOpen(false)}
+                className="mt-3 w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         )}
       </DialogContent>

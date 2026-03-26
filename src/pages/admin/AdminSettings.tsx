@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,11 @@ import {
   ExternalLink,
   Zap,
   Palette,
-  Download
+  Download,
+  Upload,
+  FileText,
+  Trash2,
+  Eye
 } from "lucide-react";
 import { generateBrandKitPdf } from "@/lib/generateBrandKitPdf";
 
@@ -69,6 +73,54 @@ export default function AdminSettings() {
   const [saving, setSaving] = useState(false);
   const [testingWebhook, setTestingWebhook] = useState(false);
   const { toast } = useToast();
+
+  // Lead Magnet PDF state
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePdfUpload = async (file: File) => {
+    if (!file || file.type !== "application/pdf") {
+      toast({ title: "Invalid file", description: "Please select a PDF file.", variant: "destructive" });
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max size is 50MB.", variant: "destructive" });
+      return;
+    }
+    setPdfUploading(true);
+    try {
+      const fileName = `7-mistakes-guide-${Date.now()}.pdf`;
+      const { error: uploadError } = await supabase.storage
+        .from("lead-magnets")
+        .upload(fileName, file, { upsert: true, contentType: "application/pdf" });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage.from("lead-magnets").getPublicUrl(fileName);
+
+      await supabase.from("app_settings").upsert(
+        { key: "exit_intent_pdf_url", value: publicUrl, updated_at: new Date().toISOString() },
+        { onConflict: "key" }
+      );
+      setPdfUrl(publicUrl);
+      toast({ title: "PDF uploaded!", description: "The guide is now live on the exit intent popup." });
+    } catch (err: any) {
+      console.error(err);
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setPdfUploading(false);
+    }
+  };
+
+  const removePdf = async () => {
+    await supabase.from("app_settings").upsert(
+      { key: "exit_intent_pdf_url", value: null, updated_at: new Date().toISOString() },
+      { onConflict: "key" }
+    );
+    setPdfUrl(null);
+    toast({ title: "PDF removed", description: "The popup will no longer show a direct download." });
+  };
 
   const testBehaviorWebhook = async () => {
     if (!settings.zapier_behavior_webhook) {
@@ -148,6 +200,7 @@ export default function AdminSettings() {
         if (item.key === "email_sender") settingsMap.email_sender = item.value as string;
         if (item.key === "email_domain_verified") settingsMap.email_domain_verified = item.value as boolean;
         if (item.key === "admin_notification_email") settingsMap.admin_notification_email = item.value as string;
+        if (item.key === "exit_intent_pdf_url" && item.value) setPdfUrl(String(item.value).replace(/^"|"$/g, ""));
       });
 
       setSettings(prev => ({ ...prev, ...settingsMap }));
@@ -224,6 +277,104 @@ export default function AdminSettings() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
+
+            {/* ── Lead Magnet PDF Upload ── */}
+            <Card className="md:col-span-2 border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  Exit Intent Popup — Lead Magnet PDF
+                </CardTitle>
+                <CardDescription>
+                  Upload the "7 Costly Mistakes" PDF guide. After a visitor submits the popup form, they'll see a live preview and direct download button.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-6 items-start">
+                  {/* Upload area */}
+                  <div className="space-y-3">
+                    <input
+                      ref={pdfInputRef}
+                      type="file"
+                      accept="application/pdf"
+                      className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePdfUpload(f); }}
+                    />
+                    <div
+                      onClick={() => pdfInputRef.current?.click()}
+                      className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-border rounded-xl p-8 cursor-pointer hover:border-primary/50 hover:bg-muted/40 transition-colors"
+                    >
+                      {pdfUploading ? (
+                        <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                      ) : (
+                        <Upload className="h-8 w-8 text-muted-foreground" />
+                      )}
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-foreground">
+                          {pdfUploading ? "Uploading…" : "Click to upload PDF"}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">PDF up to 50MB</p>
+                      </div>
+                    </div>
+
+                    {pdfUrl && (
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-muted border border-border">
+                        <FileText className="h-4 w-4 text-primary shrink-0" />
+                        <span className="text-xs text-foreground truncate flex-1">Guide uploaded ✓</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2 shrink-0"
+                          onClick={() => setPdfPreviewOpen(true)}
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2 shrink-0 text-destructive hover:text-destructive"
+                          onClick={removePdf}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Live preview */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">PDF Preview</p>
+                    {pdfUrl ? (
+                      <>
+                        <div className="rounded-xl overflow-hidden border border-border shadow-sm bg-muted" style={{ height: 300 }}>
+                          <iframe
+                            src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                            className="w-full h-full"
+                            title="Lead Magnet PDF Preview"
+                          />
+                        </div>
+                        <a
+                          href={pdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          Open full PDF
+                        </a>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 text-muted-foreground" style={{ height: 300 }}>
+                        <FileText className="h-10 w-10 mb-2 opacity-30" />
+                        <p className="text-sm">No PDF uploaded yet</p>
+                        <p className="text-xs mt-1 opacity-60">Upload one to enable instant popup downloads</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Email Configuration - Gmail SMTP */}
             <Card className="md:col-span-2">
               <CardHeader>
