@@ -137,23 +137,23 @@ const costs = [
   {
     name: "Deposit (Staged Payments)",
     description:
-      "Typically 5–20% of purchase price, paid in installments during construction. Held in trust to protect both buyer and developer.",
-    typical: "5–20% of price",
+      "Typically 5–15% of the purchase price, paid in installments over 12–18 months (up to 20% in a hot market). Held in a lawyer's trust account — fully protected until completion.",
+    typical: "5–15% of price",
     color: "bg-blue-50 text-blue-700 border-blue-100",
-  },
-  {
-    name: "5% GST (New Home)",
-    description:
-      "GST applies to all new homes. Some buyers qualify for a partial rebate if using as a primary residence.",
-    typical: "5% of price",
-    color: "bg-purple-50 text-purple-700 border-purple-100",
   },
   {
     name: "Property Transfer Tax",
     description:
-      "1% on first $200K, 2% on $200K–$2M, 3% over $2M. First-time buyers may qualify for exemption on homes up to $835,000.",
+      "1% on first $200K, 2% on $200K–$2M, 3% over $2M. First-time buyers may qualify for full exemption on new construction up to $1.1M (2026 BC rules).",
     typical: "Varies",
     color: "bg-amber-50 text-amber-700 border-amber-100",
+  },
+  {
+    name: "GST (New Home)",
+    description:
+      "GST applies to all new homes. Full rebate (up to $50K) for primary residences priced at or under $1M. Partial rebate up to $1.5M. No rebate for investors.",
+    typical: "5% of price",
+    color: "bg-purple-50 text-purple-700 border-purple-100",
   },
   {
     name: "Legal Fees",
