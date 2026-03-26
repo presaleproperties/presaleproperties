@@ -83,28 +83,19 @@ export function HomeUnifiedMapSection({
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
 
-  // Intersection Observer for lazy loading
+  // Intersection Observer — only gates Leaflet DOM init, NOT data fetching
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            setTimeout(() => setShouldLoad(true), 100);
-            observer.disconnect();
-          }
-        });
+        if (entries[0]?.isIntersecting) {
+          setIsVisible(true);
+          setShouldLoad(true);
+          observer.disconnect();
+        }
       },
-      { 
-        rootMargin: "200px",
-        threshold: 0.1 
-      }
+      { rootMargin: "600px", threshold: 0.01 }
     );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
