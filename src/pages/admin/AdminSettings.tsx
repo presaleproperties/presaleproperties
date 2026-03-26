@@ -74,6 +74,54 @@ export default function AdminSettings() {
   const [testingWebhook, setTestingWebhook] = useState(false);
   const { toast } = useToast();
 
+  // Lead Magnet PDF state
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePdfUpload = async (file: File) => {
+    if (!file || file.type !== "application/pdf") {
+      toast({ title: "Invalid file", description: "Please select a PDF file.", variant: "destructive" });
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max size is 50MB.", variant: "destructive" });
+      return;
+    }
+    setPdfUploading(true);
+    try {
+      const fileName = `7-mistakes-guide-${Date.now()}.pdf`;
+      const { error: uploadError } = await supabase.storage
+        .from("lead-magnets")
+        .upload(fileName, file, { upsert: true, contentType: "application/pdf" });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage.from("lead-magnets").getPublicUrl(fileName);
+
+      await supabase.from("app_settings").upsert(
+        { key: "exit_intent_pdf_url", value: publicUrl, updated_at: new Date().toISOString() },
+        { onConflict: "key" }
+      );
+      setPdfUrl(publicUrl);
+      toast({ title: "PDF uploaded!", description: "The guide is now live on the exit intent popup." });
+    } catch (err: any) {
+      console.error(err);
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setPdfUploading(false);
+    }
+  };
+
+  const removePdf = async () => {
+    await supabase.from("app_settings").upsert(
+      { key: "exit_intent_pdf_url", value: null, updated_at: new Date().toISOString() },
+      { onConflict: "key" }
+    );
+    setPdfUrl(null);
+    toast({ title: "PDF removed", description: "The popup will no longer show a direct download." });
+  };
+
   const testBehaviorWebhook = async () => {
     if (!settings.zapier_behavior_webhook) {
       toast({
