@@ -76,35 +76,24 @@ export function HomeUnifiedMapSection({
   customHeading
 }: HomeUnifiedMapSectionProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [shouldLoad, setShouldLoad] = useState(false);
   const [mode, setMode] = useState<MapMode>(initialMode);
   const sectionRef = useRef<HTMLElement>(null);
 
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
 
-  // Intersection Observer for lazy loading
+  // Intersection Observer — only gates Leaflet DOM init, NOT data fetching
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            setTimeout(() => setShouldLoad(true), 100);
-            observer.disconnect();
-          }
-        });
+        if (entries[0]?.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
       },
-      { 
-        rootMargin: "200px",
-        threshold: 0.1 
-      }
+      { rootMargin: "600px", threshold: 0.01 }
     );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
@@ -119,9 +108,13 @@ export function HomeUnifiedMapSection({
   // Only fetch if no external data provided
   const useExternalData = externalResaleListings !== undefined || externalPresaleProjects !== undefined;
 
-  // Fetch presale projects (skip if external data provided)
+  const citiesToUse = cityContext
+    ? [cityContext]
+    : (enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities);
+
+  // Fetch presale projects immediately — don't gate behind intersection observer
   const { data: presaleProjects, isLoading: presaleLoading } = useQuery({
-    queryKey: ["unified-map-presale-projects", cityContext],
+    queryKey: ["unified-map-presale-projects-v2", cityContext],
     queryFn: async () => {
       let query = supabase
         .from("presale_projects")
@@ -130,30 +123,22 @@ export function HomeUnifiedMapSection({
         .not("status", "eq", "sold_out")
         .not("map_lat", "is", null)
         .not("map_lng", "is", null);
-      
-      // Filter by city if context provided
-      if (cityContext) {
-        query = query.ilike("city", cityContext);
-      }
-      
+      if (cityContext) query = query.ilike("city", cityContext);
       query = query.order("is_featured", { ascending: false }).limit(200);
-
       const { data, error } = await query;
       if (error) throw error;
       return data || [];
     },
-    enabled: shouldLoad && !externalPresaleProjects,
-    staleTime: 5 * 60 * 1000,
+    enabled: !externalPresaleProjects,
+    staleTime: 10 * 60 * 1000, // 10 min — stable presale data
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
-  // Fetch resale listings (skip if external data provided)
+  // Fetch resale listings — single 1000-row request, lean fields, immediate fetch
   const { data: resaleListings, isLoading: resaleLoading } = useQuery({
-    queryKey: ["unified-map-resale-listings-2024", enabledCities, cityContext],
+    queryKey: ["unified-map-resale-v5", citiesToUse.slice().sort().join(","), cityContext],
     queryFn: async () => {
-      const citiesToUse = cityContext 
-        ? [cityContext]
-        : (enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities);
-      
       const { data, error } = await supabase
         .from("mls_listings_safe")
         .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
@@ -167,22 +152,19 @@ export function HomeUnifiedMapSection({
         .gte("longitude", -123.35)
         .lte("longitude", -121.7)
         .order("list_date", { ascending: false, nullsFirst: false })
-        .limit(5000);
-
+        .limit(1000); // 1000 is plenty for a homepage map section
       if (error) throw error;
       return data || [];
     },
-    enabled: shouldLoad && !externalResaleListings,
-    staleTime: 2 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    enabled: !externalResaleListings,
+    staleTime: 10 * 60 * 1000, // 10 min cache — avoids refetch on back nav
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   // Use external data if provided, otherwise use fetched data
   const finalResaleListings = externalResaleListings ?? resaleListings ?? [];
   const finalPresaleProjects = externalPresaleProjects ?? presaleProjects ?? [];
-
-  const isLoading = (!externalResaleListings && resaleLoading) || (!externalPresaleProjects && presaleLoading);
-  const hasData = finalPresaleProjects.length > 0 || finalResaleListings.length > 0;
 
   // Dynamic heading based on mode (can be overridden by customHeading)
   const getHeading = () => {
@@ -302,26 +284,9 @@ export function HomeUnifiedMapSection({
           </div>
         </div>
 
-        {/* Map Container */}
+        {/* Map Container — show skeleton only until section is visible; map renders immediately once in viewport */}
         {!isVisible ? (
           <LoadingPlaceholder />
-        ) : !shouldLoad || isLoading ? (
-          <LoadingPlaceholder />
-        ) : !hasData ? (
-          <div className="h-[450px] md:h-[550px] lg:h-[600px] rounded-xl bg-muted flex items-center justify-center border border-border">
-            <div className="text-center text-muted-foreground p-6">
-              <Map className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <h3 className="font-semibold text-foreground mb-2">Properties Loading</h3>
-              <p className="text-sm mb-4">
-                Map data is being prepared. Use our search to browse properties.
-              </p>
-              <Link to="/presale-projects">
-                <Button variant="default" size="sm">
-                  Browse All Properties
-                </Button>
-              </Link>
-            </div>
-          </div>
         ) : (
           <SafeMapWrapper height="h-[450px] md:h-[550px] lg:h-[600px]">
             <Suspense fallback={<LoadingPlaceholder />}>
@@ -336,8 +301,8 @@ export function HomeUnifiedMapSection({
           </SafeMapWrapper>
         )}
 
-        {/* Legend */}
-        {hasData && mode === "all" && (
+        {/* Legend — only show when both data types are shown */}
+        {finalResaleListings.length > 0 && finalPresaleProjects.length > 0 && mode === "all" && (
           <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full" style={{ background: "hsl(30, 15%, 18%)", border: "2px solid hsl(40, 65%, 55%)" }} />
