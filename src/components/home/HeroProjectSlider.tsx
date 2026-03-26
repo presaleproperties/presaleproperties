@@ -90,7 +90,7 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
             src={p.featured_image!}
             alt={`${p.name} presale condos in ${p.city || 'Metro Vancouver'} — VIP pricing & floor plans`}
             className="absolute inset-0 w-full h-full object-cover"
-            loading="eager"
+            loading={i <= 1 ? "eager" : "lazy"}
             decoding={i === 0 ? "sync" : "async"}
             {...(i === 0 ? { width: 1920, height: 1080, fetchPriority: "high" as const } : {})}
           />
