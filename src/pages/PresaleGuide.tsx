@@ -75,11 +75,11 @@ const steps = [
     number: "04",
     title: "Secure Your Financing",
     description:
-      "Get pre-approved for a mortgage, but understand that presale financing is different. Deposits are typically 15–20% paid in installments. Since completion may be 1–5 years away, plan for rate changes.",
+      "Get pre-approved for a mortgage, but understand that presale financing is different. Deposits are typically 5–15% paid in installments. Since completion may be 1–5 years away, plan for rate changes.",
     icon: Landmark,
     tips: [
       "Work with a mortgage broker experienced in presales",
-      "Plan for deposits: typically 5% at signing, then staged",
+      "Plan for deposits: typically 5% at signing, then staged over 12–18 months",
       "Consider rate lock options for longer construction timelines",
     ],
   },
