@@ -1,6 +1,5 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary.tsx";
 import "./index.css";
@@ -29,9 +28,7 @@ if (container) {
   root.render(
     <React.StrictMode>
       <GlobalErrorBoundary>
-        <HelmetProvider>
-          <App />
-        </HelmetProvider>
+        <App />
       </GlobalErrorBoundary>
     </React.StrictMode>
   );
