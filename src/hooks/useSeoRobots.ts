@@ -51,7 +51,6 @@ const NOINDEX_ROUTES = [
   "/developer",        // developer portal
   "/developer-portal",
   "/privacy",          // thin legal page — no search value
-  "/for-agents",       // gated marketing page — no organic value
 ];
 
 // Routes that should noindex when they have ANY query params (canonical to base path)
