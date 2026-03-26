@@ -606,11 +606,21 @@ export default function PresaleProjectDetail() {
       "item": canonicalUrl
     }]
   };
+  // Sold-out projects completed >1 year ago have no new inventory → noindex to prevent
+  // "crawled - not indexed" signals. Still accessible but not crawled aggressively.
+  const currentYear = new Date().getFullYear();
+  const isSoldOutOld = project.status === "sold_out" && 
+                       project.completion_year != null && 
+                       project.completion_year < currentYear - 1;
+  const presaleRobots = isSoldOutOld
+    ? "noindex, follow"
+    : "index, follow, max-image-preview:large, max-snippet:-1";
+
   return <>
       <Helmet>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        <meta name="robots" content={presaleRobots} />
         <meta name="keywords" content={`${project.name}, ${project.name} presale, ${project.neighborhood} presale ${projectTypeSingular}, ${project.city} presale ${projectTypeSingular}, new construction ${project.city}, ${project.developer_name || ""} ${project.city}, pre-construction ${project.neighborhood}, VIP presale ${project.city}`} />
         <link rel="canonical" href={canonicalUrl} />
         

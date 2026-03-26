@@ -231,7 +231,38 @@ Deno.serve(async (req) => {
     });
 
     // ==========================================
-    // 6. BLOG POSTS
+    // 6. ACTIVE MLS LISTING PAGES (Canonical Address URLs)
+    // ==========================================
+    // Include only Active listings with a full address slug to prevent Soft 404s.
+    // This ensures Google discovers the canonical /properties/address-city-bc-id URL,
+    // not the legacy /properties/{numericId} variants.
+    // Cap at 500 most recent to manage sitemap size and crawl budget.
+    const { data: activeListings } = await supabase
+      .from("mls_listings")
+      .select("listing_key, unparsed_address, street_number, street_name, street_suffix, unit_number, city, modification_timestamp")
+      .eq("mls_status", "Active")
+      .not("city", "is", null)
+      .order("modification_timestamp", { ascending: false })
+      .limit(500);
+
+    const listingSlugify = (text: string): string =>
+      text.toLowerCase().replace(/['']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').replace(/-+/g, '-');
+
+    const mlsListingPages = (activeListings || []).map(l => {
+      const address = l.unparsed_address || [l.unit_number ? `#${l.unit_number}` : '', l.street_number, l.street_name, l.street_suffix].filter(Boolean).join(' ');
+      if (!address || !l.city) return null;
+      const addressSlug = listingSlugify(address);
+      const citySlug = listingSlugify(l.city);
+      return {
+        url: `/properties/${addressSlug}-${citySlug}-bc-${l.listing_key}`,
+        lastmod: l.modification_timestamp?.split("T")[0] || now,
+        priority: "0.6",
+        changefreq: "daily"
+      };
+    }).filter(Boolean) as { url: string; lastmod: string; priority: string; changefreq: string }[];
+
+    // ==========================================
+    // 7. BLOG POSTS
     // ==========================================
     const { data: posts } = await supabase
       .from("blog_posts")
@@ -276,6 +307,7 @@ Deno.serve(async (req) => {
       ...propertiesCityPages,        // /properties/{city}
       ...seoHubPages,
       ...blogPages,
+      ...mlsListingPages,            // /properties/address-city-bc-listingKey (active only, max 500)
       // developerPages intentionally empty — /developers/:slug redirects to /developers
     ];
     
@@ -309,6 +341,7 @@ ${urlEntries}
     console.log(`  - Presale projects: ${projectPages.length}`);
     console.log(`  - Properties city pages: ${propertiesCityPages.length}`);
     console.log(`  - Blog posts: ${blogPages.length}`);
+    console.log(`  - MLS active listings: ${mlsListingPages.length}`);
     console.log(`  - Developer pages: ${developerPages.length}`);
 
     // Store generation timestamp for monitoring
@@ -329,6 +362,7 @@ ${urlEntries}
             projects: projectPages.length,
             propertiesCities: propertiesCityPages.length,
             blog: blogPages.length,
+            mlsListings: mlsListingPages.length,
             developers: developerPages.length,
           }
         },
