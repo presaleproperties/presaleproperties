@@ -63,6 +63,7 @@ Disallow: /developer/*
 Disallow: /developer-portal
 Disallow: /exclusive-offer
 Disallow: /campaign/*
+Disallow: /privacy
 
 # Legacy redirect sources — block crawl to save budget
 # These 301 redirect to canonical destinations already in sitemap
@@ -78,11 +79,6 @@ Disallow: /presale-condos/
 Disallow: /presale-condos-*
 Disallow: /langley/
 
-# Pure numeric /properties/{id} URLs = legacy listing keys, no SEO value
-# Canonical is the address-slug URL (/properties/address-city-bc-id)
-# Blocking prevents Google crawling legacy IDs and triggering "Alternative page" warnings
-Disallow: /properties/[0-9]*
-
 # ============================================
 # CRAWL BUDGET - Block parameterized dynamic pages
 # ============================================
@@ -91,7 +87,7 @@ Disallow: /properties/[0-9]*
 Disallow: /map-search
 Disallow: /map-search?*
 
-# Also block resale query-param URLs that are still being crawled  
+# Also block resale query-param URLs that are still being crawled
 Disallow: /resale?*
 
 # Calculator with price params
