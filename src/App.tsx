@@ -32,6 +32,7 @@ import Index from "./pages/Index";
 const Contact = lazy(() => import("./pages/Contact"));
 const About = lazy(() => import("./pages/About"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const ForAgents = lazy(() => import("./pages/ForAgents"));
 const BuyersGuide = lazy(() => import("./pages/BuyersGuide"));
 const PresaleGuide = lazy(() => import("./pages/PresaleGuide"));
