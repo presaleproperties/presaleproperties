@@ -279,12 +279,7 @@ const Index = () => {
         <meta name="geo.placename" content="Vancouver" />
         <meta name="author" content="PresaleProperties.com" />
         
-        <script type="application/ld+json">
-          {JSON.stringify(websiteSchema)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(organizationSchema)}
-        </script>
+        {/* Organization + WebSite schemas are in static index.html — only page-specific schemas here */}
         <script type="application/ld+json">
           {JSON.stringify(siteNavigationSchema)}
         </script>
