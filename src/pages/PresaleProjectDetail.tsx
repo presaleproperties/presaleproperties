@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, lazy, Suspense, useMemo } from "react";
 import DOMPurify from "dompurify";
 import { useParams, Link, useSearchParams, useLocation } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/components/seo/Helmet";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { generateProjectCanonicalUrl, parseProjectUrl, slugify } from "@/lib/seoUrls";

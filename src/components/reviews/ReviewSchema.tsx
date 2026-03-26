@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/components/seo/Helmet";
 
 export interface Review {
   author: string;

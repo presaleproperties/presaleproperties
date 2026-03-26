@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/components/seo/Helmet";
 
 export interface BreadcrumbItem {
   label: string;

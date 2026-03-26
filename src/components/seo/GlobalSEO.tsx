@@ -1,6 +1,6 @@
 import { useLocation, useSearchParams } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { useSeoRobots } from "@/hooks/useSeoRobots";
+import { useHelmet } from "@/hooks/useHelmet";
 
 const SITE_URL = "https://presaleproperties.com";
 
@@ -33,18 +33,14 @@ export function GlobalSEO() {
     ? "noindex, follow" 
     : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 
-  return (
-    <Helmet>
-      {/* Canonical — base layer, individual pages override via their own Helmet */}
-      <link rel="canonical" href={effectiveCanonicalUrl} />
-      
-      {/* Robots — tight noindex, only for auth/admin/map pages */}
-      <meta name="robots" content={robotsContent} />
-      
-      {/* Googlebot noindex ONLY for map coordinate params — not content filters */}
-      {(searchParams.has("lat") || searchParams.has("lng") || searchParams.has("zoom") || searchParams.has("mode")) && (
-        <meta name="googlebot" content="noindex, follow" />
-      )}
-    </Helmet>
-  );
+  useHelmet({
+    canonical: effectiveCanonicalUrl,
+    robots: robotsContent,
+    metaTags:
+      searchParams.has("lat") || searchParams.has("lng") || searchParams.has("zoom") || searchParams.has("mode")
+        ? [{ name: "googlebot", content: "noindex, follow" }]
+        : [],
+  });
+
+  return null;
 }

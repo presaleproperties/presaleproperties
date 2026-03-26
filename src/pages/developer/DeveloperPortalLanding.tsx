@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/components/seo/Helmet";
 import {
   Building2, Upload, Users, ArrowRight, CheckCircle2, Crown,
   BadgeCheck, Shield, BarChart2, Sparkles, Eye, FileText, Globe, Star

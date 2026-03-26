@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import NotFound from "@/pages/NotFound";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/components/seo/Helmet";
 import { supabase } from "@/integrations/supabase/client";
 import { DeckHeroSection } from "@/components/decks/DeckHeroSection";
 import { DeckFloorPlansSection } from "@/components/decks/DeckFloorPlansSection";
