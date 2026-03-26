@@ -8,76 +8,44 @@ import { supabase } from "@/integrations/supabase/client";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
 
-// Minimal fields needed for map pins — keeps payload small and fast
-const MAP_PIN_FIELDS = "id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built, list_agent_name, list_office_name";
-
 // Lazy load the map component
 const ResaleListingsMap = lazy(() => 
   import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap }))
 );
 
+// Only pin-essential fields — minimizes JSON payload for fast load
+const MAP_PIN_FIELDS = "id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built, list_agent_name, list_office_name";
+
+const METRO_VANCOUVER_CITIES = [
+  "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley",
+  "Coquitlam", "Delta", "Abbotsford", "New Westminster",
+  "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
+  "North Vancouver", "West Vancouver", "Chilliwack", "Mission",
+  "Pitt Meadows", "Tsawwassen", "Ladner"
+];
+
 interface ResaleMapSectionProps {
-  /** Optional city to filter listings */
   cityContext?: string;
 }
 
 export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [shouldLoad, setShouldLoad] = useState(false);
+  const [mapVisible, setMapVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-
-  // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
 
-  // Optimized Intersection Observer with larger root margin
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            setShouldLoad(true);
-            observer.disconnect();
-          }
-        });
-      },
-      { 
-        rootMargin: "400px", // Preload earlier
-        threshold: 0.01 
-      }
-    );
+  // Start data fetch immediately — don't wait for intersection
+  // Intersection observer only controls map render (Leaflet DOM), not data loading
+  const citiesToUse = cityContext
+    ? [cityContext]
+    : (enabledCities && enabledCities.length > 0 ? enabledCities : METRO_VANCOUVER_CITIES);
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  // Metro Vancouver cities fallback
-  const metroVancouverCities = [
-    "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley",
-    "Coquitlam", "Delta", "Abbotsford", "New Westminster",
-    "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
-    "North Vancouver", "West Vancouver", "Chilliwack", "Mission",
-    "Pitt Meadows", "Tsawwassen", "Ladner"
-  ];
-
-  // Optimized query with parallel fetching for better performance
+  // Single optimized query — 1000 most-recent listings is ample for a home section map
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-map-section-listings-2024", enabledCities, cityContext],
+    queryKey: ["resale-map-section-v4", citiesToUse.sort().join(","), cityContext],
     queryFn: async () => {
-      const citiesToUse = cityContext 
-        ? [cityContext]
-        : (enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities);
-      
-      const pageSize = 1000;
-      const maxRows = 2000;
-      
-      // Fetch first page
-      const { data: firstPage, error: firstError } = await supabase
+      const { data, error } = await supabase
         .from("mls_listings_safe")
-        .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built, list_agent_name, list_office_name")
+        .select(MAP_PIN_FIELDS)
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
@@ -88,56 +56,46 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
         .gte("longitude", -123.35)
         .lte("longitude", -121.7)
         .order("list_date", { ascending: false, nullsFirst: false })
-        .limit(pageSize);
+        .limit(1000);
 
-      if (firstError) throw firstError;
-      const firstChunk = firstPage || [];
-      
-      // If first page is full, fetch second page in parallel
-      if (firstChunk.length === pageSize) {
-        const { data: secondPage } = await supabase
-          .from("mls_listings_safe")
-          .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built, list_agent_name, list_office_name")
-          .eq("mls_status", "Active")
-          .not("latitude", "is", null)
-          .not("longitude", "is", null)
-          .in("city", citiesToUse)
-          .gte("year_built", 2024)
-          .gte("latitude", 48.9)
-          .lte("latitude", 49.6)
-          .gte("longitude", -123.35)
-          .lte("longitude", -121.7)
-          .order("list_date", { ascending: false, nullsFirst: false })
-          .range(pageSize, maxRows - 1);
-        
-        return [...firstChunk, ...(secondPage || [])];
-      }
-      
-      return firstChunk;
+      if (error) throw error;
+      return data || [];
     },
-    enabled: shouldLoad,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes - prevents refetch on back navigation
-    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
-    refetchOnWindowFocus: false, // Don't refetch when returning to page
+    staleTime: 10 * 60 * 1000, // 10 min cache — avoids refetch on back navigation
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
+  // Intersection Observer only triggers map DOM instantiation (Leaflet is heavy)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setMapVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "600px", threshold: 0.01 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const validListings = listings?.filter(l => l.latitude && l.longitude) || [];
-  const hasValidListings = validListings.length > 0;
+  const hasData = validListings.length > 0;
+  const showSkeleton = !mapVisible || (isLoading && !hasData);
 
   const LoadingPlaceholder = () => (
     <div className="h-[400px] lg:h-[500px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
       <div className="text-center text-muted-foreground">
         <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
-        <p>Loading map...</p>
+        <p className="text-sm">Loading map...</p>
       </div>
     </div>
   );
 
   return (
-    <section 
-      ref={sectionRef}
-      className="py-12 md:py-16 lg:py-20 bg-muted/30"
-    >
+    <section ref={sectionRef} className="py-12 md:py-16 lg:py-20 bg-muted/30">
       <div className="container px-4">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 md:mb-8">
@@ -167,23 +125,17 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
           </div>
         </div>
 
-        {/* Map Container */}
-        {!isVisible ? (
+        {/* Map Container — show skeleton until visible & has data */}
+        {showSkeleton ? (
           <LoadingPlaceholder />
-        ) : !shouldLoad || isLoading ? (
-          <LoadingPlaceholder />
-        ) : !hasValidListings ? (
+        ) : !hasData ? (
           <div className="h-[400px] lg:h-[500px] rounded-xl bg-muted flex items-center justify-center border border-border">
             <div className="text-center text-muted-foreground p-6">
               <Map className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <h3 className="font-semibold text-foreground mb-2">Listings Loading</h3>
-              <p className="text-sm mb-4">
-                Map data is being prepared. Use our search to browse listings.
-              </p>
+              <h3 className="font-semibold text-foreground mb-2">No listings found</h3>
+              <p className="text-sm mb-4">Use our search to browse listings.</p>
               <Link to="/properties">
-                <Button variant="default" size="sm">
-                  Browse All Listings
-                </Button>
+                <Button variant="default" size="sm">Browse All Listings</Button>
               </Link>
             </div>
           </div>
@@ -191,9 +143,7 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
           <SafeMapWrapper height="h-[400px] lg:h-[500px]">
             <Suspense fallback={<LoadingPlaceholder />}>
               <div className="h-[400px] lg:h-[500px] rounded-xl overflow-hidden border border-border">
-                <ResaleListingsMap 
-                  listings={validListings as any}
-                />
+                <ResaleListingsMap listings={validListings as any} />
               </div>
             </Suspense>
           </SafeMapWrapper>
