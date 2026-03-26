@@ -192,7 +192,7 @@ const faqs = [
   {
     question: "How much deposit do I need for a presale?",
     answer:
-      "Typically 15–20% of the purchase price, paid in stages during construction. A common structure is 5% at signing, 5% in 90–180 days, and 5–10% at later milestones. These deposits are held in a lawyer's trust account until completion.",
+      "Typically 5–15% of the purchase price (up to 20% in a hot market), paid in stages over 12–18 months. A common structure is 5% at signing, 5% at 90 days, and 5% at 180 days. These deposits are held in a lawyer's trust account until completion.",
   },
   {
     question: "What is the 7-day rescission period?",
