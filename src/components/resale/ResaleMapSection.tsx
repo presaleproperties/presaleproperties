@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
 
+// Minimal fields needed for map pins — keeps payload small and fast
+const MAP_PIN_FIELDS = "id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built, list_agent_name, list_office_name";
+
 // Lazy load the map component
 const ResaleListingsMap = lazy(() => 
   import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap }))
