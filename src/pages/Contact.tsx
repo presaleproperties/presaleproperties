@@ -173,7 +173,7 @@ export default function Contact() {
         <meta property="og:title" content="Contact Us | Presale Properties Vancouver" />
         <meta property="og:description" content="Get in touch with Vancouver's new construction specialists for presale condos and move-in ready homes." />
         <meta property="og:url" content="https://presaleproperties.com/contact" />
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+        {/* Organization schema already in static index.html — no duplicate needed */}
       </Helmet>
       <div className="min-h-screen flex flex-col bg-background">
         <ConversionHeader />

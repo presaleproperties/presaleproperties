@@ -231,12 +231,7 @@ const Index = () => {
           <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
           <link rel="dns-prefetch" href="https://thvlisplwqhtjpzpedhq.supabase.co" />
           <link rel="preconnect" href="https://thvlisplwqhtjpzpedhq.supabase.co" crossOrigin="anonymous" />
-          <script type="application/ld+json">
-            {JSON.stringify(websiteSchema)}
-          </script>
-          <script type="application/ld+json">
-            {JSON.stringify(organizationSchema)}
-          </script>
+          {/* Organization + WebSite schemas are in static index.html — only page-specific schemas here */}
           <script type="application/ld+json">
             {JSON.stringify(siteNavigationSchema)}
           </script>
@@ -284,12 +279,7 @@ const Index = () => {
         <meta name="geo.placename" content="Vancouver" />
         <meta name="author" content="PresaleProperties.com" />
         
-        <script type="application/ld+json">
-          {JSON.stringify(websiteSchema)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(organizationSchema)}
-        </script>
+        {/* Organization + WebSite schemas are in static index.html — only page-specific schemas here */}
         <script type="application/ld+json">
           {JSON.stringify(siteNavigationSchema)}
         </script>
