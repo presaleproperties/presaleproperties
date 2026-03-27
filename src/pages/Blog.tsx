@@ -89,8 +89,8 @@ export default function Blog() {
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Presale & New Construction Blog | Vancouver Real Estate 2026",
-    "description": "Expert guides on buying presale & new construction in Vancouver. First-time buyer tips, market updates, investment strategies.",
+    "name": "Presale Condo Blog | Guides, Market Updates and Tips | Presale Properties",
+    "description": "Expert guides on buying presale condos in BC. Market updates, deposit tips, neighbourhood guides, and investment strategies from The Presale Properties Group.",
     "url": "https://presaleproperties.com/blog",
     "publisher": {
       "@type": "Organization",
@@ -112,12 +112,12 @@ export default function Blog() {
   return (
     <>
       <Helmet>
-        <title>Presale & New Construction Blog | Vancouver Real Estate 2026</title>
-        <meta name="description" content="Latest presale market updates, new project launches and expert insights for Metro Vancouver real estate buyers." />
+        <title>Presale Condo Blog | Guides, Market Updates and Tips | Presale Properties</title>
+        <meta name="description" content="Expert guides on buying presale condos in BC. Market updates, deposit tips, neighbourhood guides, and investment strategies from The Presale Properties Group." />
         <link rel="canonical" href="https://presaleproperties.com/blog" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Presale & New Construction Blog | Vancouver Real Estate 2026" />
-        <meta property="og:description" content="Expert guides on buying presale & new construction in Vancouver." />
+        <meta property="og:title" content="Presale Condo Blog | Guides, Market Updates and Tips" />
+        <meta property="og:description" content="Expert guides on buying presale condos in BC. Market updates, deposit tips, and investment strategies." />
         <meta property="og:url" content="https://presaleproperties.com/blog" />
         <script type="application/ld+json">{JSON.stringify(collectionSchema)}</script>
       </Helmet>

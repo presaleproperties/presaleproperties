@@ -47,8 +47,8 @@ const CITY_CONFIG: Record<string, {
   "surrey": {
     name: "Surrey",
     region: "Fraser Valley",
-    metaTitle: "Surrey New Condos & Presale Properties 2026 | From $299K",
-    metaDescription: "20+ new condos & presale projects in Surrey. Surrey Central, South Surrey, Guildford. Prices from $299K. Download floor plans. Never lived in, full warranty.",
+    metaTitle: "Surrey Presale Condos & Townhomes 2026 | VIP Pricing | Presale Properties",
+    metaDescription: "Browse Surrey presale condos and townhomes from $400K. VIP access to pricing not available to the public. $0 cost to you. Book your free consultation.",
     h1: "Surrey New Condos & Presale Properties",
     description: "Browse New Construction & Presale Condos in Surrey 2026. Discover presale condos and townhomes across Cloverdale, South Surrey, Guildford & more.",
     longDescription: "Surrey is one of the fastest-growing cities in Metro Vancouver, offering diverse presale opportunities from urban condos in City Centre to family townhomes in Clayton Heights and luxury developments in South Surrey. With excellent transit connections including SkyTrain, new schools, and major amenities, Surrey presales offer exceptional value for first-time buyers and investors alike.",
@@ -63,8 +63,8 @@ const CITY_CONFIG: Record<string, {
   "langley": {
     name: "Langley",
     region: "Fraser Valley",
-    metaTitle: "Langley New Condos & Presale Townhomes 2026 | From $299K",
-    metaDescription: "15+ new condos & presale townhomes in Langley & Willoughby. Prices from $299K. VIP access, floor plans, expert presale guidance. Move-in ready available.",
+    metaTitle: "Langley Presale Condos & Townhomes 2026 | VIP Access | Presale Properties",
+    metaDescription: "Explore Langley presale condos and townhomes near the new SkyTrain extension. VIP pricing from $399K. 400+ families helped. Free consultation.",
     h1: "Langley New Condos & Presale Townhomes",
     description: "Explore presale condos and townhomes in Langley, BC. New construction projects in Willowbrook, Murrayville, Walnut Grove & Langley City with VIP pricing and floor plans.",
     longDescription: "Langley offers the perfect blend of suburban living and urban convenience, with presale developments ranging from modern condos in Willoughby to spacious townhomes in Murrayville. Known for excellent schools, wine country, and family-friendly communities, Langley presales attract buyers seeking quality lifestyle at competitive prices.",
@@ -79,8 +79,8 @@ const CITY_CONFIG: Record<string, {
   "coquitlam": {
     name: "Coquitlam",
     region: "Tri-Cities",
-    metaTitle: "Coquitlam New Condos & Presale Properties 2026 | Town Centre",
-    metaDescription: "New condos & presale projects in Coquitlam & Port Coquitlam. Near SkyTrain. Download floor plans & pricing. Never lived in, full warranty. From $400K.",
+    metaTitle: "Coquitlam Presale Condos & Townhomes 2026 | VIP Access | Presale Properties",
+    metaDescription: "Browse Coquitlam presale condos and townhomes with VIP pricing. Near Evergreen SkyTrain. $0 cost to buyers. Book a free 15-min consultation.",
     h1: "Coquitlam New Condos & Presale Properties",
     description: "Find presale condos and townhomes in Coquitlam, BC. New construction near Evergreen Line, Burquitlam, Burke Mountain & Coquitlam Centre with VIP access and pricing.",
     longDescription: "Coquitlam is a premier destination for presale buyers, featuring transit-oriented developments along the Evergreen Line and master-planned communities on Burke Mountain. With stunning mountain views, excellent schools, and world-class amenities at Coquitlam Centre, presales here offer strong investment potential and lifestyle appeal.",
@@ -111,8 +111,8 @@ const CITY_CONFIG: Record<string, {
   "abbotsford": {
     name: "Abbotsford",
     region: "Fraser Valley",
-    metaTitle: "Abbotsford New Condos & Presale Properties 2026 | From $299K",
-    metaDescription: "New condos & presale projects in Abbotsford. Affordable new construction from $299K. Download floor plans. Never lived in, full warranty.",
+    metaTitle: "Abbotsford Presale Condos & Townhomes 2026 | VIP Pricing | Presale Properties",
+    metaDescription: "Find Abbotsford presale condos and townhomes from $350K. Expert buyer representation at $0 cost. Get VIP access to exclusive pricing today.",
     h1: "Abbotsford New Condos & Presale Properties",
     description: "Browse presale condos and townhomes in Abbotsford, BC. New construction in West Abbotsford, Clearbrook & Mill Lake area with VIP pricing and floor plans.",
     longDescription: "Abbotsford offers exceptional value for presale buyers, with spacious townhomes and affordable condos in a family-friendly setting. Known for berry farms, mountain views, and a growing downtown core, Abbotsford presales attract first-time buyers and families priced out of Vancouver.",
