@@ -47,8 +47,8 @@ const CITY_CONFIG: Record<string, {
   "surrey": {
     name: "Surrey",
     region: "Fraser Valley",
-    metaTitle: "Surrey New Condos & Presale Properties 2026 | From $299K",
-    metaDescription: "20+ new condos & presale projects in Surrey. Surrey Central, South Surrey, Guildford. Prices from $299K. Download floor plans. Never lived in, full warranty.",
+    metaTitle: "Surrey Presale Condos & Townhomes 2026 | VIP Pricing | Presale Properties",
+    metaDescription: "Browse Surrey presale condos and townhomes from $400K. VIP access to pricing not available to the public. $0 cost to you. Book your free consultation.",
     h1: "Surrey New Condos & Presale Properties",
     description: "Browse New Construction & Presale Condos in Surrey 2026. Discover presale condos and townhomes across Cloverdale, South Surrey, Guildford & more.",
     longDescription: "Surrey is one of the fastest-growing cities in Metro Vancouver, offering diverse presale opportunities from urban condos in City Centre to family townhomes in Clayton Heights and luxury developments in South Surrey. With excellent transit connections including SkyTrain, new schools, and major amenities, Surrey presales offer exceptional value for first-time buyers and investors alike.",
