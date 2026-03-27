@@ -206,6 +206,19 @@ export default function BlogPost() {
         <meta property="og:url" content={canonicalUrl} />
         {heroImageUrl && <meta property="og:image" content={heroImageUrl} />}
         <meta name="twitter:card" content="summary_large_image" />
+        {post.category?.toLowerCase() === "faq" && (
+          <script type="application/ld+json">{JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              { "@type": "Question", "name": "What is a presale condo?", "acceptedAnswer": { "@type": "Answer", "text": "A presale condo is a unit you purchase directly from a developer before construction is complete. You buy based on plans and renderings. We have helped 400+ families navigate presale purchases across BC." } },
+              { "@type": "Question", "name": "How much does it cost to work with a presale agent?", "acceptedAnswer": { "@type": "Answer", "text": "It costs you nothing. Developers pay commissions to real estate agents when a unit is sold. Our job is to represent you throughout the process." } },
+              { "@type": "Question", "name": "What is the typical deposit for a presale condo in BC?", "acceptedAnswer": { "@type": "Answer", "text": "Deposits typically range from 5% to 10% at signing, with additional deposits due at construction milestones." } },
+              { "@type": "Question", "name": "How long does it take for a presale condo to be built?", "acceptedAnswer": { "@type": "Answer", "text": "Most presale condos in BC take 2.5 to 4 years from purchase to completion." } },
+              { "@type": "Question", "name": "What is the 7-day rescission period?", "acceptedAnswer": { "@type": "Answer", "text": "BC law gives you seven days after signing a presale agreement to cancel the deal and get your deposit back, no questions asked." } }
+            ]
+          })}</script>
+        )}
       </Helmet>
 
       <ArticleSchema
