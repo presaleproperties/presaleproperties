@@ -157,6 +157,7 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
           type="email"
           placeholder="Enter your email"
           className="flex-1"
+          autoComplete="email"
           {...register("email")}
         />
         <Button type="submit" disabled={isSubmitting}>
@@ -184,6 +185,7 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
             type="email"
             placeholder="Your email address"
             className="w-full"
+            autoComplete="email"
             {...register("email")}
           />
           {errors.email && (
