@@ -63,8 +63,8 @@ const CITY_CONFIG: Record<string, {
   "langley": {
     name: "Langley",
     region: "Fraser Valley",
-    metaTitle: "Langley New Condos & Presale Townhomes 2026 | From $299K",
-    metaDescription: "15+ new condos & presale townhomes in Langley & Willoughby. Prices from $299K. VIP access, floor plans, expert presale guidance. Move-in ready available.",
+    metaTitle: "Langley Presale Condos & Townhomes 2026 | VIP Access | Presale Properties",
+    metaDescription: "Explore Langley presale condos and townhomes near the new SkyTrain extension. VIP pricing from $399K. 400+ families helped. Free consultation.",
     h1: "Langley New Condos & Presale Townhomes",
     description: "Explore presale condos and townhomes in Langley, BC. New construction projects in Willowbrook, Murrayville, Walnut Grove & Langley City with VIP pricing and floor plans.",
     longDescription: "Langley offers the perfect blend of suburban living and urban convenience, with presale developments ranging from modern condos in Willoughby to spacious townhomes in Murrayville. Known for excellent schools, wine country, and family-friendly communities, Langley presales attract buyers seeking quality lifestyle at competitive prices.",
