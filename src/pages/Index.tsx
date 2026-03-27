@@ -248,18 +248,17 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
-        <title>Vancouver Presale Condos & Townhomes 2026 | PresaleProperties</title>
-        <meta name="title" content="Vancouver Presale Condos & Townhomes 2026 | PresaleProperties" />
-        <meta name="description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing, floor plans & early access for Surrey, Langley, Burnaby, Coquitlam. New construction experts." />
+        <title>Presale Condos BC | VIP Pricing & Floor Plans | The Presale Properties Group</title>
+        <meta name="title" content="Presale Condos BC | VIP Pricing & Floor Plans | The Presale Properties Group" />
+        <meta name="description" content="Get exclusive VIP pricing on 50+ presale condos and townhomes in Surrey, Langley and Abbotsford. Buyer-only representation. 400+ families helped. Book a free 15-min call." />
         <meta name="keywords" content="presale condos Vancouver, presale townhomes Surrey, new construction Metro Vancouver, presale projects BC, VIP pricing 2026" />
         <link rel="canonical" href="https://presaleproperties.com/" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        {/* preconnect/dns-prefetch already in static index.html */}
         
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://presaleproperties.com/" />
-        <meta property="og:title" content="Vancouver Presale Condos & Townhomes 2026" />
-        <meta property="og:description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing, floor plans & early access." />
+        <meta property="og:title" content="Presale Condos BC | VIP Pricing & Floor Plans" />
+        <meta property="og:description" content="Get exclusive VIP pricing on 50+ presale condos and townhomes in Surrey, Langley and Abbotsford. Buyer-only representation. 400+ families helped." />
         <meta property="og:image" content="https://presaleproperties.com/og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -268,8 +267,8 @@ const Index = () => {
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://presaleproperties.com/" />
-        <meta name="twitter:title" content="Vancouver Presale Condos & Townhomes 2026" />
-        <meta name="twitter:description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing & floor plans." />
+        <meta name="twitter:title" content="Presale Condos BC | VIP Pricing & Floor Plans" />
+        <meta name="twitter:description" content="Get exclusive VIP pricing on 50+ presale condos and townhomes in Surrey, Langley and Abbotsford. 400+ families helped." />
         <meta name="twitter:image" content="https://presaleproperties.com/og-image.png" />
         
         <meta name="geo.region" content="CA-BC" />

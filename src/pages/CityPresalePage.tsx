@@ -111,8 +111,8 @@ const CITY_CONFIG: Record<string, {
   "abbotsford": {
     name: "Abbotsford",
     region: "Fraser Valley",
-    metaTitle: "Abbotsford New Condos & Presale Properties 2026 | From $299K",
-    metaDescription: "New condos & presale projects in Abbotsford. Affordable new construction from $299K. Download floor plans. Never lived in, full warranty.",
+    metaTitle: "Abbotsford Presale Condos & Townhomes 2026 | VIP Pricing | Presale Properties",
+    metaDescription: "Find Abbotsford presale condos and townhomes from $350K. Expert buyer representation at $0 cost. Get VIP access to exclusive pricing today.",
     h1: "Abbotsford New Condos & Presale Properties",
     description: "Browse presale condos and townhomes in Abbotsford, BC. New construction in West Abbotsford, Clearbrook & Mill Lake area with VIP pricing and floor plans.",
     longDescription: "Abbotsford offers exceptional value for presale buyers, with spacious townhomes and affordable condos in a family-friendly setting. Known for berry farms, mountain views, and a growing downtown core, Abbotsford presales attract first-time buyers and families priced out of Vancouver.",
