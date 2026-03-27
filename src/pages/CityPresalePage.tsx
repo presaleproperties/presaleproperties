@@ -79,8 +79,8 @@ const CITY_CONFIG: Record<string, {
   "coquitlam": {
     name: "Coquitlam",
     region: "Tri-Cities",
-    metaTitle: "Coquitlam New Condos & Presale Properties 2026 | Town Centre",
-    metaDescription: "New condos & presale projects in Coquitlam & Port Coquitlam. Near SkyTrain. Download floor plans & pricing. Never lived in, full warranty. From $400K.",
+    metaTitle: "Coquitlam Presale Condos & Townhomes 2026 | VIP Access | Presale Properties",
+    metaDescription: "Browse Coquitlam presale condos and townhomes with VIP pricing. Near Evergreen SkyTrain. $0 cost to buyers. Book a free 15-min consultation.",
     h1: "Coquitlam New Condos & Presale Properties",
     description: "Find presale condos and townhomes in Coquitlam, BC. New construction near Evergreen Line, Burquitlam, Burke Mountain & Coquitlam Centre with VIP access and pricing.",
     longDescription: "Coquitlam is a premier destination for presale buyers, featuring transit-oriented developments along the Evergreen Line and master-planned communities on Burke Mountain. With stunning mountain views, excellent schools, and world-class amenities at Coquitlam Centre, presales here offer strong investment potential and lifestyle appeal.",
