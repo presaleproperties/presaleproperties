@@ -89,8 +89,8 @@ export default function Blog() {
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Presale & New Construction Blog | Vancouver Real Estate 2026",
-    "description": "Expert guides on buying presale & new construction in Vancouver. First-time buyer tips, market updates, investment strategies.",
+    "name": "Presale Condo Blog | Guides, Market Updates and Tips | Presale Properties",
+    "description": "Expert guides on buying presale condos in BC. Market updates, deposit tips, neighbourhood guides, and investment strategies from The Presale Properties Group.",
     "url": "https://presaleproperties.com/blog",
     "publisher": {
       "@type": "Organization",
