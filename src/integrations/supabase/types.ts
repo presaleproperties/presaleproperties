@@ -3455,6 +3455,46 @@ export type Database = {
           unique_property_viewers: number
         }[]
       }
+      get_map_pins: {
+        Args: {
+          p_cities?: string[]
+          p_lat_max?: number
+          p_lat_min?: number
+          p_limit?: number
+          p_listed_after?: string
+          p_lng_max?: number
+          p_lng_min?: number
+          p_max_price?: number
+          p_max_sqft?: number
+          p_min_baths?: number
+          p_min_beds?: number
+          p_min_price?: number
+          p_min_sqft?: number
+          p_min_year?: number
+        }
+        Returns: {
+          bathrooms_total: number
+          bedrooms_total: number
+          city: string
+          first_photo_url: string
+          id: string
+          latitude: number
+          list_agent_name: string
+          list_date: string
+          list_office_name: string
+          listing_key: string
+          listing_price: number
+          living_area: number
+          longitude: number
+          neighborhood: string
+          property_sub_type: string
+          property_type: string
+          street_name: string
+          street_number: string
+          street_suffix: string
+          year_built: number
+        }[]
+      }
       get_public_team_members: {
         Args: never
         Returns: {
