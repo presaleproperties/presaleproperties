@@ -7,6 +7,7 @@ import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ArticleSchema } from "@/components/seo/ArticleSchema";
 import { supabase } from "@/integrations/supabase/client";
+import { AboutContactForm } from "@/components/about/AboutContactForm";
 import {
   ChevronLeft,
   Calendar,
@@ -65,6 +66,7 @@ export default function BlogPost() {
   const [post, setPost] = useState<BlogPostType | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [formOpen, setFormOpen] = useState(false);
 
   useEffect(() => {
     if (slug) fetchPost();
@@ -413,9 +415,9 @@ export default function BlogPost() {
                 </p>
               </div>
 
-              <Link
-                to="/presale-projects"
-                className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-lg"
+              <button
+                onClick={() => setFormOpen(true)}
+                className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-lg cursor-pointer hover:opacity-90 active:scale-[0.97]"
                 style={{
                   background: "hsl(40 65% 55%)",
                   color: "hsl(0 0% 100%)",
@@ -423,7 +425,7 @@ export default function BlogPost() {
               >
                 Book a Discovery Call
                 <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              </button>
             </div>
 
             {/* ── CTA BANNER ── */}
@@ -560,6 +562,14 @@ export default function BlogPost() {
       </main>
 
       <Footer />
+
+      <AboutContactForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        selectedAgentId={null}
+        selectedAgentName="Uzair Muhammad"
+        selectedAgentPhoto="https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769974057981-u5d1e1f.jpg"
+      />
     </>
   );
 }
