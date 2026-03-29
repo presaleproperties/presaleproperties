@@ -220,10 +220,10 @@ export function ExitIntentPopup() {
         {/* Close */}
         <button
           onClick={() => setOpen(false)}
-          className="absolute right-4 top-4 z-20 p-1.5 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
+          className="absolute right-3 top-3 z-20 p-1 rounded-full bg-background/10 backdrop-blur-sm hover:bg-background/20 transition-colors"
           aria-label="Close"
         >
-          <X className="h-4 w-4 text-white" />
+          <X className="h-3.5 w-3.5 text-background/70" />
         </button>
 
         {!isSubmitted ? (
