@@ -14,20 +14,6 @@ const trustPoints = [
 export function AboutHero() {
   const [formOpen, setFormOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchReview = async () => {
-      const { data } = await supabase
-        .from("google_reviews")
-        .select("reviewer_name, reviewer_location, review_text")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      if (data) setFeaturedReview(data);
-    };
-    fetchReview();
-  }, []);
-
   return (
     <section className="relative w-full min-h-[92svh] flex flex-col">
       {/* Background */}
