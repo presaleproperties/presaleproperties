@@ -1,0 +1,1 @@
+GRANT SELECT ON public.team_members_public TO anon, authenticated;
