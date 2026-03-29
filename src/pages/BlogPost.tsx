@@ -562,6 +562,14 @@ export default function BlogPost() {
       </main>
 
       <Footer />
+
+      <AboutContactForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        selectedAgentId={null}
+        selectedAgentName="Uzair Muhammad"
+        selectedAgentPhoto="https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769974057981-u5d1e1f.jpg"
+      />
     </>
   );
 }
