@@ -486,32 +486,56 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     }
 
     // Optimized tile layer - different settings for mobile vs desktop
+    let tileErrorCount = 0;
     const tileLayer = L.tileLayer(TILE_URL, { 
       attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
-      updateWhenIdle: isMobileOrTabletDevice, // Only update when idle on mobile to reduce flicker
-      updateWhenZooming: !isMobileOrTabletDevice, // Don't update while zooming on mobile
-      keepBuffer: isMobileOrTabletDevice ? 4 : 8, // Smaller buffer on mobile for memory
-      crossOrigin: true,
+      updateWhenIdle: isMobileOrTabletDevice,
+      updateWhenZooming: !isMobileOrTabletDevice,
+      keepBuffer: isMobileOrTabletDevice ? 4 : 8,
     });
-    
-    // Preload tiles for the current view immediately
+
+    // Fallback to OSM tiles if CARTO fails
+    const FALLBACK_TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+    const FALLBACK_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+    tileLayer.on('tileerror', () => {
+      tileErrorCount++;
+      if (tileErrorCount >= 3 && map) {
+        console.warn("[Map] CARTO tiles failing, switching to OSM fallback");
+        map.removeLayer(tileLayer);
+        L.tileLayer(FALLBACK_TILE_URL, {
+          attribution: FALLBACK_ATTRIBUTION,
+          maxZoom: 19,
+          keepBuffer: isMobileOrTabletDevice ? 4 : 8,
+        }).addTo(map);
+      }
+    });
+
     tileLayer.addTo(map);
 
     // Force map to recalculate size after layout settles — fixes blank tiles
+    // Multiple invalidateSize calls at different timings to handle various layout scenarios
     requestAnimationFrame(() => {
       map.invalidateSize({ animate: false });
     });
+    setTimeout(() => map.invalidateSize({ animate: false }), 100);
+    setTimeout(() => map.invalidateSize({ animate: false }), 300);
 
     // Signal map ready after first tiles load
-    tileLayer.once('load', () => {
-      onMapReady?.();
-    });
-    // Fallback in case tiles load instantly or from cache
+    let mapReadyFired = false;
+    const fireMapReady = () => {
+      if (!mapReadyFired) {
+        mapReadyFired = true;
+        onMapReady?.();
+      }
+    };
+    tileLayer.once('load', fireMapReady);
+    // Fallback — fire after 1.5s regardless
     setTimeout(() => {
       map.invalidateSize({ animate: false });
-      onMapReady?.();
-    }, 1000);
+      fireMapReady();
+    }, 1500);
     
     
     // Skip animations for markers when restoring state or on mobile
