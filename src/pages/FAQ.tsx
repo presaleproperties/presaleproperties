@@ -414,7 +414,7 @@ export default function FAQ() {
         </section>
       </main>
 
-      <ConversionFooter />
+      <Footer />
     </div>
   );
 }
