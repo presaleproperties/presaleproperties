@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ArticleSchema } from "@/components/seo/ArticleSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { AboutContactForm } from "@/components/about/AboutContactForm";
+import { BLOG_FAQ_SCHEMAS } from "@/lib/blogFaqSchema";
 import {
   ChevronLeft,
   Calendar,
