@@ -25,10 +25,7 @@ export function MeetTheTeam() {
   const { data: teamMembers = [], isLoading } = useQuery({
     queryKey: ["team-members"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("team_members_public" as any)
-        .select("id, full_name, title, photo_url, bio, linkedin_url, instagram_url, specializations")
-        .order("sort_order", { ascending: true });
+      const { data, error } = await supabase.rpc("get_public_team_members");
       if (error) throw error;
       return (data as unknown as TeamMember[]) || [];
     },
