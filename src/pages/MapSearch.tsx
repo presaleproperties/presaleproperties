@@ -740,73 +740,52 @@ export default function MapSearch() {
     });
   }, [filters.priceMin, filters.priceMax]);
 
-  // Fetch resale listings (move-in ready new construction)
-  // PERFORMANCE FIX: Single request, 1000-row cap.
-  // Previously fetched 4x1000 rows in parallel = 4 round-trips & ~340KB+ JSON causing slow/no load.
+  // Fetch resale listings via optimized RPC (server-side filtering, no photos JSON blob)
   const { data: resaleListings, isLoading: resaleLoading } = useQuery<MLSListing[]>({
-    queryKey: ["unified-map-resale-v3", selectedCities, selectedPropertyTypes, filters.propertyType, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities, adminMinYear],
+    queryKey: ["unified-map-resale-v4", selectedCities, selectedPropertyTypes, filters.propertyType, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities, adminMinYear],
     queryFn: async () => {
       const minYear = adminMinYear ?? DEFAULT_MIN_YEAR_BUILT;
 
-      let query = supabase
-        .from("mls_listings_safe")
-        .select(
-          "id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name"
-        )
-        .eq("mls_status", "Active")
-        .not("latitude", "is", null)
-        .not("longitude", "is", null)
-        .gte("year_built", minYear)
-        // Bounding box: Metro Vancouver + Fraser Valley area only
-        .gte("latitude", 48.9)
-        .lte("latitude", 49.6)
-        .gte("longitude", -123.35)
-        .lte("longitude", -121.7);
-
-      // Filter by selected cities (multi-select)
-      if (selectedCities.length > 0) {
-        query = query.in("city", selectedCities);
-      } else if (enabledCities && enabledCities.length > 0) {
-        // Default to enabled cities from admin portal
-        query = query.in("city", enabledCities);
-      }
-
-      // Server-side filters applied before the row cap
-      if (filters.baths !== "any") {
-        query = query.gte("bathrooms_total", parseInt(filters.baths));
-      }
+      // Compute listed_after date if daysOnSite filter is set
+      let listedAfter: string | null = null;
       if (filters.daysOnSite !== "any") {
         const daysAgo = new Date();
         daysAgo.setDate(daysAgo.getDate() - parseInt(filters.daysOnSite));
-        query = query.gte("list_date", daysAgo.toISOString().split("T")[0]);
-      }
-      if (filters.beds !== "any") {
-        query = query.gte("bedrooms_total", parseInt(filters.beds));
-      }
-      if (filters.sqftMin) {
-        query = query.gte("living_area", filters.sqftMin);
-      }
-      if (filters.sqftMax) {
-        query = query.lte("living_area", filters.sqftMax);
-      }
-      // Server-side price filter when using legacy single-range (reduces rows returned)
-      if (!selectedPriceRanges.length && filters.priceMin) {
-        query = query.gte("listing_price", parseInt(filters.priceMin));
-      }
-      if (!selectedPriceRanges.length && filters.priceMax) {
-        query = query.lte("listing_price", parseInt(filters.priceMax));
+        listedAfter = daysAgo.toISOString().split("T")[0];
       }
 
-      // Single request — 1000 most-recent listings is plenty for map display
-      const { data, error } = await query
-        .order("list_date", { ascending: false, nullsFirst: false })
-        .order("listing_price", { ascending: false })
-        .limit(1000);
+      // Determine cities to pass
+      const cities = selectedCities.length > 0 
+        ? selectedCities 
+        : (enabledCities && enabledCities.length > 0 ? enabledCities : null);
+
+      // Determine price bounds (skip if using multi-select price ranges — filtered client-side)
+      const priceMin = !selectedPriceRanges.length && filters.priceMin ? parseInt(filters.priceMin) : null;
+      const priceMax = !selectedPriceRanges.length && filters.priceMax ? parseInt(filters.priceMax) : null;
+
+      const { data, error } = await supabase.rpc("get_map_pins", {
+        p_min_year: minYear,
+        p_cities: cities,
+        p_min_beds: filters.beds !== "any" ? parseInt(filters.beds) : null,
+        p_min_baths: filters.baths !== "any" ? parseInt(filters.baths) : null,
+        p_min_sqft: filters.sqftMin ? parseInt(filters.sqftMin) : null,
+        p_max_sqft: filters.sqftMax ? parseInt(filters.sqftMax) : null,
+        p_min_price: priceMin,
+        p_max_price: priceMax,
+        p_listed_after: listedAfter,
+        p_limit: 2000,
+      });
 
       if (error) throw error;
-      let results = (data || []) as MLSListing[];
+
+      // Map RPC result to MLSListing shape (photos field is synthesized from first_photo_url)
+      let results: MLSListing[] = ((data as any[]) || []).map(row => ({
+        ...row,
+        mls_status: "Active",
+        photos: row.first_photo_url ? [{ MediaURL: row.first_photo_url }] : [],
+      }));
       
-      // Client-side filtering for multi-select property types (or legacy single-select)
+      // Client-side filtering for multi-select property types
       const typesToFilter = selectedPropertyTypes.length > 0 
         ? selectedPropertyTypes 
         : (filters.propertyType && filters.propertyType !== "any" ? [filters.propertyType] : []);
@@ -822,25 +801,14 @@ export default function MapSearch() {
       // Client-side filtering for multi-select price ranges
       if (selectedPriceRanges.length > 0) {
         results = results.filter(l => priceMatchesRanges(l.listing_price, selectedPriceRanges));
-      } else {
-        // Legacy single-value price filter support
-        const legacyPriceMin = filters.priceMin ? parseInt(filters.priceMin) : null;
-        const legacyPriceMax = filters.priceMax ? parseInt(filters.priceMax) : null;
-        if (legacyPriceMin !== null || legacyPriceMax !== null) {
-          results = results.filter(l => {
-            if (legacyPriceMin !== null && l.listing_price < legacyPriceMin) return false;
-            if (legacyPriceMax !== null && l.listing_price > legacyPriceMax) return false;
-            return true;
-          });
-        }
       }
       
       return results;
     },
-    staleTime: 8 * 60 * 1000, // 8 min cache — avoids refetch on back navigation & filter tweaks
+    staleTime: 8 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
     refetchOnWindowFocus: false,
-    placeholderData: (prev) => prev, // Keep showing previous data while new data loads (no flash)
+    placeholderData: (prev) => prev,
   });
 
   // Fetch presale projects
