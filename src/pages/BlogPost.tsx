@@ -415,9 +415,9 @@ export default function BlogPost() {
                 </p>
               </div>
 
-              <Link
-                to="/presale-projects"
-                className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-lg"
+              <button
+                onClick={() => setFormOpen(true)}
+                className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-lg cursor-pointer hover:opacity-90 active:scale-[0.97]"
                 style={{
                   background: "hsl(40 65% 55%)",
                   color: "hsl(0 0% 100%)",
@@ -425,7 +425,7 @@ export default function BlogPost() {
               >
                 Book a Discovery Call
                 <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              </button>
             </div>
 
             {/* ── CTA BANNER ── */}
