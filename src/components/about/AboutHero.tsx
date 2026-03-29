@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin, CheckCircle2 } from "lucide-react";
 import aboutHeroImage from "@/assets/about-hero-team.jpg";
 import { AboutContactForm } from "./AboutContactForm";
-import { supabase } from "@/integrations/supabase/client";
 
 const trustPoints = [
   "400+ families guided",
@@ -12,15 +11,8 @@ const trustPoints = [
   "5.0★ Google rated",
 ];
 
-interface GoogleReview {
-  reviewer_name: string;
-  reviewer_location: string | null;
-  review_text: string;
-}
-
 export function AboutHero() {
   const [formOpen, setFormOpen] = useState(false);
-  const [featuredReview, setFeaturedReview] = useState<GoogleReview | null>(null);
 
   useEffect(() => {
     const fetchReview = async () => {
