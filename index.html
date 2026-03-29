@@ -251,7 +251,36 @@
     </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script src="https://cplycyfgywxhlecazvra.supabase.co/functions/v1/zara-widget"></script>
+    <script>
+      /* Conditionally load Zara widget only on public browsing pages */
+      (function () {
+        var BLOCKED = ['/admin', '/developer-portal', '/agent'];
+        function isBlocked() {
+          var p = window.location.pathname;
+          for (var i = 0; i < BLOCKED.length; i++) {
+            if (p === BLOCKED[i] || p.indexOf(BLOCKED[i] + '/') === 0) return true;
+          }
+          return false;
+        }
+        function toggleWidget(hide) {
+          var el = document.getElementById('zcw');
+          if (el) el.style.display = hide ? 'none' : '';
+        }
+        if (!isBlocked()) {
+          var s = document.createElement('script');
+          s.src = 'https://cplycyfgywxhlecazvra.supabase.co/functions/v1/zara-widget';
+          document.body.appendChild(s);
+        }
+        /* Watch for SPA route changes */
+        var lastPath = location.pathname;
+        setInterval(function () {
+          if (location.pathname !== lastPath) {
+            lastPath = location.pathname;
+            toggleWidget(isBlocked());
+          }
+        }, 300);
+      })();
+    </script>
     <style>
       /* ── Zara Widget Premium Overrides ───────────────────────────── */
 
