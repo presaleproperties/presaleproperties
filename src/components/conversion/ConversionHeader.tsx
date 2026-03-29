@@ -279,6 +279,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
             {/* Plain text links — no icons, refined weight */}
             {[
               { to: "/blog", label: "Guides" },
+              { to: "/faq", label: "FAQ" },
               { to: "/calculator", label: "Calculator" },
               { to: "/about", label: "About" },
             ].map(({ to, label }) => (
