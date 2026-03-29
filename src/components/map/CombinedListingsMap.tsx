@@ -498,12 +498,20 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     // Preload tiles for the current view immediately
     tileLayer.addTo(map);
 
+    // Force map to recalculate size after layout settles — fixes blank tiles
+    requestAnimationFrame(() => {
+      map.invalidateSize({ animate: false });
+    });
+
     // Signal map ready after first tiles load
     tileLayer.once('load', () => {
       onMapReady?.();
     });
     // Fallback in case tiles load instantly or from cache
-    setTimeout(() => { onMapReady?.(); }, 2000);
+    setTimeout(() => {
+      map.invalidateSize({ animate: false });
+      onMapReady?.();
+    }, 1000);
     
     
     // Skip animations for markers when restoring state or on mobile
