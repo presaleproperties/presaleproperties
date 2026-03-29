@@ -279,6 +279,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
             {/* Plain text links — no icons, refined weight */}
             {[
               { to: "/blog", label: "Guides" },
+              { to: "/faq", label: "FAQ" },
               { to: "/calculator", label: "Calculator" },
               { to: "/about", label: "About" },
             ].map(({ to, label }) => (
@@ -474,6 +475,19 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                           <BookOpen className="h-4 w-4 text-muted-foreground" />
                         </div>
                         <span className="text-lg font-semibold text-foreground">Guides</span>
+                      </Link>
+
+                      <div className="h-px bg-border/40 my-1" />
+
+                      <Link
+                        to="/faq"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 py-4"
+                      >
+                        <div className="h-9 w-9 rounded-lg bg-secondary/60 flex items-center justify-center">
+                          <BookOpen className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <span className="text-lg font-semibold text-foreground">FAQ</span>
                       </Link>
 
                       <div className="h-px bg-border/40 my-1" />
