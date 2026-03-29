@@ -165,6 +165,7 @@ type MLSListing = {
   mls_status: string;
   list_agent_name?: string | null;
   list_office_name?: string | null;
+  first_photo_url?: string | null;
 };
 
 type PresaleProject = {
