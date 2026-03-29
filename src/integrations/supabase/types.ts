@@ -3455,6 +3455,19 @@ export type Database = {
           unique_property_viewers: number
         }[]
       }
+      get_public_team_members: {
+        Args: never
+        Returns: {
+          bio: string
+          full_name: string
+          id: string
+          instagram_url: string
+          linkedin_url: string
+          photo_url: string
+          specializations: string[]
+          title: string
+        }[]
+      }
       get_top_mls_listings_with_engagement: {
         Args: { days_back?: number; result_limit?: number }
         Returns: {
