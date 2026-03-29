@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Plus, ArrowRight, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
-import { ConversionFooter } from "@/components/conversion/ConversionFooter";
+import { Footer } from "@/components/layout/Footer";
 import { Helmet } from "@/components/seo/Helmet";
 import { Button } from "@/components/ui/button";
 
