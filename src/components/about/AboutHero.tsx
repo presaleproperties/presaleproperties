@@ -6,10 +6,10 @@ import aboutHeroImage from "@/assets/about-hero-team.jpg";
 import { AboutContactForm } from "./AboutContactForm";
 import { supabase } from "@/integrations/supabase/client";
 
-const problems = [
-  "Not sure if presale is right for you?",
-  "Confused by contracts, deposits & timelines?",
-  "Worried about making a costly mistake?",
+const trustPoints = [
+  "400+ families guided",
+  "Completely free for buyers",
+  "5.0★ Google rated",
 ];
 
 interface GoogleReview {
