@@ -301,6 +301,9 @@ const Index = () => {
           <ROICalculatorTeaser />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
+          <MistakesGuideLeadMagnet location="homepage" />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
         </ScrollReveal>
         {/* Large Map Section - Page Ending */}

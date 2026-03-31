@@ -667,6 +667,8 @@ export default function PresaleGuide() {
         </section>
       </main>
 
+      <MistakesGuideLeadMagnet location="presale_guide" />
+
       <Footer />
     </div>
   );

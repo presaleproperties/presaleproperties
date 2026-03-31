@@ -286,6 +286,8 @@ export default function Blog() {
         </section>
       </main>
 
+      <MistakesGuideLeadMagnet location="blog_index" />
+
       <Footer />
     </>
   );

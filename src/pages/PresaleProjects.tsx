@@ -689,6 +689,8 @@ export default function PresaleProjects() {
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
         </ScrollReveal>
+
+        <MistakesGuideLeadMagnet location="presale_projects" />
         
         <Footer />
         <FloatingBottomNav />

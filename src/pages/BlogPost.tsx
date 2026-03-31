@@ -560,6 +560,8 @@ export default function BlogPost() {
         )}
       </main>
 
+      <MistakesGuideLeadMagnet location="blog_post" variant="inline" className="container px-4 my-8" />
+
       <Footer />
 
       <AboutContactForm

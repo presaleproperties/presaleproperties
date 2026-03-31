@@ -1080,6 +1080,8 @@ export default function CityPresalePage() {
         />
       </main>
 
+      <MistakesGuideLeadMagnet location="city_presale_page" />
+
       <Footer />
     </>
   );
