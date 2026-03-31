@@ -10,6 +10,7 @@ import { BlogFeaturedCarousel } from "@/components/blog/BlogFeaturedCarousel";
 import { BlogCategoryCarousel } from "@/components/blog/BlogCategoryCarousel";
 import { BlogPostCard } from "@/components/blog/BlogPostCard";
 import { supabase } from "@/integrations/supabase/client";
+import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
 import { 
   Search,
   FileText,

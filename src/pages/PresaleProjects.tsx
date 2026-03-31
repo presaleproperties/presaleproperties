@@ -19,6 +19,7 @@ import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
 import { UnifiedSearchFilters } from "@/components/search/UnifiedSearchFilters";
 import { buildMapUrlFromGridFilters } from "@/lib/filterSync";
 import { supabase } from "@/integrations/supabase/client";
