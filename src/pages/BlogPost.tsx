@@ -9,6 +9,7 @@ import { ArticleSchema } from "@/components/seo/ArticleSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { AboutContactForm } from "@/components/about/AboutContactForm";
 import { BLOG_FAQ_SCHEMAS } from "@/lib/blogFaqSchema";
+import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
 import {
   ChevronLeft,
   Calendar,
