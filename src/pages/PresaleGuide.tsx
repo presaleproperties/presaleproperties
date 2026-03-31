@@ -12,6 +12,7 @@ import {
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { RelatedContent } from "@/components/home/RelatedContent";
+import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
 import { InteractiveMortgageCalculator } from "@/components/calculators/InteractiveMortgageCalculator";
 import {
   FileText,
@@ -666,6 +667,8 @@ export default function PresaleGuide() {
           </div>
         </section>
       </main>
+
+      <MistakesGuideLeadMagnet location="presale_guide" />
 
       <Footer />
     </div>

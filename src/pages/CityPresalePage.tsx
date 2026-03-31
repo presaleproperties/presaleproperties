@@ -28,6 +28,7 @@ import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { supabase } from "@/integrations/supabase/client";
+import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -1079,6 +1080,8 @@ export default function CityPresalePage() {
           customHeading={`${cityName} Presale Projects on Map`}
         />
       </main>
+
+      <MistakesGuideLeadMagnet location="city_presale_page" />
 
       <Footer />
     </>

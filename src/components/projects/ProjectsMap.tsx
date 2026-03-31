@@ -384,7 +384,13 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
 
   useEffect(() => {
     return () => {
-      mapRef.current?.remove();
+      const map = mapRef.current;
+      if (map) {
+        // Stop any in-flight animations before removing to prevent _leaflet_pos errors
+        try { map.stop(); } catch (_) {}
+        map.off();
+        map.remove();
+      }
       mapRef.current = null;
       clusterGroupRef.current = null;
       userCircleRef.current = null;
