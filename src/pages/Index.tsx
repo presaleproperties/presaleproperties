@@ -13,6 +13,7 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
 
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
