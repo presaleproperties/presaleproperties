@@ -40,6 +40,7 @@ import {
   Lock,
   Send,
   UserCheck2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
