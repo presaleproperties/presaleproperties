@@ -262,6 +262,9 @@ const App = () => (
             {/* SEO-friendly listing URL: /properties/address-city-bc-listingKey (REW-style) */}
             <Route path="/properties/:slug" element={<ResaleListingDetail />} />
             
+            {/* Move-In Ready redirect */}
+            <Route path="/move-in-ready" element={<Navigate to="/properties" replace />} />
+            
             {/* Legacy /resale/* redirects for SEO preservation */}
             <Route path="/resale" element={<Navigate to="/properties" replace />} />
             <Route path="/resale/popular-searches" element={<Navigate to="/properties/popular-searches" replace />} />

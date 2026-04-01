@@ -372,6 +372,10 @@ export default function FAQ() {
           content="Get answers to the most common presale condo questions in BC. Deposits, timelines, assignments, buyer protections, and more — explained by specialists."
         />
         <link rel="canonical" href="https://presaleproperties.com/faq" />
+        <meta property="og:title" content="Presale Condo FAQ BC | Common Questions Answered | Presale Properties" />
+        <meta property="og:description" content="Get answers to the most common presale condo questions in BC. Deposits, timelines, assignments, buyer protections, and more — explained by specialists." />
+        <meta property="og:url" content="https://presaleproperties.com/faq" />
+        <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>

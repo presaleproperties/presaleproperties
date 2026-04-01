@@ -28,6 +28,10 @@ export default function InvestmentSnapshotPage() {
           content="Calculate your presale investment returns, mortgage payments and affordability. Free tools for Metro Vancouver new construction buyers."
         />
         <link rel="canonical" href={CANONICAL_URL} />
+        <meta property="og:title" content="Investment Cash Flow Calculator | Presale Properties Group" />
+        <meta property="og:description" content="Calculate your presale investment returns, mortgage payments and affordability. Free tools for Metro Vancouver new construction buyers." />
+        <meta property="og:url" content={CANONICAL_URL} />
+        <meta property="og:type" content="website" />
         {hasParams && <meta name="robots" content="noindex, follow" />}
       </Helmet>
 
