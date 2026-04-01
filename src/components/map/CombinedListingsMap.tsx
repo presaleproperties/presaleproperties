@@ -981,7 +981,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .cluster-icon.cluster-small { font-size: 12px; }
         .cluster-icon.cluster-medium { font-size: 13px; }
         .cluster-icon.cluster-large { font-size: 14px; }
-
+        
         /* === PRICE PILL PINS (all types) === */
         .pill {
           position: relative;
@@ -1046,7 +1046,6 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .pill-marker:hover, .pill-marker.pill-hl {
           z-index: 9999 !important;
         }
-        
         
         /* Popup styling - branded warm cards */
         .premium-popup .leaflet-popup-content-wrapper { 
