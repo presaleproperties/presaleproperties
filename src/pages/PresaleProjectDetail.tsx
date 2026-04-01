@@ -34,6 +34,7 @@ import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
 import { trackFloorplanView, trackFloorplanDownload, trackCTAClick } from "@/lib/tracking";
 import { MetaEvents, MetaCustomEvents } from "@/components/tracking/MetaPixel";
 import { ExpertAdvisoryCard } from "@/components/listings/ExpertAdvisoryCard";
+import { OffMarketBanner } from "@/components/off-market/OffMarketBanner";
 import { MapPin, Calendar, Building2, DollarSign, Download, ChevronLeft, Loader2, Phone, CheckCircle, Home, Layers, Star, Share2, CalendarCheck, Eye, Gift } from "lucide-react";
 type Project = {
   id: string;
