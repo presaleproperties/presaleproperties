@@ -189,15 +189,15 @@ export function PresaleExpertsSection() {
                 <span className="text-primary">No Extra Cost.</span>
               </h2>
               <p className="text-background/65 leading-relaxed">
-                Our licensed presale specialists have helped 400+ families secure new homes across Surrey, Langley, Vancouver, Coquitlam, Burnaby and Abbotsford. Developer relationships built over 15+ years mean you get better pricing, early access, and insider incentives.
+                Our licensed presale specialists have helped 400+ families secure new homes across Surrey, Langley, Vancouver, Coquitlam, Burnaby and Abbotsford. 5 years focused exclusively on presales mean you get better pricing, early access, and insider incentives.
               </p>
 
               {/* Proof row */}
               <div className="grid grid-cols-3 gap-4 pt-2">
                 {[
-                  { value: "$200M+", label: "Transactions" },
-                  { value: "400+", label: "Homes Sold" },
-                  { value: "5★", label: "Reviews" },
+                  { value: "$200M+", label: "Sales Volume" },
+                  { value: "400+", label: "Units Sold" },
+                  { value: "5 Yrs", label: "In Presale Market" },
                 ].map((s) => (
                   <div key={s.label} className="space-y-0.5">
                     <div className="text-xl sm:text-2xl font-extrabold text-primary">{s.value}</div>

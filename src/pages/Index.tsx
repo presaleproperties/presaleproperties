@@ -72,8 +72,10 @@ const Index = () => {
     "email": "info@presaleproperties.com",
     "address": {
       "@type": "PostalAddress",
-      "addressLocality": "Vancouver",
+      "streetAddress": "3211 152 St, Building C, Suite 402",
+      "addressLocality": "Surrey",
       "addressRegion": "BC",
+      "postalCode": "V3Z 1H8",
       "addressCountry": "CA"
     },
     "areaServed": [

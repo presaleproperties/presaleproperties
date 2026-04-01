@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { AboutContactForm } from "@/components/about/AboutContactForm";
 
 const STATS = [
-  { value: "400+", label: "Happy Clients" },
-  { value: "5+", label: "Years Experience" },
-  { value: "No Cost", label: "To Buyers" },
+  { value: "400+", label: "Units Sold" },
+  { value: "$200M+", label: "Sales Volume" },
+  { value: "5 Yrs", label: "In Presale Market" },
 ];
 
 const BENEFITS = [

@@ -178,7 +178,7 @@ export function Footer() {
         <div className="mt-4 pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <img src={realBrokerLogo} alt="Real Broker" className="h-7 w-auto object-contain" />
-            <p className="text-xs text-muted-foreground">Real Broker · 666 Burrard St, Suite 500, Vancouver, BC V6C 3P6</p>
+            <p className="text-xs text-muted-foreground">Real Broker · 3211 152 St, Building C, Suite 402, Surrey, BC V3Z 1H8</p>
           </div>
           <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap justify-center">
             <span>© {new Date().getFullYear()} PresaleProperties.com</span>
