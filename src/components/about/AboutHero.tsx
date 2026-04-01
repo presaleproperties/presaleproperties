@@ -150,10 +150,10 @@ export function AboutHero() {
               )}
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { value: "400+", label: "Homes guided" },
-                  { value: "$0", label: "Cost to you" },
-                  { value: "5.0★", label: "Google rating" },
-                  { value: "5", label: "Languages" },
+                  { value: "400+", label: "Units Sold" },
+                  { value: "$200M+", label: "Sales Volume" },
+                  { value: "5 Yrs", label: "In Presale Market" },
+                  { value: "5.0★", label: "Google Rating" },
                 ].map((s) => (
                   <div key={s.label} className="rounded-xl border border-white/10 bg-black/50 backdrop-blur-md p-4 text-center">
                     <div className="text-xl font-black text-primary leading-none">{s.value}</div>
