@@ -409,6 +409,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       const bounds = mapInstanceRef.current.getBounds();
       
       // Skip if bounds haven't changed significantly (performance optimization)
+      // except when mode/data changed and a fresh visible-items recompute is required.
       const boundsKey = `${bounds.getNorth().toFixed(3)},${bounds.getSouth().toFixed(3)},${bounds.getEast().toFixed(3)},${bounds.getWest().toFixed(3)}`;
       if (boundsKey === lastBoundsRef.current) return;
       lastBoundsRef.current = boundsKey;
@@ -762,6 +763,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     
     dataHashRef.current = currentHash;
     lastModeRef.current = mode;
+    lastBoundsRef.current = "";
     
     // Clear the highlight ref since we're rebuilding markers
     highlightedMarkerRef.current = null;
