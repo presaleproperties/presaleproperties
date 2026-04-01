@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, lazy, Suspense, useRef, useEffect } fro
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { generateProjectUrl } from "@/lib/seoUrls";
+import { getListingUrl } from "@/lib/propertiesUrls";
 import { Helmet } from "@/components/seo/Helmet";
 import { toast } from "sonner";
 import { 
@@ -166,6 +167,11 @@ type MLSListing = {
   list_agent_name?: string | null;
   list_office_name?: string | null;
   first_photo_url?: string | null;
+};
+
+const getResaleListingAddress = (listing: MLSListing): string => {
+  const parts = [listing.street_number, listing.street_name, listing.street_suffix].filter(Boolean);
+  return parts.length > 0 ? parts.join(" ") : listing.neighborhood || listing.city;
 };
 
 type PresaleProject = {
@@ -1831,7 +1837,11 @@ export default function MapSearch() {
                       ? generateProjectUrl({ slug: (data as PresaleProject).slug, neighborhood: (data as PresaleProject).neighborhood || (data as PresaleProject).city, projectType: (data as PresaleProject).project_type as any }) 
                       : item.type === "assignment"
                       ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
-                      : `/resale/${(data as MLSListing).listing_key}`;
+                      : getListingUrl(
+                          (data as MLSListing).listing_key,
+                          getResaleListingAddress(data as MLSListing),
+                          (data as MLSListing).city
+                        );
                     const isFocused = focusedCarouselItemId === id;
                     
                     return (
@@ -2294,7 +2304,11 @@ export default function MapSearch() {
                     ? generateProjectUrl({ slug: (data as PresaleProject).slug, neighborhood: (data as PresaleProject).neighborhood || (data as PresaleProject).city, projectType: (data as PresaleProject).project_type as any }) 
                     : item.type === "assignment"
                     ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
-                    : `/resale/${(data as MLSListing).listing_key}`;
+                    : getListingUrl(
+                        (data as MLSListing).listing_key,
+                        getResaleListingAddress(data as MLSListing),
+                        (data as MLSListing).city
+                      );
                   const lat = item.type === "presale" 
                     ? (data as PresaleProject).map_lat 
                     : item.type === "assignment"
