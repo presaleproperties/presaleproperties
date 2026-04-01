@@ -16,7 +16,6 @@ import {
   FileText,
   Loader2,
   X,
-  Sparkles,
 } from "lucide-react";
 
 type BlogPost = {
