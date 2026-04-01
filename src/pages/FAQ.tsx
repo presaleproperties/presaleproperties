@@ -380,7 +380,7 @@ export default function FAQ() {
 
       <main className="pt-20">
         {/* Breadcrumb */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-6">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 pt-6">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
             <ChevronRight className="h-3.5 w-3.5" />
@@ -389,9 +389,9 @@ export default function FAQ() {
         </div>
 
         {/* Hero + Search */}
-        <section className="max-w-5xl mx-auto px-4 sm:px-8 pt-8 pb-8">
-          <div className="max-w-2xl">
-            <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-foreground tracking-tight leading-tight">
+        <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-6 pb-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight leading-tight">
               Presale Condo FAQ
             </h1>
             <p className="mt-3 text-lg text-muted-foreground leading-relaxed">
