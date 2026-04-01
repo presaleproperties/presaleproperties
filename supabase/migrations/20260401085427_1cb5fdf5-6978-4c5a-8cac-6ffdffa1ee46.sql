@@ -1,0 +1,1 @@
+ALTER FUNCTION public.get_map_pins(integer, numeric, numeric, numeric, numeric, text[], integer, integer, integer, integer, integer, integer, date, integer) SECURITY DEFINER SET search_path = public;
