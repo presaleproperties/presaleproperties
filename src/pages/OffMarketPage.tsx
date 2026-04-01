@@ -1,0 +1,323 @@
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Helmet } from "@/components/seo/Helmet";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
+import { Footer } from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { OffMarketCard } from "@/components/off-market/OffMarketCard";
+import { UnlockModal } from "@/components/off-market/UnlockModal";
+import { supabase } from "@/integrations/supabase/client";
+import { trackOffMarketEvent, getApprovedEmail, checkAccess } from "@/lib/offMarketAnalytics";
+import { Lock, ChevronDown, X, MessageCircle, Phone } from "lucide-react";
+
+interface OffMarketListing {
+  id: string;
+  linked_project_name: string;
+  linked_project_slug: string;
+  developer_name: string | null;
+  available_units: number;
+  total_units: number;
+  construction_stage: string | null;
+  access_level: string | null;
+  auto_approve_access: boolean;
+  status: string;
+}
+
+export default function OffMarketPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [listings, setListings] = useState<OffMarketListing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [projectDataMap, setProjectDataMap] = useState<Record<string, any>>({});
+  const [minPriceMap, setMinPriceMap] = useState<Record<string, number>>({});
+  const [accessMap, setAccessMap] = useState<Record<string, boolean>>({});
+
+  // Filters
+  const [search, setSearch] = useState("");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [bedsFilter, setBedsFilter] = useState("all");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
+  // Unlock modal
+  const [unlockListing, setUnlockListing] = useState<OffMarketListing | null>(null);
+  const preOpenSlug = searchParams.get("unlock");
+
+  useEffect(() => {
+    trackOffMarketEvent("page_view");
+    fetchListings();
+  }, []);
+
+  // Pre-open unlock modal if URL has ?unlock=slug
+  useEffect(() => {
+    if (preOpenSlug && listings.length > 0) {
+      const found = listings.find((l) => l.linked_project_slug === preOpenSlug);
+      if (found) setUnlockListing(found);
+    }
+  }, [preOpenSlug, listings]);
+
+  async function fetchListings() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("off_market_listings")
+      .select("id, linked_project_name, linked_project_slug, developer_name, available_units, total_units, construction_stage, access_level, auto_approve_access, status")
+      .eq("status", "published")
+      .order("published_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      setLoading(false);
+      return;
+    }
+
+    const items = (data || []) as OffMarketListing[];
+    setListings(items);
+
+    // Fetch linked project data
+    const slugs = items.map((l) => l.linked_project_slug);
+    if (slugs.length > 0) {
+      const { data: projects } = await supabase
+        .from("presale_projects")
+        .select("slug, city, neighborhood, project_type, featured_image, starting_price, completion_year")
+        .in("slug", slugs);
+
+      const pMap: Record<string, any> = {};
+      (projects || []).forEach((p: any) => { pMap[p.slug] = p; });
+      setProjectDataMap(pMap);
+    }
+
+    // Fetch min prices from units
+    const listingIds = items.map((l) => l.id);
+    if (listingIds.length > 0) {
+      const { data: units } = await supabase
+        .from("off_market_units")
+        .select("listing_id, price")
+        .in("listing_id", listingIds)
+        .eq("status", "available")
+        .order("price", { ascending: true });
+
+      const priceMap: Record<string, number> = {};
+      (units || []).forEach((u: any) => {
+        if (!priceMap[u.listing_id]) priceMap[u.listing_id] = u.price;
+      });
+      setMinPriceMap(priceMap);
+    }
+
+    // Check access for stored email
+    const email = getApprovedEmail();
+    if (email) {
+      const accMap: Record<string, boolean> = {};
+      for (const item of items) {
+        accMap[item.id] = await checkAccess(item.id, email);
+      }
+      setAccessMap(accMap);
+    }
+
+    setLoading(false);
+  }
+
+  // Get distinct cities from project data
+  const cities = useMemo(() => {
+    const set = new Set<string>();
+    Object.values(projectDataMap).forEach((p: any) => { if (p.city) set.add(p.city); });
+    return Array.from(set).sort();
+  }, [projectDataMap]);
+
+  // Filter listings
+  const filtered = useMemo(() => {
+    return listings.filter((l) => {
+      const proj = projectDataMap[l.linked_project_slug];
+      if (search && !l.linked_project_name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (cityFilter !== "all" && proj?.city !== cityFilter) return false;
+      if (typeFilter !== "all" && proj?.project_type !== typeFilter) return false;
+      const mp = minPriceMap[l.id] || proj?.starting_price;
+      if (minPrice && mp && mp < Number(minPrice)) return false;
+      if (maxPrice && mp && mp > Number(maxPrice)) return false;
+      return true;
+    });
+  }, [listings, search, cityFilter, typeFilter, bedsFilter, minPrice, maxPrice, projectDataMap, minPriceMap]);
+
+  const clearFilters = () => {
+    setSearch("");
+    setCityFilter("all");
+    setTypeFilter("all");
+    setBedsFilter("all");
+    setMinPrice("");
+    setMaxPrice("");
+  };
+
+  const hasFilters = search || cityFilter !== "all" || typeFilter !== "all" || minPrice || maxPrice;
+
+  return (
+    <>
+      <Helmet>
+        <title>Off-Market Inventory | VIP Access | Presale Properties</title>
+        <meta name="description" content="Access exclusive off-market presale condos and townhomes in Metro Vancouver. VIP pricing, floor plans & incentives not available to the public." />
+        <link rel="canonical" href="https://presaleproperties.com/off-market" />
+      </Helmet>
+
+      <ConversionHeader />
+
+      {/* Hero */}
+      <section className="relative pt-24 pb-16 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-transparent to-transparent" />
+        <div className="relative max-w-5xl mx-auto text-center space-y-6">
+          <Badge className="bg-primary/15 text-primary border-primary/30 font-semibold">
+            <Lock className="h-3 w-3 mr-1" /> EXCLUSIVE ACCESS
+          </Badge>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+            Off-Market Inventory
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            VIP access to developer pricing, floor plans & incentives not available to the public
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <Button size="lg" onClick={() => document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" })}>
+              Browse Inventory <ChevronDown className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Filters */}
+      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-md border-b border-border py-3 px-4">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-2">
+          <Input
+            placeholder="Search project..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-40 md:w-52 bg-[#141414] border-[#1e1e1e] h-9 text-sm"
+          />
+          <Select value={cityFilter} onValueChange={setCityFilter}>
+            <SelectTrigger className="w-36 bg-[#141414] border-[#1e1e1e] h-9 text-sm">
+              <SelectValue placeholder="City" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Cities</SelectItem>
+              {cities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-36 bg-[#141414] border-[#1e1e1e] h-9 text-sm">
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="condo">Condo</SelectItem>
+              <SelectItem value="townhome">Townhome</SelectItem>
+              <SelectItem value="duplex">Duplex</SelectItem>
+              <SelectItem value="mixed">Mixed</SelectItem>
+            </SelectContent>
+          </Select>
+          <Input
+            placeholder="Min $"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value.replace(/\D/g, ""))}
+            className="w-24 bg-[#141414] border-[#1e1e1e] h-9 text-sm"
+            inputMode="numeric"
+          />
+          <Input
+            placeholder="Max $"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value.replace(/\D/g, ""))}
+            className="w-24 bg-[#141414] border-[#1e1e1e] h-9 text-sm"
+            inputMode="numeric"
+          />
+          {hasFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9">
+              <X className="h-3.5 w-3.5 mr-1" /> Clear
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Listings Grid */}
+      <section id="listings" className="max-w-7xl mx-auto px-4 py-10">
+        {loading ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-[#1e1e1e] bg-[#141414] overflow-hidden">
+                <Skeleton className="aspect-[16/10] w-full" />
+                <div className="p-4 space-y-3">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-20 space-y-4">
+            <Lock className="h-12 w-12 text-muted-foreground/30 mx-auto" />
+            <h3 className="text-xl font-semibold">No listings found</h3>
+            <p className="text-muted-foreground">
+              {hasFilters ? "Try adjusting your filters" : "Check back soon for exclusive inventory"}
+            </p>
+            {hasFilters && <Button variant="outline" onClick={clearFilters}>Clear Filters</Button>}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((listing) => (
+              <OffMarketCard
+                key={listing.id}
+                listing={listing}
+                projectData={projectDataMap[listing.linked_project_slug]}
+                minPrice={minPriceMap[listing.id]}
+                hasAccess={!!accessMap[listing.id]}
+                onUnlock={() => setUnlockListing(listing)}
+                onViewDetails={() => navigate(`/off-market/${listing.linked_project_slug}`)}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Bottom CTA */}
+      <section className="max-w-3xl mx-auto px-4 pb-16">
+        <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 p-8 text-center space-y-4">
+          <h2 className="text-2xl font-bold">Want personalized recommendations?</h2>
+          <p className="text-muted-foreground">
+            Our team can match you with the best off-market deals based on your criteria.
+          </p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <Button
+              asChild
+              onClick={() => trackOffMarketEvent("whatsapp_click")}
+            >
+              <a href="https://wa.me/16722581100?text=Hi! I'm interested in off-market inventory" target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp Us
+              </a>
+            </Button>
+            <Button variant="outline" asChild onClick={() => trackOffMarketEvent("call_click")}>
+              <a href="tel:6722581100">
+                <Phone className="h-4 w-4 mr-1" /> Call (672) 258-1100
+              </a>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+
+      {/* Unlock Modal */}
+      {unlockListing && (
+        <UnlockModal
+          open={!!unlockListing}
+          onOpenChange={(open) => { if (!open) setUnlockListing(null); }}
+          listingId={unlockListing.id}
+          projectName={unlockListing.linked_project_name}
+          autoApprove={unlockListing.auto_approve_access}
+          onApproved={() => {
+            setUnlockListing(null);
+            navigate(`/off-market/${unlockListing.linked_project_slug}`);
+          }}
+        />
+      )}
+    </>
+  );
+}
