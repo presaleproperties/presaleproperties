@@ -1740,22 +1740,22 @@ export default function MapSearch() {
                 {loadingMapElement}
               </div>
               
-              {/* Refetch indicator - subtle pill when updating pins with cached data visible */}
+              {/* Refetch indicator - centered on map for all devices */}
               {isRefetching && !showOverlay && (
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[600] animate-fade-in">
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/90 backdrop-blur-sm border border-border shadow-lg">
-                    <div className="flex items-center gap-1">
+                <div className="absolute inset-0 z-[600] flex items-center justify-center pointer-events-none animate-fade-in">
+                  <div className="flex flex-col items-center gap-2 px-5 py-3 sm:px-6 sm:py-4 rounded-2xl bg-background/90 backdrop-blur-md border border-border shadow-xl pointer-events-auto">
+                    <div className="flex items-center gap-1.5">
                       {[0, 1, 2].map(i => (
                         <div
                           key={i}
-                          className="w-1.5 h-1.5 rounded-full bg-primary"
+                          className="w-2 h-2 rounded-full bg-primary"
                           style={{
                             animation: `pulse 1.4s ease-in-out ${i * 0.2}s infinite`,
                           }}
                         />
                       ))}
                     </div>
-                    <span className="text-xs font-medium text-muted-foreground">Updating pins...</span>
+                    <span className="text-xs sm:text-sm font-medium text-muted-foreground">Loading pins…</span>
                   </div>
                 </div>
               )}
