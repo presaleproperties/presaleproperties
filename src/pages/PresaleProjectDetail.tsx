@@ -986,6 +986,9 @@ export default function PresaleProjectDetail() {
               {/* Sidebar - Desktop only - More prominent positioning */}
               <aside className="hidden lg:block lg:col-span-1" aria-label="Contact form and actions">
                 <div ref={formRef} id="contact-form" className="w-full lg:sticky lg:top-20 space-y-4">
+                  {/* Off-Market Banner */}
+                  <OffMarketBanner projectSlug={project.slug} />
+                  
                   {/* Section Header for visibility */}
                   <div className="flex items-center gap-2 mb-1">
                     <div className="h-6 w-1 bg-primary rounded-full" />

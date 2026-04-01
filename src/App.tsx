@@ -287,6 +287,10 @@ const App = () => (
             {/* Developer detail pages don't exist yet — redirect to directory to stop soft 404 */}
             <Route path="/developers/:slug" element={<Navigate to="/developers" replace />} />
             
+            {/* Off-Market Inventory */}
+            <Route path="/off-market" element={<OffMarketPage />} />
+            <Route path="/off-market/:slug" element={<OffMarketDetailPage />} />
+            
             {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />
             
