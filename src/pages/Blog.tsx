@@ -16,7 +16,6 @@ import {
   FileText,
   Loader2,
   X,
-  Sparkles,
 } from "lucide-react";
 
 type BlogPost = {
@@ -133,30 +132,6 @@ export default function Blog() {
           </div>
         </div>
 
-        {/* Premium Hero Section */}
-        <section className="relative overflow-hidden py-14 md:py-20 lg:py-28">
-          {/* Layered background */}
-          <div className="absolute inset-0 bg-gradient-to-b from-muted/60 via-background to-background" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
-          
-          <div className="container relative">
-            <div className="max-w-3xl mx-auto text-center px-2">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs sm:text-sm font-semibold mb-6 md:mb-8 shadow-xs">
-                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                Expert Insights & Buyer Guides
-              </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4 md:mb-6 tracking-tightest leading-[1.1]">
-                Your Presale{" "}
-                <span className="text-gradient-gold">
-                  Knowledge Hub
-                </span>
-              </h1>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
-                Market updates, buying guides, and expert strategies for navigating Metro Vancouver's presale landscape
-              </p>
-            </div>
-          </div>
-        </section>
 
         {/* Search & Category Bar */}
         <section aria-label="Article filters" className="sticky top-14 md:top-16 z-40 bg-background/80 backdrop-blur-xl border-b border-border/40 py-3 md:py-4">
