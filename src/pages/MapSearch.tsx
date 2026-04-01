@@ -747,7 +747,7 @@ export default function MapSearch() {
   }, [filters.priceMin, filters.priceMax]);
 
   // Fetch resale listings via optimized RPC (server-side filtering, no photos JSON blob)
-  const { data: resaleListings, isLoading: resaleLoading } = useQuery<MLSListing[]>({
+  const { data: resaleListings, isLoading: resaleLoading, isFetching: resaleFetching } = useQuery<MLSListing[]>({
     queryKey: ["unified-map-resale-v4", selectedCities, selectedPropertyTypes, filters.propertyType, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities, adminMinYear],
     queryFn: async () => {
       const minYear = adminMinYear ?? DEFAULT_MIN_YEAR_BUILT;
@@ -900,6 +900,9 @@ export default function MapSearch() {
                      (presaleProjects && presaleProjects.length > 0) || 
                      (assignments && assignments.length > 0);
   const isLoading = !hasAnyData && (resaleLoading || presaleLoading);
+  
+  // Show a subtle refetch indicator when pins are loading but we have cached data
+  const isRefetching = hasAnyData && resaleFetching;
 
   // Track when map tiles are actually rendered
   const [mapTilesReady, setMapTilesReady] = useState(false);
@@ -1736,6 +1739,26 @@ export default function MapSearch() {
               >
                 {loadingMapElement}
               </div>
+              
+              {/* Refetch indicator - subtle pill when updating pins with cached data visible */}
+              {isRefetching && !showOverlay && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[600] animate-fade-in">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/90 backdrop-blur-sm border border-border shadow-lg">
+                    <div className="flex items-center gap-1">
+                      {[0, 1, 2].map(i => (
+                        <div
+                          key={i}
+                          className="w-1.5 h-1.5 rounded-full bg-primary"
+                          style={{
+                            animation: `pulse 1.4s ease-in-out ${i * 0.2}s infinite`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground">Updating pins...</span>
+                  </div>
+                </div>
+              )}
             </div>
 
 
