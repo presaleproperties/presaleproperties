@@ -189,7 +189,7 @@ export function PresaleExpertsSection() {
                 <span className="text-primary">No Extra Cost.</span>
               </h2>
               <p className="text-background/65 leading-relaxed">
-                Our licensed presale specialists have helped 400+ families secure new homes across Surrey, Langley, Vancouver, Coquitlam, Burnaby and Abbotsford. Developer relationships built over 15+ years mean you get better pricing, early access, and insider incentives.
+                Our licensed presale specialists have helped 400+ families secure new homes across Surrey, Langley, Vancouver, Coquitlam, Burnaby and Abbotsford. 5 years focused exclusively on presales mean you get better pricing, early access, and insider incentives.
               </p>
 
               {/* Proof row */}
