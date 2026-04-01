@@ -380,7 +380,7 @@ export default function FAQ() {
 
       <main className="pt-20">
         {/* Breadcrumb */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-6">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 pt-6">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
             <ChevronRight className="h-3.5 w-3.5" />
@@ -389,18 +389,17 @@ export default function FAQ() {
         </div>
 
         {/* Hero + Search */}
-        <section className="max-w-5xl mx-auto px-4 sm:px-8 pt-8 pb-8">
-          <div className="max-w-2xl">
-            <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-foreground tracking-tight leading-tight">
+        <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-6 pb-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight leading-tight">
               Presale Condo FAQ
             </h1>
-            <p className="mt-3 text-lg text-muted-foreground leading-relaxed">
+            <p className="mt-2 text-muted-foreground leading-relaxed">
               {totalQuestions} answers to the questions BC buyers ask most — from deposits to closing costs.
             </p>
           </div>
 
-          {/* Search bar */}
-          <div className="mt-6 max-w-xl relative">
+          <div className="mt-4 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground pointer-events-none" />
             <input
               type="text"
@@ -420,16 +419,40 @@ export default function FAQ() {
           </div>
         </section>
 
-        {/* Category Tabs + Content */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 pb-16">
+        {/* Category Pills + Content */}
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 pb-16">
+          {/* Horizontal category tabs */}
+          {!isSearching && (
+            <div className="flex flex-wrap gap-1.5 mb-6">
+              {FAQ_SECTIONS.map((section, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setActiveCategory(idx);
+                    setOpenItems({});
+                  }}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200",
+                    activeCategory === idx
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  )}
+                >
+                  {section.icon}
+                  <span>{section.title}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {isSearching ? (
             /* Search Results */
             <div>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground mb-3">
                 {filteredSections?.length || 0} result{(filteredSections?.length || 0) !== 1 ? "s" : ""} for "{searchQuery}"
               </p>
               {filteredSections && filteredSections.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {filteredSections.map(({ sectionIdx, item, itemIdx }) => (
                     <FAQAccordionItem
                       key={`${sectionIdx}-${itemIdx}`}
@@ -446,7 +469,7 @@ export default function FAQ() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12">
+                <div className="text-center py-10">
                   <p className="text-muted-foreground">No matching questions found.</p>
                   <button
                     onClick={() => setSearchQuery("")}
@@ -458,90 +481,48 @@ export default function FAQ() {
               )}
             </div>
           ) : (
-            /* Category View */
-            <div className="flex flex-col lg:flex-row gap-8">
-              {/* Sidebar nav */}
-              <nav className="lg:w-56 shrink-0">
-                <div className="lg:sticky lg:top-24 space-y-1">
-                  {FAQ_SECTIONS.map((section, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        setActiveCategory(idx);
-                        setOpenItems({});
-                      }}
-                      className={cn(
-                        "w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-left text-sm font-medium transition-all duration-200",
-                        activeCategory === idx
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                      )}
-                    >
-                      {section.icon}
-                      <span>{section.title}</span>
-                      <span className={cn(
-                        "ml-auto text-xs tabular-nums",
-                        activeCategory === idx ? "text-primary-foreground/70" : "text-muted-foreground/50"
-                      )}>
-                        {section.items.length}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </nav>
-
-              {/* Active section content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-5">
-                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                    {FAQ_SECTIONS[activeCategory].title}
-                  </h2>
-                  <span className="text-xs text-muted-foreground bg-muted/60 rounded-full px-2.5 py-0.5">
-                    {FAQ_SECTIONS[activeCategory].items.length} questions
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  {FAQ_SECTIONS[activeCategory].items.map((item, iIdx) => (
-                    <FAQAccordionItem
-                      key={iIdx}
-                      q={item.q}
-                      a={item.a}
-                      isOpen={openItems[activeCategory] === iIdx}
-                      onToggle={() => toggle(activeCategory, iIdx)}
-                    />
-                  ))}
-                </div>
-
-                {/* Navigate to next category */}
-                {activeCategory < FAQ_SECTIONS.length - 1 && (
-                  <button
-                    onClick={() => {
-                      setActiveCategory(activeCategory + 1);
-                      setOpenItems({});
-                    }}
-                    className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline group"
-                  >
-                    Next: {FAQ_SECTIONS[activeCategory + 1].title}
-                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  </button>
-                )}
+            /* Active category */
+            <div>
+              <div className="space-y-1.5">
+                {FAQ_SECTIONS[activeCategory].items.map((item, iIdx) => (
+                  <FAQAccordionItem
+                    key={iIdx}
+                    q={item.q}
+                    a={item.a}
+                    isOpen={openItems[activeCategory] === iIdx}
+                    onToggle={() => toggle(activeCategory, iIdx)}
+                  />
+                ))}
               </div>
+
+              {/* Next category link */}
+              {activeCategory < FAQ_SECTIONS.length - 1 && (
+                <button
+                  onClick={() => {
+                    setActiveCategory(activeCategory + 1);
+                    setOpenItems({});
+                  }}
+                  className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline group"
+                >
+                  Next: {FAQ_SECTIONS[activeCategory + 1].title}
+                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              )}
             </div>
           )}
         </div>
 
         {/* CTA Section */}
         <section className="bg-muted/30 border-t border-border/40">
-          <div className="max-w-5xl mx-auto px-4 sm:px-8 py-16 text-center">
+          <div className="max-w-3xl mx-auto px-4 sm:px-8 py-14 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
               Still have questions?
             </h2>
-            <p className="mt-3 text-muted-foreground text-lg max-w-lg mx-auto">
+            <p className="mt-2 text-muted-foreground max-w-lg mx-auto">
               Book a free Discovery Call with Uzair — no cost, no obligation.
             </p>
             <Link to="/contact">
-              <Button size="lg" className="mt-6 gap-2">
+              <Button size="lg" className="mt-5 gap-2">
                 Book a Free Discovery Call
                 <ArrowRight className="h-4 w-4" />
               </Button>
