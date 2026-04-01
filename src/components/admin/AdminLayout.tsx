@@ -38,7 +38,8 @@ import {
   Zap,
   CalendarCog,
   Lock,
-} from "lucide-react";
+  Send,
+  UserCheck2,
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
