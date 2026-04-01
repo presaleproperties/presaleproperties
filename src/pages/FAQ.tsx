@@ -394,13 +394,12 @@ export default function FAQ() {
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight leading-tight">
               Presale Condo FAQ
             </h1>
-            <p className="mt-3 text-lg text-muted-foreground leading-relaxed">
+            <p className="mt-2 text-muted-foreground leading-relaxed">
               {totalQuestions} answers to the questions BC buyers ask most — from deposits to closing costs.
             </p>
           </div>
 
-          {/* Search bar */}
-          <div className="mt-6 max-w-xl relative">
+          <div className="mt-4 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground pointer-events-none" />
             <input
               type="text"
