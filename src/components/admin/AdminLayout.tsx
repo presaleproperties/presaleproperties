@@ -69,9 +69,12 @@ const navSections = [
     items: [
       { href: "/admin/projects",    label: "Presale Projects", icon: Building2,    badgeKey: null },
       { href: "/admin/listings",    label: "Assignments",      icon: FileStack,    badgeKey: "assignments" as const },
-      { href: "/admin/off-market",  label: "Off-Market",       icon: Lock,         badgeKey: null },
-      { href: "/admin/developers",  label: "Developers",       icon: Landmark,     badgeKey: null },
-      { href: "/developer",         label: "Developer Portal", icon: Presentation, badgeKey: null },
+      { href: "/admin/off-market",              label: "Off-Market",       icon: Lock,         badgeKey: null },
+      { href: "/admin/off-market/access",        label: "Unlock Requests",  icon: Users,        badgeKey: null },
+      { href: "/admin/off-market/developers",    label: "Dev Accounts",     icon: UserCheck2,   badgeKey: null },
+      { href: "/admin/off-market/submissions",   label: "Submissions",      icon: Send,         badgeKey: null },
+      { href: "/admin/developers",               label: "Developers",       icon: Landmark,     badgeKey: null },
+      { href: "/developer",                      label: "Developer Portal", icon: Presentation, badgeKey: null },
     ],
   },
   {
