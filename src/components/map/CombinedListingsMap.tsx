@@ -932,8 +932,56 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
         
         /* Base marker reset */
-        .pill-marker { background: transparent !important; border: none !important; }
-        
+        .pill-marker,
+        .presale-pin-marker,
+        .custom-cluster-marker {
+          background: transparent !important;
+          border: none !important;
+        }
+
+        /* Ensure non-resale markers are actually visible */
+        .presale-pin {
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 9999px;
+          background: hsl(var(--card));
+          color: hsl(var(--primary));
+          border: 2px solid hsl(var(--primary));
+          box-shadow: 0 6px 14px hsl(var(--foreground) / 0.14);
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .presale-pin svg {
+          width: 14px;
+          height: 14px;
+          display: block;
+        }
+        .presale-pin:hover,
+        .presale-pin.presale-pin-hl {
+          transform: scale(1.12);
+          box-shadow: 0 0 0 4px hsl(var(--primary) / 0.18), 0 10px 22px hsl(var(--foreground) / 0.16);
+        }
+
+        .cluster-icon {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 9999px;
+          font-weight: 800;
+          line-height: 1;
+          color: hsl(var(--background));
+          background: hsl(var(--foreground));
+          border: 2px solid hsl(var(--primary));
+          box-shadow: 0 8px 18px hsl(var(--foreground) / 0.18);
+        }
+        .cluster-icon.cluster-small { font-size: 12px; }
+        .cluster-icon.cluster-medium { font-size: 13px; }
+        .cluster-icon.cluster-large { font-size: 14px; }
+
         /* === PRICE PILL PINS (all types) === */
         .pill {
           position: relative;
