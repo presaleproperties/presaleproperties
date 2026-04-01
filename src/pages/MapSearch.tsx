@@ -1740,10 +1740,20 @@ export default function MapSearch() {
                 {loadingMapElement}
               </div>
               
-              {/* Refetch indicator - centered on map for all devices */}
+              {/* Refetch indicator - centered on visible map area, shifts when panel is open */}
               {isRefetching && !showOverlay && (
-                <div className="absolute inset-0 z-[600] flex items-center justify-center pointer-events-none animate-fade-in">
-                  <div className="flex flex-col items-center gap-2 px-5 py-3 sm:px-6 sm:py-4 rounded-2xl bg-background/90 backdrop-blur-md border border-border shadow-xl pointer-events-auto">
+                <div 
+                  className="absolute inset-0 z-[600] flex items-center justify-center pointer-events-none animate-fade-in transition-all duration-300 ease-out"
+                  style={{
+                    // On desktop (lg+), offset left when the 440px side panel is open
+                    paddingRight: showList ? undefined : undefined,
+                  }}
+                >
+                  <div 
+                    className={`flex flex-col items-center gap-2 px-5 py-3 sm:px-6 sm:py-4 rounded-2xl bg-background/90 backdrop-blur-md border border-border shadow-xl pointer-events-auto transition-transform duration-300 ease-out ${
+                      showList ? 'lg:-translate-x-[220px]' : ''
+                    }`}
+                  >
                     <div className="flex items-center gap-1.5">
                       {[0, 1, 2].map(i => (
                         <div
