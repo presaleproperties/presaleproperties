@@ -206,23 +206,7 @@ const App = () => (
             <Route path="/assignments/:id" element={<AssignmentDetail />} />
             
             <Route path="/properties" element={<ResaleListings />} />
-            {/* City-specific properties pages - MUST be before :listingKey route */}
-            <Route path="/properties/vancouver" element={<CityResalePage />} />
-            <Route path="/properties/surrey" element={<CityResalePage />} />
-            <Route path="/properties/coquitlam" element={<CityResalePage />} />
-            <Route path="/properties/burnaby" element={<CityResalePage />} />
-            <Route path="/properties/delta" element={<CityResalePage />} />
-            <Route path="/properties/langley" element={<CityResalePage />} />
-            <Route path="/properties/abbotsford" element={<CityResalePage />} />
-            <Route path="/properties/chilliwack" element={<CityResalePage />} />
-            <Route path="/properties/richmond" element={<CityResalePage />} />
-            <Route path="/properties/new-westminster" element={<CityResalePage />} />
-            <Route path="/properties/port-coquitlam" element={<CityResalePage />} />
-            <Route path="/properties/port-moody" element={<CityResalePage />} />
-            <Route path="/properties/white-rock" element={<CityResalePage />} />
-            <Route path="/properties/north-vancouver" element={<CityResalePage />} />
-            <Route path="/properties/maple-ridge" element={<CityResalePage />} />
-            <Route path="/properties/west-vancouver" element={<CityResalePage />} />
+            {/* Dynamic city properties pages - validated inside CityResalePage against CITY_CONFIG */}
             {/* Property type and price range routes - MUST be before :listingKey */}
             <Route path="/properties/:citySlug/condos" element={<ResalePropertyTypePage />} />
             <Route path="/properties/:citySlug/townhouses" element={<ResalePropertyTypePage />} />
