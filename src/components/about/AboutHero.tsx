@@ -168,10 +168,10 @@ export function AboutHero() {
           {/* Stats — mobile/tablet: 2x2 grid */}
           <div className="lg:hidden grid grid-cols-2 sm:grid-cols-4 gap-2 mt-8 rounded-xl overflow-hidden border border-white/10">
             {[
-              { value: "400+", label: "Homes guided" },
-              { value: "$0", label: "Cost to you" },
-              { value: "5.0★", label: "Google rating" },
-              { value: "5", label: "Languages" },
+              { value: "400+", label: "Units Sold" },
+              { value: "$200M+", label: "Sales Volume" },
+              { value: "5 Yrs", label: "In Presale Market" },
+              { value: "5.0★", label: "Google Rating" },
             ].map((s) => (
               <div key={s.label} className="bg-black/55 backdrop-blur-md px-3 py-4 text-center">
                 <div className="text-xl sm:text-2xl font-black text-primary leading-none">{s.value}</div>

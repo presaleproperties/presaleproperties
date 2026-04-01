@@ -195,9 +195,9 @@ export function PresaleExpertsSection() {
               {/* Proof row */}
               <div className="grid grid-cols-3 gap-4 pt-2">
                 {[
-                  { value: "$200M+", label: "Transactions" },
-                  { value: "400+", label: "Homes Sold" },
-                  { value: "5★", label: "Reviews" },
+                  { value: "$200M+", label: "Sales Volume" },
+                  { value: "400+", label: "Units Sold" },
+                  { value: "5 Yrs", label: "In Presale Market" },
                 ].map((s) => (
                   <div key={s.label} className="space-y-0.5">
                     <div className="text-xl sm:text-2xl font-extrabold text-primary">{s.value}</div>
