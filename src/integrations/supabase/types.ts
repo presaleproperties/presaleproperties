@@ -830,6 +830,45 @@ export type Database = {
         }
         Relationships: []
       }
+      developer_project_access: {
+        Row: {
+          developer_profile_id: string
+          granted_at: string
+          granted_by: string | null
+          id: string
+          project_id: string
+        }
+        Insert: {
+          developer_profile_id: string
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          project_id: string
+        }
+        Update: {
+          developer_profile_id?: string
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_project_access_developer_profile_id_fkey"
+            columns: ["developer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "developer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "developer_project_access_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "presale_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       developers: {
         Row: {
           city: string | null
@@ -1424,6 +1463,7 @@ export type Database = {
           interior_sqft: number | null
           is_active: boolean
           is_featured: boolean
+          listing_type: string
           neighborhood: string | null
           original_completion_year: number | null
           original_price: number | null
@@ -1467,6 +1507,7 @@ export type Database = {
           interior_sqft?: number | null
           is_active?: boolean
           is_featured?: boolean
+          listing_type?: string
           neighborhood?: string | null
           original_completion_year?: number | null
           original_price?: number | null
@@ -1510,6 +1551,7 @@ export type Database = {
           interior_sqft?: number | null
           is_active?: boolean
           is_featured?: boolean
+          listing_type?: string
           neighborhood?: string | null
           original_completion_year?: number | null
           original_price?: number | null
@@ -2056,6 +2098,92 @@ export type Database = {
           wants_projects?: boolean
         }
         Relationships: []
+      }
+      off_market_access: {
+        Row: {
+          buyer_profile_id: string
+          granted_at: string
+          granted_by: string | null
+          id: string
+          project_id: string
+        }
+        Insert: {
+          buyer_profile_id: string
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          project_id: string
+        }
+        Update: {
+          buyer_profile_id?: string
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "off_market_access_buyer_profile_id_fkey"
+            columns: ["buyer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "off_market_access_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "presale_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      off_market_batches: {
+        Row: {
+          ac_included: boolean | null
+          admin_notes: string | null
+          created_at: string
+          deposit_structure: string | null
+          id: string
+          incentives: string | null
+          is_active: boolean | null
+          parking_included: boolean | null
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          ac_included?: boolean | null
+          admin_notes?: string | null
+          created_at?: string
+          deposit_structure?: string | null
+          id?: string
+          incentives?: string | null
+          is_active?: boolean | null
+          parking_included?: boolean | null
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          ac_included?: boolean | null
+          admin_notes?: string | null
+          created_at?: string
+          deposit_structure?: string | null
+          id?: string
+          incentives?: string | null
+          is_active?: boolean | null
+          parking_included?: boolean | null
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "off_market_batches_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "presale_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pitch_decks: {
         Row: {
