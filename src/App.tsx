@@ -23,6 +23,7 @@ import { MetaPixel } from "@/components/tracking/MetaPixel";
 import { GA4Tracker } from "@/components/tracking/GA4Tracker";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
+import { PropertiesSlugDispatcher } from "@/components/routing/PropertiesSlugDispatcher";
 import { Suspense, lazy } from "react";
 
 // Only the homepage is eagerly loaded for fastest initial paint
