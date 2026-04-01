@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Plus, ArrowRight, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, ArrowRight, ChevronDown, Home, DollarSign, FileText, TrendingUp, Receipt, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -18,12 +18,16 @@ interface FAQItem {
 
 interface FAQSection {
   title: string;
+  icon: React.ReactNode;
+  slug: string;
   items: FAQItem[];
 }
 
 const FAQ_SECTIONS: FAQSection[] = [
   {
-    title: "Getting Started with Presales",
+    title: "Getting Started",
+    icon: <Home className="h-4 w-4" />,
+    slug: "getting-started",
     items: [
       {
         q: "What is a presale condo?",
@@ -61,6 +65,8 @@ const FAQ_SECTIONS: FAQSection[] = [
   },
   {
     title: "Deposits & Financing",
+    icon: <DollarSign className="h-4 w-4" />,
+    slug: "deposits",
     items: [
       {
         q: "How much deposit do I need for a presale condo in BC?",
@@ -82,6 +88,8 @@ const FAQ_SECTIONS: FAQSection[] = [
   },
   {
     title: "The Presale Process",
+    icon: <FileText className="h-4 w-4" />,
+    slug: "process",
     items: [
       {
         q: "What is REDMA and how does it protect presale buyers in BC?",
@@ -111,6 +119,8 @@ const FAQ_SECTIONS: FAQSection[] = [
   },
   {
     title: "Investment & Strategy",
+    icon: <TrendingUp className="h-4 w-4" />,
+    slug: "investment",
     items: [
       {
         q: "Is a presale condo a good investment?",
@@ -144,6 +154,8 @@ const FAQ_SECTIONS: FAQSection[] = [
   },
   {
     title: "Taxes & Costs",
+    icon: <Receipt className="h-4 w-4" />,
+    slug: "taxes",
     items: [
       {
         q: "What taxes do I pay on a presale condo in BC?",
@@ -156,7 +168,9 @@ const FAQ_SECTIONS: FAQSection[] = [
     ],
   },
   {
-    title: "About The Presale Properties Group",
+    title: "About Our Team",
+    icon: <Users className="h-4 w-4" />,
+    slug: "about",
     items: [
       {
         q: "Why should I work with a presale specialist instead of a general realtor?",
@@ -194,7 +208,6 @@ function getAllFAQsPlainText(): { question: string; answer: string }[] {
   const result: { question: string; answer: string }[] = [];
   for (const section of FAQ_SECTIONS) {
     for (const item of section.items) {
-      // For JSON-LD we need plain-text answers
       const answer = typeof item.a === "string" ? item.a : extractText(item.a);
       result.push({ question: item.q, answer });
     }
@@ -215,7 +228,7 @@ function extractText(node: React.ReactNode): string {
 }
 
 /* ────────────────────────────────────────────
-   Accordion FAQ Item
+   Accordion Item
    ──────────────────────────────────────────── */
 
 function FAQAccordionItem({
@@ -232,20 +245,20 @@ function FAQAccordionItem({
   return (
     <div
       className={cn(
-        "rounded-2xl border transition-all duration-200 overflow-hidden",
+        "group rounded-xl border transition-all duration-200 overflow-hidden",
         isOpen
-          ? "border-primary/40 bg-primary/[0.04] shadow-sm"
-          : "border-border/60 bg-card hover:border-border"
+          ? "border-primary/30 bg-primary/[0.03] shadow-sm"
+          : "border-border/50 bg-card hover:border-primary/20 hover:shadow-sm"
       )}
     >
       <button
         onClick={onToggle}
-        className="w-full flex items-start justify-between gap-4 px-5 py-5 text-left group focus:outline-none"
+        className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-xl"
         aria-expanded={isOpen}
       >
         <span
           className={cn(
-            "text-base sm:text-[17px] font-semibold leading-snug transition-colors duration-200",
+            "text-[15px] sm:text-base font-medium leading-snug transition-colors duration-200",
             isOpen ? "text-primary" : "text-foreground group-hover:text-primary"
           )}
         >
@@ -253,16 +266,16 @@ function FAQAccordionItem({
         </span>
         <span
           className={cn(
-            "shrink-0 mt-0.5 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200",
+            "shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300",
             isOpen
               ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
+              : "bg-muted/80 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
           )}
         >
-          <Plus
+          <ChevronDown
             className={cn(
-              "h-3.5 w-3.5 transition-transform duration-300",
-              isOpen && "rotate-45"
+              "h-4 w-4 transition-transform duration-300",
+              isOpen && "rotate-180"
             )}
           />
         </span>
@@ -270,19 +283,21 @@ function FAQAccordionItem({
 
       <div
         className={cn(
-          "overflow-hidden transition-all duration-300 ease-in-out",
-          isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+          "grid transition-all duration-300 ease-in-out",
+          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         )}
       >
-        <div className="px-5 pb-6">
-          <div className="text-base text-foreground/75 leading-relaxed">
-            {typeof a === "string"
-              ? a.split("\n\n").map((para, i) => (
-                  <p key={i} className={cn(i > 0 && "mt-3")}>
-                    {para}
-                  </p>
-                ))
-              : <p>{a}</p>}
+        <div className="overflow-hidden">
+          <div className="px-5 pb-5 pt-0">
+            <div className="text-[15px] text-muted-foreground leading-relaxed">
+              {typeof a === "string"
+                ? a.split("\n\n").map((para, i) => (
+                    <p key={i} className={cn(i > 0 && "mt-3")}>
+                      {para}
+                    </p>
+                  ))
+                : <p>{a}</p>}
+            </div>
           </div>
         </div>
       </div>
@@ -295,6 +310,8 @@ function FAQAccordionItem({
    ──────────────────────────────────────────── */
 
 export default function FAQ() {
+  const [activeCategory, setActiveCategory] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const [openItems, setOpenItems] = useState<Record<string, number | null>>({});
 
   const toggle = (sectionIdx: number, itemIdx: number) => {
@@ -304,7 +321,25 @@ export default function FAQ() {
     }));
   };
 
+  // Filter FAQs by search
+  const filteredSections = useMemo(() => {
+    if (!searchQuery.trim()) return null;
+    const q = searchQuery.toLowerCase();
+    const results: { sectionIdx: number; item: FAQItem; itemIdx: number }[] = [];
+    FAQ_SECTIONS.forEach((section, sIdx) => {
+      section.items.forEach((item, iIdx) => {
+        const answerText = typeof item.a === "string" ? item.a : extractText(item.a);
+        if (item.q.toLowerCase().includes(q) || answerText.toLowerCase().includes(q)) {
+          results.push({ sectionIdx: sIdx, item, itemIdx: iIdx });
+        }
+      });
+    });
+    return results;
+  }, [searchQuery]);
+
+  const isSearching = searchQuery.trim().length > 0;
   const allFaqs = getAllFAQsPlainText();
+  const totalQuestions = allFaqs.length;
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -323,18 +358,8 @@ export default function FAQ() {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: "https://presaleproperties.com",
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "FAQ",
-        item: "https://presaleproperties.com/faq",
-      },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://presaleproperties.com" },
+      { "@type": "ListItem", position: 2, name: "FAQ", item: "https://presaleproperties.com/faq" },
     ],
   };
 
@@ -355,7 +380,7 @@ export default function FAQ() {
 
       <main className="pt-20">
         {/* Breadcrumb */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-8 pt-6">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-6">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
             <ChevronRight className="h-3.5 w-3.5" />
@@ -363,41 +388,152 @@ export default function FAQ() {
           </nav>
         </div>
 
-        {/* Hero */}
-        <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-8 pb-12">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">
-            Presale Condo FAQ
-          </h1>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl leading-relaxed">
-            Everything you need to know about buying a presale condo in BC — answered by specialists who have helped 400+ families.
-          </p>
+        {/* Hero + Search */}
+        <section className="max-w-5xl mx-auto px-4 sm:px-8 pt-8 pb-8">
+          <div className="max-w-2xl">
+            <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-foreground tracking-tight leading-tight">
+              Presale Condo FAQ
+            </h1>
+            <p className="mt-3 text-lg text-muted-foreground leading-relaxed">
+              {totalQuestions} answers to the questions BC buyers ask most — from deposits to closing costs.
+            </p>
+          </div>
+
+          {/* Search bar */}
+          <div className="mt-6 max-w-xl relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search questions (e.g. deposit, assignment, GST)…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 rounded-xl border border-border/60 bg-card text-foreground placeholder:text-muted-foreground/60 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground bg-muted/80 rounded-md px-2 py-1 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </section>
 
-        {/* FAQ Sections */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-8 pb-16 space-y-12">
-          {FAQ_SECTIONS.map((section, sIdx) => (
-            <section key={sIdx}>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">
-                {section.title}
-              </h2>
-              <div className="space-y-2.5">
-                {section.items.map((item, iIdx) => (
-                  <FAQAccordionItem
-                    key={iIdx}
-                    q={item.q}
-                    a={item.a}
-                    isOpen={openItems[sIdx] === iIdx}
-                    onToggle={() => toggle(sIdx, iIdx)}
-                  />
-                ))}
+        {/* Category Tabs + Content */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 pb-16">
+          {isSearching ? (
+            /* Search Results */
+            <div>
+              <p className="text-sm text-muted-foreground mb-4">
+                {filteredSections?.length || 0} result{(filteredSections?.length || 0) !== 1 ? "s" : ""} for "{searchQuery}"
+              </p>
+              {filteredSections && filteredSections.length > 0 ? (
+                <div className="space-y-2">
+                  {filteredSections.map(({ sectionIdx, item, itemIdx }) => (
+                    <FAQAccordionItem
+                      key={`${sectionIdx}-${itemIdx}`}
+                      q={item.q}
+                      a={item.a}
+                      isOpen={openItems[`s-${sectionIdx}`] === itemIdx}
+                      onToggle={() =>
+                        setOpenItems((prev) => ({
+                          ...prev,
+                          [`s-${sectionIdx}`]: prev[`s-${sectionIdx}`] === itemIdx ? null : itemIdx,
+                        }))
+                      }
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No matching questions found.</p>
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="mt-2 text-primary hover:underline text-sm font-medium"
+                  >
+                    Browse all categories
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Category View */
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Sidebar nav */}
+              <nav className="lg:w-56 shrink-0">
+                <div className="lg:sticky lg:top-24 space-y-1">
+                  {FAQ_SECTIONS.map((section, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setActiveCategory(idx);
+                        setOpenItems({});
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-left text-sm font-medium transition-all duration-200",
+                        activeCategory === idx
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                      )}
+                    >
+                      {section.icon}
+                      <span>{section.title}</span>
+                      <span className={cn(
+                        "ml-auto text-xs tabular-nums",
+                        activeCategory === idx ? "text-primary-foreground/70" : "text-muted-foreground/50"
+                      )}>
+                        {section.items.length}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </nav>
+
+              {/* Active section content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-5">
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                    {FAQ_SECTIONS[activeCategory].title}
+                  </h2>
+                  <span className="text-xs text-muted-foreground bg-muted/60 rounded-full px-2.5 py-0.5">
+                    {FAQ_SECTIONS[activeCategory].items.length} questions
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {FAQ_SECTIONS[activeCategory].items.map((item, iIdx) => (
+                    <FAQAccordionItem
+                      key={iIdx}
+                      q={item.q}
+                      a={item.a}
+                      isOpen={openItems[activeCategory] === iIdx}
+                      onToggle={() => toggle(activeCategory, iIdx)}
+                    />
+                  ))}
+                </div>
+
+                {/* Navigate to next category */}
+                {activeCategory < FAQ_SECTIONS.length - 1 && (
+                  <button
+                    onClick={() => {
+                      setActiveCategory(activeCategory + 1);
+                      setOpenItems({});
+                    }}
+                    className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline group"
+                  >
+                    Next: {FAQ_SECTIONS[activeCategory + 1].title}
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+                )}
               </div>
-            </section>
-          ))}
+            </div>
+          )}
         </div>
 
         {/* CTA Section */}
         <section className="bg-muted/30 border-t border-border/40">
-          <div className="max-w-4xl mx-auto px-4 sm:px-8 py-16 text-center">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 py-16 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
               Still have questions?
             </h2>
