@@ -101,6 +101,9 @@ const AdminMarketingHub = lazy(() => import("./pages/admin/AdminMarketingHub"));
 const AdminEmailCenter = lazy(() => import("./pages/admin/AdminEmailCenter"));
 const AdminTopDeals = lazy(() => import("./pages/admin/AdminTopDeals"));
 const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
+const AdminOffMarket = lazy(() => import("./pages/admin/AdminOffMarket"));
+const AdminOffMarketWizard = lazy(() => import("./pages/admin/AdminOffMarketWizard"));
+const AdminOffMarketAccess = lazy(() => import("./pages/admin/AdminOffMarketAccess"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
 const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
@@ -376,6 +379,10 @@ const App = () => (
             <Route path="/admin/market-dashboard" element={<AdminProtectedRoute><AdminMarketDashboard /></AdminProtectedRoute>} />
             <Route path="/admin/ai-analytics" element={<AdminProtectedRoute><AdminAIAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+            <Route path="/admin/off-market" element={<AdminProtectedRoute><AdminOffMarket /></AdminProtectedRoute>} />
+            <Route path="/admin/off-market/new" element={<AdminProtectedRoute><AdminOffMarketWizard /></AdminProtectedRoute>} />
+            <Route path="/admin/off-market/edit/:id" element={<AdminProtectedRoute><AdminOffMarketWizard /></AdminProtectedRoute>} />
+            <Route path="/admin/off-market/access" element={<AdminProtectedRoute><AdminOffMarketAccess /></AdminProtectedRoute>} />
             
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
