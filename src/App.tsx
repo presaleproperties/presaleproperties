@@ -244,8 +244,8 @@ const App = () => (
             <Route path="/properties/townhomes-under-800k-langley" element={<ResaleTypePricePage />} />
             <Route path="/properties/townhomes-under-800k-coquitlam" element={<ResaleTypePricePage />} />
             <Route path="/properties/townhomes-under-800k-burnaby" element={<ResaleTypePricePage />} />
-            {/* SEO-friendly listing URL: /properties/address-city-bc-listingKey (REW-style) */}
-            <Route path="/properties/:slug" element={<ResaleListingDetail />} />
+            {/* Dynamic: city page OR listing detail, resolved by PropertiesSlugDispatcher */}
+            <Route path="/properties/:slug" element={<PropertiesSlugDispatcher />} />
             
             {/* Move-In Ready redirect */}
             <Route path="/move-in-ready" element={<Navigate to="/properties" replace />} />
