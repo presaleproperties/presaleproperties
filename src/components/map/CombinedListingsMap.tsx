@@ -485,34 +485,86 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       });
     }
 
-    // Optimized tile layer - different settings for mobile vs desktop
-    let tileErrorCount = 0;
-    const tileLayer = L.tileLayer(TILE_URL, { 
-      attribution: TILE_ATTRIBUTION,
-      maxZoom: 19,
-      updateWhenIdle: isMobileOrTabletDevice,
-      updateWhenZooming: !isMobileOrTabletDevice,
-      keepBuffer: isMobileOrTabletDevice ? 4 : 8,
-    });
+    // Optimized tile layer with provider failover so the basemap never stays blank
+    const tileProviders = [
+      {
+        name: "CARTO Voyager",
+        url: TILE_URL,
+        attribution: TILE_ATTRIBUTION,
+      },
+      {
+        name: "OpenStreetMap",
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      },
+      {
+        name: "Esri World Street Map",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+        attribution: 'Tiles &copy; Esri',
+      },
+    ] as const;
 
-    // Fallback to OSM tiles if CARTO fails
-    const FALLBACK_TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-    const FALLBACK_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-
-    tileLayer.on('tileerror', () => {
-      tileErrorCount++;
-      if (tileErrorCount >= 3 && map) {
-        console.warn("[Map] CARTO tiles failing, switching to OSM fallback");
-        map.removeLayer(tileLayer);
-        L.tileLayer(FALLBACK_TILE_URL, {
-          attribution: FALLBACK_ATTRIBUTION,
-          maxZoom: 19,
-          keepBuffer: isMobileOrTabletDevice ? 4 : 8,
-        }).addTo(map);
+    let activeTileLayer: L.TileLayer | null = null;
+    let mapReadyFired = false;
+    const fireMapReady = () => {
+      if (!mapReadyFired) {
+        mapReadyFired = true;
+        onMapReady?.();
       }
-    });
+    };
 
-    tileLayer.addTo(map);
+    const attachTileProvider = (providerIndex: number) => {
+      const provider = tileProviders[providerIndex];
+      let providerLoaded = false;
+      let providerErrorCount = 0;
+
+      const layer = L.tileLayer(provider.url, {
+        attribution: provider.attribution,
+        maxZoom: 19,
+        updateWhenIdle: isMobileOrTabletDevice,
+        updateWhenZooming: !isMobileOrTabletDevice,
+        keepBuffer: isMobileOrTabletDevice ? 4 : 8,
+        crossOrigin: true,
+      });
+
+      layer.once("load", () => {
+        providerLoaded = true;
+        fireMapReady();
+        map.invalidateSize({ animate: false });
+      });
+
+      layer.on("tileerror", () => {
+        providerErrorCount += 1;
+        if (providerLoaded || activeTileLayer !== layer) return;
+
+        if (providerErrorCount >= 2 && providerIndex < tileProviders.length - 1) {
+          const nextProvider = tileProviders[providerIndex + 1];
+          console.warn(`[Map] ${provider.name} tiles failing, switching to ${nextProvider.name}`);
+          map.removeLayer(layer);
+          attachTileProvider(providerIndex + 1);
+        }
+      });
+
+      activeTileLayer = layer;
+      layer.addTo(map);
+
+      setTimeout(() => {
+        if (providerLoaded || activeTileLayer !== layer) return;
+
+        if (providerIndex < tileProviders.length - 1) {
+          const nextProvider = tileProviders[providerIndex + 1];
+          console.warn(`[Map] ${provider.name} tiles timed out, switching to ${nextProvider.name}`);
+          map.removeLayer(layer);
+          attachTileProvider(providerIndex + 1);
+          return;
+        }
+
+        map.invalidateSize({ animate: false });
+        fireMapReady();
+      }, 2200);
+    };
+
+    attachTileProvider(0);
 
     // Force map to recalculate size after layout settles — fixes blank tiles
     // Multiple invalidateSize calls at different timings to handle various layout scenarios
@@ -521,22 +573,11 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     });
     setTimeout(() => map.invalidateSize({ animate: false }), 100);
     setTimeout(() => map.invalidateSize({ animate: false }), 300);
-
-    // Signal map ready after first tiles load
-    let mapReadyFired = false;
-    const fireMapReady = () => {
-      if (!mapReadyFired) {
-        mapReadyFired = true;
-        onMapReady?.();
-      }
-    };
-    tileLayer.once('load', fireMapReady);
-    // Fallback — fire after 1.5s regardless
     setTimeout(() => {
       map.invalidateSize({ animate: false });
       fireMapReady();
-    }, 1500);
-    
+    }, 3200);
+
     
     // Skip animations for markers when restoring state or on mobile
     const skipMarkerAnimation = shouldSkipAnimations;
