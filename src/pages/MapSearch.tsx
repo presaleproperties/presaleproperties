@@ -900,6 +900,9 @@ export default function MapSearch() {
                      (presaleProjects && presaleProjects.length > 0) || 
                      (assignments && assignments.length > 0);
   const isLoading = !hasAnyData && (resaleLoading || presaleLoading);
+  
+  // Show a subtle refetch indicator when pins are loading but we have cached data
+  const isRefetching = hasAnyData && resaleFetching;
 
   // Track when map tiles are actually rendered
   const [mapTilesReady, setMapTilesReady] = useState(false);
