@@ -379,6 +379,10 @@ const App = () => (
             <Route path="/admin/market-dashboard" element={<AdminProtectedRoute><AdminMarketDashboard /></AdminProtectedRoute>} />
             <Route path="/admin/ai-analytics" element={<AdminProtectedRoute><AdminAIAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+            <Route path="/admin/off-market" element={<AdminProtectedRoute><AdminOffMarket /></AdminProtectedRoute>} />
+            <Route path="/admin/off-market/new" element={<AdminProtectedRoute><AdminOffMarketWizard /></AdminProtectedRoute>} />
+            <Route path="/admin/off-market/edit/:id" element={<AdminProtectedRoute><AdminOffMarketWizard /></AdminProtectedRoute>} />
+            <Route path="/admin/off-market/access" element={<AdminProtectedRoute><AdminOffMarketAccess /></AdminProtectedRoute>} />
             
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
