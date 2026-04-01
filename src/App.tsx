@@ -23,6 +23,7 @@ import { MetaPixel } from "@/components/tracking/MetaPixel";
 import { GA4Tracker } from "@/components/tracking/GA4Tracker";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
+import { PropertiesSlugDispatcher } from "@/components/routing/PropertiesSlugDispatcher";
 import { Suspense, lazy } from "react";
 
 // Only the homepage is eagerly loaded for fastest initial paint
@@ -206,23 +207,7 @@ const App = () => (
             <Route path="/assignments/:id" element={<AssignmentDetail />} />
             
             <Route path="/properties" element={<ResaleListings />} />
-            {/* City-specific properties pages - MUST be before :listingKey route */}
-            <Route path="/properties/vancouver" element={<CityResalePage />} />
-            <Route path="/properties/surrey" element={<CityResalePage />} />
-            <Route path="/properties/coquitlam" element={<CityResalePage />} />
-            <Route path="/properties/burnaby" element={<CityResalePage />} />
-            <Route path="/properties/delta" element={<CityResalePage />} />
-            <Route path="/properties/langley" element={<CityResalePage />} />
-            <Route path="/properties/abbotsford" element={<CityResalePage />} />
-            <Route path="/properties/chilliwack" element={<CityResalePage />} />
-            <Route path="/properties/richmond" element={<CityResalePage />} />
-            <Route path="/properties/new-westminster" element={<CityResalePage />} />
-            <Route path="/properties/port-coquitlam" element={<CityResalePage />} />
-            <Route path="/properties/port-moody" element={<CityResalePage />} />
-            <Route path="/properties/white-rock" element={<CityResalePage />} />
-            <Route path="/properties/north-vancouver" element={<CityResalePage />} />
-            <Route path="/properties/maple-ridge" element={<CityResalePage />} />
-            <Route path="/properties/west-vancouver" element={<CityResalePage />} />
+            {/* Dynamic city properties pages - validated inside CityResalePage against CITY_CONFIG */}
             {/* Property type and price range routes - MUST be before :listingKey */}
             <Route path="/properties/:citySlug/condos" element={<ResalePropertyTypePage />} />
             <Route path="/properties/:citySlug/townhouses" element={<ResalePropertyTypePage />} />
@@ -259,8 +244,8 @@ const App = () => (
             <Route path="/properties/townhomes-under-800k-langley" element={<ResaleTypePricePage />} />
             <Route path="/properties/townhomes-under-800k-coquitlam" element={<ResaleTypePricePage />} />
             <Route path="/properties/townhomes-under-800k-burnaby" element={<ResaleTypePricePage />} />
-            {/* SEO-friendly listing URL: /properties/address-city-bc-listingKey (REW-style) */}
-            <Route path="/properties/:slug" element={<ResaleListingDetail />} />
+            {/* Dynamic: city page OR listing detail, resolved by PropertiesSlugDispatcher */}
+            <Route path="/properties/:slug" element={<PropertiesSlugDispatcher />} />
             
             {/* Move-In Ready redirect */}
             <Route path="/move-in-ready" element={<Navigate to="/properties" replace />} />
