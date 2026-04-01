@@ -6,6 +6,13 @@
 type FaqEntry = { question: string; answer: string };
 
 export const BLOG_FAQ_SCHEMAS: Record<string, FaqEntry[]> = {
+  "is-it-worth-buying-presale-condo-2026": [
+    { question: "Are presale deposits safe if a developer goes bankrupt?", answer: "Yes, in British Columbia, your presale deposit is held in a lawyer's or notary's trust account. It is not used by the developer to fund construction. If the project is canceled, your deposit is returned to you." },
+    { question: "Should I sell or keep and rent out my presale condo upon completion?", answer: "Given the strong rental demand and the projected decrease in housing starts over the next few years, holding the property and renting it out is generally the stronger wealth-building strategy. Flipping the contract (assignment) is possible, but it subjects you to assignment fees and potential taxes." },
+    { question: "What are the real risks of buying a presale condo?", answer: "The primary risks are construction delays and changes to the final product. This is why developer reputation is the single most important factor in the selection process." },
+    { question: "Is it worth buying a presale condo in 2026?", answer: "With the Bank of Canada holding rates at 2.25%, developer incentives up to $18,000, and the new First-Time Home Buyers' GST rebate saving up to $50,000, the math currently favors strategic presale buyers — especially in Surrey and Langley where inventory is high and prices start under $300,000." },
+  ],
+
   "presale-condo-faq": [
     { question: "What is a presale condo?", answer: "A presale condo is a unit you purchase directly from a developer before construction is complete. You buy based on floor plans, renderings, and a legal Disclosure Statement. The building is then constructed over 2.5 to 4 years, after which you take possession of your brand-new home." },
     { question: "How much does it cost to work with a presale agent?", answer: "It costs you absolutely nothing. Developers pay real estate agent commissions when a presale unit is sold. Our job is to represent you — negotiate on your behalf, review your Disclosure Statement, guide you through deposits and completion — all at zero cost to you." },
