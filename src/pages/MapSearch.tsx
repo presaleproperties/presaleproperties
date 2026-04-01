@@ -747,7 +747,7 @@ export default function MapSearch() {
   }, [filters.priceMin, filters.priceMax]);
 
   // Fetch resale listings via optimized RPC (server-side filtering, no photos JSON blob)
-  const { data: resaleListings, isLoading: resaleLoading } = useQuery<MLSListing[]>({
+  const { data: resaleListings, isLoading: resaleLoading, isFetching: resaleFetching } = useQuery<MLSListing[]>({
     queryKey: ["unified-map-resale-v4", selectedCities, selectedPropertyTypes, filters.propertyType, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities, adminMinYear],
     queryFn: async () => {
       const minYear = adminMinYear ?? DEFAULT_MIN_YEAR_BUILT;
