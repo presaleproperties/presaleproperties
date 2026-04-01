@@ -307,6 +307,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const presaleLayerRef = useRef<L.LayerGroup | null>(null);
   const assignmentLayerRef = useRef<L.LayerGroup | null>(null);
+  const mapInitTokenRef = useRef(0);
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const hasInitializedViewRef = useRef(false);
@@ -443,6 +444,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const initializeMap = useCallback(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
+    const initToken = ++mapInitTokenRef.current;
+    const isMapStillActive = () => mapInstanceRef.current === map && mapInitTokenRef.current === initToken;
+
     const initialCenter: L.LatLngExpression = savedMapState 
       ? [savedMapState.center.lat, savedMapState.center.lng]
       : DEFAULT_CENTER;
@@ -461,31 +465,31 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       zoomControl: false,
       attributionControl: true,
       preferCanvas: true,
-      // Disable animations on mobile/tablet to prevent jitter
       fadeAnimation: !shouldSkipAnimations,
-      zoomAnimation: !isMobileOrTabletDevice, // Keep zoom animation on restore for desktop
+      zoomAnimation: !isMobileOrTabletDevice,
       markerZoomAnimation: !shouldSkipAnimations,
-      zoomAnimationThreshold: isMobileOrTabletDevice ? 8 : 4, // Higher threshold on mobile
+      zoomAnimationThreshold: isMobileOrTabletDevice ? 8 : 4,
       inertia: true,
-      inertiaDeceleration: isMobileOrTabletDevice ? 3000 : 2000, // More deceleration on mobile for stability
-      inertiaMaxSpeed: isMobileOrTabletDevice ? 1500 : Infinity, // Cap speed on mobile
+      inertiaDeceleration: isMobileOrTabletDevice ? 3000 : 2000,
+      inertiaMaxSpeed: isMobileOrTabletDevice ? 1500 : Infinity,
       easeLinearity: 0.25,
       worldCopyJump: false,
       maxBoundsViscosity: 0.8,
       touchZoom: 'center',
       bounceAtZoomLimits: false,
     });
+
+    mapInstanceRef.current = map;
     
-    // Re-enable some animations after initial render (desktop only)
     if (isRestoringState && !isMobileOrTabletDevice) {
       requestAnimationFrame(() => {
+        if (!isMapStillActive()) return;
         map.options.fadeAnimation = true;
         map.options.zoomAnimation = true;
         map.options.markerZoomAnimation = true;
       });
     }
 
-    // Optimized tile layer with provider failover so the basemap never stays blank
     const tileProviders = [
       {
         name: "CARTO Voyager",
@@ -507,13 +511,14 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     let activeTileLayer: L.TileLayer | null = null;
     let mapReadyFired = false;
     const fireMapReady = () => {
-      if (!mapReadyFired) {
-        mapReadyFired = true;
-        onMapReady?.();
-      }
+      if (!isMapStillActive() || mapReadyFired) return;
+      mapReadyFired = true;
+      onMapReady?.();
     };
 
     const attachTileProvider = (providerIndex: number) => {
+      if (!isMapStillActive()) return;
+
       const provider = tileProviders[providerIndex];
       let providerLoaded = false;
       let providerErrorCount = 0;
@@ -528,33 +533,42 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       });
 
       layer.once("load", () => {
+        if (!isMapStillActive() || activeTileLayer !== layer) return;
         providerLoaded = true;
         fireMapReady();
         map.invalidateSize({ animate: false });
       });
 
       layer.on("tileerror", () => {
+        if (!isMapStillActive()) return;
         providerErrorCount += 1;
         if (providerLoaded || activeTileLayer !== layer) return;
 
         if (providerErrorCount >= 2 && providerIndex < tileProviders.length - 1) {
           const nextProvider = tileProviders[providerIndex + 1];
           console.warn(`[Map] ${provider.name} tiles failing, switching to ${nextProvider.name}`);
-          map.removeLayer(layer);
+          if (map.hasLayer(layer)) {
+            map.removeLayer(layer);
+          }
           attachTileProvider(providerIndex + 1);
         }
       });
 
       activeTileLayer = layer;
-      layer.addTo(map);
+      map.whenReady(() => {
+        if (!isMapStillActive() || activeTileLayer !== layer) return;
+        layer.addTo(map);
+      });
 
       setTimeout(() => {
-        if (providerLoaded || activeTileLayer !== layer) return;
+        if (!isMapStillActive() || providerLoaded || activeTileLayer !== layer) return;
 
         if (providerIndex < tileProviders.length - 1) {
           const nextProvider = tileProviders[providerIndex + 1];
           console.warn(`[Map] ${provider.name} tiles timed out, switching to ${nextProvider.name}`);
-          map.removeLayer(layer);
+          if (map.hasLayer(layer)) {
+            map.removeLayer(layer);
+          }
           attachTileProvider(providerIndex + 1);
           return;
         }
@@ -566,14 +580,20 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
 
     attachTileProvider(0);
 
-    // Force map to recalculate size after layout settles — fixes blank tiles
-    // Multiple invalidateSize calls at different timings to handle various layout scenarios
     requestAnimationFrame(() => {
+      if (!isMapStillActive()) return;
       map.invalidateSize({ animate: false });
     });
-    setTimeout(() => map.invalidateSize({ animate: false }), 100);
-    setTimeout(() => map.invalidateSize({ animate: false }), 300);
     setTimeout(() => {
+      if (!isMapStillActive()) return;
+      map.invalidateSize({ animate: false });
+    }, 100);
+    setTimeout(() => {
+      if (!isMapStillActive()) return;
+      map.invalidateSize({ animate: false });
+    }, 300);
+    setTimeout(() => {
+      if (!isMapStillActive()) return;
       map.invalidateSize({ animate: false });
       fireMapReady();
     }, 3200);
@@ -608,7 +628,6 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     map.addLayer(presaleLayer);
     map.addLayer(assignmentLayer);
     
-    mapInstanceRef.current = map;
     markerClusterRef.current = clusterGroup;
     presaleLayerRef.current = presaleLayer;
     assignmentLayerRef.current = assignmentLayer;
@@ -617,16 +636,13 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     if (savedMapState) {
       hasInitializedViewRef.current = true;
       hasRestoredSavedStateRef.current = true;
-      // Force Leaflet to recalculate container size after the DOM is fully laid out
-      // This fixes the bug where markers disappear after back-navigation
       setTimeout(() => {
-        if (mapInstanceRef.current) {
+        if (mapInstanceRef.current === map) {
           mapInstanceRef.current.invalidateSize({ animate: false });
         }
       }, 100);
     }
 
-    // Throttled event handlers
     map.on("moveend", updateVisibleItems);
     map.on("zoomend", updateVisibleItems);
     
@@ -635,18 +651,18 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     });
     
     map.on("moveend", () => {
-      if (onMapStateChange && mapInstanceRef.current) {
+      if (onMapStateChange && mapInstanceRef.current === map) {
         const center = mapInstanceRef.current.getCenter();
         const zoom = mapInstanceRef.current.getZoom();
         onMapStateChange({ lat: center.lat, lng: center.lng }, zoom);
       }
     });
-  }, [updateVisibleItems, savedMapState, onMapInteraction, onMapStateChange]);
+  }, [updateVisibleItems, savedMapState, onMapInteraction, onMapStateChange, onMapReady, isMobileOrTabletDevice]);
 
   useEffect(() => {
     initializeMap();
     return () => {
-      // Clean up debounce timeout
+      mapInitTokenRef.current += 1;
       if (updateVisibleItemsTimeoutRef.current) {
         clearTimeout(updateVisibleItemsTimeoutRef.current);
       }
