@@ -871,7 +871,11 @@ export type Database = {
       }
       developers: {
         Row: {
+          cities_active: string[] | null
           city: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string
           description: string | null
           id: string
@@ -881,10 +885,15 @@ export type Database = {
           project_count: number | null
           slug: string
           updated_at: string
+          verification_status: string | null
           website_url: string | null
         }
         Insert: {
+          cities_active?: string[] | null
           city?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -894,10 +903,15 @@ export type Database = {
           project_count?: number | null
           slug: string
           updated_at?: string
+          verification_status?: string | null
           website_url?: string | null
         }
         Update: {
+          cities_active?: string[] | null
           city?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -907,6 +921,7 @@ export type Database = {
           project_count?: number | null
           slug?: string
           updated_at?: string
+          verification_status?: string | null
           website_url?: string | null
         }
         Relationships: []
@@ -2101,39 +2116,113 @@ export type Database = {
       }
       off_market_access: {
         Row: {
-          buyer_profile_id: string
-          granted_at: string
-          granted_by: string | null
+          approved_at: string | null
+          approved_by: string | null
+          budget_range: string | null
+          created_at: string | null
+          email: string
+          first_name: string
+          has_agent: boolean | null
           id: string
-          project_id: string
+          last_name: string
+          lead_id: string | null
+          listing_id: string | null
+          message: string | null
+          phone: string
+          source: string | null
+          status: string | null
+          timeline: string | null
         }
         Insert: {
-          buyer_profile_id: string
-          granted_at?: string
-          granted_by?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          budget_range?: string | null
+          created_at?: string | null
+          email: string
+          first_name: string
+          has_agent?: boolean | null
           id?: string
-          project_id: string
+          last_name: string
+          lead_id?: string | null
+          listing_id?: string | null
+          message?: string | null
+          phone: string
+          source?: string | null
+          status?: string | null
+          timeline?: string | null
         }
         Update: {
-          buyer_profile_id?: string
-          granted_at?: string
-          granted_by?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          budget_range?: string | null
+          created_at?: string | null
+          email?: string
+          first_name?: string
+          has_agent?: boolean | null
           id?: string
-          project_id?: string
+          last_name?: string
+          lead_id?: string | null
+          listing_id?: string | null
+          message?: string | null
+          phone?: string
+          source?: string | null
+          status?: string | null
+          timeline?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "off_market_access_buyer_profile_id_fkey"
-            columns: ["buyer_profile_id"]
+            foreignKeyName: "off_market_access_listing_id_fkey"
+            columns: ["listing_id"]
             isOneToOne: false
-            referencedRelation: "buyer_profiles"
+            referencedRelation: "off_market_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      off_market_analytics: {
+        Row: {
+          created_at: string | null
+          device: string | null
+          event_type: string
+          id: string
+          listing_id: string | null
+          referrer: string | null
+          unit_id: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          device?: string | null
+          event_type: string
+          id?: string
+          listing_id?: string | null
+          referrer?: string | null
+          unit_id?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          device?: string | null
+          event_type?: string
+          id?: string
+          listing_id?: string | null
+          referrer?: string | null
+          unit_id?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "off_market_analytics_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "off_market_listings"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "off_market_access_project_id_fkey"
-            columns: ["project_id"]
+            foreignKeyName: "off_market_analytics_unit_id_fkey"
+            columns: ["unit_id"]
             isOneToOne: false
-            referencedRelation: "presale_projects"
+            referencedRelation: "off_market_units"
             referencedColumns: ["id"]
           },
         ]
@@ -2181,6 +2270,260 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "presale_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      off_market_listings: {
+        Row: {
+          access_level: string | null
+          additional_notes: string | null
+          assignment_allowed: boolean | null
+          assignment_fee: string | null
+          auto_approve_access: boolean | null
+          available_units: number | null
+          available_upgrades: Json | null
+          brochure_url: string | null
+          completion_date: string | null
+          construction_stage: string | null
+          created_at: string | null
+          deposit_percentage: number | null
+          deposit_structure: string | null
+          developer_id: string | null
+          developer_name: string | null
+          floorplan_urls: string[] | null
+          id: string
+          incentive_expiry: string | null
+          incentives: string | null
+          info_sheet_url: string | null
+          linked_project_name: string
+          linked_project_slug: string
+          locker_cost: number | null
+          locker_included: boolean | null
+          parking_cost: number | null
+          parking_included: boolean | null
+          parking_type: string | null
+          photo_urls: string[] | null
+          pricing_sheet_url: string | null
+          published_at: string | null
+          status: string | null
+          storage_cost: number | null
+          storage_included: boolean | null
+          storage_size: string | null
+          total_units: number | null
+          unlock_request_count: number | null
+          updated_at: string | null
+          view_count: number | null
+          vip_incentives: string | null
+        }
+        Insert: {
+          access_level?: string | null
+          additional_notes?: string | null
+          assignment_allowed?: boolean | null
+          assignment_fee?: string | null
+          auto_approve_access?: boolean | null
+          available_units?: number | null
+          available_upgrades?: Json | null
+          brochure_url?: string | null
+          completion_date?: string | null
+          construction_stage?: string | null
+          created_at?: string | null
+          deposit_percentage?: number | null
+          deposit_structure?: string | null
+          developer_id?: string | null
+          developer_name?: string | null
+          floorplan_urls?: string[] | null
+          id?: string
+          incentive_expiry?: string | null
+          incentives?: string | null
+          info_sheet_url?: string | null
+          linked_project_name: string
+          linked_project_slug: string
+          locker_cost?: number | null
+          locker_included?: boolean | null
+          parking_cost?: number | null
+          parking_included?: boolean | null
+          parking_type?: string | null
+          photo_urls?: string[] | null
+          pricing_sheet_url?: string | null
+          published_at?: string | null
+          status?: string | null
+          storage_cost?: number | null
+          storage_included?: boolean | null
+          storage_size?: string | null
+          total_units?: number | null
+          unlock_request_count?: number | null
+          updated_at?: string | null
+          view_count?: number | null
+          vip_incentives?: string | null
+        }
+        Update: {
+          access_level?: string | null
+          additional_notes?: string | null
+          assignment_allowed?: boolean | null
+          assignment_fee?: string | null
+          auto_approve_access?: boolean | null
+          available_units?: number | null
+          available_upgrades?: Json | null
+          brochure_url?: string | null
+          completion_date?: string | null
+          construction_stage?: string | null
+          created_at?: string | null
+          deposit_percentage?: number | null
+          deposit_structure?: string | null
+          developer_id?: string | null
+          developer_name?: string | null
+          floorplan_urls?: string[] | null
+          id?: string
+          incentive_expiry?: string | null
+          incentives?: string | null
+          info_sheet_url?: string | null
+          linked_project_name?: string
+          linked_project_slug?: string
+          locker_cost?: number | null
+          locker_included?: boolean | null
+          parking_cost?: number | null
+          parking_included?: boolean | null
+          parking_type?: string | null
+          photo_urls?: string[] | null
+          pricing_sheet_url?: string | null
+          published_at?: string | null
+          status?: string | null
+          storage_cost?: number | null
+          storage_included?: boolean | null
+          storage_size?: string | null
+          total_units?: number | null
+          unlock_request_count?: number | null
+          updated_at?: string | null
+          view_count?: number | null
+          vip_incentives?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "off_market_listings_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      off_market_units: {
+        Row: {
+          available_upgrades: Json | null
+          bathrooms: number
+          bedrooms: number
+          created_at: string | null
+          developer_id: string | null
+          display_order: number | null
+          floor_level: number | null
+          floorplan_thumbnail_url: string | null
+          floorplan_url: string | null
+          has_unit_incentive: boolean | null
+          id: string
+          inclusions: string[] | null
+          listing_id: string | null
+          locker_included: boolean | null
+          orientation: string | null
+          parking_included: boolean | null
+          parking_type: string | null
+          photo_urls: string[] | null
+          price: number
+          price_per_sqft: number | null
+          reserved_at: string | null
+          sold_at: string | null
+          sqft: number
+          status: string | null
+          storage_included: boolean | null
+          storage_type: string | null
+          unit_incentive: string | null
+          unit_name: string | null
+          unit_number: string
+          unit_type: string | null
+          updated_at: string | null
+          view_type: string | null
+        }
+        Insert: {
+          available_upgrades?: Json | null
+          bathrooms: number
+          bedrooms: number
+          created_at?: string | null
+          developer_id?: string | null
+          display_order?: number | null
+          floor_level?: number | null
+          floorplan_thumbnail_url?: string | null
+          floorplan_url?: string | null
+          has_unit_incentive?: boolean | null
+          id?: string
+          inclusions?: string[] | null
+          listing_id?: string | null
+          locker_included?: boolean | null
+          orientation?: string | null
+          parking_included?: boolean | null
+          parking_type?: string | null
+          photo_urls?: string[] | null
+          price: number
+          price_per_sqft?: number | null
+          reserved_at?: string | null
+          sold_at?: string | null
+          sqft: number
+          status?: string | null
+          storage_included?: boolean | null
+          storage_type?: string | null
+          unit_incentive?: string | null
+          unit_name?: string | null
+          unit_number: string
+          unit_type?: string | null
+          updated_at?: string | null
+          view_type?: string | null
+        }
+        Update: {
+          available_upgrades?: Json | null
+          bathrooms?: number
+          bedrooms?: number
+          created_at?: string | null
+          developer_id?: string | null
+          display_order?: number | null
+          floor_level?: number | null
+          floorplan_thumbnail_url?: string | null
+          floorplan_url?: string | null
+          has_unit_incentive?: boolean | null
+          id?: string
+          inclusions?: string[] | null
+          listing_id?: string | null
+          locker_included?: boolean | null
+          orientation?: string | null
+          parking_included?: boolean | null
+          parking_type?: string | null
+          photo_urls?: string[] | null
+          price?: number
+          price_per_sqft?: number | null
+          reserved_at?: string | null
+          sold_at?: string | null
+          sqft?: number
+          status?: string | null
+          storage_included?: boolean | null
+          storage_type?: string | null
+          unit_incentive?: string | null
+          unit_name?: string | null
+          unit_number?: string
+          unit_type?: string | null
+          updated_at?: string | null
+          view_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "off_market_units_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "off_market_units_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "off_market_listings"
             referencedColumns: ["id"]
           },
         ]
