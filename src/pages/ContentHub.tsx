@@ -183,6 +183,10 @@ export default function ContentHub() {
         <title>Guides & Resources | BC Presale Real Estate Education | PresaleProperties.com</title>
         <meta name="description" content="Free guides and resources for buying presale condos in Metro Vancouver. Learn about deposits, assignments, completion and more." />
         <link rel="canonical" href="https://presaleproperties.com/guides" />
+        <meta property="og:title" content="Guides & Resources | BC Presale Real Estate Education | PresaleProperties.com" />
+        <meta property="og:description" content="Free guides and resources for buying presale condos in Metro Vancouver. Learn about deposits, assignments, completion and more." />
+        <meta property="og:url" content="https://presaleproperties.com/guides" />
+        <meta property="og:type" content="website" />
         
         {/* Schema.org for content hub */}
         <script type="application/ld+json">
