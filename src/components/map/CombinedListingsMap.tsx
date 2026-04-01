@@ -307,6 +307,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const presaleLayerRef = useRef<L.LayerGroup | null>(null);
   const assignmentLayerRef = useRef<L.LayerGroup | null>(null);
+  const mapInitTokenRef = useRef(0);
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const hasInitializedViewRef = useRef(false);
