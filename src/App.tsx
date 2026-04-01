@@ -330,6 +330,8 @@ const App = () => (
             <Route path="/developer/projects/:projectId/units" element={<DeveloperUnitsPage />} />
             <Route path="/developer/projects/:projectId/inventory" element={<DeveloperInventoryPage />} />
             <Route path="/developer/add-inventory" element={<DeveloperAddInventoryWizard />} />
+            <Route path="/developer/off-market/new" element={<DeveloperOffMarketWizard />} />
+            <Route path="/developer/off-market/edit/:id" element={<DeveloperOffMarketWizard />} />
             <Route path="/developer/tour-requests" element={<DeveloperTourRequests />} />
             <Route path="/developer/settings" element={<DeveloperSettings />} />
             
