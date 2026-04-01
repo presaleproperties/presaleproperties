@@ -628,7 +628,6 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     map.addLayer(presaleLayer);
     map.addLayer(assignmentLayer);
     
-    mapInstanceRef.current = map;
     markerClusterRef.current = clusterGroup;
     presaleLayerRef.current = presaleLayer;
     assignmentLayerRef.current = assignmentLayer;
@@ -637,16 +636,13 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     if (savedMapState) {
       hasInitializedViewRef.current = true;
       hasRestoredSavedStateRef.current = true;
-      // Force Leaflet to recalculate container size after the DOM is fully laid out
-      // This fixes the bug where markers disappear after back-navigation
       setTimeout(() => {
-        if (mapInstanceRef.current) {
+        if (mapInstanceRef.current === map) {
           mapInstanceRef.current.invalidateSize({ animate: false });
         }
       }, 100);
     }
 
-    // Throttled event handlers
     map.on("moveend", updateVisibleItems);
     map.on("zoomend", updateVisibleItems);
     
@@ -655,18 +651,18 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     });
     
     map.on("moveend", () => {
-      if (onMapStateChange && mapInstanceRef.current) {
+      if (onMapStateChange && mapInstanceRef.current === map) {
         const center = mapInstanceRef.current.getCenter();
         const zoom = mapInstanceRef.current.getZoom();
         onMapStateChange({ lat: center.lat, lng: center.lng }, zoom);
       }
     });
-  }, [updateVisibleItems, savedMapState, onMapInteraction, onMapStateChange]);
+  }, [updateVisibleItems, savedMapState, onMapInteraction, onMapStateChange, onMapReady, isMobileOrTabletDevice]);
 
   useEffect(() => {
     initializeMap();
     return () => {
-      // Clean up debounce timeout
+      mapInitTokenRef.current += 1;
       if (updateVisibleItemsTimeoutRef.current) {
         clearTimeout(updateVisibleItemsTimeoutRef.current);
       }
