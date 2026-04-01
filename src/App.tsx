@@ -104,6 +104,9 @@ const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
 const AdminOffMarket = lazy(() => import("./pages/admin/AdminOffMarket"));
 const AdminOffMarketWizard = lazy(() => import("./pages/admin/AdminOffMarketWizard"));
 const AdminOffMarketAccess = lazy(() => import("./pages/admin/AdminOffMarketAccess"));
+const AdminOffMarketDevelopers = lazy(() => import("./pages/admin/AdminOffMarketDevelopers"));
+const AdminOffMarketSubmissions = lazy(() => import("./pages/admin/AdminOffMarketSubmissions"));
+const DeveloperOffMarketWizard = lazy(() => import("./pages/developer/DeveloperOffMarketWizard"));
 const OffMarketPage = lazy(() => import("./pages/OffMarketPage"));
 const OffMarketDetailPage = lazy(() => import("./pages/OffMarketDetailPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -327,6 +330,8 @@ const App = () => (
             <Route path="/developer/projects/:projectId/units" element={<DeveloperUnitsPage />} />
             <Route path="/developer/projects/:projectId/inventory" element={<DeveloperInventoryPage />} />
             <Route path="/developer/add-inventory" element={<DeveloperAddInventoryWizard />} />
+            <Route path="/developer/off-market/new" element={<DeveloperOffMarketWizard />} />
+            <Route path="/developer/off-market/edit/:id" element={<DeveloperOffMarketWizard />} />
             <Route path="/developer/tour-requests" element={<DeveloperTourRequests />} />
             <Route path="/developer/settings" element={<DeveloperSettings />} />
             
@@ -389,6 +394,8 @@ const App = () => (
             <Route path="/admin/off-market/new" element={<AdminProtectedRoute><AdminOffMarketWizard /></AdminProtectedRoute>} />
             <Route path="/admin/off-market/edit/:id" element={<AdminProtectedRoute><AdminOffMarketWizard /></AdminProtectedRoute>} />
             <Route path="/admin/off-market/access" element={<AdminProtectedRoute><AdminOffMarketAccess /></AdminProtectedRoute>} />
+            <Route path="/admin/off-market/developers" element={<AdminProtectedRoute><AdminOffMarketDevelopers /></AdminProtectedRoute>} />
+            <Route path="/admin/off-market/submissions" element={<AdminProtectedRoute><AdminOffMarketSubmissions /></AdminProtectedRoute>} />
             
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
