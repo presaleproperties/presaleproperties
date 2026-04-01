@@ -514,15 +514,15 @@ export default function FAQ() {
 
         {/* CTA Section */}
         <section className="bg-muted/30 border-t border-border/40">
-          <div className="max-w-5xl mx-auto px-4 sm:px-8 py-16 text-center">
+          <div className="max-w-3xl mx-auto px-4 sm:px-8 py-14 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
               Still have questions?
             </h2>
-            <p className="mt-3 text-muted-foreground text-lg max-w-lg mx-auto">
+            <p className="mt-2 text-muted-foreground max-w-lg mx-auto">
               Book a free Discovery Call with Uzair — no cost, no obligation.
             </p>
             <Link to="/contact">
-              <Button size="lg" className="mt-6 gap-2">
+              <Button size="lg" className="mt-5 gap-2">
                 Book a Free Discovery Call
                 <ArrowRight className="h-4 w-4" />
               </Button>
