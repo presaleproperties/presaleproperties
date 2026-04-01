@@ -104,6 +104,8 @@ const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
 const AdminOffMarket = lazy(() => import("./pages/admin/AdminOffMarket"));
 const AdminOffMarketWizard = lazy(() => import("./pages/admin/AdminOffMarketWizard"));
 const AdminOffMarketAccess = lazy(() => import("./pages/admin/AdminOffMarketAccess"));
+const OffMarketPage = lazy(() => import("./pages/OffMarketPage"));
+const OffMarketDetailPage = lazy(() => import("./pages/OffMarketDetailPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
 const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
@@ -284,6 +286,10 @@ const App = () => (
             <Route path="/developers" element={<Developers />} />
             {/* Developer detail pages don't exist yet — redirect to directory to stop soft 404 */}
             <Route path="/developers/:slug" element={<Navigate to="/developers" replace />} />
+            
+            {/* Off-Market Inventory */}
+            <Route path="/off-market" element={<OffMarketPage />} />
+            <Route path="/off-market/:slug" element={<OffMarketDetailPage />} />
             
             {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />

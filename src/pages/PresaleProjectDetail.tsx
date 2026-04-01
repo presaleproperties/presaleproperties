@@ -34,6 +34,7 @@ import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
 import { trackFloorplanView, trackFloorplanDownload, trackCTAClick } from "@/lib/tracking";
 import { MetaEvents, MetaCustomEvents } from "@/components/tracking/MetaPixel";
 import { ExpertAdvisoryCard } from "@/components/listings/ExpertAdvisoryCard";
+import { OffMarketBanner } from "@/components/off-market/OffMarketBanner";
 import { MapPin, Calendar, Building2, DollarSign, Download, ChevronLeft, Loader2, Phone, CheckCircle, Home, Layers, Star, Share2, CalendarCheck, Eye, Gift } from "lucide-react";
 type Project = {
   id: string;
@@ -986,6 +987,9 @@ export default function PresaleProjectDetail() {
               {/* Sidebar - Desktop only - More prominent positioning */}
               <aside className="hidden lg:block lg:col-span-1" aria-label="Contact form and actions">
                 <div ref={formRef} id="contact-form" className="w-full lg:sticky lg:top-20 space-y-4">
+                  {/* Off-Market Banner */}
+                  <OffMarketBanner projectSlug={project.slug} />
+                  
                   {/* Section Header for visibility */}
                   <div className="flex items-center gap-2 mb-1">
                     <div className="h-6 w-1 bg-primary rounded-full" />
