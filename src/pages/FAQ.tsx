@@ -420,16 +420,40 @@ export default function FAQ() {
           </div>
         </section>
 
-        {/* Category Tabs + Content */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 pb-16">
+        {/* Category Pills + Content */}
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 pb-16">
+          {/* Horizontal category tabs */}
+          {!isSearching && (
+            <div className="flex flex-wrap gap-1.5 mb-6">
+              {FAQ_SECTIONS.map((section, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setActiveCategory(idx);
+                    setOpenItems({});
+                  }}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200",
+                    activeCategory === idx
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  )}
+                >
+                  {section.icon}
+                  <span>{section.title}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {isSearching ? (
             /* Search Results */
             <div>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground mb-3">
                 {filteredSections?.length || 0} result{(filteredSections?.length || 0) !== 1 ? "s" : ""} for "{searchQuery}"
               </p>
               {filteredSections && filteredSections.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {filteredSections.map(({ sectionIdx, item, itemIdx }) => (
                     <FAQAccordionItem
                       key={`${sectionIdx}-${itemIdx}`}
@@ -446,7 +470,7 @@ export default function FAQ() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12">
+                <div className="text-center py-10">
                   <p className="text-muted-foreground">No matching questions found.</p>
                   <button
                     onClick={() => setSearchQuery("")}
@@ -458,75 +482,33 @@ export default function FAQ() {
               )}
             </div>
           ) : (
-            /* Category View */
-            <div className="flex flex-col lg:flex-row gap-8">
-              {/* Sidebar nav */}
-              <nav className="lg:w-56 shrink-0">
-                <div className="lg:sticky lg:top-24 space-y-1">
-                  {FAQ_SECTIONS.map((section, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        setActiveCategory(idx);
-                        setOpenItems({});
-                      }}
-                      className={cn(
-                        "w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-left text-sm font-medium transition-all duration-200",
-                        activeCategory === idx
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                      )}
-                    >
-                      {section.icon}
-                      <span>{section.title}</span>
-                      <span className={cn(
-                        "ml-auto text-xs tabular-nums",
-                        activeCategory === idx ? "text-primary-foreground/70" : "text-muted-foreground/50"
-                      )}>
-                        {section.items.length}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </nav>
-
-              {/* Active section content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-5">
-                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                    {FAQ_SECTIONS[activeCategory].title}
-                  </h2>
-                  <span className="text-xs text-muted-foreground bg-muted/60 rounded-full px-2.5 py-0.5">
-                    {FAQ_SECTIONS[activeCategory].items.length} questions
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  {FAQ_SECTIONS[activeCategory].items.map((item, iIdx) => (
-                    <FAQAccordionItem
-                      key={iIdx}
-                      q={item.q}
-                      a={item.a}
-                      isOpen={openItems[activeCategory] === iIdx}
-                      onToggle={() => toggle(activeCategory, iIdx)}
-                    />
-                  ))}
-                </div>
-
-                {/* Navigate to next category */}
-                {activeCategory < FAQ_SECTIONS.length - 1 && (
-                  <button
-                    onClick={() => {
-                      setActiveCategory(activeCategory + 1);
-                      setOpenItems({});
-                    }}
-                    className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline group"
-                  >
-                    Next: {FAQ_SECTIONS[activeCategory + 1].title}
-                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  </button>
-                )}
+            /* Active category */
+            <div>
+              <div className="space-y-1.5">
+                {FAQ_SECTIONS[activeCategory].items.map((item, iIdx) => (
+                  <FAQAccordionItem
+                    key={iIdx}
+                    q={item.q}
+                    a={item.a}
+                    isOpen={openItems[activeCategory] === iIdx}
+                    onToggle={() => toggle(activeCategory, iIdx)}
+                  />
+                ))}
               </div>
+
+              {/* Next category link */}
+              {activeCategory < FAQ_SECTIONS.length - 1 && (
+                <button
+                  onClick={() => {
+                    setActiveCategory(activeCategory + 1);
+                    setOpenItems({});
+                  }}
+                  className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline group"
+                >
+                  Next: {FAQ_SECTIONS[activeCategory + 1].title}
+                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              )}
             </div>
           )}
         </div>
