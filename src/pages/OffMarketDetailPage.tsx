@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { trackOffMarketEvent, getApprovedEmail, checkAccess } from "@/lib/offMarketAnalytics";
+import { useVipAuth } from "@/hooks/useVipAuth";
 import { UnlockModal } from "@/components/off-market/UnlockModal";
 import {
   Building2, MapPin, Calendar, Download, MessageCircle, Phone, Lock, Gift,
