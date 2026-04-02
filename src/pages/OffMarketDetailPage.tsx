@@ -388,7 +388,7 @@ export default function OffMarketDetailPage() {
                       </td>
                     </tr>
                     {expandedUnit === unit.id && (
-                      <tr key={`${unit.id}-detail`} className="bg-[#141414]/50">
+                      <tr key={`${unit.id}-detail`} className="bg-card/50">
                         <td colSpan={9} className="px-4 py-4">
                           <div className="grid md:grid-cols-2 gap-4">
                             {unit.floorplan_url && (
