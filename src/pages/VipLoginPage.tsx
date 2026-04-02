@@ -7,26 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
 import { useVipAuth } from "@/hooks/useVipAuth";
-import { Lock, ArrowRight, CheckCircle, Loader2, ShieldCheck, Phone, RefreshCw } from "lucide-react";
+import { Lock, ArrowRight, CheckCircle, Loader2, ShieldCheck, Mail, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-
-function formatPhoneDisplay(value: string): string {
-  const digits = value.replace(/\D/g, "");
-  const d = digits.startsWith("1") && digits.length > 10 ? digits.slice(1) : digits;
-  if (d.length <= 3) return d;
-  if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
-  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`;
-}
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function VipLoginPage() {
   const navigate = useNavigate();
-  const { loginVip, isVipLoggedIn, vipPhone, logoutVip } = useVipAuth();
-  const [step, setStep] = useState<"phone" | "code" | "success">("phone");
-  const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
+  const { loginVip, signUpVip, isVipLoggedIn, vipEmail, logoutVip } = useVipAuth();
+  const [tab, setTab] = useState<"login" | "signup">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Already logged in
@@ -45,7 +37,7 @@ export default function VipLoginPage() {
               </div>
               <CardTitle className="text-2xl">VIP Access Active</CardTitle>
               <CardDescription>
-                You're logged in as <span className="font-semibold text-foreground">{vipPhone}</span>
+                You're logged in as <span className="font-semibold text-foreground">{vipEmail}</span>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -64,89 +56,36 @@ export default function VipLoginPage() {
     );
   }
 
-  const handlePhoneSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const digits = phone.replace(/\D/g, "");
-    if (digits.length < 10) {
-      toast.error("Please enter a valid 10-digit phone number.");
-      return;
-    }
+    if (!email.trim() || !password) return;
     setLoading(true);
 
-    // Normalize for lookup
-    const normalized = digits.length === 10 ? `+1${digits}` : `+${digits}`;
-    const d = digits.length >= 10 ? (digits.startsWith("1") ? digits.slice(1) : digits) : digits;
-    const formatted = `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,10)}`;
-
-    // Check if phone has any approved access (check multiple formats)
-    const { data: accessData, error: accessError } = await supabase
-      .from("off_market_access")
-      .select("id")
-      .eq("status", "approved")
-      .in("phone", [normalized, digits, formatted, d])
-      .limit(1);
-
-    if (accessError || !accessData?.length) {
-      toast.error("No approved VIP access found for this phone number. Please request access first.");
-      setLoading(false);
-      return;
-    }
-
-    // Send SMS verification code via existing edge function
-    const { error: sendError } = await supabase.functions.invoke("send-sms-otp", {
-      body: { phone: normalized },
-    });
-
-    if (sendError) {
-      console.error("SMS send error:", sendError);
-      toast.error("Failed to send verification code. Please try again.");
-      setLoading(false);
-      return;
-    }
-
-    toast.success("Verification code sent via SMS!");
-    setStep("code");
-    setLoading(false);
-  };
-
-  const handleCodeVerify = async () => {
-    if (code.length !== 6) return;
-    setLoading(true);
-
-    const digits = phone.replace(/\D/g, "");
-    const normalized = digits.length === 10 ? `+1${digits}` : `+${digits}`;
-
-    const { data, error } = await supabase.functions.invoke("verify-sms-otp", {
-      body: { phone: normalized, code },
-    });
-
-    if (error || data?.error) {
-      toast.error(data?.error || "Invalid or expired code. Please try again.");
-      setCode("");
-      setLoading(false);
-      return;
-    }
-
-    loginVip(normalized);
-    setStep("success");
-    setLoading(false);
-    toast.success("VIP access activated!");
-
-    setTimeout(() => navigate("/off-market"), 1500);
-  };
-
-  const handleResend = async () => {
-    const digits = phone.replace(/\D/g, "");
-    const normalized = digits.length === 10 ? `+1${digits}` : `+${digits}`;
-    setLoading(true);
-    const { error } = await supabase.functions.invoke("send-sms-otp", {
-      body: { phone: normalized },
-    });
-    if (error) {
-      toast.error("Failed to resend code.");
+    const result = await loginVip(email.trim(), password);
+    if (result.error) {
+      toast.error(result.error);
     } else {
-      toast.success("New code sent!");
-      setCode("");
+      toast.success("Welcome back!");
+      navigate("/off-market");
+    }
+    setLoading(false);
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !password) return;
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+    setLoading(true);
+
+    const result = await signUpVip(email.trim(), password);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Account created! Welcome to VIP access.");
+      navigate("/off-market");
     }
     setLoading(false);
   };
@@ -166,91 +105,126 @@ export default function VipLoginPage() {
             </div>
             <CardTitle className="text-2xl">VIP Login</CardTitle>
             <CardDescription>
-              {step === "phone" && "Enter the phone number you used to request off-market access."}
-              {step === "code" && "Enter the 6-digit code sent to your phone."}
-              {step === "success" && "Welcome back! Redirecting..."}
+              Access exclusive off-market pre-construction inventory.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {step === "phone" && (
-              <form onSubmit={handlePhoneSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="vip-phone">Phone Number</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="vip-phone"
-                      type="tel"
-                      inputMode="tel"
-                      autoComplete="tel"
-                      placeholder="(604) 555-0123"
-                      value={phone}
-                      onChange={(e) => setPhone(formatPhoneDisplay(e.target.value))}
-                      className="pl-10 text-[16px]"
-                      required
-                    />
+            <Tabs value={tab} onValueChange={(v) => setTab(v as "login" | "signup")} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="login">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Create Account</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="login-email">Email or Phone</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="login-email"
+                        type="text"
+                        autoComplete="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10 text-[16px]"
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Continue
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-                <p className="text-xs text-muted-foreground text-center">
-                  Don't have access?{" "}
-                  <a href="/off-market" className="text-primary font-medium hover:underline">
-                    Request it here
-                  </a>
-                </p>
-              </form>
-            )}
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="login-password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pr-10 text-[16px]"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Sign In
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Don't have access?{" "}
+                    <a href="/off-market" className="text-primary font-medium hover:underline">
+                      Request it here
+                    </a>
+                  </p>
+                </form>
+              </TabsContent>
 
-            {step === "code" && (
-              <div className="space-y-5">
-                <div className="flex flex-col items-center gap-3">
-                  <p className="text-sm text-muted-foreground">Code sent to <span className="font-medium text-foreground">{phone}</span></p>
-                  <InputOTP maxLength={6} value={code} onChange={setCode} autoFocus>
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
-                <Button className="w-full" disabled={code.length !== 6 || loading} onClick={handleCodeVerify}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Verify & Login
-                </Button>
-                <div className="flex items-center justify-between">
-                  <button
-                    type="button"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    onClick={() => { setStep("phone"); setCode(""); }}
-                  >
-                    ← Change number
-                  </button>
-                  <button
-                    type="button"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-                    onClick={handleResend}
-                    disabled={loading}
-                  >
-                    <RefreshCw className="h-3 w-3" /> Resend
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {step === "success" && (
-              <div className="flex flex-col items-center gap-3 py-4">
-                <CheckCircle className="h-12 w-12 text-emerald-500" />
-                <p className="text-lg font-semibold">Access Granted!</p>
-                <p className="text-sm text-muted-foreground">Redirecting to off-market inventory...</p>
-              </div>
-            )}
+              <TabsContent value="signup">
+                <form onSubmit={handleSignup} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        autoComplete="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10 text-[16px]"
+                        required
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">Must match the email used in your VIP access request.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Create Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        placeholder="Min 6 characters"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pr-10 text-[16px]"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Create Account
+                    <CheckCircle className="h-4 w-4 ml-2" />
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Only approved VIP members can create an account.{" "}
+                    <a href="/off-market" className="text-primary font-medium hover:underline">
+                      Request access
+                    </a>
+                  </p>
+                </form>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </main>
