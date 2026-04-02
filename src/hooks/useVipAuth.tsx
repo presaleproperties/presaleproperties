@@ -62,6 +62,18 @@ async function hasApprovedAccess(email?: string, phone?: string): Promise<boolea
   return false;
 }
 
+/** Parse budget range string to a max number */
+function parseBudgetMax(range: string): number | null {
+  if (range.includes("1.5M+")) return 2000000;
+  const match = range.match(/\$?([\d.]+)([KMk])?/g);
+  if (!match) return null;
+  const last = match[match.length - 1];
+  const num = parseFloat(last.replace(/[$,]/g, ""));
+  if (last.includes("M") || last.includes("m")) return num * 1000000;
+  if (last.includes("K") || last.includes("k")) return num * 1000;
+  return num;
+}
+
 export function VipAuthProvider({ children }: { children: ReactNode }) {
   const [vipUser, setVipUser] = useState<User | null>(null);
   const [isVipApproved, setIsVipApproved] = useState(false);
