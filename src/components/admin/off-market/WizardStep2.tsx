@@ -529,7 +529,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
               <div className="space-y-3">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <Switch checked={editUnit.has_unit_incentive} onCheckedChange={v => setEditUnit({ ...editUnit, has_unit_incentive: v })} />
-                  <span className="text-sm font-medium">🎁 Special Offering / Incentive</span>
+                  <span className="text-sm font-medium">Special Offering / Incentive</span>
                 </label>
                 {editUnit.has_unit_incentive && (
                   <Input value={editUnit.unit_incentive} onChange={e => setEditUnit({ ...editUnit, unit_incentive: e.target.value })} placeholder="e.g., Free parking upgrade, $5K closing credit..." className="rounded-xl" />
