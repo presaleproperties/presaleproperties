@@ -430,6 +430,7 @@ export default function OffMarketPage() {
           </div>
         )}
       </section>
+      </section>
 
       {/* Mobile Sticky CTA Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-md border-t border-border p-3 flex gap-2 safe-area-bottom">
