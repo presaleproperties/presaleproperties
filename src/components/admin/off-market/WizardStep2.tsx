@@ -386,7 +386,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                   </div>
                 ) : previewUrl && !showPdfIcon ? (
                   <div className="relative group">
-                    <img src={previewUrl} className="w-full max-h-56 object-contain bg-white p-3 rounded-t-xl" alt="Floor plan" />
+                    <img src={previewUrl} className="w-full max-h-80 object-contain bg-white p-3 rounded-t-xl" alt="Floor plan" />
                     {extracting && (
                       <div className="absolute inset-0 bg-background/60 flex items-center justify-center rounded-t-xl">
                         <div className="flex items-center gap-2 bg-background/90 rounded-lg px-4 py-2 shadow-lg">
