@@ -25,10 +25,10 @@ import { format } from "date-fns";
 
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
-  pending_review: "bg-yellow-500/10 text-yellow-500",
-  published: "bg-emerald-500/10 text-emerald-500",
-  archived: "bg-red-500/10 text-red-400",
-  sold: "bg-purple-500/10 text-purple-400",
+  pending_review: "bg-primary/10 text-primary border border-primary/20",
+  published: "bg-primary/10 text-primary border border-primary/20",
+  archived: "bg-muted text-muted-foreground",
+  sold: "bg-muted text-muted-foreground",
 };
 
 export default function AdminOffMarket() {
@@ -320,9 +320,6 @@ export default function AdminOffMarket() {
                               <Building2 className="h-8 w-8 text-muted-foreground/30" />
                             </div>
                           )}
-                          <Badge className={`absolute top-2 left-2 ${statusColors[l.status || "draft"]} border-0 text-[10px] rounded-md capitalize`}>
-                            {(l.status || "draft").replace("_", " ")}
-                          </Badge>
                         </div>
 
                         {/* Content */}
@@ -330,8 +327,13 @@ export default function AdminOffMarket() {
                           <div>
                             <div className="flex items-start justify-between gap-2">
                               <div className="min-w-0">
-                                <h3 className="font-bold text-base truncate">{l.linked_project_name}</h3>
-                                <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <h3 className="font-bold text-base truncate">{l.linked_project_name}</h3>
+                                  <Badge className={`${statusColors[l.status || "draft"]} text-[10px] rounded-md capitalize shrink-0`}>
+                                    {(l.status || "draft").replace("_", " ")}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                   {(l.project_city || l.developer_name) && (
                                     <span className="flex items-center gap-1 truncate">
                                       <MapPin className="h-3 w-3 flex-shrink-0" />
@@ -390,7 +392,7 @@ export default function AdminOffMarket() {
                             <div className="flex items-center gap-3 text-sm">
                               <span className="flex items-center gap-1">
                                 <Package className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span className="text-emerald-500 font-semibold">{l.available_units}</span>
+                                <span className="text-primary font-semibold">{l.available_units}</span>
                                 <span className="text-muted-foreground">/ {l.total_units} units</span>
                               </span>
                               <span className="flex items-center gap-1 text-muted-foreground">
