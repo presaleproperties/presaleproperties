@@ -54,8 +54,8 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
 
   const saveUnit = () => {
     if (!editUnit) return;
-    if (!editUnit.unit_number || !editUnit.sqft || !editUnit.price || !editUnit.bedrooms) {
-      toast.error("Unit #, beds, sqft, and price are required"); return;
+    if (!editUnit.sqft || !editUnit.price || !editUnit.bedrooms) {
+      toast.error("Beds, sqft, and price are required"); return;
     }
     const updated = [...units];
     if (editIndex !== null) { updated[editIndex] = editUnit; } else { updated.push(editUnit); }
