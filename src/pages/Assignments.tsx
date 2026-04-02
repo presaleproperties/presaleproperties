@@ -364,14 +364,21 @@ export default function Assignments() {
               </div>
             ))}
           </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground">
-            <Building2 className="h-12 w-12 mx-auto mb-4 opacity-30" />
-            <p className="text-lg font-medium mb-1">No assignments found</p>
-            <p className="text-sm mb-4">Try adjusting your filters or check back soon for new listings.</p>
-            {activeFilterCount > 0 && (
-              <Button variant="outline" size="sm" onClick={clearFilters}>Clear Filters</Button>
-            )}
+        ) : filtered.length === 0 || isError ? (
+          <div className="text-center py-20">
+            <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Assignment listings coming soon</h3>
+            <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+              Contact us for exclusive off-market assignment opportunities across Metro Vancouver.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              {activeFilterCount > 0 && (
+                <Button variant="outline" size="sm" onClick={clearFilters}>Clear Filters</Button>
+              )}
+              <Button onClick={() => handleInquire("Assignment Inquiry")} className="gap-2">
+                <ArrowRight className="h-4 w-4" /> Contact Us for Assignments
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

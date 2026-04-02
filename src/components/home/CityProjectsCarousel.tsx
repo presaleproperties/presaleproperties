@@ -97,7 +97,7 @@ export function CityProjectsCarousel({ city, title, subtitle, excludeSlug }: Cit
     );
   }
 
-  if (!projects || projects.length === 0) {
+  if (isError || !projects || projects.length === 0) {
     return null;
   }
 
