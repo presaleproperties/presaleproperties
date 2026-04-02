@@ -2313,6 +2313,69 @@ export type Database = {
           },
         ]
       }
+      off_market_inquiries: {
+        Row: {
+          buyer_email: string
+          buyer_name: string
+          buyer_phone: string | null
+          created_at: string
+          id: string
+          listing_id: string
+          message: string | null
+          project_name: string | null
+          status: string
+          unit_id: string | null
+          unit_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          buyer_email: string
+          buyer_name: string
+          buyer_phone?: string | null
+          created_at?: string
+          id?: string
+          listing_id: string
+          message?: string | null
+          project_name?: string | null
+          status?: string
+          unit_id?: string | null
+          unit_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          buyer_email?: string
+          buyer_name?: string
+          buyer_phone?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string
+          message?: string | null
+          project_name?: string | null
+          status?: string
+          unit_id?: string | null
+          unit_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "off_market_inquiries_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "off_market_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "off_market_inquiries_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "off_market_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       off_market_listings: {
         Row: {
           access_level: string | null

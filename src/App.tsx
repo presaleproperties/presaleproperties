@@ -112,6 +112,8 @@ const DeveloperOffMarketWizard = lazy(() => import("./pages/developer/DeveloperO
 const OffMarketPage = lazy(() => import("./pages/OffMarketPage"));
 const OffMarketDetailPage = lazy(() => import("./pages/OffMarketDetailPage"));
 const VipLoginPage = lazy(() => import("./pages/VipLoginPage"));
+const VipDashboard = lazy(() => import("./pages/VipDashboard"));
+const VipInterests = lazy(() => import("./pages/VipInterests"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
 const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
@@ -298,6 +300,8 @@ const App = () => (
             <Route path="/off-market" element={<OffMarketPage />} />
             <Route path="/off-market/:slug" element={<OffMarketDetailPage />} />
             <Route path="/vip-login" element={<VipLoginPage />} />
+            <Route path="/vip" element={<VipDashboard />} />
+            <Route path="/vip/interests" element={<VipInterests />} />
             
             {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />

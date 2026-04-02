@@ -52,7 +52,7 @@ export default function VipLoginPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button className="w-full" onClick={() => navigate("/off-market")}>
+              <Button className="w-full" onClick={() => navigate("/vip")}>
                 Browse Off-Market Inventory
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
@@ -77,7 +77,7 @@ export default function VipLoginPage() {
       toast.error(result.error);
     } else {
       toast.success("Welcome back!");
-      navigate("/off-market");
+      navigate("/vip");
     }
     setLoading(false);
   };
@@ -103,7 +103,7 @@ export default function VipLoginPage() {
       toast.error(result.error);
     } else {
       toast.success("Account created! Welcome to VIP access.");
-      navigate("/off-market");
+      navigate("/vip");
     }
     setLoading(false);
   };
