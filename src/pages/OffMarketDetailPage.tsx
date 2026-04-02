@@ -334,12 +334,12 @@ export default function OffMarketDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-[#1e1e1e] overflow-x-auto">
+          <div className="rounded-xl border border-border overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-[#141414] border-b border-[#1e1e1e]">
+                <tr className="bg-card border-b border-border">
                   {[
-                    { key: "unit_number", label: "Unit #" },
+                    { key: "unit_number", label: "Unit #", sticky: true },
                     { key: "unit_type", label: "Type" },
                     { key: "bedrooms", label: "Beds" },
                     { key: "bathrooms", label: "Baths" },
