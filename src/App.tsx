@@ -112,6 +112,8 @@ const DeveloperOffMarketWizard = lazy(() => import("./pages/developer/DeveloperO
 const OffMarketPage = lazy(() => import("./pages/OffMarketPage"));
 const OffMarketDetailPage = lazy(() => import("./pages/OffMarketDetailPage"));
 const VipLoginPage = lazy(() => import("./pages/VipLoginPage"));
+const VipDashboard = lazy(() => import("./pages/VipDashboard"));
+const VipInterests = lazy(() => import("./pages/VipInterests"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
 const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
