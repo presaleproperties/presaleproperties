@@ -2,13 +2,22 @@ import { useState, useEffect, createContext, useContext, ReactNode, useCallback,
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
+interface VipSignupProfile {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  hasAgent: boolean;
+  budgetRange?: string | null;
+  timeline?: string | null;
+}
+
 interface VipAuthContextType {
   vipUser: User | null;
   vipEmail: string | null;
   isVipLoggedIn: boolean;
   isVipApproved: boolean;
   loading: boolean;
-  signUpVip: (email: string, password: string) => Promise<{ error?: string }>;
+  signUpVip: (email: string, password: string, profile?: VipSignupProfile) => Promise<{ error?: string }>;
   loginVip: (emailOrPhone: string, password: string) => Promise<{ error?: string }>;
   logoutVip: () => void;
   checkVipAccessForListing: (listingId: string) => Promise<boolean>;
