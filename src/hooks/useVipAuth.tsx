@@ -1,32 +1,44 @@
 import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const VIP_EMAIL_KEY = "off_market_vip_email";
+const VIP_PHONE_KEY = "off_market_vip_phone";
 const VIP_VERIFIED_KEY = "off_market_vip_verified";
 
 interface VipAuthContextType {
-  vipEmail: string | null;
+  vipPhone: string | null;
   isVipLoggedIn: boolean;
   isVipApproved: boolean;
   loading: boolean;
-  loginVip: (email: string) => void;
+  loginVip: (phone: string) => void;
   logoutVip: () => void;
   checkVipAccessForListing: (listingId: string) => Promise<boolean>;
 }
 
 const VipAuthContext = createContext<VipAuthContextType | undefined>(undefined);
 
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("1") && digits.length === 11) return `+${digits}`;
+  if (digits.length === 10) return `+1${digits}`;
+  return `+${digits}`;
+}
+
 export function VipAuthProvider({ children }: { children: ReactNode }) {
-  const [vipEmail, setVipEmail] = useState<string | null>(null);
+  const [vipPhone, setVipPhone] = useState<string | null>(null);
   const [isVipApproved, setIsVipApproved] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Check if user has any approved access
-  const checkGlobalApproval = useCallback(async (email: string) => {
+  const checkGlobalApproval = useCallback(async (phone: string) => {
+    const normalized = normalizePhone(phone);
+    // Check all possible formats
+    const formats = [normalized, phone];
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) formats.push(digits, `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`);
+    
     const { data } = await supabase
       .from("off_market_access")
       .select("id")
-      .eq("email", email)
+      .in("phone", formats)
       .eq("status", "approved")
       .limit(1)
       .maybeSingle();
@@ -34,55 +46,51 @@ export function VipAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const storedEmail = localStorage.getItem(VIP_EMAIL_KEY);
+    const storedPhone = localStorage.getItem(VIP_PHONE_KEY);
     const verified = localStorage.getItem(VIP_VERIFIED_KEY);
-    if (storedEmail && verified === "true") {
-      setVipEmail(storedEmail);
-      checkGlobalApproval(storedEmail).then((approved) => {
+    if (storedPhone && verified === "true") {
+      setVipPhone(storedPhone);
+      checkGlobalApproval(storedPhone).then((approved) => {
         setIsVipApproved(approved);
         setLoading(false);
       });
     } else {
+      // Migrate from old email-based keys
+      const oldEmail = localStorage.getItem("off_market_vip_email");
+      if (oldEmail) {
+        localStorage.removeItem("off_market_vip_email");
+        localStorage.removeItem("off_market_vip_verified");
+        localStorage.removeItem("off_market_approved_emails");
+      }
       setLoading(false);
     }
   }, [checkGlobalApproval]);
 
-  const loginVip = useCallback((email: string) => {
-    localStorage.setItem(VIP_EMAIL_KEY, email);
+  const loginVip = useCallback((phone: string) => {
+    const normalized = normalizePhone(phone);
+    localStorage.setItem(VIP_PHONE_KEY, normalized);
     localStorage.setItem(VIP_VERIFIED_KEY, "true");
-    // Also set the legacy key for backward compat
-    localStorage.setItem("off_market_approved_emails", email);
-    setVipEmail(email);
-    checkGlobalApproval(email).then(setIsVipApproved);
+    setVipPhone(normalized);
+    checkGlobalApproval(normalized).then(setIsVipApproved);
   }, [checkGlobalApproval]);
 
   const logoutVip = useCallback(() => {
-    localStorage.removeItem(VIP_EMAIL_KEY);
+    localStorage.removeItem(VIP_PHONE_KEY);
     localStorage.removeItem(VIP_VERIFIED_KEY);
-    localStorage.removeItem("off_market_approved_emails");
-    setVipEmail(null);
+    setVipPhone(null);
     setIsVipApproved(false);
   }, []);
 
   const checkVipAccessForListing = useCallback(async (listingId: string): Promise<boolean> => {
-    if (!vipEmail) return false;
-    // If globally approved, grant access to all listings
+    if (!vipPhone) return false;
     if (isVipApproved) return true;
-    // Otherwise check specific listing
-    const { data } = await supabase
-      .from("off_market_access")
-      .select("id")
-      .eq("email", vipEmail)
-      .eq("listing_id", listingId)
-      .eq("status", "approved")
-      .maybeSingle();
-    return !!data;
-  }, [vipEmail, isVipApproved]);
+    return false;
+  }, [vipPhone, isVipApproved]);
 
   return (
     <VipAuthContext.Provider value={{
-      vipEmail,
-      isVipLoggedIn: !!vipEmail,
+      vipPhone,
+      isVipLoggedIn: !!vipPhone,
       isVipApproved,
       loading,
       loginVip,
