@@ -313,44 +313,69 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
             <h3 className="font-bold text-lg">{units.length} Unit{units.length !== 1 ? "s" : ""} Added</h3>
             <Badge variant="secondary" className="text-xs">{units.filter(u => u.status === "available").length} available</Badge>
           </div>
-          <div className="grid gap-2">
+          <div className="grid gap-3">
             {units.map((u, i) => (
-              <Card key={i} className="rounded-xl border-border/50 hover:border-border transition-colors">
-                <CardContent className="p-3 flex items-center gap-3">
-                  {u.floorplan_url ? (
-                    <img
-                      src={u.floorplan_url}
-                      className="w-14 h-14 rounded-lg object-cover flex-shrink-0 bg-white border border-border/30"
-                      alt=""
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                      <Building2 className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <p className="font-semibold text-sm">{u.unit_number ? `Unit ${u.unit_number}` : u.unit_name || "Unit"}</p>
-                      {u.unit_type && <Badge variant="outline" className="text-[10px] font-normal">{u.unit_type}</Badge>}
-                      <Badge className={`${STATUS_COLORS[u.status]} border-0 text-[10px] rounded-md capitalize ml-auto`}>{u.status}</Badge>
-                    </div>
-                    <div className="flex flex-wrap gap-x-3 gap-y-0 text-xs text-muted-foreground">
-                      <span>{u.bedrooms}bd / {u.bathrooms}ba</span>
-                      <span>{u.sqft.toLocaleString()} sqft</span>
-                      <span className="text-primary font-semibold">${u.price.toLocaleString()}</span>
-                    </div>
-                    {(u.parking_included || u.storage_included || u.has_unit_incentive) && (
-                      <div className="flex gap-1.5 mt-1">
-                        {u.parking_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">Parking</Badge>}
-                        {u.storage_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">Storage</Badge>}
-                        {u.has_unit_incentive && <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/30 text-primary">{u.unit_incentive || "Incentive"}</Badge>}
+              <Card key={i} className="rounded-xl border-border/50 hover:border-border transition-colors overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="flex items-stretch">
+                    {/* Floorplan preview — left side */}
+                    {u.floorplan_url ? (
+                      <div className="w-28 sm:w-36 flex-shrink-0 relative bg-white border-r border-border/30">
+                        <img
+                          src={u.floorplan_url}
+                          className="w-full h-full object-contain p-2 min-h-[100px]"
+                          alt={`Floor plan ${u.unit_number || u.unit_name || ""}`}
+                          onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-28 sm:w-36 flex-shrink-0 bg-muted/50 flex items-center justify-center border-r border-border/30 min-h-[100px]">
+                        <Building2 className="h-8 w-8 text-muted-foreground/30" />
                       </div>
                     )}
-                  </div>
-                  <div className="flex gap-0.5 flex-shrink-0">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openEdit(i)}><Pencil className="h-3.5 w-3.5" /></Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive/70 hover:text-destructive" onClick={() => deleteUnit(i)}><Trash2 className="h-3.5 w-3.5" /></Button>
+
+                    {/* Content */}
+                    <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-bold text-sm">{u.unit_number ? `Unit ${u.unit_number}` : u.unit_name || "Unit"}</p>
+                          {u.unit_type && <Badge variant="outline" className="text-[10px] font-normal">{u.unit_type}</Badge>}
+                        </div>
+                        <div className="flex flex-wrap gap-x-3 gap-y-0 text-xs text-muted-foreground">
+                          <span>{u.bedrooms}bd / {u.bathrooms}ba</span>
+                          <span>{u.sqft.toLocaleString()} sqft</span>
+                          <span className="text-primary font-semibold">${u.price.toLocaleString()}</span>
+                        </div>
+                        {(u.parking_included || u.storage_included || u.has_unit_incentive) && (
+                          <div className="flex gap-1.5 mt-1.5">
+                            {u.parking_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">Parking</Badge>}
+                            {u.storage_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">Storage</Badge>}
+                            {u.has_unit_incentive && <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/30 text-primary">{u.unit_incentive || "Incentive"}</Badge>}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bottom row: sold toggle + actions */}
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/30">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={u.status === "sold"}
+                            onCheckedChange={(sold) => {
+                              const updated = [...units];
+                              updated[i] = { ...u, status: sold ? "sold" : "available" };
+                              setUnits(updated);
+                              toast.success(sold ? `Unit ${u.unit_number || i + 1} marked as sold` : `Unit ${u.unit_number || i + 1} marked as available`);
+                            }}
+                            className="data-[state=checked]:bg-red-500 h-4 w-7"
+                          />
+                          <Badge className={`${STATUS_COLORS[u.status]} border-0 text-[10px] rounded-md capitalize`}>{u.status}</Badge>
+                        </div>
+                        <div className="flex gap-0.5">
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(i)}><Pencil className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive/70 hover:text-destructive" onClick={() => deleteUnit(i)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
