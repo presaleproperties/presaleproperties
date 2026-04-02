@@ -24,7 +24,7 @@ export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, 
     queryFn: async () => {
       let q = supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, developer_name, project_type, estimated_completion, featured_image")
+        .select("id, name, slug, city, neighborhood, developer_name, project_type, completion_year, featured_image")
         .order("name");
       if (search) q = q.ilike("name", `%${search}%`);
       const { data } = await q.limit(20);
@@ -103,9 +103,9 @@ export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, 
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5" /> {projectPreview.neighborhood}, {projectPreview.city}
                 </p>
-                {projectPreview.estimated_completion && (
+                {projectPreview.completion_year && (
                   <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" /> {projectPreview.estimated_completion}
+                    <Calendar className="h-3.5 w-3.5" /> {projectPreview.completion_year}
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground">{projectPreview.project_type}</p>
