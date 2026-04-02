@@ -103,7 +103,7 @@ export default function VipLoginPage() {
       toast.error(result.error);
     } else {
       toast.success("Account created! Welcome to VIP access.");
-      navigate("/off-market");
+      navigate("/vip");
     }
     setLoading(false);
   };
