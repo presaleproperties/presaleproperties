@@ -75,7 +75,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
   // Scroll-based header visibility for mobile/tablet
   const { isVisible } = useScrollHeader({ threshold: 100, sensitivity: 8 });
   const isMobileOrTablet = useIsMobileOrTablet();
-  const { isVipLoggedIn, vipEmail, logoutVip } = useVipAuth();
+  const { isVipLoggedIn, vipPhone, logoutVip } = useVipAuth();
 
   // Track scroll position for transparent header mode
   useEffect(() => {
