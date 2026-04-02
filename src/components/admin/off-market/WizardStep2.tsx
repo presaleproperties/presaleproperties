@@ -10,13 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Upload, Pencil, Trash2, Loader2, Sparkles, ImageIcon, FileUp, X, Download, Building2 } from "lucide-react";
+import { Plus, Upload, Pencil, Trash2, Loader2, Sparkles, FileUp, X, Download, Building2, CheckCircle2, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import type { OffMarketUnit } from "./types";
 
 const UNIT_TYPES = ["Studio", "1BR", "1BR+Den", "2BR", "2BR+Den", "3BR", "3BR+Den", "Townhome", "Penthouse", "Other"];
 
-// Map AI-extracted unit types to our standard values
 const normalizeUnitType = (raw: string): string => {
   if (!raw) return "";
   const lower = raw.toLowerCase().replace(/\s+/g, "");
@@ -42,7 +41,7 @@ const emptyUnit: OffMarketUnit = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  available: "bg-green-500/10 text-green-500",
+  available: "bg-emerald-500/10 text-emerald-500",
   reserved: "bg-yellow-500/10 text-yellow-500",
   sold: "bg-red-500/10 text-red-400",
   hold: "bg-muted text-muted-foreground",
@@ -62,11 +61,22 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
   const [extracting, setExtracting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [isPdf, setIsPdf] = useState(false);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dialogFileRef = useRef<HTMLInputElement>(null);
   const csvRef = useRef<HTMLInputElement>(null);
 
-  const openAdd = () => { setEditUnit({ ...emptyUnit }); setEditIndex(null); setUploadedImage(null); setDialogOpen(true); };
-  const openEdit = (i: number) => { setEditUnit({ ...units[i] }); setEditIndex(i); setUploadedImage(units[i].floorplan_url || null); setDialogOpen(true); };
+  const openAdd = () => { setEditUnit({ ...emptyUnit }); setEditIndex(null); setUploadedImage(null); setLocalPreview(null); setIsPdf(false); setDialogOpen(true); };
+  const openEdit = (i: number) => {
+    const u = units[i];
+    setEditUnit({ ...u });
+    setEditIndex(i);
+    setUploadedImage(u.floorplan_url || null);
+    setLocalPreview(null);
+    setIsPdf(u.floorplan_url ? u.floorplan_url.toLowerCase().includes('.pdf') : false);
+    setDialogOpen(true);
+  };
 
   const saveUnit = () => {
     if (!editUnit) return;
@@ -77,12 +87,12 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
     if (editIndex !== null) { updated[editIndex] = editUnit; } else { updated.push(editUnit); }
     setUnits(updated);
     setDialogOpen(false);
+    setLocalPreview(null);
     toast.success(editIndex !== null ? "Unit updated" : "Unit added");
   };
 
   const deleteUnit = (i: number) => { setUnits(units.filter((_, j) => j !== i)); toast.success("Unit removed"); };
 
-  // AI Floor Plan Extraction
   const handleFloorPlanFile = useCallback(async (file: File) => {
     const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
     if (!validTypes.includes(file.type)) {
@@ -90,9 +100,19 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
       return;
     }
 
+    const filePdf = file.type === "application/pdf";
+    setIsPdf(filePdf);
+
+    // Show instant local preview for images
+    if (!filePdf) {
+      const objectUrl = URL.createObjectURL(file);
+      setLocalPreview(objectUrl);
+    } else {
+      setLocalPreview(null);
+    }
+
     setExtracting(true);
     try {
-      // Upload to storage first
       const ext = file.name.split(".").pop();
       const path = `floorplans/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: uploadErr } = await supabase.storage.from("off-market-floorplans").upload(path, file);
@@ -102,7 +122,6 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
 
       setUploadedImage(fileUrl);
 
-      // Call AI extraction
       const { data, error } = await supabase.functions.invoke("extract-floor-plan", {
         body: { fileUrl, fileName: file.name },
       });
@@ -122,7 +141,10 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
           unit_name: extracted.floor_plan_name || prev.unit_name,
           floorplan_url: fileUrl,
         } : prev);
-        toast.success("Floor plan details extracted! Review and edit below.");
+        toast.success("✨ AI extracted floor plan details — review below");
+      } else {
+        setEditUnit(prev => prev ? { ...prev, floorplan_url: fileUrl } : prev);
+        toast.info("Floor plan uploaded — fill in unit details below");
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to extract floor plan details");
@@ -140,6 +162,8 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
         setEditUnit({ ...emptyUnit });
         setEditIndex(null);
         setUploadedImage(null);
+        setLocalPreview(null);
+        setIsPdf(false);
         setDialogOpen(true);
       }
       setTimeout(() => handleFloorPlanFile(file), 100);
@@ -194,6 +218,10 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
     if (csvRef.current) csvRef.current.value = "";
   };
 
+  // Determine what to show as floor plan preview
+  const previewUrl = localPreview || uploadedImage;
+  const showPdfIcon = isPdf && !localPreview;
+
   return (
     <div
       className="space-y-6"
@@ -201,46 +229,60 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
       onDragOver={handleDragOver}
       onDragLeave={() => setDragOver(false)}
     >
-      {/* AI Drop Zone */}
-      <Card className={`rounded-2xl border-2 border-dashed transition-all ${dragOver ? "border-primary bg-primary/10" : "border-border/50"}`}>
-        <CardContent className="p-8 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="h-8 w-8 text-primary" />
-          </div>
-          <h3 className="font-bold text-lg mb-2">Drop Floor Plan Here</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Drop a screenshot or PDF of a floor plan and our AI will extract unit details automatically.
-            <br />You can review and edit the extracted details before saving.
-          </p>
-          <div className="flex items-center justify-center gap-3">
-            <Button
-              variant="outline"
-              className="rounded-xl gap-2"
-              onClick={() => {
-                openAdd();
-                setTimeout(() => fileInputRef.current?.click(), 200);
-              }}
-            >
-              <ImageIcon className="h-4 w-4" /> Upload Image
-            </Button>
-            <Button
-              variant="outline"
-              className="rounded-xl gap-2"
-              onClick={() => {
-                openAdd();
-                setTimeout(() => fileInputRef.current?.click(), 200);
-              }}
-            >
-              <FileUp className="h-4 w-4" /> Upload PDF
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Hero Drop Zone */}
+      <label className="block cursor-pointer group">
+        <Card className={`rounded-2xl border-2 border-dashed transition-all duration-200 ${
+          dragOver
+            ? "border-primary bg-primary/10 scale-[1.01] shadow-lg"
+            : "border-border/50 hover:border-primary/40 hover:bg-primary/5"
+        }`}>
+          <CardContent className="p-10 text-center">
+            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-all duration-200 ${
+              dragOver ? "bg-primary/20 scale-110" : "bg-primary/10 group-hover:bg-primary/15"
+            }`}>
+              <Sparkles className={`h-10 w-10 text-primary transition-transform duration-200 ${dragOver ? "scale-110" : ""}`} />
+            </div>
+            <h3 className="font-bold text-xl mb-2">Drop Floor Plan Here</h3>
+            <p className="text-sm text-muted-foreground mb-1">
+              Drag & drop an image or PDF — AI auto-fills unit details
+            </p>
+            <p className="text-xs text-muted-foreground/70">
+              Supports JPG, PNG, WebP, PDF
+            </p>
+            <div className="mt-5 flex items-center justify-center gap-3">
+              <span className="inline-flex items-center gap-1.5 text-sm text-primary font-medium bg-primary/10 px-4 py-2 rounded-xl group-hover:bg-primary/15 transition-colors">
+                <ImageIcon className="h-4 w-4" /> Browse Files
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,.pdf"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) {
+              if (!dialogOpen) {
+                setEditUnit({ ...emptyUnit });
+                setEditIndex(null);
+                setUploadedImage(null);
+                setLocalPreview(null);
+                setIsPdf(false);
+                setDialogOpen(true);
+              }
+              setTimeout(() => handleFloorPlanFile(f), 100);
+            }
+            if (fileInputRef.current) fileInputRef.current.value = "";
+          }}
+        />
+      </label>
 
-      {/* Action buttons */}
+      {/* Secondary actions */}
       <div className="flex flex-wrap gap-3">
-        <Button onClick={openAdd} className="rounded-xl gap-1.5 shadow-gold font-bold">
-          <Plus className="h-4 w-4" /> Add Unit Manually
+        <Button onClick={openAdd} variant="outline" className="rounded-xl gap-1.5">
+          <Plus className="h-4 w-4" /> Add Manually
         </Button>
         <Button variant="outline" className="rounded-xl gap-1.5" onClick={downloadTemplate}>
           <Download className="h-4 w-4" /> CSV Template
@@ -256,41 +298,48 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
       {/* Units list */}
       {units.length > 0 && (
         <div className="space-y-3">
-          <h3 className="font-bold text-lg">{units.length} Unit{units.length !== 1 ? "s" : ""} Added</h3>
-          <div className="grid gap-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-lg">{units.length} Unit{units.length !== 1 ? "s" : ""} Added</h3>
+            <Badge variant="secondary" className="text-xs">{units.filter(u => u.status === "available").length} available</Badge>
+          </div>
+          <div className="grid gap-2">
             {units.map((u, i) => (
-              <Card key={i} className="rounded-xl border-border/50">
-                <CardContent className="p-4 flex items-center gap-4">
+              <Card key={i} className="rounded-xl border-border/50 hover:border-border transition-colors">
+                <CardContent className="p-3 flex items-center gap-3">
                   {u.floorplan_url ? (
-                    <img src={u.floorplan_url} className="w-16 h-16 rounded-lg object-cover flex-shrink-0 bg-white" alt="" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    <img
+                      src={u.floorplan_url}
+                      className="w-14 h-14 rounded-lg object-cover flex-shrink-0 bg-white border border-border/30"
+                      alt=""
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
                   ) : (
-                    <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                      <Building2 className="h-6 w-6 text-muted-foreground" />
+                    <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                      <Building2 className="h-5 w-5 text-muted-foreground" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-semibold">Unit {u.unit_number}</p>
-                      {u.unit_name && <span className="text-xs text-muted-foreground">({u.unit_name})</span>}
-                      <Badge className={`${STATUS_COLORS[u.status]} border-0 text-xs rounded-lg capitalize ml-auto`}>{u.status}</Badge>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="font-semibold text-sm">{u.unit_number ? `Unit ${u.unit_number}` : u.unit_name || "Unit"}</p>
+                      {u.unit_type && <Badge variant="outline" className="text-[10px] font-normal">{u.unit_type}</Badge>}
+                      <Badge className={`${STATUS_COLORS[u.status]} border-0 text-[10px] rounded-md capitalize ml-auto`}>{u.status}</Badge>
                     </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                      <span>{u.unit_type || "—"}</span>
+                    <div className="flex flex-wrap gap-x-3 gap-y-0 text-xs text-muted-foreground">
                       <span>{u.bedrooms}bd / {u.bathrooms}ba</span>
                       <span>{u.sqft.toLocaleString()} sqft</span>
                       <span className="text-primary font-semibold">${u.price.toLocaleString()}</span>
                     </div>
-                    <div className="flex gap-2 mt-1">
-                      {u.parking_included && <Badge variant="outline" className="text-[10px]">Parking</Badge>}
-                      {u.storage_included && <Badge variant="outline" className="text-[10px]">Storage</Badge>}
-                      {u.locker_included && <Badge variant="outline" className="text-[10px]">Locker</Badge>}
-                      {u.inclusions?.includes("AC") && <Badge variant="outline" className="text-[10px]">AC</Badge>}
-                      {u.has_unit_incentive && <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">🎁 {u.unit_incentive || "Incentive"}</Badge>}
-                    </div>
+                    {(u.parking_included || u.storage_included || u.has_unit_incentive) && (
+                      <div className="flex gap-1.5 mt-1">
+                        {u.parking_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">🅿️ Parking</Badge>}
+                        {u.storage_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">📦 Storage</Badge>}
+                        {u.has_unit_incentive && <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/30 text-primary">🎁 {u.unit_incentive || "Incentive"}</Badge>}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex gap-1 flex-shrink-0">
+                  <div className="flex gap-0.5 flex-shrink-0">
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openEdit(i)}><Pencil className="h-3.5 w-3.5" /></Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-400" onClick={() => deleteUnit(i)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive/70 hover:text-destructive" onClick={() => deleteUnit(i)}><Trash2 className="h-3.5 w-3.5" /></Button>
                   </div>
                 </CardContent>
               </Card>
@@ -300,140 +349,188 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
       )}
 
       {/* Unit Form Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setLocalPreview(null); } setDialogOpen(open); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
-            <DialogTitle>{editIndex !== null ? "Edit Unit" : "Add Unit"}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              {editIndex !== null ? "Edit Unit" : "Add Unit"}
+              {extracting && <Badge variant="secondary" className="text-xs gap-1 animate-pulse"><Loader2 className="h-3 w-3 animate-spin" /> AI extracting...</Badge>}
+            </DialogTitle>
           </DialogHeader>
           {editUnit && (
-            <div className="space-y-4">
-              {/* AI Upload area inside dialog */}
-              <div className="border-2 border-dashed border-border/50 rounded-xl p-4 text-center">
-                {extracting ? (
-                  <div className="flex items-center justify-center gap-2 py-4">
-                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                    <span className="text-sm text-muted-foreground">AI is extracting floor plan details...</span>
-                  </div>
-                ) : uploadedImage ? (
-                  <div className="relative">
-                    {uploadedImage.match(/\.(pdf)$/i) ? (
-                      <div className="py-4 flex flex-col items-center gap-2">
-                        <FileUp className="h-10 w-10 text-primary" />
-                        <p className="text-sm font-medium">Floor plan PDF uploaded</p>
+            <div className="space-y-5">
+              {/* Floor plan preview / upload area */}
+              <div
+                className={`rounded-xl border-2 border-dashed transition-all overflow-hidden ${
+                  previewUrl || showPdfIcon ? "border-primary/30 bg-primary/5" : "border-border/50 hover:border-primary/30"
+                }`}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const file = e.dataTransfer.files[0];
+                  if (file) handleFloorPlanFile(file);
+                }}
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              >
+                {extracting && !previewUrl ? (
+                  <div className="flex flex-col items-center justify-center gap-3 py-8">
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
                       </div>
-                    ) : (
-                      <img src={uploadedImage} className="max-h-48 mx-auto rounded-lg object-contain bg-white p-2" alt="Floor plan" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium">AI is reading your floor plan...</p>
+                      <p className="text-xs text-muted-foreground">This takes a few seconds</p>
+                    </div>
+                  </div>
+                ) : previewUrl && !showPdfIcon ? (
+                  <div className="relative group">
+                    <img src={previewUrl} className="w-full max-h-56 object-contain bg-white p-3 rounded-t-xl" alt="Floor plan" />
+                    {extracting && (
+                      <div className="absolute inset-0 bg-background/60 flex items-center justify-center rounded-t-xl">
+                        <div className="flex items-center gap-2 bg-background/90 rounded-lg px-4 py-2 shadow-lg">
+                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                          <span className="text-sm font-medium">AI extracting details...</span>
+                        </div>
+                      </div>
                     )}
                     <Button
-                      variant="ghost"
+                      variant="secondary"
                       size="sm"
-                      className="absolute top-1 right-1 h-6 w-6 p-0"
-                      onClick={() => { setUploadedImage(null); setEditUnit({ ...editUnit!, floorplan_url: "" }); }}
+                      className="absolute top-2 right-2 h-7 w-7 p-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => { setUploadedImage(null); setLocalPreview(null); setEditUnit({ ...editUnit!, floorplan_url: "" }); }}
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                    {!extracting && (
+                      <div className="px-3 py-2 flex items-center gap-2 text-xs text-emerald-600 bg-emerald-500/10">
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Floor plan uploaded
+                      </div>
+                    )}
+                  </div>
+                ) : showPdfIcon ? (
+                  <div className="relative group py-6 flex flex-col items-center gap-2">
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <FileUp className="h-7 w-7 text-primary" />
+                    </div>
+                    <p className="text-sm font-medium">PDF Floor Plan Uploaded</p>
+                    {extracting && <p className="text-xs text-muted-foreground animate-pulse">AI extracting details...</p>}
+                    {!extracting && (
+                      <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Ready</p>
+                    )}
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="absolute top-2 right-2 h-7 w-7 p-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => { setUploadedImage(null); setLocalPreview(null); setIsPdf(false); setEditUnit({ ...editUnit!, floorplan_url: "" }); }}
+                    >
+                      <X className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 ) : (
-                  <label className="cursor-pointer">
-                    <div className="py-4">
-                      <Sparkles className="h-8 w-8 text-primary mx-auto mb-2" />
-                      <p className="text-sm font-medium">Drop floor plan image/PDF here</p>
-                      <p className="text-xs text-muted-foreground">AI will auto-fill unit details</p>
-                    </div>
+                  <label className="cursor-pointer block py-6 text-center hover:bg-muted/30 transition-colors">
+                    <Sparkles className="h-7 w-7 text-primary mx-auto mb-2" />
+                    <p className="text-sm font-medium">Drop floor plan or click to upload</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">AI auto-fills unit details • JPG, PNG, PDF</p>
                     <input
-                      ref={fileInputRef}
+                      ref={dialogFileRef}
                       type="file"
                       accept="image/*,.pdf"
                       className="hidden"
                       onChange={(e) => {
                         const f = e.target.files?.[0];
                         if (f) handleFloorPlanFile(f);
+                        if (dialogFileRef.current) dialogFileRef.current.value = "";
                       }}
                     />
                   </label>
                 )}
               </div>
 
-              {/* Unit fields */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm">Unit Number</Label>
-                  <Input value={editUnit.unit_number} onChange={e => setEditUnit({ ...editUnit, unit_number: e.target.value })} className="rounded-xl" placeholder="101" />
+              {/* Unit fields - grouped logically */}
+              <div className="space-y-4">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unit Information</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Unit Number</Label>
+                    <Input value={editUnit.unit_number} onChange={e => setEditUnit({ ...editUnit, unit_number: e.target.value })} className="rounded-xl mt-1" placeholder="e.g. 101" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Plan Name</Label>
+                    <Input value={editUnit.unit_name} onChange={e => setEditUnit({ ...editUnit, unit_name: e.target.value })} className="rounded-xl mt-1" placeholder="e.g. Plan A" />
+                  </div>
                 </div>
-                <div>
-                  <Label className="text-sm">Floor Plan Name</Label>
-                  <Input value={editUnit.unit_name} onChange={e => setEditUnit({ ...editUnit, unit_name: e.target.value })} className="rounded-xl" placeholder="Plan A" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm">Unit Type</Label>
-                  <Select value={editUnit.unit_type} onValueChange={v => setEditUnit({ ...editUnit, unit_type: v })}>
-                    <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select..." /></SelectTrigger>
-                    <SelectContent>{UNIT_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="text-sm">Asking Price ($) *</Label>
-                  <Input type="number" value={editUnit.price || ""} onChange={e => setEditUnit({ ...editUnit, price: Number(e.target.value) })} className="rounded-xl" placeholder="450000" />
-                </div>
-              </div>
-              <div className="grid grid-cols-4 gap-4">
-                <div>
-                  <Label className="text-sm">Beds *</Label>
-                  <Input type="number" value={editUnit.bedrooms || ""} onChange={e => setEditUnit({ ...editUnit, bedrooms: Number(e.target.value) })} className="rounded-xl" />
-                </div>
-                <div>
-                  <Label className="text-sm">Baths</Label>
-                  <Input type="number" step="0.5" value={editUnit.bathrooms || ""} onChange={e => setEditUnit({ ...editUnit, bathrooms: Number(e.target.value) })} className="rounded-xl" />
-                </div>
-                <div>
-                  <Label className="text-sm">SqFt *</Label>
-                  <Input type="number" value={editUnit.sqft || ""} onChange={e => setEditUnit({ ...editUnit, sqft: Number(e.target.value) })} className="rounded-xl" />
-                </div>
-                <div>
-                  <Label className="text-sm">Floor</Label>
-                  <Input type="number" value={editUnit.floor_level ?? ""} onChange={e => setEditUnit({ ...editUnit, floor_level: e.target.value ? Number(e.target.value) : null })} className="rounded-xl" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Unit Type</Label>
+                    <Select value={editUnit.unit_type} onValueChange={v => setEditUnit({ ...editUnit, unit_type: v })}>
+                      <SelectTrigger className="rounded-xl mt-1"><SelectValue placeholder="Select type..." /></SelectTrigger>
+                      <SelectContent>{UNIT_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Floor</Label>
+                    <Input type="number" value={editUnit.floor_level ?? ""} onChange={e => setEditUnit({ ...editUnit, floor_level: e.target.value ? Number(e.target.value) : null })} className="rounded-xl mt-1" placeholder="e.g. 12" />
+                  </div>
                 </div>
               </div>
 
-              {/* Toggles */}
+              <div className="space-y-4">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Size & Pricing</p>
+                <div className="grid grid-cols-4 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Beds <span className="text-primary">*</span></Label>
+                    <Input type="number" value={editUnit.bedrooms || ""} onChange={e => setEditUnit({ ...editUnit, bedrooms: Number(e.target.value) })} className="rounded-xl mt-1" placeholder="1" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Baths</Label>
+                    <Input type="number" step="0.5" value={editUnit.bathrooms || ""} onChange={e => setEditUnit({ ...editUnit, bathrooms: Number(e.target.value) })} className="rounded-xl mt-1" placeholder="1" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">SqFt <span className="text-primary">*</span></Label>
+                    <Input type="number" value={editUnit.sqft || ""} onChange={e => setEditUnit({ ...editUnit, sqft: Number(e.target.value) })} className="rounded-xl mt-1" placeholder="550" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Price <span className="text-primary">*</span></Label>
+                    <Input type="number" value={editUnit.price || ""} onChange={e => setEditUnit({ ...editUnit, price: Number(e.target.value) })} className="rounded-xl mt-1" placeholder="450000" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Toggles - compact row */}
               <div className="space-y-3">
-                <Label className="text-sm font-semibold block">Included with Unit</Label>
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2">
-                    <Switch checked={editUnit.parking_included} onCheckedChange={v => setEditUnit({ ...editUnit, parking_included: v })} />
-                    <Label className="text-sm">Parking</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch checked={editUnit.storage_included} onCheckedChange={v => setEditUnit({ ...editUnit, storage_included: v })} />
-                    <Label className="text-sm">Storage</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch checked={editUnit.locker_included} onCheckedChange={v => setEditUnit({ ...editUnit, locker_included: v })} />
-                    <Label className="text-sm">Locker</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Inclusions</p>
+                <div className="flex flex-wrap gap-x-5 gap-y-2">
+                  {[
+                    { key: "parking_included" as const, label: "🅿️ Parking" },
+                    { key: "storage_included" as const, label: "📦 Storage" },
+                    { key: "locker_included" as const, label: "🔐 Locker" },
+                  ].map(({ key, label }) => (
+                    <label key={key} className="flex items-center gap-2 cursor-pointer">
+                      <Switch checked={editUnit[key]} onCheckedChange={v => setEditUnit({ ...editUnit, [key]: v })} />
+                      <span className="text-sm">{label}</span>
+                    </label>
+                  ))}
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <Switch
                       checked={editUnit.inclusions.includes("AC")}
                       onCheckedChange={v => {
-                        const incl = v
-                          ? [...editUnit.inclusions, "AC"]
-                          : editUnit.inclusions.filter(i => i !== "AC");
+                        const incl = v ? [...editUnit.inclusions, "AC"] : editUnit.inclusions.filter(i => i !== "AC");
                         setEditUnit({ ...editUnit, inclusions: incl });
                       }}
                     />
-                    <Label className="text-sm">AC</Label>
-                  </div>
+                    <span className="text-sm">❄️ AC</span>
+                  </label>
                 </div>
               </div>
 
-              {/* Special offerings / incentives */}
+              {/* Incentive */}
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <Switch checked={editUnit.has_unit_incentive} onCheckedChange={v => setEditUnit({ ...editUnit, has_unit_incentive: v })} />
-                  <Label className="text-sm font-semibold">Special Offering / Incentive</Label>
-                </div>
+                  <span className="text-sm font-medium">🎁 Special Offering / Incentive</span>
+                </label>
                 {editUnit.has_unit_incentive && (
                   <Input value={editUnit.unit_incentive} onChange={e => setEditUnit({ ...editUnit, unit_incentive: e.target.value })} placeholder="e.g., Free parking upgrade, $5K closing credit..." className="rounded-xl" />
                 )}
@@ -441,10 +538,10 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
 
               {/* Custom inclusions */}
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Additional Inclusions</Label>
-                <div className="flex flex-wrap gap-2">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Additional Inclusions</Label>
+                <div className="flex flex-wrap gap-1.5">
                   {editUnit.inclusions.filter(i => i !== "AC").map((inc, idx) => (
-                    <Badge key={idx} variant="secondary" className="gap-1 rounded-lg">
+                    <Badge key={idx} variant="secondary" className="gap-1 rounded-lg text-xs">
                       {inc}
                       <button onClick={() => setEditUnit({ ...editUnit, inclusions: editUnit.inclusions.filter(i => i !== inc) })}>
                         <X className="h-3 w-3" />
@@ -452,27 +549,27 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                     </Badge>
                   ))}
                 </div>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add custom inclusion..."
-                    className="rounded-xl"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && (e.target as HTMLInputElement).value.trim()) {
-                        e.preventDefault();
-                        const val = (e.target as HTMLInputElement).value.trim();
-                        if (!editUnit.inclusions.includes(val)) {
-                          setEditUnit({ ...editUnit, inclusions: [...editUnit.inclusions, val] });
-                        }
-                        (e.target as HTMLInputElement).value = "";
+                <Input
+                  placeholder="Type and press Enter to add..."
+                  className="rounded-xl"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.target as HTMLInputElement).value.trim()) {
+                      e.preventDefault();
+                      const val = (e.target as HTMLInputElement).value.trim();
+                      if (!editUnit.inclusions.includes(val)) {
+                        setEditUnit({ ...editUnit, inclusions: [...editUnit.inclusions, val] });
                       }
-                    }}
-                  />
-                </div>
+                      (e.target as HTMLInputElement).value = "";
+                    }
+                  }}
+                />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl">Cancel</Button>
-                <Button onClick={saveUnit} className="rounded-xl shadow-gold font-bold">
+              {/* Actions */}
+              <div className="flex justify-end gap-2 pt-3 border-t border-border/50">
+                <Button variant="outline" onClick={() => { setDialogOpen(false); setLocalPreview(null); }} className="rounded-xl">Cancel</Button>
+                <Button onClick={saveUnit} className="rounded-xl shadow-gold font-bold px-6" disabled={extracting}>
+                  {extracting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                   {editIndex !== null ? "Update Unit" : "Add Unit"}
                 </Button>
               </div>
@@ -481,11 +578,17 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
         </DialogContent>
       </Dialog>
 
-      <div className="flex justify-between">
+      {/* Navigation */}
+      <div className="flex justify-between items-center pt-2">
         <Button variant="outline" onClick={onBack} className="rounded-xl">← Back</Button>
-        <Button onClick={onNext} disabled={units.length === 0} className="rounded-xl shadow-gold font-bold px-8">
-          Next: Preview →
-        </Button>
+        <div className="flex items-center gap-3">
+          {units.length > 0 && (
+            <p className="text-sm text-muted-foreground">{units.length} unit{units.length !== 1 ? "s" : ""} ready</p>
+          )}
+          <Button onClick={onNext} disabled={units.length === 0} className="rounded-xl shadow-gold font-bold px-8">
+            Next: Preview →
+          </Button>
+        </div>
       </div>
     </div>
   );
