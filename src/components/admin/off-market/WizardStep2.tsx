@@ -331,9 +331,9 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                     </div>
                     {(u.parking_included || u.storage_included || u.has_unit_incentive) && (
                       <div className="flex gap-1.5 mt-1">
-                        {u.parking_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">🅿️ Parking</Badge>}
-                        {u.storage_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">📦 Storage</Badge>}
-                        {u.has_unit_incentive && <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/30 text-primary">🎁 {u.unit_incentive || "Incentive"}</Badge>}
+                        {u.parking_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">Parking</Badge>}
+                        {u.storage_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">Storage</Badge>}
+                        {u.has_unit_incentive && <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/30 text-primary">{u.unit_incentive || "Incentive"}</Badge>}
                       </div>
                     )}
                   </div>
