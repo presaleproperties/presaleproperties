@@ -113,7 +113,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
         setEditUnit(prev => prev ? {
           ...prev,
           unit_number: extracted.unit_number || prev.unit_number,
-          unit_type: extracted.unit_type || prev.unit_type,
+          unit_type: normalizeUnitType(extracted.unit_type) || prev.unit_type,
           bedrooms: extracted.beds || prev.bedrooms,
           bathrooms: extracted.baths || prev.bathrooms,
           sqft: extracted.interior_sqft || prev.sqft,
