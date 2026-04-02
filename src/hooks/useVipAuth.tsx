@@ -30,11 +30,13 @@ export function VipAuthProvider({ children }: { children: ReactNode }) {
 
   const checkGlobalApproval = useCallback(async (phone: string) => {
     const normalized = normalizePhone(phone);
-    // Check all possible formats
-    const formats = [normalized, phone];
     const digits = phone.replace(/\D/g, "");
-    if (digits.length === 10) formats.push(digits, `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`);
+    const d = digits.startsWith("1") && digits.length === 11 ? digits.slice(1) : digits;
+    const formatted = d.length === 10 ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,10)}` : "";
     
+    const formats = [normalized, digits, d];
+    if (formatted) formats.push(formatted);
+
     const { data } = await supabase
       .from("off_market_access")
       .select("id")
