@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Upload, Pencil, Trash2, Loader2, Sparkles, ImageIcon, FileUp, X, Download } from "lucide-react";
+import { Plus, Upload, Pencil, Trash2, Loader2, Sparkles, ImageIcon, FileUp, X, Download, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import type { OffMarketUnit } from "./types";
 

@@ -9,7 +9,6 @@ import { Link } from "react-router-dom";
 import { WizardStep1 } from "@/components/admin/off-market/WizardStep1";
 import { WizardStep2 } from "@/components/admin/off-market/WizardStep2";
 import { WizardStep3 } from "@/components/admin/off-market/WizardStep3";
-import { WizardStep4 } from "@/components/admin/off-market/WizardStep4";
 import { WizardProgress } from "@/components/admin/off-market/WizardProgress";
 import type { OffMarketListingForm, OffMarketUnit } from "@/components/admin/off-market/types";
 
@@ -55,11 +54,8 @@ export default function AdminOffMarketWizard() {
   const [units, setUnits] = useState<OffMarketUnit[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
-
-  // Selected project preview data
   const [projectPreview, setProjectPreview] = useState<any>(null);
 
-  // Load existing listing for edit
   useEffect(() => {
     if (!id) return;
     (async () => {
@@ -102,7 +98,16 @@ export default function AdminOffMarketWizard() {
         auto_approve_access: data.auto_approve_access || false,
       });
 
-      // Load units
+      // Load project preview
+      if (data.linked_project_slug) {
+        const { data: proj } = await supabase
+          .from("presale_projects")
+          .select("id, name, slug, city, neighborhood, developer_name, project_type, completion_year, featured_image, map_lat, map_lng, address")
+          .eq("slug", data.linked_project_slug)
+          .maybeSingle();
+        if (proj) setProjectPreview(proj);
+      }
+
       const { data: unitData } = await supabase
         .from("off_market_units")
         .select("*")
@@ -110,27 +115,15 @@ export default function AdminOffMarketWizard() {
         .order("display_order");
       setUnits(
         (unitData || []).map((u: any) => ({
-          id: u.id,
-          unit_number: u.unit_number,
-          unit_name: u.unit_name || "",
-          unit_type: u.unit_type || "",
-          floor_level: u.floor_level,
-          bedrooms: u.bedrooms,
-          bathrooms: u.bathrooms,
-          sqft: u.sqft,
-          price: u.price,
-          parking_included: u.parking_included || false,
-          parking_type: u.parking_type || "",
-          storage_included: u.storage_included || false,
-          locker_included: u.locker_included || false,
-          orientation: u.orientation || "",
-          view_type: u.view_type || "",
-          floorplan_url: u.floorplan_url || "",
-          has_unit_incentive: u.has_unit_incentive || false,
-          unit_incentive: u.unit_incentive || "",
-          status: u.status || "available",
-          inclusions: u.inclusions || [],
-          display_order: u.display_order || 0,
+          id: u.id, unit_number: u.unit_number, unit_name: u.unit_name || "",
+          unit_type: u.unit_type || "", floor_level: u.floor_level,
+          bedrooms: u.bedrooms, bathrooms: u.bathrooms, sqft: u.sqft, price: u.price,
+          parking_included: u.parking_included || false, parking_type: u.parking_type || "",
+          storage_included: u.storage_included || false, locker_included: u.locker_included || false,
+          orientation: u.orientation || "", view_type: u.view_type || "",
+          floorplan_url: u.floorplan_url || "", has_unit_incentive: u.has_unit_incentive || false,
+          unit_incentive: u.unit_incentive || "", status: u.status || "available",
+          inclusions: u.inclusions || [], display_order: u.display_order || 0,
         }))
       );
       setLoading(false);
@@ -185,37 +178,20 @@ export default function AdminOffMarketWizard() {
         listingId = data.id;
       }
 
-      // Sync units
       if (listingId) {
-        // Delete existing units
-        if (isEdit) {
-          await supabase.from("off_market_units").delete().eq("listing_id", listingId);
-        }
-        // Insert all units
+        if (isEdit) await supabase.from("off_market_units").delete().eq("listing_id", listingId);
         if (units.length > 0) {
           const unitRows = units.map((u, i) => ({
-            listing_id: listingId,
-            developer_id: form.developer_id || null,
-            unit_number: u.unit_number,
-            unit_name: u.unit_name || null,
-            unit_type: u.unit_type || null,
-            floor_level: u.floor_level,
-            bedrooms: u.bedrooms,
-            bathrooms: u.bathrooms,
-            sqft: u.sqft,
-            price: u.price,
-            parking_included: u.parking_included,
-            parking_type: u.parking_type || null,
-            storage_included: u.storage_included,
-            locker_included: u.locker_included,
-            orientation: u.orientation || null,
-            view_type: u.view_type || null,
-            floorplan_url: u.floorplan_url || null,
-            has_unit_incentive: u.has_unit_incentive,
-            unit_incentive: u.unit_incentive || null,
-            status: u.status,
-            inclusions: u.inclusions,
-            display_order: i,
+            listing_id: listingId, developer_id: form.developer_id || null,
+            unit_number: u.unit_number, unit_name: u.unit_name || null,
+            unit_type: u.unit_type || null, floor_level: u.floor_level,
+            bedrooms: u.bedrooms, bathrooms: u.bathrooms, sqft: u.sqft, price: u.price,
+            parking_included: u.parking_included, parking_type: u.parking_type || null,
+            storage_included: u.storage_included, locker_included: u.locker_included,
+            orientation: u.orientation || null, view_type: u.view_type || null,
+            floorplan_url: u.floorplan_url || null, has_unit_incentive: u.has_unit_incentive,
+            unit_incentive: u.unit_incentive || null, status: u.status,
+            inclusions: u.inclusions, display_order: i,
           }));
           const { error } = await supabase.from("off_market_units").insert(unitRows);
           if (error) throw error;
@@ -267,29 +243,23 @@ export default function AdminOffMarketWizard() {
           )}
           {step === 2 && (
             <WizardStep2
-              form={form}
-              setForm={setForm}
+              units={units}
+              setUnits={setUnits}
               onBack={() => setStep(1)}
               onNext={() => setStep(3)}
             />
           )}
           {step === 3 && (
             <WizardStep3
-              units={units}
-              setUnits={setUnits}
-              onBack={() => setStep(2)}
-              onNext={() => setStep(4)}
-            />
-          )}
-          {step === 4 && (
-            <WizardStep4
               form={form}
               setForm={setForm}
               units={units}
               saving={saving}
-              onBack={() => setStep(3)}
+              onBack={() => setStep(2)}
               onSaveDraft={() => saveListing(false)}
               onPublish={() => saveListing(true)}
+              projectPreview={projectPreview}
+              showAccessSettings={true}
             />
           )}
         </div>
