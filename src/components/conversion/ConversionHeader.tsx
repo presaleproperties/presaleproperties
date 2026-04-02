@@ -529,6 +529,40 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
                       <div className="h-px bg-border/40 my-1" />
 
+                      {/* VIP Login/Status - Mobile */}
+                      {isVipLoggedIn ? (
+                        <div className="flex items-center justify-between py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <ShieldCheck className="h-4 w-4 text-primary" />
+                            </div>
+                            <div>
+                              <span className="text-base font-semibold text-foreground">VIP Access</span>
+                              <p className="text-xs text-muted-foreground truncate max-w-[180px]">{vipEmail}</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => { logoutVip(); setOpen(false); }}
+                            className="text-sm text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-secondary/60 transition-colors"
+                          >
+                            Sign Out
+                          </button>
+                        </div>
+                      ) : (
+                        <Link
+                          to="/vip-login"
+                          onClick={() => setOpen(false)}
+                          className="flex items-center gap-3 py-4"
+                        >
+                          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <LogIn className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="text-lg font-semibold text-foreground">VIP Login</span>
+                        </Link>
+                      )}
+
+                      <div className="h-px bg-border/40 my-1" />
+
                       {/* Simple Links */}
                       <Link
                         to="/blog"
