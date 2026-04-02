@@ -126,14 +126,21 @@ export default function OffMarketPage() {
       setMinPriceMap(priceMap);
     }
 
-    // Check access for stored email
-    const email = getApprovedEmail();
-    if (email) {
+    // If VIP approved, grant access to all listings
+    if (isVipApproved) {
       const accMap: Record<string, boolean> = {};
-      for (const item of items) {
-        accMap[item.id] = await checkAccess(item.id, email);
-      }
+      items.forEach((item) => { accMap[item.id] = true; });
       setAccessMap(accMap);
+    } else {
+      // Check access for stored email
+      const email = getApprovedEmail();
+      if (email) {
+        const accMap: Record<string, boolean> = {};
+        for (const item of items) {
+          accMap[item.id] = await checkAccess(item.id, email);
+        }
+        setAccessMap(accMap);
+      }
     }
 
     setLoading(false);
