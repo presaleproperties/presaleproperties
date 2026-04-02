@@ -217,7 +217,8 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
   // Determine what to show as floor plan preview
   const previewUrl = localPreview || uploadedImage;
   const showPdfPreview = isPdf && !!previewUrl;
-  const pdfPreviewUrl = previewUrl ? `${previewUrl}#toolbar=0&navpanes=0&scrollbar=0` : "";
+  // For PDFs, prefer localPreview (blob URL) which avoids CORS; fall back to remote URL
+  const pdfEmbedUrl = localPreview || uploadedImage || "";
 
   return (
     <div
