@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Lock, Unlock, Building2, MapPin } from "lucide-react";
+import { Lock, Unlock, Building2, MapPin, Calendar, Home, Sparkles } from "lucide-react";
 
 interface OffMarketCardProps {
   listing: {
@@ -13,6 +13,7 @@ interface OffMarketCardProps {
     construction_stage?: string | null;
     access_level?: string | null;
     auto_approve_access?: boolean;
+    incentives?: string | null;
   };
   projectData?: {
     city?: string;
@@ -41,78 +42,114 @@ export function OffMarketCard({ listing, projectData, minPrice, hasAccess, onUnl
   const displayPrice = minPrice || projectData?.starting_price;
 
   return (
-    <div className="group rounded-xl border border-[#1e1e1e] bg-[#141414] overflow-hidden transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_30px_-10px_hsl(40_65%_55%/0.2)]">
+    <div className="group relative rounded-2xl border border-border/60 bg-card overflow-hidden transition-all duration-500 hover:border-primary/40 hover:shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]">
+      {/* Gold accent top line */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
       {/* Image */}
       <div className="relative aspect-[16/10] overflow-hidden">
         {projectData?.featured_image ? (
           <img
             src={projectData.featured_image}
             alt={listing.linked_project_name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-[#1e1e1e] flex items-center justify-center">
-            <Building2 className="h-12 w-12 text-muted-foreground/30" />
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <Building2 className="h-12 w-12 text-muted-foreground/20" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground font-semibold text-xs">
-          EXCLUSIVE
-        </Badge>
-        {listing.construction_stage && (
-          <Badge variant="secondary" className="absolute top-3 right-3 text-xs">
-            {stageLabels[listing.construction_stage] || listing.construction_stage}
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+        {/* Top badges */}
+        <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
+          <Badge className="bg-primary text-primary-foreground font-bold text-[10px] tracking-wider px-2.5 py-0.5 shadow-lg">
+            <Sparkles className="h-3 w-3 mr-1" /> VIP EXCLUSIVE
           </Badge>
-        )}
+          {listing.construction_stage && (
+            <Badge className="bg-background/80 backdrop-blur-sm text-foreground text-[10px] border border-border/50">
+              {stageLabels[listing.construction_stage] || listing.construction_stage}
+            </Badge>
+          )}
+        </div>
+
+        {/* Bottom overlay info */}
+        <div className="absolute bottom-3 left-3 right-3">
+          <h3 className="text-lg font-bold text-white line-clamp-1 drop-shadow-md">
+            {listing.linked_project_name}
+          </h3>
+          {projectData?.city && (
+            <div className="flex items-center gap-1 text-white/80 text-sm mt-0.5">
+              <MapPin className="h-3 w-3" />
+              {projectData.neighborhood ? `${projectData.neighborhood}, ${projectData.city}` : projectData.city}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Content */}
       <div className="p-4 space-y-3">
-        <h3 className="text-lg font-bold text-foreground line-clamp-1">
-          {listing.linked_project_name}
-        </h3>
+        {/* Meta tags */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {projectData?.project_type && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Home className="h-3 w-3" />
+              <span className="capitalize">{projectData.project_type}</span>
+            </div>
+          )}
+          {projectData?.completion_year && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Calendar className="h-3 w-3" />
+              <span>{projectData.completion_year}</span>
+            </div>
+          )}
+          {listing.developer_name && (
+            <span className="text-xs text-muted-foreground">
+              by {listing.developer_name}
+            </span>
+          )}
+        </div>
 
-        {projectData?.city && (
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5" />
-            {projectData.neighborhood ? `${projectData.neighborhood}, ${projectData.city}` : projectData.city}
+        {/* Price & units row */}
+        <div className="flex items-end justify-between">
+          {displayPrice ? (
+            <div>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">Starting from</p>
+              <p className="text-primary font-bold text-xl leading-tight">
+                ${displayPrice.toLocaleString()}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-primary font-semibold text-sm">Contact for Pricing</p>
+            </div>
+          )}
+          <div className="text-right">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">Available</p>
+            <p className="text-foreground font-bold text-lg leading-tight">
+              {listing.available_units} <span className="text-xs font-normal text-muted-foreground">unit{listing.available_units !== 1 ? "s" : ""}</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Incentive teaser if present */}
+        {listing.incentives && (
+          <div className="flex items-center gap-1.5 text-xs text-primary bg-primary/8 rounded-lg px-3 py-1.5 border border-primary/15">
+            <Sparkles className="h-3 w-3 flex-shrink-0" />
+            <span className="font-medium truncate">Developer incentive available</span>
           </div>
         )}
 
-        <div className="flex items-center gap-2 flex-wrap">
-          {projectData?.project_type && (
-            <Badge variant="outline" className="text-xs capitalize border-[#1e1e1e]">
-              {projectData.project_type}
-            </Badge>
-          )}
-          {projectData?.completion_year && (
-            <Badge variant="outline" className="text-xs border-[#1e1e1e]">
-              {projectData.completion_year}
-            </Badge>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between pt-1">
-          {displayPrice ? (
-            <p className="text-primary font-bold text-lg">
-              From ${displayPrice.toLocaleString()}
-            </p>
-          ) : (
-            <p className="text-primary font-semibold text-sm">Contact for Pricing</p>
-          )}
-          <span className="text-xs text-muted-foreground">
-            {listing.available_units} unit{listing.available_units !== 1 ? "s" : ""} available
-          </span>
-        </div>
-
+        {/* CTA */}
         {hasAccess ? (
-          <Button onClick={onViewDetails} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" size="sm">
-            <Unlock className="h-4 w-4 mr-1" /> View Details
+          <Button onClick={onViewDetails} className="w-full h-11 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 font-semibold" variant="ghost">
+            <Unlock className="h-4 w-4 mr-1.5" /> View Full Details
           </Button>
         ) : (
-          <Button onClick={onUnlock} className="w-full" size="sm">
-            <Lock className="h-4 w-4 mr-1" /> Unlock Details
+          <Button onClick={onUnlock} className="w-full h-11 rounded-xl font-semibold shadow-md hover:shadow-lg transition-shadow">
+            <Lock className="h-4 w-4 mr-1.5" /> Unlock VIP Details
           </Button>
         )}
       </div>
