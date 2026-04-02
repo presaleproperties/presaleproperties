@@ -12,6 +12,7 @@ import { WizardStep3 } from "@/components/admin/off-market/WizardStep3";
 import { WizardProgress } from "@/components/admin/off-market/WizardProgress";
 import type { OffMarketListingForm, OffMarketUnit } from "@/components/admin/off-market/types";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const defaultForm: OffMarketListingForm = {
   linked_project_slug: "",
