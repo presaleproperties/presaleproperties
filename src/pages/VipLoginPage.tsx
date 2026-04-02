@@ -75,13 +75,15 @@ export default function VipLoginPage() {
 
     // Normalize for lookup
     const normalized = digits.length === 10 ? `+1${digits}` : `+${digits}`;
+    const d = digits.length >= 10 ? (digits.startsWith("1") ? digits.slice(1) : digits) : digits;
+    const formatted = `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,10)}`;
 
     // Check if phone has any approved access (check multiple formats)
     const { data: accessData } = await supabase
       .from("off_market_access")
       .select("id")
       .eq("status", "approved")
-      .or(`phone.eq.${normalized},phone.eq.${digits},phone.eq.(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`)
+      .in("phone", [normalized, digits, formatted, d])
       .limit(1)
       .maybeSingle();
 
