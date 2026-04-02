@@ -24,7 +24,7 @@ const PRESALE_CITIES = [
 ];
 
 export function FeaturedProjects() {
-  const { data: projects, isLoading, isError } = useQuery({
+  const { data: projects, isLoading } = useQuery({
     queryKey: ["most-viewed-projects"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -34,18 +34,10 @@ export function FeaturedProjects() {
         .order("view_count", { ascending: false })
         .limit(8);
 
-      if (error) {
-        console.error("FeaturedProjects fetch error:", error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
-    retry: 1,
-    staleTime: 5 * 60 * 1000,
   });
-
-  // Return null on error to avoid blank gap
-  if (isError && !projects) return null;
 
   return (
     <section className="pt-8 sm:pt-10 pb-10 sm:pb-14 md:pb-16 bg-background relative">

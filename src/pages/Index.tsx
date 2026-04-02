@@ -11,10 +11,8 @@ import { ResaleCitySection } from "@/components/home/ResaleCitySection";
 import { PresaleExpertsSection } from "@/components/home/PresaleExpertsSection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
-import { OffMarketSection } from "@/components/home/OffMarketSection";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { VipAccessSection } from "@/components/home/VipAccessSection";
 import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
 
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
@@ -295,10 +293,6 @@ const Index = () => {
       <main className="flex-1">
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
         {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
-        {/* Off-Market section — hidden until feature is ready */}
-        {/* <ScrollReveal animation="fade-up" delay={100}>
-          <OffMarketSection />
-        </ScrollReveal> */}
         <ScrollReveal animation="fade-up" delay={100}>
           {activeTab === "projects" ? <CityProjectsSection /> : <ResaleCitySection />}
         </ScrollReveal>
@@ -318,7 +312,6 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
         </ScrollReveal>
-        <VipAccessSection />
       </main>
       
       <Footer />

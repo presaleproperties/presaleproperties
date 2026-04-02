@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://presaleproperties.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
@@ -42,13 +42,13 @@ interface RequestBody {
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
-  }
-
   // Rate limit check
   if (await rateLimited(req, "send-verification-code")) {
     return new Response(JSON.stringify({ error: "Too many requests" }), {
       status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "3600" }
     });
+  }
+
   }
 
   try {

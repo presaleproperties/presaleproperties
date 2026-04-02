@@ -99,7 +99,6 @@ Deno.serve(async (req) => {
       { url: "/about", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/contact", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/developers", priority: "0.7", changefreq: "weekly", lastmod: now },
-      { url: "/off-market", priority: "0.8", changefreq: "daily", lastmod: now },
       { url: "/privacy", priority: "0.3", changefreq: "yearly", lastmod: now },
     ];
     

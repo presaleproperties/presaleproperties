@@ -69,7 +69,7 @@ export function FeaturedResaleListings() {
     "Pitt Meadows", "Tsawwassen", "Ladner"
   ];
 
-  const { data: listings, isLoading, isError } = useQuery({
+  const { data: listings, isLoading } = useQuery({
     queryKey: ["featured-resale-listings-metro-vancouver-2024"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -81,18 +81,12 @@ export function FeaturedResaleListings() {
         .order("created_at", { ascending: false })
         .limit(16);
 
-      if (error) {
-        console.error("FeaturedResaleListings fetch error:", error);
-        throw error;
-      }
+      if (error) throw error;
       return data as MLSListing[];
     },
-    retry: 1,
     staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
-
-  // Error check moved after hooks below
 
   const checkScroll = () => {
     const container = scrollContainerRef.current;
@@ -123,9 +117,6 @@ export function FeaturedResaleListings() {
       });
     }
   };
-
-  // Return null on error to avoid blank gap
-  if (isError && !listings) return null;
 
   if (isLoading) {
     return (

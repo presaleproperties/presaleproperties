@@ -74,8 +74,6 @@ const RESOURCE_LINKS = [
   { label: "Presale Guides", href: "/guides/presale-guides" },
   { label: "Market Updates", href: "/guides/market-updates" },
   { label: "Blog", href: "/blog" },
-  // { label: "Off-Market Inventory", href: "/off-market" }, // hidden until ready
-  { label: "Developer Portal", href: "/developer-portal/login" },
   { label: "Developers", href: "/developers" },
   { label: "Agent Portal", href: "/for-agents" },
   { label: "Contact Us", href: "/contact" },

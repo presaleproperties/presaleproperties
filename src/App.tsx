@@ -22,7 +22,6 @@ import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
 import { MetaPixel } from "@/components/tracking/MetaPixel";
 import { GA4Tracker } from "@/components/tracking/GA4Tracker";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
-import { VipAuthProvider } from "@/hooks/useVipAuth";
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { PropertiesSlugDispatcher } from "@/components/routing/PropertiesSlugDispatcher";
 import { Suspense, lazy } from "react";
@@ -102,18 +101,6 @@ const AdminMarketingHub = lazy(() => import("./pages/admin/AdminMarketingHub"));
 const AdminEmailCenter = lazy(() => import("./pages/admin/AdminEmailCenter"));
 const AdminTopDeals = lazy(() => import("./pages/admin/AdminTopDeals"));
 const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
-const AdminOffMarket = lazy(() => import("./pages/admin/AdminOffMarket"));
-const AdminOffMarketWizard = lazy(() => import("./pages/admin/AdminOffMarketWizard"));
-const AdminOffMarketAccess = lazy(() => import("./pages/admin/AdminOffMarketAccess"));
-const AdminOffMarketDevelopers = lazy(() => import("./pages/admin/AdminOffMarketDevelopers"));
-const AdminOffMarketSubmissions = lazy(() => import("./pages/admin/AdminOffMarketSubmissions"));
-const AdminOffMarketAnalytics = lazy(() => import("./pages/admin/AdminOffMarketAnalytics"));
-const DeveloperOffMarketWizard = lazy(() => import("./pages/developer/DeveloperOffMarketWizard"));
-const OffMarketPage = lazy(() => import("./pages/OffMarketPage"));
-const OffMarketDetailPage = lazy(() => import("./pages/OffMarketDetailPage"));
-const VipLoginPage = lazy(() => import("./pages/VipLoginPage"));
-const VipDashboard = lazy(() => import("./pages/VipDashboard"));
-const VipInterests = lazy(() => import("./pages/VipInterests"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
 const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
@@ -179,7 +166,6 @@ const App = () => (
     <ThemeProvider>
     <AuthProvider>
       <BuyerAuthProvider>
-      <VipAuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -296,13 +282,6 @@ const App = () => (
             {/* Developer detail pages don't exist yet — redirect to directory to stop soft 404 */}
             <Route path="/developers/:slug" element={<Navigate to="/developers" replace />} />
             
-            {/* Off-Market Inventory */}
-            <Route path="/off-market" element={<OffMarketPage />} />
-            <Route path="/off-market/:slug" element={<OffMarketDetailPage />} />
-            <Route path="/vip-login" element={<VipLoginPage />} />
-            <Route path="/vip" element={<VipDashboard />} />
-            <Route path="/vip/interests" element={<VipInterests />} />
-            
             {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />
             
@@ -339,8 +318,6 @@ const App = () => (
             <Route path="/developer/projects/:projectId/units" element={<DeveloperUnitsPage />} />
             <Route path="/developer/projects/:projectId/inventory" element={<DeveloperInventoryPage />} />
             <Route path="/developer/add-inventory" element={<DeveloperAddInventoryWizard />} />
-            <Route path="/developer/off-market/new" element={<DeveloperOffMarketWizard />} />
-            <Route path="/developer/off-market/edit/:id" element={<DeveloperOffMarketWizard />} />
             <Route path="/developer/tour-requests" element={<DeveloperTourRequests />} />
             <Route path="/developer/settings" element={<DeveloperSettings />} />
             
@@ -399,13 +376,6 @@ const App = () => (
             <Route path="/admin/market-dashboard" element={<AdminProtectedRoute><AdminMarketDashboard /></AdminProtectedRoute>} />
             <Route path="/admin/ai-analytics" element={<AdminProtectedRoute><AdminAIAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
-            <Route path="/admin/off-market" element={<AdminProtectedRoute><AdminOffMarket /></AdminProtectedRoute>} />
-            <Route path="/admin/off-market/new" element={<AdminProtectedRoute><AdminOffMarketWizard /></AdminProtectedRoute>} />
-            <Route path="/admin/off-market/edit/:id" element={<AdminProtectedRoute><AdminOffMarketWizard /></AdminProtectedRoute>} />
-            <Route path="/admin/off-market/access" element={<AdminProtectedRoute><AdminOffMarketAccess /></AdminProtectedRoute>} />
-            <Route path="/admin/off-market/developers" element={<AdminProtectedRoute><AdminOffMarketDevelopers /></AdminProtectedRoute>} />
-            <Route path="/admin/off-market/submissions" element={<AdminProtectedRoute><AdminOffMarketSubmissions /></AdminProtectedRoute>} />
-            <Route path="/admin/off-market/analytics" element={<AdminProtectedRoute><AdminOffMarketAnalytics /></AdminProtectedRoute>} />
             
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
@@ -516,7 +486,6 @@ const App = () => (
           </SwipeNavigationProvider>
         </BrowserRouter>
       </TooltipProvider>
-      </VipAuthProvider>
       </BuyerAuthProvider>
     </AuthProvider>
     </ThemeProvider>

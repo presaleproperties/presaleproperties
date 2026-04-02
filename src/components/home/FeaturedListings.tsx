@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 const db = supabase as any;
 
 export function FeaturedListings() {
-  const { data: listings, isLoading, isError } = useQuery({
+  const { data: listings, isLoading } = useQuery({
     queryKey: ["featured-listings"],
     queryFn: async () => {
       const { data: listingsData, error } = await db
@@ -23,10 +23,7 @@ export function FeaturedListings() {
         .order("created_at", { ascending: false })
         .limit(6);
 
-      if (error) {
-        console.error("FeaturedListings fetch error:", error);
-        throw error;
-      }
+      if (error) throw error;
       
       const agentIds = [...new Set((listingsData as any[])?.map((l: any) => l.agent_id).filter(Boolean) || [])];
       
@@ -44,12 +41,7 @@ export function FeaturedListings() {
         agentInfo: agentProfilesMap.get(listing.agent_id),
       }));
     },
-    retry: 1,
-    staleTime: 5 * 60 * 1000,
   });
-
-  // Return null on error to avoid blank gap
-  if (isError && !listings) return null;
 
   return (
     <section className="py-12 sm:py-16 md:py-20 lg:py-28 bg-background relative">
