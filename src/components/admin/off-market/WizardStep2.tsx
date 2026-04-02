@@ -261,8 +261,8 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
             {units.map((u, i) => (
               <Card key={i} className="rounded-xl border-border/50">
                 <CardContent className="p-4 flex items-center gap-4">
-                  {u.floorplan_url && u.floorplan_url.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? (
-                    <img src={u.floorplan_url} className="w-16 h-16 rounded-lg object-cover flex-shrink-0 bg-white" alt="" />
+                  {u.floorplan_url ? (
+                    <img src={u.floorplan_url} className="w-16 h-16 rounded-lg object-cover flex-shrink-0 bg-white" alt="" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                   ) : (
                     <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                       <Building2 className="h-6 w-6 text-muted-foreground" />
@@ -285,7 +285,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                       {u.storage_included && <Badge variant="outline" className="text-[10px]">Storage</Badge>}
                       {u.locker_included && <Badge variant="outline" className="text-[10px]">Locker</Badge>}
                       {u.inclusions?.includes("AC") && <Badge variant="outline" className="text-[10px]">AC</Badge>}
-                      {u.has_unit_incentive && <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">Incentive</Badge>}
+                      {u.has_unit_incentive && <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">🎁 {u.unit_incentive || "Incentive"}</Badge>}
                     </div>
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
