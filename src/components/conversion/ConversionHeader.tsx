@@ -20,6 +20,7 @@ import {
 import { useScrollHeader } from "@/hooks/useScrollHeader";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { useVipAuth } from "@/hooks/useVipAuth";
 
 // City links for condos (primary navigation)
 const CONDO_CITY_LINKS = [
