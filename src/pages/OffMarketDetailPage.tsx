@@ -373,7 +373,7 @@ export default function OffMarketDetailPage() {
                         trackOffMarketEvent("unit_view", listing.id, unit.id);
                       }}
                     >
-                      <td className="px-3 py-2.5 font-medium">{unit.unit_number}</td>
+                      <td className="px-3 py-2.5 font-medium sticky left-0 z-10 bg-background">{unit.unit_number}</td>
                       <td className="px-3 py-2.5">{unit.unit_type || "—"}</td>
                       <td className="px-3 py-2.5">{unit.bedrooms}</td>
                       <td className="px-3 py-2.5">{unit.bathrooms}</td>
