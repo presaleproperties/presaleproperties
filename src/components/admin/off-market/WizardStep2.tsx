@@ -103,13 +103,9 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
     const filePdf = file.type === "application/pdf";
     setIsPdf(filePdf);
 
-    // Show instant local preview for images
-    if (!filePdf) {
-      const objectUrl = URL.createObjectURL(file);
-      setLocalPreview(objectUrl);
-    } else {
-      setLocalPreview(null);
-    }
+    // Show instant local preview for both images and PDFs
+    const objectUrl = URL.createObjectURL(file);
+    setLocalPreview(objectUrl);
 
     setExtracting(true);
     try {
