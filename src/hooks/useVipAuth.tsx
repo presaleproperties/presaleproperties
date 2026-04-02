@@ -37,14 +37,15 @@ export function VipAuthProvider({ children }: { children: ReactNode }) {
     const formats = [normalized, digits, d];
     if (formatted) formats.push(formatted);
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("off_market_access")
       .select("id")
       .in("phone", formats)
       .eq("status", "approved")
-      .limit(1)
-      .maybeSingle();
-    return !!data;
+      .limit(1);
+
+    if (error) return false;
+    return (data?.length ?? 0) > 0;
   }, []);
 
   useEffect(() => {

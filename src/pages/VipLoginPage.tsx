@@ -79,15 +79,14 @@ export default function VipLoginPage() {
     const formatted = `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,10)}`;
 
     // Check if phone has any approved access (check multiple formats)
-    const { data: accessData } = await supabase
+    const { data: accessData, error: accessError } = await supabase
       .from("off_market_access")
       .select("id")
       .eq("status", "approved")
       .in("phone", [normalized, digits, formatted, d])
-      .limit(1)
-      .maybeSingle();
+      .limit(1);
 
-    if (!accessData) {
+    if (accessError || !accessData?.length) {
       toast.error("No approved VIP access found for this phone number. Please request access first.");
       setLoading(false);
       return;
