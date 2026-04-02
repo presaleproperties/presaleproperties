@@ -348,10 +348,10 @@ export default function OffMarketDetailPage() {
                     { key: "price_per_sqft", label: "$/SqFt" },
                     { key: "floor_level", label: "Floor" },
                     { key: "status", label: "Status" },
-                  ].map(({ key, label }) => (
+                  ].map(({ key, label, sticky }) => (
                     <th
                       key={key}
-                      className="px-3 py-3 text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+                      className={`px-3 py-3 text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors whitespace-nowrap ${sticky ? "sticky left-0 z-10 bg-card" : ""}`}
                       onClick={() => handleSort(key)}
                     >
                       <span className="flex items-center gap-1">
