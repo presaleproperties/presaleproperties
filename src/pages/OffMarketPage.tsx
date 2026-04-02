@@ -156,9 +156,29 @@ export default function OffMarketPage() {
   return (
     <>
       <Helmet>
-        <title>Off-Market Inventory | VIP Access | Presale Properties</title>
-        <meta name="description" content="Access exclusive off-market presale condos and townhomes in Metro Vancouver. VIP pricing, floor plans & incentives not available to the public." />
+        <title>Off-Market Presale Inventory | VIP Access | Presale Properties</title>
+        <meta name="description" content="Access exclusive off-market presale condos and townhomes in Metro Vancouver. VIP pricing, floor plans & developer incentives not available to the public." />
         <link rel="canonical" href="https://presaleproperties.com/off-market" />
+        <meta property="og:title" content="Off-Market Presale Inventory | VIP Access" />
+        <meta property="og:description" content="Access exclusive off-market presale condos and townhomes in Metro Vancouver. VIP pricing, floor plans & developer incentives not available to the public." />
+        <meta property="og:url" content="https://presaleproperties.com/off-market" />
+        <meta property="og:type" content="website" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "Off-Market Presale Inventory — Metro Vancouver",
+            "description": "Exclusive off-market presale condos and townhomes with VIP pricing and developer incentives.",
+            "url": "https://presaleproperties.com/off-market",
+            "numberOfItems": filtered.length,
+            "itemListElement": filtered.slice(0, 10).map((l, i) => ({
+              "@type": "ListItem",
+              "position": i + 1,
+              "name": l.linked_project_name,
+              "url": `https://presaleproperties.com/off-market/${l.linked_project_slug}`,
+            })),
+          })}
+        </script>
       </Helmet>
 
       <ConversionHeader />
