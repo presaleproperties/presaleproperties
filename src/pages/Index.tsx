@@ -295,6 +295,9 @@ const Index = () => {
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
         {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
         <ScrollReveal animation="fade-up" delay={100}>
+          <OffMarketSection />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
           {activeTab === "projects" ? <CityProjectsSection /> : <ResaleCitySection />}
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
