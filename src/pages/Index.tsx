@@ -294,9 +294,10 @@ const Index = () => {
       <main className="flex-1">
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
         {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
-        <ScrollReveal animation="fade-up" delay={100}>
+        {/* Off-Market section — hidden until feature is ready */}
+        {/* <ScrollReveal animation="fade-up" delay={100}>
           <OffMarketSection />
-        </ScrollReveal>
+        </ScrollReveal> */}
         <ScrollReveal animation="fade-up" delay={100}>
           {activeTab === "projects" ? <CityProjectsSection /> : <ResaleCitySection />}
         </ScrollReveal>
