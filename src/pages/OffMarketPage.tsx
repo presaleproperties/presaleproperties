@@ -42,6 +42,7 @@ export default function OffMarketPage() {
   const [searchParams] = useSearchParams();
   const [listings, setListings] = useState<OffMarketListing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [projectDataMap, setProjectDataMap] = useState<Record<string, any>>({});
   const [minPriceMap, setMinPriceMap] = useState<Record<string, number>>({});
   const [accessMap, setAccessMap] = useState<Record<string, boolean>>({});
