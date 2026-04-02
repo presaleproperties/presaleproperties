@@ -334,12 +334,12 @@ export default function OffMarketDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-[#1e1e1e] overflow-x-auto">
+          <div className="rounded-xl border border-border overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-[#141414] border-b border-[#1e1e1e]">
+                <tr className="bg-card border-b border-border">
                   {[
-                    { key: "unit_number", label: "Unit #" },
+                    { key: "unit_number", label: "Unit #", sticky: true },
                     { key: "unit_type", label: "Type" },
                     { key: "bedrooms", label: "Beds" },
                     { key: "bathrooms", label: "Baths" },
@@ -348,10 +348,10 @@ export default function OffMarketDetailPage() {
                     { key: "price_per_sqft", label: "$/SqFt" },
                     { key: "floor_level", label: "Floor" },
                     { key: "status", label: "Status" },
-                  ].map(({ key, label }) => (
+                  ].map(({ key, label, sticky }) => (
                     <th
                       key={key}
-                      className="px-3 py-3 text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+                      className={`px-3 py-3 text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors whitespace-nowrap ${sticky ? "sticky left-0 z-10 bg-card" : ""}`}
                       onClick={() => handleSort(key)}
                     >
                       <span className="flex items-center gap-1">
@@ -367,13 +367,13 @@ export default function OffMarketDetailPage() {
                   <>
                     <tr
                       key={unit.id}
-                      className="border-b border-[#1e1e1e] hover:bg-[#141414] cursor-pointer transition-colors"
+                      className="border-b border-border hover:bg-card cursor-pointer transition-colors"
                       onClick={() => {
                         setExpandedUnit(expandedUnit === unit.id ? null : unit.id);
                         trackOffMarketEvent("unit_view", listing.id, unit.id);
                       }}
                     >
-                      <td className="px-3 py-2.5 font-medium">{unit.unit_number}</td>
+                      <td className="px-3 py-2.5 font-medium sticky left-0 z-10 bg-background">{unit.unit_number}</td>
                       <td className="px-3 py-2.5">{unit.unit_type || "—"}</td>
                       <td className="px-3 py-2.5">{unit.bedrooms}</td>
                       <td className="px-3 py-2.5">{unit.bathrooms}</td>
@@ -388,7 +388,7 @@ export default function OffMarketDetailPage() {
                       </td>
                     </tr>
                     {expandedUnit === unit.id && (
-                      <tr key={`${unit.id}-detail`} className="bg-[#141414]/50">
+                      <tr key={`${unit.id}-detail`} className="bg-card/50">
                         <td colSpan={9} className="px-4 py-4">
                           <div className="grid md:grid-cols-2 gap-4">
                             {unit.floorplan_url && (
@@ -458,18 +458,21 @@ export default function OffMarketDetailPage() {
         )}
       </div>
 
+      {/* Spacer for mobile sticky CTA */}
+      <div className="h-20 md:hidden" aria-hidden="true" />
+
       {/* Sticky mobile CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#141414] border-t border-[#1e1e1e] p-3 flex items-center gap-2 md:hidden">
-        <Button size="sm" className="flex-1" asChild onClick={() => trackOffMarketEvent("whatsapp_click", listing?.id)}>
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.15)] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center gap-2 md:hidden">
+        <Button size="sm" className="flex-1 h-11 rounded-xl font-semibold" asChild onClick={() => trackOffMarketEvent("whatsapp_click", listing?.id)}>
           <a href={`https://wa.me/16722581100?text=Hi! I'm interested in ${listing?.linked_project_name} off-market units`} target="_blank" rel="noopener noreferrer">
             <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
           </a>
         </Button>
-        <Button size="sm" variant="outline" className="flex-1" asChild onClick={() => trackOffMarketEvent("call_click", listing?.id)}>
+        <Button size="sm" variant="outline" className="flex-1 h-11 rounded-xl font-semibold" asChild onClick={() => trackOffMarketEvent("call_click", listing?.id)}>
           <a href="tel:6722581100"><Phone className="h-4 w-4 mr-1" /> Call</a>
         </Button>
         {listing?.pricing_sheet_url && (
-          <Button size="sm" variant="outline" asChild onClick={() => trackOffMarketEvent("pricing_download", listing?.id)}>
+          <Button size="sm" variant="outline" className="h-11 rounded-xl" asChild onClick={() => trackOffMarketEvent("pricing_download", listing?.id)}>
             <a href={listing.pricing_sheet_url} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a>
           </Button>
         )}
