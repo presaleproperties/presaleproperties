@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Users } from "lucide-react";
+import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Users, Lock } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -276,6 +276,21 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               </NavigationMenuList>
             </NavigationMenu>
 
+            {/* Off-Market VIP link */}
+            <Link
+              to="/off-market"
+              className={cn(
+                "h-9 px-4 flex items-center gap-1.5 text-[13px] font-semibold tracking-wide rounded-lg transition-all duration-150",
+                isActive("/off-market")
+                  ? "text-primary bg-primary/[0.08]"
+                  : "text-foreground/65 hover:text-foreground hover:bg-foreground/[0.04]"
+              )}
+            >
+              <Lock className="h-3 w-3" />
+              Off-Market
+              <span className="text-[9px] font-bold bg-primary/15 text-primary px-1.5 py-0.5 rounded-full leading-none">VIP</span>
+            </Link>
+
             {/* Plain text links — no icons, refined weight */}
             {[
               { to: "/blog", label: "Guides" },
@@ -462,6 +477,21 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                           </div>
                         </CollapsibleContent>
                       </Collapsible>
+
+                      <div className="h-px bg-border/40 my-1" />
+
+                      {/* Off-Market VIP */}
+                      <Link
+                        to="/off-market"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 py-4"
+                      >
+                        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Lock className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-lg font-semibold text-foreground">Off-Market</span>
+                        <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-full leading-none">VIP</span>
+                      </Link>
 
                       <div className="h-px bg-border/40 my-1" />
 
