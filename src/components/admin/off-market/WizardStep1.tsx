@@ -22,15 +22,6 @@ interface Props {
   onNext: () => void;
 }
 
-function DraggableMarker({ position, onMove }: { position: [number, number]; onMove: (lat: number, lng: number) => void }) {
-  useMapEvents({
-    click(e) {
-      onMove(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return <Marker position={position} />;
-}
-
 export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, onNext }: Props) {
   const [search, setSearch] = useState("");
   const [showDetails, setShowDetails] = useState(false);
