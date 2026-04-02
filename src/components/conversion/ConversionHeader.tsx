@@ -323,6 +323,38 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
           {/* ── Desktop CTA ── */}
           <div className="hidden lg:flex items-center gap-2.5">
+            {/* VIP Login/Status */}
+            {isVipLoggedIn ? (
+              <div className="flex items-center gap-1.5">
+                <Link
+                  to="/off-market"
+                  className="h-9 px-3.5 flex items-center gap-1.5 text-[13px] font-semibold rounded-lg bg-primary/8 text-primary transition-all duration-150 hover:bg-primary/15"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  VIP
+                </Link>
+                <button
+                  onClick={logoutVip}
+                  className="h-9 px-2.5 flex items-center gap-1.5 text-[12px] font-medium rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04] transition-all duration-150"
+                  title="Sign out of VIP"
+                >
+                  <LogOutIcon className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/vip-login"
+                className={cn(
+                  "h-9 px-3.5 flex items-center gap-1.5 text-[13px] font-semibold rounded-lg transition-all duration-150",
+                  isActive("/vip-login")
+                    ? "text-primary bg-primary/8"
+                    : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.04]"
+                )}
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                VIP Login
+              </Link>
+            )}
             {/* Ghost Map link */}
             <Link
               to="/map-search"
