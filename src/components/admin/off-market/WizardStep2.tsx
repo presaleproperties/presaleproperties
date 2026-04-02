@@ -331,9 +331,9 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                     </div>
                     {(u.parking_included || u.storage_included || u.has_unit_incentive) && (
                       <div className="flex gap-1.5 mt-1">
-                        {u.parking_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">🅿️ Parking</Badge>}
-                        {u.storage_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">📦 Storage</Badge>}
-                        {u.has_unit_incentive && <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/30 text-primary">🎁 {u.unit_incentive || "Incentive"}</Badge>}
+                        {u.parking_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">Parking</Badge>}
+                        {u.storage_included && <Badge variant="outline" className="text-[9px] h-4 px-1.5">Storage</Badge>}
+                        {u.has_unit_incentive && <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/30 text-primary">{u.unit_incentive || "Incentive"}</Badge>}
                       </div>
                     )}
                   </div>
@@ -386,7 +386,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                   </div>
                 ) : previewUrl && !showPdfIcon ? (
                   <div className="relative group">
-                    <img src={previewUrl} className="w-full max-h-56 object-contain bg-white p-3 rounded-t-xl" alt="Floor plan" />
+                    <img src={previewUrl} className="w-full max-h-80 object-contain bg-white p-3 rounded-t-xl" alt="Floor plan" />
                     {extracting && (
                       <div className="absolute inset-0 bg-background/60 flex items-center justify-center rounded-t-xl">
                         <div className="flex items-center gap-2 bg-background/90 rounded-lg px-4 py-2 shadow-lg">
@@ -503,9 +503,9 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Inclusions</p>
                 <div className="flex flex-wrap gap-x-5 gap-y-2">
                   {[
-                    { key: "parking_included" as const, label: "🅿️ Parking" },
-                    { key: "storage_included" as const, label: "📦 Storage" },
-                    { key: "locker_included" as const, label: "🔐 Locker" },
+                    { key: "parking_included" as const, label: "Parking" },
+                    { key: "storage_included" as const, label: "Storage" },
+                    { key: "locker_included" as const, label: "Locker" },
                   ].map(({ key, label }) => (
                     <label key={key} className="flex items-center gap-2 cursor-pointer">
                       <Switch checked={editUnit[key]} onCheckedChange={v => setEditUnit({ ...editUnit, [key]: v })} />
@@ -520,7 +520,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                         setEditUnit({ ...editUnit, inclusions: incl });
                       }}
                     />
-                    <span className="text-sm">❄️ AC</span>
+                    <span className="text-sm">AC</span>
                   </label>
                 </div>
               </div>
@@ -529,7 +529,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
               <div className="space-y-3">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <Switch checked={editUnit.has_unit_incentive} onCheckedChange={v => setEditUnit({ ...editUnit, has_unit_incentive: v })} />
-                  <span className="text-sm font-medium">🎁 Special Offering / Incentive</span>
+                  <span className="text-sm font-medium">Special Offering / Incentive</span>
                 </label>
                 {editUnit.has_unit_incentive && (
                   <Input value={editUnit.unit_incentive} onChange={e => setEditUnit({ ...editUnit, unit_incentive: e.target.value })} placeholder="e.g., Free parking upgrade, $5K closing credit..." className="rounded-xl" />
