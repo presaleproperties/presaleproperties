@@ -103,9 +103,9 @@ export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, 
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5" /> {projectPreview.neighborhood}, {projectPreview.city}
                 </p>
-                {projectPreview.estimated_completion && (
+                {projectPreview.completion_year && (
                   <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" /> {projectPreview.estimated_completion}
+                    <Calendar className="h-3.5 w-3.5" /> {projectPreview.completion_year}
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground">{projectPreview.project_type}</p>
