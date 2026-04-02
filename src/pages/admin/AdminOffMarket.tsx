@@ -327,8 +327,13 @@ export default function AdminOffMarket() {
                           <div>
                             <div className="flex items-start justify-between gap-2">
                               <div className="min-w-0">
-                                <h3 className="font-bold text-base truncate">{l.linked_project_name}</h3>
-                                <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <h3 className="font-bold text-base truncate">{l.linked_project_name}</h3>
+                                  <Badge className={`${statusColors[l.status || "draft"]} text-[10px] rounded-md capitalize shrink-0`}>
+                                    {(l.status || "draft").replace("_", " ")}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                   {(l.project_city || l.developer_name) && (
                                     <span className="flex items-center gap-1 truncate">
                                       <MapPin className="h-3 w-3 flex-shrink-0" />
