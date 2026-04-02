@@ -107,20 +107,46 @@ export function VipAuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, [checkApprovalForUser]);
 
-  const signUpVip = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
+  const signUpVip = useCallback(async (email: string, password: string, profile?: VipSignupProfile): Promise<{ error?: string }> => {
     // First check if email matches an approved access record
     const approved = await hasApprovedAccess(email);
     if (!approved) {
       return { error: "No approved VIP access found for this email. Please request access first." };
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: profile ? {
+          first_name: profile.firstName,
+          last_name: profile.lastName,
+          phone: profile.phone,
+          has_agent: profile.hasAgent,
+          budget_range: profile.budgetRange,
+          timeline: profile.timeline,
+        } : undefined,
+      },
     });
 
     if (error) return { error: error.message };
+
+    // Create buyer profile if we have profile data and a user
+    if (profile && data.user) {
+      await supabase.from("buyer_profiles").upsert({
+        user_id: data.user.id,
+        email,
+        full_name: `${profile.firstName} ${profile.lastName}`,
+        phone: profile.phone,
+        buyer_type: profile.hasAgent ? "has_agent" : "no_agent",
+        budget_max: profile.budgetRange ? parseBudgetMax(profile.budgetRange) : null,
+        timeline: profile.timeline || null,
+        is_vip: true,
+        vip_joined_at: new Date().toISOString(),
+      } as any, { onConflict: "user_id" });
+    }
+
     return {};
   }, []);
 
