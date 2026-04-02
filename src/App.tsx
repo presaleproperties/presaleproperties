@@ -297,6 +297,7 @@ const App = () => (
             {/* Off-Market Inventory */}
             <Route path="/off-market" element={<OffMarketPage />} />
             <Route path="/off-market/:slug" element={<OffMarketDetailPage />} />
+            <Route path="/vip-login" element={<VipLoginPage />} />
             
             {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />
