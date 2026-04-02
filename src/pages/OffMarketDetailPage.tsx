@@ -367,7 +367,7 @@ export default function OffMarketDetailPage() {
                   <>
                     <tr
                       key={unit.id}
-                      className="border-b border-[#1e1e1e] hover:bg-[#141414] cursor-pointer transition-colors"
+                      className="border-b border-border hover:bg-card cursor-pointer transition-colors"
                       onClick={() => {
                         setExpandedUnit(expandedUnit === unit.id ? null : unit.id);
                         trackOffMarketEvent("unit_view", listing.id, unit.id);
