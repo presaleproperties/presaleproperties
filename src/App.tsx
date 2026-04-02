@@ -512,6 +512,7 @@ const App = () => (
           </SwipeNavigationProvider>
         </BrowserRouter>
       </TooltipProvider>
+      </VipAuthProvider>
       </BuyerAuthProvider>
     </AuthProvider>
     </ThemeProvider>
