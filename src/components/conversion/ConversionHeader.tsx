@@ -480,6 +480,21 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
                       <div className="h-px bg-border/40 my-1" />
 
+                      {/* Off-Market VIP */}
+                      <Link
+                        to="/off-market"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 py-4"
+                      >
+                        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Lock className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-lg font-semibold text-foreground">Off-Market</span>
+                        <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-full leading-none">VIP</span>
+                      </Link>
+
+                      <div className="h-px bg-border/40 my-1" />
+
                       {/* Simple Links */}
                       <Link
                         to="/blog"
