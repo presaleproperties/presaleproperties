@@ -16,6 +16,22 @@ import type { OffMarketUnit } from "./types";
 
 const UNIT_TYPES = ["Studio", "1BR", "1BR+Den", "2BR", "2BR+Den", "3BR", "3BR+Den", "Townhome", "Penthouse", "Other"];
 
+// Map AI-extracted unit types to our standard values
+const normalizeUnitType = (raw: string): string => {
+  if (!raw) return "";
+  const lower = raw.toLowerCase().replace(/\s+/g, "");
+  if (/studio/i.test(raw)) return "Studio";
+  if (/penthouse/i.test(raw)) return "Penthouse";
+  if (/townhome|townhouse/i.test(raw)) return "Townhome";
+  if (/3.*bed.*den|3br.*den|3bd.*den/i.test(raw) || lower.includes("3bedroom+den")) return "3BR+Den";
+  if (/3.*bed|3br|3bd/i.test(raw) || lower.includes("3bedroom")) return "3BR";
+  if (/2.*bed.*den|2br.*den|2bd.*den/i.test(raw) || lower.includes("2bedroom+den")) return "2BR+Den";
+  if (/2.*bed|2br|2bd/i.test(raw) || lower.includes("2bedroom")) return "2BR";
+  if (/1.*bed.*den|1br.*den|1bd.*den/i.test(raw) || lower.includes("1bedroom+den")) return "1BR+Den";
+  if (/1.*bed|1br|1bd/i.test(raw) || lower.includes("1bedroom")) return "1BR";
+  return "Other";
+};
+
 const emptyUnit: OffMarketUnit = {
   unit_number: "", unit_name: "", unit_type: "", floor_level: null,
   bedrooms: 0, bathrooms: 0, sqft: 0, price: 0,
