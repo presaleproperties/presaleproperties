@@ -80,7 +80,7 @@ export default function OffMarketPage() {
     setError(null);
     const { data, error: fetchError } = await supabase
       .from("off_market_listings")
-      .select("id, linked_project_name, linked_project_slug, developer_name, available_units, total_units, construction_stage, access_level, auto_approve_access, status")
+      .select("id, linked_project_name, linked_project_slug, developer_name, available_units, total_units, construction_stage, access_level, auto_approve_access, incentives, status")
       .eq("status", "published")
       .order("published_at", { ascending: false });
 
