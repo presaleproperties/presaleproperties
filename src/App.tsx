@@ -106,6 +106,7 @@ const AdminOffMarketWizard = lazy(() => import("./pages/admin/AdminOffMarketWiza
 const AdminOffMarketAccess = lazy(() => import("./pages/admin/AdminOffMarketAccess"));
 const AdminOffMarketDevelopers = lazy(() => import("./pages/admin/AdminOffMarketDevelopers"));
 const AdminOffMarketSubmissions = lazy(() => import("./pages/admin/AdminOffMarketSubmissions"));
+const AdminOffMarketAnalytics = lazy(() => import("./pages/admin/AdminOffMarketAnalytics"));
 const DeveloperOffMarketWizard = lazy(() => import("./pages/developer/DeveloperOffMarketWizard"));
 const OffMarketPage = lazy(() => import("./pages/OffMarketPage"));
 const OffMarketDetailPage = lazy(() => import("./pages/OffMarketDetailPage"));
