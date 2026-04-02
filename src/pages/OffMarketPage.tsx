@@ -427,7 +427,7 @@ export default function OffMarketPage() {
       </div>
 
       {/* Bottom CTA */}
-      <section className="max-w-3xl mx-auto px-4 pb-16">
+      <section className="max-w-3xl mx-auto px-4 pb-16 md:pb-16 pb-28">
         <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 p-8 text-center space-y-4">
           <h2 className="text-2xl font-bold">Want personalized recommendations?</h2>
           <p className="text-muted-foreground">
