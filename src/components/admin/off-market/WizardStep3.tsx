@@ -1,336 +1,315 @@
-import { useState, useRef } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Separator } from "@/components/ui/separator";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
-} from "@/components/ui/dialog";
-import { Plus, Upload, Download, Pencil, Trash2, AlertCircle } from "lucide-react";
-import { toast } from "sonner";
-import type { OffMarketUnit } from "./types";
+  Building2, MapPin, Calendar, Gift, Car, Warehouse, Download,
+  Lock, Shield, ArrowUpDown, Loader2, Eye, MessageCircle, Phone,
+} from "lucide-react";
+import type { OffMarketListingForm, OffMarketUnit } from "./types";
 
-const UNIT_TYPES = ["Studio", "1BR", "1BR+Den", "2BR", "2BR+Den", "3BR", "3BR+Den", "Townhome", "Penthouse", "Other"];
-const ORIENTATIONS = ["N", "S", "E", "W", "NE", "NW", "SE", "SW"];
-const INCLUSION_OPTIONS = ["AC", "Appliance Package", "Flooring Upgrade", "Window Coverings", "Smart Home", "EV Charger"];
-const STATUS_COLORS: Record<string, string> = {
-  available: "bg-green-500/10 text-green-500",
-  reserved: "bg-yellow-500/10 text-yellow-500",
-  sold: "bg-red-500/10 text-red-400",
-  hold: "bg-muted text-muted-foreground",
+const STAGES = ["pre-construction", "excavation", "foundation", "framing", "finishing", "move-in-ready"];
+const stageLabels: Record<string, string> = {
+  "pre-construction": "Pre-Construction",
+  excavation: "Excavation",
+  foundation: "Foundation",
+  framing: "Framing",
+  finishing: "Finishing",
+  "move-in-ready": "Move-In Ready",
 };
 
-const emptyUnit: OffMarketUnit = {
-  unit_number: "", unit_name: "", unit_type: "", floor_level: null,
-  bedrooms: 0, bathrooms: 0, sqft: 0, price: 0,
-  parking_included: false, parking_type: "", storage_included: false,
-  locker_included: false, orientation: "", view_type: "", floorplan_url: "",
-  has_unit_incentive: false, unit_incentive: "", status: "available",
-  inclusions: [], display_order: 0,
+const statusColors: Record<string, string> = {
+  available: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  reserved: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+  sold: "bg-red-500/15 text-red-400 border-red-500/30",
+  hold: "bg-gray-500/15 text-gray-400 border-gray-500/30",
+};
+
+const ACCESS_DESCRIPTIONS: Record<string, string> = {
+  public: "Anyone can see full details — no gating",
+  teaser: "Public sees project card, must fill form to unlock details",
+  approved_only: "Teaser visible, admin manually approves each request",
+  vip_only: "Not visible publicly, only shared via direct link",
 };
 
 interface Props {
+  form: OffMarketListingForm;
+  setForm: (f: OffMarketListingForm) => void;
   units: OffMarketUnit[];
-  setUnits: (u: OffMarketUnit[]) => void;
+  saving: boolean;
   onBack: () => void;
-  onNext: () => void;
+  onSaveDraft: () => void;
+  onPublish: () => void;
+  projectPreview?: any;
+  showAccessSettings?: boolean;
 }
 
-export function WizardStep3({ units, setUnits, onBack, onNext }: Props) {
-  const [editUnit, setEditUnit] = useState<OffMarketUnit | null>(null);
-  const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
-  const csvRef = useRef<HTMLInputElement>(null);
+export function WizardStep3({ form, setForm, units, saving, onBack, onSaveDraft, onPublish, projectPreview, showAccessSettings = true }: Props) {
+  const update = (key: keyof OffMarketListingForm, value: any) => setForm({ ...form, [key]: value });
+  const [previewMode, setPreviewMode] = useState(true);
+  const [showSold, setShowSold] = useState(false);
+  const [sortBy, setSortBy] = useState("price");
+  const [sortAsc, setSortAsc] = useState(true);
 
-  const openAdd = () => { setEditUnit({ ...emptyUnit }); setEditIndex(null); setDialogOpen(true); };
-  const openEdit = (i: number) => { setEditUnit({ ...units[i] }); setEditIndex(i); setDialogOpen(true); };
+  const stageIndex = form.construction_stage ? STAGES.indexOf(form.construction_stage) : -1;
+  const incentiveExpiry = form.incentive_expiry ? new Date(form.incentive_expiry) : null;
+  const daysUntilExpiry = incentiveExpiry ? Math.max(0, Math.ceil((incentiveExpiry.getTime() - Date.now()) / 86400000)) : null;
 
-  const saveUnit = () => {
-    if (!editUnit) return;
-    if (!editUnit.unit_number || !editUnit.sqft || !editUnit.price || !editUnit.bedrooms) {
-      toast.error("Unit #, beds, sqft, and price are required"); return;
-    }
-    const updated = [...units];
-    if (editIndex !== null) { updated[editIndex] = editUnit; } else { updated.push(editUnit); }
-    setUnits(updated);
-    setDialogOpen(false);
-    toast.success(editIndex !== null ? "Unit updated" : "Unit added");
-  };
-
-  const deleteUnit = (i: number) => { setUnits(units.filter((_, j) => j !== i)); toast.success("Unit removed"); };
-
-  const bulkAction = (status: string) => {
-    const updated = units.map((u, i) => selectedRows.has(i) ? { ...u, status } : u);
-    setUnits(updated);
-    setSelectedRows(new Set());
-    toast.success(`${selectedRows.size} units updated`);
-  };
-
-  const bulkDelete = () => {
-    setUnits(units.filter((_, i) => !selectedRows.has(i)));
-    setSelectedRows(new Set());
-    toast.success("Units deleted");
-  };
-
-  const downloadTemplate = () => {
-    const headers = "unit_number,unit_type,floor_level,bedrooms,bathrooms,sqft,price,parking_included,storage_included,locker_included,orientation,view_type,status,inclusions\n";
-    const sample = '101,1BR,1,1,1,550,450000,false,false,false,SE,City View,available,"AC,Smart Home"\n';
-    const blob = new Blob([headers + sample], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "off-market-units-template.csv"; a.click();
-  };
-
-  const handleCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const text = ev.target?.result as string;
-      const lines = text.split("\n").filter(l => l.trim());
-      if (lines.length < 2) { toast.error("CSV is empty"); return; }
-      const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
-      const parsed: OffMarketUnit[] = [];
-      for (let i = 1; i < lines.length; i++) {
-        const vals = lines[i].split(",").map(v => v.trim().replace(/^"|"$/g, ""));
-        const get = (key: string) => vals[headers.indexOf(key)] || "";
-        parsed.push({
-          ...emptyUnit,
-          unit_number: get("unit_number"),
-          unit_type: get("unit_type"),
-          floor_level: get("floor_level") ? parseInt(get("floor_level")) : null,
-          bedrooms: parseInt(get("bedrooms")) || 0,
-          bathrooms: parseFloat(get("bathrooms")) || 0,
-          sqft: parseFloat(get("sqft")) || 0,
-          price: parseFloat(get("price")) || 0,
-          parking_included: get("parking_included") === "true",
-          storage_included: get("storage_included") === "true",
-          locker_included: get("locker_included") === "true",
-          orientation: get("orientation"),
-          view_type: get("view_type"),
-          status: get("status") || "available",
-          inclusions: get("inclusions") ? get("inclusions").split(",").map(s => s.trim()) : [],
-          display_order: i - 1,
-        });
-      }
-      setUnits([...units, ...parsed]);
-      toast.success(`${parsed.length} units imported`);
-    };
-    reader.readAsText(file);
-    if (csvRef.current) csvRef.current.value = "";
-  };
-
-  const toggleRow = (i: number) => {
-    setSelectedRows(prev => {
-      const next = new Set(prev);
-      next.has(i) ? next.delete(i) : next.add(i);
-      return next;
+  const sortedUnits = useMemo(() => {
+    let filtered = showSold ? units : units.filter(u => u.status !== "sold");
+    return [...filtered].sort((a, b) => {
+      const va = (a as any)[sortBy] ?? 0;
+      const vb = (b as any)[sortBy] ?? 0;
+      return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
     });
+  }, [units, showSold, sortBy, sortAsc]);
+
+  const handleSort = (col: string) => {
+    if (sortBy === col) setSortAsc(!sortAsc);
+    else { setSortBy(col); setSortAsc(true); }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-3">
-        <Button onClick={openAdd} className="rounded-xl gap-1.5 shadow-gold font-bold">
-          <Plus className="h-4 w-4" /> Add Unit
+      {/* Toggle between preview and settings */}
+      <div className="flex items-center gap-3 bg-muted/30 rounded-xl p-2">
+        <Button
+          variant={previewMode ? "default" : "ghost"}
+          size="sm"
+          className="rounded-lg gap-1.5"
+          onClick={() => setPreviewMode(true)}
+        >
+          <Eye className="h-4 w-4" /> Page Preview
         </Button>
-        <Button variant="outline" className="rounded-xl gap-1.5" onClick={downloadTemplate}>
-          <Download className="h-4 w-4" /> CSV Template
-        </Button>
-        <label>
-          <Button variant="outline" className="rounded-xl gap-1.5" asChild>
-            <span><Upload className="h-4 w-4" /> Upload CSV</span>
+        {showAccessSettings && (
+          <Button
+            variant={!previewMode ? "default" : "ghost"}
+            size="sm"
+            className="rounded-lg gap-1.5"
+            onClick={() => setPreviewMode(false)}
+          >
+            <Shield className="h-4 w-4" /> Access Settings
           </Button>
-          <input ref={csvRef} type="file" accept=".csv" onChange={handleCSV} className="hidden" />
-        </label>
+        )}
       </div>
 
-      {selectedRows.size > 0 && (
-        <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-xl border border-primary/20">
-          <span className="text-sm font-medium">{selectedRows.size} selected</span>
-          <Button size="sm" variant="outline" className="rounded-lg text-xs" onClick={() => bulkAction("sold")}>Mark Sold</Button>
-          <Button size="sm" variant="outline" className="rounded-lg text-xs" onClick={() => bulkAction("reserved")}>Mark Reserved</Button>
-          <Button size="sm" variant="outline" className="rounded-lg text-xs text-red-400" onClick={bulkDelete}>Delete</Button>
-        </div>
-      )}
+      {previewMode ? (
+        /* ─── FULL PAGE PREVIEW ─── */
+        <div className="rounded-2xl border border-border/50 bg-background overflow-hidden">
+          {/* Preview banner */}
+          <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 text-center">
+            <p className="text-xs font-medium text-primary">📱 Page Preview — This is how buyers will see your listing</p>
+          </div>
 
-      <Card className="rounded-2xl border-border/50 overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-10"></TableHead>
-              <TableHead>Unit #</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Beds</TableHead>
-              <TableHead>Baths</TableHead>
-              <TableHead>SqFt</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>$/SqFt</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {!units.length ? (
-              <TableRow>
-                <TableCell colSpan={10} className="text-center py-12 text-muted-foreground">
-                  <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  No units added yet. Click "Add Unit" or upload a CSV.
-                </TableCell>
-              </TableRow>
-            ) : (
-              units.map((u, i) => (
-                <TableRow key={i}>
-                  <TableCell>
-                    <Checkbox checked={selectedRows.has(i)} onCheckedChange={() => toggleRow(i)} />
-                  </TableCell>
-                  <TableCell className="font-medium">{u.unit_number}</TableCell>
-                  <TableCell>{u.unit_type || "—"}</TableCell>
-                  <TableCell>{u.bedrooms}</TableCell>
-                  <TableCell>{u.bathrooms}</TableCell>
-                  <TableCell>{u.sqft.toLocaleString()}</TableCell>
-                  <TableCell className="text-primary font-semibold">${u.price.toLocaleString()}</TableCell>
-                  <TableCell className="text-muted-foreground">${u.sqft > 0 ? Math.round(u.price / u.sqft).toLocaleString() : "—"}</TableCell>
-                  <TableCell>
-                    <Badge className={`${STATUS_COLORS[u.status]} border-0 text-xs rounded-lg capitalize`}>{u.status}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openEdit(i)}><Pencil className="h-3.5 w-3.5" /></Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-400" onClick={() => deleteUnit(i)}><Trash2 className="h-3.5 w-3.5" /></Button>
+          <div className="p-6 space-y-6 max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="space-y-3">
+              <h1 className="text-2xl md:text-3xl font-bold">{form.linked_project_name}</h1>
+              <div className="flex items-center gap-3 flex-wrap text-muted-foreground text-sm">
+                {form.developer_name && <span className="flex items-center gap-1"><Building2 className="h-4 w-4" /> {form.developer_name}</span>}
+                {projectPreview?.city && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {projectPreview.neighborhood ? `${projectPreview.neighborhood}, ${projectPreview.city}` : projectPreview.city}</span>}
+                {form.completion_date && <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {form.completion_date}</span>}
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {projectPreview?.project_type && <Badge variant="outline" className="capitalize">{projectPreview.project_type}</Badge>}
+                {form.construction_stage && <Badge variant="secondary" className="capitalize">{stageLabels[form.construction_stage] || form.construction_stage}</Badge>}
+              </div>
+            </div>
+
+            {/* Construction Progress */}
+            {stageIndex >= 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Construction Progress</p>
+                <div className="flex gap-1">
+                  {STAGES.map((s, i) => (
+                    <div key={s} className="flex-1 space-y-1">
+                      <div className={`h-2 rounded-full ${i <= stageIndex ? "bg-primary" : "bg-muted"}`} />
+                      <p className={`text-[10px] text-center ${i <= stageIndex ? "text-primary" : "text-muted-foreground/50"}`}>
+                        {stageLabels[s]}
+                      </p>
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </Card>
-
-      {/* Unit Form Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editIndex !== null ? "Edit Unit" : "Add Unit"}</DialogTitle>
-          </DialogHeader>
-          {editUnit && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm">Unit Number *</Label>
-                  <Input value={editUnit.unit_number} onChange={e => setEditUnit({ ...editUnit, unit_number: e.target.value })} className="rounded-xl" placeholder="101" />
-                </div>
-                <div>
-                  <Label className="text-sm">Unit Type</Label>
-                  <Select value={editUnit.unit_type} onValueChange={v => setEditUnit({ ...editUnit, unit_type: v })}>
-                    <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select..." /></SelectTrigger>
-                    <SelectContent>{UNIT_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-4 gap-4">
-                <div>
-                  <Label className="text-sm">Floor</Label>
-                  <Input type="number" value={editUnit.floor_level ?? ""} onChange={e => setEditUnit({ ...editUnit, floor_level: e.target.value ? Number(e.target.value) : null })} className="rounded-xl" />
-                </div>
-                <div>
-                  <Label className="text-sm">Beds *</Label>
-                  <Input type="number" value={editUnit.bedrooms} onChange={e => setEditUnit({ ...editUnit, bedrooms: Number(e.target.value) })} className="rounded-xl" />
-                </div>
-                <div>
-                  <Label className="text-sm">Baths *</Label>
-                  <Input type="number" step="0.5" value={editUnit.bathrooms} onChange={e => setEditUnit({ ...editUnit, bathrooms: Number(e.target.value) })} className="rounded-xl" />
-                </div>
-                <div>
-                  <Label className="text-sm">SqFt *</Label>
-                  <Input type="number" value={editUnit.sqft} onChange={e => setEditUnit({ ...editUnit, sqft: Number(e.target.value) })} className="rounded-xl" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm">Price ($) *</Label>
-                  <Input type="number" value={editUnit.price} onChange={e => setEditUnit({ ...editUnit, price: Number(e.target.value) })} className="rounded-xl" />
-                </div>
-                <div>
-                  <Label className="text-sm">$/SqFt (auto)</Label>
-                  <Input value={editUnit.sqft > 0 ? `$${Math.round(editUnit.price / editUnit.sqft).toLocaleString()}` : "—"} disabled className="rounded-xl" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm">Orientation</Label>
-                  <Select value={editUnit.orientation} onValueChange={v => setEditUnit({ ...editUnit, orientation: v })}>
-                    <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select..." /></SelectTrigger>
-                    <SelectContent>{ORIENTATIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="text-sm">View Type</Label>
-                  <Input value={editUnit.view_type} onChange={e => setEditUnit({ ...editUnit, view_type: e.target.value })} className="rounded-xl" placeholder="Mountain View" />
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2"><Switch checked={editUnit.parking_included} onCheckedChange={v => setEditUnit({ ...editUnit, parking_included: v })} /><Label className="text-sm">Parking</Label></div>
-                <div className="flex items-center gap-2"><Switch checked={editUnit.storage_included} onCheckedChange={v => setEditUnit({ ...editUnit, storage_included: v })} /><Label className="text-sm">Storage</Label></div>
-                <div className="flex items-center gap-2"><Switch checked={editUnit.locker_included} onCheckedChange={v => setEditUnit({ ...editUnit, locker_included: v })} /><Label className="text-sm">Locker</Label></div>
-              </div>
-              <div>
-                <Label className="text-sm">Status</Label>
-                <Select value={editUnit.status} onValueChange={v => setEditUnit({ ...editUnit, status: v })}>
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="available">Available</SelectItem>
-                    <SelectItem value="reserved">Reserved</SelectItem>
-                    <SelectItem value="sold">Sold</SelectItem>
-                    <SelectItem value="hold">Hold</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-sm mb-2 block">Inclusions</Label>
-                <div className="flex flex-wrap gap-2">
-                  {INCLUSION_OPTIONS.map(opt => (
-                    <Badge
-                      key={opt}
-                      variant={editUnit.inclusions.includes(opt) ? "default" : "outline"}
-                      className="cursor-pointer rounded-lg"
-                      onClick={() => {
-                        const has = editUnit.inclusions.includes(opt);
-                        setEditUnit({
-                          ...editUnit,
-                          inclusions: has ? editUnit.inclusions.filter(i => i !== opt) : [...editUnit.inclusions, opt],
-                        });
-                      }}
-                    >
-                      {opt}
-                    </Badge>
                   ))}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Switch checked={editUnit.has_unit_incentive} onCheckedChange={v => setEditUnit({ ...editUnit, has_unit_incentive: v })} />
-                <Label className="text-sm">Unit-Specific Incentive</Label>
-              </div>
-              {editUnit.has_unit_incentive && (
-                <Input value={editUnit.unit_incentive} onChange={e => setEditUnit({ ...editUnit, unit_incentive: e.target.value })} placeholder="Special incentive for this unit..." className="rounded-xl" />
+            )}
+
+            {/* Documents */}
+            <div className="grid md:grid-cols-3 gap-3">
+              {form.pricing_sheet_url && (
+                <Card className="bg-card border-border/50">
+                  <CardContent className="p-3 flex items-center justify-between">
+                    <span className="text-sm font-medium">Pricing Sheet</span>
+                    <Button size="sm" variant="outline" disabled><Download className="h-4 w-4 mr-1" /> Download</Button>
+                  </CardContent>
+                </Card>
               )}
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl">Cancel</Button>
-                <Button onClick={saveUnit} className="rounded-xl shadow-gold font-bold">Save Unit</Button>
+              {form.brochure_url && (
+                <Card className="bg-card border-border/50">
+                  <CardContent className="p-3 flex items-center justify-between">
+                    <span className="text-sm font-medium">Brochure</span>
+                    <Button size="sm" variant="outline" disabled><Download className="h-4 w-4 mr-1" /> Download</Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Incentives & Deposit */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {(form.incentives || form.vip_incentives) && (
+                <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-transparent">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-base"><Gift className="h-5 w-5 text-primary" /> Incentives</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {form.incentives && <p className="text-sm">{form.incentives}</p>}
+                    {form.vip_incentives && (
+                      <div className="rounded-lg bg-primary/10 border border-primary/20 p-2">
+                        <Badge className="mb-1 bg-primary text-primary-foreground text-xs">VIP ONLY</Badge>
+                        <p className="text-sm">{form.vip_incentives}</p>
+                      </div>
+                    )}
+                    {daysUntilExpiry !== null && daysUntilExpiry > 0 && (
+                      <p className="text-xs text-primary font-medium">Offer expires in {daysUntilExpiry} days</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              <Card className="bg-card border-border/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">Deposit & Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  {form.deposit_structure && <div><span className="text-muted-foreground">Deposit:</span> {form.deposit_structure}</div>}
+                  {form.deposit_percentage && <div><span className="text-muted-foreground">Deposit %:</span> {form.deposit_percentage}%</div>}
+                  <Separator />
+                  <div className="flex items-center gap-2">
+                    <Car className="h-4 w-4 text-muted-foreground" />
+                    <span>{form.parking_included ? "Parking Included" : form.parking_cost ? `Parking: $${form.parking_cost.toLocaleString()}` : "No parking info"}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Warehouse className="h-4 w-4 text-muted-foreground" />
+                    <span>{form.storage_included ? "Storage Included" : form.storage_cost ? `Storage: $${form.storage_cost.toLocaleString()}` : "No storage info"}</span>
+                  </div>
+                  {form.assignment_allowed && (
+                    <div>Assignment: Allowed {form.assignment_fee && `(${form.assignment_fee})`}</div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Unit Inventory Table */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h2 className="text-lg font-bold">Unit Inventory ({units.filter(u => u.status === "available").length} available)</h2>
+                <div className="flex items-center gap-2">
+                  <Switch id="preview-sold" checked={showSold} onCheckedChange={setShowSold} />
+                  <Label htmlFor="preview-sold" className="text-sm text-muted-foreground">Show sold</Label>
+                </div>
+              </div>
+              <div className="rounded-xl border border-border overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-card border-b border-border">
+                      {[
+                        { key: "unit_number", label: "Unit #" },
+                        { key: "unit_type", label: "Type" },
+                        { key: "bedrooms", label: "Beds" },
+                        { key: "bathrooms", label: "Baths" },
+                        { key: "sqft", label: "SqFt" },
+                        { key: "price", label: "Price" },
+                        { key: "status", label: "Status" },
+                      ].map(({ key, label }) => (
+                        <th
+                          key={key}
+                          className="px-3 py-2.5 text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground whitespace-nowrap"
+                          onClick={() => handleSort(key)}
+                        >
+                          <span className="flex items-center gap-1">
+                            {label}
+                            {sortBy === key && <ArrowUpDown className="h-3 w-3 text-primary" />}
+                          </span>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedUnits.map((u, i) => (
+                      <tr key={i} className="border-b border-border hover:bg-card">
+                        <td className="px-3 py-2 font-medium">{u.unit_number}</td>
+                        <td className="px-3 py-2">{u.unit_type || "—"}</td>
+                        <td className="px-3 py-2">{u.bedrooms}</td>
+                        <td className="px-3 py-2">{u.bathrooms}</td>
+                        <td className="px-3 py-2">{u.sqft.toLocaleString()}</td>
+                        <td className="px-3 py-2 text-primary font-semibold">${u.price.toLocaleString()}</td>
+                        <td className="px-3 py-2">
+                          <Badge variant="outline" className={`text-xs ${statusColors[u.status] || ""}`}>{u.status}</Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={onBack} className="rounded-xl">← Back</Button>
-        <Button onClick={onNext} className="rounded-xl shadow-gold font-bold px-8">Next →</Button>
+            {/* Mobile CTA Preview */}
+            <div className="rounded-xl border border-border bg-card p-3 flex items-center justify-center gap-3">
+              <Button size="sm" variant="outline" disabled className="gap-1"><MessageCircle className="h-4 w-4" /> WhatsApp</Button>
+              <Button size="sm" variant="outline" disabled className="gap-1"><Phone className="h-4 w-4" /> Call</Button>
+              <Button size="sm" variant="outline" disabled className="gap-1"><Download className="h-4 w-4" /> Download</Button>
+              <span className="text-xs text-muted-foreground">(Mobile sticky bar)</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ─── ACCESS SETTINGS ─── */
+        <Card className="rounded-2xl border-primary/20 bg-primary/5">
+          <CardContent className="p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              <h3 className="font-bold">Access Settings</h3>
+            </div>
+            <div>
+              <Label className="text-sm font-medium mb-1.5 block">Access Level</Label>
+              <Select value={form.access_level} onValueChange={(v) => update("access_level", v)}>
+                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="public">Public</SelectItem>
+                  <SelectItem value="teaser">Teaser</SelectItem>
+                  <SelectItem value="approved_only">Approved Only</SelectItem>
+                  <SelectItem value="vip_only">VIP Only</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1.5">{ACCESS_DESCRIPTIONS[form.access_level]}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch checked={form.auto_approve_access} onCheckedChange={(v) => update("auto_approve_access", v)} />
+              <div>
+                <Label className="text-sm font-medium">Auto-Approve Access</Label>
+                <p className="text-xs text-muted-foreground">When ON, form submissions get instant access</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Actions */}
+      <div className="flex flex-wrap justify-between gap-3">
+        <Button variant="outline" onClick={onBack} className="rounded-xl" disabled={saving}>← Back</Button>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={onSaveDraft} disabled={saving} className="rounded-xl">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Save as Draft
+          </Button>
+          <Button onClick={onPublish} disabled={saving} className="rounded-xl shadow-gold hover:shadow-gold-glow font-bold px-8">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Publish Listing
+          </Button>
+        </div>
       </div>
     </div>
   );
