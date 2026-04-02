@@ -261,8 +261,8 @@ export function WizardStep3({ form, setForm, units, saving, onBack, onSaveDraft,
                         <td className="px-3 py-2">{u.sqft.toLocaleString()}</td>
                         <td className="px-3 py-2 text-primary font-semibold">${u.price.toLocaleString()}</td>
                         <td className="px-3 py-2">
-                          {u.has_unit_incentive && u.unit_incentive ? (
-                            <span className="text-primary text-xs font-medium">{u.unit_incentive}</span>
+                          {u.has_unit_incentive ? (
+                            <span className="text-primary text-xs font-medium">{u.unit_incentive || "Yes"}</span>
                           ) : (
                             <span className="text-muted-foreground">—</span>
                           )}
