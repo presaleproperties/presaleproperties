@@ -190,28 +190,14 @@ export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, 
                 <MapPin className="h-5 w-5 text-primary" /> Confirm Project Location
               </h3>
               <p className="text-xs text-muted-foreground mb-3">Click the map to adjust the pin location if needed.</p>
-              <div className="rounded-xl overflow-hidden border border-border/50 h-[250px]">
-                <MapContainer
+              <Suspense fallback={<div className="h-[250px] rounded-xl bg-muted flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
+                <ProjectLocationMap
                   center={mapCenter}
-                  zoom={14}
-                  style={{ height: "100%", width: "100%" }}
-                  key={`${mapCenter[0]}-${mapCenter[1]}`}
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  {markerPos && (
-                    <DraggableMarker
-                      position={markerPos}
-                      onMove={(lat, lng) => setMarkerPos([lat, lng])}
-                    />
-                  )}
-                </MapContainer>
-              </div>
-              {projectPreview.address && (
-                <p className="text-xs text-muted-foreground mt-2">{projectPreview.address}</p>
-              )}
+                  markerPos={markerPos}
+                  onMove={(lat, lng) => setMarkerPos([lat, lng])}
+                  address={projectPreview.address}
+                />
+              </Suspense>
             </CardContent>
           </Card>
 
