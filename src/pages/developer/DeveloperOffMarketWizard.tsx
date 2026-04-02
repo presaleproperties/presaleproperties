@@ -495,28 +495,32 @@ export default function DeveloperOffMarketWizard() {
             <WizardStep1
               form={form}
               setForm={setForm}
-              projectPreview={null}
-              setProjectPreview={() => {}}
+              projectPreview={projectPreview}
+              setProjectPreview={setProjectPreview}
               onNext={() => setStep(2)}
             />
           )}
           {step === 2 && (
             <WizardStep2
-              form={form}
-              setForm={setForm}
+              units={units}
+              setUnits={setUnits}
               onBack={() => setStep(1)}
               onNext={() => setStep(3)}
             />
           )}
           {step === 3 && (
             <WizardStep3
+              form={form}
+              setForm={setForm}
               units={units}
-              setUnits={setUnits}
+              saving={saving}
               onBack={() => setStep(2)}
-              onNext={() => setStep(4)}
+              onSaveDraft={() => saveListing(false)}
+              onPublish={() => saveListing(true)}
+              projectPreview={projectPreview}
+              showAccessSettings={false}
             />
           )}
-          {step === 4 && <DevStep4 />}
         </div>
       </div>
     </DeveloperPortalLayout>
