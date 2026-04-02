@@ -14,6 +14,7 @@ import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { OffMarketSection } from "@/components/home/OffMarketSection";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { VipAccessSection } from "@/components/home/VipAccessSection";
 import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
 
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
@@ -317,6 +318,7 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
         </ScrollReveal>
+        <VipAccessSection />
       </main>
       
       <Footer />

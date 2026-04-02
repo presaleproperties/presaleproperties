@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 const db = supabase as any;
 
 export function LatestListings() {
-  const { data: listings, isLoading } = useQuery({
+  const { data: listings, isLoading, isError } = useQuery({
     queryKey: ["latest-listings"],
     queryFn: async () => {
       const { data: listingsData, error } = await db
@@ -22,7 +22,10 @@ export function LatestListings() {
         .order("published_at", { ascending: false })
         .limit(6);
 
-      if (error) throw error;
+      if (error) {
+        console.error("LatestListings fetch error:", error);
+        throw error;
+      }
       
       const agentIds = [...new Set((listingsData as any[])?.map((l: any) => l.agent_id).filter(Boolean) || [])];
       
@@ -40,7 +43,12 @@ export function LatestListings() {
         agentInfo: agentProfilesMap.get(listing.agent_id),
       }));
     },
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
   });
+
+  // Return null on error to avoid blank gap
+  if (isError && !listings) return null;
 
   return (
     <section className="py-20 md:py-28 bg-muted/20 relative">

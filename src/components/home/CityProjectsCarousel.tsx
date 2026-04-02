@@ -20,7 +20,7 @@ export function CityProjectsCarousel({ city, title, subtitle, excludeSlug }: Cit
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const { data: projects, isLoading } = useQuery({
+  const { data: projects, isLoading, isError } = useQuery({
     queryKey: ["city-projects", city, excludeSlug],
     queryFn: async () => {
       let query = supabase
@@ -38,10 +38,14 @@ export function CityProjectsCarousel({ city, title, subtitle, excludeSlug }: Cit
 
       const { data, error } = await query;
 
-      if (error) throw error;
-      // If we excluded a slug and got 11, trim to 10
+      if (error) {
+        console.error(`CityProjectsCarousel [${city}] fetch error:`, error);
+        throw error;
+      }
       return excludeSlug && data && data.length > 10 ? data.slice(0, 10) : data;
     },
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
   });
 
   const checkScroll = () => {
@@ -93,7 +97,7 @@ export function CityProjectsCarousel({ city, title, subtitle, excludeSlug }: Cit
     );
   }
 
-  if (!projects || projects.length === 0) {
+  if (isError || !projects || projects.length === 0) {
     return null;
   }
 
