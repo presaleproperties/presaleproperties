@@ -212,7 +212,7 @@ export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, 
                 {showDetails ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </button>
               {showDetails && (
-                <div className="mt-4 space-y-4">
+                <div className="mt-4 space-y-4" onClick={(e) => e.stopPropagation()}>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm">Deposit Structure</Label>
