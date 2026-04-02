@@ -177,6 +177,7 @@ const App = () => (
     <ThemeProvider>
     <AuthProvider>
       <BuyerAuthProvider>
+      <VipAuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
