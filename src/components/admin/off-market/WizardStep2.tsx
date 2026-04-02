@@ -422,7 +422,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                     </div>
                     <div className="relative bg-white">
                       <iframe
-                        src={pdfPreviewUrl}
+                        src={pdfEmbedUrl}
                         title="Floor plan PDF preview"
                         className="w-full h-[420px]"
                       />
