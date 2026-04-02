@@ -189,11 +189,15 @@ export function WizardStep3({ form, setForm, units, saving, onBack, onSaveDraft,
                   <Separator />
                   <div className="flex items-center gap-2">
                     <Car className="h-4 w-4 text-muted-foreground" />
-                    <span>{form.parking_included ? "Parking Included" : form.parking_cost ? `Parking: $${form.parking_cost.toLocaleString()}` : "No parking info"}</span>
+                    <span>{form.parking_included || units.some(u => u.parking_included)
+                      ? `Parking Included${form.parking_type ? ` (${form.parking_type})` : ""}`
+                      : form.parking_cost ? `Parking: $${form.parking_cost.toLocaleString()}` : "No parking info"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Warehouse className="h-4 w-4 text-muted-foreground" />
-                    <span>{form.storage_included ? "Storage Included" : form.storage_cost ? `Storage: $${form.storage_cost.toLocaleString()}` : "No storage info"}</span>
+                    <span>{form.storage_included || units.some(u => u.storage_included)
+                      ? `Storage Included${form.storage_size ? ` (${form.storage_size})` : ""}`
+                      : form.storage_cost ? `Storage: $${form.storage_cost.toLocaleString()}` : "No storage info"}</span>
                   </div>
                   {form.assignment_allowed && (
                     <div>Assignment: Allowed {form.assignment_fee && `(${form.assignment_fee})`}</div>
@@ -257,8 +261,8 @@ export function WizardStep3({ form, setForm, units, saving, onBack, onSaveDraft,
                         <td className="px-3 py-2">{u.sqft.toLocaleString()}</td>
                         <td className="px-3 py-2 text-primary font-semibold">${u.price.toLocaleString()}</td>
                         <td className="px-3 py-2">
-                          {u.has_unit_incentive && u.unit_incentive ? (
-                            <span className="text-primary text-xs font-medium">{u.unit_incentive}</span>
+                          {u.has_unit_incentive ? (
+                            <span className="text-primary text-xs font-medium">{u.unit_incentive || "Yes"}</span>
                           ) : (
                             <span className="text-muted-foreground">—</span>
                           )}
