@@ -103,13 +103,9 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
     const filePdf = file.type === "application/pdf";
     setIsPdf(filePdf);
 
-    // Show instant local preview for images
-    if (!filePdf) {
-      const objectUrl = URL.createObjectURL(file);
-      setLocalPreview(objectUrl);
-    } else {
-      setLocalPreview(null);
-    }
+    // Show instant local preview for both images and PDFs
+    const objectUrl = URL.createObjectURL(file);
+    setLocalPreview(objectUrl);
 
     setExtracting(true);
     try {
@@ -221,7 +217,8 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
   // Determine what to show as floor plan preview
   const previewUrl = localPreview || uploadedImage;
   const showPdfPreview = isPdf && !!previewUrl;
-  const pdfPreviewUrl = previewUrl ? `${previewUrl}#toolbar=0&navpanes=0&scrollbar=0` : "";
+  // For PDFs, prefer localPreview (blob URL) which avoids CORS; fall back to remote URL
+  const pdfEmbedUrl = localPreview || uploadedImage || "";
 
   return (
     <div
@@ -425,7 +422,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                     </div>
                     <div className="relative bg-white">
                       <iframe
-                        src={pdfPreviewUrl}
+                        src={pdfEmbedUrl}
                         title="Floor plan PDF preview"
                         className="w-full h-[420px]"
                       />
