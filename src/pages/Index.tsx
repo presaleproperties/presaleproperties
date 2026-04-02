@@ -11,6 +11,7 @@ import { ResaleCitySection } from "@/components/home/ResaleCitySection";
 import { PresaleExpertsSection } from "@/components/home/PresaleExpertsSection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
+import { OffMarketSection } from "@/components/home/OffMarketSection";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
