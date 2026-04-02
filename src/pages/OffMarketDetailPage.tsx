@@ -10,20 +10,31 @@ import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
 import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
 import { DeckGallerySection } from "@/components/decks/DeckGallerySection";
 import { DeckContactSection } from "@/components/decks/DeckContactSection";
+import { DeckLocationSection } from "@/components/decks/DeckLocationSection";
+import { DeckDepositTimelineSection, type DepositStep } from "@/components/decks/DeckDepositTimelineSection";
+import { DeckProjectionsSection } from "@/components/decks/DeckProjectionsSection";
+import { DeckFAQSection } from "@/components/decks/DeckFAQSection";
+import { DeckScarcityBanner } from "@/components/decks/DeckScarcityBanner";
 import { FloorPlanModal, type FloorPlan } from "@/components/decks/FloorPlanModal";
 import { OffMarketUnitsSection } from "@/components/off-market/OffMarketUnitsSection";
 import { OffMarketIncentivesSection } from "@/components/off-market/OffMarketIncentivesSection";
 import { OffMarketDocumentsSection } from "@/components/off-market/OffMarketDocumentsSection";
-import { OffMarketDepositSection } from "@/components/off-market/OffMarketDepositSection";
+import { VipInquiryButton } from "@/components/vip/VipInquiryButton";
 import { Lock, Loader2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const SECTION_IDS = ["overview", "floor-plans", "gallery", "incentives", "documents", "contact"];
+const SECTION_IDS = ["overview", "floor-plans", "gallery", "incentives", "deposit-timeline", "projections", "documents", "faq", "contact"];
+
+const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
+  { id: "d1", label: "Upon Signing", percent: 2.5, timing: "Due within 7 days", note: "Paid to the developer's trust account on execution of the Purchase Agreement." },
+  { id: "d2", label: "2nd Deposit", percent: 2.5, timing: "Due in 3 months", note: "Second deposit due within 90 days of contract execution." },
+  { id: "d3", label: "3rd Deposit", percent: 5, timing: "Due in 6 months", note: "Third deposit due within 180 days of contract execution." },
+];
 
 export default function OffMarketDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { isVipApproved } = useVipAuth();
+  const { isVipApproved, isVipLoggedIn } = useVipAuth();
   const [listing, setListing] = useState<any>(null);
   const [project, setProject] = useState<any>(null);
   const [units, setUnits] = useState<any[]>([]);
@@ -31,18 +42,15 @@ export default function OffMarketDetailPage() {
   const [hasAccess, setHasAccess] = useState(false);
   const [showUnlock, setShowUnlock] = useState(false);
 
-  // Deck-style nav state
   const [navVisible, setNavVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
   const [selectedPlan, setSelectedPlan] = useState<FloorPlan | null>(null);
   const scrollYBeforeGallery = useRef<number>(0);
-  const [galleryOpen, setGalleryOpen] = useState(false);
 
   useEffect(() => {
     if (slug) loadData();
   }, [slug]);
 
-  // Sticky nav + active section via scroll
   useEffect(() => {
     const handleScroll = () => {
       const heroHeight = window.innerHeight;
@@ -59,7 +67,6 @@ export default function OffMarketDetailPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fade-up animation
   useEffect(() => {
     if (!listing || !hasAccess) return;
     const observer = new IntersectionObserver(
@@ -72,7 +79,6 @@ export default function OffMarketDetailPage() {
 
   async function loadData() {
     setLoading(true);
-
     const { data: listingData } = await supabase
       .from("off_market_listings")
       .select("*")
@@ -84,7 +90,6 @@ export default function OffMarketDetailPage() {
     setListing(listingData);
     trackOffMarketEvent("listing_view", listingData.id);
 
-    // Check access
     if (isVipApproved) {
       setHasAccess(true);
     } else {
@@ -98,7 +103,6 @@ export default function OffMarketDetailPage() {
       }
     }
 
-    // Get project info
     const { data: proj } = await supabase
       .from("presale_projects")
       .select("*")
@@ -106,7 +110,6 @@ export default function OffMarketDetailPage() {
       .maybeSingle();
     setProject(proj);
 
-    // Get units
     const { data: unitData } = await supabase
       .from("off_market_units")
       .select("*")
@@ -118,17 +121,15 @@ export default function OffMarketDetailPage() {
 
   const handleGalleryOpen = useCallback(() => {
     scrollYBeforeGallery.current = window.scrollY;
-    setGalleryOpen(true);
   }, []);
 
   const handleGalleryClose = useCallback(() => {
-    setGalleryOpen(false);
     requestAnimationFrame(() => {
       window.scrollTo({ top: scrollYBeforeGallery.current, behavior: "instant" });
     });
   }, []);
 
-  // Convert off_market_units to FloorPlan format for the card grid + modal
+  // Convert units to FloorPlan format
   const unitsAsFloorPlans: FloorPlan[] = units
     .filter((u) => u.status !== "sold")
     .map((u) => ({
@@ -146,7 +147,6 @@ export default function OffMarketDetailPage() {
       projected_rent: null,
     }));
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -160,7 +160,6 @@ export default function OffMarketDetailPage() {
     return (
       <>
         <Helmet><title>{listing?.linked_project_name} — Off-Market | Presale Properties</title></Helmet>
-        {/* Full-screen hero with lock overlay */}
         <section className="relative flex flex-col items-center justify-center text-center" style={{ height: "100dvh" }}>
           {project?.featured_image && (
             <div className="absolute inset-0 z-0">
@@ -199,23 +198,19 @@ export default function OffMarketDetailPage() {
     );
   }
 
-  // Derive hero data
-  const heroImage = project?.featured_image || (listing?.photo_urls && listing.photo_urls.length > 0 ? listing.photo_urls[0] : undefined);
-  const locationLabel = project?.neighborhood && project?.city
-    ? `${project.neighborhood}, ${project.city}`
-    : project?.city || undefined;
-  const lowestPrice = units.filter(u => u.status !== "sold").reduce((min, u) => {
+  // Derive data
+  const heroImage = project?.featured_image || (listing?.photo_urls?.[0]);
+  const locationLabel = [project?.neighborhood, project?.city].filter(Boolean).join(", ") || undefined;
+  const availableUnits = units.filter(u => u.status !== "sold");
+  const lowestPrice = availableUnits.reduce((min, u) => {
     const p = Number(u.price);
     return p > 0 && p < min ? p : min;
   }, Infinity);
   const startingPrice = lowestPrice < Infinity ? `$${lowestPrice.toLocaleString()}` : undefined;
+  const defaultPrice = lowestPrice < Infinity ? lowestPrice : undefined;
 
-  // Gallery images from listing photos + floorplans
-  const galleryImages = [
-    ...(listing?.photo_urls || []),
-  ].filter(Boolean);
+  const galleryImages = [...(listing?.photo_urls || [])].filter(Boolean);
 
-  // Included items for unit cards
   const includedItems: string[] = [];
   if (listing?.parking_included) includedItems.push("Parking");
   else if (listing?.parking_cost) includedItems.push(`Parking ($${Number(listing.parking_cost).toLocaleString()})`);
@@ -223,11 +218,22 @@ export default function OffMarketDetailPage() {
   else if (listing?.storage_cost) includedItems.push(`Storage ($${Number(listing.storage_cost).toLocaleString()})`);
   if (listing?.locker_included) includedItems.push("Locker");
 
+  // Parse deposit structure into steps
+  const depositSteps: DepositStep[] = listing?.deposit_percentage
+    ? [
+        { id: "d1", label: "Upon Signing", percent: Math.min(listing.deposit_percentage / 2, 5), timing: "Due within 7 days", note: listing.deposit_structure || "Initial deposit on execution of purchase agreement." },
+        { id: "d2", label: "2nd Deposit", percent: Math.min(listing.deposit_percentage / 2, 5), timing: "Due in 3-6 months", note: "Second deposit per the purchase agreement schedule." },
+        ...(listing.deposit_percentage > 10
+          ? [{ id: "d3", label: "3rd Deposit", percent: listing.deposit_percentage - Math.min(listing.deposit_percentage / 2, 5) * 2, timing: "Due before completion", note: "Final deposit before completion." }]
+          : []),
+      ]
+    : DEFAULT_DEPOSIT_STEPS;
+
   return (
     <>
       <Helmet>
         <title>{listing.linked_project_name} — Off-Market VIP Inventory | Presale Properties</title>
-        <meta name="description" content={`Exclusive off-market inventory for ${listing.linked_project_name}. VIP pricing, floor plans and incentives.`} />
+        <meta name="description" content={`Exclusive off-market inventory for ${listing.linked_project_name}. VIP pricing, floor plans, investment calculator and incentives.`} />
         <style>{`
           .deck-animate {
             opacity: 0;
@@ -246,7 +252,6 @@ export default function OffMarketDetailPage() {
 
       <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip", scrollPaddingTop: "80px" }}>
 
-        {/* Sticky Nav */}
         <DeckStickyNav
           visible={navVisible}
           activeSection={activeSection}
@@ -270,10 +275,15 @@ export default function OffMarketDetailPage() {
           onContactClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
         />
 
+        {/* ── Scarcity Banner ── */}
+        <DeckScarcityBanner
+          unitsRemaining={listing.available_units || availableUnits.length}
+        />
+
         <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
         {/* ── 2. About ── */}
-        {project?.description && (
+        {(project?.description || project?.highlights || project?.amenities) && (
           <div className="deck-animate">
             <DeckAboutSection
               description={project.description}
@@ -286,7 +296,7 @@ export default function OffMarketDetailPage() {
 
         <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
 
-        {/* ── 3. Unit Inventory (Floor Plan Card Style) ── */}
+        {/* ── 3. Unit Inventory ── */}
         <div className="deck-animate">
           <OffMarketUnitsSection
             units={unitsAsFloorPlans}
@@ -314,7 +324,7 @@ export default function OffMarketDetailPage() {
           </>
         )}
 
-        {/* ── 5. Incentives + Deposit + Documents ── */}
+        {/* ── 5. Incentives ── */}
         {(listing.incentives || listing.vip_incentives || listing.deposit_structure) && (
           <>
             <div className="deck-animate">
@@ -324,7 +334,41 @@ export default function OffMarketDetailPage() {
           </>
         )}
 
-        {/* ── 6. Documents (Downloads) ── */}
+        {/* ── 6. Deposit Timeline ── */}
+        <div className="deck-animate">
+          <section id="deposit-timeline" className="py-16 sm:py-24 bg-background">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8">
+              <DeckDepositTimelineSection
+                depositSteps={depositSteps}
+                projectName={listing.linked_project_name}
+                completionYear={listing.completion_date || project?.completion_year || undefined}
+                defaultPrice={defaultPrice}
+                floorPlans={unitsAsFloorPlans}
+                isUnlocked={true}
+              />
+            </div>
+          </section>
+        </div>
+
+        <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+
+        {/* ── 7. Investment Calculator ── */}
+        <div className="deck-animate">
+          <section id="projections" className="py-16 sm:py-24 bg-muted/20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8">
+              <DeckProjectionsSection
+                projections={{}}
+                defaultPrice={defaultPrice}
+                floorPlans={unitsAsFloorPlans}
+                isUnlocked={true}
+              />
+            </div>
+          </section>
+        </div>
+
+        <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+
+        {/* ── 8. Documents ── */}
         {(listing.pricing_sheet_url || listing.brochure_url || listing.info_sheet_url) && (
           <>
             <div className="deck-animate">
@@ -334,7 +378,31 @@ export default function OffMarketDetailPage() {
           </>
         )}
 
-        {/* ── 7. Contact ── */}
+        {/* ── 9. Location ── */}
+        {(project?.latitude || project?.lat) && (
+          <>
+            <div className="deck-animate">
+              <DeckLocationSection
+                address={project?.address || undefined}
+                city={project?.city || undefined}
+                neighborhood={project?.neighborhood || project?.city || undefined}
+                lat={project?.lat ?? project?.latitude ?? undefined}
+                lng={project?.lng ?? project?.longitude ?? undefined}
+                highlights={project?.proximity_highlights || []}
+              />
+            </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+          </>
+        )}
+
+        {/* ── 10. FAQ ── */}
+        <div className="deck-animate">
+          <DeckFAQSection />
+        </div>
+
+        <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+
+        {/* ── 11. Contact ── */}
         <div className="deck-animate">
           <DeckContactSection
             projectName={listing.linked_project_name}
@@ -346,18 +414,27 @@ export default function OffMarketDetailPage() {
           className="sm:hidden fixed bottom-0 left-0 right-0 z-[99999]"
           style={{ isolation: "isolate", transform: "translate3d(0,0,0)" }}
         >
-          <div className="bg-background border-t border-border/50 px-4"
+          <div className="bg-background border-t border-border/50 px-4 flex gap-2"
             style={{ paddingTop: "0.625rem", paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
             <a
               href={`https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in ${listing.linked_project_name} off-market units — can you share more details?`)}`}
               target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full h-12 rounded-xl font-semibold text-sm text-white touch-manipulation active:opacity-90 select-none"
+              className="flex items-center justify-center gap-2 flex-1 h-12 rounded-xl font-semibold text-sm text-white touch-manipulation active:opacity-90 select-none"
               style={{ background: "#25D366" }}
               onClick={() => trackOffMarketEvent("whatsapp_click", listing.id)}
             >
               <MessageCircle className="h-4 w-4" />
-              I'm Interested
+              WhatsApp
             </a>
+            {isVipLoggedIn && (
+              <div className="flex-1">
+                <VipInquiryButton
+                  listingId={listing.id}
+                  projectName={listing.linked_project_name}
+                  className="w-full h-12 rounded-xl text-sm"
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -375,7 +452,7 @@ export default function OffMarketDetailPage() {
         </footer>
       </div>
 
-      {/* Floor Plan Modal */}
+      {/* Floor Plan Modal with "I'm Interested" */}
       <FloorPlanModal
         plan={selectedPlan}
         onClose={() => setSelectedPlan(null)}
@@ -383,6 +460,19 @@ export default function OffMarketDetailPage() {
         includedItems={includedItems.length > 0 ? includedItems : ["Parking", "Storage"]}
         isUnlocked={true}
       />
+
+      {/* Floating "I'm Interested" in modal context */}
+      {selectedPlan && isVipLoggedIn && (
+        <div className="fixed bottom-20 sm:bottom-6 right-6 z-[100001]">
+          <VipInquiryButton
+            listingId={listing.id}
+            unitId={selectedPlan.id}
+            unitName={selectedPlan.unit_type}
+            projectName={listing.linked_project_name}
+            variant="modal"
+          />
+        </div>
+      )}
     </>
   );
 }
