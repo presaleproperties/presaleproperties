@@ -278,8 +278,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               </NavigationMenuList>
             </NavigationMenu>
 
-            {/* Off-Market VIP link */}
-            <Link
+            {/* Off-Market VIP link — hidden until feature is ready */}
+            {/* <Link
               to="/off-market"
               className={cn(
                 "h-9 px-4 flex items-center gap-1.5 text-[13px] font-semibold tracking-wide rounded-lg transition-all duration-150",
@@ -291,7 +291,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               <Lock className="h-3 w-3" />
               Off-Market
               <span className="text-[9px] font-bold bg-primary/15 text-primary px-1.5 py-0.5 rounded-full leading-none">VIP</span>
-            </Link>
+            </Link> */}
 
             {/* Plain text links — no icons, refined weight */}
             {[
