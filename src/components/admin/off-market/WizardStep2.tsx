@@ -100,7 +100,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
       const { data: urlData } = supabase.storage.from("off-market-floorplans").getPublicUrl(path);
       const fileUrl = urlData.publicUrl;
 
-      setUploadedImage(file.type.startsWith("image/") ? fileUrl : null);
+      setUploadedImage(fileUrl);
 
       // Call AI extraction
       const { data, error } = await supabase.functions.invoke("extract-floor-plan", {
