@@ -74,20 +74,24 @@ export default function OffMarketDetailPage() {
     setListing(listingData);
     trackOffMarketEvent("listing_view", listingData.id);
 
-    // Check access
-    const email = getApprovedEmail();
-    if (email) {
-      const approved = await checkAccess(listingData.id, email);
-      setHasAccess(approved);
-      if (!approved) {
+    // Check access - VIP approved users get instant access to all
+    if (isVipApproved) {
+      setHasAccess(true);
+    } else {
+      const email = getApprovedEmail();
+      if (email) {
+        const approved = await checkAccess(listingData.id, email);
+        setHasAccess(approved);
+        if (!approved) {
+          setShowUnlock(true);
+          setLoading(false);
+          return;
+        }
+      } else {
         setShowUnlock(true);
         setLoading(false);
         return;
       }
-    } else {
-      setShowUnlock(true);
-      setLoading(false);
-      return;
     }
 
     // Get project info
