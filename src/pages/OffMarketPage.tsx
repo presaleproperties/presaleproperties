@@ -25,6 +25,7 @@ interface OffMarketListing {
   construction_stage: string | null;
   access_level: string | null;
   auto_approve_access: boolean;
+  incentives: string | null;
   status: string;
 }
 
