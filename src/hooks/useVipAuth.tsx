@@ -146,37 +146,28 @@ export function VipAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loginVip = useCallback(async (emailOrPhone: string, password: string): Promise<{ error?: string }> => {
-    // Determine if input is email or phone
     const isEmail = emailOrPhone.includes("@");
 
     if (isEmail) {
       const { error } = await supabase.auth.signInWithPassword({
-        email: emailOrPhone,
-        password,
-      });
-      if (error) return { error: error.message };
-      return {};
-    } else {
-      // Phone login — look up user email from off_market_access by phone
-      const formats = phoneFormats(emailOrPhone);
-      const { data } = await supabase
-        .from("off_market_access")
-        .select("email")
-        .eq("status", "approved")
-        .in("phone", formats)
-        .limit(1);
-
-      if (!data?.length || !data[0].email) {
-        return { error: "No approved VIP access found for this phone number." };
-      }
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data[0].email,
+        email: emailOrPhone.trim(),
         password,
       });
       if (error) return { error: error.message };
       return {};
     }
+
+    const result = await lookupApprovedAccess(undefined, emailOrPhone);
+    if (!result.approved || !result.email) {
+      return { error: "No approved VIP access found for this phone number." };
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: result.email,
+      password,
+    });
+    if (error) return { error: error.message };
+    return {};
   }, []);
 
   const logoutVip = useCallback(() => {
