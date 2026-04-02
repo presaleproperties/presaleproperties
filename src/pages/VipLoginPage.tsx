@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useVipAuth } from "@/hooks/useVipAuth";
-import { Lock, ArrowRight, CheckCircle, Loader2, ShieldCheck, Mail, Eye, EyeOff } from "lucide-react";
+import { Lock, ArrowRight, CheckCircle, Loader2, ShieldCheck, Mail, Eye, EyeOff, User, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatPhoneNumber } from "@/lib/formatPhone";
 
 export default function VipLoginPage() {
   const navigate = useNavigate();
@@ -20,6 +23,14 @@ export default function VipLoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Signup extra fields
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [hasAgent, setHasAgent] = useState("no");
+  const [budget, setBudget] = useState("");
+  const [timeline, setTimeline] = useState("");
 
   // Already logged in
   if (isVipLoggedIn) {
@@ -73,14 +84,21 @@ export default function VipLoginPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password) return;
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !phone.trim() || !password) return;
     if (password.length < 6) {
       toast.error("Password must be at least 6 characters.");
       return;
     }
     setLoading(true);
 
-    const result = await signUpVip(email.trim(), password);
+    const result = await signUpVip(email.trim(), password, {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      phone: phone.trim(),
+      hasAgent: hasAgent === "yes",
+      budgetRange: budget || null,
+      timeline: timeline || null,
+    });
     if (result.error) {
       toast.error(result.error);
     } else {
@@ -171,8 +189,36 @@ export default function VipLoginPage() {
 
               <TabsContent value="signup">
                 <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                  {/* Name */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="signup-first">First Name *</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="signup-first"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          className="pl-10 text-[16px]"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="signup-last">Last Name *</Label>
+                      <Input
+                        id="signup-last"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className="text-[16px]"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-email">Email *</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -188,8 +234,72 @@ export default function VipLoginPage() {
                     </div>
                     <p className="text-xs text-muted-foreground">Must match the email used in your VIP access request.</p>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Create Password</Label>
+
+                  {/* Phone */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-phone">Phone *</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signup-phone"
+                        inputMode="numeric"
+                        placeholder="(604) 555-1234"
+                        value={phone}
+                        onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+                        className="pl-10 text-[16px]"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Realtor question */}
+                  <div className="space-y-1.5">
+                    <Label>Are you currently working with a realtor?</Label>
+                    <RadioGroup value={hasAgent} onValueChange={setHasAgent} className="flex gap-6 mt-1">
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="yes" id="agent-yes" />
+                        <Label htmlFor="agent-yes" className="cursor-pointer">Yes</Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="no" id="agent-no" />
+                        <Label htmlFor="agent-no" className="cursor-pointer">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  {/* Budget */}
+                  <div className="space-y-1.5">
+                    <Label>Budget Range</Label>
+                    <Select value={budget} onValueChange={setBudget}>
+                      <SelectTrigger className="h-11 text-[16px]"><SelectValue placeholder="Select budget" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Under $400K">Under $400K</SelectItem>
+                        <SelectItem value="$400K-$500K">$400K - $500K</SelectItem>
+                        <SelectItem value="$500K-$750K">$500K - $750K</SelectItem>
+                        <SelectItem value="$750K-$1M">$750K - $1M</SelectItem>
+                        <SelectItem value="$1M-$1.5M">$1M - $1.5M</SelectItem>
+                        <SelectItem value="$1.5M+">$1.5M+</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="space-y-1.5">
+                    <Label>Timeline</Label>
+                    <Select value={timeline} onValueChange={setTimeline}>
+                      <SelectTrigger className="h-11 text-[16px]"><SelectValue placeholder="Select timeline" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Ready now">Ready now</SelectItem>
+                        <SelectItem value="3-6 months">3-6 months</SelectItem>
+                        <SelectItem value="6-12 months">6-12 months</SelectItem>
+                        <SelectItem value="Just exploring">Just exploring</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Password */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-password">Create Password *</Label>
                     <div className="relative">
                       <Input
                         id="signup-password"
@@ -211,7 +321,8 @@ export default function VipLoginPage() {
                       </button>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+
+                  <Button type="submit" className="w-full h-12 text-base" disabled={loading}>
                     {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     Create Account
                     <CheckCircle className="h-4 w-4 ml-2" />
