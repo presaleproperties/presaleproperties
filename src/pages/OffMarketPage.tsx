@@ -25,6 +25,7 @@ interface OffMarketListing {
   construction_stage: string | null;
   access_level: string | null;
   auto_approve_access: boolean;
+  incentives: string | null;
   status: string;
 }
 
@@ -79,7 +80,7 @@ export default function OffMarketPage() {
     setError(null);
     const { data, error: fetchError } = await supabase
       .from("off_market_listings")
-      .select("id, linked_project_name, linked_project_slug, developer_name, available_units, total_units, construction_stage, access_level, auto_approve_access, status")
+      .select("id, linked_project_name, linked_project_slug, developer_name, available_units, total_units, construction_stage, access_level, auto_approve_access, incentives, status")
       .eq("status", "published")
       .order("published_at", { ascending: false });
 
@@ -254,23 +255,35 @@ export default function OffMarketPage() {
       <ConversionHeader />
 
       {/* Hero */}
-      <section className="relative pt-24 pb-16 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-transparent to-transparent" />
+      <section className="relative pt-28 pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.12),transparent_60%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
         <div className="relative max-w-5xl mx-auto text-center space-y-6">
-          <Badge className="bg-primary/15 text-primary border-primary/30 font-semibold">
-            <Lock className="h-3 w-3 mr-1" /> EXCLUSIVE ACCESS
+          <Badge className="bg-primary/15 text-primary border-primary/30 font-bold tracking-wider text-xs px-4 py-1.5">
+            <Lock className="h-3 w-3 mr-1.5" /> EXCLUSIVE VIP ACCESS
           </Badge>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-            Off-Market Inventory
+            Off-Market <span className="text-primary">Presale</span> Inventory
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            VIP access to developer pricing, floor plans & incentives not available to the public
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Access developer pricing, floor plans & incentives before they hit the public market
           </p>
-          <div className="flex items-center justify-center gap-3">
-            <Button size="lg" onClick={() => document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" })}>
-              Browse Inventory <ChevronDown className="h-4 w-4 ml-1" />
-            </Button>
+          <div className="flex items-center justify-center gap-6 pt-2">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-primary">{listings.length}+</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Projects</p>
+            </div>
+            <div className="w-px h-10 bg-border" />
+            <div className="text-center">
+              <p className="text-2xl font-bold text-primary">
+                {listings.reduce((s, l) => s + (l.available_units || 0), 0)}+
+              </p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">VIP Units</p>
+            </div>
           </div>
+          <Button size="lg" className="rounded-xl font-semibold shadow-md" onClick={() => document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" })}>
+            Browse Inventory <ChevronDown className="h-4 w-4 ml-1" />
+          </Button>
         </div>
       </section>
 
@@ -361,7 +374,13 @@ export default function OffMarketPage() {
       </div>
 
       {/* Listings Grid */}
-      <section id="listings" className="max-w-7xl mx-auto px-4 py-10">
+      <section id="listings" className="max-w-7xl mx-auto px-4 py-12">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-bold">Available Projects</h2>
+            <p className="text-sm text-muted-foreground mt-1">{filtered.length} exclusive {filtered.length === 1 ? "listing" : "listings"} available</p>
+          </div>
+        </div>
         {loading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
