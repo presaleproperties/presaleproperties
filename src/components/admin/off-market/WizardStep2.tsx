@@ -16,6 +16,22 @@ import type { OffMarketUnit } from "./types";
 
 const UNIT_TYPES = ["Studio", "1BR", "1BR+Den", "2BR", "2BR+Den", "3BR", "3BR+Den", "Townhome", "Penthouse", "Other"];
 
+// Map AI-extracted unit types to our standard values
+const normalizeUnitType = (raw: string): string => {
+  if (!raw) return "";
+  const lower = raw.toLowerCase().replace(/\s+/g, "");
+  if (/studio/i.test(raw)) return "Studio";
+  if (/penthouse/i.test(raw)) return "Penthouse";
+  if (/townhome|townhouse/i.test(raw)) return "Townhome";
+  if (/3.*bed.*den|3br.*den|3bd.*den/i.test(raw) || lower.includes("3bedroom+den")) return "3BR+Den";
+  if (/3.*bed|3br|3bd/i.test(raw) || lower.includes("3bedroom")) return "3BR";
+  if (/2.*bed.*den|2br.*den|2bd.*den/i.test(raw) || lower.includes("2bedroom+den")) return "2BR+Den";
+  if (/2.*bed|2br|2bd/i.test(raw) || lower.includes("2bedroom")) return "2BR";
+  if (/1.*bed.*den|1br.*den|1bd.*den/i.test(raw) || lower.includes("1bedroom+den")) return "1BR+Den";
+  if (/1.*bed|1br|1bd/i.test(raw) || lower.includes("1bedroom")) return "1BR";
+  return "Other";
+};
+
 const emptyUnit: OffMarketUnit = {
   unit_number: "", unit_name: "", unit_type: "", floor_level: null,
   bedrooms: 0, bathrooms: 0, sqft: 0, price: 0,
@@ -54,8 +70,8 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
 
   const saveUnit = () => {
     if (!editUnit) return;
-    if (!editUnit.unit_number || !editUnit.sqft || !editUnit.price || !editUnit.bedrooms) {
-      toast.error("Unit #, beds, sqft, and price are required"); return;
+    if (!editUnit.sqft || !editUnit.price || !editUnit.bedrooms) {
+      toast.error("Beds, sqft, and price are required"); return;
     }
     const updated = [...units];
     if (editIndex !== null) { updated[editIndex] = editUnit; } else { updated.push(editUnit); }
@@ -84,7 +100,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
       const { data: urlData } = supabase.storage.from("off-market-floorplans").getPublicUrl(path);
       const fileUrl = urlData.publicUrl;
 
-      setUploadedImage(file.type.startsWith("image/") ? fileUrl : null);
+      setUploadedImage(fileUrl);
 
       // Call AI extraction
       const { data, error } = await supabase.functions.invoke("extract-floor-plan", {
@@ -97,7 +113,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
         setEditUnit(prev => prev ? {
           ...prev,
           unit_number: extracted.unit_number || prev.unit_number,
-          unit_type: extracted.unit_type || prev.unit_type,
+          unit_type: normalizeUnitType(extracted.unit_type) || prev.unit_type,
           bedrooms: extracted.beds || prev.bedrooms,
           bathrooms: extracted.baths || prev.bathrooms,
           sqft: extracted.interior_sqft || prev.sqft,
@@ -300,12 +316,19 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                   </div>
                 ) : uploadedImage ? (
                   <div className="relative">
-                    <img src={uploadedImage} className="max-h-48 mx-auto rounded-lg object-contain bg-white p-2" alt="Floor plan" />
+                    {uploadedImage.match(/\.(pdf)$/i) ? (
+                      <div className="py-4 flex flex-col items-center gap-2">
+                        <FileUp className="h-10 w-10 text-primary" />
+                        <p className="text-sm font-medium">Floor plan PDF uploaded</p>
+                      </div>
+                    ) : (
+                      <img src={uploadedImage} className="max-h-48 mx-auto rounded-lg object-contain bg-white p-2" alt="Floor plan" />
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
                       className="absolute top-1 right-1 h-6 w-6 p-0"
-                      onClick={() => { setUploadedImage(null); setEditUnit({ ...editUnit, floorplan_url: "" }); }}
+                      onClick={() => { setUploadedImage(null); setEditUnit({ ...editUnit!, floorplan_url: "" }); }}
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -334,7 +357,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
               {/* Unit fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm">Unit Number *</Label>
+                  <Label className="text-sm">Unit Number</Label>
                   <Input value={editUnit.unit_number} onChange={e => setEditUnit({ ...editUnit, unit_number: e.target.value })} className="rounded-xl" placeholder="101" />
                 </div>
                 <div>
