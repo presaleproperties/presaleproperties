@@ -375,6 +375,11 @@ export default function OffMarketPage() {
               </div>
             ))}
           </div>
+        ) : error ? (
+          <div className="text-center py-20 space-y-4">
+            <p className="text-destructive font-medium">{error}</p>
+            <Button variant="outline" onClick={fetchListings}>Retry</Button>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 space-y-4">
             <Lock className="h-12 w-12 text-muted-foreground/30 mx-auto" />
@@ -406,6 +411,20 @@ export default function OffMarketPage() {
           </div>
         )}
       </section>
+
+      {/* Mobile Sticky CTA Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-md border-t border-border p-3 flex gap-2 safe-area-bottom">
+        <Button className="flex-1 h-11" asChild onClick={() => trackOffMarketEvent("whatsapp_click")}>
+          <a href="https://wa.me/16722581100?text=Hi! I'm interested in off-market inventory" target="_blank" rel="noopener noreferrer">
+            <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
+          </a>
+        </Button>
+        <Button variant="outline" className="flex-1 h-11" asChild onClick={() => trackOffMarketEvent("call_click")}>
+          <a href="tel:6722581100">
+            <Phone className="h-4 w-4 mr-1" /> Call
+          </a>
+        </Button>
+      </div>
 
       {/* Bottom CTA */}
       <section className="max-w-3xl mx-auto px-4 pb-16">
