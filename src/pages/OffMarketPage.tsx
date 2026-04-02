@@ -41,6 +41,7 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export default function OffMarketPage() {
   const navigate = useNavigate();
+  const { isVipLoggedIn, isVipApproved } = useVipAuth();
   const [searchParams] = useSearchParams();
   const [listings, setListings] = useState<OffMarketListing[]>([]);
   const [loading, setLoading] = useState(true);
