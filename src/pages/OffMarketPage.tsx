@@ -431,8 +431,14 @@ export default function OffMarketPage() {
                 listing={listing}
                 projectData={projectDataMap[listing.linked_project_slug]}
                 minPrice={minPriceMap[listing.id]}
-                hasAccess={!!accessMap[listing.id]}
-                onUnlock={() => setUnlockListing(listing)}
+                hasAccess={isVipApproved || !!accessMap[listing.id]}
+                onUnlock={() => {
+                  if (isVipApproved) {
+                    navigate(`/off-market/${listing.linked_project_slug}`);
+                  } else {
+                    setUnlockListing(listing);
+                  }
+                }}
                 onViewDetails={() => navigate(`/off-market/${listing.linked_project_slug}`)}
               />
             ))}
