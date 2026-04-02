@@ -1,101 +1,174 @@
-import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from "react";
+import { useState, useEffect, createContext, useContext, ReactNode, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-
-const VIP_PHONE_KEY = "off_market_vip_phone";
-const VIP_VERIFIED_KEY = "off_market_vip_verified";
+import type { User } from "@supabase/supabase-js";
 
 interface VipAuthContextType {
-  vipPhone: string | null;
+  vipUser: User | null;
+  vipEmail: string | null;
   isVipLoggedIn: boolean;
   isVipApproved: boolean;
   loading: boolean;
-  loginVip: (phone: string) => void;
+  signUpVip: (email: string, password: string) => Promise<{ error?: string }>;
+  loginVip: (emailOrPhone: string, password: string) => Promise<{ error?: string }>;
   logoutVip: () => void;
   checkVipAccessForListing: (listingId: string) => Promise<boolean>;
 }
 
 const VipAuthContext = createContext<VipAuthContextType | undefined>(undefined);
 
-function normalizePhone(raw: string): string {
+/** Build all plausible phone format variants for a given input */
+function phoneFormats(raw: string): string[] {
   const digits = raw.replace(/\D/g, "");
-  if (digits.startsWith("1") && digits.length === 11) return `+${digits}`;
-  if (digits.length === 10) return `+1${digits}`;
-  return `+${digits}`;
+  const d = digits.startsWith("1") && digits.length === 11 ? digits.slice(1) : digits;
+  const e164 = d.length === 10 ? `+1${d}` : `+${digits}`;
+  const formatted = d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}` : "";
+  const results = [e164, digits, d];
+  if (formatted) results.push(formatted);
+  return results;
+}
+
+/** Check if an email or phone has any approved off_market_access record */
+async function hasApprovedAccess(email?: string, phone?: string): Promise<boolean> {
+  // Try email match
+  if (email) {
+    const { data } = await supabase
+      .from("off_market_access")
+      .select("id")
+      .eq("status", "approved")
+      .eq("email", email)
+      .limit(1);
+    if (data && data.length > 0) return true;
+  }
+  // Try phone match
+  if (phone) {
+    const formats = phoneFormats(phone);
+    const { data } = await supabase
+      .from("off_market_access")
+      .select("id")
+      .eq("status", "approved")
+      .in("phone", formats)
+      .limit(1);
+    if (data && data.length > 0) return true;
+  }
+  return false;
 }
 
 export function VipAuthProvider({ children }: { children: ReactNode }) {
-  const [vipPhone, setVipPhone] = useState<string | null>(null);
+  const [vipUser, setVipUser] = useState<User | null>(null);
   const [isVipApproved, setIsVipApproved] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkGlobalApproval = useCallback(async (phone: string) => {
-    const normalized = normalizePhone(phone);
-    const digits = phone.replace(/\D/g, "");
-    const d = digits.startsWith("1") && digits.length === 11 ? digits.slice(1) : digits;
-    const formatted = d.length === 10 ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,10)}` : "";
-    
-    const formats = [normalized, digits, d];
-    if (formatted) formats.push(formatted);
-
-    const { data, error } = await supabase
-      .from("off_market_access")
-      .select("id")
-      .in("phone", formats)
-      .eq("status", "approved")
-      .limit(1);
-
-    if (error) return false;
-    return (data?.length ?? 0) > 0;
+  const checkApprovalForUser = useCallback(async (user: User) => {
+    const email = user.email;
+    const phone = user.phone || user.user_metadata?.phone;
+    return hasApprovedAccess(email, phone);
   }, []);
 
   useEffect(() => {
-    const storedPhone = localStorage.getItem(VIP_PHONE_KEY);
-    const verified = localStorage.getItem(VIP_VERIFIED_KEY);
-    if (storedPhone && verified === "true") {
-      setVipPhone(storedPhone);
-      checkGlobalApproval(storedPhone).then((approved) => {
-        setIsVipApproved(approved);
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        const user = session?.user ?? null;
+        setVipUser(user);
+        if (user) {
+          const approved = await checkApprovalForUser(user);
+          setIsVipApproved(approved);
+        } else {
+          setIsVipApproved(false);
+        }
         setLoading(false);
-      });
-    } else {
-      // Migrate from old email-based keys
-      const oldEmail = localStorage.getItem("off_market_vip_email");
-      if (oldEmail) {
-        localStorage.removeItem("off_market_vip_email");
-        localStorage.removeItem("off_market_vip_verified");
-        localStorage.removeItem("off_market_approved_emails");
+      }
+    );
+
+    // Check initial session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const user = session?.user ?? null;
+      setVipUser(user);
+      if (user) {
+        const approved = await checkApprovalForUser(user);
+        setIsVipApproved(approved);
       }
       setLoading(false);
-    }
-  }, [checkGlobalApproval]);
+    });
 
-  const loginVip = useCallback((phone: string) => {
-    const normalized = normalizePhone(phone);
-    localStorage.setItem(VIP_PHONE_KEY, normalized);
-    localStorage.setItem(VIP_VERIFIED_KEY, "true");
-    setVipPhone(normalized);
-    checkGlobalApproval(normalized).then(setIsVipApproved);
-  }, [checkGlobalApproval]);
+    // Clean up old localStorage keys
+    localStorage.removeItem("off_market_vip_phone");
+    localStorage.removeItem("off_market_vip_verified");
+
+    return () => subscription.unsubscribe();
+  }, [checkApprovalForUser]);
+
+  const signUpVip = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
+    // First check if email matches an approved access record
+    const approved = await hasApprovedAccess(email);
+    if (!approved) {
+      return { error: "No approved VIP access found for this email. Please request access first." };
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    });
+
+    if (error) return { error: error.message };
+    return {};
+  }, []);
+
+  const loginVip = useCallback(async (emailOrPhone: string, password: string): Promise<{ error?: string }> => {
+    // Determine if input is email or phone
+    const isEmail = emailOrPhone.includes("@");
+
+    if (isEmail) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: emailOrPhone,
+        password,
+      });
+      if (error) return { error: error.message };
+      return {};
+    } else {
+      // Phone login — look up user email from off_market_access by phone
+      const formats = phoneFormats(emailOrPhone);
+      const { data } = await supabase
+        .from("off_market_access")
+        .select("email")
+        .eq("status", "approved")
+        .in("phone", formats)
+        .limit(1);
+
+      if (!data?.length || !data[0].email) {
+        return { error: "No approved VIP access found for this phone number." };
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data[0].email,
+        password,
+      });
+      if (error) return { error: error.message };
+      return {};
+    }
+  }, []);
 
   const logoutVip = useCallback(() => {
-    localStorage.removeItem(VIP_PHONE_KEY);
-    localStorage.removeItem(VIP_VERIFIED_KEY);
-    setVipPhone(null);
-    setIsVipApproved(false);
+    supabase.auth.signOut();
   }, []);
 
   const checkVipAccessForListing = useCallback(async (listingId: string): Promise<boolean> => {
-    if (!vipPhone) return false;
+    if (!vipUser) return false;
     if (isVipApproved) return true;
     return false;
-  }, [vipPhone, isVipApproved]);
+  }, [vipUser, isVipApproved]);
+
+  const vipEmail = useMemo(() => vipUser?.email ?? null, [vipUser]);
 
   return (
     <VipAuthContext.Provider value={{
-      vipPhone,
-      isVipLoggedIn: !!vipPhone,
+      vipUser,
+      vipEmail,
+      isVipLoggedIn: !!vipUser,
       isVipApproved,
       loading,
+      signUpVip,
       loginVip,
       logoutVip,
       checkVipAccessForListing,
