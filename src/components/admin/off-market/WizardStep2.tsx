@@ -285,7 +285,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                       {u.storage_included && <Badge variant="outline" className="text-[10px]">Storage</Badge>}
                       {u.locker_included && <Badge variant="outline" className="text-[10px]">Locker</Badge>}
                       {u.inclusions?.includes("AC") && <Badge variant="outline" className="text-[10px]">AC</Badge>}
-                      {u.has_unit_incentive && <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">Incentive</Badge>}
+                      {u.has_unit_incentive && <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">🎁 {u.unit_incentive || "Incentive"}</Badge>}
                     </div>
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
