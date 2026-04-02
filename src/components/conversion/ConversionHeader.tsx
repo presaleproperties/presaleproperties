@@ -512,9 +512,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                         </CollapsibleContent>
                       </Collapsible>
 
-                      <div className="h-px bg-border/40 my-1" />
-
-                      {/* Off-Market VIP */}
+                      {/* Off-Market & VIP — hidden until feature is ready */}
+                      {/* <div className="h-px bg-border/40 my-1" />
                       <Link
                         to="/off-market"
                         onClick={() => setOpen(false)}
@@ -529,7 +528,6 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
                       <div className="h-px bg-border/40 my-1" />
 
-                      {/* VIP Login/Status - Mobile */}
                       {isVipLoggedIn ? (
                         <div className="flex items-center justify-between py-4">
                           <div className="flex items-center gap-3">
@@ -559,7 +557,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                           </div>
                           <span className="text-lg font-semibold text-foreground">VIP Login</span>
                         </Link>
-                      )}
+                      )} */}
 
                       <div className="h-px bg-border/40 my-1" />
 
