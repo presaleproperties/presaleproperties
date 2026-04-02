@@ -24,7 +24,7 @@ export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, 
     queryFn: async () => {
       let q = supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, developer_name, property_type, estimated_completion, featured_image")
+        .select("id, name, slug, city, neighborhood, developer_name, project_type, estimated_completion, featured_image")
         .order("name");
       if (search) q = q.ilike("name", `%${search}%`);
       const { data } = await q.limit(20);
