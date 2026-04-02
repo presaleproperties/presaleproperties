@@ -278,8 +278,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               </NavigationMenuList>
             </NavigationMenu>
 
-            {/* Off-Market VIP link */}
-            <Link
+            {/* Off-Market VIP link — hidden until feature is ready */}
+            {/* <Link
               to="/off-market"
               className={cn(
                 "h-9 px-4 flex items-center gap-1.5 text-[13px] font-semibold tracking-wide rounded-lg transition-all duration-150",
@@ -291,7 +291,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               <Lock className="h-3 w-3" />
               Off-Market
               <span className="text-[9px] font-bold bg-primary/15 text-primary px-1.5 py-0.5 rounded-full leading-none">VIP</span>
-            </Link>
+            </Link> */}
 
             {/* Plain text links — no icons, refined weight */}
             {[
@@ -323,8 +323,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
           {/* ── Desktop CTA ── */}
           <div className="hidden lg:flex items-center gap-2.5">
-            {/* VIP Login/Status */}
-            {isVipLoggedIn ? (
+            {/* VIP Login/Status — hidden until feature is ready */}
+            {/* {isVipLoggedIn ? (
               <div className="flex items-center gap-1.5">
                 <Link
                   to="/off-market"
@@ -354,7 +354,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                 <LogIn className="h-3.5 w-3.5" />
                 VIP Login
               </Link>
-            )}
+            )} */}
             {/* Ghost Map link */}
             <Link
               to="/map-search"
@@ -512,9 +512,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                         </CollapsibleContent>
                       </Collapsible>
 
-                      <div className="h-px bg-border/40 my-1" />
-
-                      {/* Off-Market VIP */}
+                      {/* Off-Market & VIP — hidden until feature is ready */}
+                      {/* <div className="h-px bg-border/40 my-1" />
                       <Link
                         to="/off-market"
                         onClick={() => setOpen(false)}
@@ -529,7 +528,6 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
                       <div className="h-px bg-border/40 my-1" />
 
-                      {/* VIP Login/Status - Mobile */}
                       {isVipLoggedIn ? (
                         <div className="flex items-center justify-between py-4">
                           <div className="flex items-center gap-3">
@@ -559,7 +557,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                           </div>
                           <span className="text-lg font-semibold text-foreground">VIP Login</span>
                         </Link>
-                      )}
+                      )} */}
 
                       <div className="h-px bg-border/40 my-1" />
 
