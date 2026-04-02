@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
@@ -8,11 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { OffMarketCard } from "@/components/off-market/OffMarketCard";
 import { UnlockModal } from "@/components/off-market/UnlockModal";
 import { supabase } from "@/integrations/supabase/client";
 import { trackOffMarketEvent, getApprovedEmail, checkAccess } from "@/lib/offMarketAnalytics";
-import { Lock, ChevronDown, X, MessageCircle, Phone } from "lucide-react";
+import { Lock, ChevronDown, X, MessageCircle, Phone, SlidersHorizontal } from "lucide-react";
 
 interface OffMarketListing {
   id: string;
@@ -27,6 +28,15 @@ interface OffMarketListing {
   status: string;
 }
 
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
+}
+
 export default function OffMarketPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -35,9 +45,11 @@ export default function OffMarketPage() {
   const [projectDataMap, setProjectDataMap] = useState<Record<string, any>>({});
   const [minPriceMap, setMinPriceMap] = useState<Record<string, number>>({});
   const [accessMap, setAccessMap] = useState<Record<string, boolean>>({});
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Filters
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [cityFilter, setCityFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [bedsFilter, setBedsFilter] = useState("all");
@@ -132,7 +144,7 @@ export default function OffMarketPage() {
   const filtered = useMemo(() => {
     return listings.filter((l) => {
       const proj = projectDataMap[l.linked_project_slug];
-      if (search && !l.linked_project_name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (debouncedSearch && !l.linked_project_name.toLowerCase().includes(debouncedSearch.toLowerCase())) return false;
       if (cityFilter !== "all" && proj?.city !== cityFilter) return false;
       if (typeFilter !== "all" && proj?.project_type !== typeFilter) return false;
       const mp = minPriceMap[l.id] || proj?.starting_price;
@@ -140,18 +152,73 @@ export default function OffMarketPage() {
       if (maxPrice && mp && mp > Number(maxPrice)) return false;
       return true;
     });
-  }, [listings, search, cityFilter, typeFilter, bedsFilter, minPrice, maxPrice, projectDataMap, minPriceMap]);
+  }, [listings, debouncedSearch, cityFilter, typeFilter, bedsFilter, minPrice, maxPrice, projectDataMap, minPriceMap]);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearch("");
     setCityFilter("all");
     setTypeFilter("all");
     setBedsFilter("all");
     setMinPrice("");
     setMaxPrice("");
-  };
+  }, []);
 
   const hasFilters = search || cityFilter !== "all" || typeFilter !== "all" || minPrice || maxPrice;
+  const activeFilterCount = [cityFilter !== "all", typeFilter !== "all", !!minPrice, !!maxPrice].filter(Boolean).length;
+
+  const filterControls = (
+    <>
+      <Input
+        placeholder="Search project..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full md:w-52 bg-card border-border h-9 text-sm"
+        aria-label="Search projects"
+      />
+      <Select value={cityFilter} onValueChange={setCityFilter}>
+        <SelectTrigger className="w-full md:w-36 bg-card border-border h-9 text-sm" aria-label="Filter by city">
+          <SelectValue placeholder="City" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Cities</SelectItem>
+          {cities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+        </SelectContent>
+      </Select>
+      <Select value={typeFilter} onValueChange={setTypeFilter}>
+        <SelectTrigger className="w-full md:w-36 bg-card border-border h-9 text-sm" aria-label="Filter by type">
+          <SelectValue placeholder="Type" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Types</SelectItem>
+          <SelectItem value="condo">Condo</SelectItem>
+          <SelectItem value="townhome">Townhome</SelectItem>
+          <SelectItem value="duplex">Duplex</SelectItem>
+          <SelectItem value="mixed">Mixed</SelectItem>
+        </SelectContent>
+      </Select>
+      <Input
+        placeholder="Min $"
+        value={minPrice}
+        onChange={(e) => setMinPrice(e.target.value.replace(/\D/g, ""))}
+        className="w-full md:w-24 bg-card border-border h-9 text-sm"
+        inputMode="numeric"
+        aria-label="Minimum price"
+      />
+      <Input
+        placeholder="Max $"
+        value={maxPrice}
+        onChange={(e) => setMaxPrice(e.target.value.replace(/\D/g, ""))}
+        className="w-full md:w-24 bg-card border-border h-9 text-sm"
+        inputMode="numeric"
+        aria-label="Maximum price"
+      />
+      {hasFilters && (
+        <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9">
+          <X className="h-3.5 w-3.5 mr-1" /> Clear
+        </Button>
+      )}
+    </>
+  );
 
   return (
     <>
@@ -204,55 +271,89 @@ export default function OffMarketPage() {
         </div>
       </section>
 
-      {/* Filters */}
+      {/* Filters — Desktop inline, Mobile drawer */}
       <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-md border-b border-border py-3 px-4">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-2">
-          <Input
-            placeholder="Search project..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-40 md:w-52 bg-[#141414] border-[#1e1e1e] h-9 text-sm"
-          />
-          <Select value={cityFilter} onValueChange={setCityFilter}>
-            <SelectTrigger className="w-36 bg-[#141414] border-[#1e1e1e] h-9 text-sm">
-              <SelectValue placeholder="City" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Cities</SelectItem>
-              {cities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-36 bg-[#141414] border-[#1e1e1e] h-9 text-sm">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="condo">Condo</SelectItem>
-              <SelectItem value="townhome">Townhome</SelectItem>
-              <SelectItem value="duplex">Duplex</SelectItem>
-              <SelectItem value="mixed">Mixed</SelectItem>
-            </SelectContent>
-          </Select>
-          <Input
-            placeholder="Min $"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value.replace(/\D/g, ""))}
-            className="w-24 bg-[#141414] border-[#1e1e1e] h-9 text-sm"
-            inputMode="numeric"
-          />
-          <Input
-            placeholder="Max $"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value.replace(/\D/g, ""))}
-            className="w-24 bg-[#141414] border-[#1e1e1e] h-9 text-sm"
-            inputMode="numeric"
-          />
-          {hasFilters && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9">
-              <X className="h-3.5 w-3.5 mr-1" /> Clear
-            </Button>
-          )}
+        <div className="max-w-7xl mx-auto">
+          {/* Desktop filters */}
+          <div className="hidden md:flex flex-wrap items-center gap-2">
+            {filterControls}
+          </div>
+          {/* Mobile: search + filter button */}
+          <div className="flex md:hidden items-center gap-2">
+            <Input
+              placeholder="Search project..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 bg-card border-border h-10 text-sm"
+              aria-label="Search projects"
+            />
+            <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="h-10 px-3 shrink-0 relative">
+                  <SlidersHorizontal className="h-4 w-4 mr-1" /> Filters
+                  {activeFilterCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="rounded-t-2xl max-h-[70vh]">
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                </SheetHeader>
+                <div className="space-y-4 py-4">
+                  <Select value={cityFilter} onValueChange={setCityFilter}>
+                    <SelectTrigger className="w-full h-11" aria-label="Filter by city">
+                      <SelectValue placeholder="City" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Cities</SelectItem>
+                      {cities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Select value={typeFilter} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="w-full h-11" aria-label="Filter by type">
+                      <SelectValue placeholder="Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="condo">Condo</SelectItem>
+                      <SelectItem value="townhome">Townhome</SelectItem>
+                      <SelectItem value="duplex">Duplex</SelectItem>
+                      <SelectItem value="mixed">Mixed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      placeholder="Min $"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value.replace(/\D/g, ""))}
+                      className="h-11"
+                      inputMode="numeric"
+                    />
+                    <Input
+                      placeholder="Max $"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value.replace(/\D/g, ""))}
+                      className="h-11"
+                      inputMode="numeric"
+                    />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    {hasFilters && (
+                      <Button variant="outline" className="flex-1 h-11" onClick={() => { clearFilters(); setMobileFiltersOpen(false); }}>
+                        Clear All
+                      </Button>
+                    )}
+                    <Button className="flex-1 h-11" onClick={() => setMobileFiltersOpen(false)}>
+                      Show {filtered.length} Result{filtered.length !== 1 ? "s" : ""}
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
 
@@ -261,7 +362,7 @@ export default function OffMarketPage() {
         {loading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-xl border border-[#1e1e1e] bg-[#141414] overflow-hidden">
+              <div key={i} className="rounded-xl border border-border bg-card overflow-hidden">
                 <Skeleton className="aspect-[16/10] w-full" />
                 <div className="p-4 space-y-3">
                   <Skeleton className="h-5 w-3/4" />
@@ -274,9 +375,15 @@ export default function OffMarketPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 space-y-4">
             <Lock className="h-12 w-12 text-muted-foreground/30 mx-auto" />
-            <h3 className="text-xl font-semibold">No listings found</h3>
+            <h3 className="text-xl font-semibold">
+              {listings.length === 0 ? "Coming soon!" : "No listings found"}
+            </h3>
             <p className="text-muted-foreground">
-              {hasFilters ? "Try adjusting your filters" : "Check back soon for exclusive inventory"}
+              {listings.length === 0
+                ? "We're working with developers to bring you exclusive inventory. Check back soon."
+                : hasFilters
+                  ? "Try adjusting your filters"
+                  : "Check back soon for exclusive inventory"}
             </p>
             {hasFilters && <Button variant="outline" onClick={clearFilters}>Clear Filters</Button>}
           </div>

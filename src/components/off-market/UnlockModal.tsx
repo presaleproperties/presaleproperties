@@ -79,6 +79,23 @@ export function UnlockModal({ open, onOpenChange, listingId, projectName, autoAp
 
       trackOffMarketEvent("unlock_request", listingId);
 
+      // Send email notification (fire-and-forget)
+      supabase.functions.invoke("off-market-notify", {
+        body: {
+          event_type: "access_request",
+          data: {
+            first_name: form.firstName,
+            last_name: form.lastName,
+            email: form.email,
+            phone: form.phone,
+            project_name: projectName,
+            budget: form.budget,
+            timeline: form.timeline,
+            has_agent: form.hasAgent === "yes",
+          },
+        },
+      }).catch(() => {});
+
       if (autoApprove) {
         setApprovedEmail(form.email);
         toast.success("Access granted! Loading exclusive details...");
