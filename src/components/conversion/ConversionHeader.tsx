@@ -538,7 +538,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                             </div>
                             <div>
                               <span className="text-base font-semibold text-foreground">VIP Access</span>
-                              <p className="text-xs text-muted-foreground truncate max-w-[180px]">{vipEmail}</p>
+                              <p className="text-xs text-muted-foreground truncate max-w-[180px]">{vipPhone}</p>
                             </div>
                           </div>
                           <button
