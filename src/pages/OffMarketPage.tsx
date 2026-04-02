@@ -76,14 +76,16 @@ export default function OffMarketPage() {
 
   async function fetchListings() {
     setLoading(true);
-    const { data, error } = await supabase
+    setError(null);
+    const { data, error: fetchError } = await supabase
       .from("off_market_listings")
       .select("id, linked_project_name, linked_project_slug, developer_name, available_units, total_units, construction_stage, access_level, auto_approve_access, status")
       .eq("status", "published")
       .order("published_at", { ascending: false });
 
-    if (error) {
-      console.error(error);
+    if (fetchError) {
+      console.error(fetchError);
+      setError("Failed to load listings. Please try again.");
       setLoading(false);
       return;
     }
