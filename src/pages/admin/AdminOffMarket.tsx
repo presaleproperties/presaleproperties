@@ -25,10 +25,10 @@ import { format } from "date-fns";
 
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
-  pending_review: "bg-yellow-500/10 text-yellow-500",
-  published: "bg-emerald-500/10 text-emerald-500",
-  archived: "bg-red-500/10 text-red-400",
-  sold: "bg-purple-500/10 text-purple-400",
+  pending_review: "bg-primary/10 text-primary border border-primary/20",
+  published: "bg-primary/10 text-primary border border-primary/20",
+  archived: "bg-muted text-muted-foreground",
+  sold: "bg-muted text-muted-foreground",
 };
 
 export default function AdminOffMarket() {
