@@ -24,8 +24,8 @@ export default function ProjectLocationMap({ center, markerPos, onMove, address 
       attributionControl: false,
     });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/">OSM</a>',
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+      maxZoom: 19,
     }).addTo(map);
 
     map.on("click", (e: L.LeafletMouseEvent) => {
