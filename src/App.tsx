@@ -300,6 +300,8 @@ const App = () => (
             <Route path="/off-market" element={<OffMarketPage />} />
             <Route path="/off-market/:slug" element={<OffMarketDetailPage />} />
             <Route path="/vip-login" element={<VipLoginPage />} />
+            <Route path="/vip" element={<VipDashboard />} />
+            <Route path="/vip/interests" element={<VipInterests />} />
             
             {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />
