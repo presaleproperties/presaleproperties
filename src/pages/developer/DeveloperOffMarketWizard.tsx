@@ -13,7 +13,6 @@ import { WizardProgress } from "@/components/admin/off-market/WizardProgress";
 import type { OffMarketListingForm, OffMarketUnit } from "@/components/admin/off-market/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Package, DollarSign, FileText } from "lucide-react";
 
 const defaultForm: OffMarketListingForm = {
   linked_project_slug: "",
@@ -68,6 +67,7 @@ export default function DeveloperOffMarketWizard() {
   const [developerProfile, setDeveloperProfile] = useState<any>(null);
   const [developerId, setDeveloperId] = useState<string | null>(null);
   const [listingStatus, setListingStatus] = useState<string>("draft");
+  const [projectPreview, setProjectPreview] = useState<any>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/developer/login");
@@ -317,164 +317,7 @@ export default function DeveloperOffMarketWizard() {
     );
   }
 
-  // Developer Step 4 — Review & Submit (no publish, no access level control)
-  const DevStep4 = () => {
-    const available = units.filter(u => u.status === "available").length;
-    const reserved = units.filter(u => u.status === "reserved").length;
-    const avgPrice = units.length ? Math.round(units.reduce((s, u) => s + u.price, 0) / units.length) : 0;
-
-    return (
-      <div className="space-y-6">
-        {/* Summary */}
-        <Card className="rounded-2xl border-border/50">
-          <CardContent className="p-6">
-            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-primary" />
-              Listing Summary
-            </h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">Project</span>
-                <p className="font-semibold">{form.linked_project_name}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Developer</span>
-                <p className="font-semibold">{form.developer_name}</p>
-              </div>
-              {form.completion_date && (
-                <div>
-                  <span className="text-muted-foreground">Completion</span>
-                  <p className="font-semibold">{form.completion_date}</p>
-                </div>
-              )}
-              {form.construction_stage && (
-                <div>
-                  <span className="text-muted-foreground">Construction Stage</span>
-                  <p className="font-semibold capitalize">{form.construction_stage}</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Units summary */}
-        <Card className="rounded-2xl border-border/50">
-          <CardContent className="p-6">
-            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              Units ({units.length} total)
-            </h3>
-            <div className="grid grid-cols-3 gap-4 text-sm mb-4">
-              <div className="bg-muted/30 rounded-xl p-3 text-center">
-                <p className="text-2xl font-bold text-green-500">{available}</p>
-                <p className="text-muted-foreground text-xs">Available</p>
-              </div>
-              <div className="bg-muted/30 rounded-xl p-3 text-center">
-                <p className="text-2xl font-bold text-yellow-500">{reserved}</p>
-                <p className="text-muted-foreground text-xs">Reserved</p>
-              </div>
-              <div className="bg-muted/30 rounded-xl p-3 text-center">
-                <p className="text-2xl font-bold">${avgPrice.toLocaleString()}</p>
-                <p className="text-muted-foreground text-xs">Avg Price</p>
-              </div>
-            </div>
-            {units.length > 0 && (
-              <div className="max-h-48 overflow-y-auto border rounded-lg">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/50 sticky top-0">
-                    <tr>
-                      <th className="text-left px-3 py-2 font-medium">Unit</th>
-                      <th className="text-left px-3 py-2 font-medium">Type</th>
-                      <th className="text-right px-3 py-2 font-medium">SqFt</th>
-                      <th className="text-right px-3 py-2 font-medium">Price</th>
-                      <th className="text-left px-3 py-2 font-medium">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {units.map((u, i) => (
-                      <tr key={i} className="border-t">
-                        <td className="px-3 py-2">{u.unit_number}</td>
-                        <td className="px-3 py-2">{u.unit_type}</td>
-                        <td className="px-3 py-2 text-right">{u.sqft}</td>
-                        <td className="px-3 py-2 text-right">${u.price.toLocaleString()}</td>
-                        <td className="px-3 py-2">
-                          <Badge className={`text-[10px] ${STATUS_COLORS[u.status] || ""}`}>{u.status}</Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Documents & Incentives */}
-        {(form.incentives || form.deposit_structure || form.pricing_sheet_url) && (
-          <Card className="rounded-2xl border-border/50">
-            <CardContent className="p-6 space-y-3 text-sm">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                Details
-              </h3>
-              {form.deposit_structure && (
-                <div>
-                  <span className="text-muted-foreground">Deposit Structure: </span>
-                  <span>{form.deposit_structure}</span>
-                </div>
-              )}
-              {form.incentives && (
-                <div>
-                  <span className="text-muted-foreground">Incentives: </span>
-                  <span>{form.incentives}</span>
-                </div>
-              )}
-              {form.pricing_sheet_url && (
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-primary" />
-                  <span>Pricing sheet uploaded</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Info notice */}
-        <Card className="rounded-2xl border-primary/30 bg-primary/5">
-          <CardContent className="p-4 text-sm text-muted-foreground">
-            <p className="font-semibold text-foreground mb-1">What happens next?</p>
-            <p>Our team will review your submission within 24-48 hours. You'll be notified when it's published. Access level and visibility settings will be configured by our admin team.</p>
-          </CardContent>
-        </Card>
-
-        {/* Action buttons */}
-        <div className="flex justify-between pt-4">
-          <Button variant="outline" onClick={() => setStep(3)} className="rounded-xl">
-            ← Back
-          </Button>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => saveListing(false)}
-              disabled={saving}
-              className="rounded-xl"
-            >
-              {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              Save as Draft
-            </Button>
-            <Button
-              onClick={() => saveListing(true)}
-              disabled={saving}
-              className="rounded-xl shadow-gold hover:shadow-gold-glow font-bold gap-2"
-            >
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              Submit for Review
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  // DevStep4 removed — now using shared WizardStep3 with preview
 
   return (
     <DeveloperPortalLayout>
@@ -495,28 +338,32 @@ export default function DeveloperOffMarketWizard() {
             <WizardStep1
               form={form}
               setForm={setForm}
-              projectPreview={null}
-              setProjectPreview={() => {}}
+              projectPreview={projectPreview}
+              setProjectPreview={setProjectPreview}
               onNext={() => setStep(2)}
             />
           )}
           {step === 2 && (
             <WizardStep2
-              form={form}
-              setForm={setForm}
+              units={units}
+              setUnits={setUnits}
               onBack={() => setStep(1)}
               onNext={() => setStep(3)}
             />
           )}
           {step === 3 && (
             <WizardStep3
+              form={form}
+              setForm={setForm}
               units={units}
-              setUnits={setUnits}
+              saving={saving}
               onBack={() => setStep(2)}
-              onNext={() => setStep(4)}
+              onSaveDraft={() => saveListing(false)}
+              onPublish={() => saveListing(true)}
+              projectPreview={projectPreview}
+              showAccessSettings={false}
             />
           )}
-          {step === 4 && <DevStep4 />}
         </div>
       </div>
     </DeveloperPortalLayout>

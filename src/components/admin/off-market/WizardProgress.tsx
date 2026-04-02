@@ -3,9 +3,8 @@ import { Check } from "lucide-react";
 
 const steps = [
   { num: 1, label: "Select Project" },
-  { num: 2, label: "Inventory Details" },
-  { num: 3, label: "Add Units" },
-  { num: 4, label: "Review & Publish" },
+  { num: 2, label: "Add Units" },
+  { num: 3, label: "Preview & Publish" },
 ];
 
 export function WizardProgress({ currentStep }: { currentStep: number }) {
