@@ -327,7 +327,7 @@ export function ProjectMobileCTA({
                 {isExpanded ? (
                   <><ChevronDown className="h-4 w-4" /><span>Close</span></>
                 ) : (
-                  <><Download className="h-4 w-4" /><span>{hasAnyDocuments ? "Get Floor Plans" : "Register Now"}</span></>
+                  <><Download className="h-4 w-4" /><span>View Floor Plans</span></>
                 )}
               </Button>
             </div>
