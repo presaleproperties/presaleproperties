@@ -108,7 +108,7 @@ export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, 
                     <Calendar className="h-3.5 w-3.5" /> {projectPreview.estimated_completion}
                   </p>
                 )}
-                <p className="text-xs text-muted-foreground">{projectPreview.property_type}</p>
+                <p className="text-xs text-muted-foreground">{projectPreview.project_type}</p>
               </div>
             </div>
           </CardContent>
