@@ -220,7 +220,8 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
 
   // Determine what to show as floor plan preview
   const previewUrl = localPreview || uploadedImage;
-  const showPdfIcon = isPdf && !localPreview;
+  const showPdfPreview = isPdf && !!previewUrl;
+  const pdfPreviewUrl = previewUrl ? `${previewUrl}#toolbar=0&navpanes=0&scrollbar=0` : "";
 
   return (
     <div
@@ -362,7 +363,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
               {/* Floor plan preview / upload area */}
               <div
                 className={`rounded-xl border-2 border-dashed transition-all overflow-hidden ${
-                  previewUrl || showPdfIcon ? "border-primary/30 bg-primary/5" : "border-border/50 hover:border-primary/30"
+                  previewUrl ? "border-primary/30 bg-primary/5" : "border-border/50 hover:border-primary/30"
                 }`}
                 onDrop={(e) => {
                   e.preventDefault();
@@ -384,7 +385,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                       <p className="text-xs text-muted-foreground">This takes a few seconds</p>
                     </div>
                   </div>
-                ) : previewUrl && !showPdfIcon ? (
+                ) : previewUrl && !showPdfPreview ? (
                   <div className="relative group">
                     <img src={previewUrl} className="w-full max-h-80 object-contain bg-white p-3 rounded-t-xl" alt="Floor plan" />
                     {extracting && (
@@ -404,21 +405,39 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                       <X className="h-3.5 w-3.5" />
                     </Button>
                     {!extracting && (
-                      <div className="px-3 py-2 flex items-center gap-2 text-xs text-emerald-600 bg-emerald-500/10">
-                        <CheckCircle2 className="h-3.5 w-3.5" /> Floor plan uploaded
+                      <div className="px-3 py-2 flex items-center gap-2 text-xs text-muted-foreground bg-muted/60">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Floor plan uploaded
                       </div>
                     )}
                   </div>
-                ) : showPdfIcon ? (
-                  <div className="relative group py-6 flex flex-col items-center gap-2">
-                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <FileUp className="h-7 w-7 text-primary" />
+                ) : showPdfPreview ? (
+                  <div className="relative group bg-card">
+                    <div className="border-b border-border/50 px-3 py-2 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileUp className="h-4 w-4 text-primary flex-shrink-0" />
+                        <p className="text-sm font-medium truncate">PDF Floor Plan Preview</p>
+                      </div>
+                      {!extracting && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Ready
+                        </div>
+                      )}
                     </div>
-                    <p className="text-sm font-medium">PDF Floor Plan Uploaded</p>
-                    {extracting && <p className="text-xs text-muted-foreground animate-pulse">AI extracting details...</p>}
-                    {!extracting && (
-                      <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Ready</p>
-                    )}
+                    <div className="relative bg-white">
+                      <iframe
+                        src={pdfPreviewUrl}
+                        title="Floor plan PDF preview"
+                        className="w-full h-[420px]"
+                      />
+                      {extracting && (
+                        <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
+                          <div className="flex items-center gap-2 bg-background/90 rounded-lg px-4 py-2 shadow-lg">
+                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                            <span className="text-sm font-medium">AI extracting details...</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     <Button
                       variant="secondary"
                       size="sm"
