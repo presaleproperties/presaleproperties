@@ -323,8 +323,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
           {/* ── Desktop CTA ── */}
           <div className="hidden lg:flex items-center gap-2.5">
-            {/* VIP Login/Status */}
-            {isVipLoggedIn ? (
+            {/* VIP Login/Status — hidden until feature is ready */}
+            {/* {isVipLoggedIn ? (
               <div className="flex items-center gap-1.5">
                 <Link
                   to="/off-market"
@@ -354,7 +354,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                 <LogIn className="h-3.5 w-3.5" />
                 VIP Login
               </Link>
-            )}
+            )} */}
             {/* Ghost Map link */}
             <Link
               to="/map-search"
