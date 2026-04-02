@@ -2,13 +2,22 @@ import { useState, useEffect, createContext, useContext, ReactNode, useCallback,
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
+interface VipSignupProfile {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  hasAgent: boolean;
+  budgetRange?: string | null;
+  timeline?: string | null;
+}
+
 interface VipAuthContextType {
   vipUser: User | null;
   vipEmail: string | null;
   isVipLoggedIn: boolean;
   isVipApproved: boolean;
   loading: boolean;
-  signUpVip: (email: string, password: string) => Promise<{ error?: string }>;
+  signUpVip: (email: string, password: string, profile?: VipSignupProfile) => Promise<{ error?: string }>;
   loginVip: (emailOrPhone: string, password: string) => Promise<{ error?: string }>;
   logoutVip: () => void;
   checkVipAccessForListing: (listingId: string) => Promise<boolean>;
@@ -51,6 +60,18 @@ async function hasApprovedAccess(email?: string, phone?: string): Promise<boolea
     if (data && data.length > 0) return true;
   }
   return false;
+}
+
+/** Parse budget range string to a max number */
+function parseBudgetMax(range: string): number | null {
+  if (range.includes("1.5M+")) return 2000000;
+  const match = range.match(/\$?([\d.]+)([KMk])?/g);
+  if (!match) return null;
+  const last = match[match.length - 1];
+  const num = parseFloat(last.replace(/[$,]/g, ""));
+  if (last.includes("M") || last.includes("m")) return num * 1000000;
+  if (last.includes("K") || last.includes("k")) return num * 1000;
+  return num;
 }
 
 export function VipAuthProvider({ children }: { children: ReactNode }) {
@@ -98,20 +119,46 @@ export function VipAuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, [checkApprovalForUser]);
 
-  const signUpVip = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
+  const signUpVip = useCallback(async (email: string, password: string, profile?: VipSignupProfile): Promise<{ error?: string }> => {
     // First check if email matches an approved access record
     const approved = await hasApprovedAccess(email);
     if (!approved) {
       return { error: "No approved VIP access found for this email. Please request access first." };
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: profile ? {
+          first_name: profile.firstName,
+          last_name: profile.lastName,
+          phone: profile.phone,
+          has_agent: profile.hasAgent,
+          budget_range: profile.budgetRange,
+          timeline: profile.timeline,
+        } : undefined,
+      },
     });
 
     if (error) return { error: error.message };
+
+    // Create buyer profile if we have profile data and a user
+    if (profile && data.user) {
+      await supabase.from("buyer_profiles").upsert({
+        user_id: data.user.id,
+        email,
+        full_name: `${profile.firstName} ${profile.lastName}`,
+        phone: profile.phone,
+        buyer_type: profile.hasAgent ? "has_agent" : "no_agent",
+        budget_max: profile.budgetRange ? parseBudgetMax(profile.budgetRange) : null,
+        timeline: profile.timeline || null,
+        is_vip: true,
+        vip_joined_at: new Date().toISOString(),
+      } as any, { onConflict: "user_id" });
+    }
+
     return {};
   }, []);
 
