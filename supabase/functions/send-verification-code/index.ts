@@ -42,13 +42,13 @@ interface RequestBody {
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
   // Rate limit check
   if (await rateLimited(req, "send-verification-code")) {
     return new Response(JSON.stringify({ error: "Too many requests" }), {
       status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "3600" }
     });
-  }
-
   }
 
   try {
