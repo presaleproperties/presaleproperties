@@ -92,8 +92,7 @@ export function FeaturedResaleListings() {
     gcTime: 10 * 60 * 1000,
   });
 
-  // Return null on error to avoid blank gap
-  if (isError && !listings) return null;
+  // Error check moved after hooks below
 
   const checkScroll = () => {
     const container = scrollContainerRef.current;
