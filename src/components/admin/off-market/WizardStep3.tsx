@@ -242,12 +242,27 @@ export function WizardStep3({ form, setForm, units, saving, onBack, onSaveDraft,
                   <tbody>
                     {sortedUnits.map((u, i) => (
                       <tr key={i} className="border-b border-border hover:bg-card">
-                        <td className="px-3 py-2 font-medium">{u.unit_number}</td>
+                        <td className="px-3 py-2 font-medium">
+                          <div className="flex items-center gap-2">
+                            {u.floorplan_url && (
+                              <img src={u.floorplan_url} className="w-8 h-8 rounded object-cover bg-white flex-shrink-0" alt="" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                            )}
+                            {u.unit_number || "—"}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2 text-muted-foreground">{u.unit_name || "—"}</td>
                         <td className="px-3 py-2">{u.unit_type || "—"}</td>
                         <td className="px-3 py-2">{u.bedrooms}</td>
                         <td className="px-3 py-2">{u.bathrooms}</td>
                         <td className="px-3 py-2">{u.sqft.toLocaleString()}</td>
                         <td className="px-3 py-2 text-primary font-semibold">${u.price.toLocaleString()}</td>
+                        <td className="px-3 py-2">
+                          {u.has_unit_incentive && u.unit_incentive ? (
+                            <span className="text-primary text-xs font-medium">{u.unit_incentive}</span>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </td>
                         <td className="px-3 py-2">
                           <Badge variant="outline" className={`text-xs ${statusColors[u.status] || ""}`}>{u.status}</Badge>
                         </td>
