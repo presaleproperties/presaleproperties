@@ -1,40 +1,24 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
-import { ConversionHeader } from "@/components/conversion/ConversionHeader";
-import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { trackOffMarketEvent, getApprovedEmail, checkAccess } from "@/lib/offMarketAnalytics";
 import { useVipAuth } from "@/hooks/useVipAuth";
 import { UnlockModal } from "@/components/off-market/UnlockModal";
-import {
-  Building2, MapPin, Calendar, Download, MessageCircle, Phone, Lock, Gift,
-  Car, Warehouse, ChevronDown, ChevronUp, Eye, ArrowLeft, ArrowUpDown
-} from "lucide-react";
+import { DeckHeroSection } from "@/components/decks/DeckHeroSection";
+import { DeckStickyNav } from "@/components/decks/DeckStickyNav";
+import { DeckAboutSection } from "@/components/decks/DeckAboutSection";
+import { DeckGallerySection } from "@/components/decks/DeckGallerySection";
+import { DeckContactSection } from "@/components/decks/DeckContactSection";
+import { FloorPlanModal, type FloorPlan } from "@/components/decks/FloorPlanModal";
+import { OffMarketUnitsSection } from "@/components/off-market/OffMarketUnitsSection";
+import { OffMarketIncentivesSection } from "@/components/off-market/OffMarketIncentivesSection";
+import { OffMarketDocumentsSection } from "@/components/off-market/OffMarketDocumentsSection";
+import { OffMarketDepositSection } from "@/components/off-market/OffMarketDepositSection";
+import { Lock, Loader2, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-const STAGES = ["pre-construction", "excavation", "foundation", "framing", "finishing", "move-in-ready"];
-const stageLabels: Record<string, string> = {
-  "pre-construction": "Pre-Construction",
-  excavation: "Excavation",
-  foundation: "Foundation",
-  framing: "Framing",
-  finishing: "Finishing",
-  "move-in-ready": "Move-In Ready",
-};
-
-const statusColors: Record<string, string> = {
-  available: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-  reserved: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
-  sold: "bg-red-500/15 text-red-400 border-red-500/30",
-  hold: "bg-gray-500/15 text-gray-400 border-gray-500/30",
-};
+const SECTION_IDS = ["overview", "floor-plans", "gallery", "incentives", "documents", "contact"];
 
 export default function OffMarketDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -46,19 +30,49 @@ export default function OffMarketDetailPage() {
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
   const [showUnlock, setShowUnlock] = useState(false);
-  const [showSold, setShowSold] = useState(false);
-  const [expandedUnit, setExpandedUnit] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<string>("price");
-  const [sortAsc, setSortAsc] = useState(true);
+
+  // Deck-style nav state
+  const [navVisible, setNavVisible] = useState(false);
+  const [activeSection, setActiveSection] = useState("overview");
+  const [selectedPlan, setSelectedPlan] = useState<FloorPlan | null>(null);
+  const scrollYBeforeGallery = useRef<number>(0);
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   useEffect(() => {
     if (slug) loadData();
   }, [slug]);
 
+  // Sticky nav + active section via scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const heroHeight = window.innerHeight;
+      setNavVisible(window.scrollY > heroHeight * 0.8);
+      for (const id of [...SECTION_IDS].reverse()) {
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 80) { setActiveSection(id); break; }
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Fade-up animation
+  useEffect(() => {
+    if (!listing || !hasAccess) return;
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("deck-visible"); }),
+      { threshold: 0.08, rootMargin: "0px 0px -60px 0px" }
+    );
+    document.querySelectorAll(".deck-animate").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [listing, hasAccess]);
+
   async function loadData() {
     setLoading(true);
 
-    // Get listing
     const { data: listingData } = await supabase
       .from("off_market_listings")
       .select("*")
@@ -66,15 +80,11 @@ export default function OffMarketDetailPage() {
       .eq("status", "published")
       .maybeSingle();
 
-    if (!listingData) {
-      navigate("/off-market");
-      return;
-    }
-
+    if (!listingData) { navigate("/off-market"); return; }
     setListing(listingData);
     trackOffMarketEvent("listing_view", listingData.id);
 
-    // Check access - VIP approved users get instant access to all
+    // Check access
     if (isVipApproved) {
       setHasAccess(true);
     } else {
@@ -82,15 +92,9 @@ export default function OffMarketDetailPage() {
       if (email) {
         const approved = await checkAccess(listingData.id, email);
         setHasAccess(approved);
-        if (!approved) {
-          setShowUnlock(true);
-          setLoading(false);
-          return;
-        }
+        if (!approved) { setShowUnlock(true); setLoading(false); return; }
       } else {
-        setShowUnlock(true);
-        setLoading(false);
-        return;
+        setShowUnlock(true); setLoading(false); return;
       }
     }
 
@@ -109,59 +113,78 @@ export default function OffMarketDetailPage() {
       .eq("listing_id", listingData.id)
       .order("display_order", { ascending: true });
     setUnits(unitData || []);
-
     setLoading(false);
   }
 
-  const sortedUnits = useMemo(() => {
-    let filtered = showSold ? units : units.filter((u) => u.status !== "sold");
-    return [...filtered].sort((a, b) => {
-      const va = a[sortBy] ?? 0;
-      const vb = b[sortBy] ?? 0;
-      return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+  const handleGalleryOpen = useCallback(() => {
+    scrollYBeforeGallery.current = window.scrollY;
+    setGalleryOpen(true);
+  }, []);
+
+  const handleGalleryClose = useCallback(() => {
+    setGalleryOpen(false);
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: scrollYBeforeGallery.current, behavior: "instant" });
     });
-  }, [units, showSold, sortBy, sortAsc]);
+  }, []);
 
-  const handleSort = (col: string) => {
-    if (sortBy === col) setSortAsc(!sortAsc);
-    else { setSortBy(col); setSortAsc(true); }
-  };
+  // Convert off_market_units to FloorPlan format for the card grid + modal
+  const unitsAsFloorPlans: FloorPlan[] = units
+    .filter((u) => u.status !== "sold")
+    .map((u) => ({
+      id: u.id,
+      unit_type: u.unit_name || u.unit_type || `Unit ${u.unit_number}`,
+      size_range: u.sqft ? `${Number(u.sqft).toLocaleString()} sqft` : "",
+      price_from: u.price ? `$${Number(u.price).toLocaleString()}` : "",
+      price_per_sqft: u.price_per_sqft ? `$${Math.round(Number(u.price_per_sqft))}` : "",
+      tags: [u.status],
+      image_url: u.floorplan_url || u.floorplan_thumbnail_url || undefined,
+      interior_sqft: u.sqft ? Number(u.sqft) : null,
+      beds: u.bedrooms,
+      baths: u.bathrooms ? Number(u.bathrooms) : null,
+      exposure: u.orientation,
+      projected_rent: null,
+    }));
 
-  const upgrades = listing?.available_upgrades as any[] | null;
-  const stageIndex = listing?.construction_stage ? STAGES.indexOf(listing.construction_stage) : -1;
-  const incentiveExpiry = listing?.incentive_expiry ? new Date(listing.incentive_expiry) : null;
-  const daysUntilExpiry = incentiveExpiry ? Math.max(0, Math.ceil((incentiveExpiry.getTime() - Date.now()) / 86400000)) : null;
-
+  // Loading state
   if (loading) {
     return (
-      <>
-        <ConversionHeader />
-        <div className="max-w-6xl mx-auto px-4 pt-24 pb-16 space-y-6">
-          <Skeleton className="h-10 w-1/2" />
-          <Skeleton className="h-6 w-1/3" />
-          <div className="grid md:grid-cols-2 gap-6">
-            <Skeleton className="h-64" />
-            <Skeleton className="h-64" />
-          </div>
-        </div>
-        <Footer />
-      </>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
     );
   }
 
+  // Locked state
   if (!hasAccess) {
     return (
       <>
-        <ConversionHeader />
-        <div className="max-w-2xl mx-auto px-4 pt-24 pb-16 text-center space-y-6">
-          <Lock className="h-16 w-16 text-primary mx-auto" />
-          <h1 className="text-3xl font-bold">{listing?.linked_project_name}</h1>
-          <p className="text-muted-foreground text-lg">This listing requires VIP access. Fill out the form below to request access.</p>
-          <Button size="lg" onClick={() => setShowUnlock(true)}>
-            <Lock className="h-4 w-4 mr-2" /> Request Access
-          </Button>
-        </div>
-        <Footer />
+        <Helmet><title>{listing?.linked_project_name} — Off-Market | Presale Properties</title></Helmet>
+        {/* Full-screen hero with lock overlay */}
+        <section className="relative flex flex-col items-center justify-center text-center" style={{ height: "100dvh" }}>
+          {project?.featured_image && (
+            <div className="absolute inset-0 z-0">
+              <img src={project.featured_image} alt="" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+            </div>
+          )}
+          <div className="relative z-10 max-w-md px-6 space-y-6">
+            <div className="mx-auto w-20 h-20 rounded-3xl bg-primary/15 flex items-center justify-center">
+              <Lock className="h-10 w-10 text-primary" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white">{listing?.linked_project_name}</h1>
+            <p className="text-white/70 text-lg">
+              This is exclusive, off-market inventory. Request VIP access to view pricing, floor plans, and unit details.
+            </p>
+            <Button
+              size="lg"
+              className="h-14 px-8 text-base font-bold rounded-xl shadow-lg shadow-primary/30"
+              onClick={() => setShowUnlock(true)}
+            >
+              <Lock className="h-5 w-5 mr-2" /> Request VIP Access
+            </Button>
+          </div>
+        </section>
         {listing && (
           <UnlockModal
             open={showUnlock}
@@ -176,315 +199,190 @@ export default function OffMarketDetailPage() {
     );
   }
 
+  // Derive hero data
+  const heroImage = project?.featured_image || (listing?.photo_urls && listing.photo_urls.length > 0 ? listing.photo_urls[0] : undefined);
+  const locationLabel = project?.neighborhood && project?.city
+    ? `${project.neighborhood}, ${project.city}`
+    : project?.city || undefined;
+  const lowestPrice = units.filter(u => u.status !== "sold").reduce((min, u) => {
+    const p = Number(u.price);
+    return p > 0 && p < min ? p : min;
+  }, Infinity);
+  const startingPrice = lowestPrice < Infinity ? `$${lowestPrice.toLocaleString()}` : undefined;
+
+  // Gallery images from listing photos + floorplans
+  const galleryImages = [
+    ...(listing?.photo_urls || []),
+  ].filter(Boolean);
+
+  // Included items for unit cards
+  const includedItems: string[] = [];
+  if (listing?.parking_included) includedItems.push("Parking");
+  else if (listing?.parking_cost) includedItems.push(`Parking ($${Number(listing.parking_cost).toLocaleString()})`);
+  if (listing?.storage_included) includedItems.push("Storage");
+  else if (listing?.storage_cost) includedItems.push(`Storage ($${Number(listing.storage_cost).toLocaleString()})`);
+  if (listing?.locker_included) includedItems.push("Locker");
+
   return (
     <>
       <Helmet>
-        <title>{listing?.linked_project_name} — Off-Market Details | Presale Properties</title>
-        <meta name="description" content={`Exclusive off-market inventory for ${listing?.linked_project_name}. VIP pricing, floor plans and incentives.`} />
+        <title>{listing.linked_project_name} — Off-Market VIP Inventory | Presale Properties</title>
+        <meta name="description" content={`Exclusive off-market inventory for ${listing.linked_project_name}. VIP pricing, floor plans and incentives.`} />
+        <style>{`
+          .deck-animate {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+          }
+          .deck-visible {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          html {
+            scroll-padding-top: 80px;
+          }
+        `}</style>
       </Helmet>
 
-      <ConversionHeader />
+      <div className="w-full sm:pb-0 pb-24" style={{ overflowX: "clip", scrollPaddingTop: "80px" }}>
 
-      <div className="max-w-6xl mx-auto px-4 pt-24 pb-16 space-y-8">
-        {/* Back */}
-        <Button variant="ghost" size="sm" onClick={() => navigate("/off-market")}>
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Off-Market
-        </Button>
+        {/* Sticky Nav */}
+        <DeckStickyNav
+          visible={navVisible}
+          activeSection={activeSection}
+          projectName={listing.linked_project_name}
+          phoneNumber="6722581100"
+        />
 
-        {/* Header */}
-        <div className="space-y-3">
-          <h1 className="text-3xl md:text-4xl font-bold">{listing.linked_project_name}</h1>
-          <div className="flex items-center gap-3 flex-wrap text-muted-foreground">
-            {listing.developer_name && <span className="flex items-center gap-1"><Building2 className="h-4 w-4" /> {listing.developer_name}</span>}
-            {project?.city && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city}</span>}
-            {listing.completion_date && <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {listing.completion_date}</span>}
+        {/* ── 1. Hero ── */}
+        <DeckHeroSection
+          projectName={listing.linked_project_name}
+          tagline={`Off-Market Opportunity — ${locationLabel || "Metro Vancouver"}`}
+          heroImageUrl={heroImage}
+          developerName={listing.developer_name || undefined}
+          stories={project?.stories || undefined}
+          totalUnits={listing.total_units || undefined}
+          completionYear={listing.completion_date || project?.completion_year || undefined}
+          city={project?.city || undefined}
+          neighborhood={project?.neighborhood || undefined}
+          startingPrice={startingPrice}
+          onFloorPlansClick={() => document.getElementById("floor-plans")?.scrollIntoView({ behavior: "smooth" })}
+          onContactClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+        />
+
+        <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
+        {/* ── 2. About ── */}
+        {project?.description && (
+          <div className="deck-animate">
+            <DeckAboutSection
+              description={project.description}
+              highlights={project.highlights}
+              amenities={project.amenities}
+              projectName={listing.linked_project_name}
+            />
           </div>
-          <div className="flex gap-2 flex-wrap">
-            {project?.project_type && <Badge variant="outline" className="capitalize">{project.project_type}</Badge>}
-            {listing.construction_stage && <Badge variant="secondary">{stageLabels[listing.construction_stage]}</Badge>}
+        )}
+
+        <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+
+        {/* ── 3. Unit Inventory (Floor Plan Card Style) ── */}
+        <div className="deck-animate">
+          <OffMarketUnitsSection
+            units={unitsAsFloorPlans}
+            allUnits={units}
+            includedItems={includedItems.length > 0 ? includedItems : ["Parking", "Storage"]}
+            projectName={listing.linked_project_name}
+            onSelectPlan={setSelectedPlan}
+            listingId={listing.id}
+          />
+        </div>
+
+        <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+
+        {/* ── 4. Gallery ── */}
+        {galleryImages.length > 0 && (
+          <>
+            <div className="deck-animate">
+              <DeckGallerySection
+                images={galleryImages}
+                onGalleryOpen={handleGalleryOpen}
+                onGalleryClose={handleGalleryClose}
+              />
+            </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+          </>
+        )}
+
+        {/* ── 5. Incentives + Deposit + Documents ── */}
+        {(listing.incentives || listing.vip_incentives || listing.deposit_structure) && (
+          <>
+            <div className="deck-animate">
+              <OffMarketIncentivesSection listing={listing} />
+            </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+          </>
+        )}
+
+        {/* ── 6. Documents (Downloads) ── */}
+        {(listing.pricing_sheet_url || listing.brochure_url || listing.info_sheet_url) && (
+          <>
+            <div className="deck-animate">
+              <OffMarketDocumentsSection listing={listing} />
+            </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+          </>
+        )}
+
+        {/* ── 7. Contact ── */}
+        <div className="deck-animate">
+          <DeckContactSection
+            projectName={listing.linked_project_name}
+          />
+        </div>
+
+        {/* Mobile sticky CTA */}
+        <div
+          className="sm:hidden fixed bottom-0 left-0 right-0 z-[99999]"
+          style={{ isolation: "isolate", transform: "translate3d(0,0,0)" }}
+        >
+          <div className="bg-background border-t border-border/50 px-4"
+            style={{ paddingTop: "0.625rem", paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+            <a
+              href={`https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in ${listing.linked_project_name} off-market units — can you share more details?`)}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full h-12 rounded-xl font-semibold text-sm text-white touch-manipulation active:opacity-90 select-none"
+              style={{ background: "#25D366" }}
+              onClick={() => trackOffMarketEvent("whatsapp_click", listing.id)}
+            >
+              <MessageCircle className="h-4 w-4" />
+              I'm Interested
+            </a>
           </div>
         </div>
 
-        {/* Construction Progress */}
-        {stageIndex >= 0 && (
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Construction Progress</p>
-            <div className="flex gap-1">
-              {STAGES.map((s, i) => (
-                <div key={s} className="flex-1 space-y-1">
-                  <div className={`h-2 rounded-full ${i <= stageIndex ? "bg-primary" : "bg-[#1e1e1e]"}`} />
-                  <p className={`text-[10px] text-center ${i <= stageIndex ? "text-primary" : "text-muted-foreground/50"}`}>
-                    {stageLabels[s]}
-                  </p>
-                </div>
-              ))}
+        {/* Footer */}
+        <footer className="bg-muted/30 border-t border-border/50 px-4 sm:px-8 py-8 pb-safe">
+          <div className="max-w-4xl mx-auto space-y-3 text-center">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              <strong className="text-foreground/70">DISCLAIMER:</strong> This is not an offering for sale. Any such offering can only be made with a disclosure statement. E.&amp;O.E. — Pricing, availability, and project details are subject to change without notice.
+            </p>
+            <div className="pt-2 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground/60">
+              <span>© {new Date().getFullYear()} PresaleProperties.com · Real Broker</span>
+              <span>info@presaleproperties.com · 672-258-1100</span>
             </div>
           </div>
-        )}
-
-        {/* Documents */}
-        <div className="grid md:grid-cols-3 gap-4">
-          {listing.pricing_sheet_url && (
-            <Card className="bg-[#141414] border-[#1e1e1e]">
-              <CardContent className="p-4 flex items-center justify-between">
-                <span className="font-medium">Pricing Sheet</span>
-                <Button size="sm" variant="outline" asChild onClick={() => trackOffMarketEvent("pricing_download", listing.id)}>
-                  <a href={listing.pricing_sheet_url} target="_blank" rel="noopener noreferrer">
-                    <Download className="h-4 w-4 mr-1" /> Download
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-          {listing.brochure_url && (
-            <Card className="bg-[#141414] border-[#1e1e1e]">
-              <CardContent className="p-4 flex items-center justify-between">
-                <span className="font-medium">Brochure</span>
-                <Button size="sm" variant="outline" asChild>
-                  <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer">
-                    <Download className="h-4 w-4 mr-1" /> Download
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-          {listing.info_sheet_url && (
-            <Card className="bg-[#141414] border-[#1e1e1e]">
-              <CardContent className="p-4 flex items-center justify-between">
-                <span className="font-medium">Info Sheet</span>
-                <Button size="sm" variant="outline" asChild>
-                  <a href={listing.info_sheet_url} target="_blank" rel="noopener noreferrer">
-                    <Download className="h-4 w-4 mr-1" /> Download
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Floor Plans Gallery */}
-        {listing.floorplan_urls && listing.floorplan_urls.length > 0 && (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold">Floor Plans</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {listing.floorplan_urls.map((url: string, i: number) => (
-                <a
-                  key={i}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackOffMarketEvent("floorplan_download", listing.id)}
-                  className="rounded-lg border border-[#1e1e1e] overflow-hidden hover:border-primary/40 transition-colors"
-                >
-                  <img src={url} alt={`Floor plan ${i + 1}`} className="w-full aspect-square object-contain bg-white p-2" loading="lazy" />
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Incentives */}
-          {(listing.incentives || listing.vip_incentives) && (
-            <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-transparent">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5 text-primary" /> Incentives</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {listing.incentives && <p className="text-sm">{listing.incentives}</p>}
-                {listing.vip_incentives && (
-                  <div className="rounded-lg bg-primary/10 border border-primary/20 p-3">
-                    <Badge className="mb-2 bg-primary text-primary-foreground text-xs">VIP ONLY</Badge>
-                    <p className="text-sm">{listing.vip_incentives}</p>
-                  </div>
-                )}
-                {daysUntilExpiry !== null && daysUntilExpiry > 0 && (
-                  <p className="text-xs text-primary font-medium">Offer expires in {daysUntilExpiry} days</p>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Deposit & Financial */}
-          <Card className="bg-[#141414] border-[#1e1e1e]">
-            <CardHeader>
-              <CardTitle className="text-base">Deposit & Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              {listing.deposit_structure && <div><span className="text-muted-foreground">Deposit:</span> {listing.deposit_structure}</div>}
-              {listing.deposit_percentage && <div><span className="text-muted-foreground">Deposit %:</span> {listing.deposit_percentage}%</div>}
-              <Separator className="bg-[#1e1e1e]" />
-              <div className="flex items-center gap-2">
-                <Car className="h-4 w-4 text-muted-foreground" />
-                <span>{listing.parking_included ? "Parking Included" : listing.parking_cost ? `Parking: $${Number(listing.parking_cost).toLocaleString()}` : "No parking info"}</span>
-                {listing.parking_type && <Badge variant="outline" className="text-xs">{listing.parking_type}</Badge>}
-              </div>
-              <div className="flex items-center gap-2">
-                <Warehouse className="h-4 w-4 text-muted-foreground" />
-                <span>{listing.storage_included ? "Storage Included" : listing.storage_cost ? `Storage: $${Number(listing.storage_cost).toLocaleString()}` : "No storage info"}</span>
-              </div>
-              {listing.assignment_allowed && (
-                <div className="text-sm">Assignment: Allowed {listing.assignment_fee && `(${listing.assignment_fee})`}</div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Unit Inventory Table */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="text-xl font-bold">Unit Inventory ({units.filter(u => u.status === "available").length} available)</h2>
-            <div className="flex items-center gap-2">
-              <Switch id="show-sold" checked={showSold} onCheckedChange={setShowSold} />
-              <Label htmlFor="show-sold" className="text-sm text-muted-foreground">Show sold units</Label>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-border overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-card border-b border-border">
-                  {[
-                    { key: "unit_number", label: "Unit #", sticky: true },
-                    { key: "unit_type", label: "Type" },
-                    { key: "bedrooms", label: "Beds" },
-                    { key: "bathrooms", label: "Baths" },
-                    { key: "sqft", label: "SqFt" },
-                    { key: "price", label: "Price" },
-                    { key: "price_per_sqft", label: "$/SqFt" },
-                    { key: "floor_level", label: "Floor" },
-                    { key: "status", label: "Status" },
-                  ].map(({ key, label, sticky }) => (
-                    <th
-                      key={key}
-                      className={`px-3 py-3 text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors whitespace-nowrap ${sticky ? "sticky left-0 z-10 bg-card" : ""}`}
-                      onClick={() => handleSort(key)}
-                    >
-                      <span className="flex items-center gap-1">
-                        {label}
-                        {sortBy === key && <ArrowUpDown className="h-3 w-3 text-primary" />}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {sortedUnits.map((unit) => (
-                  <>
-                    <tr
-                      key={unit.id}
-                      className="border-b border-border hover:bg-card cursor-pointer transition-colors"
-                      onClick={() => {
-                        setExpandedUnit(expandedUnit === unit.id ? null : unit.id);
-                        trackOffMarketEvent("unit_view", listing.id, unit.id);
-                      }}
-                    >
-                      <td className="px-3 py-2.5 font-medium sticky left-0 z-10 bg-background">{unit.unit_number}</td>
-                      <td className="px-3 py-2.5">{unit.unit_type || "—"}</td>
-                      <td className="px-3 py-2.5">{unit.bedrooms}</td>
-                      <td className="px-3 py-2.5">{unit.bathrooms}</td>
-                      <td className="px-3 py-2.5">{Number(unit.sqft).toLocaleString()}</td>
-                      <td className="px-3 py-2.5 text-primary font-semibold">${Number(unit.price).toLocaleString()}</td>
-                      <td className="px-3 py-2.5">${unit.price_per_sqft || "—"}</td>
-                      <td className="px-3 py-2.5">{unit.floor_level || "—"}</td>
-                      <td className="px-3 py-2.5">
-                        <Badge variant="outline" className={`text-xs ${statusColors[unit.status] || ""}`}>
-                          {unit.status}
-                        </Badge>
-                      </td>
-                    </tr>
-                    {expandedUnit === unit.id && (
-                      <tr key={`${unit.id}-detail`} className="bg-card/50">
-                        <td colSpan={9} className="px-4 py-4">
-                          <div className="grid md:grid-cols-2 gap-4">
-                            {unit.floorplan_url && (
-                              <img src={unit.floorplan_url} alt={`Floor plan ${unit.unit_number}`} className="rounded-lg bg-white p-2 max-h-64 object-contain" />
-                            )}
-                            <div className="space-y-2 text-sm">
-                              {unit.orientation && <div><span className="text-muted-foreground">Orientation:</span> {unit.orientation}</div>}
-                              {unit.view_type && <div><span className="text-muted-foreground">View:</span> {unit.view_type}</div>}
-                              {unit.parking_included && <div>✓ Parking Included {unit.parking_type && `(${unit.parking_type})`}</div>}
-                              {unit.storage_included && <div>✓ Storage Included</div>}
-                              {unit.locker_included && <div>✓ Locker Included</div>}
-                              {unit.inclusions && unit.inclusions.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mt-2">
-                                  {unit.inclusions.map((inc: string) => <Badge key={inc} variant="secondary" className="text-xs">{inc}</Badge>)}
-                                </div>
-                              )}
-                              {unit.has_unit_incentive && unit.unit_incentive && (
-                                <div className="mt-2 p-2 rounded bg-primary/10 border border-primary/20 text-xs">
-                                  <Gift className="h-3 w-3 inline mr-1 text-primary" /> {unit.unit_incentive}
-                                </div>
-                              )}
-                              {unit.available_upgrades && (unit.available_upgrades as any[]).length > 0 && (
-                                <div className="mt-2">
-                                  <p className="text-muted-foreground text-xs mb-1">Available Upgrades:</p>
-                                  {(unit.available_upgrades as any[]).map((u: any, i: number) => (
-                                    <div key={i} className="text-xs">{u.name} — ${Number(u.price || 0).toLocaleString()}</div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-              </tbody>
-            </table>
-            {sortedUnits.length === 0 && (
-              <div className="text-center py-10 text-muted-foreground">No units to display</div>
-            )}
-          </div>
-        </div>
-
-        {/* Upgrades */}
-        {upgrades && upgrades.length > 0 && (
-          <Card className="bg-[#141414] border-[#1e1e1e]">
-            <CardHeader><CardTitle className="text-base">Available Upgrades</CardTitle></CardHeader>
-            <CardContent className="space-y-2">
-              {upgrades.map((u: any, i: number) => (
-                <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-[#1e1e1e] last:border-0">
-                  <span>{u.name}</span>
-                  <span className="text-primary font-medium">${Number(u.price || 0).toLocaleString()}</span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Additional Notes */}
-        {listing.additional_notes && (
-          <Card className="bg-[#141414] border-[#1e1e1e]">
-            <CardContent className="p-4 text-sm text-muted-foreground whitespace-pre-wrap">
-              {listing.additional_notes}
-            </CardContent>
-          </Card>
-        )}
+        </footer>
       </div>
 
-      {/* Spacer for mobile sticky CTA */}
-      <div className="h-20 md:hidden" aria-hidden="true" />
-
-      {/* Sticky mobile CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.15)] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center gap-2 md:hidden">
-        <Button size="sm" className="flex-1 h-11 rounded-xl font-semibold" asChild onClick={() => trackOffMarketEvent("whatsapp_click", listing?.id)}>
-          <a href={`https://wa.me/16722581100?text=Hi! I'm interested in ${listing?.linked_project_name} off-market units`} target="_blank" rel="noopener noreferrer">
-            <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
-          </a>
-        </Button>
-        <Button size="sm" variant="outline" className="flex-1 h-11 rounded-xl font-semibold" asChild onClick={() => trackOffMarketEvent("call_click", listing?.id)}>
-          <a href="tel:6722581100"><Phone className="h-4 w-4 mr-1" /> Call</a>
-        </Button>
-        {listing?.pricing_sheet_url && (
-          <Button size="sm" variant="outline" className="h-11 rounded-xl" asChild onClick={() => trackOffMarketEvent("pricing_download", listing?.id)}>
-            <a href={listing.pricing_sheet_url} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a>
-          </Button>
-        )}
-      </div>
-
-      <Footer />
+      {/* Floor Plan Modal */}
+      <FloorPlanModal
+        plan={selectedPlan}
+        onClose={() => setSelectedPlan(null)}
+        projectName={listing.linked_project_name}
+        includedItems={includedItems.length > 0 ? includedItems : ["Parking", "Storage"]}
+        isUnlocked={true}
+      />
     </>
   );
 }
