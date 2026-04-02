@@ -14,6 +14,7 @@ import { UnlockModal } from "@/components/off-market/UnlockModal";
 import { supabase } from "@/integrations/supabase/client";
 import { trackOffMarketEvent, getApprovedEmail, checkAccess } from "@/lib/offMarketAnalytics";
 import { Lock, ChevronDown, X, MessageCircle, Phone, SlidersHorizontal } from "lucide-react";
+import { useVipAuth } from "@/hooks/useVipAuth";
 
 interface OffMarketListing {
   id: string;
