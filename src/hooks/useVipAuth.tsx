@@ -25,41 +25,24 @@ interface VipAuthContextType {
 
 const VipAuthContext = createContext<VipAuthContextType | undefined>(undefined);
 
-/** Build all plausible phone format variants for a given input */
-function phoneFormats(raw: string): string[] {
-  const digits = raw.replace(/\D/g, "");
-  const d = digits.startsWith("1") && digits.length === 11 ? digits.slice(1) : digits;
-  const e164 = d.length === 10 ? `+1${d}` : `+${digits}`;
-  const formatted = d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}` : "";
-  const results = [e164, digits, d];
-  if (formatted) results.push(formatted);
-  return results;
+async function lookupApprovedAccess(email?: string, phone?: string) {
+  const { data, error } = await supabase.functions.invoke("check-vip-access", {
+    body: { email, phone },
+  });
+
+  if (error) {
+    throw new Error(error.message || "Unable to verify VIP access");
+  }
+
+  return {
+    approved: !!data?.approved,
+    email: data?.email as string | null,
+  };
 }
 
-/** Check if an email or phone has any approved off_market_access record */
 async function hasApprovedAccess(email?: string, phone?: string): Promise<boolean> {
-  // Try email match
-  if (email) {
-    const { data } = await supabase
-      .from("off_market_access")
-      .select("id")
-      .eq("status", "approved")
-      .eq("email", email)
-      .limit(1);
-    if (data && data.length > 0) return true;
-  }
-  // Try phone match
-  if (phone) {
-    const formats = phoneFormats(phone);
-    const { data } = await supabase
-      .from("off_market_access")
-      .select("id")
-      .eq("status", "approved")
-      .in("phone", formats)
-      .limit(1);
-    if (data && data.length > 0) return true;
-  }
-  return false;
+  const result = await lookupApprovedAccess(email, phone);
+  return result.approved;
 }
 
 /** Parse budget range string to a max number */
@@ -163,37 +146,28 @@ export function VipAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loginVip = useCallback(async (emailOrPhone: string, password: string): Promise<{ error?: string }> => {
-    // Determine if input is email or phone
     const isEmail = emailOrPhone.includes("@");
 
     if (isEmail) {
       const { error } = await supabase.auth.signInWithPassword({
-        email: emailOrPhone,
-        password,
-      });
-      if (error) return { error: error.message };
-      return {};
-    } else {
-      // Phone login — look up user email from off_market_access by phone
-      const formats = phoneFormats(emailOrPhone);
-      const { data } = await supabase
-        .from("off_market_access")
-        .select("email")
-        .eq("status", "approved")
-        .in("phone", formats)
-        .limit(1);
-
-      if (!data?.length || !data[0].email) {
-        return { error: "No approved VIP access found for this phone number." };
-      }
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data[0].email,
+        email: emailOrPhone.trim(),
         password,
       });
       if (error) return { error: error.message };
       return {};
     }
+
+    const result = await lookupApprovedAccess(undefined, emailOrPhone);
+    if (!result.approved || !result.email) {
+      return { error: "No approved VIP access found for this phone number." };
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: result.email,
+      password,
+    });
+    if (error) return { error: error.message };
+    return {};
   }, []);
 
   const logoutVip = useCallback(() => {

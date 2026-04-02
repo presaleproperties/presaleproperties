@@ -45,12 +45,14 @@ export function setApprovedEmail(email: string) {
 }
 
 export async function checkAccess(listingId: string, email: string): Promise<boolean> {
-  const { data } = await supabase
-    .from("off_market_access")
-    .select("status")
-    .eq("listing_id", listingId)
-    .eq("email", email)
-    .eq("status", "approved")
-    .maybeSingle();
-  return !!data;
+  const { data, error } = await supabase.functions.invoke("check-vip-access", {
+    body: { listingId, email },
+  });
+
+  if (error) {
+    console.warn("[OffMarketAccess]", error.message);
+    return false;
+  }
+
+  return !!data?.approved;
 }
