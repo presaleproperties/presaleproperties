@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Users, Lock } from "lucide-react";
+import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Users, Lock, LogIn, LogOut as LogOutIcon, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -20,6 +20,7 @@ import {
 import { useScrollHeader } from "@/hooks/useScrollHeader";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { useVipAuth } from "@/hooks/useVipAuth";
 
 // City links for condos (primary navigation)
 const CONDO_CITY_LINKS = [
@@ -74,6 +75,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
   // Scroll-based header visibility for mobile/tablet
   const { isVisible } = useScrollHeader({ threshold: 100, sensitivity: 8 });
   const isMobileOrTablet = useIsMobileOrTablet();
+  const { isVipLoggedIn, vipEmail, logoutVip } = useVipAuth();
 
   // Track scroll position for transparent header mode
   useEffect(() => {
@@ -321,6 +323,38 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
           {/* ── Desktop CTA ── */}
           <div className="hidden lg:flex items-center gap-2.5">
+            {/* VIP Login/Status */}
+            {isVipLoggedIn ? (
+              <div className="flex items-center gap-1.5">
+                <Link
+                  to="/off-market"
+                  className="h-9 px-3.5 flex items-center gap-1.5 text-[13px] font-semibold rounded-lg bg-primary/8 text-primary transition-all duration-150 hover:bg-primary/15"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  VIP
+                </Link>
+                <button
+                  onClick={logoutVip}
+                  className="h-9 px-2.5 flex items-center gap-1.5 text-[12px] font-medium rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04] transition-all duration-150"
+                  title="Sign out of VIP"
+                >
+                  <LogOutIcon className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/vip-login"
+                className={cn(
+                  "h-9 px-3.5 flex items-center gap-1.5 text-[13px] font-semibold rounded-lg transition-all duration-150",
+                  isActive("/vip-login")
+                    ? "text-primary bg-primary/8"
+                    : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.04]"
+                )}
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                VIP Login
+              </Link>
+            )}
             {/* Ghost Map link */}
             <Link
               to="/map-search"
@@ -492,6 +526,40 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                         <span className="text-lg font-semibold text-foreground">Off-Market</span>
                         <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-full leading-none">VIP</span>
                       </Link>
+
+                      <div className="h-px bg-border/40 my-1" />
+
+                      {/* VIP Login/Status - Mobile */}
+                      {isVipLoggedIn ? (
+                        <div className="flex items-center justify-between py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <ShieldCheck className="h-4 w-4 text-primary" />
+                            </div>
+                            <div>
+                              <span className="text-base font-semibold text-foreground">VIP Access</span>
+                              <p className="text-xs text-muted-foreground truncate max-w-[180px]">{vipEmail}</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => { logoutVip(); setOpen(false); }}
+                            className="text-sm text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-secondary/60 transition-colors"
+                          >
+                            Sign Out
+                          </button>
+                        </div>
+                      ) : (
+                        <Link
+                          to="/vip-login"
+                          onClick={() => setOpen(false)}
+                          className="flex items-center gap-3 py-4"
+                        >
+                          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <LogIn className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="text-lg font-semibold text-foreground">VIP Login</span>
+                        </Link>
+                      )}
 
                       <div className="h-px bg-border/40 my-1" />
 

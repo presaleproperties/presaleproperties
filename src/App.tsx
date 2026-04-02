@@ -22,6 +22,7 @@ import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
 import { MetaPixel } from "@/components/tracking/MetaPixel";
 import { GA4Tracker } from "@/components/tracking/GA4Tracker";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
+import { VipAuthProvider } from "@/hooks/useVipAuth";
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { PropertiesSlugDispatcher } from "@/components/routing/PropertiesSlugDispatcher";
 import { Suspense, lazy } from "react";
@@ -110,6 +111,7 @@ const AdminOffMarketAnalytics = lazy(() => import("./pages/admin/AdminOffMarketA
 const DeveloperOffMarketWizard = lazy(() => import("./pages/developer/DeveloperOffMarketWizard"));
 const OffMarketPage = lazy(() => import("./pages/OffMarketPage"));
 const OffMarketDetailPage = lazy(() => import("./pages/OffMarketDetailPage"));
+const VipLoginPage = lazy(() => import("./pages/VipLoginPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
 const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
@@ -175,6 +177,7 @@ const App = () => (
     <ThemeProvider>
     <AuthProvider>
       <BuyerAuthProvider>
+      <VipAuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -294,6 +297,7 @@ const App = () => (
             {/* Off-Market Inventory */}
             <Route path="/off-market" element={<OffMarketPage />} />
             <Route path="/off-market/:slug" element={<OffMarketDetailPage />} />
+            <Route path="/vip-login" element={<VipLoginPage />} />
             
             {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />
@@ -508,6 +512,7 @@ const App = () => (
           </SwipeNavigationProvider>
         </BrowserRouter>
       </TooltipProvider>
+      </VipAuthProvider>
       </BuyerAuthProvider>
     </AuthProvider>
     </ThemeProvider>

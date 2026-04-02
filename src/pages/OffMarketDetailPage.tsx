@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { trackOffMarketEvent, getApprovedEmail, checkAccess } from "@/lib/offMarketAnalytics";
+import { useVipAuth } from "@/hooks/useVipAuth";
 import { UnlockModal } from "@/components/off-market/UnlockModal";
 import {
   Building2, MapPin, Calendar, Download, MessageCircle, Phone, Lock, Gift,
@@ -38,6 +39,7 @@ const statusColors: Record<string, string> = {
 export default function OffMarketDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { isVipApproved } = useVipAuth();
   const [listing, setListing] = useState<any>(null);
   const [project, setProject] = useState<any>(null);
   const [units, setUnits] = useState<any[]>([]);
@@ -72,20 +74,24 @@ export default function OffMarketDetailPage() {
     setListing(listingData);
     trackOffMarketEvent("listing_view", listingData.id);
 
-    // Check access
-    const email = getApprovedEmail();
-    if (email) {
-      const approved = await checkAccess(listingData.id, email);
-      setHasAccess(approved);
-      if (!approved) {
+    // Check access - VIP approved users get instant access to all
+    if (isVipApproved) {
+      setHasAccess(true);
+    } else {
+      const email = getApprovedEmail();
+      if (email) {
+        const approved = await checkAccess(listingData.id, email);
+        setHasAccess(approved);
+        if (!approved) {
+          setShowUnlock(true);
+          setLoading(false);
+          return;
+        }
+      } else {
         setShowUnlock(true);
         setLoading(false);
         return;
       }
-    } else {
-      setShowUnlock(true);
-      setLoading(false);
-      return;
     }
 
     // Get project info

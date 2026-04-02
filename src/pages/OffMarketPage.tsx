@@ -14,6 +14,7 @@ import { UnlockModal } from "@/components/off-market/UnlockModal";
 import { supabase } from "@/integrations/supabase/client";
 import { trackOffMarketEvent, getApprovedEmail, checkAccess } from "@/lib/offMarketAnalytics";
 import { Lock, ChevronDown, X, MessageCircle, Phone, SlidersHorizontal } from "lucide-react";
+import { useVipAuth } from "@/hooks/useVipAuth";
 
 interface OffMarketListing {
   id: string;
@@ -40,6 +41,7 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export default function OffMarketPage() {
   const navigate = useNavigate();
+  const { isVipLoggedIn, isVipApproved } = useVipAuth();
   const [searchParams] = useSearchParams();
   const [listings, setListings] = useState<OffMarketListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,14 +126,21 @@ export default function OffMarketPage() {
       setMinPriceMap(priceMap);
     }
 
-    // Check access for stored email
-    const email = getApprovedEmail();
-    if (email) {
+    // If VIP approved, grant access to all listings
+    if (isVipApproved) {
       const accMap: Record<string, boolean> = {};
-      for (const item of items) {
-        accMap[item.id] = await checkAccess(item.id, email);
-      }
+      items.forEach((item) => { accMap[item.id] = true; });
       setAccessMap(accMap);
+    } else {
+      // Check access for stored email
+      const email = getApprovedEmail();
+      if (email) {
+        const accMap: Record<string, boolean> = {};
+        for (const item of items) {
+          accMap[item.id] = await checkAccess(item.id, email);
+        }
+        setAccessMap(accMap);
+      }
     }
 
     setLoading(false);
@@ -422,8 +431,14 @@ export default function OffMarketPage() {
                 listing={listing}
                 projectData={projectDataMap[listing.linked_project_slug]}
                 minPrice={minPriceMap[listing.id]}
-                hasAccess={!!accessMap[listing.id]}
-                onUnlock={() => setUnlockListing(listing)}
+                hasAccess={isVipApproved || !!accessMap[listing.id]}
+                onUnlock={() => {
+                  if (isVipApproved) {
+                    navigate(`/off-market/${listing.linked_project_slug}`);
+                  } else {
+                    setUnlockListing(listing);
+                  }
+                }}
                 onViewDetails={() => navigate(`/off-market/${listing.linked_project_slug}`)}
               />
             ))}
