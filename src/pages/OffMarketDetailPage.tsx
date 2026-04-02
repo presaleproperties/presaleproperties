@@ -458,18 +458,21 @@ export default function OffMarketDetailPage() {
         )}
       </div>
 
+      {/* Spacer for mobile sticky CTA */}
+      <div className="h-20 md:hidden" aria-hidden="true" />
+
       {/* Sticky mobile CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#141414] border-t border-[#1e1e1e] p-3 flex items-center gap-2 md:hidden">
-        <Button size="sm" className="flex-1" asChild onClick={() => trackOffMarketEvent("whatsapp_click", listing?.id)}>
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.15)] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center gap-2 md:hidden">
+        <Button size="sm" className="flex-1 h-11 rounded-xl font-semibold" asChild onClick={() => trackOffMarketEvent("whatsapp_click", listing?.id)}>
           <a href={`https://wa.me/16722581100?text=Hi! I'm interested in ${listing?.linked_project_name} off-market units`} target="_blank" rel="noopener noreferrer">
             <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
           </a>
         </Button>
-        <Button size="sm" variant="outline" className="flex-1" asChild onClick={() => trackOffMarketEvent("call_click", listing?.id)}>
+        <Button size="sm" variant="outline" className="flex-1 h-11 rounded-xl font-semibold" asChild onClick={() => trackOffMarketEvent("call_click", listing?.id)}>
           <a href="tel:6722581100"><Phone className="h-4 w-4 mr-1" /> Call</a>
         </Button>
         {listing?.pricing_sheet_url && (
-          <Button size="sm" variant="outline" asChild onClick={() => trackOffMarketEvent("pricing_download", listing?.id)}>
+          <Button size="sm" variant="outline" className="h-11 rounded-xl" asChild onClick={() => trackOffMarketEvent("pricing_download", listing?.id)}>
             <a href={listing.pricing_sheet_url} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a>
           </Button>
         )}
