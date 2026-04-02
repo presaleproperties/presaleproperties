@@ -179,7 +179,7 @@ export default function Assignments() {
     setSearchParams(next, { replace: true });
   };
 
-  const { data: listings = [], isLoading } = useQuery({
+  const { data: listings = [], isLoading, isError } = useQuery({
     queryKey: ["assignments-browse"],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
@@ -187,9 +187,14 @@ export default function Assignments() {
         .select("id, title, project_name, city, neighborhood, assignment_price, original_price, beds, baths, interior_sqft, featured_image, photos, status, unit_number, estimated_completion, exposure")
         .eq("status", "published")
         .order("created_at", { ascending: false });
-      if (error) throw error;
+      if (error) {
+        console.error("Assignments fetch error:", error);
+        throw error;
+      }
       return (data || []) as Assignment[];
     },
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
   });
 
   const selectedPriceRange = PRICE_RANGES.find((r) => r.label === priceFilter) || PRICE_RANGES[0];
