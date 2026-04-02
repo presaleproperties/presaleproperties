@@ -217,17 +217,19 @@ export function WizardStep3({ form, setForm, units, saving, onBack, onSaveDraft,
                     <tr className="bg-card border-b border-border">
                       {[
                         { key: "unit_number", label: "Unit #" },
+                        { key: "unit_name", label: "Plan" },
                         { key: "unit_type", label: "Type" },
                         { key: "bedrooms", label: "Beds" },
                         { key: "bathrooms", label: "Baths" },
                         { key: "sqft", label: "SqFt" },
                         { key: "price", label: "Price" },
+                        { key: "incentive", label: "Incentive" },
                         { key: "status", label: "Status" },
                       ].map(({ key, label }) => (
                         <th
                           key={key}
                           className="px-3 py-2.5 text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground whitespace-nowrap"
-                          onClick={() => handleSort(key)}
+                          onClick={() => key !== "incentive" && handleSort(key)}
                         >
                           <span className="flex items-center gap-1">
                             {label}
