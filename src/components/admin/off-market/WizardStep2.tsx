@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,11 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Upload, Pencil, Trash2, Loader2, Sparkles, FileUp, X, Download, Building2, CheckCircle2, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import type { OffMarketUnit } from "./types";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 const UNIT_TYPES = ["Studio", "1BR", "1BR+Den", "2BR", "2BR+Den", "3BR", "3BR+Den", "Townhome", "Penthouse", "Other"];
 
@@ -47,6 +51,21 @@ const STATUS_COLORS: Record<string, string> = {
   hold: "bg-muted text-muted-foreground",
 };
 
+/** Renders the first page of a PDF File to a data URL for preview */
+async function renderPdfToImage(file: File): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const page = await pdf.getPage(1);
+  const scale = 2;
+  const viewport = page.getViewport({ scale });
+  const canvas = document.createElement("canvas");
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  const ctx = canvas.getContext("2d")!;
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  return canvas.toDataURL("image/png");
+}
+
 interface Props {
   units: OffMarketUnit[];
   setUnits: (u: OffMarketUnit[]) => void;
@@ -60,21 +79,20 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [isPdf, setIsPdf] = useState(false);
-  const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dialogFileRef = useRef<HTMLInputElement>(null);
   const csvRef = useRef<HTMLInputElement>(null);
 
-  const openAdd = () => { setEditUnit({ ...emptyUnit }); setEditIndex(null); setUploadedImage(null); setLocalPreview(null); setIsPdf(false); setDialogOpen(true); };
+  const resetPreview = () => setPreviewDataUrl(null);
+
+  const openAdd = () => { setEditUnit({ ...emptyUnit }); setEditIndex(null); resetPreview(); setDialogOpen(true); };
   const openEdit = (i: number) => {
     const u = units[i];
     setEditUnit({ ...u });
     setEditIndex(i);
-    setUploadedImage(u.floorplan_url || null);
-    setLocalPreview(null);
-    setIsPdf(u.floorplan_url ? u.floorplan_url.toLowerCase().includes('.pdf') : false);
+    // If editing an existing unit with a floorplan, show it
+    setPreviewDataUrl(u.floorplan_url || null);
     setDialogOpen(true);
   };
 
@@ -87,7 +105,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
     if (editIndex !== null) { updated[editIndex] = editUnit; } else { updated.push(editUnit); }
     setUnits(updated);
     setDialogOpen(false);
-    setLocalPreview(null);
+    resetPreview();
     toast.success(editIndex !== null ? "Unit updated" : "Unit added");
   };
 
@@ -101,11 +119,19 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
     }
 
     const filePdf = file.type === "application/pdf";
-    setIsPdf(filePdf);
 
-    // Show instant local preview for both images and PDFs
-    const objectUrl = URL.createObjectURL(file);
-    setLocalPreview(objectUrl);
+    // Generate instant local preview
+    if (filePdf) {
+      try {
+        const dataUrl = await renderPdfToImage(file);
+        setPreviewDataUrl(dataUrl);
+      } catch {
+        // Fallback — at least show something
+        setPreviewDataUrl(null);
+      }
+    } else {
+      setPreviewDataUrl(URL.createObjectURL(file));
+    }
 
     setExtracting(true);
     try {
@@ -115,8 +141,6 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
       if (uploadErr) throw uploadErr;
       const { data: urlData } = supabase.storage.from("off-market-floorplans").getPublicUrl(path);
       const fileUrl = urlData.publicUrl;
-
-      setUploadedImage(fileUrl);
 
       const { data, error } = await supabase.functions.invoke("extract-floor-plan", {
         body: { fileUrl, fileName: file.name },
@@ -137,7 +161,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
           unit_name: extracted.floor_plan_name || prev.unit_name,
           floorplan_url: fileUrl,
         } : prev);
-        toast.success("✨ AI extracted floor plan details — review below");
+        toast.success("AI extracted floor plan details — review below");
       } else {
         setEditUnit(prev => prev ? { ...prev, floorplan_url: fileUrl } : prev);
         toast.info("Floor plan uploaded — fill in unit details below");
@@ -157,9 +181,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
       if (!dialogOpen) {
         setEditUnit({ ...emptyUnit });
         setEditIndex(null);
-        setUploadedImage(null);
-        setLocalPreview(null);
-        setIsPdf(false);
+        resetPreview();
         setDialogOpen(true);
       }
       setTimeout(() => handleFloorPlanFile(file), 100);
@@ -172,8 +194,8 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
   }, []);
 
   const downloadTemplate = () => {
-    const headers = "unit_number,unit_type,bedrooms,bathrooms,sqft,price,parking_included,storage_included,locker_included,status\n";
-    const sample = '101,1BR,1,1,550,450000,false,false,false,available\n';
+    const headers = "unit_number,unit_type,bedrooms,bathrooms,sqft,price,parking_included,storage_included,status\n";
+    const sample = '101,1BR,1,1,550,450000,false,false,available\n';
     const blob = new Blob([headers + sample], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "off-market-units-template.csv"; a.click();
@@ -202,7 +224,6 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
           price: parseFloat(get("price")) || 0,
           parking_included: get("parking_included") === "true",
           storage_included: get("storage_included") === "true",
-          locker_included: get("locker_included") === "true",
           status: get("status") || "available",
           display_order: units.length + i - 1,
         });
@@ -213,12 +234,6 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
     reader.readAsText(file);
     if (csvRef.current) csvRef.current.value = "";
   };
-
-  // Determine what to show as floor plan preview
-  const previewUrl = localPreview || uploadedImage;
-  const showPdfPreview = isPdf && !!previewUrl;
-  // For PDFs, prefer localPreview (blob URL) which avoids CORS; fall back to remote URL
-  const pdfEmbedUrl = localPreview || uploadedImage || "";
 
   return (
     <div
@@ -265,9 +280,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
               if (!dialogOpen) {
                 setEditUnit({ ...emptyUnit });
                 setEditIndex(null);
-                setUploadedImage(null);
-                setLocalPreview(null);
-                setIsPdf(false);
+                resetPreview();
                 setDialogOpen(true);
               }
               setTimeout(() => handleFloorPlanFile(f), 100);
@@ -347,7 +360,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
       )}
 
       {/* Unit Form Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setLocalPreview(null); } setDialogOpen(open); }}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetPreview(); setDialogOpen(open); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -360,7 +373,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
               {/* Floor plan preview / upload area */}
               <div
                 className={`rounded-xl border-2 border-dashed transition-all overflow-hidden ${
-                  previewUrl ? "border-primary/30 bg-primary/5" : "border-border/50 hover:border-primary/30"
+                  previewDataUrl ? "border-primary/30 bg-primary/5" : "border-border/50 hover:border-primary/30"
                 }`}
                 onDrop={(e) => {
                   e.preventDefault();
@@ -370,23 +383,26 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                 }}
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
               >
-                {extracting && !previewUrl ? (
+                {extracting && !previewDataUrl ? (
                   <div className="flex flex-col items-center justify-center gap-3 py-8">
-                    <div className="relative">
-                      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                      </div>
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
                     <div className="text-center">
                       <p className="text-sm font-medium">AI is reading your floor plan...</p>
                       <p className="text-xs text-muted-foreground">This takes a few seconds</p>
                     </div>
                   </div>
-                ) : previewUrl && !showPdfPreview ? (
+                ) : previewDataUrl ? (
                   <div className="relative group">
-                    <img src={previewUrl} className="w-full max-h-80 object-contain bg-white p-3 rounded-t-xl" alt="Floor plan" />
+                    <img
+                      src={previewDataUrl}
+                      className="w-full max-h-96 object-contain bg-white p-3"
+                      alt="Floor plan preview"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
                     {extracting && (
-                      <div className="absolute inset-0 bg-background/60 flex items-center justify-center rounded-t-xl">
+                      <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
                         <div className="flex items-center gap-2 bg-background/90 rounded-lg px-4 py-2 shadow-lg">
                           <Loader2 className="h-4 w-4 animate-spin text-primary" />
                           <span className="text-sm font-medium">AI extracting details...</span>
@@ -397,58 +413,21 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                       variant="secondary"
                       size="sm"
                       className="absolute top-2 right-2 h-7 w-7 p-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => { setUploadedImage(null); setLocalPreview(null); setEditUnit({ ...editUnit!, floorplan_url: "" }); }}
+                      onClick={() => { resetPreview(); setEditUnit({ ...editUnit!, floorplan_url: "" }); }}
                     >
                       <X className="h-3.5 w-3.5" />
                     </Button>
                     {!extracting && (
-                      <div className="px-3 py-2 flex items-center gap-2 text-xs text-muted-foreground bg-muted/60">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Floor plan uploaded
+                      <div className="px-3 py-2 flex items-center gap-2 text-xs text-muted-foreground bg-muted/50">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Floor plan uploaded — review details below
                       </div>
                     )}
-                  </div>
-                ) : showPdfPreview ? (
-                  <div className="relative group bg-card">
-                    <div className="border-b border-border/50 px-3 py-2 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <FileUp className="h-4 w-4 text-primary flex-shrink-0" />
-                        <p className="text-sm font-medium truncate">PDF Floor Plan Preview</p>
-                      </div>
-                      {!extracting && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Ready
-                        </div>
-                      )}
-                    </div>
-                    <div className="relative bg-white">
-                      <iframe
-                        src={pdfEmbedUrl}
-                        title="Floor plan PDF preview"
-                        className="w-full h-[420px]"
-                      />
-                      {extracting && (
-                        <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
-                          <div className="flex items-center gap-2 bg-background/90 rounded-lg px-4 py-2 shadow-lg">
-                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                            <span className="text-sm font-medium">AI extracting details...</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="absolute top-2 right-2 h-7 w-7 p-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => { setUploadedImage(null); setLocalPreview(null); setIsPdf(false); setEditUnit({ ...editUnit!, floorplan_url: "" }); }}
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </Button>
                   </div>
                 ) : (
                   <label className="cursor-pointer block py-6 text-center hover:bg-muted/30 transition-colors">
                     <Sparkles className="h-7 w-7 text-primary mx-auto mb-2" />
                     <p className="text-sm font-medium">Drop floor plan or click to upload</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">AI auto-fills unit details • JPG, PNG, PDF</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">AI auto-fills unit details — JPG, PNG, PDF</p>
                     <input
                       ref={dialogFileRef}
                       type="file"
@@ -464,7 +443,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                 )}
               </div>
 
-              {/* Unit fields - grouped logically */}
+              {/* Unit fields */}
               <div className="space-y-4">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unit Information</p>
                 <div className="grid grid-cols-2 gap-3">
@@ -514,14 +493,13 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                 </div>
               </div>
 
-              {/* Toggles - compact row */}
+              {/* Toggles */}
               <div className="space-y-3">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Inclusions</p>
                 <div className="flex flex-wrap gap-x-5 gap-y-2">
                   {[
                     { key: "parking_included" as const, label: "Parking" },
                     { key: "storage_included" as const, label: "Storage" },
-                    { key: "locker_included" as const, label: "Locker" },
                   ].map(({ key, label }) => (
                     <label key={key} className="flex items-center gap-2 cursor-pointer">
                       <Switch checked={editUnit[key]} onCheckedChange={v => setEditUnit({ ...editUnit, [key]: v })} />
@@ -583,7 +561,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
 
               {/* Actions */}
               <div className="flex justify-end gap-2 pt-3 border-t border-border/50">
-                <Button variant="outline" onClick={() => { setDialogOpen(false); setLocalPreview(null); }} className="rounded-xl">Cancel</Button>
+                <Button variant="outline" onClick={() => { setDialogOpen(false); resetPreview(); }} className="rounded-xl">Cancel</Button>
                 <Button onClick={saveUnit} className="rounded-xl shadow-gold font-bold px-6" disabled={extracting}>
                   {extracting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                   {editIndex !== null ? "Update Unit" : "Add Unit"}
