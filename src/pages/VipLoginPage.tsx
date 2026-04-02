@@ -76,32 +76,16 @@ export default function VipLoginPage() {
       return;
     }
 
-    // Generate and store verification code
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 min
+    // Send verification code via the existing edge function (it generates, stores, and emails the code)
+    const { data: sendResult, error: sendError } = await supabase.functions.invoke("send-verification-code", {
+      body: { email: email.toLowerCase().trim() },
+    });
 
-    const { error: codeError } = await supabase
-      .from("email_verification_codes")
-      .insert({
-        email: email.toLowerCase().trim(),
-        code: verificationCode,
-        expires_at: expiresAt,
-      });
-
-    if (codeError) {
+    if (sendError) {
+      console.error("Verification send error:", sendError);
       toast.error("Failed to send verification code. Please try again.");
       setLoading(false);
       return;
-    }
-
-    // Send verification email via edge function
-    try {
-      await supabase.functions.invoke("send-vip-verification", {
-        body: { email: email.toLowerCase().trim(), code: verificationCode },
-      });
-    } catch {
-      // If edge function doesn't exist, still proceed - code is in DB
-      console.warn("Verification email send failed - user can check DB or retry");
     }
 
     toast.success("Verification code sent to your email!");
