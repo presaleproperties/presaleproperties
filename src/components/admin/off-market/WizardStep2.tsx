@@ -316,12 +316,19 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                   </div>
                 ) : uploadedImage ? (
                   <div className="relative">
-                    <img src={uploadedImage} className="max-h-48 mx-auto rounded-lg object-contain bg-white p-2" alt="Floor plan" />
+                    {uploadedImage.match(/\.(pdf)$/i) ? (
+                      <div className="py-4 flex flex-col items-center gap-2">
+                        <FileUp className="h-10 w-10 text-primary" />
+                        <p className="text-sm font-medium">Floor plan PDF uploaded</p>
+                      </div>
+                    ) : (
+                      <img src={uploadedImage} className="max-h-48 mx-auto rounded-lg object-contain bg-white p-2" alt="Floor plan" />
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
                       className="absolute top-1 right-1 h-6 w-6 p-0"
-                      onClick={() => { setUploadedImage(null); setEditUnit({ ...editUnit, floorplan_url: "" }); }}
+                      onClick={() => { setUploadedImage(null); setEditUnit({ ...editUnit!, floorplan_url: "" }); }}
                     >
                       <X className="h-4 w-4" />
                     </Button>
