@@ -39,6 +39,7 @@ const statusColors: Record<string, string> = {
 export default function OffMarketDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { isVipApproved } = useVipAuth();
   const [listing, setListing] = useState<any>(null);
   const [project, setProject] = useState<any>(null);
   const [units, setUnits] = useState<any[]>([]);
