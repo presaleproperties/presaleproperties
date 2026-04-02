@@ -9,15 +9,23 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useVipAuth } from "@/hooks/useVipAuth";
-import { Lock, ArrowRight, CheckCircle, Loader2, ShieldCheck, Mail } from "lucide-react";
+import { Lock, ArrowRight, CheckCircle, Loader2, ShieldCheck, Phone, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
+function formatPhoneDisplay(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  const d = digits.startsWith("1") && digits.length > 10 ? digits.slice(1) : digits;
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`;
+}
+
 export default function VipLoginPage() {
   const navigate = useNavigate();
-  const { loginVip, isVipLoggedIn, vipEmail, logoutVip } = useVipAuth();
-  const [step, setStep] = useState<"email" | "code" | "success">("email");
-  const [email, setEmail] = useState("");
+  const { loginVip, isVipLoggedIn, vipPhone, logoutVip } = useVipAuth();
+  const [step, setStep] = useState<"phone" | "code" | "success">("phone");
+  const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -37,7 +45,7 @@ export default function VipLoginPage() {
               </div>
               <CardTitle className="text-2xl">VIP Access Active</CardTitle>
               <CardDescription>
-                You're logged in as <span className="font-semibold text-foreground">{vipEmail}</span>
+                You're logged in as <span className="font-semibold text-foreground">{vipPhone}</span>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -56,39 +64,46 @@ export default function VipLoginPage() {
     );
   }
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 10) {
+      toast.error("Please enter a valid 10-digit phone number.");
+      return;
+    }
     setLoading(true);
 
-    // Check if email has any approved access
+    // Normalize for lookup
+    const normalized = digits.length === 10 ? `+1${digits}` : `+${digits}`;
+
+    // Check if phone has any approved access (check multiple formats)
     const { data: accessData } = await supabase
       .from("off_market_access")
       .select("id")
-      .eq("email", email.toLowerCase().trim())
       .eq("status", "approved")
+      .or(`phone.eq.${normalized},phone.eq.${digits},phone.eq.(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`)
       .limit(1)
       .maybeSingle();
 
     if (!accessData) {
-      toast.error("No approved VIP access found for this email. Please request access first.");
+      toast.error("No approved VIP access found for this phone number. Please request access first.");
       setLoading(false);
       return;
     }
 
-    // Send verification code via the existing edge function (it generates, stores, and emails the code)
-    const { data: sendResult, error: sendError } = await supabase.functions.invoke("send-verification-code", {
-      body: { email: email.toLowerCase().trim() },
+    // Send SMS verification code via existing edge function
+    const { error: sendError } = await supabase.functions.invoke("send-sms-otp", {
+      body: { phone: normalized },
     });
 
     if (sendError) {
-      console.error("Verification send error:", sendError);
+      console.error("SMS send error:", sendError);
       toast.error("Failed to send verification code. Please try again.");
       setLoading(false);
       return;
     }
 
-    toast.success("Verification code sent to your email!");
+    toast.success("Verification code sent via SMS!");
     setStep("code");
     setLoading(false);
   };
@@ -97,36 +112,42 @@ export default function VipLoginPage() {
     if (code.length !== 6) return;
     setLoading(true);
 
-    const { data: codeData } = await supabase
-      .from("email_verification_codes")
-      .select("*")
-      .eq("email", email.toLowerCase().trim())
-      .eq("code", code)
-      .is("verified_at", null)
-      .gte("expires_at", new Date().toISOString())
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const digits = phone.replace(/\D/g, "");
+    const normalized = digits.length === 10 ? `+1${digits}` : `+${digits}`;
 
-    if (!codeData) {
-      toast.error("Invalid or expired code. Please try again.");
+    const { data, error } = await supabase.functions.invoke("verify-sms-otp", {
+      body: { phone: normalized, code },
+    });
+
+    if (error || data?.error) {
+      toast.error(data?.error || "Invalid or expired code. Please try again.");
+      setCode("");
       setLoading(false);
       return;
     }
 
-    // Mark code as verified
-    await supabase
-      .from("email_verification_codes")
-      .update({ verified_at: new Date().toISOString() })
-      .eq("id", codeData.id);
-
-    loginVip(email.toLowerCase().trim());
+    loginVip(normalized);
     setStep("success");
     setLoading(false);
     toast.success("VIP access activated!");
 
-    // Redirect after brief delay
     setTimeout(() => navigate("/off-market"), 1500);
+  };
+
+  const handleResend = async () => {
+    const digits = phone.replace(/\D/g, "");
+    const normalized = digits.length === 10 ? `+1${digits}` : `+${digits}`;
+    setLoading(true);
+    const { error } = await supabase.functions.invoke("send-sms-otp", {
+      body: { phone: normalized },
+    });
+    if (error) {
+      toast.error("Failed to resend code.");
+    } else {
+      toast.success("New code sent!");
+      setCode("");
+    }
+    setLoading(false);
   };
 
   return (
@@ -144,26 +165,27 @@ export default function VipLoginPage() {
             </div>
             <CardTitle className="text-2xl">VIP Login</CardTitle>
             <CardDescription>
-              {step === "email" && "Enter the email you used to request off-market access."}
-              {step === "code" && "Enter the 6-digit code sent to your email."}
+              {step === "phone" && "Enter the phone number you used to request off-market access."}
+              {step === "code" && "Enter the 6-digit code sent to your phone."}
               {step === "success" && "Welcome back! Redirecting..."}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {step === "email" && (
-              <form onSubmit={handleEmailSubmit} className="space-y-4">
+            {step === "phone" && (
+              <form onSubmit={handlePhoneSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="vip-email">Email Address</Label>
+                  <Label htmlFor="vip-phone">Phone Number</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="vip-email"
-                      type="email"
-                      autoComplete="email"
-                      placeholder="you@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
+                      id="vip-phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      placeholder="(604) 555-0123"
+                      value={phone}
+                      onChange={(e) => setPhone(formatPhoneDisplay(e.target.value))}
+                      className="pl-10 text-[16px]"
                       required
                     />
                   </div>
@@ -185,8 +207,8 @@ export default function VipLoginPage() {
             {step === "code" && (
               <div className="space-y-5">
                 <div className="flex flex-col items-center gap-3">
-                  <p className="text-sm text-muted-foreground">Code sent to <span className="font-medium text-foreground">{email}</span></p>
-                  <InputOTP maxLength={6} value={code} onChange={setCode}>
+                  <p className="text-sm text-muted-foreground">Code sent to <span className="font-medium text-foreground">{phone}</span></p>
+                  <InputOTP maxLength={6} value={code} onChange={setCode} autoFocus>
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
                       <InputOTPSlot index={1} />
@@ -201,13 +223,23 @@ export default function VipLoginPage() {
                   {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                   Verify & Login
                 </Button>
-                <button
-                  type="button"
-                  className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={() => { setStep("email"); setCode(""); }}
-                >
-                  ← Use a different email
-                </button>
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={() => { setStep("phone"); setCode(""); }}
+                  >
+                    ← Change number
+                  </button>
+                  <button
+                    type="button"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                    onClick={handleResend}
+                    disabled={loading}
+                  >
+                    <RefreshCw className="h-3 w-3" /> Resend
+                  </button>
+                </div>
               </div>
             )}
 
