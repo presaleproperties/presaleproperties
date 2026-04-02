@@ -74,6 +74,7 @@ const navSections = [
       { href: "/admin/off-market/access",        label: "Unlock Requests",  icon: Users,        badgeKey: null },
       { href: "/admin/off-market/developers",    label: "Dev Accounts",     icon: UserCheck2,   badgeKey: null },
       { href: "/admin/off-market/submissions",   label: "Submissions",      icon: Send,         badgeKey: null },
+      { href: "/admin/off-market/analytics",     label: "OM Analytics",     icon: BarChart3,    badgeKey: null },
       { href: "/admin/developers",               label: "Developers",       icon: Landmark,     badgeKey: null },
       { href: "/developer",                      label: "Developer Portal", icon: Presentation, badgeKey: null },
     ],
