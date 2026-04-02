@@ -320,9 +320,6 @@ export default function AdminOffMarket() {
                               <Building2 className="h-8 w-8 text-muted-foreground/30" />
                             </div>
                           )}
-                          <Badge className={`absolute top-2 left-2 ${statusColors[l.status || "draft"]} border-0 text-[10px] rounded-md capitalize`}>
-                            {(l.status || "draft").replace("_", " ")}
-                          </Badge>
                         </div>
 
                         {/* Content */}
