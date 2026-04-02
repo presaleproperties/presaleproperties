@@ -42,6 +42,7 @@ export default function OffMarketPage() {
   const [searchParams] = useSearchParams();
   const [listings, setListings] = useState<OffMarketListing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [projectDataMap, setProjectDataMap] = useState<Record<string, any>>({});
   const [minPriceMap, setMinPriceMap] = useState<Record<string, number>>({});
   const [accessMap, setAccessMap] = useState<Record<string, boolean>>({});
@@ -75,14 +76,16 @@ export default function OffMarketPage() {
 
   async function fetchListings() {
     setLoading(true);
-    const { data, error } = await supabase
+    setError(null);
+    const { data, error: fetchError } = await supabase
       .from("off_market_listings")
       .select("id, linked_project_name, linked_project_slug, developer_name, available_units, total_units, construction_stage, access_level, auto_approve_access, status")
       .eq("status", "published")
       .order("published_at", { ascending: false });
 
-    if (error) {
-      console.error(error);
+    if (fetchError) {
+      console.error(fetchError);
+      setError("Failed to load listings. Please try again.");
       setLoading(false);
       return;
     }
@@ -372,6 +375,11 @@ export default function OffMarketPage() {
               </div>
             ))}
           </div>
+        ) : error ? (
+          <div className="text-center py-20 space-y-4">
+            <p className="text-destructive font-medium">{error}</p>
+            <Button variant="outline" onClick={fetchListings}>Retry</Button>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 space-y-4">
             <Lock className="h-12 w-12 text-muted-foreground/30 mx-auto" />
@@ -404,8 +412,22 @@ export default function OffMarketPage() {
         )}
       </section>
 
+      {/* Mobile Sticky CTA Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-md border-t border-border p-3 flex gap-2 safe-area-bottom">
+        <Button className="flex-1 h-11" asChild onClick={() => trackOffMarketEvent("whatsapp_click")}>
+          <a href="https://wa.me/16722581100?text=Hi! I'm interested in off-market inventory" target="_blank" rel="noopener noreferrer">
+            <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
+          </a>
+        </Button>
+        <Button variant="outline" className="flex-1 h-11" asChild onClick={() => trackOffMarketEvent("call_click")}>
+          <a href="tel:6722581100">
+            <Phone className="h-4 w-4 mr-1" /> Call
+          </a>
+        </Button>
+      </div>
+
       {/* Bottom CTA */}
-      <section className="max-w-3xl mx-auto px-4 pb-16">
+      <section className="max-w-3xl mx-auto px-4 pb-16 md:pb-16 pb-28">
         <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 p-8 text-center space-y-4">
           <h2 className="text-2xl font-bold">Want personalized recommendations?</h2>
           <p className="text-muted-foreground">
