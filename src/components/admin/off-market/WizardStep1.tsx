@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,19 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Building2, MapPin, Calendar, Search, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { Building2, MapPin, Calendar, Search, ExternalLink, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import type { OffMarketListingForm } from "./types";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 
-// Fix leaflet default icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
+const ProjectLocationMap = lazy(() => import("./ProjectLocationMap"));
 
 interface Props {
   form: OffMarketListingForm;
@@ -29,15 +20,6 @@ interface Props {
   projectPreview: any;
   setProjectPreview: (p: any) => void;
   onNext: () => void;
-}
-
-function DraggableMarker({ position, onMove }: { position: [number, number]; onMove: (lat: number, lng: number) => void }) {
-  useMapEvents({
-    click(e) {
-      onMove(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return <Marker position={position} />;
 }
 
 export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, onNext }: Props) {
@@ -208,28 +190,14 @@ export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, 
                 <MapPin className="h-5 w-5 text-primary" /> Confirm Project Location
               </h3>
               <p className="text-xs text-muted-foreground mb-3">Click the map to adjust the pin location if needed.</p>
-              <div className="rounded-xl overflow-hidden border border-border/50 h-[250px]">
-                <MapContainer
+              <Suspense fallback={<div className="h-[250px] rounded-xl bg-muted flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
+                <ProjectLocationMap
                   center={mapCenter}
-                  zoom={14}
-                  style={{ height: "100%", width: "100%" }}
-                  key={`${mapCenter[0]}-${mapCenter[1]}`}
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  {markerPos && (
-                    <DraggableMarker
-                      position={markerPos}
-                      onMove={(lat, lng) => setMarkerPos([lat, lng])}
-                    />
-                  )}
-                </MapContainer>
-              </div>
-              {projectPreview.address && (
-                <p className="text-xs text-muted-foreground mt-2">{projectPreview.address}</p>
-              )}
+                  markerPos={markerPos}
+                  onMove={(lat, lng) => setMarkerPos([lat, lng])}
+                  address={projectPreview.address}
+                />
+              </Suspense>
             </CardContent>
           </Card>
 
