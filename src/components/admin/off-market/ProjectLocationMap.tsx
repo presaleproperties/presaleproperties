@@ -1,24 +1,6 @@
-import { useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { useRef, useEffect, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-// Fix leaflet default icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
-
-function ClickHandler({ onMove }: { onMove: (lat: number, lng: number) => void }) {
-  useMapEvents({
-    click(e) {
-      onMove(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-}
 
 interface Props {
   center: [number, number];
@@ -28,23 +10,69 @@ interface Props {
 }
 
 export default function ProjectLocationMap({ center, markerPos, onMove, address }: Props) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
+
+    const map = L.map(mapContainerRef.current, {
+      center,
+      zoom: 14,
+      zoomControl: true,
+      attributionControl: false,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/">OSM</a>',
+    }).addTo(map);
+
+    map.on("click", (e: L.LeafletMouseEvent) => {
+      const { lat, lng } = e.latlng;
+      if (markerRef.current) {
+        markerRef.current.setLatLng([lat, lng]);
+      } else {
+        markerRef.current = L.marker([lat, lng]).addTo(map);
+      }
+      onMove(lat, lng);
+    });
+
+    mapRef.current = map;
+
+    // Add initial marker
+    if (markerPos) {
+      markerRef.current = L.marker(markerPos).addTo(map);
+    }
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markerRef.current = null;
+    };
+  }, []);
+
+  // Update view when center changes
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.setView(center, 14);
+      if (markerPos) {
+        if (markerRef.current) {
+          markerRef.current.setLatLng(markerPos);
+        } else {
+          markerRef.current = L.marker(markerPos).addTo(mapRef.current);
+        }
+      }
+    }
+  }, [center[0], center[1]]);
+
   return (
     <div>
-      <div className="rounded-xl overflow-hidden border border-border/50 h-[250px]">
-        <MapContainer
-          center={center}
-          zoom={14}
-          style={{ height: "100%", width: "100%" }}
-          key={`${center[0]}-${center[1]}`}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <ClickHandler onMove={onMove} />
-          {markerPos && <Marker position={markerPos} />}
-        </MapContainer>
-      </div>
+      <div
+        ref={mapContainerRef}
+        className="rounded-xl overflow-hidden border border-border/50 h-[250px]"
+        style={{ cursor: "crosshair" }}
+      />
       {address && (
         <p className="text-xs text-muted-foreground mt-2">{address}</p>
       )}
