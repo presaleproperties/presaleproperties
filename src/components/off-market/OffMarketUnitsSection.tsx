@@ -3,7 +3,7 @@ import { FloorPlanModal, type FloorPlan } from "@/components/decks/FloorPlanModa
 import { trackOffMarketEvent } from "@/lib/offMarketAnalytics";
 import {
   LayoutPanelTop, ArrowRight, Square, TrendingUp, BedDouble, Bath,
-  Car, Archive, CheckCircle2, Flame, Switch as SwitchIcon,
+  Car, Archive, CheckCircle2, Flame,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
