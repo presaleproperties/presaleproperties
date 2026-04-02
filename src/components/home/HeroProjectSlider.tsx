@@ -71,7 +71,14 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [next, total, isPaused]);
 
-  if (!projects || total === 0) return null;
+  // Branded dark fallback when no projects or error
+  if (!projects || total === 0 || isError) {
+    return (
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+      </div>
+    );
+  }
 
   const project = projects[current];
   const hasFloorplan = project.floorplan_files && project.floorplan_files.length > 0;
