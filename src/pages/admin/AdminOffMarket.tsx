@@ -392,7 +392,7 @@ export default function AdminOffMarket() {
                             <div className="flex items-center gap-3 text-sm">
                               <span className="flex items-center gap-1">
                                 <Package className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span className="text-emerald-500 font-semibold">{l.available_units}</span>
+                                <span className="text-primary font-semibold">{l.available_units}</span>
                                 <span className="text-muted-foreground">/ {l.total_units} units</span>
                               </span>
                               <span className="flex items-center gap-1 text-muted-foreground">
