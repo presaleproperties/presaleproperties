@@ -77,7 +77,7 @@ export default function VipLoginPage() {
       toast.error(result.error);
     } else {
       toast.success("Welcome back!");
-      navigate("/off-market");
+      navigate("/vip");
     }
     setLoading(false);
   };
