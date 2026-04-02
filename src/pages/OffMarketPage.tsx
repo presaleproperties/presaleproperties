@@ -374,7 +374,13 @@ export default function OffMarketPage() {
       </div>
 
       {/* Listings Grid */}
-      <section id="listings" className="max-w-7xl mx-auto px-4 py-10">
+      <section id="listings" className="max-w-7xl mx-auto px-4 py-12">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-bold">Available Projects</h2>
+            <p className="text-sm text-muted-foreground mt-1">{filtered.length} exclusive {filtered.length === 1 ? "listing" : "listings"} available</p>
+          </div>
+        </div>
         {loading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
