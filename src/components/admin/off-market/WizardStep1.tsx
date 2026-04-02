@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,8 +25,22 @@ interface Props {
 export function WizardStep1({ form, setForm, projectPreview, setProjectPreview, onNext }: Props) {
   const [search, setSearch] = useState("");
   const [showDetails, setShowDetails] = useState(false);
-  const [mapCenter, setMapCenter] = useState<[number, number]>([49.2827, -123.1207]);
-  const [markerPos, setMarkerPos] = useState<[number, number] | null>(null);
+  const initialLat = projectPreview?.map_lat ? Number(projectPreview.map_lat) : 49.2827;
+  const initialLng = projectPreview?.map_lng ? Number(projectPreview.map_lng) : -123.1207;
+  const [mapCenter, setMapCenter] = useState<[number, number]>([initialLat, initialLng]);
+  const [markerPos, setMarkerPos] = useState<[number, number] | null>(
+    projectPreview?.map_lat && projectPreview?.map_lng ? [initialLat, initialLng] : null
+  );
+  
+  // Sync map when projectPreview loads (e.g. edit mode)
+  useEffect(() => {
+    if (projectPreview?.map_lat && projectPreview?.map_lng) {
+      const lat = Number(projectPreview.map_lat);
+      const lng = Number(projectPreview.map_lng);
+      setMapCenter([lat, lng]);
+      setMarkerPos([lat, lng]);
+    }
+  }, [projectPreview?.map_lat, projectPreview?.map_lng]);
 
   const { data: projects } = useQuery({
     queryKey: ["presale-projects-search", search],
