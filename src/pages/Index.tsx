@@ -318,6 +318,7 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
         </ScrollReveal>
+        <VipAccessSection />
       </main>
       
       <Footer />

@@ -124,6 +124,9 @@ export function FeaturedResaleListings() {
     }
   };
 
+  // Return null on error to avoid blank gap
+  if (isError && !listings) return null;
+
   if (isLoading) {
     return (
       <section className="py-12 sm:py-16 md:py-20 bg-muted/20 relative">
