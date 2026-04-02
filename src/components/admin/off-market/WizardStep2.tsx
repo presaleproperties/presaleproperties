@@ -503,9 +503,9 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Inclusions</p>
                 <div className="flex flex-wrap gap-x-5 gap-y-2">
                   {[
-                    { key: "parking_included" as const, label: "🅿️ Parking" },
-                    { key: "storage_included" as const, label: "📦 Storage" },
-                    { key: "locker_included" as const, label: "🔐 Locker" },
+                    { key: "parking_included" as const, label: "Parking" },
+                    { key: "storage_included" as const, label: "Storage" },
+                    { key: "locker_included" as const, label: "Locker" },
                   ].map(({ key, label }) => (
                     <label key={key} className="flex items-center gap-2 cursor-pointer">
                       <Switch checked={editUnit[key]} onCheckedChange={v => setEditUnit({ ...editUnit, [key]: v })} />
@@ -520,7 +520,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
                         setEditUnit({ ...editUnit, inclusions: incl });
                       }}
                     />
-                    <span className="text-sm">❄️ AC</span>
+                    <span className="text-sm">AC</span>
                   </label>
                 </div>
               </div>
