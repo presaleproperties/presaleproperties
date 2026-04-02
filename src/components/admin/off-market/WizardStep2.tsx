@@ -357,7 +357,7 @@ export function WizardStep2({ units, setUnits, onBack, onNext }: Props) {
               {/* Unit fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm">Unit Number *</Label>
+                  <Label className="text-sm">Unit Number</Label>
                   <Input value={editUnit.unit_number} onChange={e => setEditUnit({ ...editUnit, unit_number: e.target.value })} className="rounded-xl" placeholder="101" />
                 </div>
                 <div>
