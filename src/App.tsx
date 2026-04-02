@@ -110,6 +110,7 @@ const AdminOffMarketAnalytics = lazy(() => import("./pages/admin/AdminOffMarketA
 const DeveloperOffMarketWizard = lazy(() => import("./pages/developer/DeveloperOffMarketWizard"));
 const OffMarketPage = lazy(() => import("./pages/OffMarketPage"));
 const OffMarketDetailPage = lazy(() => import("./pages/OffMarketDetailPage"));
+const VipLoginPage = lazy(() => import("./pages/VipLoginPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
 const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
