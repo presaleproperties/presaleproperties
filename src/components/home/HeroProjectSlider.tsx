@@ -32,7 +32,7 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
   const [modalOpen, setModalOpen] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const { data: projects } = useQuery({
+  const { data: projects, isError } = useQuery({
     queryKey: ["hero-slider-projects"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -42,9 +42,14 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
         .not("featured_image", "is", null)
         .order("view_count", { ascending: false })
         .limit(8);
-      if (error) throw error;
+      if (error) {
+        console.error("Hero slider fetch error:", error);
+        throw error;
+      }
       return data?.filter(p => p.featured_image) ?? [];
     },
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
   });
 
   const total = projects?.length ?? 0;
