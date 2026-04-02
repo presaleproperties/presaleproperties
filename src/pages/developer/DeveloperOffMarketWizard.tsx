@@ -68,6 +68,7 @@ export default function DeveloperOffMarketWizard() {
   const [developerProfile, setDeveloperProfile] = useState<any>(null);
   const [developerId, setDeveloperId] = useState<string | null>(null);
   const [listingStatus, setListingStatus] = useState<string>("draft");
+  const [projectPreview, setProjectPreview] = useState<any>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/developer/login");
