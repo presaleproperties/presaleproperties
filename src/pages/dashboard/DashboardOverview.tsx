@@ -48,9 +48,9 @@ export default function DashboardOverview() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Greeting */}
-        <h1 className="text-2xl font-bold tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
           {agentName ? `Hey ${agentName}` : "Welcome back"}
         </h1>
 
