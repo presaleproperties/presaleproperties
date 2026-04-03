@@ -107,43 +107,43 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
       {/* Premium Top Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-        <div className="flex h-16 items-center justify-between px-4 md:px-6">
-          <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-[60] bg-background/80 backdrop-blur-xl border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        <div className="flex h-14 md:h-16 items-center justify-between px-3 md:px-6">
+          <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="md:hidden h-9 w-9"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
             <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-primary-foreground" />
+              <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                <Sparkles className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold tracking-tight">
+              <span className="text-lg md:text-xl font-bold tracking-tight">
                 Agent<span className="text-primary">Hub</span>
               </span>
             </Link>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             {isAdmin && (
               <Link to="/admin">
-                <Button variant="ghost" size="sm" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50">
+                <Button variant="ghost" size="sm" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 h-8 px-2 md:px-3">
                   <Shield className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Admin</span>
                 </Button>
               </Link>
             )}
             <Link to="/">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="h-8 px-2 md:px-3">
                 <Home className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Site</span>
               </Button>
             </Link>
-            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="h-8 px-2 md:px-3">
               <LogOut className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Sign Out</span>
             </Button>
@@ -231,44 +231,48 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 top-16 z-40 md:hidden">
+          <div className="fixed inset-0 top-14 z-50 md:hidden">
             <div 
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm" 
+              className="fixed inset-0 top-14 bg-background/60 backdrop-blur-sm" 
               onClick={() => setMobileMenuOpen(false)} 
             />
-            <nav className="fixed left-0 top-16 bottom-0 w-72 bg-background border-r border-border p-4 space-y-1 overflow-y-auto">
+            <nav className="fixed left-0 top-14 bottom-0 w-72 bg-background border-r border-border/50 overflow-y-auto shadow-xl">
               {/* Mobile User Card */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 mb-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold">
-                  {user?.email?.charAt(0).toUpperCase() || "A"}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{user?.email?.split("@")[0]}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              <div className="p-3 border-b border-border/30">
+                <div className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/50">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold text-sm">
+                    {user?.email?.charAt(0).toUpperCase() || "A"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{user?.email?.split("@")[0]}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
+                  </div>
                 </div>
               </div>
 
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition-colors",
-                    isActive(item.href)
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span className="font-medium">{item.label}</span>
-                  {item.badge && (
-                    <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0 h-4">
-                      {item.badge}
-                    </Badge>
-                  )}
-                </Link>
-              ))}
+              <div className="p-2 space-y-0.5">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
+                      isActive(item.href)
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-[18px] w-[18px] shrink-0" />
+                    <span className="font-medium">{item.label}</span>
+                    {item.badge && (
+                      <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0 h-4">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </Link>
+                ))}
+              </div>
             </nav>
           </div>
         )}
