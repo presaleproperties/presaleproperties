@@ -135,6 +135,7 @@ const defaultFormData: ProjectFormData = {
   is_indexed: true,
   is_published: false,
   is_featured: false,
+  show_in_hero: false,
 };
 
 export default function AdminProjectForm() {
