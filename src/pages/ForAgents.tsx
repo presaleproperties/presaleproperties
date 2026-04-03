@@ -294,13 +294,11 @@ export default function ForAgents() {
                   Join our network and get instant access to the tools and resources that top-producing agents use every day.
                 </p>
                 
-                <Link to="/login?tab=signup&type=agent">
-                  <Button size="lg" className="shadow-gold hover:shadow-gold-glow">
+                <Button size="lg" className="shadow-gold hover:shadow-gold-glow" onClick={() => setWaitlistOpen(true)}>
                     <Sparkles className="mr-2 h-5 w-5" />
-                    Get Started Free
+                    Join the Waitlist
                     <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
+                </Button>
               </div>
               
               <div className="bg-card rounded-3xl border border-border/50 p-8 shadow-elevated">
