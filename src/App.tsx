@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/dashboard/ProtectedRoute";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
+import { GlobalPullToRefresh } from "@/components/GlobalPullToRefresh";
 import { ResaleToPropertiesRedirect } from "@/components/redirects/ResaleToPropertiesRedirect";
 import { PresaleProjectSEORedirect } from "@/components/redirects/PresaleProjectSEORedirect";
 import { CityPresaleSEORedirect } from "@/components/redirects/CityPresaleSEORedirect";
@@ -173,6 +174,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <SwipeNavigationProvider>
+            <GlobalPullToRefresh>
             <ScrollToTop />
             <GlobalSEO />
             <FaviconLoader />
@@ -487,6 +489,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
+            </GlobalPullToRefresh>
           </SwipeNavigationProvider>
         </BrowserRouter>
       </TooltipProvider>
