@@ -97,8 +97,6 @@ const AdminLiveActivity = lazy(() => import("./pages/admin/AdminLiveActivity"));
 const AdminClients = lazy(() => import("./pages/admin/AdminClients"));
 const AdminClientSearches = lazy(() => import("./pages/admin/AdminClientSearches"));
 const AdminClientForm = lazy(() => import("./pages/admin/AdminClientForm"));
-const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
-const AdminCampaignBuilder = lazy(() => import("./pages/admin/AdminCampaignBuilder"));
 const AdminAiEmailBuilder = lazy(() => import("./pages/admin/AdminAiEmailBuilder"));
 const AdminMarketingHub = lazy(() => import("./pages/admin/AdminMarketingHub"));
 const AdminEmailCenter = lazy(() => import("./pages/admin/AdminEmailCenter"));
