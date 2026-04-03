@@ -2630,6 +2630,62 @@ export type Database = {
           },
         ]
       }
+      onboarded_leads: {
+        Row: {
+          created_at: string
+          deck_id: string | null
+          deck_url: string | null
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          notes: string | null
+          phone: string | null
+          source: string
+          updated_at: string
+          user_id: string
+          zapier_synced: boolean
+        }
+        Insert: {
+          created_at?: string
+          deck_id?: string | null
+          deck_url?: string | null
+          email: string
+          first_name: string
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string | null
+          source?: string
+          updated_at?: string
+          user_id: string
+          zapier_synced?: boolean
+        }
+        Update: {
+          created_at?: string
+          deck_id?: string | null
+          deck_url?: string | null
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string | null
+          source?: string
+          updated_at?: string
+          user_id?: string
+          zapier_synced?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarded_leads_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "pitch_decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pitch_decks: {
         Row: {
           address: string | null

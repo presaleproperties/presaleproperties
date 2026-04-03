@@ -48,6 +48,7 @@ const DashboardProfile = lazy(() => import("./pages/dashboard/DashboardProfile")
 const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling"));
 const DashboardMessages = lazy(() => import("./pages/dashboard/DashboardMessages"));
 const DashboardProjectDocuments = lazy(() => import("./pages/dashboard/DashboardProjectDocuments"));
+const DashboardLeadOnboard = lazy(() => import("./pages/dashboard/DashboardLeadOnboard"));
 const ListingForm = lazy(() => import("./pages/dashboard/ListingForm"));
 const DeveloperDashboard = lazy(() => import("./pages/developer/DeveloperDashboardNew"));
 const DeveloperProjects = lazy(() => import("./pages/developer/DeveloperProjects"));
@@ -73,6 +74,7 @@ const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminLeads = lazy(() => import("./pages/admin/AdminLeads"));
 const AdminLeadAnalytics = lazy(() => import("./pages/admin/AdminLeadAnalytics"));
+const AdminLeadOnboard = lazy(() => import("./pages/admin/AdminLeadOnboard"));
 const AdminLoftyCRM = lazy(() => import("./pages/admin/AdminLoftyCRM"));
 const AdminAIAnalytics = lazy(() => import("./pages/admin/AdminAIAnalytics"));
 const AdminBookings = lazy(() => import("./pages/admin/AdminBookings"));
@@ -333,6 +335,7 @@ const App = () => (
             <Route path="/dashboard/decks/:id/edit" element={<ProtectedRoute><DashboardDeckBuilder /></ProtectedRoute>} />
             <Route path="/dashboard/messages" element={<ProtectedRoute><DashboardMessages /></ProtectedRoute>} />
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
+            <Route path="/dashboard/lead-onboard" element={<ProtectedRoute><DashboardLeadOnboard /></ProtectedRoute>} />
             <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
             
@@ -355,6 +358,7 @@ const App = () => (
             <Route path="/admin/agents" element={<AdminProtectedRoute><AdminAgents /></AdminProtectedRoute>} />
             <Route path="/admin/leads" element={<AdminProtectedRoute><AdminLeads /></AdminProtectedRoute>} />
             <Route path="/admin/leads/analytics" element={<AdminProtectedRoute><AdminLeadAnalytics /></AdminProtectedRoute>} />
+            <Route path="/admin/lead-onboard" element={<AdminProtectedRoute><AdminLeadOnboard /></AdminProtectedRoute>} />
             <Route path="/admin/lofty-crm" element={<AdminProtectedRoute><AdminLoftyCRM /></AdminProtectedRoute>} />
             <Route path="/admin/payments" element={<AdminProtectedRoute><AdminPayments /></AdminProtectedRoute>} />
             <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookings /></AdminProtectedRoute>} />

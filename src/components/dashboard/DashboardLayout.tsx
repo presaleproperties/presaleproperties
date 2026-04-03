@@ -20,6 +20,7 @@ import {
   FileText,
   FolderOpen,
   Presentation,
+  UserPlus,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -64,6 +65,12 @@ const navItems = [
     href: "/dashboard/leads", 
     icon: Users,
     description: "View buyer inquiries"
+  },
+  { 
+    label: "Onboard Client", 
+    href: "/dashboard/lead-onboard", 
+    icon: UserPlus,
+    description: "Add & sync new client"
   },
   { 
     label: "Billing", 
