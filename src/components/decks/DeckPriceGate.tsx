@@ -51,6 +51,7 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
         phone: verPhone,
         message: `Pitch Deck: ${projectName}`,
         persona: "buyer",
+        form_type: "deck_gate",
         agent_status: "no",
         lead_source: "pitch_deck",
         project_id: projectId || null,

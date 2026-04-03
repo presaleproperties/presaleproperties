@@ -50,6 +50,7 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
         phone: verPhone,
         message: `Pitch Deck: ${projectName}`,
         persona: "buyer",
+        form_type: "deck_gate",
         agent_status: "no",
         lead_source: "pitch_deck",
         project_id: projectId || null,

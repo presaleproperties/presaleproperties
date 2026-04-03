@@ -33,6 +33,7 @@ export function BookingModal({ open, onClose, projectName, agentEmail }: Booking
         phone,
         email,
         message,
+        form_type: "deck_booking",
         project_name: projectName,
         lead_source: "pitch_deck_booking",
         lead_status: "new",
