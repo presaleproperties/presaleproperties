@@ -69,6 +69,8 @@ export default function DashboardLeads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [onboardedLeads, setOnboardedLeads] = useState<OnboardedLead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sendingEmailFor, setSendingEmailFor] = useState<string | null>(null);
+  const [emailSentFor, setEmailSentFor] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (user) fetchAll();
