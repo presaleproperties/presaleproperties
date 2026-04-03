@@ -176,7 +176,7 @@ export default function AdminOverview() {
                   <Star className="h-6 w-6 text-violet-600" />
                 </div>
                 <div>
-                  <p className="font-bold text-foreground">Top Deals</p>
+                  <p className="font-bold text-foreground">Assignments</p>
                   <p className="text-xs text-muted-foreground">Create & manage assignments</p>
                 </div>
               </CardContent>
