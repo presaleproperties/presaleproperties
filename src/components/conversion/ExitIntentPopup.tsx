@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -31,6 +32,16 @@ const MISTAKES = [
 ];
 
 export function ExitIntentPopup() {
+  const location = useLocation();
+  const pathname = location.pathname;
+
+  // Suppress on admin, agent, and developer portals
+  const isPortalRoute =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/agent") ||
+    pathname.startsWith("/developer");
+
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -61,9 +72,8 @@ export function ExitIntentPopup() {
     const hasSubmittedAnyForm = localStorage.getItem("pp_form_submitted");
     const hasBooking = localStorage.getItem("pp_booking_submitted");
 
-    if (hasShown || hasConverted || hasSubmittedAnyForm || hasBooking) return;
+    if (hasShown || hasConverted || hasSubmittedAnyForm || hasBooking || isPortalRoute) return;
 
-    const pathname = window.location.pathname;
     const isConsumerPage =
       pathname === "/" ||
       pathname.startsWith("/presale-projects") ||
@@ -124,7 +134,7 @@ export function ExitIntentPopup() {
       clearTimeout(mobileTimeout);
       clearTimeout(timeout);
     };
-  }, []);
+  }, [pathname, isPortalRoute]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
