@@ -20,9 +20,17 @@ export interface FloorPlan {
   exclusive_credit?: string;
 }
 
+function parseCredit(credit?: string): number {
+  if (!credit) return 0;
+  const match = credit.replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+  return match ? parseFloat(match[1]) : 0;
+}
+
 function derivePsf(plan: FloorPlan): string | null {
   if (plan.price_per_sqft?.trim()) return plan.price_per_sqft;
-  const price = parseFloat((plan.price_from || "").replace(/[^0-9.]/g, ""));
+  let price = parseFloat((plan.price_from || "").replace(/[^0-9.]/g, ""));
+  const credit = parseCredit(plan.exclusive_credit);
+  if (credit > 0 && price > credit) price -= credit;
   const sqft = plan.interior_sqft;
   if (price > 0 && sqft && sqft > 0) return `$${Math.round(price / sqft).toLocaleString()}`;
   if (price > 0 && plan.size_range) {
