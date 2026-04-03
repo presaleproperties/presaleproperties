@@ -28,7 +28,7 @@ export function FloatingMapButton() {
   
   // Hide on map search pages, detail pages, ad landing pages, and admin/agent portals
   const isMapPage = location.pathname === "/map-search";
-  const isAdLandingPage = location.pathname === "/exclusive-offer";
+  
   const isAdminPage = location.pathname.startsWith("/admin");
   const isDashboardPage = location.pathname.startsWith("/dashboard");
   const isForAgentsPage = location.pathname === "/for-agents";
