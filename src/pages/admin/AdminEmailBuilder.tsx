@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { SendEmailDialog } from "@/components/admin/SendEmailDialog";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -62,6 +63,7 @@ import {
   CloudOff,
   Cloud,
   ArrowLeft,
+  Send,
 } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
@@ -1146,6 +1148,7 @@ export default function AdminEmailBuilder() {
   const [savedTemplates, setSavedTemplates] = useState<SavedEmailTemplate[]>([]);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [overwriteId, setOverwriteId] = useState<string | null>(null);
@@ -2102,22 +2105,36 @@ export default function AdminEmailBuilder() {
           </div>
 
           {/* Bottom action bar */}
-          <div className="px-3 pb-3 pt-2.5 border-t border-border shrink-0 bg-muted/5">
+          <div className="px-3 pb-3 pt-2.5 border-t border-border shrink-0 bg-muted/5 space-y-1.5">
             <Button
+              className="w-full h-9 gap-2 font-semibold text-sm"
+              onClick={() => setSendDialogOpen(true)}
+            >
+              <Send className="h-3.5 w-3.5" /> Send Email
+            </Button>
+            <Button
+              variant="outline"
               className={cn(
-                "w-full h-9 gap-2 font-semibold text-sm transition-all duration-200",
-                copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"
+                "w-full h-8 gap-2 text-xs transition-all duration-200",
+                copied && "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600"
               )}
               onClick={handleCopy}
             >
               {copied ? (
-                <><CheckCircle2 className="h-3.5 w-3.5" /> Copied! Paste into Mailchimp</>
+                <><CheckCircle2 className="h-3.5 w-3.5" /> Copied!</>
               ) : (
                 <><Copy className="h-3.5 w-3.5" /> Copy HTML</>
               )}
             </Button>
-            <p className="text-[9px] text-muted-foreground/40 text-center mt-1.5 uppercase tracking-wide">Inline CSS · Mailchimp-ready</p>
           </div>
+
+          <SendEmailDialog
+            open={sendDialogOpen}
+            onOpenChange={setSendDialogOpen}
+            subject={vars.subjectLine}
+            html={finalHtml}
+            fromName={selectedAgent?.full_name ? `${selectedAgent.full_name} | Presale Properties` : undefined}
+          />
         </div>
 
       </div>
