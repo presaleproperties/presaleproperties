@@ -244,7 +244,7 @@ export function DeckFloorPlansSection({
                              <p className="text-primary font-bold text-lg sm:text-xl leading-none tracking-tight">{plan.price_from || "—"}</p>
               {plan.exclusive_credit && (
                 <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/12 text-green-600 text-[11px] font-semibold leading-tight">
-                  <span className="font-bold">Exclusive Discount: {plan.exclusive_credit}</span>
+                  <span className="font-bold">Exclusive Discount: {plan.exclusive_credit.startsWith('$') ? plan.exclusive_credit : `$${plan.exclusive_credit}`}</span>
                 </span>
               )}
                            </div>
