@@ -272,6 +272,7 @@ export default function DashboardLeads() {
                                 {emailSentFor.has(lead.id) ? "Sent" : "Send Deck Email"}
                               </Button>
                             )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
