@@ -54,16 +54,6 @@ const CREATE_OPTIONS = [
     url: "/admin/email-builder?template=exclusive-offer",
   },
   {
-    key: "campaign-flyer",
-    title: "Campaign Flyer",
-    desc: "Print-ready one-pager PDF for presentations",
-    icon: FileText,
-    color: "text-violet-600",
-    bg: "bg-violet-500/10",
-    badge: "PDF",
-    url: "/admin/campaign-builder/new",
-  },
-  {
     key: "blank-email",
     title: "Blank Email",
     desc: "Start from scratch with your own copy",
