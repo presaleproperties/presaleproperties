@@ -52,7 +52,7 @@ export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }
           willChange: 'transform',
         }}
       >
-        <div className="bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
+        <div className="bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.15)] pb-[env(safe-area-inset-bottom)]">
           {/* Safe area padding for iPhone notch */}
           <div className="px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
             {/* Price Row */}
