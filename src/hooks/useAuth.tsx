@@ -99,30 +99,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: error as Error };
     }
 
-    // After successful signup, create agent profile
-    if (data.user) {
-      // Update profile with phone
-      if (metadata.phone) {
-        await (supabase as any)
-          .from("profiles")
-          .update({ phone: metadata.phone })
-          .eq("user_id", data.user.id);
-      }
-
-      // Create agent profile
-      const { error: agentError } = await (supabase as any)
-        .from("agent_profiles")
-        .insert({
-          user_id: data.user.id,
-          license_number: metadata.license_number,
-          brokerage_name: metadata.brokerage_name,
-          brokerage_address: metadata.brokerage_address || null,
-          verification_status: "unverified",
-        });
-
-      if (agentError) {
-        return { error: agentError as unknown as Error };
-      }
+    // After successful signup, update profile with phone if provided
+    if (data.user && metadata.phone) {
+      await (supabase as any)
+        .from("profiles")
+        .update({ phone: metadata.phone })
+        .eq("user_id", data.user.id);
     }
 
     return { error: null };
