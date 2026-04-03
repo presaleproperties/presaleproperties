@@ -451,6 +451,7 @@ export default function AdminProjectForm() {
         is_indexed: data.is_indexed ?? true,
         is_published: data.is_published || false,
         is_featured: data.is_featured || false,
+        show_in_hero: (data as any).show_in_hero || false,
       });
     } catch (error) {
       console.error("Error fetching project:", error);
