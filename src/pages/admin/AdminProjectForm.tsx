@@ -1214,6 +1214,7 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
         is_indexed: formData.is_indexed,
         is_published: formData.is_published,
         is_featured: formData.is_featured,
+        show_in_hero: formData.show_in_hero,
         published_at: formData.is_published && !isEdit ? new Date().toISOString() : undefined,
       };
 
