@@ -249,10 +249,29 @@ export default function DashboardLeads() {
                               </div>
                             )}
                           </div>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                            <Calendar className="h-3 w-3" />
-                            {format(new Date(lead.created_at), "MMM d, yyyy")}
-                          </div>
+                          <div className="flex flex-col items-end gap-2 shrink-0">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              {format(new Date(lead.created_at), "MMM d, yyyy")}
+                            </div>
+                            {lead.deck_url && (
+                              <Button
+                                size="sm"
+                                variant={emailSentFor.has(lead.id) ? "outline" : "secondary"}
+                                className="text-xs h-7 px-2.5"
+                                disabled={sendingEmailFor === lead.id || emailSentFor.has(lead.id)}
+                                onClick={() => handleSendDeckEmail(lead.id, `${lead.first_name} ${lead.last_name}`)}
+                              >
+                                {sendingEmailFor === lead.id ? (
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                ) : emailSentFor.has(lead.id) ? (
+                                  <Check className="h-3 w-3 mr-1" />
+                                ) : (
+                                  <Mail className="h-3 w-3 mr-1" />
+                                )}
+                                {emailSentFor.has(lead.id) ? "Sent" : "Send Deck Email"}
+                              </Button>
+                            )}
                         </div>
                       </CardContent>
                     </Card>
