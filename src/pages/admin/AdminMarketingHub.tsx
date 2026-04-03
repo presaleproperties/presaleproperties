@@ -199,7 +199,7 @@ export default function AdminMarketingHub() {
                     variant="outline"
                     size="sm"
                     className="gap-1.5"
-                    onClick={() => navigate(activeTab === "emails" ? "/admin/email-builder?template=project-email" : "/admin/campaign-builder/new")}
+                    onClick={() => navigate("/admin/email-builder?template=project-email")}
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Create {activeTab === "emails" ? "Email" : "Flyer"}
