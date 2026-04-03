@@ -195,7 +195,7 @@ export function ProjectMobileCTA({
         className={`lg:hidden fixed inset-x-0 bottom-0 transition-transform duration-200 ${isHidden ? "translate-y-full" : "translate-y-0"}`}
         style={{ zIndex: 99999, isolation: "isolate", willChange: "transform", pointerEvents: "auto", width: "100%" }}
       >
-        <div className={`bg-background border-t border-border transition-all duration-300 ease-out ${isExpanded ? "rounded-t-3xl shadow-[0_-16px_50px_rgba(0,0,0,0.3)]" : "shadow-[0_-8px_30px_rgba(0,0,0,0.2)]"}`}>
+        <div className={`bg-background border-t border-border pb-[env(safe-area-inset-bottom)] transition-all duration-300 ease-out ${isExpanded ? "rounded-t-3xl shadow-[0_-16px_50px_rgba(0,0,0,0.3)]" : "shadow-[0_-8px_30px_rgba(0,0,0,0.2)]"}`}>
 
           {isExpanded && (
             <div className="overflow-y-auto overscroll-contain bg-background rounded-t-3xl" style={{ maxHeight: "calc(85vh - 70px)" }}>
