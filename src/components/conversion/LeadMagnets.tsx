@@ -233,6 +233,7 @@ export function NeighborhoodGuideButton({ city }: LeadMagnetProps) {
         id: leadId,
         name: "Guide Download",
         email: email.trim(),
+        form_type: "lead_magnet",
         lead_source: "neighborhood_guide",
         message: `Neighborhood guide request${city ? ` for ${city}` : ""}`,
         visitor_id: getVisitorId(),
