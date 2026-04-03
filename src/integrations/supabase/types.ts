@@ -2800,6 +2800,7 @@ export type Database = {
           seo_description: string | null
           seo_title: string | null
           short_description: string | null
+          show_in_hero: boolean
           slug: string
           starting_price: number | null
           status: Database["public"]["Enums"]["project_status"]
@@ -2852,6 +2853,7 @@ export type Database = {
           seo_description?: string | null
           seo_title?: string | null
           short_description?: string | null
+          show_in_hero?: boolean
           slug: string
           starting_price?: number | null
           status?: Database["public"]["Enums"]["project_status"]
@@ -2904,6 +2906,7 @@ export type Database = {
           seo_description?: string | null
           seo_title?: string | null
           short_description?: string | null
+          show_in_hero?: boolean
           slug?: string
           starting_price?: number | null
           status?: Database["public"]["Enums"]["project_status"]
