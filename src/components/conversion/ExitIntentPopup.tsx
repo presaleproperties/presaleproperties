@@ -72,9 +72,8 @@ export function ExitIntentPopup() {
     const hasSubmittedAnyForm = localStorage.getItem("pp_form_submitted");
     const hasBooking = localStorage.getItem("pp_booking_submitted");
 
-    if (hasShown || hasConverted || hasSubmittedAnyForm || hasBooking) return;
+    if (hasShown || hasConverted || hasSubmittedAnyForm || hasBooking || isPortalRoute) return;
 
-    const pathname = window.location.pathname;
     const isConsumerPage =
       pathname === "/" ||
       pathname.startsWith("/presale-projects") ||
