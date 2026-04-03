@@ -118,7 +118,7 @@ export function FloatingMapButton() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   
-  if (isMapPage || isDetailPage || isAdLandingPage || isAdminPage || isDashboardPage || isForAgentsPage) return null;
+  if (isMapPage || isDetailPage || isAdminPage || isDashboardPage || isForAgentsPage) return null;
   
   // Build the map URL with context-aware params
   const buildMapUrl = () => {
