@@ -29,6 +29,7 @@ import {
   Home,
   BarChart3,
   Sparkles,
+  Presentation,
 } from "lucide-react";
 import { format, startOfMonth } from "date-fns";
 
