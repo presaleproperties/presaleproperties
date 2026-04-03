@@ -282,13 +282,14 @@ export default function DashboardOverview() {
                       </FormItem>
                     )} />
                     <Select
-                      value={selectedDeckId || ""}
-                      onValueChange={(val) => setSelectedDeckId(val || null)}
+                      value={selectedDeckId || undefined}
+                      onValueChange={(val) => setSelectedDeckId(val === "__none__" ? null : val)}
                     >
                       <SelectTrigger className="h-9 text-sm">
                         <SelectValue placeholder="Attach Deck" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="__none__">No Deck</SelectItem>
                         {decks.map((d) => (
                           <SelectItem key={d.id} value={d.id}>
                             <div className="flex items-center gap-2">
