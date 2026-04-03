@@ -6,7 +6,7 @@ export function FloatingWhatsApp() {
   const { data: whatsappNumber } = useAppSetting("whatsapp_number");
   const number = (whatsappNumber as string) || "16722581100";
 
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi! I'm interested in learning about presale projects. Can you help me?")}`;
+  const whatsappLink = `https://wa.me/${number}?text=${encodeURIComponent("Hi! I'm interested in learning about presale projects. Can you help me?")}`;
 
   const handleClick = () => {
     // Track Lofty CTA click
