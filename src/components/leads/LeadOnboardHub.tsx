@@ -56,6 +56,8 @@ export function LeadOnboardHub() {
   const [submitting, setSubmitting] = useState(false);
   const [successData, setSuccessData] = useState<{ deckUrl: string; leadName: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
