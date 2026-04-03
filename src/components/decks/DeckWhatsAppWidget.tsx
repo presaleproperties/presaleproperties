@@ -35,7 +35,7 @@ export function DeckWhatsAppWidget({ projectName, contactName, whatsappNumber }:
       className={cn(
         "fixed z-[99999] flex items-center justify-center rounded-full shadow-xl touch-manipulation transition-all duration-200 active:scale-95 group",
         "w-14 h-14 sm:w-[60px] sm:h-[60px]",
-        "bottom-4 right-4 sm:bottom-6 sm:right-6"
+        "bottom-20 right-4 sm:bottom-6 sm:right-6"
       )}
       style={{
         boxShadow: "0 4px 24px rgba(37,211,102,0.4)",
