@@ -11,7 +11,6 @@ const TRACKING_PIXEL = new Uint8Array([
 ]);
 
 const handler = async (req: Request): Promise<Response> => {
-  // Always return the pixel first for performance
   const pixelResponse = () => new Response(TRACKING_PIXEL, {
     status: 200,
     headers: {
@@ -24,11 +23,12 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const url = new URL(req.url);
+    const trackingId = url.searchParams.get("tid"); // email_logs tracking_id
     const alertId = url.searchParams.get("aid");
     const clientId = url.searchParams.get("cid");
-    const type = url.searchParams.get("t") || "open"; // "open" or "click"
+    const type = url.searchParams.get("t") || "open";
 
-    if (!alertId && !clientId) {
+    if (!trackingId && !alertId && !clientId) {
       console.log("No tracking ID provided");
       return pixelResponse();
     }
@@ -39,40 +39,74 @@ const handler = async (req: Request): Promise<Response> => {
 
     const now = new Date().toISOString();
 
+    // Track email_logs open via tracking_id
+    if (trackingId) {
+      // Get current log entry
+      const { data: logEntry } = await supabase
+        .from("email_logs")
+        .select("id, opened_at, open_count")
+        .eq("tracking_id", trackingId)
+        .single();
+
+      if (logEntry) {
+        const isFirstOpen = !logEntry.opened_at;
+        const newCount = (logEntry.open_count || 0) + 1;
+
+        await supabase
+          .from("email_logs")
+          .update({
+            ...(isFirstOpen ? { opened_at: now } : {}),
+            open_count: newCount,
+            last_opened_at: now,
+          })
+          .eq("id", logEntry.id);
+
+        console.log(`Tracked email open for tracking_id ${trackingId} (open #${newCount})`);
+
+        // If re-open (2nd+ open), notify admin
+        if (!isFirstOpen && newCount >= 2) {
+          const { data: emailLog } = await supabase
+            .from("email_logs")
+            .select("email_to, subject")
+            .eq("id", logEntry.id)
+            .single();
+
+          if (emailLog) {
+            await supabase.from("notifications_queue").insert({
+              recipient_email: "info@presaleproperties.com",
+              recipient_type: "admin",
+              notification_type: "email_reopened",
+              subject: `🔁 Email Re-opened: ${emailLog.email_to}`,
+              body: `${emailLog.email_to} re-opened "${emailLog.subject}" (open #${newCount}).`,
+              metadata: {
+                email_log_id: logEntry.id,
+                email_to: emailLog.email_to,
+                open_count: newCount,
+              },
+            });
+          }
+        }
+      }
+    }
+
+    // Existing alert tracking
     if (alertId) {
-      // Track specific alert open/click
       const updateField = type === "click" ? "clicked_at" : "opened_at";
-      
-      const { error } = await supabase
+      await supabase
         .from("property_alerts")
         .update({ [updateField]: now })
         .eq("id", alertId)
-        .is(updateField, null); // Only update if not already set
-
-      if (error) {
-        console.error(`Error updating alert ${alertId}:`, error);
-      } else {
-        console.log(`Tracked ${type} for alert ${alertId}`);
-      }
+        .is(updateField, null);
+      console.log(`Tracked ${type} for alert ${alertId}`);
     } else if (clientId) {
-      // Track email open at client level (for emails with multiple properties)
-      // Update all recent alerts for this client that don't have an opened_at
       const recentThreshold = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-      
-      const { error } = await supabase
+      await supabase
         .from("property_alerts")
         .update({ opened_at: now })
         .eq("client_id", clientId)
         .gte("sent_at", recentThreshold)
         .is("opened_at", null);
 
-      if (error) {
-        console.error(`Error updating alerts for client ${clientId}:`, error);
-      } else {
-        console.log(`Tracked open for client ${clientId}`);
-      }
-
-      // Also log to client_activity
       await supabase.from("client_activity").insert({
         client_id: clientId,
         activity_type: "email_open",
@@ -84,7 +118,7 @@ const handler = async (req: Request): Promise<Response> => {
     return pixelResponse();
   } catch (error) {
     console.error("Tracking error:", error);
-    return pixelResponse(); // Always return the pixel
+    return pixelResponse();
   }
 };
 

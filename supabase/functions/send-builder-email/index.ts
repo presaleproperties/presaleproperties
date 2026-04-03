@@ -1,6 +1,7 @@
 /**
  * Send Builder Email
  * Sends the Email Builder's rendered HTML to one or more recipients via Gmail SMTP
+ * Injects tracking pixel for open tracking
  */
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
@@ -23,17 +24,23 @@ function personalizeContent(content: string, firstName?: string) {
 
   return content
     .replaceAll("[First Name]", safeFirstName)
+    .replaceAll("[first name]", safeFirstName)
     .replaceAll("[FirstName]", safeFirstName)
     .replaceAll("[Lead Name]", safeFirstName)
     .replaceAll("[lead name]", safeFirstName)
+    .replaceAll("[Lead name]", safeFirstName)
     .replaceAll("[Client Name]", safeFirstName)
     .replaceAll("[client name]", safeFirstName)
+    .replaceAll("[Client name]", safeFirstName)
+    .replaceAll("[Name]", safeFirstName)
+    .replaceAll("[name]", safeFirstName)
     .replaceAll("{{first_name}}", safeFirstName)
     .replaceAll("{{firstName}}", safeFirstName)
     .replaceAll("{{lead_name}}", safeFirstName)
     .replaceAll("{{leadName}}", safeFirstName)
     .replaceAll("{{client_name}}", safeFirstName)
     .replaceAll("{{clientName}}", safeFirstName)
+    .replaceAll("{{name}}", safeFirstName)
     .replaceAll("*|FNAME|*", safeFirstName);
 }
 
@@ -50,7 +57,6 @@ serve(async (req) => {
   }
 
   try {
-    // Verify auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -63,7 +69,6 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify the user is admin
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     if (authError || !user) {
@@ -89,6 +94,9 @@ serve(async (req) => {
       );
     }
 
+    // Build tracking pixel base URL
+    const trackingBaseUrl = `${supabaseUrl}/functions/v1/track-email-open`;
+
     let sent = 0;
     let failed = 0;
     const errors: string[] = [];
@@ -96,32 +104,57 @@ serve(async (req) => {
     for (const recipient of recipients) {
       try {
         const personalizedFirstName = recipient.firstName || recipient.name?.trim().split(/\s+/)[0] || undefined;
+
+        // Create email log entry first to get tracking_id
+        const { data: logEntry } = await supabase
+          .from("email_logs")
+          .insert({
+            email_to: recipient.email,
+            subject,
+            status: "queued",
+            template_type: "builder_send",
+          })
+          .select("id, tracking_id")
+          .single();
+
+        const trackingId = logEntry?.tracking_id;
+
+        // Inject tracking pixel into HTML before </body>
+        let personalizedHtml = personalizeContent(html, personalizedFirstName);
+        if (trackingId) {
+          const pixelUrl = `${trackingBaseUrl}?tid=${trackingId}`;
+          const pixelTag = `<img src="${pixelUrl}" width="1" height="1" style="display:none;width:1px;height:1px;border:0;" alt="" />`;
+          if (personalizedHtml.includes("</body>")) {
+            personalizedHtml = personalizedHtml.replace("</body>", `${pixelTag}</body>`);
+          } else {
+            personalizedHtml += pixelTag;
+          }
+        }
+
         const result = await sendEmail({
           to: recipient.email,
           subject: personalizeContent(subject, personalizedFirstName),
-          html: personalizeContent(html, personalizedFirstName),
+          html: personalizedHtml,
           fromName: fromName || "Presale Properties",
         });
 
         if (result.success) {
           sent++;
-          // Log to email_logs
-          await supabase.from("email_logs").insert({
-            email_to: recipient.email,
-            subject,
-            status: "sent",
-            template_type: "builder_send",
-          });
+          if (logEntry) {
+            await supabase
+              .from("email_logs")
+              .update({ status: "sent" })
+              .eq("id", logEntry.id);
+          }
         } else {
           failed++;
           errors.push(`${recipient.email}: ${result.error}`);
-          await supabase.from("email_logs").insert({
-            email_to: recipient.email,
-            subject,
-            status: "failed",
-            error_message: result.error,
-            template_type: "builder_send",
-          });
+          if (logEntry) {
+            await supabase
+              .from("email_logs")
+              .update({ status: "failed", error_message: result.error })
+              .eq("id", logEntry.id);
+          }
         }
       } catch (err) {
         failed++;
