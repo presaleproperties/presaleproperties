@@ -475,14 +475,28 @@ export default function AdminEmailBuilderPage() {
           if (deckData.city) setCity(deckData.city);
           if (deckData.completion_year) setCompletion(String(deckData.completion_year));
 
-          // Rebuild subject line & preview text from latest deck data
+          // Only set subject/preview/headline if user hasn't customized them
           const pName = deckData.project_name || "";
-          const pCity = deckData.city || "";
-          setSubjectLine(`${pName}${pCity ? ` · ${pCity}` : ""} — Exclusive Presale Details`);
-          setPreviewText(netStartingPrice
-            ? `Starting from ${netStartingPrice} · floor plans + pricing inside`
-            : `Floor plans, pricing & deposit structure inside`);
-          setHeadline(deckData.tagline || `Exclusive Access — ${pName}`);
+          const currentSubject = subjectLine;
+          const isDefaultSubject = !currentSubject || currentSubject.includes("Exclusive Presale Details") || currentSubject.includes("Exclusive Access");
+          if (isDefaultSubject) {
+            const newSubject = netStartingPrice
+              ? `${pName} - Starting from ${netStartingPrice}`
+              : `${pName} - Exclusive Presale Details`;
+            setSubjectLine(newSubject);
+          }
+          const currentPreview = previewText;
+          const isDefaultPreview = !currentPreview || currentPreview.includes("floor plans") || currentPreview.includes("Floor plans");
+          if (isDefaultPreview) {
+            setPreviewText(netStartingPrice
+              ? `Starting from ${netStartingPrice} - floor plans + pricing inside`
+              : `Floor plans, pricing and deposit structure inside`);
+          }
+          const currentHeadline = headline;
+          const isDefaultHeadline = !currentHeadline || currentHeadline.includes("Exclusive Access");
+          if (isDefaultHeadline) {
+            setHeadline(deckData.tagline || `Exclusive Access - ${pName}`);
+          }
 
           // Update hero image if changed
           if (deckData.hero_image_url) setHeroImage(deckData.hero_image_url);
@@ -933,10 +947,30 @@ export default function AdminEmailBuilderPage() {
   const handleSave = async () => {
     if (!projectName && !headline) { toast.error("Add a project name or headline first"); return; }
     setSaving(true);
-    const name = `AI Email — ${projectName || headline?.slice(0, 30) || "Untitled"} (${new Date().toLocaleDateString()})`;
+    const copy = currentCopy();
+    const name = `AI Email - ${projectName || headline?.slice(0, 30) || "Untitled"} (${new Date().toLocaleDateString()})`;
+    const formData = {
+      _type: "ai-email",
+      copy,
+      vars: {
+        subjectLine: copy.subjectLine,
+        previewText: copy.previewText,
+        headline: copy.headline,
+        bodyCopy: copy.bodyCopy,
+        incentiveText: copy.incentiveText,
+        projectName: copy.projectName,
+        city: copy.city,
+        neighborhood: copy.neighborhood,
+        developerName: copy.developerName,
+        startingPrice: copy.startingPrice,
+        deposit: copy.deposit,
+        completion: copy.completion,
+      },
+      heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
+    };
     const { error } = await supabase.from("campaign_templates" as any).insert({
       name, project_name: projectName || "Untitled",
-      form_data: { _type: "ai-email", copy: currentCopy(), heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion },
+      form_data: formData,
     });
     if (error) toast.error("Failed to save");
     else toast.success("Saved to Campaign Hub!");

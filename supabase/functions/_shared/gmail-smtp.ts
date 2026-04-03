@@ -71,11 +71,22 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     
     // Minify HTML to prevent quoted-printable encoding issues
     const minifiedHtml = minifyHtml(options.html);
+
+    // Sanitize subject to remove problematic Unicode chars for email headers
+    const safeSubject = options.subject
+      .replace(/\u2014/g, '-')   // em dash → hyphen
+      .replace(/\u2013/g, '-')   // en dash → hyphen
+      .replace(/\u00b7/g, '-')   // middle dot → hyphen
+      .replace(/\u2022/g, '-')   // bullet → hyphen
+      .replace(/[^\x00-\x7F]/g, (ch) => {
+        // Keep common emoji and accented chars, strip others that break headers
+        return ch;
+      });
     
     await client.send({
       from: `${senderName} <${smtpUser}>`,
       to: recipients,
-      subject: options.subject,
+      subject: safeSubject,
       html: minifiedHtml,
       replyTo: options.replyTo || DEFAULT_REPLY_TO,
     });
