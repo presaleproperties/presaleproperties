@@ -34,6 +34,7 @@ interface PitchDeck {
   city: string | null;
   is_published: boolean;
   created_at: string;
+  hero_image_url: string | null;
 }
 
 const DRAFT_KEY = "ai-email-builder-draft";
