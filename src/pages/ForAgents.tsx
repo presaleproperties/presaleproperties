@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
+import { AgentWaitlistModal } from "@/components/conversion/AgentWaitlistModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -118,6 +120,8 @@ const testimonials = [
 ];
 
 export default function ForAgents() {
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+
   return (
     <>
       <Helmet>
@@ -181,13 +185,11 @@ export default function ForAgents() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                <Link to="/login?tab=signup&type=agent">
-                  <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group w-full sm:w-auto">
+                <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group w-full sm:w-auto" onClick={() => setWaitlistOpen(true)}>
                     <Sparkles className="mr-2 h-5 w-5" />
                     Join the Waitlist
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                </Link>
+                </Button>
                 <Link to="/login?type=agent">
                   <Button size="xl" variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 hover:text-primary text-lg w-full sm:w-auto">
                     Agent Login
@@ -292,13 +294,11 @@ export default function ForAgents() {
                   Join our network and get instant access to the tools and resources that top-producing agents use every day.
                 </p>
                 
-                <Link to="/login?tab=signup&type=agent">
-                  <Button size="lg" className="shadow-gold hover:shadow-gold-glow">
+                <Button size="lg" className="shadow-gold hover:shadow-gold-glow" onClick={() => setWaitlistOpen(true)}>
                     <Sparkles className="mr-2 h-5 w-5" />
-                    Get Started Free
+                    Join the Waitlist
                     <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
+                </Button>
               </div>
               
               <div className="bg-card rounded-3xl border border-border/50 p-8 shadow-elevated">
@@ -439,13 +439,11 @@ export default function ForAgents() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/login?tab=signup&type=agent">
-                <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group w-full sm:w-auto">
+              <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group w-full sm:w-auto" onClick={() => setWaitlistOpen(true)}>
                   <Crown className="mr-2 h-5 w-5" />
                   Join the Waitlist
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
+              </Button>
               <Link to="/login?type=agent">
                 <Button size="xl" variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 hover:text-primary text-lg w-full sm:w-auto">
                   Agent Login
@@ -462,6 +460,7 @@ export default function ForAgents() {
       </main>
 
       <Footer />
+      <AgentWaitlistModal open={waitlistOpen} onOpenChange={setWaitlistOpen} />
     </>
   );
 }
