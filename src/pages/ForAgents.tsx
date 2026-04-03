@@ -460,6 +460,7 @@ export default function ForAgents() {
       </main>
 
       <Footer />
+      <AgentWaitlistModal open={waitlistOpen} onOpenChange={setWaitlistOpen} />
     </>
   );
 }
