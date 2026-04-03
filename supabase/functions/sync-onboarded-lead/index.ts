@@ -113,7 +113,7 @@ serve(async (req: Request): Promise<Response> => {
       tags: tags.join(", "),
       tags_array: tags,
       source: "PresaleProperties.com",
-      lead_source: `manual_onboard_${lead.source}`,
+      lead_source: sourceMap[lead.source] || lead.source,
       form_type: "Manual Onboard",
       form_location: "Lead Onboard Hub",
       lead_type: "onboarded",
