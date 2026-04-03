@@ -100,7 +100,7 @@ const AdminClientForm = lazy(() => import("./pages/admin/AdminClientForm"));
 const AdminAiEmailBuilder = lazy(() => import("./pages/admin/AdminAiEmailBuilder"));
 const AdminMarketingHub = lazy(() => import("./pages/admin/AdminMarketingHub"));
 const AdminEmailCenter = lazy(() => import("./pages/admin/AdminEmailCenter"));
-const AdminTopDeals = lazy(() => import("./pages/admin/AdminTopDeals"));
+
 const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
