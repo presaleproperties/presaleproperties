@@ -243,9 +243,10 @@ export function DeckFloorPlansSection({
                              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
                              <p className="text-primary font-bold text-base sm:text-lg leading-tight">{plan.price_from || "—"}</p>
                              {plan.exclusive_credit && (
-                               <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-600 text-[10px] font-semibold">
-                                 {plan.exclusive_credit}
-                               </span>
+                               <div className="mt-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-green-500/15 to-emerald-500/10 border border-green-500/25">
+                                 <p className="text-[8px] uppercase tracking-widest text-green-600/80 font-semibold">Limited Time</p>
+                                 <p className="text-green-600 font-bold text-xs leading-tight">{plan.exclusive_credit}</p>
+                               </div>
                              )}
                            </div>
                          ) : (
