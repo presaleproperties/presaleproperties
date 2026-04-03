@@ -107,43 +107,43 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
       {/* Premium Top Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-        <div className="flex h-16 items-center justify-between px-4 md:px-6">
-          <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-[60] bg-background/80 backdrop-blur-xl border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        <div className="flex h-14 md:h-16 items-center justify-between px-3 md:px-6">
+          <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="md:hidden h-9 w-9"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
             <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-primary-foreground" />
+              <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                <Sparkles className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold tracking-tight">
+              <span className="text-lg md:text-xl font-bold tracking-tight">
                 Agent<span className="text-primary">Hub</span>
               </span>
             </Link>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             {isAdmin && (
               <Link to="/admin">
-                <Button variant="ghost" size="sm" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50">
+                <Button variant="ghost" size="sm" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 h-8 px-2 md:px-3">
                   <Shield className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Admin</span>
                 </Button>
               </Link>
             )}
             <Link to="/">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="h-8 px-2 md:px-3">
                 <Home className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Site</span>
               </Button>
             </Link>
-            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="h-8 px-2 md:px-3">
               <LogOut className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Sign Out</span>
             </Button>
