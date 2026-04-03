@@ -35,6 +35,21 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
   const { data: projects } = useQuery({
     queryKey: ["hero-slider-projects"],
     queryFn: async () => {
+      // First try to get manually flagged hero projects
+      const { data: heroProjects, error: heroErr } = await supabase
+        .from("presale_projects")
+        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, brochure_files, floorplan_files, pricing_sheets")
+        .eq("is_published", true)
+        .eq("show_in_hero", true)
+        .not("featured_image", "is", null)
+        .order("view_count", { ascending: false })
+        .limit(8);
+
+      if (!heroErr && heroProjects && heroProjects.length > 0) {
+        return heroProjects.filter(p => p.featured_image);
+      }
+
+      // Fallback: top projects by view_count
       const { data, error } = await supabase
         .from("presale_projects")
         .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, brochure_files, floorplan_files, pricing_sheets")
