@@ -947,10 +947,30 @@ export default function AdminEmailBuilderPage() {
   const handleSave = async () => {
     if (!projectName && !headline) { toast.error("Add a project name or headline first"); return; }
     setSaving(true);
-    const name = `AI Email — ${projectName || headline?.slice(0, 30) || "Untitled"} (${new Date().toLocaleDateString()})`;
+    const copy = currentCopy();
+    const name = `AI Email - ${projectName || headline?.slice(0, 30) || "Untitled"} (${new Date().toLocaleDateString()})`;
+    const formData = {
+      _type: "ai-email",
+      copy,
+      vars: {
+        subjectLine: copy.subjectLine,
+        previewText: copy.previewText,
+        headline: copy.headline,
+        bodyCopy: copy.bodyCopy,
+        incentiveText: copy.incentiveText,
+        projectName: copy.projectName,
+        city: copy.city,
+        neighborhood: copy.neighborhood,
+        developerName: copy.developerName,
+        startingPrice: copy.startingPrice,
+        deposit: copy.deposit,
+        completion: copy.completion,
+      },
+      heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
+    };
     const { error } = await supabase.from("campaign_templates" as any).insert({
       name, project_name: projectName || "Untitled",
-      form_data: { _type: "ai-email", copy: currentCopy(), heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion },
+      form_data: formData,
     });
     if (error) toast.error("Failed to save");
     else toast.success("Saved to Campaign Hub!");
