@@ -33,13 +33,11 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const SOURCES = [
+  { value: "tiktok", label: "TikTok" },
+  { value: "instagram", label: "Instagram" },
+  { value: "youtube", label: "YouTube" },
   { value: "website", label: "Website" },
   { value: "referral", label: "Referral" },
-  { value: "social_media", label: "Social Media" },
-  { value: "walk_in", label: "Walk-in" },
-  { value: "phone_call", label: "Phone Call" },
-  { value: "open_house", label: "Open House" },
-  { value: "other", label: "Other" },
 ];
 
 interface PitchDeck {
