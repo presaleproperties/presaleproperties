@@ -184,13 +184,14 @@ export default function ForAgents() {
                 <Link to="/login?tab=signup&type=agent">
                   <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group w-full sm:w-auto">
                     <Sparkles className="mr-2 h-5 w-5" />
-                    Join Free Today
+                    Join the Waitlist
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
                 <Link to="/login?type=agent">
-                  <Button size="xl" variant="outline" className="border-background/30 text-background hover:bg-background/10 hover:text-background text-lg w-full sm:w-auto">
+                  <Button size="xl" variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 hover:text-primary text-lg w-full sm:w-auto">
                     Agent Login
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
               </div>
@@ -441,13 +442,14 @@ export default function ForAgents() {
               <Link to="/login?tab=signup&type=agent">
                 <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group w-full sm:w-auto">
                   <Crown className="mr-2 h-5 w-5" />
-                  Join the Network
+                  Join the Waitlist
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
-              <Link to="/dashboard/assignments">
-                <Button size="xl" variant="outline" className="border-background/30 text-background hover:bg-background/10 text-lg w-full sm:w-auto">
-                  Browse Assignments
+              <Link to="/login?type=agent">
+                <Button size="xl" variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 hover:text-primary text-lg w-full sm:w-auto">
+                  Agent Login
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
