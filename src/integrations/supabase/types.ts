@@ -785,6 +785,48 @@ export type Database = {
         }
         Relationships: []
       }
+      deck_visits: {
+        Row: {
+          created_at: string
+          deck_id: string | null
+          device_type: string | null
+          id: string
+          lead_email: string | null
+          lead_name: string | null
+          project_name: string
+          referrer: string | null
+          slug: string
+          visit_number: number
+          visitor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          deck_id?: string | null
+          device_type?: string | null
+          id?: string
+          lead_email?: string | null
+          lead_name?: string | null
+          project_name: string
+          referrer?: string | null
+          slug: string
+          visit_number?: number
+          visitor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          deck_id?: string | null
+          device_type?: string | null
+          id?: string
+          lead_email?: string | null
+          lead_name?: string | null
+          project_name?: string
+          referrer?: string | null
+          slug?: string
+          visit_number?: number
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       developer_profiles: {
         Row: {
           company_name: string
