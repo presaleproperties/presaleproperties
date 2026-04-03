@@ -88,6 +88,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: metadata.full_name,
+          license_number: metadata.license_number,
+          brokerage_name: metadata.brokerage_name,
+          brokerage_address: metadata.brokerage_address || null,
         },
       },
     });
