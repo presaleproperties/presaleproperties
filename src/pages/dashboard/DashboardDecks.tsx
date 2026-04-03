@@ -52,7 +52,7 @@ export default function DashboardDecks() {
     setLoading(true);
     const { data, error } = await (supabase as any)
       .from("pitch_decks")
-      .select("id, slug, project_name, city, is_published, created_at")
+      .select("id, slug, project_name, city, is_published, created_at, hero_image_url")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
