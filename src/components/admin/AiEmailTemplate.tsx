@@ -1333,8 +1333,9 @@ export function buildLululemonEmailHtml(
           <tr>
             <td style="padding:16px 20px 20px;">
               ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#999999;">${fp.label}</p>` : ""}
-              ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#666666;">${fp.sqft}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#666666;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
               ${fp.price ? `<p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
+              ${creditBadgeHtml(fp.exclusive_credit, F)}
             </td>
           </tr>` : ""}
         </table>
