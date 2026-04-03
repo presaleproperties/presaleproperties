@@ -335,6 +335,7 @@ export function ConsultationButton({ projectName }: LeadMagnetProps) {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
+        form_type: "consultation",
         message: `Consultation request${projectName ? ` for ${projectName}` : ""}`,
         lead_source: "consultation",
         persona: "investor",
