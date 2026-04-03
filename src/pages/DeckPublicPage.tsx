@@ -19,6 +19,7 @@ import { DeckPriceGate } from "@/components/decks/DeckPriceGate";
 // DeckLeadGate removed — pricing is now gated inline via DeckPriceGate
 import { Loader2 } from "lucide-react";
 import { getVisitorId } from "@/lib/tracking/identifiers";
+import { useDeckSectionTracking } from "@/hooks/useDeckSectionTracking";
 
 const DEFAULT_DEPOSIT_STEPS: DepositStep[] = [
   { id: "d1", label: "Upon Signing", percent: 2.5, timing: "Due within 7 days", note: "Paid to the developer's trust account on execution of the Purchase Agreement." },
@@ -81,6 +82,14 @@ export default function DeckPublicPage() {
   const scrollYBeforeGallery = useRef<number>(0);
   const [galleryOpen, setGalleryOpen] = useState(false);
 
+  // Track which sections the lead engages with
+  useDeckSectionTracking({
+    slug: slug || "",
+    projectName: deck?.project_name || "",
+    projectId: (deck as any)?.project_id || null,
+    deckId: deck?.id,
+    sectionIds: SECTION_IDS,
+  });
   useEffect(() => {
     if (!slug) return;
     let deckId: string | null = null;
