@@ -36,9 +36,11 @@ export function getCorsHeaders(req: Request): Record<string, string> {
     ? [...ALLOWED_ORIGINS, ...LOVABLE_ORIGINS]
     : [...ALLOWED_ORIGINS, ...DEV_ORIGINS, ...LOVABLE_ORIGINS];
 
-  const allowedOrigin = allowed.includes(origin)
+  // Also allow *.lovableproject.com preview origins dynamically
+  const isLovablePreview = /^https:\/\/[a-z0-9-]+\.lovableproject\.com$/.test(origin);
+  const allowedOrigin = allowed.includes(origin) || isLovablePreview
     ? origin
-    : ALLOWED_ORIGINS[0]; // fallback to main domain
+    : ALLOWED_ORIGINS[0];
 
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
