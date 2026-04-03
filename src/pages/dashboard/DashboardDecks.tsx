@@ -24,6 +24,8 @@ import {
   Loader2,
   Presentation,
   Mail,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -35,6 +37,7 @@ interface PitchDeck {
   is_published: boolean;
   created_at: string;
   hero_image_url: string | null;
+  gate_enabled: boolean;
 }
 
 const DRAFT_KEY = "ai-email-builder-draft";
@@ -52,7 +55,7 @@ export default function DashboardDecks() {
     setLoading(true);
     const { data, error } = await (supabase as any)
       .from("pitch_decks")
-      .select("id, slug, project_name, city, is_published, created_at, hero_image_url")
+      .select("id, slug, project_name, city, is_published, created_at, hero_image_url, gate_enabled")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
@@ -353,7 +356,7 @@ export default function DashboardDecks() {
                     </DropdownMenu>
                   </div>
 
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
                     <Badge
                       variant={deck.is_published ? "default" : "secondary"}
                       className={
@@ -363,6 +366,20 @@ export default function DashboardDecks() {
                       }
                     >
                       {deck.is_published ? "Published" : "Draft"}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className={
+                        deck.gate_enabled !== false
+                          ? "bg-amber-500/10 text-amber-600 border-amber-500/20 gap-1"
+                          : "bg-muted text-muted-foreground border-border gap-1"
+                      }
+                    >
+                      {deck.gate_enabled !== false ? (
+                        <><Lock className="h-3 w-3" /> Gated</>
+                      ) : (
+                        <><Unlock className="h-3 w-3" /> Open</>
+                      )}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(deck.created_at), { addSuffix: true })}
