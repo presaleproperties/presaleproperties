@@ -112,6 +112,7 @@ function buildFinalHtml(
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
+        exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
       })),
       fpHeading,
       fpSubheading,
