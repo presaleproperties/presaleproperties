@@ -17,6 +17,7 @@ export interface FloorPlan {
   baths?: number | null;
   exposure?: string | null;
   projected_rent?: number | null;
+  exclusive_credit?: string;
 }
 
 function derivePsf(plan: FloorPlan): string | null {

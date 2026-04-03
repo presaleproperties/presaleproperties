@@ -824,6 +824,11 @@ export default function DashboardDeckBuilder() {
                       <Input className="h-8 text-xs" type="number" value={fp.projected_rent ?? ""}
                         onChange={(e) => updateFloorPlan(fp.id, "projected_rent", e.target.value ? parseFloat(e.target.value) : null)} placeholder="2,300" />
                     </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Exclusive Credit</Label>
+                      <Input className="h-8 text-xs" value={fp.exclusive_credit ?? ""}
+                        onChange={(e) => updateFloorPlan(fp.id, "exclusive_credit", e.target.value)} placeholder="$10,000 off" />
+                    </div>
                   </div>
                 </div>
                 {fp.beds != null && (
