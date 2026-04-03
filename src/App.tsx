@@ -131,7 +131,7 @@ const PopularSearchesPage = lazy(() => import("./pages/PopularSearchesPage"));
 const NeighborhoodPropertyTypePage = lazy(() => import("./pages/NeighborhoodPropertyTypePage"));
 const ContentHub = lazy(() => import("./pages/ContentHub"));
 const BlogCategoryPage = lazy(() => import("./pages/BlogCategoryPage"));
-const AdLandingPage = lazy(() => import("./pages/AdLandingPage"));
+
 const PresaleCompletionYearPage = lazy(() => import("./pages/PresaleCompletionYearPage"));
 const PresaleProcess = lazy(() => import("./pages/PresaleProcess"));
 const DeckPublicPage = lazy(() => import("./pages/DeckPublicPage"));
