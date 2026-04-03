@@ -185,13 +185,11 @@ export default function ForAgents() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                <Link to="/login?tab=signup&type=agent">
-                  <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group w-full sm:w-auto">
+                <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group w-full sm:w-auto" onClick={() => setWaitlistOpen(true)}>
                     <Sparkles className="mr-2 h-5 w-5" />
                     Join the Waitlist
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                </Link>
+                </Button>
                 <Link to="/login?type=agent">
                   <Button size="xl" variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 hover:text-primary text-lg w-full sm:w-auto">
                     Agent Login
