@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import { 
   Users, 
   Mail, 
@@ -67,6 +69,8 @@ export default function DashboardLeads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [onboardedLeads, setOnboardedLeads] = useState<OnboardedLead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sendingEmailFor, setSendingEmailFor] = useState<string | null>(null);
+  const [emailSentFor, setEmailSentFor] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (user) fetchAll();
@@ -119,6 +123,23 @@ export default function DashboardLeads() {
     acc[listingId].leads.push(lead);
     return acc;
   }, {});
+
+  const handleSendDeckEmail = async (leadId: string, leadName: string) => {
+    setSendingEmailFor(leadId);
+    try {
+      const { error } = await supabase.functions.invoke("send-deck-email", {
+        body: { leadId },
+      });
+      if (error) throw error;
+      setEmailSentFor((prev) => new Set(prev).add(leadId));
+      toast.success(`Pitch deck email sent to ${leadName}`);
+    } catch (err: any) {
+      console.error("Send deck email error:", err);
+      toast.error(err.message || "Failed to send email");
+    } finally {
+      setSendingEmailFor(null);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -228,9 +249,29 @@ export default function DashboardLeads() {
                               </div>
                             )}
                           </div>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                            <Calendar className="h-3 w-3" />
-                            {format(new Date(lead.created_at), "MMM d, yyyy")}
+                          <div className="flex flex-col items-end gap-2 shrink-0">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              {format(new Date(lead.created_at), "MMM d, yyyy")}
+                            </div>
+                            {lead.deck_url && (
+                              <Button
+                                size="sm"
+                                variant={emailSentFor.has(lead.id) ? "outline" : "secondary"}
+                                className="text-xs h-7 px-2.5"
+                                disabled={sendingEmailFor === lead.id || emailSentFor.has(lead.id)}
+                                onClick={() => handleSendDeckEmail(lead.id, `${lead.first_name} ${lead.last_name}`)}
+                              >
+                                {sendingEmailFor === lead.id ? (
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                ) : emailSentFor.has(lead.id) ? (
+                                  <Check className="h-3 w-3 mr-1" />
+                                ) : (
+                                  <Mail className="h-3 w-3 mr-1" />
+                                )}
+                                {emailSentFor.has(lead.id) ? "Sent" : "Send Deck Email"}
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </CardContent>

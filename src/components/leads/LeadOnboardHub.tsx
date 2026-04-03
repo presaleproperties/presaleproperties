@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Check, Copy, Loader2, Send, UserPlus } from "lucide-react";
+import { Check, Copy, Loader2, Mail, Send, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
@@ -54,8 +54,10 @@ export function LeadOnboardHub() {
   const [decks, setDecks] = useState<PitchDeck[]>([]);
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [successData, setSuccessData] = useState<{ deckUrl: string; leadName: string } | null>(null);
+  const [successData, setSuccessData] = useState<{ deckUrl: string; leadName: string; leadId: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -126,9 +128,10 @@ export function LeadOnboardHub() {
         console.error("Zapier sync error (non-blocking):", syncError);
       }
 
-      setSuccessData({ deckUrl, leadName: `${values.first_name} ${values.last_name}`.trim() });
+      setSuccessData({ deckUrl, leadName: `${values.first_name} ${values.last_name}`.trim(), leadId: lead.id });
       form.reset();
       setSelectedDeckId(null);
+      setEmailSent(false);
 
       toast({
         title: "Client onboarded!",
@@ -148,6 +151,25 @@ export function LeadOnboardHub() {
 
   const handleNewLead = () => {
     setSuccessData(null);
+    setEmailSent(false);
+  };
+
+  const handleSendDeckEmail = async () => {
+    if (!successData?.leadId) return;
+    setSendingEmail(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-deck-email", {
+        body: { leadId: successData.leadId },
+      });
+      if (error) throw error;
+      setEmailSent(true);
+      toast({ title: "Email sent!", description: `Pitch deck email sent to ${successData.leadName}.` });
+    } catch (err: any) {
+      console.error("Send deck email error:", err);
+      toast({ title: "Failed to send email", description: err.message || "Something went wrong", variant: "destructive" });
+    } finally {
+      setSendingEmail(false);
+    }
   };
 
   // Success state
@@ -182,6 +204,24 @@ export function LeadOnboardHub() {
                   </Button>
                 </div>
               </div>
+            )}
+
+            {successData.deckUrl && (
+              <Button
+                onClick={handleSendDeckEmail}
+                variant={emailSent ? "outline" : "secondary"}
+                className="w-full"
+                disabled={sendingEmail || emailSent}
+              >
+                {sendingEmail ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : emailSent ? (
+                  <Check className="h-4 w-4 mr-2" />
+                ) : (
+                  <Mail className="h-4 w-4 mr-2" />
+                )}
+                {emailSent ? "Email Sent" : "Send Deck Email"}
+              </Button>
             )}
 
             <Button onClick={handleNewLead} className="mt-4 w-full">
