@@ -273,7 +273,6 @@ export default function DashboardLeads() {
                               </Button>
                             </div>
                           )}
-                          </div>
                         </div>
                       </CardContent>
                     </Card>
