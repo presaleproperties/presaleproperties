@@ -32,6 +32,16 @@ const MISTAKES = [
 ];
 
 export function ExitIntentPopup() {
+  const location = useLocation();
+  const pathname = location.pathname;
+
+  // Suppress on admin, agent, and developer portals
+  const isPortalRoute =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/agent") ||
+    pathname.startsWith("/developer");
+
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
