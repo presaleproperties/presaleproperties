@@ -140,7 +140,7 @@ export default function AdminOverview() {
         </div>
 
         {/* ── QUICK ACTIONS ── */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link to="/admin/projects/new">
             <Card className="group cursor-pointer border-2 border-dashed border-primary/30 hover:border-primary/60 bg-primary/5 hover:bg-primary/10 transition-all h-full">
               <CardContent className="p-5 flex items-center gap-4">
@@ -178,6 +178,20 @@ export default function AdminOverview() {
                 <div>
                   <p className="font-bold text-foreground">Top Deals</p>
                   <p className="text-xs text-muted-foreground">Create & manage assignments</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/dashboard/decks">
+            <Card className="group cursor-pointer hover:shadow-card-hover transition-all h-full border-teal-200/60 bg-gradient-to-br from-teal-50/50 to-transparent">
+              <CardContent className="p-5 flex items-center gap-4">
+                <div className="rounded-xl bg-teal-100 p-3 group-hover:scale-110 transition-transform">
+                  <Presentation className="h-6 w-6 text-teal-600" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground">Pitch Decks</p>
+                  <p className="text-xs text-muted-foreground">Create & send project decks</p>
                 </div>
               </CardContent>
             </Card>
