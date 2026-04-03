@@ -14,8 +14,9 @@ import {
   Plus, Trash2, Loader2, Upload, Image, ArrowUp, ArrowDown,
   ChevronDown, ChevronUp, Save, Eye, Search, Building2, Sparkles, X,
   Wand2, DollarSign, Copy, ExternalLink, CheckCircle2, GripVertical,
-  Monitor, Smartphone,
+  Monitor, Smartphone, RefreshCw,
 } from "lucide-react";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
 const UNIT_TYPES = ["Studio", "1 Bed", "1 Bed + Den", "2 Bed", "2 Bed + Den", "3 Bed", "Townhouse"];
 
