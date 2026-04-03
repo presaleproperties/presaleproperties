@@ -419,6 +419,68 @@ export default function AdminEmailBuilderPage() {
       setFpSubheading(fresh.fpSubheading ?? "");
       setLayoutVersion(fresh.layoutVersion ?? "pitch-deck");
       if (fresh.selAgent) setSelAgent(fresh.selAgent);
+
+      // Live-sync from deck DB to pick up latest floor plans, credits, pricing
+      if (fresh._deckId) {
+        (async () => {
+          const { data: deckData } = await (supabase as any)
+            .from("pitch_decks")
+            .select("floor_plans, hero_image_url, tagline, city, developer_name, completion_year, assignment_fee, included_items, next_price_increase, units_remaining, deposit_steps, highlights, project_name")
+            .eq("id", fresh._deckId)
+            .single();
+          if (!deckData) return;
+
+          // Parse floor plans with exclusive_credit
+          const rawFps: any[] = Array.isArray(deckData.floor_plans)
+            ? deckData.floor_plans
+            : (typeof deckData.floor_plans === "string" ? JSON.parse(deckData.floor_plans || "[]") : []);
+          const fpEntries: FloorPlanEntry[] = rawFps
+            .filter((fp: any) => fp.image_url)
+            .slice(0, 6)
+            .map((fp: any) => {
+              const beds = fp.beds != null ? fp.beds : null;
+              const baths = fp.baths != null ? fp.baths : null;
+              let label = fp.unit_type || "";
+              if (beds != null && baths != null) {
+                label = `${beds} Bed${beds !== 1 ? "" : ""} + ${baths} Bath${baths !== 1 ? "" : ""}`;
+              }
+              return {
+                id: fp.id || String(Math.random()),
+                url: fp.image_url || "",
+                label,
+                sqft: fp.size_range || "",
+                price: fp.price_from || "",
+                exclusive_credit: fp.exclusive_credit || "",
+              };
+            });
+          setFloorPlans(fpEntries);
+
+          // Update starting price — use credit-adjusted net price from first priced plan
+          const firstPriced = rawFps.find((fp: any) => fp.price_from);
+          if (firstPriced) {
+            let price = parseFloat((firstPriced.price_from || "").replace(/[^0-9.]/g, ""));
+            const creditMatch = (firstPriced.exclusive_credit || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+            const credit = creditMatch ? parseFloat(creditMatch[1]) : 0;
+            if (credit > 0 && price > credit) price -= credit;
+            if (price > 0) setStartingPrice(`$${price.toLocaleString()}`);
+          }
+
+          // Update hero image if changed
+          if (deckData.hero_image_url) setHeroImage(deckData.hero_image_url);
+
+          // Update incentive text from included_items
+          const items: string[] = Array.isArray(deckData.included_items) ? deckData.included_items : [];
+          if (items.length > 0) setIncentiveText(items.map((i: string) => `✦ ${i}`).join("\n"));
+
+          // Update info rows
+          const newInfoRows = [
+            deckData.assignment_fee ? `Assignment Fee|${deckData.assignment_fee}` : "",
+            deckData.next_price_increase ? `Next Price Increase|${deckData.next_price_increase}` : "",
+            deckData.units_remaining ? `Units Remaining|${deckData.units_remaining}` : "",
+          ].filter(Boolean);
+          if (newInfoRows.length > 0) setInfoRows(newInfoRows);
+        })();
+      }
     } catch { /* ignore */ }
   }, []); // eslint-disable-line
 
