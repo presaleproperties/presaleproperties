@@ -128,9 +128,10 @@ export function LeadOnboardHub() {
         console.error("Zapier sync error (non-blocking):", syncError);
       }
 
-      setSuccessData({ deckUrl, leadName: `${values.first_name} ${values.last_name}`.trim() });
+      setSuccessData({ deckUrl, leadName: `${values.first_name} ${values.last_name}`.trim(), leadId: lead.id });
       form.reset();
       setSelectedDeckId(null);
+      setEmailSent(false);
 
       toast({
         title: "Client onboarded!",
