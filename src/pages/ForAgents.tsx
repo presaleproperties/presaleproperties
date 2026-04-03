@@ -120,6 +120,8 @@ const testimonials = [
 ];
 
 export default function ForAgents() {
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+
   return (
     <>
       <Helmet>
