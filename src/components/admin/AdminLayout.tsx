@@ -27,7 +27,7 @@ import {
   ClipboardList,
   Activity,
   Star,
-  Sparkles,
+  
   Workflow,
   BarChart3,
   ChevronRight,
