@@ -217,7 +217,7 @@ const databaseTables = [
   { category: "Core Content", tables: ["presale_projects", "blog_posts", "developers", "google_reviews"] },
   { category: "MLS Data", tables: ["mls_listings (39K+)", "mls_agents", "mls_offices", "mls_price_history", "mls_sync_logs"] },
   { category: "Leads & CRM", tables: ["project_leads", "bookings", "clients", "client_activity (29K+)", "newsletter_subscribers", "buyer_profiles", "saved_projects", "saved_listings"] },
-  { category: "Email System", tables: ["email_templates", "email_workflows", "email_workflow_steps", "email_jobs", "email_logs", "email_campaigns", "buyer_drip_emails", "email_verification_codes"] },
+  { category: "Email System", tables: ["email_templates", "email_workflows", "email_workflow_steps", "email_jobs", "email_logs", "email_verification_codes"] },
   { category: "Market Intelligence", tables: ["city_market_stats", "market_data", "cmhc_rental_data"] },
   { category: "Operations", tables: ["admin_tasks", "app_settings", "user_roles", "support_tickets", "seo_health_checks", "geocoding_logs", "scheduler_settings", "scheduler_availability", "scheduler_blocked_dates"] },
   { category: "Agent Portal", tables: ["listings*", "listing_photos*", "listing_files*", "agent_profiles*", "assignment_inquiries*", "payments*"] },

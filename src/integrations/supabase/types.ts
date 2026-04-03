@@ -307,41 +307,6 @@ export type Database = {
           },
         ]
       }
-      buyer_drip_emails: {
-        Row: {
-          buyer_id: string
-          clicked_at: string | null
-          email_type: string
-          id: string
-          opened_at: string | null
-          sent_at: string | null
-        }
-        Insert: {
-          buyer_id: string
-          clicked_at?: string | null
-          email_type: string
-          id?: string
-          opened_at?: string | null
-          sent_at?: string | null
-        }
-        Update: {
-          buyer_id?: string
-          clicked_at?: string | null
-          email_type?: string
-          id?: string
-          opened_at?: string | null
-          sent_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "buyer_drip_emails_buyer_id_fkey"
-            columns: ["buyer_id"]
-            isOneToOne: false
-            referencedRelation: "buyer_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       buyer_profiles: {
         Row: {
           alert_frequency: string | null
@@ -998,56 +963,6 @@ export type Database = {
         }
         Relationships: []
       }
-      email_campaigns: {
-        Row: {
-          created_at: string
-          html_content: string
-          id: string
-          name: string
-          project_id: string | null
-          recipient_count: number | null
-          scheduled_at: string | null
-          sent_at: string | null
-          status: string
-          subject: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          html_content: string
-          id?: string
-          name: string
-          project_id?: string | null
-          recipient_count?: number | null
-          scheduled_at?: string | null
-          sent_at?: string | null
-          status?: string
-          subject: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          html_content?: string
-          id?: string
-          name?: string
-          project_id?: string | null
-          recipient_count?: number | null
-          scheduled_at?: string | null
-          sent_at?: string | null
-          status?: string
-          subject?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "email_campaigns_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "presale_projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       email_jobs: {
         Row: {
           created_at: string
@@ -1143,13 +1058,6 @@ export type Database = {
           template_type?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "email_logs_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "email_campaigns"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "email_logs_lead_id_fkey"
             columns: ["lead_id"]
@@ -1318,36 +1226,6 @@ export type Database = {
           trigger_event?: string
           updated_at?: string
           workflow_key?: string
-        }
-        Relationships: []
-      }
-      error_directions: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          directions: string
-          error_id: string
-          error_source: string
-          id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          directions: string
-          error_id: string
-          error_source: string
-          id?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          directions?: string
-          error_id?: string
-          error_source?: string
-          id?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -3006,51 +2884,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      project_alerts: {
-        Row: {
-          alert_type: string
-          buyer_id: string
-          clicked_at: string | null
-          id: string
-          opened_at: string | null
-          project_id: string
-          sent_at: string | null
-        }
-        Insert: {
-          alert_type: string
-          buyer_id: string
-          clicked_at?: string | null
-          id?: string
-          opened_at?: string | null
-          project_id: string
-          sent_at?: string | null
-        }
-        Update: {
-          alert_type?: string
-          buyer_id?: string
-          clicked_at?: string | null
-          id?: string
-          opened_at?: string | null
-          project_id?: string
-          sent_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_alerts_buyer_id_fkey"
-            columns: ["buyer_id"]
-            isOneToOne: false
-            referencedRelation: "buyer_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "project_alerts_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "presale_projects"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       project_leads: {
         Row: {
