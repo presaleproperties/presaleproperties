@@ -243,9 +243,10 @@ export function DeckFloorPlansSection({
                              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
                              <p className="text-primary font-bold text-base sm:text-lg leading-tight">{plan.price_from || "—"}</p>
                              {plan.exclusive_credit && (
-                               <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-600 text-[10px] font-semibold">
-                                 {plan.exclusive_credit}
-                               </span>
+                               <div className="mt-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-green-500/15 to-emerald-500/10 border border-green-500/25">
+                                 <p className="text-[8px] uppercase tracking-widest text-green-600/80 font-semibold">Limited Time</p>
+                                 <p className="text-green-600 font-bold text-xs leading-tight">{plan.exclusive_credit}</p>
+                               </div>
                              )}
                            </div>
                          ) : (
@@ -284,17 +285,22 @@ export function DeckFloorPlansSection({
                     </div>
 
                     {/* Included items */}
-                    <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/30">
-                      {displayItems.map((item, i) => (
-                        <span
-                          key={item}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium bg-muted/60 border border-border/50 text-muted-foreground"
-                        >
-                          {getIncludedIcon(rawItems[i] || item)}
-                          {item}
-                        </span>
-                      ))}
-                    </div>
+                    {displayItems.length > 0 && (
+                      <div className="pt-1 border-t border-border/30 space-y-1">
+                        <p className="text-[8px] uppercase tracking-widest text-muted-foreground/70 font-semibold">Included in price</p>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {displayItems.map((item, i) => (
+                            <span
+                              key={item}
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium bg-muted/60 border border-border/50 text-muted-foreground"
+                            >
+                              {getIncludedIcon(rawItems[i] || item)}
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </button>
               );
