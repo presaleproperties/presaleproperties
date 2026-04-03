@@ -388,7 +388,7 @@ const App = () => (
             <Route path="/admin/system" element={<AdminProtectedRoute><AdminSystem /></AdminProtectedRoute>} />
             <Route path="/admin/tech-stack" element={<AdminProtectedRoute><AdminTechStack /></AdminProtectedRoute>} />
             <Route path="/admin/live-activity" element={<AdminProtectedRoute><AdminLiveActivity /></AdminProtectedRoute>} />
-            <Route path="/admin/top-deals" element={<AdminProtectedRoute><AdminTopDeals /></AdminProtectedRoute>} />
+            
             
             {/* Agent URL Redirects - common typos/variants */}
             <Route path="/agent" element={<Navigate to="/for-agents" replace />} />
