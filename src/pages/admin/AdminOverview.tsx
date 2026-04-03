@@ -140,7 +140,7 @@ export default function AdminOverview() {
         </div>
 
         {/* ── QUICK ACTIONS ── */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-3">
           <Link to="/admin/projects/new">
             <Card className="group cursor-pointer border-2 border-dashed border-primary/30 hover:border-primary/60 bg-primary/5 hover:bg-primary/10 transition-all h-full">
               <CardContent className="p-5 flex items-center gap-4">
@@ -150,20 +150,6 @@ export default function AdminOverview() {
                 <div>
                   <p className="font-bold text-foreground">Add Project</p>
                   <p className="text-xs text-muted-foreground">Publish a new presale project</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to="/admin/email-center">
-            <Card className="group cursor-pointer hover:shadow-card-hover transition-all h-full">
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className="rounded-xl bg-pink-100 p-3 group-hover:scale-110 transition-transform">
-                  <Mail className="h-6 w-6 text-pink-600" />
-                </div>
-                <div>
-                  <p className="font-bold text-foreground">Send Email</p>
-                  <p className="text-xs text-muted-foreground">Campaigns & direct emails</p>
                 </div>
               </CardContent>
             </Card>
