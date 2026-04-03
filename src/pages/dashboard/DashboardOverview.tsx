@@ -282,7 +282,7 @@ export default function DashboardOverview() {
                       </FormItem>
                     )} />
                     <Select
-                      value={selectedDeckId || undefined}
+                      value={selectedDeckId ?? "__none__"}
                       onValueChange={(val) => setSelectedDeckId(val === "__none__" ? null : val)}
                     >
                       <SelectTrigger className="h-9 text-sm">
@@ -291,14 +291,7 @@ export default function DashboardOverview() {
                       <SelectContent>
                         <SelectItem value="__none__">No Deck</SelectItem>
                         {decks.map((d) => (
-                          <SelectItem key={d.id} value={d.id}>
-                            <div className="flex items-center gap-2">
-                              {d.hero_image_url && (
-                                <img src={d.hero_image_url} alt="" className="w-5 h-5 rounded object-cover" />
-                              )}
-                              <span className="truncate">{d.project_name}</span>
-                            </div>
-                          </SelectItem>
+                          <SelectItem key={d.id} value={d.id}>{d.project_name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
