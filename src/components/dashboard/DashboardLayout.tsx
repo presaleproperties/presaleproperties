@@ -30,10 +30,28 @@ interface DashboardLayoutProps {
 
 const navItems = [
   { 
-    label: "Overview", 
+    label: "Command Centre", 
     href: "/dashboard", 
     icon: LayoutDashboard,
-    description: "Your dashboard home"
+    description: "Onboard, send & manage"
+  },
+  { 
+    label: "Leads", 
+    href: "/dashboard/leads", 
+    icon: Users,
+    description: "All buyer inquiries"
+  },
+  { 
+    label: "Pitch Decks", 
+    href: "/dashboard/decks", 
+    icon: Presentation,
+    description: "Shareable investor decks"
+  },
+  { 
+    label: "My Listings", 
+    href: "/dashboard/listings", 
+    icon: FileText,
+    description: "Manage your listings"
   },
   { 
     label: "Project Documents", 
@@ -43,34 +61,10 @@ const navItems = [
     badge: "Premium"
   },
   { 
-    label: "My Listings", 
-    href: "/dashboard/listings", 
-    icon: FileText,
-    description: "Manage your listings"
-  },
-  { 
-    label: "Pitch Decks", 
-    href: "/dashboard/decks", 
-    icon: Presentation,
-    description: "Shareable investor decks"
-  },
-  { 
     label: "Messages", 
     href: "/dashboard/messages", 
     icon: MessageSquare,
     description: "Agent-to-agent inbox"
-  },
-  { 
-    label: "Leads", 
-    href: "/dashboard/leads", 
-    icon: Users,
-    description: "View buyer inquiries"
-  },
-  { 
-    label: "Onboard Client", 
-    href: "/dashboard/lead-onboard", 
-    icon: UserPlus,
-    description: "Add & sync new client"
   },
   { 
     label: "Billing", 
