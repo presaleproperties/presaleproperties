@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
+import { AgentWaitlistModal } from "@/components/conversion/AgentWaitlistModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Shield, CheckCircle, Building2, Users } from "lucide-react";
+import { Loader2, Shield, CheckCircle, Building2, Users, Sparkles } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
@@ -55,10 +56,12 @@ export default function Login() {
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") === "signup" ? "signup" : "login";
   const initialType = searchParams.get("type") === "developer" ? "developer" : "agent";
+  const isAgentPortal = searchParams.get("type") === "agent";
   
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup">(initialTab);
   const [userType, setUserType] = useState<"agent" | "developer">(initialType);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, signIn, signUp } = useAuth();
@@ -250,6 +253,85 @@ export default function Login() {
     }
   };
 
+  // Agent portal: login only + waitlist CTA
+  if (isAgentPortal) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <ConversionHeader />
+        
+        <main className="flex-1 py-12 md:py-20">
+          <div className="container max-w-lg">
+            <Card className="shadow-lg">
+              <CardHeader className="text-center pb-2">
+                <CardTitle className="text-2xl">Agent Login</CardTitle>
+                <CardDescription>
+                  Sign in to access your agent dashboard
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent>
+                <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                    <FormField
+                      control={loginForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input placeholder="you@example.com" type="email" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={loginForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input placeholder="••••••••" type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Sign In
+                    </Button>
+                  </form>
+                </Form>
+
+                <div className="mt-6 pt-6 border-t border-border text-center">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Don't have an account yet?
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={() => setWaitlistOpen(true)}
+                  >
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Join the Agent Waitlist
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+        
+        <Footer />
+        <AgentWaitlistModal open={waitlistOpen} onOpenChange={setWaitlistOpen} />
+      </div>
+    );
+  }
+
+  // Default: full login/signup portal (developer, admin, etc.)
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <ConversionHeader />
@@ -463,7 +545,7 @@ export default function Login() {
                                 <FormItem>
                                   <FormLabel>Brokerage Name *</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="e.g. RE/MAX" {...field} />
+                                    <Input placeholder="RE/MAX Crest" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -477,7 +559,7 @@ export default function Login() {
                                 <FormItem>
                                   <FormLabel>Brokerage Address</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Optional" {...field} />
+                                    <Input placeholder="123 Main St, Vancouver" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -506,9 +588,9 @@ export default function Login() {
                       <div className="flex items-start gap-3">
                         <Building2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
-                          <p className="text-sm font-medium">Approval Required</p>
+                          <p className="text-sm font-medium">Developer Verification</p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            We'll review your request within 1-2 business days.
+                            Submit your company details and we'll verify your account within 1-2 business days.
                           </p>
                         </div>
                       </div>
@@ -523,7 +605,7 @@ export default function Login() {
                             <FormItem>
                               <FormLabel>Company Name *</FormLabel>
                               <FormControl>
-                                <Input placeholder="e.g. ABC Developments" {...field} />
+                                <Input placeholder="Acme Developments" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -536,7 +618,7 @@ export default function Login() {
                             name="contact_name"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Your Name *</FormLabel>
+                                <FormLabel>Contact Name *</FormLabel>
                                 <FormControl>
                                   <Input placeholder="John Smith" {...field} />
                                 </FormControl>
