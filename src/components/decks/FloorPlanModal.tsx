@@ -227,7 +227,7 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, inc
               {plan.exclusive_credit && (
                 <div className="mt-2 flex items-center gap-1.5">
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-green-500/12 text-green-600 text-sm font-bold leading-tight">
-                    Exclusive Discount: {plan.exclusive_credit}
+                    Exclusive Discount: {plan.exclusive_credit.startsWith('$') ? plan.exclusive_credit : `$${plan.exclusive_credit}`}
                   </span>
                 </div>
               )}
