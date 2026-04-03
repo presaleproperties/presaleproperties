@@ -78,6 +78,7 @@ export function PriceAlertButton({ projectId, projectName }: LeadMagnetProps) {
         id: leadId,
         name: "Price Alert Subscriber",
         email: email.trim(),
+        form_type: "lead_magnet",
         lead_source: "price_alert",
         message: `Price alert request${projectName ? ` for ${projectName}` : ""}`,
         visitor_id: getVisitorId(),
