@@ -56,10 +56,12 @@ export default function Login() {
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") === "signup" ? "signup" : "login";
   const initialType = searchParams.get("type") === "developer" ? "developer" : "agent";
+  const isAgentPortal = searchParams.get("type") === "agent";
   
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup">(initialTab);
   const [userType, setUserType] = useState<"agent" | "developer">(initialType);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, signIn, signUp } = useAuth();
