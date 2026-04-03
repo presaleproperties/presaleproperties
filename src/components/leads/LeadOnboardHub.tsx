@@ -158,8 +158,8 @@ export function LeadOnboardHub() {
       <div className="max-w-lg mx-auto space-y-6">
         <Card>
           <CardContent className="pt-8 pb-8 text-center space-y-4">
-            <div className="mx-auto w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center">
-              <Check className="h-7 w-7 text-green-600" />
+            <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <Check className="h-7 w-7 text-primary" />
             </div>
             <h2 className="text-xl font-semibold">Client Onboarded</h2>
             <p className="text-muted-foreground">
