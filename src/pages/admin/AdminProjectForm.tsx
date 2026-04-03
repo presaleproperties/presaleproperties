@@ -2678,6 +2678,16 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                     onCheckedChange={(v) => setFormData(prev => ({ ...prev, is_featured: v }))}
                   />
                 </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Show in Hero Slider</Label>
+                    <p className="text-sm text-muted-foreground">Display in homepage hero background slider</p>
+                  </div>
+                  <Switch
+                    checked={formData.show_in_hero}
+                    onCheckedChange={(v) => setFormData(prev => ({ ...prev, show_in_hero: v }))}
+                  />
+                </div>
               </CardContent>
             </Card>
 
