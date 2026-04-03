@@ -105,6 +105,7 @@ export function MistakesGuideLeadMagnet({
         id: leadId,
         name: data.name.trim(),
         email: data.email.trim(),
+        form_type: "lead_magnet",
         message: `7 Mistakes Guide - ${location}`,
         lead_source: "lead_magnet_7_mistakes",
         visitor_id: visitorId,

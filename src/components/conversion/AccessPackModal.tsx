@@ -156,6 +156,7 @@ export function AccessPackModal({
         phone: data.phone,
         message: messageData,
         persona: actualPersona,
+        form_type: "access_pack",
         timeline: data.timeline,
         drip_sequence: dripSequence,
         last_drip_sent: 0,

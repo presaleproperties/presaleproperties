@@ -159,6 +159,7 @@ export function ExitIntentPopup() {
         id: leadId,
         name: data.name.trim(),
         email: data.email.trim(),
+        form_type: "exit_intent",
         message: "7 Mistakes Guide - Exit Intent Download",
         lead_source: "exit_intent_guide",
         visitor_id: visitorId,
