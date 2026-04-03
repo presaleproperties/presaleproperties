@@ -22,30 +22,22 @@ const DEV_ORIGINS = [
   "http://127.0.0.1:8080",
 ];
 
-// Lovable preview/published origins
-const LOVABLE_ORIGINS = [
-  "https://presaleproperties.lovable.app",
-  "https://id-preview--08acf871-484d-4365-9aab-01fdfa4c35be.lovable.app",
-];
-
 export function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("origin") || "";
   const isProd = Deno.env.get("ENVIRONMENT") === "production";
 
   const allowed = isProd
-    ? [...ALLOWED_ORIGINS, ...LOVABLE_ORIGINS]
-    : [...ALLOWED_ORIGINS, ...DEV_ORIGINS, ...LOVABLE_ORIGINS];
+    ? ALLOWED_ORIGINS
+    : [...ALLOWED_ORIGINS, ...DEV_ORIGINS];
 
-  // Also allow *.lovableproject.com preview origins dynamically
-  const isLovablePreview = /^https:\/\/[a-z0-9-]+\.lovableproject\.com$/.test(origin);
-  const allowedOrigin = allowed.includes(origin) || isLovablePreview
+  const allowedOrigin = allowed.includes(origin)
     ? origin
-    : ALLOWED_ORIGINS[0];
+    : ALLOWED_ORIGINS[0]; // fallback to main domain
 
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+      "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",

@@ -194,11 +194,11 @@ export default function DashboardLeads() {
                 <div className="space-y-3">
                   {onboardedLeads.map((lead) => (
                     <Card key={lead.id}>
-                         <CardContent className="p-3 sm:p-4">
-                        <div className="space-y-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-center gap-2 flex-wrap min-w-0">
-                              <p className="font-medium text-sm sm:text-base">
+                      <CardContent className="p-4">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                          <div className="space-y-2 min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="font-medium">
                                 {lead.first_name} {lead.last_name}
                               </p>
                               <Badge variant="outline" className="text-[10px]">
@@ -211,40 +211,32 @@ export default function DashboardLeads() {
                                 </Badge>
                               )}
                             </div>
-                            <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
-                              {format(new Date(lead.created_at), "MMM d")}
-                            </span>
-                          </div>
-
-                          <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                            <a
-                              href={`mailto:${lead.email}`}
-                              className="flex items-center gap-1 hover:text-primary transition-colors"
-                            >
-                              <Mail className="h-3 w-3" />
-                              <span className="truncate max-w-[180px] sm:max-w-none">{lead.email}</span>
-                            </a>
-                            {lead.phone && (
+                            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                               <a
-                                href={`tel:${lead.phone}`}
+                                href={`mailto:${lead.email}`}
                                 className="flex items-center gap-1 hover:text-primary transition-colors"
                               >
-                                <Phone className="h-3 w-3" />
-                                {lead.phone}
+                                <Mail className="h-3 w-3" />
+                                {lead.email}
                               </a>
+                              {lead.phone && (
+                                <a
+                                  href={`tel:${lead.phone}`}
+                                  className="flex items-center gap-1 hover:text-primary transition-colors"
+                                >
+                                  <Phone className="h-3 w-3" />
+                                  {lead.phone}
+                                </a>
+                              )}
+                            </div>
+                            {lead.notes && (
+                              <p className="text-sm text-muted-foreground bg-muted p-2 rounded border border-border">
+                                {lead.notes}
+                              </p>
                             )}
-                          </div>
-
-                          {lead.notes && (
-                            <p className="text-xs sm:text-sm text-muted-foreground bg-muted p-2 rounded border border-border line-clamp-2">
-                              {lead.notes}
-                            </p>
-                          )}
-
-                          {lead.deck_url && (
-                            <div className="flex items-center justify-between gap-2 pt-1">
-                              <div className="flex items-center gap-1.5 text-xs min-w-0">
-                                <Presentation className="h-3 w-3 text-primary shrink-0" />
+                            {lead.deck_url && (
+                              <div className="flex items-center gap-1.5 text-xs">
+                                <Presentation className="h-3 w-3 text-primary" />
                                 <a
                                   href={lead.deck_url}
                                   target="_blank"
@@ -255,10 +247,18 @@ export default function DashboardLeads() {
                                   <ExternalLink className="h-2.5 w-2.5 inline ml-1" />
                                 </a>
                               </div>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-end gap-2 shrink-0">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              {format(new Date(lead.created_at), "MMM d, yyyy")}
+                            </div>
+                            {lead.deck_url && (
                               <Button
                                 size="sm"
                                 variant={emailSentFor.has(lead.id) ? "outline" : "secondary"}
-                                className="text-xs h-7 px-2.5 shrink-0"
+                                className="text-xs h-7 px-2.5"
                                 disabled={sendingEmailFor === lead.id || emailSentFor.has(lead.id)}
                                 onClick={() => handleSendDeckEmail(lead.id, `${lead.first_name} ${lead.last_name}`)}
                               >
@@ -269,10 +269,10 @@ export default function DashboardLeads() {
                                 ) : (
                                   <Mail className="h-3 w-3 mr-1" />
                                 )}
-                                {emailSentFor.has(lead.id) ? "Sent" : "Send Email"}
+                                {emailSentFor.has(lead.id) ? "Sent" : "Send Deck Email"}
                               </Button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -297,17 +297,17 @@ export default function DashboardLeads() {
                 <div className="space-y-6">
                   {Object.entries(groupedLeads).map(([listingId, { listing, leads: listingLeads }]) => (
                     <Card key={listingId}>
-                      <CardHeader className="pb-3 px-3 sm:px-6">
+                      <CardHeader className="pb-3">
                         <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                          <CardTitle className="text-base sm:text-lg truncate">{listing.title}</CardTitle>
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          <CardTitle className="text-lg">{listing.title}</CardTitle>
                           <Badge variant="secondary">{listingLeads.length}</Badge>
                         </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground">{listing.project_name}</p>
+                        <p className="text-sm text-muted-foreground">{listing.project_name}</p>
                       </CardHeader>
-                      <CardContent className="space-y-3 px-3 sm:px-6">
+                      <CardContent className="space-y-4">
                         {listingLeads.map((lead) => (
-                          <div key={lead.id} className="p-3 rounded-lg border border-border bg-muted/30">
+                          <div key={lead.id} className="p-4 rounded-lg border border-border bg-muted/30">
                             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                               <div className="space-y-2">
                                 <p className="font-medium">{lead.name}</p>
