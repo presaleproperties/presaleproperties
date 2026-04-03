@@ -810,6 +810,7 @@ export interface PitchDeckEmailFloorPlan {
   label: string;       // e.g. "1 Bedroom"
   sqft: string;        // e.g. "620 sq ft"
   price?: string;      // e.g. "$549,000"
+  exclusive_credit?: string; // e.g. "$10,000"
 }
 
 export interface PitchDeckEmailData {

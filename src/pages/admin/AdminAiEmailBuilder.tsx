@@ -30,7 +30,7 @@ const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
 };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface FloorPlanEntry { id: string; url: string; label: string; sqft: string; price?: string }
+interface FloorPlanEntry { id: string; url: string; label: string; sqft: string; price?: string; exclusive_credit?: string }
 interface ImageCardEntry { id: string; url: string; caption: string }
 interface CampaignAsset {
   id: string; name: string; project_name: string;
