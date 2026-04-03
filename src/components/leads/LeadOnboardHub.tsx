@@ -206,6 +206,24 @@ export function LeadOnboardHub() {
               </div>
             )}
 
+            {successData.deckUrl && (
+              <Button
+                onClick={handleSendDeckEmail}
+                variant={emailSent ? "outline" : "secondary"}
+                className="w-full"
+                disabled={sendingEmail || emailSent}
+              >
+                {sendingEmail ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : emailSent ? (
+                  <Check className="h-4 w-4 mr-2" />
+                ) : (
+                  <Mail className="h-4 w-4 mr-2" />
+                )}
+                {emailSent ? "Email Sent" : "Send Deck Email"}
+              </Button>
+            )}
+
             <Button onClick={handleNewLead} className="mt-4 w-full">
               <UserPlus className="h-4 w-4 mr-2" />
               Onboard Another Client
