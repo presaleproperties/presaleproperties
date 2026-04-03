@@ -85,9 +85,9 @@ export default function DashboardDecks() {
   };
 
   const copyLink = (slug: string) => {
-    const url = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${slug}`;
+    const url = `https://presaleproperties.lovable.app/deck/${slug}`;
     navigator.clipboard.writeText(url);
-    toast.success("Public link copied! Send this to your clients.");
+    toast.success("Public link copied!");
   };
 
   // ── Build email from deck ────────────────────────────────────────────────────
@@ -372,7 +372,7 @@ export default function DashboardDecks() {
                   {/* Share URL */}
                   <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/50">
                     <span className="text-xs text-muted-foreground flex-1 truncate font-mono">
-                      /deck/{deck.slug}
+                      presaleproperties.lovable.app/deck/{deck.slug}
                     </span>
                     <Button
                       variant="ghost"
