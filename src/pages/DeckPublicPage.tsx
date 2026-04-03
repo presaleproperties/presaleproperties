@@ -106,6 +106,23 @@ export default function DeckPublicPage() {
     fetchDeck().then(async (id) => {
       if (!id) return;
 
+      // Log deck visit for return-visit tracking
+      try {
+        const visitorId = getVisitorId();
+        const leadEmail = localStorage.getItem(`deck_lead_email_${slug}`) || undefined;
+        const leadName = localStorage.getItem(`deck_lead_name_${slug}`) || undefined;
+        await (supabase as any).from("deck_visits").insert({
+          deck_id: id,
+          slug,
+          project_name: deck?.project_name || slug,
+          visitor_id: visitorId || undefined,
+          lead_email: leadEmail,
+          lead_name: leadName,
+          device_type: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
+          referrer: document.referrer || undefined,
+        });
+      } catch (_) { /* non-critical */ }
+
       // Secondary check: visitor_id in project_leads (covers different browsers / cleared storage)
       if (!localStorage.getItem(`deck_unlocked_${slug}`)) {
         const visitorId = getVisitorId();
