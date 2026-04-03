@@ -162,6 +162,7 @@ export default function DashboardDeckBuilder() {
   const [linkedProjectName, setLinkedProjectName] = useState<string>("");
   const searchRef = useRef<HTMLDivElement>(null);
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
+  const [previewKey, setPreviewKey] = useState(0);
 
   const [agents, setAgents] = useState<AgentProfile[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
