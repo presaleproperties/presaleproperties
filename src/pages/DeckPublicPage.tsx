@@ -112,7 +112,7 @@ export default function DeckPublicPage() {
         const visitorId = getVisitorId();
         const leadEmail = localStorage.getItem(`deck_lead_email_${slug}`) || undefined;
         const leadName = localStorage.getItem(`deck_lead_name_${slug}`) || undefined;
-        await (supabase as any).from("deck_visits").insert({
+        const { data: insertedVisit } = await (supabase as any).from("deck_visits").insert({
           deck_id: id,
           slug,
           project_name: deckData.project_name || slug,
@@ -121,7 +121,11 @@ export default function DeckPublicPage() {
           lead_name: leadName,
           device_type: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
           referrer: document.referrer || undefined,
-        });
+        }).select("visit_number").single();
+        // If this is a return visit, fire the WhatsApp notification
+        if (insertedVisit?.visit_number > 1) {
+          supabase.functions.invoke("notify-deck-return-visit", { body: {} }).catch(console.error);
+        }
       } catch (_) { /* non-critical */ }
 
       // Secondary check: visitor_id in project_leads (covers different browsers / cleared storage)
