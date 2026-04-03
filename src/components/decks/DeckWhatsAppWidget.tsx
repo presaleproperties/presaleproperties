@@ -12,7 +12,7 @@ export function DeckWhatsAppWidget({ projectName, contactName, whatsappNumber }:
   const [isOpen, setIsOpen] = useState(false);
   const rawNumber = whatsappNumber.replace(/\D/g, "");
   const firstName = contactName?.split(" ")[0] || "there";
-  const defaultMessage = `Hi ${firstName}! I just viewed the ${projectName} deck — I'm interested. Can we connect?`;
+  const defaultMessage = `Hi, I'm interested in ${projectName}. Can I schedule a showing?`;
 
   const handleSend = () => {
     const url = `https://wa.me/${rawNumber}?text=${encodeURIComponent(defaultMessage)}`;
