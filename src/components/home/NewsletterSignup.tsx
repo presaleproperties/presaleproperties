@@ -112,6 +112,7 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
         id: leadId,
         name: "Newsletter Subscriber",
         email: data.email,
+        form_type: "newsletter",
         lead_source: source === "homepage" ? "newsletter_homepage" : `newsletter_${source}`,
         message: `Newsletter signup${data.city && data.city !== "Any City" ? ` — preferred city: ${data.city}` : ""}${data.priceRange && data.priceRange !== "any" ? `, budget: ${data.priceRange}` : ""}`,
         utm_source: utmData.utm_source,

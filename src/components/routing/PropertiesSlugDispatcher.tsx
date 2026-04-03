@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 const CityResalePage = lazy(() => import("@/pages/CityResalePage"));
@@ -20,13 +20,25 @@ const CITY_SLUGS = new Set([
 /**
  * Dispatcher for /properties/:slug
  * Determines if the slug is a city page or a listing detail page.
+ * Guards against undefined, empty, or malformed slugs.
  */
 export function PropertiesSlugDispatcher() {
   const { slug } = useParams<{ slug: string }>();
 
-  if (!slug) return null;
+  // Guard: missing or empty slug → redirect to /properties
+  if (!slug || slug.trim() === "" || slug === "undefined" || slug === "null") {
+    return <Navigate to="/properties" replace />;
+  }
 
-  const isCity = CITY_SLUGS.has(slug.toLowerCase());
+  // Decode URI-encoded slugs to handle special characters
+  let decodedSlug: string;
+  try {
+    decodedSlug = decodeURIComponent(slug);
+  } catch {
+    decodedSlug = slug;
+  }
+
+  const isCity = CITY_SLUGS.has(decodedSlug.toLowerCase());
 
   return (
     <Suspense

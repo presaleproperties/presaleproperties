@@ -207,6 +207,7 @@ export function ResaleScheduleForm({ listingId, listingAddress, listingCity }: R
           phone: formData.phone,
           email: formData.email,
           message: formData.message,
+          form_type: "resale_inquiry",
           lead_source: "resale_inquiry",
           agent_status: formData.hasAgent === "yes" ? "yes" : formData.hasAgent === "no" ? "no" : null,
           landing_page: window.location.pathname,

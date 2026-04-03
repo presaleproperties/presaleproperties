@@ -104,6 +104,7 @@ export function ProjectLeadForm({
         email: data.email,
         phone: data.phone,
         persona: actualPersona,
+        form_type: "project_inquiry",
         agent_status: data.workingWithAgent ? "working_with_agent" : data.isRealtor ? "i_am_realtor" : "no",
         message: [
           data.workingWithAgent ? "Working with agent" : null,

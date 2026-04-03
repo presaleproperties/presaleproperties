@@ -96,6 +96,7 @@ export function CalculatorLeadCapture({
         name: formData.name.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
+        form_type: calculatorData.calculatorType === "roi" ? "calculator_roi" : "calculator_mortgage",
         lead_source: config.leadSource,
         message: `${calculatorData.calculatorType === "roi" ? "ROI" : "Mortgage"} Calculator Analysis:\n${calculatorData.summary}`,
         persona: "buyer",
