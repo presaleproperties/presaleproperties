@@ -102,6 +102,8 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
       }).catch(console.error);
 
       localStorage.setItem(`deck_unlocked_${slug}`, "1");
+      localStorage.setItem(`deck_lead_email_${slug}`, email.trim().toLowerCase());
+      localStorage.setItem(`deck_lead_name_${slug}`, fullName.trim());
       localStorage.setItem("pp_form_submitted", "true");
       if (typeof window !== "undefined" && (window as any).gtag) (window as any).gtag("event", "deck_price_unlock", { project_name: projectName });
       if (typeof window !== "undefined" && (window as any).fbq) (window as any).fbq("track", "Lead", { content_name: projectName });

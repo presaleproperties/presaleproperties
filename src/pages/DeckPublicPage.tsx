@@ -96,15 +96,37 @@ export default function DeckPublicPage() {
         .select("*")
         .eq("slug", slug)
         .maybeSingle();
-      if (error || !data) { setLoading(false); return; }
+      if (error || !data) { setLoading(false); return null; }
       deckId = data.id;
       setDeck(data);
       setLoading(false);
-      return data.id as string;
+      return data as any;
     };
 
-    fetchDeck().then(async (id) => {
-      if (!id) return;
+    fetchDeck().then(async (deckData) => {
+      if (!deckData) return;
+      const id = deckData.id as string;
+
+      // Log deck visit for return-visit tracking
+      try {
+        const visitorId = getVisitorId();
+        const leadEmail = localStorage.getItem(`deck_lead_email_${slug}`) || undefined;
+        const leadName = localStorage.getItem(`deck_lead_name_${slug}`) || undefined;
+        const { data: insertedVisit } = await (supabase as any).from("deck_visits").insert({
+          deck_id: id,
+          slug,
+          project_name: deckData.project_name || slug,
+          visitor_id: visitorId || undefined,
+          lead_email: leadEmail,
+          lead_name: leadName,
+          device_type: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
+          referrer: document.referrer || undefined,
+        }).select("visit_number").single();
+        // If this is a return visit, fire the WhatsApp notification
+        if (insertedVisit?.visit_number > 1) {
+          supabase.functions.invoke("notify-deck-return-visit", { body: {} }).catch(console.error);
+        }
+      } catch (_) { /* non-critical */ }
 
       // Secondary check: visitor_id in project_leads (covers different browsers / cleared storage)
       if (!localStorage.getItem(`deck_unlocked_${slug}`)) {
