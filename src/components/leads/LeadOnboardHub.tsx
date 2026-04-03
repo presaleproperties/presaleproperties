@@ -235,17 +235,17 @@ export function LeadOnboardHub() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Onboard New Client</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Onboard New Client</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Add a client, pick a deck, and sync to Lofty — all in one step.
         </p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
           {/* Contact Info */}
           <Card>
             <CardHeader className="pb-4">
@@ -390,7 +390,7 @@ export function LeadOnboardHub() {
                         <img
                           src={deck.hero_image_url}
                           alt={deck.project_name}
-                          className="w-full h-20 object-cover rounded mb-2"
+                          className="w-full h-16 sm:h-20 object-cover rounded mb-2"
                         />
                       )}
                       <p className="font-medium text-sm truncate">{deck.project_name}</p>
@@ -409,15 +409,17 @@ export function LeadOnboardHub() {
             </CardContent>
           </Card>
 
-          {/* Submit */}
-          <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-            {submitting ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4 mr-2" />
-            )}
-            Save & Sync to Lofty
-          </Button>
+          {/* Submit - sticky on mobile */}
+          <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm pb-4 pt-2 -mx-4 px-4 sm:static sm:bg-transparent sm:backdrop-blur-none sm:pb-0 sm:pt-0 sm:mx-0 sm:px-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+            <Button type="submit" size="lg" className="w-full text-sm sm:text-base" disabled={submitting}>
+              {submitting ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4 mr-2" />
+              )}
+              Save & Sync to Lofty
+            </Button>
+          </div>
         </form>
       </Form>
     </div>

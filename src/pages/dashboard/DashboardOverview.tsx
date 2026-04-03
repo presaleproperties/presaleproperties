@@ -48,9 +48,9 @@ export default function DashboardOverview() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Greeting */}
-        <h1 className="text-2xl font-bold tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
           {agentName ? `Hey ${agentName}` : "Welcome back"}
         </h1>
 
@@ -68,7 +68,7 @@ export default function DashboardOverview() {
                 </Button>
               </Link>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {decks.map((deck) => (
                 <div
                   key={deck.id}
