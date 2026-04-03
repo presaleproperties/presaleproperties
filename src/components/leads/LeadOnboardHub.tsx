@@ -238,7 +238,7 @@ export function LeadOnboardHub() {
     <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Onboard New Client</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Onboard New Client</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Add a client, pick a deck, and sync to Lofty — all in one step.
         </p>
