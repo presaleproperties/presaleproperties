@@ -409,15 +409,17 @@ export function LeadOnboardHub() {
             </CardContent>
           </Card>
 
-          {/* Submit */}
-          <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-            {submitting ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4 mr-2" />
-            )}
-            Save & Sync to Lofty
-          </Button>
+          {/* Submit - sticky on mobile */}
+          <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm pb-4 pt-2 -mx-4 px-4 sm:static sm:bg-transparent sm:backdrop-blur-none sm:pb-0 sm:pt-0 sm:mx-0 sm:px-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+            <Button type="submit" size="lg" className="w-full text-sm sm:text-base" disabled={submitting}>
+              {submitting ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4 mr-2" />
+              )}
+              Save & Sync to Lofty
+            </Button>
+          </div>
         </form>
       </Form>
     </div>
