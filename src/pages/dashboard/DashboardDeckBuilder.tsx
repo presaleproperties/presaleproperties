@@ -14,6 +14,7 @@ import {
   Plus, Trash2, Loader2, Upload, Image, ArrowUp, ArrowDown,
   ChevronDown, ChevronUp, Save, Eye, Search, Building2, Sparkles, X,
   Wand2, DollarSign, Copy, ExternalLink, CheckCircle2, GripVertical,
+  Monitor, Smartphone,
 } from "lucide-react";
 
 const UNIT_TYPES = ["Studio", "1 Bed", "1 Bed + Den", "2 Bed", "2 Bed + Den", "3 Bed", "Townhouse"];
@@ -159,6 +160,7 @@ export default function DashboardDeckBuilder() {
   const [linkedProjectId, setLinkedProjectId] = useState<string | null>(null);
   const [linkedProjectName, setLinkedProjectName] = useState<string>("");
   const searchRef = useRef<HTMLDivElement>(null);
+  const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
 
   const [agents, setAgents] = useState<AgentProfile[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
@@ -1219,7 +1221,24 @@ export default function DashboardDeckBuilder() {
               </span>
               <p className="text-sm font-semibold text-foreground">Live Preview</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {/* Desktop / Mobile toggle */}
+              <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
+                <button
+                  onClick={() => setPreviewMode("desktop")}
+                  className={`p-1.5 rounded-md transition-colors ${previewMode === "desktop" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  title="Desktop preview"
+                >
+                  <Monitor className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setPreviewMode("mobile")}
+                  className={`p-1.5 rounded-md transition-colors ${previewMode === "mobile" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  title="Mobile preview (iPhone 17 Pro Max)"
+                >
+                  <Smartphone className="h-3.5 w-3.5" />
+                </button>
+              </div>
               {slug ? (
                 <a
                   href={`/deck/${slug}`}
@@ -1228,7 +1247,7 @@ export default function DashboardDeckBuilder() {
                   className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
                 >
                   <ExternalLink className="h-3 w-3" />
-                  Open full page
+                  Open
                 </a>
               ) : (
                 <span className="text-xs text-muted-foreground">Save to preview</span>
@@ -1237,15 +1256,44 @@ export default function DashboardDeckBuilder() {
           </div>
 
           {/* iframe or placeholder */}
-          <div className="flex-1 overflow-hidden relative">
+          <div className="flex-1 overflow-hidden relative flex items-start justify-center">
             {slug ? (
-              <iframe
-                key={slug}
-                src={`/deck/${slug}`}
-                title="Deck Live Preview"
-                className="w-full h-full border-0"
-                style={{ transform: "scale(0.75)", transformOrigin: "top left", width: "133.33%", height: "133.33%" }}
-              />
+              previewMode === "mobile" ? (
+                /* iPhone 17 Pro Max frame: 430×932 */
+                <div className="mt-6 relative" style={{ width: 430 * 0.75, height: 932 * 0.75 }}>
+                  {/* Phone bezel */}
+                  <div className="absolute inset-0 rounded-[40px] border-[3px] border-foreground/20 bg-black pointer-events-none z-10">
+                    {/* Notch / Dynamic Island */}
+                    <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[90px] h-[22px] bg-black rounded-full" />
+                    {/* Home indicator */}
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[100px] h-[4px] bg-foreground/20 rounded-full" />
+                  </div>
+                  {/* Content */}
+                  <div className="absolute inset-[3px] rounded-[37px] overflow-hidden bg-background">
+                    <iframe
+                      key={`${slug}-mobile`}
+                      src={`/deck/${slug}`}
+                      title="Deck Mobile Preview"
+                      className="border-0"
+                      style={{
+                        width: 430,
+                        height: 932,
+                        transform: "scale(0.75)",
+                        transformOrigin: "top left",
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                /* Desktop view — scaled to fit */
+                <iframe
+                  key={`${slug}-desktop`}
+                  src={`/deck/${slug}`}
+                  title="Deck Desktop Preview"
+                  className="w-full h-full border-0"
+                  style={{ transform: "scale(0.75)", transformOrigin: "top left", width: "133.33%", height: "133.33%" }}
+                />
+              )
             ) : (
               <div className="flex flex-col items-center justify-center h-full gap-4 px-8 text-center">
                 <Eye className="h-12 w-12 text-muted-foreground/20" />
@@ -1256,6 +1304,11 @@ export default function DashboardDeckBuilder() {
               </div>
             )}
           </div>
+          {previewMode === "mobile" && (
+            <div className="px-4 py-2 border-t border-border/50 bg-background shrink-0">
+              <p className="text-[10px] text-muted-foreground text-center">iPhone 17 Pro Max · 430 × 932</p>
+            </div>
+          )}
         </div>
 
       </div>{/* end two-column */}
