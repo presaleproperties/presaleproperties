@@ -297,17 +297,17 @@ export default function DashboardLeads() {
                 <div className="space-y-6">
                   {Object.entries(groupedLeads).map(([listingId, { listing, leads: listingLeads }]) => (
                     <Card key={listingId}>
-                      <CardHeader className="pb-3">
+                      <CardHeader className="pb-3 px-3 sm:px-6">
                         <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground" />
-                          <CardTitle className="text-lg">{listing.title}</CardTitle>
+                          <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <CardTitle className="text-base sm:text-lg truncate">{listing.title}</CardTitle>
                           <Badge variant="secondary">{listingLeads.length}</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">{listing.project_name}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{listing.project_name}</p>
                       </CardHeader>
-                      <CardContent className="space-y-4">
+                      <CardContent className="space-y-3 px-3 sm:px-6">
                         {listingLeads.map((lead) => (
-                          <div key={lead.id} className="p-4 rounded-lg border border-border bg-muted/30">
+                          <div key={lead.id} className="p-3 rounded-lg border border-border bg-muted/30">
                             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                               <div className="space-y-2">
                                 <p className="font-medium">{lead.name}</p>
