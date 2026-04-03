@@ -372,7 +372,7 @@ export default function DashboardDecks() {
                   {/* Share URL */}
                   <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/50">
                     <span className="text-xs text-muted-foreground flex-1 truncate font-mono">
-                      /deck/{deck.slug}
+                      presaleproperties.lovable.app/deck/{deck.slug}
                     </span>
                     <Button
                       variant="ghost"
