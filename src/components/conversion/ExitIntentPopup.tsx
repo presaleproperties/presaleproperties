@@ -172,16 +172,15 @@ export function ExitIntentPopup() {
       });
 
       submitLead({
+        leadId,
         firstName,
         lastName: "",
         email: data.email.trim(),
         phone: "",
-        formType: "exit_popup",
+        formType: "exit_intent",
         message: "7 Mistakes Guide - Exit Intent Download",
         projectUrl: window.location.href,
       });
-
-      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 
       trackFormSubmit({ form_name: "exit_intent_guide", form_location: "exit_popup", email: data.email });
 

@@ -118,6 +118,7 @@ export function MistakesGuideLeadMagnet({
       });
 
       submitLead({
+        leadId,
         firstName,
         lastName: "",
         email: data.email.trim(),
@@ -126,8 +127,6 @@ export function MistakesGuideLeadMagnet({
         message: `7 Mistakes Guide - ${location}`,
         projectUrl: window.location.href,
       });
-
-      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 
       trackFormSubmit({ form_name: "7_mistakes_guide", form_location: location, email: data.email });
       MetaEvents.lead({ content_name: "7 Mistakes Guide", content_category: "lead_magnet" });
