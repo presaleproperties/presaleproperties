@@ -96,15 +96,16 @@ export default function DeckPublicPage() {
         .select("*")
         .eq("slug", slug)
         .maybeSingle();
-      if (error || !data) { setLoading(false); return; }
+      if (error || !data) { setLoading(false); return null; }
       deckId = data.id;
       setDeck(data);
       setLoading(false);
-      return data.id as string;
+      return data as any;
     };
 
-    fetchDeck().then(async (id) => {
-      if (!id) return;
+    fetchDeck().then(async (deckData) => {
+      if (!deckData) return;
+      const id = deckData.id as string;
 
       // Log deck visit for return-visit tracking
       try {
@@ -114,7 +115,7 @@ export default function DeckPublicPage() {
         await (supabase as any).from("deck_visits").insert({
           deck_id: id,
           slug,
-          project_name: deck?.project_name || slug,
+          project_name: deckData.project_name || slug,
           visitor_id: visitorId || undefined,
           lead_email: leadEmail,
           lead_name: leadName,
