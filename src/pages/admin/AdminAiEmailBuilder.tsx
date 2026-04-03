@@ -457,13 +457,32 @@ export default function AdminEmailBuilderPage() {
 
           // Update starting price — use credit-adjusted net price from first priced plan
           const firstPriced = rawFps.find((fp: any) => fp.price_from);
+          let netStartingPrice = "";
           if (firstPriced) {
             let price = parseFloat((firstPriced.price_from || "").replace(/[^0-9.]/g, ""));
             const creditMatch = (firstPriced.exclusive_credit || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
             const credit = creditMatch ? parseFloat(creditMatch[1]) : 0;
             if (credit > 0 && price > credit) price -= credit;
-            if (price > 0) setStartingPrice(`$${price.toLocaleString()}`);
+            if (price > 0) {
+              netStartingPrice = `$${price.toLocaleString()}`;
+              setStartingPrice(netStartingPrice);
+            }
           }
+
+          // Update project-level fields
+          if (deckData.project_name) setProjectName(deckData.project_name);
+          if (deckData.developer_name) setDevName(deckData.developer_name);
+          if (deckData.city) setCity(deckData.city);
+          if (deckData.completion_year) setCompletion(String(deckData.completion_year));
+
+          // Rebuild subject line & preview text from latest deck data
+          const pName = deckData.project_name || "";
+          const pCity = deckData.city || "";
+          setSubjectLine(`${pName}${pCity ? ` · ${pCity}` : ""} — Exclusive Presale Details`);
+          setPreviewText(netStartingPrice
+            ? `Starting from ${netStartingPrice} · floor plans + pricing inside`
+            : `Floor plans, pricing & deposit structure inside`);
+          setHeadline(deckData.tagline || `Exclusive Access — ${pName}`);
 
           // Update hero image if changed
           if (deckData.hero_image_url) setHeroImage(deckData.hero_image_url);
