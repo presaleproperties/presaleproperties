@@ -151,6 +151,25 @@ export function LeadOnboardHub() {
 
   const handleNewLead = () => {
     setSuccessData(null);
+    setEmailSent(false);
+  };
+
+  const handleSendDeckEmail = async () => {
+    if (!successData?.leadId) return;
+    setSendingEmail(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-deck-email", {
+        body: { leadId: successData.leadId },
+      });
+      if (error) throw error;
+      setEmailSent(true);
+      toast({ title: "Email sent!", description: `Pitch deck email sent to ${successData.leadName}.` });
+    } catch (err: any) {
+      console.error("Send deck email error:", err);
+      toast({ title: "Failed to send email", description: err.message || "Something went wrong", variant: "destructive" });
+    } finally {
+      setSendingEmail(false);
+    }
   };
 
   // Success state
