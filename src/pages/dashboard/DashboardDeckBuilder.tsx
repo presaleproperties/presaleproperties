@@ -14,8 +14,9 @@ import {
   Plus, Trash2, Loader2, Upload, Image, ArrowUp, ArrowDown,
   ChevronDown, ChevronUp, Save, Eye, Search, Building2, Sparkles, X,
   Wand2, DollarSign, Copy, ExternalLink, CheckCircle2, GripVertical,
-  Monitor, Smartphone,
+  Monitor, Smartphone, RefreshCw,
 } from "lucide-react";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
 const UNIT_TYPES = ["Studio", "1 Bed", "1 Bed + Den", "2 Bed", "2 Bed + Den", "3 Bed", "Townhouse"];
 
@@ -161,6 +162,7 @@ export default function DashboardDeckBuilder() {
   const [linkedProjectName, setLinkedProjectName] = useState<string>("");
   const searchRef = useRef<HTMLDivElement>(null);
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
+  const [previewKey, setPreviewKey] = useState(0);
 
   const [agents, setAgents] = useState<AgentProfile[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
@@ -564,10 +566,11 @@ export default function DashboardDeckBuilder() {
           onChange={(e) => handleFloorPlanUpload(e, fp.id)} />
       ))}
 
-      {/* Two-column layout: builder left, live preview right */}
-      <div className="flex gap-0 min-h-screen">
+      {/* Two-column layout: builder left, resizable preview right */}
+      <ResizablePanelGroup direction="horizontal" className="min-h-screen">
+        <ResizablePanel defaultSize={65} minSize={40}>
         {/* Builder column */}
-        <div className="flex-1 min-w-0 overflow-y-auto h-screen">
+        <div className="overflow-y-auto h-screen">
         <div className="max-w-2xl mx-auto space-y-3 pb-28 px-4 md:px-6 pt-6">
 
         {/* Page header */}
@@ -1214,9 +1217,14 @@ export default function DashboardDeckBuilder() {
         </Section>
         </div>{/* end builder inner */}
         </div>{/* end builder column */}
+        </ResizablePanel>
 
-        {/* Live preview column — sticky, only visible on xl+ */}
-        <div className="hidden xl:flex flex-col w-[480px] shrink-0 sticky top-0 h-screen border-l border-border/50 bg-muted/20">
+        {/* Resizable handle — only on xl+ */}
+        <ResizableHandle withHandle className="hidden xl:flex" />
+
+        <ResizablePanel defaultSize={35} minSize={20} className="hidden xl:flex">
+        {/* Live preview column */}
+        <div className="flex flex-col w-full sticky top-0 h-screen border-l border-border/50 bg-muted/20">
           {/* Preview header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-background shrink-0">
             <div className="flex items-center gap-2">
@@ -1227,6 +1235,14 @@ export default function DashboardDeckBuilder() {
               <p className="text-sm font-semibold text-foreground">Live Preview</p>
             </div>
             <div className="flex items-center gap-3">
+              {/* Refresh */}
+              <button
+                onClick={() => setPreviewKey((k) => k + 1)}
+                className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                title="Refresh preview"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+              </button>
               {/* Desktop / Mobile toggle */}
               <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
                 <button
@@ -1268,15 +1284,12 @@ export default function DashboardDeckBuilder() {
                 <div className="mt-6 relative" style={{ width: 430 * 0.75, height: 932 * 0.75 }}>
                   {/* Phone bezel */}
                   <div className="absolute inset-0 rounded-[40px] border-[3px] border-foreground/20 bg-black pointer-events-none z-10">
-                    {/* Notch / Dynamic Island */}
                     <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[90px] h-[22px] bg-black rounded-full" />
-                    {/* Home indicator */}
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[100px] h-[4px] bg-foreground/20 rounded-full" />
                   </div>
-                  {/* Content */}
                   <div className="absolute inset-[3px] rounded-[37px] overflow-hidden bg-background">
                     <iframe
-                      key={`${slug}-mobile`}
+                      key={`${slug}-mobile-${previewKey}`}
                       src={`/deck/${slug}`}
                       title="Deck Mobile Preview"
                       className="border-0"
@@ -1292,7 +1305,7 @@ export default function DashboardDeckBuilder() {
               ) : (
                 /* Desktop view — scaled to fit */
                 <iframe
-                  key={`${slug}-desktop`}
+                  key={`${slug}-desktop-${previewKey}`}
                   src={`/deck/${slug}`}
                   title="Deck Desktop Preview"
                   className="w-full h-full border-0"
@@ -1315,8 +1328,8 @@ export default function DashboardDeckBuilder() {
             </div>
           )}
         </div>
-
-      </div>{/* end two-column */}
+        </ResizablePanel>
+      </ResizablePanelGroup>
 
       {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border/50 shadow-lg">
