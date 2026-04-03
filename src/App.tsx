@@ -74,6 +74,7 @@ const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminLeads = lazy(() => import("./pages/admin/AdminLeads"));
 const AdminLeadAnalytics = lazy(() => import("./pages/admin/AdminLeadAnalytics"));
+const AdminLeadOnboard = lazy(() => import("./pages/admin/AdminLeadOnboard"));
 const AdminLoftyCRM = lazy(() => import("./pages/admin/AdminLoftyCRM"));
 const AdminAIAnalytics = lazy(() => import("./pages/admin/AdminAIAnalytics"));
 const AdminBookings = lazy(() => import("./pages/admin/AdminBookings"));
