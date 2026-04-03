@@ -54,7 +54,7 @@ export function LeadOnboardHub() {
   const [decks, setDecks] = useState<PitchDeck[]>([]);
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [successData, setSuccessData] = useState<{ deckUrl: string; leadName: string } | null>(null);
+  const [successData, setSuccessData] = useState<{ deckUrl: string; leadName: string; leadId: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
