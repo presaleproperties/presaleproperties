@@ -20,11 +20,20 @@ interface Recipient {
 
 function personalizeContent(content: string, firstName?: string) {
   const safeFirstName = firstName?.trim() || "there";
+
   return content
     .replaceAll("[First Name]", safeFirstName)
     .replaceAll("[FirstName]", safeFirstName)
+    .replaceAll("[Lead Name]", safeFirstName)
+    .replaceAll("[lead name]", safeFirstName)
+    .replaceAll("[Client Name]", safeFirstName)
+    .replaceAll("[client name]", safeFirstName)
     .replaceAll("{{first_name}}", safeFirstName)
     .replaceAll("{{firstName}}", safeFirstName)
+    .replaceAll("{{lead_name}}", safeFirstName)
+    .replaceAll("{{leadName}}", safeFirstName)
+    .replaceAll("{{client_name}}", safeFirstName)
+    .replaceAll("{{clientName}}", safeFirstName)
     .replaceAll("*|FNAME|*", safeFirstName);
 }
 
