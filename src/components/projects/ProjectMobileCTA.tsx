@@ -118,6 +118,7 @@ export function ProjectMobileCTA({
         email: data.email,
         phone: data.phone,
         persona: actualPersona,
+        form_type: "mobile_cta",
         agent_status: data.workingWithAgent ? "working_with_agent" : data.isRealtor ? "i_am_realtor" : "no",
         message: [
           data.workingWithAgent ? "Working with agent" : null,
