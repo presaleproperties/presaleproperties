@@ -155,6 +155,7 @@ export function VIPNotifyButton({ projectName }: LeadMagnetProps) {
         id: leadId,
         name: "VIP Subscriber",
         email: email.trim(),
+        form_type: "lead_magnet",
         lead_source: "vip_notify",
         message: `VIP early access request${projectName ? ` for ${projectName}` : ""}`,
         visitor_id: getVisitorId(),
