@@ -210,9 +210,7 @@ export default function AdminMarketingHub() {
                   {activeAssets.map(asset => {
                     const fd = asset.form_data || {};
                     const isEmail = fd._type === "ai-email" || !fd.plans;
-                    const openUrl = isEmail
-                      ? `/admin/email-builder?saved=${asset.id}`
-                      : `/admin/campaign-builder/${asset.id}`;
+                    const openUrl = `/admin/email-builder?saved=${asset.id}`;
 
                     return (
                       <div
