@@ -390,7 +390,7 @@ export function LeadOnboardHub() {
                         <img
                           src={deck.hero_image_url}
                           alt={deck.project_name}
-                          className="w-full h-20 object-cover rounded mb-2"
+                          className="w-full h-16 sm:h-20 object-cover rounded mb-2"
                         />
                       )}
                       <p className="font-medium text-sm truncate">{deck.project_name}</p>
