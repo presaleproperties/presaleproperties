@@ -498,6 +498,12 @@ export default function AdminEmailBuilderPage() {
             deckData.units_remaining ? `Units Remaining|${deckData.units_remaining}` : "",
           ].filter(Boolean);
           if (newInfoRows.length > 0) setInfoRows(newInfoRows);
+
+          // Update deposit from deck deposit_steps
+          const depositSteps: any[] = Array.isArray(deckData.deposit_steps) ? deckData.deposit_steps : [];
+          if (depositSteps.length > 0) {
+            setDeposit(depositSteps.map((s: any) => `${s.percent}% ${s.label}`).join(" · "));
+          }
         })();
       }
     } catch { /* ignore */ }
