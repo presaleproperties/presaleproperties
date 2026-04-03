@@ -27,7 +27,7 @@ import {
   ClipboardList,
   Activity,
   Star,
-  Sparkles,
+  
   Workflow,
   BarChart3,
   ChevronRight,
@@ -88,7 +88,7 @@ const navSections = [
       { href: "/admin/blogs",         label: "Blog",         icon: BookOpen,  badgeKey: null },
       { href: "/admin/email-center",  label: "Email",        icon: Mail,      badgeKey: null },
       
-      { href: "/admin/top-deals",     label: "Top Deals",    icon: Sparkles,  badgeKey: null },
+      
       { href: "/admin/google-reviews",label: "Reviews",      icon: Star,      badgeKey: null },
     ],
   },
