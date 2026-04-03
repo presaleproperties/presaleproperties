@@ -58,7 +58,7 @@ interface FloorPlan {
   price_per_sqft?: string; tags: string[]; image_url?: string;
   beds?: number | null; baths?: number | null; exposure?: string | null;
   interior_sqft?: number | null; exterior_sqft?: number | null;
-  projected_rent?: number | null;
+  projected_rent?: number | null; exclusive_credit?: string;
 }
 
 interface ProximityHighlight { icon: string; label: string; distance: string; }
@@ -823,6 +823,11 @@ export default function DashboardDeckBuilder() {
                       <Label className="text-xs flex items-center gap-1"><DollarSign className="h-3 w-3" />Projected Rent/mo</Label>
                       <Input className="h-8 text-xs" type="number" value={fp.projected_rent ?? ""}
                         onChange={(e) => updateFloorPlan(fp.id, "projected_rent", e.target.value ? parseFloat(e.target.value) : null)} placeholder="2,300" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Exclusive Credit</Label>
+                      <Input className="h-8 text-xs" value={fp.exclusive_credit ?? ""}
+                        onChange={(e) => updateFloorPlan(fp.id, "exclusive_credit", e.target.value)} placeholder="$10,000 off" />
                     </div>
                   </div>
                 </div>

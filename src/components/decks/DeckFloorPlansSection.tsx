@@ -231,10 +231,15 @@ export function DeckFloorPlansSection({
                       {/* Price — clear when unlocked, full-width CTA when locked */}
                        <div className="text-right shrink-0">
                          {isUnlocked ? (
-                           <>
+                           <div>
                              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">From</p>
                              <p className="text-primary font-bold text-base sm:text-lg leading-tight">{plan.price_from || "—"}</p>
-                           </>
+                             {plan.exclusive_credit && (
+                               <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-600 text-[10px] font-semibold">
+                                 {plan.exclusive_credit}
+                               </span>
+                             )}
+                           </div>
                          ) : (
                            <button
                              onClick={handleRevealPrice}
