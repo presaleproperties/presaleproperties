@@ -237,26 +237,28 @@ export default function AdminOverview() {
         {/* ── KPI STATS ── */}
         <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           {[
-            { label: "Leads", value: stats.totalLeads, icon: Users, color: "text-emerald-600", bg: "bg-emerald-100", sub: (
+            { label: "Leads", value: stats.totalLeads, icon: Users, color: "text-emerald-600", bg: "bg-emerald-100", href: "/admin/leads", sub: (
               <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${stats.growth >= 0 ? "text-emerald-600" : "text-red-500"}`}>
                 {stats.growth >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                 {Math.abs(stats.growth)}% vs last mo
               </span>
             )},
-            { label: "Projects", value: stats.publishedProjects, icon: Building2, color: "text-blue-600", bg: "bg-blue-100", sub: <span className="text-xs text-muted-foreground">{stats.totalProjects} total</span> },
-            { label: "Assignments", value: stats.totalAssignments, icon: FileStack, color: "text-violet-600", bg: "bg-violet-100", sub: stats.pendingAssignments > 0 ? <span className="text-xs text-amber-600">{stats.pendingAssignments} pending</span> : <span className="text-xs text-muted-foreground">All clear</span> },
-            { label: "Bookings", value: stats.totalBookings, icon: Calendar, color: "text-amber-600", bg: "bg-amber-100", sub: stats.pendingBookings > 0 ? <span className="text-xs text-amber-600">{stats.pendingBookings} pending</span> : <span className="text-xs text-muted-foreground">None pending</span> },
-          ].map(({ label, value, icon: Icon, color, bg, sub }) => (
-            <Card key={label}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className={`rounded-lg ${bg} p-1.5`}><Icon className={`h-4 w-4 ${color}`} /></div>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
-                </div>
-                <p className="text-2xl font-bold text-foreground">{value.toLocaleString()}</p>
-                <div className="mt-1">{sub}</div>
-              </CardContent>
-            </Card>
+            { label: "Projects", value: stats.publishedProjects, icon: Building2, color: "text-blue-600", bg: "bg-blue-100", href: "/admin/projects", sub: <span className="text-xs text-muted-foreground">{stats.totalProjects} total</span> },
+            { label: "Assignments", value: stats.totalAssignments, icon: FileStack, color: "text-violet-600", bg: "bg-violet-100", href: "/admin/listings", sub: stats.pendingAssignments > 0 ? <span className="text-xs text-amber-600">{stats.pendingAssignments} pending</span> : <span className="text-xs text-muted-foreground">All clear</span> },
+            { label: "Bookings", value: stats.totalBookings, icon: Calendar, color: "text-amber-600", bg: "bg-amber-100", href: "/admin/bookings", sub: stats.pendingBookings > 0 ? <span className="text-xs text-amber-600">{stats.pendingBookings} pending</span> : <span className="text-xs text-muted-foreground">None pending</span> },
+          ].map(({ label, value, icon: Icon, color, bg, href, sub }) => (
+            <Link key={label} to={href}>
+              <Card className="group cursor-pointer hover:shadow-card-hover transition-all h-full">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`rounded-lg ${bg} p-1.5`}><Icon className={`h-4 w-4 ${color}`} /></div>
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
+                  </div>
+                  <p className="text-2xl font-bold text-foreground">{value.toLocaleString()}</p>
+                  <div className="mt-1">{sub}</div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 
