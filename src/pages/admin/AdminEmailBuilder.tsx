@@ -1147,6 +1147,7 @@ export default function AdminEmailBuilder() {
   const [savedTemplates, setSavedTemplates] = useState<SavedEmailTemplate[]>([]);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [overwriteId, setOverwriteId] = useState<string | null>(null);
