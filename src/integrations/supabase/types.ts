@@ -1029,33 +1029,45 @@ export type Database = {
           email_to: string
           error_message: string | null
           id: string
+          last_opened_at: string | null
           lead_id: string | null
+          open_count: number
+          opened_at: string | null
           sent_at: string
           status: string
           subject: string
           template_type: string | null
+          tracking_id: string | null
         }
         Insert: {
           campaign_id?: string | null
           email_to: string
           error_message?: string | null
           id?: string
+          last_opened_at?: string | null
           lead_id?: string | null
+          open_count?: number
+          opened_at?: string | null
           sent_at?: string
           status?: string
           subject: string
           template_type?: string | null
+          tracking_id?: string | null
         }
         Update: {
           campaign_id?: string | null
           email_to?: string
           error_message?: string | null
           id?: string
+          last_opened_at?: string | null
           lead_id?: string | null
+          open_count?: number
+          opened_at?: string | null
           sent_at?: string
           status?: string
           subject?: string
           template_type?: string | null
+          tracking_id?: string | null
         }
         Relationships: [
           {
