@@ -66,6 +66,12 @@ const navItems = [
     description: "View buyer inquiries"
   },
   { 
+    label: "Onboard Client", 
+    href: "/dashboard/lead-onboard", 
+    icon: UserPlus,
+    description: "Add & sync new client"
+  },
+  { 
     label: "Billing", 
     href: "/dashboard/billing", 
     icon: CreditCard,
