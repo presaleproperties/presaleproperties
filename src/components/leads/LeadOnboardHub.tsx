@@ -245,7 +245,7 @@ export function LeadOnboardHub() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
           {/* Contact Info */}
           <Card>
             <CardHeader className="pb-4">
