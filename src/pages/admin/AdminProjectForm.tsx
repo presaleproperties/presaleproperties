@@ -90,6 +90,7 @@ type ProjectFormData = {
   is_indexed: boolean;
   is_published: boolean;
   is_featured: boolean;
+  show_in_hero: boolean;
 };
 
 const defaultFormData: ProjectFormData = {
