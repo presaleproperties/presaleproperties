@@ -221,13 +221,14 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, inc
 
           {/* Price — gated when locked */}
           {isUnlocked ? (
-            <div className="rounded-xl bg-primary/8 border border-primary/15 px-4 py-3 mb-4">
+           <div className="rounded-xl bg-primary/8 border border-primary/15 px-4 py-3 mb-4">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Starting From</p>
               <p className="text-2xl font-bold text-primary leading-tight">{plan.price_from || "—"}</p>
               {plan.exclusive_credit && (
-                <div className="mt-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-green-500/15 to-emerald-500/10 border border-green-500/25 inline-flex flex-col">
-                  <p className="text-[8px] uppercase tracking-widest text-green-600/80 font-semibold">Limited Time</p>
-                  <p className="text-green-600 font-bold text-sm leading-tight">{plan.exclusive_credit}</p>
+                <div className="mt-2 flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-green-500/12 text-green-600 text-sm font-bold leading-tight">
+                    Save {plan.exclusive_credit}
+                  </span>
                 </div>
               )}
             </div>
