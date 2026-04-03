@@ -52,15 +52,17 @@ serve(async (req: Request): Promise<Response> => {
       .eq("user_id", lead.user_id)
       .single();
 
-    // Get webhook URL
-    let webhookUrl = Deno.env.get("ZAPIER_PROJECT_LEADS_WEBHOOK");
-    const { data: setting } = await sb
-      .from("app_settings")
-      .select("value")
-      .eq("key", "zapier_project_leads_webhook")
-      .single();
-    if (setting?.value && typeof setting.value === "string" && setting.value.trim()) {
-      webhookUrl = setting.value;
+    // Get webhook URL — dedicated onboard webhook first, fallback to general
+    let webhookUrl = Deno.env.get("ZAPIER_ONBOARD_LEADS_WEBHOOK");
+    if (!webhookUrl) {
+      const { data: setting } = await sb
+        .from("app_settings")
+        .select("value")
+        .eq("key", "zapier_onboard_leads_webhook")
+        .single();
+      if (setting?.value && typeof setting.value === "string" && setting.value.trim()) {
+        webhookUrl = setting.value;
+      }
     }
 
     if (!webhookUrl) {
