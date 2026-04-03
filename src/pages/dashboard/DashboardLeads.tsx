@@ -124,6 +124,23 @@ export default function DashboardLeads() {
     return acc;
   }, {});
 
+  const handleSendDeckEmail = async (leadId: string, leadName: string) => {
+    setSendingEmailFor(leadId);
+    try {
+      const { error } = await supabase.functions.invoke("send-deck-email", {
+        body: { leadId },
+      });
+      if (error) throw error;
+      setEmailSentFor((prev) => new Set(prev).add(leadId));
+      toast.success(`Pitch deck email sent to ${leadName}`);
+    } catch (err: any) {
+      console.error("Send deck email error:", err);
+      toast.error(err.message || "Failed to send email");
+    } finally {
+      setSendingEmailFor(null);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
