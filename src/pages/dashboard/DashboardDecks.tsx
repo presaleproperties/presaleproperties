@@ -34,6 +34,7 @@ interface PitchDeck {
   city: string | null;
   is_published: boolean;
   created_at: string;
+  hero_image_url: string | null;
 }
 
 const DRAFT_KEY = "ai-email-builder-draft";
@@ -51,7 +52,7 @@ export default function DashboardDecks() {
     setLoading(true);
     const { data, error } = await (supabase as any)
       .from("pitch_decks")
-      .select("id, slug, project_name, city, is_published, created_at")
+      .select("id, slug, project_name, city, is_published, created_at, hero_image_url")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
@@ -282,7 +283,21 @@ export default function DashboardDecks() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {decks.map((deck) => (
-              <Card key={deck.id} className="group">
+              <Card key={deck.id} className="group overflow-hidden">
+                {/* Preview Image */}
+                {deck.hero_image_url ? (
+                  <div className="w-full h-32 bg-muted overflow-hidden">
+                    <img
+                      src={deck.hero_image_url}
+                      alt={deck.project_name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-32 bg-muted/50 flex items-center justify-center">
+                    <Presentation className="h-8 w-8 text-muted-foreground/30" />
+                  </div>
+                )}
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="flex-1 min-w-0">
