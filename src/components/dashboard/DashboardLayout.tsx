@@ -20,6 +20,7 @@ import {
   FileText,
   FolderOpen,
   Presentation,
+  UserPlus,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
