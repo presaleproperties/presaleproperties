@@ -216,6 +216,11 @@ export function FloorPlanModal({ plan, onClose, whatsappNumber, projectName, inc
             <div className="rounded-xl bg-primary/8 border border-primary/15 px-4 py-3 mb-4">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Starting From</p>
               <p className="text-2xl font-bold text-primary leading-tight">{plan.price_from || "—"}</p>
+              {plan.exclusive_credit && (
+                <span className="inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-600 text-xs font-semibold">
+                  {plan.exclusive_credit}
+                </span>
+              )}
             </div>
           ) : (
             <button
