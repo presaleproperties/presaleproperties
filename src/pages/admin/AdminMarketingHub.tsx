@@ -54,16 +54,6 @@ const CREATE_OPTIONS = [
     url: "/admin/email-builder?template=exclusive-offer",
   },
   {
-    key: "campaign-flyer",
-    title: "Campaign Flyer",
-    desc: "Print-ready one-pager PDF for presentations",
-    icon: FileText,
-    color: "text-violet-600",
-    bg: "bg-violet-500/10",
-    badge: "PDF",
-    url: "/admin/campaign-builder/new",
-  },
-  {
     key: "blank-email",
     title: "Blank Email",
     desc: "Start from scratch with your own copy",
@@ -209,7 +199,7 @@ export default function AdminMarketingHub() {
                     variant="outline"
                     size="sm"
                     className="gap-1.5"
-                    onClick={() => navigate(activeTab === "emails" ? "/admin/email-builder?template=project-email" : "/admin/campaign-builder/new")}
+                    onClick={() => navigate("/admin/email-builder?template=project-email")}
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Create {activeTab === "emails" ? "Email" : "Flyer"}
@@ -220,9 +210,7 @@ export default function AdminMarketingHub() {
                   {activeAssets.map(asset => {
                     const fd = asset.form_data || {};
                     const isEmail = fd._type === "ai-email" || !fd.plans;
-                    const openUrl = isEmail
-                      ? `/admin/email-builder?saved=${asset.id}`
-                      : `/admin/campaign-builder/${asset.id}`;
+                    const openUrl = `/admin/email-builder?saved=${asset.id}`;
 
                     return (
                       <div

@@ -28,7 +28,7 @@ export function FloatingMapButton() {
   
   // Hide on map search pages, detail pages, ad landing pages, and admin/agent portals
   const isMapPage = location.pathname === "/map-search";
-  const isAdLandingPage = location.pathname === "/exclusive-offer";
+  
   const isAdminPage = location.pathname.startsWith("/admin");
   const isDashboardPage = location.pathname.startsWith("/dashboard");
   const isForAgentsPage = location.pathname === "/for-agents";
@@ -118,7 +118,7 @@ export function FloatingMapButton() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   
-  if (isMapPage || isDetailPage || isAdLandingPage || isAdminPage || isDashboardPage || isForAgentsPage) return null;
+  if (isMapPage || isDetailPage || isAdminPage || isDashboardPage || isForAgentsPage) return null;
   
   // Build the map URL with context-aware params
   const buildMapUrl = () => {

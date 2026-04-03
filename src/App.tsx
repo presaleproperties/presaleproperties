@@ -97,8 +97,6 @@ const AdminLiveActivity = lazy(() => import("./pages/admin/AdminLiveActivity"));
 const AdminClients = lazy(() => import("./pages/admin/AdminClients"));
 const AdminClientSearches = lazy(() => import("./pages/admin/AdminClientSearches"));
 const AdminClientForm = lazy(() => import("./pages/admin/AdminClientForm"));
-const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
-const AdminCampaignBuilder = lazy(() => import("./pages/admin/AdminCampaignBuilder"));
 const AdminAiEmailBuilder = lazy(() => import("./pages/admin/AdminAiEmailBuilder"));
 const AdminMarketingHub = lazy(() => import("./pages/admin/AdminMarketingHub"));
 const AdminEmailCenter = lazy(() => import("./pages/admin/AdminEmailCenter"));
@@ -133,7 +131,7 @@ const PopularSearchesPage = lazy(() => import("./pages/PopularSearchesPage"));
 const NeighborhoodPropertyTypePage = lazy(() => import("./pages/NeighborhoodPropertyTypePage"));
 const ContentHub = lazy(() => import("./pages/ContentHub"));
 const BlogCategoryPage = lazy(() => import("./pages/BlogCategoryPage"));
-const AdLandingPage = lazy(() => import("./pages/AdLandingPage"));
+
 const PresaleCompletionYearPage = lazy(() => import("./pages/PresaleCompletionYearPage"));
 const PresaleProcess = lazy(() => import("./pages/PresaleProcess"));
 const DeckPublicPage = lazy(() => import("./pages/DeckPublicPage"));
@@ -286,10 +284,6 @@ const App = () => (
             {/* Developer detail pages don't exist yet — redirect to directory to stop soft 404 */}
             <Route path="/developers/:slug" element={<Navigate to="/developers" replace />} />
             
-            {/* Ad Landing Page - noindex for paid campaigns */}
-            <Route path="/exclusive-offer" element={<AdLandingPage />} />
-            
-            
             {/* Buyer Portal Routes */}
             <Route path="/buyer/signup" element={<BuyerAuth />} />
             <Route path="/buyer/login" element={<BuyerLogin />} />
@@ -356,7 +350,7 @@ const App = () => (
             <Route path="/admin/blogs/new" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
             <Route path="/admin/blogs/import" element={<AdminProtectedRoute><AdminBlogImport /></AdminProtectedRoute>} />
             <Route path="/admin/blogs/:id/edit" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
-            <Route path="/admin/landing-pages" element={<AdminProtectedRoute><AdminLandingPages /></AdminProtectedRoute>} />
+            
             <Route path="/admin/agents" element={<AdminProtectedRoute><AdminAgents /></AdminProtectedRoute>} />
             <Route path="/admin/leads" element={<AdminProtectedRoute><AdminLeads /></AdminProtectedRoute>} />
             <Route path="/admin/leads/analytics" element={<AdminProtectedRoute><AdminLeadAnalytics /></AdminProtectedRoute>} />
@@ -385,8 +379,6 @@ const App = () => (
             
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
-            <Route path="/admin/campaign-builder/new" element={<AdminProtectedRoute><AdminCampaignBuilder /></AdminProtectedRoute>} />
-            <Route path="/admin/campaign-builder/:templateId" element={<AdminProtectedRoute><AdminCampaignBuilder /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/edit" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/searches" element={<AdminProtectedRoute><AdminClientSearches /></AdminProtectedRoute>} />
             <Route path="/admin/team-members" element={<AdminProtectedRoute><AdminTeamMembers /></AdminProtectedRoute>} />
