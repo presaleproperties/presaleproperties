@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { MessageCircle, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AccessPackModal } from "./AccessPackModal";
-import { supabase } from "@/integrations/supabase/client";
+import { useAppSetting } from "@/hooks/useAppSetting";
 
 interface StickyConversionBarProps {
   projectId?: string;
@@ -13,19 +13,8 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
   const [modalOpen, setModalOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
-
-  useEffect(() => {
-    const fetchWhatsapp = async () => {
-      const { data } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "whatsapp_number")
-        .maybeSingle();
-      if (data?.value) setWhatsappNumber(data.value as string);
-    };
-    fetchWhatsapp();
-  }, []);
+  const { data: whatsappSetting } = useAppSetting("whatsapp_number");
+  const whatsappNumber = (whatsappSetting as string) || "16722581100";
 
   useEffect(() => {
     const handleScroll = () => {

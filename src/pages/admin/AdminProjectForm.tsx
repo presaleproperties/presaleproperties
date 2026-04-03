@@ -90,6 +90,7 @@ type ProjectFormData = {
   is_indexed: boolean;
   is_published: boolean;
   is_featured: boolean;
+  show_in_hero: boolean;
 };
 
 const defaultFormData: ProjectFormData = {
@@ -134,6 +135,7 @@ const defaultFormData: ProjectFormData = {
   is_indexed: true,
   is_published: false,
   is_featured: false,
+  show_in_hero: false,
 };
 
 export default function AdminProjectForm() {
@@ -449,6 +451,7 @@ export default function AdminProjectForm() {
         is_indexed: data.is_indexed ?? true,
         is_published: data.is_published || false,
         is_featured: data.is_featured || false,
+        show_in_hero: (data as any).show_in_hero || false,
       });
     } catch (error) {
       console.error("Error fetching project:", error);
@@ -1211,6 +1214,7 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
         is_indexed: formData.is_indexed,
         is_published: formData.is_published,
         is_featured: formData.is_featured,
+        show_in_hero: formData.show_in_hero,
         published_at: formData.is_published && !isEdit ? new Date().toISOString() : undefined,
       };
 
@@ -2672,6 +2676,16 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                   <Switch
                     checked={formData.is_featured}
                     onCheckedChange={(v) => setFormData(prev => ({ ...prev, is_featured: v }))}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Show in Hero Slider</Label>
+                    <p className="text-sm text-muted-foreground">Display in homepage hero background slider</p>
+                  </div>
+                  <Switch
+                    checked={formData.show_in_hero}
+                    onCheckedChange={(v) => setFormData(prev => ({ ...prev, show_in_hero: v }))}
                   />
                 </div>
               </CardContent>

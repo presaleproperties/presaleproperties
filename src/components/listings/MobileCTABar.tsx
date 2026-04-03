@@ -1,7 +1,7 @@
 import { MessageCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useAppSetting } from "@/hooks/useAppSetting";
 
 interface MobileCTABarProps {
   price: string;
@@ -11,23 +11,9 @@ interface MobileCTABarProps {
 }
 
 export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }: MobileCTABarProps) {
-  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const { data: whatsappSetting } = useAppSetting("whatsapp_number");
+  const whatsappNumber = whatsappSetting ? String(whatsappSetting).replace(/"/g, "") : null;
   const [isHidden, setIsHidden] = useState(false);
-
-  useEffect(() => {
-    const fetchWhatsappNumber = async () => {
-      const { data } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "whatsapp_number")
-        .maybeSingle();
-      
-      if (data?.value) {
-        setWhatsappNumber(String(data.value).replace(/"/g, ""));
-      }
-    };
-    fetchWhatsappNumber();
-  }, []);
 
   // Hide when gallery is open
   useEffect(() => {
@@ -66,7 +52,7 @@ export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }
           willChange: 'transform',
         }}
       >
-        <div className="bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
+        <div className="bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.15)] pb-[env(safe-area-inset-bottom)]">
           {/* Safe area padding for iPhone notch */}
           <div className="px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
             {/* Price Row */}
