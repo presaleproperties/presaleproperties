@@ -174,6 +174,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <SwipeNavigationProvider>
+            <GlobalPullToRefresh>
             <ScrollToTop />
             <GlobalSEO />
             <FaviconLoader />
