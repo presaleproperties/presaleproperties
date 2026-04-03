@@ -55,7 +55,8 @@ export function DeckHeroSection({
           <img
             src={heroImageUrl}
             alt={projectName}
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: 'center 30%' }}
             loading="eager"
             fetchPriority="high"
           />
