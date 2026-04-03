@@ -85,9 +85,9 @@ export default function DashboardDecks() {
   };
 
   const copyLink = (slug: string) => {
-    const url = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${slug}`;
+    const url = `https://presaleproperties.lovable.app/deck/${slug}`;
     navigator.clipboard.writeText(url);
-    toast.success("Public link copied! Send this to your clients.");
+    toast.success("Public link copied!");
   };
 
   // ── Build email from deck ────────────────────────────────────────────────────
