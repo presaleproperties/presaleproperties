@@ -21,7 +21,7 @@ import {
   RefreshCw,
   Mail,
   TrendingUp,
-  Megaphone,
+  
   Palette,
   ExternalLink,
   ClipboardList,
