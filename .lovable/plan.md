@@ -1,46 +1,44 @@
 
-# Agent Hub Redesign — Command Centre
 
-## Problem
-The current overview is just the onboard form + a small deck list. To review leads, send emails, or manage decks, you jump between 3+ pages. Too much friction for a daily driver.
+# Manual "Send Deck Email" Button
 
-## New Layout — Single-Page Command Centre
+## Overview
 
-The overview becomes a **3-panel layout** (stacks vertically on mobile):
+Add a "Send Deck Email" button next to each onboarded lead that has a pitch deck assigned. When clicked, it fires an edge function that fetches the deck data, renders a branded pitch deck intro email, and sends it via your existing Gmail SMTP — no auto-send, fully manual.
 
-### Panel 1: Quick Onboard (Left/Top)
-- The onboard form stays front and center — but **streamlined to a compact card**
-- Inline deck selector (dropdown instead of grid to save space)
-- After submit: success toast + "Send Email" button appears inline — no separate success screen blocking the view
+## What You'll See
 
-### Panel 2: Recent Leads (Center)
-- Shows your last 10 onboarded leads as a **compact list** (name, source badge, deck name, date)
-- Each lead row has **one-tap actions**: 📧 Send Deck Email, 📋 Copy Deck Link, 🔗 Open Deck
-- Expandable row to show notes/phone
-- No tabs, no page navigation — everything visible at once
+- Each onboarded lead card (in the Leads tab) with a deck attached gets a **"Send Deck Email"** button
+- The success screen after onboarding also gets the button (next to the copy-link button)
+- Clicking it sends a polished email to the client with the project name, hero image, and a "View Pitch Deck" CTA linking to the live deck
+- A loading spinner while sending, then a confirmation toast
+- Button changes to "Email Sent" with a checkmark after success
 
-### Panel 3: Your Decks (Right/Bottom)
-- All published decks as compact cards with:
-  - **Copy link** (one tap)
-  - **Open** in new tab
-  - **Edit** → goes to deck builder
-- "Create New Deck" button at top
+## Technical Plan
 
-### Sidebar Simplification
-- Remove "Onboard Client" (it's now in the overview)
-- Keep: Overview, Pitch Decks, Leads, Listings, Documents, Messages, Billing, Profile
-- Reorder to match priority
+### 1. New Edge Function: `send-deck-email`
+- Accepts `{ leadId }` with JWT auth
+- Fetches the onboarded lead + joined pitch deck data (project name, hero image, city, tagline, floor plans, deposit structure)
+- Renders a branded HTML email matching your existing Lululemon-style aesthetic (white background, Plus Jakarta Sans headings, black pill CTA button)
+- Sends via the existing `_shared/gmail-smtp.ts` utility from `info@presaleproperties.com`
+- Logs to `email_logs` table
+- Returns success/failure
 
-## What Changes
+### 2. Update `DashboardLeads.tsx`
+- Add a "Send Deck Email" button on each onboarded lead card that has a `deck_url`
+- Track sending state per lead ID
+- Call `supabase.functions.invoke('send-deck-email', { body: { leadId } })`
+- Show toast on success/failure
+
+### 3. Update `LeadOnboardHub.tsx` success screen
+- Add "Send Deck Email" button alongside the existing "Copy Link" button
+- Only visible when a deck was selected during onboarding
+
+### Files
 
 | File | Action |
 |------|--------|
-| `src/pages/dashboard/DashboardOverview.tsx` | **Rewrite** — New 3-panel command centre |
-| `src/components/dashboard/DashboardLayout.tsx` | **Edit** — Remove "Onboard Client" nav item, reorder items |
-| `src/components/leads/LeadOnboardHub.tsx` | **No change** — Reuse as-is inside overview |
+| `supabase/functions/send-deck-email/index.ts` | Create — fetch deck data, render HTML, send via Gmail SMTP |
+| `src/pages/dashboard/DashboardLeads.tsx` | Edit — add Send Email button per lead |
+| `src/components/leads/LeadOnboardHub.tsx` | Edit — add Send Email button on success screen |
 
-## What Stays the Same
-- LeadOnboardHub component (reused)
-- DashboardLeads page (still accessible for detailed view)
-- DashboardDecks page (still accessible for full management)
-- All edge functions unchanged
