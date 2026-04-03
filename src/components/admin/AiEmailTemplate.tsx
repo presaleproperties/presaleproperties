@@ -56,6 +56,32 @@ export interface AiEmailCopy {
   imageCards?: ImageCardEntry[];
 }
 
+/** Parse a credit string like "$10,000" into a number */
+function parseCredit(credit?: string): number {
+  if (!credit) return 0;
+  const match = credit.replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+  return match ? parseFloat(match[1]) : 0;
+}
+
+/** Calculate PSF, optionally adjusting for exclusive credit */
+function calcPsf(priceStr?: string, sqftStr?: string, creditStr?: string): string {
+  if (!priceStr || !sqftStr) return "";
+  let price = parseFloat(priceStr.replace(/[^0-9.]/g, ""));
+  const credit = parseCredit(creditStr);
+  if (credit > 0 && price > credit) price -= credit;
+  const sqft = parseFloat(sqftStr.replace(/[^0-9.]/g, ""));
+  if (price > 0 && sqft > 0) return `$${Math.round(price / sqft).toLocaleString()}`;
+  return "";
+}
+
+/** Render exclusive credit badge HTML for email */
+function creditBadgeHtml(creditStr?: string, bodyFont?: string): string {
+  if (!creditStr) return "";
+  const display = creditStr.startsWith("$") ? creditStr : `$${creditStr}`;
+  const font = bodyFont || "'DM Sans',Arial,sans-serif";
+  return `<p style="margin:6px 0 0 0;font-family:${font};font-size:12px;font-weight:700;color:#22c55e;line-height:1.3;">✦ Exclusive Credit: ${display}</p>`;
+}
+
 /** Build bullet items from incentiveText (lines starting with ✦ or -) */
 function parseIncentives(text: string): string[] {
   if (!text) return [];
@@ -810,6 +836,7 @@ export interface PitchDeckEmailFloorPlan {
   label: string;       // e.g. "1 Bedroom"
   sqft: string;        // e.g. "620 sq ft"
   price?: string;      // e.g. "$549,000"
+  exclusive_credit?: string; // e.g. "$10,000"
 }
 
 export interface PitchDeckEmailData {
@@ -872,8 +899,9 @@ export function buildPitchDeckEmailHtml(
           }
           <div style="padding:14px 18px 18px;text-align:left;">
             ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${BODY_FONT};font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
-            ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${BODY_FONT};font-size:12px;color:#8aaa96;">${fp.sqft}</p>` : ""}
+            ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${BODY_FONT};font-size:12px;color:#8aaa96;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
             ${fp.price ? `<p style="margin:0;font-family:${DISPLAY_FONT};font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
+            ${creditBadgeHtml(fp.exclusive_credit, BODY_FONT)}
             ${deckLink ? `<p style="margin:8px 0 0 0;font-family:${BODY_FONT};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};"><a href="${deckLink}" target="_blank" style="color:${ACCENT};text-decoration:none;">View Full Details →</a></p>` : ""}
           </div>
         </div>
@@ -1305,8 +1333,9 @@ export function buildLululemonEmailHtml(
           <tr>
             <td style="padding:16px 20px 20px;">
               ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#999999;">${fp.label}</p>` : ""}
-              ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#666666;">${fp.sqft}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#666666;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
               ${fp.price ? `<p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
+              ${creditBadgeHtml(fp.exclusive_credit, F)}
             </td>
           </tr>` : ""}
         </table>
@@ -1748,8 +1777,9 @@ export function buildPitchDeckEmailHtmlLofty(
           <tr>
             <td style="padding:14px 18px 18px;">
               ${fp.label ? `<p style="margin:0 0 4px 0;${F}font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
-              ${fp.sqft  ? `<p style="margin:0 0 8px 0;${F}font-size:13px;color:#8aaa96;">${fp.sqft}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0 0 8px 0;${F}font-size:13px;color:#8aaa96;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
               ${fp.price ? `<p style="margin:0 0 10px 0;${F}font-size:22px;font-weight:700;color:#ffffff;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
+              ${creditBadgeHtml(fp.exclusive_credit, F.replace(/font-family:/,"").replace(/;$/,""))}
               ${deckLink ? `<table cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:0;">
                 <a href="${deckLink}" target="_blank"
                    style="${F}font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;">

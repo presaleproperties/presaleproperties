@@ -142,6 +142,7 @@ export default function DashboardDecks() {
             label,
             sqft: fp.size_range || "",
             price: fp.price_from || "",
+            exclusive_credit: fp.exclusive_credit || "",
           };
         });
 

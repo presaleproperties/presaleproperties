@@ -30,7 +30,7 @@ const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
 };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface FloorPlanEntry { id: string; url: string; label: string; sqft: string; price?: string }
+interface FloorPlanEntry { id: string; url: string; label: string; sqft: string; price?: string; exclusive_credit?: string }
 interface ImageCardEntry { id: string; url: string; caption: string }
 interface CampaignAsset {
   id: string; name: string; project_name: string;
@@ -112,6 +112,7 @@ function buildFinalHtml(
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
+        exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
       })),
       fpHeading,
       fpSubheading,
@@ -140,6 +141,7 @@ function buildFinalHtml(
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
+        exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
       })),
       fpHeading,
       fpSubheading,
