@@ -56,6 +56,32 @@ export interface AiEmailCopy {
   imageCards?: ImageCardEntry[];
 }
 
+/** Parse a credit string like "$10,000" into a number */
+function parseCredit(credit?: string): number {
+  if (!credit) return 0;
+  const match = credit.replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+  return match ? parseFloat(match[1]) : 0;
+}
+
+/** Calculate PSF, optionally adjusting for exclusive credit */
+function calcPsf(priceStr?: string, sqftStr?: string, creditStr?: string): string {
+  if (!priceStr || !sqftStr) return "";
+  let price = parseFloat(priceStr.replace(/[^0-9.]/g, ""));
+  const credit = parseCredit(creditStr);
+  if (credit > 0 && price > credit) price -= credit;
+  const sqft = parseFloat(sqftStr.replace(/[^0-9.]/g, ""));
+  if (price > 0 && sqft > 0) return `$${Math.round(price / sqft).toLocaleString()}`;
+  return "";
+}
+
+/** Render exclusive credit badge HTML for email */
+function creditBadgeHtml(creditStr?: string, bodyFont?: string): string {
+  if (!creditStr) return "";
+  const display = creditStr.startsWith("$") ? creditStr : `$${creditStr}`;
+  const font = bodyFont || "'DM Sans',Arial,sans-serif";
+  return `<p style="margin:6px 0 0 0;font-family:${font};font-size:12px;font-weight:700;color:#22c55e;line-height:1.3;">✦ Exclusive Credit: ${display}</p>`;
+}
+
 /** Build bullet items from incentiveText (lines starting with ✦ or -) */
 function parseIncentives(text: string): string[] {
   if (!text) return [];
