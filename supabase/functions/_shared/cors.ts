@@ -33,8 +33,8 @@ export function getCorsHeaders(req: Request): Record<string, string> {
   const isProd = Deno.env.get("ENVIRONMENT") === "production";
 
   const allowed = isProd
-    ? ALLOWED_ORIGINS
-    : [...ALLOWED_ORIGINS, ...DEV_ORIGINS];
+    ? [...ALLOWED_ORIGINS, ...LOVABLE_ORIGINS]
+    : [...ALLOWED_ORIGINS, ...DEV_ORIGINS, ...LOVABLE_ORIGINS];
 
   const allowedOrigin = allowed.includes(origin)
     ? origin
