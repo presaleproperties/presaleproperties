@@ -85,7 +85,7 @@ export default function DashboardDecks() {
   };
 
   const copyLink = (slug: string) => {
-    const url = `https://presaleproperties.lovable.app/deck/${slug}`;
+    const url = `https://presaleproperties.com/deck/${slug}`;
     navigator.clipboard.writeText(url);
     toast.success("Public link copied!");
   };
@@ -372,7 +372,7 @@ export default function DashboardDecks() {
                   {/* Share URL */}
                   <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/50">
                     <span className="text-xs text-muted-foreground flex-1 truncate font-mono">
-                      presaleproperties.lovable.app/deck/{deck.slug}
+                      presaleproperties.com/deck/{deck.slug}
                     </span>
                     <Button
                       variant="ghost"
