@@ -24,6 +24,8 @@ import {
   Loader2,
   Presentation,
   Mail,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
