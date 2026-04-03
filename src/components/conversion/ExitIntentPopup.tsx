@@ -134,7 +134,7 @@ export function ExitIntentPopup() {
       clearTimeout(mobileTimeout);
       clearTimeout(timeout);
     };
-  }, []);
+  }, [pathname, isPortalRoute]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
