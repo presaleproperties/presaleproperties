@@ -1,9 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -18,8 +26,12 @@ import {
   Presentation,
   ExternalLink,
   Check,
+  Search,
+  Filter,
+  TrendingUp,
+  Clock,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, subDays, isAfter } from "date-fns";
 
 interface Lead {
   id: string;
@@ -64,6 +76,13 @@ const SOURCE_LABELS: Record<string, string> = {
   referral: "Referral",
 };
 
+const DATE_FILTERS = [
+  { value: "all", label: "All Time" },
+  { value: "7", label: "Last 7 Days" },
+  { value: "30", label: "Last 30 Days" },
+  { value: "90", label: "Last 90 Days" },
+];
+
 export default function DashboardLeads() {
   const { user } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -71,6 +90,12 @@ export default function DashboardLeads() {
   const [loading, setLoading] = useState(true);
   const [sendingEmailFor, setSendingEmailFor] = useState<string | null>(null);
   const [emailSentFor, setEmailSentFor] = useState<Set<string>>(new Set());
+
+  // Filter state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [syncFilter, setSyncFilter] = useState("all");
 
   useEffect(() => {
     if (user) fetchAll();
@@ -112,7 +137,41 @@ export default function DashboardLeads() {
     }
   };
 
-  const groupedLeads = leads.reduce<GroupedLeads>((acc, lead) => {
+  // Filtered onboarded leads
+  const filteredOnboarded = useMemo(() => {
+    return onboardedLeads.filter((lead) => {
+      const fullName = `${lead.first_name} ${lead.last_name}`.toLowerCase();
+      const q = searchQuery.toLowerCase();
+      if (q && !fullName.includes(q) && !lead.email.toLowerCase().includes(q) && !lead.phone?.includes(q)) {
+        return false;
+      }
+      if (sourceFilter !== "all" && lead.source !== sourceFilter) return false;
+      if (syncFilter === "synced" && !lead.zapier_synced) return false;
+      if (syncFilter === "unsynced" && lead.zapier_synced) return false;
+      if (dateFilter !== "all") {
+        const cutoff = subDays(new Date(), parseInt(dateFilter));
+        if (!isAfter(new Date(lead.created_at), cutoff)) return false;
+      }
+      return true;
+    });
+  }, [onboardedLeads, searchQuery, sourceFilter, dateFilter, syncFilter]);
+
+  // Filtered listing leads
+  const filteredLeads = useMemo(() => {
+    return leads.filter((lead) => {
+      const q = searchQuery.toLowerCase();
+      if (q && !lead.name.toLowerCase().includes(q) && !lead.email.toLowerCase().includes(q)) {
+        return false;
+      }
+      if (dateFilter !== "all") {
+        const cutoff = subDays(new Date(), parseInt(dateFilter));
+        if (!isAfter(new Date(lead.created_at), cutoff)) return false;
+      }
+      return true;
+    });
+  }, [leads, searchQuery, dateFilter]);
+
+  const groupedLeads = filteredLeads.reduce<GroupedLeads>((acc, lead) => {
     const listingId = lead.listing?.id || "unknown";
     if (!acc[listingId]) {
       acc[listingId] = {
@@ -123,6 +182,19 @@ export default function DashboardLeads() {
     acc[listingId].leads.push(lead);
     return acc;
   }, {});
+
+  // Stats
+  const totalLeads = onboardedLeads.length + leads.length;
+  const recentLeads = [...onboardedLeads, ...leads].filter((l) =>
+    isAfter(new Date(l.created_at), subDays(new Date(), 7))
+  ).length;
+  const syncedCount = onboardedLeads.filter((l) => l.zapier_synced).length;
+
+  // Unique sources for filter
+  const availableSources = useMemo(() => {
+    const sources = new Set(onboardedLeads.map((l) => l.source));
+    return Array.from(sources);
+  }, [onboardedLeads]);
 
   const handleSendDeckEmail = async (leadId: string, leadName: string) => {
     setSendingEmailFor(leadId);
@@ -141,14 +213,82 @@ export default function DashboardLeads() {
     }
   };
 
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSourceFilter("all");
+    setDateFilter("all");
+    setSyncFilter("all");
+  };
+
+  const hasActiveFilters = searchQuery || sourceFilter !== "all" || dateFilter !== "all" || syncFilter !== "all";
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Leads</h1>
-          <p className="text-muted-foreground">
-            All your leads — onboarded clients and listing inquiries
-          </p>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">Leads</h1>
+            <p className="text-muted-foreground">
+              Manage onboarded clients and listing inquiries
+            </p>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Users className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{totalLeads}</p>
+                  <p className="text-xs text-muted-foreground">Total Leads</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-success/10 flex items-center justify-center">
+                  <TrendingUp className="h-4 w-4 text-success" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{recentLeads}</p>
+                  <p className="text-xs text-muted-foreground">This Week</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-info/10 flex items-center justify-center">
+                  <UserPlus className="h-4 w-4 text-info" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{onboardedLeads.length}</p>
+                  <p className="text-xs text-muted-foreground">Onboarded</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-warning/10 flex items-center justify-center">
+                  <Check className="h-4 w-4 text-warning" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{syncedCount}</p>
+                  <p className="text-xs text-muted-foreground">CRM Synced</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {loading ? (
@@ -178,23 +318,96 @@ export default function DashboardLeads() {
               </TabsTrigger>
             </TabsList>
 
+            {/* Filters Bar */}
+            <Card>
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by name, email, or phone..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 text-sm"
+                    />
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                      <SelectTrigger className="w-[130px] text-sm h-10">
+                        <Filter className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                        <SelectValue placeholder="Source" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Sources</SelectItem>
+                        {availableSources.map((src) => (
+                          <SelectItem key={src} value={src}>
+                            {SOURCE_LABELS[src] || src}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={dateFilter} onValueChange={setDateFilter}>
+                      <SelectTrigger className="w-[130px] text-sm h-10">
+                        <Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                        <SelectValue placeholder="Date" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DATE_FILTERS.map((f) => (
+                          <SelectItem key={f.value} value={f.value}>
+                            {f.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={syncFilter} onValueChange={setSyncFilter}>
+                      <SelectTrigger className="w-[120px] text-sm h-10">
+                        <SelectValue placeholder="Sync" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="synced">Synced</SelectItem>
+                        <SelectItem value="unsynced">Not Synced</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {hasActiveFilters && (
+                      <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs h-10 px-3">
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Onboarded Leads Tab */}
             <TabsContent value="onboarded">
-              {onboardedLeads.length === 0 ? (
+              {filteredOnboarded.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
                     <UserPlus className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No onboarded clients yet</h3>
+                    <h3 className="text-lg font-medium mb-2">
+                      {hasActiveFilters ? "No leads match your filters" : "No onboarded clients yet"}
+                    </h3>
                     <p className="text-muted-foreground text-sm">
-                      Use the onboard form on the dashboard to add your first client.
+                      {hasActiveFilters
+                        ? "Try adjusting your search or filters."
+                        : "Use the onboard form on the dashboard to add your first client."}
                     </p>
+                    {hasActiveFilters && (
+                      <Button variant="outline" size="sm" className="mt-4" onClick={clearFilters}>
+                        Clear Filters
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               ) : (
                 <div className="space-y-3">
-                  {onboardedLeads.map((lead) => (
-                    <Card key={lead.id}>
-                         <CardContent className="p-3 sm:p-4">
+                  <p className="text-xs text-muted-foreground">
+                    Showing {filteredOnboarded.length} of {onboardedLeads.length} leads
+                  </p>
+                  {filteredOnboarded.map((lead) => (
+                    <Card key={lead.id} className="hover:border-primary/20 transition-colors">
+                      <CardContent className="p-3 sm:p-4">
                         <div className="space-y-2">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-2 flex-wrap min-w-0">
@@ -283,18 +496,30 @@ export default function DashboardLeads() {
 
             {/* Listing Inquiries Tab */}
             <TabsContent value="inquiries">
-              {leads.length === 0 ? (
+              {filteredLeads.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
                     <Users className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No listing inquiries yet</h3>
+                    <h3 className="text-lg font-medium mb-2">
+                      {hasActiveFilters ? "No leads match your filters" : "No listing inquiries yet"}
+                    </h3>
                     <p className="text-muted-foreground text-sm">
-                      When buyers submit inquiries on your listings, they'll appear here.
+                      {hasActiveFilters
+                        ? "Try adjusting your search or filters."
+                        : "When buyers submit inquiries on your listings, they'll appear here."}
                     </p>
+                    {hasActiveFilters && (
+                      <Button variant="outline" size="sm" className="mt-4" onClick={clearFilters}>
+                        Clear Filters
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               ) : (
                 <div className="space-y-6">
+                  <p className="text-xs text-muted-foreground">
+                    Showing {filteredLeads.length} of {leads.length} inquiries
+                  </p>
                   {Object.entries(groupedLeads).map(([listingId, { listing, leads: listingLeads }]) => (
                     <Card key={listingId}>
                       <CardHeader className="pb-3 px-3 sm:px-6">
