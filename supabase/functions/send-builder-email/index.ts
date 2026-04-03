@@ -8,13 +8,24 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { sendEmail } from "../_shared/gmail-smtp.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://presaleproperties.com",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 interface Recipient {
   email: string;
   name?: string;
+  firstName?: string;
+}
+
+function personalizeContent(content: string, firstName?: string) {
+  const safeFirstName = firstName?.trim() || "there";
+  return content
+    .replaceAll("[First Name]", safeFirstName)
+    .replaceAll("[FirstName]", safeFirstName)
+    .replaceAll("{{first_name}}", safeFirstName)
+    .replaceAll("{{firstName}}", safeFirstName)
+    .replaceAll("*|FNAME|*", safeFirstName);
 }
 
 interface SendBuilderEmailRequest {
@@ -75,10 +86,11 @@ serve(async (req) => {
 
     for (const recipient of recipients) {
       try {
+        const personalizedFirstName = recipient.firstName || recipient.name?.trim().split(/\s+/)[0] || undefined;
         const result = await sendEmail({
           to: recipient.email,
-          subject,
-          html,
+          subject: personalizeContent(subject, personalizedFirstName),
+          html: personalizeContent(html, personalizedFirstName),
           fromName: fromName || "Presale Properties",
         });
 

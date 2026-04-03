@@ -26,6 +26,7 @@ import {
 interface LeadResult {
   id: string;
   name: string;
+  firstName?: string;
   email: string;
   source: string; // "lead" | "client"
   phone?: string;
@@ -34,6 +35,7 @@ interface LeadResult {
 interface Recipient {
   email: string;
   name: string;
+  firstName?: string;
   source: string;
 }
 
@@ -110,7 +112,7 @@ export function SendEmailDialog({
         for (const l of leadsRes.data) {
           if (!seen.has(l.email)) {
             seen.add(l.email);
-            mapped.push({ id: l.id, name: l.name, email: l.email, source: "lead", phone: l.phone ?? undefined });
+            mapped.push({ id: l.id, name: l.name, firstName: l.name?.trim().split(/\s+/)[0] || undefined, email: l.email, source: "lead", phone: l.phone ?? undefined });
           }
         }
       }
@@ -119,7 +121,7 @@ export function SendEmailDialog({
           if (!seen.has(c.email)) {
             seen.add(c.email);
             const name = [c.first_name, c.last_name].filter(Boolean).join(" ") || c.email;
-            mapped.push({ id: c.id, name, email: c.email, source: "client", phone: c.phone ?? undefined });
+            mapped.push({ id: c.id, name, firstName: c.first_name ?? undefined, email: c.email, source: "client", phone: c.phone ?? undefined });
           }
         }
       }
@@ -134,7 +136,7 @@ export function SendEmailDialog({
 
   const addRecipient = (lead: LeadResult) => {
     if (recipients.some((r) => r.email === lead.email)) return;
-    setRecipients((prev) => [...prev, { email: lead.email, name: lead.name, source: lead.source }]);
+    setRecipients((prev) => [...prev, { email: lead.email, name: lead.name, firstName: lead.firstName, source: lead.source }]);
     setQuery("");
     setResults([]);
     inputRef.current?.focus();
@@ -150,7 +152,7 @@ export function SendEmailDialog({
       toast.error("Already added");
       return;
     }
-    setRecipients((prev) => [...prev, { email, name: email.split("@")[0], source: "manual" }]);
+    setRecipients((prev) => [...prev, { email, name: email.split("@")[0], firstName: email.split("@")[0], source: "manual" }]);
     setManualEmail("");
   };
 
@@ -174,7 +176,7 @@ export function SendEmailDialog({
         body: {
           subject,
           html,
-          recipients: recipients.map((r) => ({ email: r.email, name: r.name })),
+          recipients: recipients.map((r) => ({ email: r.email, name: r.name, firstName: r.firstName })),
           fromName,
         },
       });
@@ -247,7 +249,7 @@ export function SendEmailDialog({
                   ref={inputRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search leads by name or email…"
+                  placeholder="Search any lead or client by name or email…"
                   className="pl-9 h-9 text-sm"
                 />
                 {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-muted-foreground" />}
@@ -297,7 +299,7 @@ export function SendEmailDialog({
                     value={manualEmail}
                     onChange={(e) => setManualEmail(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && addManualRecipient()}
-                    placeholder="Or type an email address…"
+                    placeholder="Or type a client email address…"
                     className="pl-9 h-8 text-xs"
                   />
                 </div>

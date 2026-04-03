@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { SendEmailDialog } from "@/components/admin/SendEmailDialog";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -15,7 +16,7 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
-  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Presentation,
+  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Presentation, Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -366,6 +367,7 @@ export default function AdminEmailBuilderPage() {
   const [copied,        setCopied]        = useState(false);
   const [copiedLofty,   setCopiedLofty]   = useState(false);
   const [saving,        setSaving]        = useState(false);
+  const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
   // Data
@@ -905,6 +907,15 @@ export default function AdminEmailBuilderPage() {
             </div>
           )}
 
+          <Button
+            size="sm"
+            className="h-8 gap-1.5 shrink-0 text-xs px-2.5"
+            onClick={() => setSendDialogOpen(true)}
+          >
+            <Send className="h-3.5 w-3.5" />
+            <span className="hidden md:inline">Send Email</span>
+            <span className="md:hidden">Send</span>
+          </Button>
           <Button variant="outline" size="sm" className="h-8 gap-1.5 shrink-0 hidden sm:flex text-xs px-2.5" onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
             <span className="hidden md:inline">Save</span>
@@ -1012,6 +1023,15 @@ export default function AdminEmailBuilderPage() {
               )}
 
               {/* Right: Copy HTML quick button on mobile preview */}
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 gap-1 font-semibold text-xs px-2.5 lg:hidden shrink-0"
+                onClick={() => setSendDialogOpen(true)}
+              >
+                <Send className="h-3.5 w-3.5" />
+                Send
+              </Button>
               <Button
                 size="sm"
                 className={cn("h-7 gap-1 font-semibold transition-all duration-200 text-xs px-2.5 lg:hidden shrink-0",
@@ -1670,7 +1690,13 @@ export default function AdminEmailBuilderPage() {
             </div>
 
             {/* Bottom action bar — desktop only (mobile uses sticky bar below) */}
-            <div className="hidden lg:block px-3 pb-3 pt-2 border-t border-border shrink-0 bg-muted/5">
+            <div className="hidden lg:block px-3 pb-3 pt-2 border-t border-border shrink-0 bg-muted/5 space-y-2">
+              <Button
+                className="w-full h-9 gap-1.5 font-semibold text-sm"
+                onClick={() => setSendDialogOpen(true)}
+              >
+                <Send className="h-3.5 w-3.5" /> Send Email
+              </Button>
               <Button
                 className={cn("w-full h-9 gap-1.5 font-semibold text-sm transition-all duration-200",
                   copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -1687,7 +1713,7 @@ export default function AdminEmailBuilderPage() {
         </div>
 
         {/* ── Mobile sticky bottom bar ── */}
-        <div className="lg:hidden fixed inset-x-0 bottom-0 z-50 bg-background/95 backdrop-blur border-t border-border px-4 py-3 flex gap-3"
+        <div className="lg:hidden fixed inset-x-0 bottom-0 z-50 bg-background/95 backdrop-blur border-t border-border px-4 py-3 flex gap-2"
           style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 12px))" }}>
           <Button
             variant="outline"
@@ -1698,6 +1724,15 @@ export default function AdminEmailBuilderPage() {
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="flex-1 h-12 gap-2 font-semibold"
+            onClick={() => setSendDialogOpen(true)}
+          >
+            <Send className="h-4 w-4" />
+            Send
           </Button>
           <Button
             size="lg"
@@ -1712,6 +1747,14 @@ export default function AdminEmailBuilderPage() {
 
         {/* Spacer so sticky bar doesn't cover content on mobile */}
         <div className="lg:hidden h-20" />
+
+        <SendEmailDialog
+          open={sendDialogOpen}
+          onOpenChange={setSendDialogOpen}
+          subject={subjectLine}
+          html={getExportHtml()}
+          fromName={selectedAgent?.full_name ? `${selectedAgent.full_name} | Presale Properties` : undefined}
+        />
 
       </div>
     </AdminLayout>
