@@ -317,7 +317,7 @@ export function LeadOnboardHub() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Lead Source *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select source" />
