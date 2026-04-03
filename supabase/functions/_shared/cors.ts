@@ -22,6 +22,12 @@ const DEV_ORIGINS = [
   "http://127.0.0.1:8080",
 ];
 
+// Lovable preview/published origins
+const LOVABLE_ORIGINS = [
+  "https://presaleproperties.lovable.app",
+  "https://id-preview--08acf871-484d-4365-9aab-01fdfa4c35be.lovable.app",
+];
+
 export function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("origin") || "";
   const isProd = Deno.env.get("ENVIRONMENT") === "production";
