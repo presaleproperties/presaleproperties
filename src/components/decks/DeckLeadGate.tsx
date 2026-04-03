@@ -221,7 +221,7 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className={cn(
-                      "w-full h-11 px-4 rounded-xl border bg-background text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors",
+                      "w-full h-11 px-4 rounded-xl border bg-background text-[16px] sm:text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors",
                       errors.email ? "border-destructive" : "border-input"
                     )}
                   />
