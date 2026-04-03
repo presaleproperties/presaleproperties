@@ -222,19 +222,10 @@ export function ExitIntentPopup() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="p-0 overflow-hidden border-0 shadow-2xl w-full max-w-[520px] rounded-2xl">
+      <DialogContent className="p-0 overflow-hidden border-0 shadow-2xl w-[calc(100%-2rem)] max-w-[520px] rounded-2xl max-h-[90vh] overflow-y-auto">
         <VisuallyHidden>
           <DialogTitle>Get Free Presale Mistakes Guide</DialogTitle>
         </VisuallyHidden>
-
-        {/* Close */}
-        <button
-          onClick={() => setOpen(false)}
-          className="absolute right-3 top-3 z-20 p-1 rounded-full bg-background/10 backdrop-blur-sm hover:bg-background/20 transition-colors"
-          aria-label="Close"
-        >
-          <X className="h-3.5 w-3.5 text-background/70" />
-        </button>
 
         {!isSubmitted ? (
           <div className="flex flex-col">
