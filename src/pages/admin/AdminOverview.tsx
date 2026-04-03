@@ -1,818 +1,362 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { EngagementFunnel } from "@/components/admin/dashboard/EngagementFunnel";
-import { TopProjectsTable } from "@/components/admin/dashboard/TopProjectsTable";
-import { TopListingsTable } from "@/components/admin/dashboard/TopListingsTable";
-import { TopMlsListingsTable } from "@/components/admin/dashboard/TopMlsListingsTable";
 import { useToast } from "@/hooks/use-toast";
 
 import {
+  Plus,
+  Mail,
   Users,
   Building2,
   Calendar,
   ArrowRight,
   ArrowUpRight,
   ArrowDownRight,
-  Clock,
-  FileStack,
   RefreshCw,
-  TrendingUp,
-  CheckCircle2,
-  Phone,
-  Star,
-  Mail,
-  BarChart3,
   ExternalLink,
-  Presentation,
-  ClipboardList,
+  Star,
+  FileStack,
   AlertCircle,
   XCircle,
   CheckCheck,
-  Home,
   ShieldCheck,
   UserCheck,
+  Home,
+  BarChart3,
+  Sparkles,
 } from "lucide-react";
 import { format, startOfMonth } from "date-fns";
 
-interface LeadPipeline {
-  new: number;
-  contacted: number;
-  qualified: number;
-  converted: number;
-}
-
-interface PendingListing {
-  id: string;
-  title: string;
-  project_name: string;
-  city: string;
-  beds: number;
-  baths: number;
-  assignment_price: number;
-  created_at: string;
-}
-
-interface PendingDeveloper {
-  id: string;
-  company_name: string;
-  contact_name: string;
-  phone: string | null;
-  website_url: string | null;
-  created_at: string;
-}
-
-interface PendingAgent {
-  id: string;
-  user_id: string;
-  license_number: string;
-  brokerage_name: string;
-  created_at: string;
-}
-
-interface DashboardStats {
-  totalProjects: number;
-  publishedProjects: number;
-  totalLeads: number;
-  leadsThisMonth: number;
-  leadsLastMonth: number;
-  totalBookings: number;
-  pendingBookings: number;
-  totalAssignments: number;
-  publishedAssignments: number;
-  pendingAssignments: number;
-  leadPipeline: LeadPipeline;
-  recentLeads: Array<{
-    id: string;
-    name: string;
-    email: string;
-    created_at: string;
-    project_id: string | null;
-    landing_page: string | null;
-    lead_status: string;
-    intent_score: number | null;
-    presale_projects?: { name: string } | null;
-  }>;
-  recentBookings: Array<{
-    id: string;
-    name: string;
-    project_name: string;
-    appointment_date: string;
-    status: string;
-  }>;
-  topProjects: Array<{
-    project_id: string;
-    project_name: string;
-    project_city: string;
-    total_views: number;
-    unique_visitors: number;
-    floorplan_views: number;
-    cta_clicks: number;
-    form_starts: number;
-    form_submits: number;
-  }>;
-  topListings: Array<{
-    id: string;
-    title: string;
-    project_name: string;
-    city: string;
-    assignment_price: number;
-    status: string;
-    view_count: number;
-    lead_count: number;
-  }>;
-  topMlsListings: Array<{
-    listing_id: string;
-    listing_key: string;
-    property_address: string;
-    city: string;
-    bedrooms_total: number | null;
-    bathrooms_total: number | null;
-    listing_price: number;
-    total_views: number;
-    unique_viewers: number;
-    cta_clicks: number;
-    form_starts: number;
-  }>;
-  funnel: {
-    total_page_views: number;
-    total_property_views: number;
-    total_floorplan_views: number;
-    total_cta_clicks: number;
-    total_form_starts: number;
-    total_form_submits: number;
-    unique_page_viewers: number;
-    unique_property_viewers: number;
-  } | null;
-}
-
-const statCardConfigs = [
-  { label: "Leads", icon: Users, iconBg: "bg-emerald-100", iconColor: "text-emerald-600", accentBorder: "border-l-emerald-500" },
-  { label: "Projects", icon: Building2, iconBg: "bg-blue-100", iconColor: "text-blue-600", accentBorder: "border-l-blue-500" },
-  { label: "Assignments", icon: FileStack, iconBg: "bg-violet-100", iconColor: "text-violet-600", accentBorder: "border-l-violet-500" },
-  { label: "Bookings", icon: Calendar, iconBg: "bg-amber-100", iconColor: "text-amber-600", accentBorder: "border-l-amber-500" },
-];
-
 export default function AdminOverview() {
   const { toast } = useToast();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [pendingListings, setPendingListings] = useState<PendingListing[]>([]);
-  const [pendingDevelopers, setPendingDevelopers] = useState<PendingDeveloper[]>([]);
-  const [pendingAgents, setPendingAgents] = useState<PendingAgent[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [pendingListings, setPendingListings] = useState<any[]>([]);
+  const [pendingDevelopers, setPendingDevelopers] = useState<any[]>([]);
+  const [pendingAgents, setPendingAgents] = useState<any[]>([]);
   const [approvingId, setApprovingId] = useState<string | null>(null);
 
-  useEffect(() => { fetchStats(); fetchPendingApprovals(); }, []);
+  useEffect(() => { fetchAll(); }, []);
 
-  const fetchStats = async () => {
-    try {
-      const startOfCurrentMonth = startOfMonth(new Date()).toISOString();
-      const startOfLastMonth = startOfMonth(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).toISOString();
+  const fetchAll = async () => {
+    const startOfCurrentMonth = startOfMonth(new Date()).toISOString();
+    const startOfLastMonth = startOfMonth(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).toISOString();
 
-      const [
-        totalProjectsRes, publishedProjectsRes,
-        leadsRes, leadsThisMonthRes, leadsLastMonthRes,
-        bookingsRes, pendingBookingsRes,
-        recentLeadsRes, recentBookingsRes,
-        topProjectsRes,
-        totalAssignmentsRes, publishedAssignmentsRes, pendingAssignmentsRes,
-        funnelRes,
-        topListingsRes,
-        topMlsListingsRes,
-        pipelineNewRes, pipelineContactedRes, pipelineQualifiedRes, pipelineConvertedRes,
-      ] = await Promise.allSettled([
-        supabase.from("presale_projects").select("*", { count: "exact", head: true }),
-        supabase.from("presale_projects").select("*", { count: "exact", head: true }).eq("is_published", true),
-        supabase.from("project_leads").select("*", { count: "exact", head: true }),
-        supabase.from("project_leads").select("*", { count: "exact", head: true }).gte("created_at", startOfCurrentMonth),
-        supabase.from("project_leads").select("*", { count: "exact", head: true }).gte("created_at", startOfLastMonth).lt("created_at", startOfCurrentMonth),
-        supabase.from("bookings").select("*", { count: "exact", head: true }),
-        supabase.from("bookings").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("project_leads").select("id, name, email, created_at, project_id, landing_page, lead_status, intent_score, presale_projects(name)").neq("name", "Newsletter Signup").order("created_at", { ascending: false }).limit(5),
-        supabase.from("bookings").select("id, name, project_name, appointment_date, status").order("created_at", { ascending: false }).limit(5),
-        supabase.rpc("get_top_projects_with_engagement", { days_back: 90, result_limit: 10 }),
-        (supabase as any).from("listings").select("*", { count: "exact", head: true }),
-        (supabase as any).from("listings").select("*", { count: "exact", head: true }).eq("status", "published"),
-        (supabase as any).from("listings").select("*", { count: "exact", head: true }).eq("status", "pending_approval"),
-        supabase.rpc("get_engagement_funnel", { days_back: 90 }),
-        (supabase as any).from("listings").select("id, title, project_name, city, assignment_price, status").eq("status", "published").order("created_at", { ascending: false }).limit(5),
-        supabase.rpc("get_top_mls_listings_with_engagement", { days_back: 90, result_limit: 5 }),
-        supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "new"),
-        supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "contacted"),
-        supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "qualified"),
-        supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "converted"),
-      ]);
-
-      const getCount = (res: PromiseSettledResult<any>) => res.status === "fulfilled" ? (res.value as any)?.count ?? 0 : 0;
-      const getData = (res: PromiseSettledResult<any>) => res.status === "fulfilled" ? (res.value as any)?.data ?? [] : [];
-
-      const listingsData = getData(topListingsRes).map((l: any) => ({ ...l, view_count: 0, lead_count: 0 }));
-      const funnelData = getData(funnelRes);
-
-      setStats({
-        totalProjects: getCount(totalProjectsRes),
-        publishedProjects: getCount(publishedProjectsRes),
-        totalLeads: getCount(leadsRes),
-        leadsThisMonth: getCount(leadsThisMonthRes),
-        leadsLastMonth: getCount(leadsLastMonthRes),
-        totalBookings: getCount(bookingsRes),
-        pendingBookings: getCount(pendingBookingsRes),
-        totalAssignments: getCount(totalAssignmentsRes),
-        publishedAssignments: getCount(publishedAssignmentsRes),
-        pendingAssignments: getCount(pendingAssignmentsRes),
-        leadPipeline: {
-          new: getCount(pipelineNewRes),
-          contacted: getCount(pipelineContactedRes),
-          qualified: getCount(pipelineQualifiedRes),
-          converted: getCount(pipelineConvertedRes),
-        },
-        recentLeads: getData(recentLeadsRes),
-        recentBookings: getData(recentBookingsRes),
-        topProjects: getData(topProjectsRes),
-        topListings: listingsData,
-        topMlsListings: getData(topMlsListingsRes),
-        funnel: Array.isArray(funnelData) ? funnelData[0] || null : funnelData,
-      });
-    } catch (error) {
-      console.error("Error fetching dashboard stats:", error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  const fetchPendingApprovals = async () => {
-    const [listingsRes, developersRes, agentsRes] = await Promise.allSettled([
+    const [
+      leadsRes, leadsThisMonthRes, leadsLastMonthRes,
+      projectsRes, publishedProjectsRes,
+      assignmentsRes, pendingAssignmentsRes,
+      bookingsRes, pendingBookingsRes,
+      listingsRes, developersRes, agentsRes,
+    ] = await Promise.allSettled([
+      supabase.from("project_leads").select("*", { count: "exact", head: true }),
+      supabase.from("project_leads").select("*", { count: "exact", head: true }).gte("created_at", startOfCurrentMonth),
+      supabase.from("project_leads").select("*", { count: "exact", head: true }).gte("created_at", startOfLastMonth).lt("created_at", startOfCurrentMonth),
+      supabase.from("presale_projects").select("*", { count: "exact", head: true }),
+      supabase.from("presale_projects").select("*", { count: "exact", head: true }).eq("is_published", true),
+      (supabase as any).from("listings").select("*", { count: "exact", head: true }),
+      (supabase as any).from("listings").select("*", { count: "exact", head: true }).eq("status", "pending_approval"),
+      supabase.from("bookings").select("*", { count: "exact", head: true }),
+      supabase.from("bookings").select("*", { count: "exact", head: true }).eq("status", "pending"),
       (supabase as any).from("listings").select("id, title, project_name, city, beds, baths, assignment_price, created_at").eq("status", "pending_approval").order("created_at", { ascending: false }).limit(10),
       supabase.from("developer_profiles").select("id, company_name, contact_name, phone, website_url, created_at").eq("verification_status", "pending").order("created_at", { ascending: false }).limit(10),
       supabase.from("agent_profiles").select("id, user_id, license_number, brokerage_name, created_at").eq("verification_status", "unverified").order("created_at", { ascending: false }).limit(10),
     ]);
-    if (listingsRes.status === "fulfilled") setPendingListings((listingsRes.value as any)?.data ?? []);
-    if (developersRes.status === "fulfilled") setPendingDevelopers((developersRes.value as any)?.data ?? []);
-    if (agentsRes.status === "fulfilled") setPendingAgents((agentsRes.value as any)?.data ?? []);
+
+    const c = (r: PromiseSettledResult<any>) => r.status === "fulfilled" ? (r.value as any)?.count ?? 0 : 0;
+    const d = (r: PromiseSettledResult<any>) => r.status === "fulfilled" ? (r.value as any)?.data ?? [] : [];
+
+    const totalLeads = c(leadsRes);
+    const leadsThisMonth = c(leadsThisMonthRes);
+    const leadsLastMonth = c(leadsLastMonthRes);
+    const growth = leadsLastMonth ? Math.round(((leadsThisMonth - leadsLastMonth) / leadsLastMonth) * 100) : 0;
+
+    setStats({
+      totalLeads, leadsThisMonth, leadsLastMonth, growth,
+      totalProjects: c(projectsRes), publishedProjects: c(publishedProjectsRes),
+      totalAssignments: c(assignmentsRes), pendingAssignments: c(pendingAssignmentsRes),
+      totalBookings: c(bookingsRes), pendingBookings: c(pendingBookingsRes),
+    });
+    setPendingListings(d(listingsRes));
+    setPendingDevelopers(d(developersRes));
+    setPendingAgents(d(agentsRes));
+    setLoading(false);
+    setRefreshing(false);
   };
 
-  const approveListing = async (id: string) => {
+  const handleRefresh = () => { setRefreshing(true); fetchAll(); };
+
+  // Approval handlers
+  const approve = async (table: string, id: string, updates: any, setter: Function) => {
     setApprovingId(id);
-    const { error } = await (supabase as any).from("listings").update({ status: "published", published_at: new Date().toISOString() }).eq("id", id);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: "Listing approved", description: "Assignment is now live." }); setPendingListings(p => p.filter(l => l.id !== id)); }
+    const { error } = await (supabase as any).from(table).update(updates).eq("id", id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Approved!" }); setter((p: any[]) => p.filter(x => x.id !== id)); }
+    setApprovingId(null);
+  };
+  const reject = async (table: string, id: string, updates: any, setter: Function) => {
+    setApprovingId(id);
+    const { error } = await (supabase as any).from(table).update(updates).eq("id", id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Rejected" }); setter((p: any[]) => p.filter(x => x.id !== id)); }
     setApprovingId(null);
   };
 
-  const rejectListing = async (id: string) => {
-    setApprovingId(id);
-    const { error } = await (supabase as any).from("listings").update({ status: "rejected", rejection_reason: "Rejected from dashboard" }).eq("id", id);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: "Listing rejected" }); setPendingListings(p => p.filter(l => l.id !== id)); }
-    setApprovingId(null);
-  };
-
-  const approveDeveloper = async (id: string) => {
-    setApprovingId(id);
-    const { error } = await supabase.from("developer_profiles").update({ verification_status: "approved", verified_at: new Date().toISOString() } as any).eq("id", id);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: "Developer approved" }); setPendingDevelopers(p => p.filter(d => d.id !== id)); }
-    setApprovingId(null);
-  };
-
-  const rejectDeveloper = async (id: string) => {
-    setApprovingId(id);
-    const { error } = await supabase.from("developer_profiles").update({ verification_status: "rejected" } as any).eq("id", id);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: "Developer rejected" }); setPendingDevelopers(p => p.filter(d => d.id !== id)); }
-    setApprovingId(null);
-  };
-
-  const approveAgent = async (id: string) => {
-    setApprovingId(id);
-    const { error } = await supabase.from("agent_profiles").update({ verification_status: "verified", verified_at: new Date().toISOString() } as any).eq("id", id);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: "Agent verified" }); setPendingAgents(p => p.filter(a => a.id !== id)); }
-    setApprovingId(null);
-  };
-
-  const rejectAgent = async (id: string) => {
-    setApprovingId(id);
-    const { error } = await supabase.from("agent_profiles").update({ verification_status: "rejected" } as any).eq("id", id);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: "Agent rejected" }); setPendingAgents(p => p.filter(a => a.id !== id)); }
-    setApprovingId(null);
-  };
-
-  const handleRefresh = () => { setRefreshing(true); fetchStats(); fetchPendingApprovals(); };
-
-  const leadGrowth = stats?.leadsLastMonth
-    ? Math.round(((stats.leadsThisMonth - stats.leadsLastMonth) / stats.leadsLastMonth) * 100)
-    : 0;
+  const totalPending = pendingListings.length + pendingDevelopers.length + pendingAgents.length;
 
   if (loading) {
     return (
       <AdminLayout>
-        <div className="space-y-5">
-          <Skeleton className="h-8 w-48" />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24" />)}
-          </div>
-          <Skeleton className="h-64" />
+        <div className="space-y-6 p-1">
+          <Skeleton className="h-10 w-64" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><Skeleton className="h-32" /><Skeleton className="h-32" /><Skeleton className="h-32" /></div>
+          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-24" />)}</div>
         </div>
       </AdminLayout>
     );
   }
 
-  const statValues = [
-    {
-      value: stats?.totalLeads ?? 0,
-      sub: (
-        <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${leadGrowth >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-          {leadGrowth >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-          {Math.abs(leadGrowth)}% vs last month
-        </span>
-      ),
-    },
-    { value: stats?.publishedProjects ?? 0, sub: <span className="text-xs text-muted-foreground">{stats?.totalProjects} total</span> },
-    { value: stats?.publishedAssignments ?? 0, sub: <span className="text-xs text-muted-foreground">{stats?.totalAssignments} total</span> },
-    { value: stats?.totalBookings ?? 0, sub: <span className="text-xs text-muted-foreground">{stats?.pendingBookings} pending</span> },
-  ];
-
   return (
     <AdminLayout>
-      <div className="space-y-5">
+      <div className="space-y-6">
 
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-foreground">Command Centre</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">{format(new Date(), "EEEE, MMMM d, yyyy")}</p>
+            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">{format(new Date(), "EEEE, MMMM d, yyyy")}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing} className="h-8 text-xs gap-1.5">
+          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing} className="gap-1.5">
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
 
-        {/* ── Pending Approvals ── */}
-        {(pendingListings.length > 0 || pendingDevelopers.length > 0 || pendingAgents.length > 0) && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-destructive" />
-              <h2 className="text-sm font-semibold text-foreground">Pending Approvals</h2>
-              <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4">
-                {pendingListings.length + pendingDevelopers.length + pendingAgents.length}
-              </Badge>
-            </div>
+        {/* ── QUICK ACTIONS ── */}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Link to="/admin/projects/new">
+            <Card className="group cursor-pointer border-2 border-dashed border-primary/30 hover:border-primary/60 bg-primary/5 hover:bg-primary/10 transition-all h-full">
+              <CardContent className="p-5 flex items-center gap-4">
+                <div className="rounded-xl bg-primary/15 p-3 group-hover:scale-110 transition-transform">
+                  <Plus className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground">Add Project</p>
+                  <p className="text-xs text-muted-foreground">Publish a new presale project</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
 
-            {/* Pending Assignment Listings */}
-            {pendingListings.length > 0 && (
-              <Card className="border-l-4 border-l-violet-500 overflow-hidden">
-                <CardHeader className="py-3 px-4 pb-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="rounded-md bg-violet-100 p-1.5">
-                        <Home className="h-3.5 w-3.5 text-violet-600" />
-                      </div>
-                      <CardTitle className="text-sm font-semibold">Assignment Listings</CardTitle>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-violet-200 text-violet-700">
-                        {pendingListings.length} pending
-                      </Badge>
-                    </div>
-                    <Link to="/admin/listings">
-                      <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground">
-                        View all <ArrowRight className="ml-1 h-3 w-3" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 pt-3 space-y-2">
-                  {pendingListings.map(listing => (
-                    <div key={listing.id} className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-8 w-8 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
-                          <Home className="h-3.5 w-3.5 text-violet-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">{listing.title || listing.project_name}</p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {listing.city} · {listing.beds}bd {listing.baths}ba · ${listing.assignment_price.toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="text-[10px] text-muted-foreground whitespace-nowrap hidden sm:block">
-                          {format(new Date(listing.created_at), "MMM d")}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 text-xs gap-1 border-destructive/40 text-destructive hover:bg-destructive/10"
-                          disabled={approvingId === listing.id}
-                          onClick={() => rejectListing(listing.id)}
-                        >
-                          <XCircle className="h-3 w-3" />
-                          <span className="hidden sm:inline">Reject</span>
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="h-7 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                          disabled={approvingId === listing.id}
-                          onClick={() => approveListing(listing.id)}
-                        >
-                          <CheckCheck className="h-3 w-3" />
-                          <span className="hidden sm:inline">Approve</span>
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
+          <Link to="/admin/email-center">
+            <Card className="group cursor-pointer hover:shadow-card-hover transition-all h-full">
+              <CardContent className="p-5 flex items-center gap-4">
+                <div className="rounded-xl bg-pink-100 p-3 group-hover:scale-110 transition-transform">
+                  <Mail className="h-6 w-6 text-pink-600" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground">Send Email</p>
+                  <p className="text-xs text-muted-foreground">Campaigns & direct emails</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
 
-            {/* Pending Developer Verifications */}
-            {pendingDevelopers.length > 0 && (
-              <Card className="border-l-4 border-l-amber-500 overflow-hidden">
-                <CardHeader className="py-3 px-4 pb-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="rounded-md bg-amber-100 p-1.5">
-                        <Building2 className="h-3.5 w-3.5 text-amber-600" />
-                      </div>
-                      <CardTitle className="text-sm font-semibold">Developer Verifications</CardTitle>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-amber-200 text-amber-700">
-                        {pendingDevelopers.length} pending
-                      </Badge>
-                    </div>
-                    <Link to="/admin/developer-profiles">
-                      <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground">
-                        View all <ArrowRight className="ml-1 h-3 w-3" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 pt-3 space-y-2">
-                  {pendingDevelopers.map(dev => (
-                    <div key={dev.id} className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-                          <Building2 className="h-3.5 w-3.5 text-amber-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">{dev.company_name}</p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {dev.contact_name}{dev.phone ? ` · ${dev.phone}` : ""}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="text-[10px] text-muted-foreground whitespace-nowrap hidden sm:block">
-                          {format(new Date(dev.created_at), "MMM d")}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 text-xs gap-1 border-destructive/40 text-destructive hover:bg-destructive/10"
-                          disabled={approvingId === dev.id}
-                          onClick={() => rejectDeveloper(dev.id)}
-                        >
-                          <XCircle className="h-3 w-3" />
-                          <span className="hidden sm:inline">Reject</span>
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="h-7 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                          disabled={approvingId === dev.id}
-                          onClick={() => approveDeveloper(dev.id)}
-                        >
-                          <ShieldCheck className="h-3 w-3" />
-                          <span className="hidden sm:inline">Approve</span>
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Pending Agent Verifications */}
-            {pendingAgents.length > 0 && (
-              <Card className="border-l-4 border-l-blue-500 overflow-hidden">
-                <CardHeader className="py-3 px-4 pb-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="rounded-md bg-blue-100 p-1.5">
-                        <UserCheck className="h-3.5 w-3.5 text-blue-600" />
-                      </div>
-                      <CardTitle className="text-sm font-semibold">Agent Verifications</CardTitle>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-blue-200 text-blue-700">
-                        {pendingAgents.length} pending
-                      </Badge>
-                    </div>
-                    <Link to="/admin/agent-profiles">
-                      <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground">
-                        View all <ArrowRight className="ml-1 h-3 w-3" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 pt-3 space-y-2">
-                  {pendingAgents.map(agent => (
-                    <div key={agent.id} className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-                          <UserCheck className="h-3.5 w-3.5 text-blue-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">{agent.brokerage_name || "Unknown Brokerage"}</p>
-                          <p className="text-xs text-muted-foreground truncate">License: {agent.license_number}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="text-[10px] text-muted-foreground whitespace-nowrap hidden sm:block">
-                          {format(new Date(agent.created_at), "MMM d")}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 text-xs gap-1 border-destructive/40 text-destructive hover:bg-destructive/10"
-                          disabled={approvingId === agent.id}
-                          onClick={() => rejectAgent(agent.id)}
-                        >
-                          <XCircle className="h-3 w-3" />
-                          <span className="hidden sm:inline">Reject</span>
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="h-7 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                          disabled={approvingId === agent.id}
-                          onClick={() => approveAgent(agent.id)}
-                        >
-                          <ShieldCheck className="h-3 w-3" />
-                          <span className="hidden sm:inline">Verify</span>
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {/* ── KPI Stats ── */}
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-          {statCardConfigs.map((config, i) => {
-            const Icon = config.icon;
-            return (
-              <Card key={config.label} className={`border-l-4 ${config.accentBorder} overflow-hidden`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className={`rounded-lg ${config.iconBg} p-2`}>
-                      <Icon className={`h-4 w-4 ${config.iconColor}`} />
-                    </div>
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{config.label}</span>
-                  </div>
-                  <p className="text-2xl font-bold tracking-tight text-foreground">{(statValues[i]?.value ?? 0).toLocaleString()}</p>
-                  <div className="mt-1">{statValues[i]?.sub}</div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          <Link to="/admin/listings">
+            <Card className="group cursor-pointer hover:shadow-card-hover transition-all h-full">
+              <CardContent className="p-5 flex items-center gap-4">
+                <div className="rounded-xl bg-violet-100 p-3 group-hover:scale-110 transition-transform">
+                  <Star className="h-6 w-6 text-violet-600" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground">Top Deals</p>
+                  <p className="text-xs text-muted-foreground">Create & manage assignments</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
-        {/* ── Quick Actions ── */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {/* ── PORTALS ROW ── */}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Link to="/developer">
+            <Card className="group cursor-pointer border-amber-200/60 bg-gradient-to-r from-amber-50/80 to-orange-50/50 hover:shadow-card-hover transition-all h-full">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-xl bg-amber-100 p-2.5">
+                    <Building2 className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground text-sm">Developer Portal</p>
+                    <p className="text-xs text-muted-foreground">Inventory & tour requests</p>
+                  </div>
+                </div>
+                <ExternalLink className="h-4 w-4 text-amber-500 group-hover:translate-x-0.5 transition-transform" />
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to="/dashboard">
+            <Card className="group cursor-pointer border-blue-200/60 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 hover:shadow-card-hover transition-all h-full">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-xl bg-blue-100 p-2.5">
+                    <Sparkles className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground text-sm">Agent Hub</p>
+                    <p className="text-xs text-muted-foreground">Listings, leads & decks</p>
+                  </div>
+                </div>
+                <ExternalLink className="h-4 w-4 text-blue-500 group-hover:translate-x-0.5 transition-transform" />
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+
+        {/* ── KPI STATS ── */}
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           {[
-            { label: "Add Project", icon: Building2, href: "/admin/projects", desc: "Publish a new presale", color: "text-blue-500", bg: "bg-blue-50" },
-            { label: "View Leads", icon: Users, href: "/admin/leads", desc: "Manage your pipeline", color: "text-emerald-500", bg: "bg-emerald-50" },
-            { label: "Send Email", icon: Mail, href: "/admin/email-center", desc: "Campaigns & workflows", color: "text-pink-500", bg: "bg-pink-50" },
-            { label: "Run Report", icon: BarChart3, href: "/admin/leads/analytics", desc: "Lead & engagement data", color: "text-purple-500", bg: "bg-purple-50" },
-          ].map(({ label, icon: Icon, href, desc, color, bg }) => (
+            { label: "Leads", value: stats.totalLeads, icon: Users, color: "text-emerald-600", bg: "bg-emerald-100", sub: (
+              <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${stats.growth >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                {stats.growth >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                {Math.abs(stats.growth)}% vs last mo
+              </span>
+            )},
+            { label: "Projects", value: stats.publishedProjects, icon: Building2, color: "text-blue-600", bg: "bg-blue-100", sub: <span className="text-xs text-muted-foreground">{stats.totalProjects} total</span> },
+            { label: "Assignments", value: stats.totalAssignments, icon: FileStack, color: "text-violet-600", bg: "bg-violet-100", sub: stats.pendingAssignments > 0 ? <span className="text-xs text-amber-600">{stats.pendingAssignments} pending</span> : <span className="text-xs text-muted-foreground">All clear</span> },
+            { label: "Bookings", value: stats.totalBookings, icon: Calendar, color: "text-amber-600", bg: "bg-amber-100", sub: stats.pendingBookings > 0 ? <span className="text-xs text-amber-600">{stats.pendingBookings} pending</span> : <span className="text-xs text-muted-foreground">None pending</span> },
+          ].map(({ label, value, icon: Icon, color, bg, sub }) => (
+            <Card key={label}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className={`rounded-lg ${bg} p-1.5`}><Icon className={`h-4 w-4 ${color}`} /></div>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{value.toLocaleString()}</p>
+                <div className="mt-1">{sub}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* ── SECONDARY ACTIONS ── */}
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { label: "View Leads", href: "/admin/leads", icon: Users, desc: "Lead pipeline" },
+            { label: "Bookings", href: "/admin/bookings", icon: Calendar, desc: "Tour requests" },
+            { label: "Analytics", href: "/admin/leads/analytics", icon: BarChart3, desc: "Reports & data" },
+            { label: "All Projects", href: "/admin/projects", icon: Building2, desc: "Manage inventory" },
+          ].map(({ label, href, icon: Icon, desc }) => (
             <Link key={label} to={href}>
-              <Card className="hover:shadow-card-hover transition-all cursor-pointer group h-full">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className={`rounded-xl ${bg} p-2.5 shrink-0 group-hover:scale-105 transition-transform`}>
-                    <Icon className={`h-5 w-5 ${color}`} />
-                  </div>
+              <Card className="group cursor-pointer hover:shadow-card-hover transition-all h-full">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <Icon className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">{label}</p>
-                    <p className="text-xs text-muted-foreground truncate">{desc}</p>
+                    <p className="text-sm font-medium text-foreground">{label}</p>
+                    <p className="text-[11px] text-muted-foreground">{desc}</p>
                   </div>
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40 ml-auto shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="h-3 w-3 text-muted-foreground/30 ml-auto shrink-0 group-hover:translate-x-0.5 transition-transform" />
                 </CardContent>
               </Card>
             </Link>
           ))}
         </div>
 
-        {/* ── Developer Portal Banner ── */}
-        <Card className="border border-amber-200/60 bg-gradient-to-r from-amber-50/60 to-orange-50/40 overflow-hidden">
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-                  <Presentation className="h-5 w-5 text-amber-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Developer Portal</p>
-                  <p className="text-xs text-muted-foreground">Manage developer inventory, projects & tour requests</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <Link to="/developer/projects">
-                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 border-amber-200 hover:bg-amber-100">
-                    <ClipboardList className="h-3.5 w-3.5 text-amber-600" />
-                    Projects
-                  </Button>
-                </Link>
-                <Link to="/developer">
-                  <Button size="sm" className="h-8 text-xs gap-1.5 bg-amber-500 hover:bg-amber-600 text-white border-0">
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Open Portal
-                  </Button>
-                </Link>
-              </div>
+        {/* ── PENDING APPROVALS ── */}
+        {totalPending > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              <h2 className="text-sm font-semibold">Pending Approvals</h2>
+              <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4">{totalPending}</Badge>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* ── Lead Pipeline ── */}
-        {stats && (
-          <Card className="border-0 bg-gradient-to-r from-slate-900 to-slate-800 text-white overflow-hidden">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-emerald-400" />
-                  <span className="text-sm font-semibold">Lead Pipeline</span>
-                  {stats.totalLeads > 0 && stats.leadPipeline.converted > 0 && (
-                    <span className="ml-2 text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-full px-2 py-0.5 font-medium">
-                      {Math.round((stats.leadPipeline.converted / stats.totalLeads) * 100)}% conversion
-                    </span>
-                  )}
-                </div>
-                <Link to="/admin/leads">
-                  <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-400 hover:text-white hover:bg-white/10">
-                    Manage <ArrowRight className="ml-1 h-3 w-3" />
-                  </Button>
-                </Link>
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                {[
-                  { label: "New", value: stats.leadPipeline.new, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", icon: Users },
-                  { label: "Contacted", value: stats.leadPipeline.contacted, color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: Phone },
-                  { label: "Qualified", value: stats.leadPipeline.qualified, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: Star },
-                  { label: "Converted", value: stats.leadPipeline.converted, color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: CheckCircle2 },
-                ].map(({ label, value, color, bg, border }) => (
-                  <div key={label} className={`rounded-xl ${bg} border ${border} p-3 text-center`}>
-                    <p className={`text-xl font-bold ${color}`}>{value}</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{label}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ── Engagement Funnel ── */}
-        <EngagementFunnel data={stats?.funnel ?? null} />
-
-        {/* ── Top Projects ── */}
-        <TopProjectsTable projects={stats?.topProjects ?? []} />
-
-        {/* ── Recent Activity ── */}
-        <div className="grid gap-4 lg:grid-cols-2">
-          {/* Recent Leads */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between py-4 px-5">
-              <div className="flex items-center gap-2">
-                <div className="rounded-lg bg-emerald-100 p-1.5">
-                  <Users className="h-3.5 w-3.5 text-emerald-600" />
-                </div>
-                <CardTitle className="text-sm font-semibold">Recent Leads</CardTitle>
-              </div>
-              <Link to="/admin/leads">
-                <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground">
-                  View all <ArrowRight className="ml-1 h-3 w-3" />
-                </Button>
-              </Link>
-            </CardHeader>
-            <CardContent className="px-5 pb-4 pt-0">
-              {!stats?.recentLeads.length ? (
-                <EmptyPlaceholder icon={Users} message="No leads yet" />
-              ) : (
-                <div className="space-y-0.5">
-                  {stats.recentLeads.map(lead => {
-                    const projectName = lead.presale_projects?.name || lead.landing_page || null;
-                    const intentColor = (lead.intent_score ?? 0) >= 8 ? "bg-emerald-500" : (lead.intent_score ?? 0) >= 5 ? "bg-amber-400" : "bg-slate-300";
-                    const statusColors: Record<string, string> = {
-                      new: "bg-blue-50 text-blue-600",
-                      contacted: "bg-amber-50 text-amber-700",
-                      qualified: "bg-purple-50 text-purple-700",
-                      converted: "bg-emerald-50 text-emerald-700",
-                      dead: "bg-slate-100 text-slate-500",
-                    };
-                    return (
-                      <div key={lead.id} className="flex items-center justify-between py-2.5 px-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center text-xs font-bold text-emerald-700 shrink-0 relative">
-                            {lead.name.charAt(0).toUpperCase()}
-                            {lead.intent_score != null && (
-                              <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white ${intentColor}`} title={`Intent: ${lead.intent_score}/10`} />
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium truncate">{lead.name}</p>
-                            {projectName && <p className="text-xs text-muted-foreground truncate">{projectName}</p>}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 ml-3 shrink-0">
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusColors[lead.lead_status] ?? "bg-slate-100 text-slate-500"}`}>
-                            {lead.lead_status}
-                          </span>
-                          <p className="text-[11px] text-muted-foreground whitespace-nowrap">
-                            {format(new Date(lead.created_at), "MMM d")}
-                          </p>
-                        </div>
+            {pendingListings.length > 0 && (
+              <Card>
+                <CardContent className="p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                    <Home className="h-3 w-3" /> Assignments · {pendingListings.length} pending
+                  </p>
+                  {pendingListings.map(l => (
+                    <div key={l.id} className="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{l.title || l.project_name}</p>
+                        <p className="text-xs text-muted-foreground">{l.city} · {l.beds}bd · ${l.assignment_price?.toLocaleString()}</p>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Bookings */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between py-4 px-5">
-              <div className="flex items-center gap-2">
-                <div className="rounded-lg bg-amber-100 p-1.5">
-                  <Calendar className="h-3.5 w-3.5 text-amber-600" />
-                </div>
-                <CardTitle className="text-sm font-semibold">Recent Bookings</CardTitle>
-              </div>
-              <Link to="/admin/bookings">
-                <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground">
-                  View all <ArrowRight className="ml-1 h-3 w-3" />
-                </Button>
-              </Link>
-            </CardHeader>
-            <CardContent className="px-5 pb-4 pt-0">
-              {!stats?.recentBookings.length ? (
-                <EmptyPlaceholder icon={Calendar} message="No bookings yet" />
-              ) : (
-                <div className="space-y-0.5">
-                  {stats.recentBookings.map(booking => (
-                    <div key={booking.id} className="flex items-center justify-between py-2.5 px-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center text-xs font-bold text-amber-700 shrink-0">
-                          {booking.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">{booking.name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{booking.project_name}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 ml-3 shrink-0">
-                        <Badge
-                          variant="outline"
-                          className={`text-[10px] px-1.5 py-0 ${
-                            booking.status === "confirmed" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
-                            booking.status === "pending" ? "bg-amber-50 text-amber-700 border-amber-200" : ""
-                          }`}
-                        >
-                          {booking.status}
-                        </Badge>
-                        <p className="text-[11px] text-muted-foreground whitespace-nowrap">
-                          {format(new Date(booking.appointment_date), "MMM d")}
-                        </p>
+                      <div className="flex gap-1.5 shrink-0 ml-3">
+                        <Button size="sm" variant="outline" className="h-7 text-xs border-destructive/40 text-destructive" disabled={approvingId === l.id} onClick={() => reject("listings", l.id, { status: "rejected", rejection_reason: "Rejected from dashboard" }, setPendingListings)}>
+                          <XCircle className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" disabled={approvingId === l.id} onClick={() => approve("listings", l.id, { status: "published", published_at: new Date().toISOString() }, setPendingListings)}>
+                          <CheckCheck className="h-3 w-3" />
+                        </Button>
                       </div>
                     </div>
                   ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                </CardContent>
+              </Card>
+            )}
 
-        {/* ── Top Listings ── */}
-        <TopListingsTable listings={stats?.topListings ?? []} />
+            {pendingDevelopers.length > 0 && (
+              <Card>
+                <CardContent className="p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                    <Building2 className="h-3 w-3" /> Developers · {pendingDevelopers.length} pending
+                  </p>
+                  {pendingDevelopers.map(dev => (
+                    <div key={dev.id} className="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{dev.company_name}</p>
+                        <p className="text-xs text-muted-foreground">{dev.contact_name}</p>
+                      </div>
+                      <div className="flex gap-1.5 shrink-0 ml-3">
+                        <Button size="sm" variant="outline" className="h-7 text-xs border-destructive/40 text-destructive" disabled={approvingId === dev.id} onClick={() => reject("developer_profiles", dev.id, { verification_status: "rejected" }, setPendingDevelopers)}>
+                          <XCircle className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" disabled={approvingId === dev.id} onClick={() => approve("developer_profiles", dev.id, { verification_status: "approved", verified_at: new Date().toISOString() }, setPendingDevelopers)}>
+                          <ShieldCheck className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
 
-        {/* ── Top MLS ── */}
-        <TopMlsListingsTable listings={stats?.topMlsListings ?? []} />
+            {pendingAgents.length > 0 && (
+              <Card>
+                <CardContent className="p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                    <UserCheck className="h-3 w-3" /> Agents · {pendingAgents.length} pending
+                  </p>
+                  {pendingAgents.map(a => (
+                    <div key={a.id} className="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{a.brokerage_name || "Unknown"}</p>
+                        <p className="text-xs text-muted-foreground">License: {a.license_number}</p>
+                      </div>
+                      <div className="flex gap-1.5 shrink-0 ml-3">
+                        <Button size="sm" variant="outline" className="h-7 text-xs border-destructive/40 text-destructive" disabled={approvingId === a.id} onClick={() => reject("agent_profiles", a.id, { verification_status: "rejected" }, setPendingAgents)}>
+                          <XCircle className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" disabled={approvingId === a.id} onClick={() => approve("agent_profiles", a.id, { verification_status: "verified", verified_at: new Date().toISOString() }, setPendingAgents)}>
+                          <ShieldCheck className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
       </div>
     </AdminLayout>
-  );
-}
-
-function EmptyPlaceholder({ icon: Icon, message }: { icon: React.ComponentType<{ className?: string }>; message: string }) {
-  return (
-    <div className="text-center py-8">
-      <Icon className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
-      <p className="text-xs text-muted-foreground">{message}</p>
-    </div>
   );
 }
