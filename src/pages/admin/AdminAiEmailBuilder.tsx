@@ -456,18 +456,20 @@ export default function AdminEmailBuilderPage() {
             });
           setFloorPlans(fpEntries);
 
-          // Update starting price — use credit-adjusted net price from first priced plan
-          const firstPriced = rawFps.find((fp: any) => fp.price_from);
-          let netStartingPrice = "";
-          if (firstPriced) {
-            let price = parseFloat((firstPriced.price_from || "").replace(/[^0-9.]/g, ""));
-            const creditMatch = (firstPriced.exclusive_credit || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+          // Update starting price — use the LOWEST credit-adjusted net price across all floor plans
+          let lowestNet = Infinity;
+          for (const fp of rawFps) {
+            if (!fp.price_from) continue;
+            let price = parseFloat((fp.price_from || "").replace(/[^0-9.]/g, ""));
+            const creditMatch = (fp.exclusive_credit || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
             const credit = creditMatch ? parseFloat(creditMatch[1]) : 0;
             if (credit > 0 && price > credit) price -= credit;
-            if (price > 0) {
-              netStartingPrice = `$${price.toLocaleString()}`;
-              setStartingPrice(netStartingPrice);
-            }
+            if (price > 0 && price < lowestNet) lowestNet = price;
+          }
+          let netStartingPrice = "";
+          if (lowestNet < Infinity) {
+            netStartingPrice = `$${lowestNet.toLocaleString()}`;
+            setStartingPrice(netStartingPrice);
           }
 
           // Update project-level fields
