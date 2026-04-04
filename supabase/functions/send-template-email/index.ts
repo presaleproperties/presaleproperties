@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { leadId, templateId } = await req.json();
+    const { leadId, templateId, htmlOverride } = await req.json();
     if (!leadId || !templateId) {
       return new Response(JSON.stringify({ error: "leadId and templateId are required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
