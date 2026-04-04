@@ -1132,6 +1132,8 @@ export function buildPitchDeckEmailHtml(
     </td>
   </tr>
 
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: BODY_FONT, accent: ACCENT, dark: DARK })}
+
   <!-- WHAT'S INCLUDED (parking, locker, incentives) -->
   ${includedItems.length > 0 ? `
   <tr>
