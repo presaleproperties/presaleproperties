@@ -528,7 +528,7 @@ export default function AdminEmailBuilderPage() {
 
   useEffect(() => {
     supabase.from("presale_projects")
-      .select("id, name, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, gallery_images, incentives, brochure_files, pricing_sheets, floorplan_files, highlights, short_description")
+      .select("id, name, slug, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, gallery_images, incentives, brochure_files, pricing_sheets, floorplan_files, highlights, short_description")
       .order("name")
       .then(({ data }: any) => { if (data) setProjects(data); });
 
