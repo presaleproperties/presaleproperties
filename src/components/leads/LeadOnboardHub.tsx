@@ -175,8 +175,6 @@ export function LeadOnboardHub() {
         deckUrl,
         leadName: `${values.first_name} ${values.last_name}`.trim(),
         leadId: lead.id,
-        templateId: selectedTemplateId,
-        templateName: selectedTemplate?.name || null,
       });
       form.reset();
       setSelectedDeckId(null);
