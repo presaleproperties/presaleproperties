@@ -640,8 +640,11 @@ export default function AdminEmailBuilderPage() {
       });
   }, []);
 
-  // ── Auto-save draft to localStorage ─────────────────────────────────────────
+  // ── Auto-save draft to localStorage + DB (if editing a saved template) ─────
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dbAutoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [dbSaving, setDbSaving] = useState(false);
+
   useEffect(() => {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
@@ -670,8 +673,42 @@ export default function AdminEmailBuilderPage() {
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
+
+      // Auto-save to DB if editing a saved template
+      if (savedTemplateId) {
+        if (dbAutoSaveRef.current) clearTimeout(dbAutoSaveRef.current);
+        dbAutoSaveRef.current = setTimeout(async () => {
+          setDbSaving(true);
+          const pn = showProjectName ? projectName : (customHeader || "");
+          const dn = showDeveloperName ? developerName : "";
+          const formData = {
+            _type: "ai-email",
+            copy: { subjectLine, previewText, headline, bodyCopy, incentiveText,
+              projectName: pn, city, neighborhood, developerName: dn,
+              startingPrice, deposit, completion, projectUrl,
+              infoRows: infoRows.filter((r: string) => r.includes("|")),
+              imageCards: imageCards.filter((c: any) => c.url),
+            },
+            vars: { subjectLine, previewText, headline, bodyCopy, incentiveText,
+              projectName: pn, city, neighborhood, developerName: dn,
+              startingPrice, deposit, completion,
+            },
+            heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
+            imageCards, loopSlides, selectedAssetId, directCtaUrl,
+            selAgent, fontId: selectedFontId, layoutVersion,
+            showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
+          };
+          await supabase.from("campaign_templates" as any)
+            .update({ form_data: formData, updated_at: new Date().toISOString() })
+            .eq("id", savedTemplateId);
+          setDbSaving(false);
+        }, 500);
+      }
     }, 1500);
-    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
+    return () => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+      if (dbAutoSaveRef.current) clearTimeout(dbAutoSaveRef.current);
+    };
   }, [
     prompt, templateType, selProjectId, activeVersion, aiResult,
     projectName, developerName, showProjectName, showDeveloperName, customHeader,
@@ -679,6 +716,7 @@ export default function AdminEmailBuilderPage() {
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
+    savedTemplateId, projectUrl,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
@@ -1122,18 +1160,11 @@ export default function AdminEmailBuilderPage() {
       _type: "ai-email",
       copy,
       vars: {
-        subjectLine: copy.subjectLine,
-        previewText: copy.previewText,
-        headline: copy.headline,
-        bodyCopy: copy.bodyCopy,
-        incentiveText: copy.incentiveText,
-        projectName: copy.projectName,
-        city: copy.city,
-        neighborhood: copy.neighborhood,
-        developerName: copy.developerName,
-        startingPrice: copy.startingPrice,
-        deposit: copy.deposit,
-        completion: copy.completion,
+        subjectLine: copy.subjectLine, previewText: copy.previewText,
+        headline: copy.headline, bodyCopy: copy.bodyCopy, incentiveText: copy.incentiveText,
+        projectName: copy.projectName, city: copy.city, neighborhood: copy.neighborhood,
+        developerName: copy.developerName, startingPrice: copy.startingPrice,
+        deposit: copy.deposit, completion: copy.completion,
       },
       heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
       imageCards, loopSlides, selectedAssetId, directCtaUrl,
@@ -1141,30 +1172,22 @@ export default function AdminEmailBuilderPage() {
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
     };
 
-    let error: any = null;
+    // Always create a new template in the campaign hub
+    const res = await supabase.from("campaign_templates" as any)
+      .insert({ name, project_name: projectName || "Untitled", form_data: formData })
+      .select("id")
+      .single();
 
-    if (savedTemplateId) {
-      // Update existing saved template
-      const res = await supabase.from("campaign_templates" as any)
-        .update({ name, project_name: projectName || "Untitled", form_data: formData, updated_at: new Date().toISOString() })
-        .eq("id", savedTemplateId);
-      error = res.error;
+    if (res.error) {
+      toast.error("Failed to save");
     } else {
-      // Insert new template and redirect to its saved URL
-      const res = await supabase.from("campaign_templates" as any)
-        .insert({ name, project_name: projectName || "Untitled", form_data: formData })
-        .select("id")
-        .single();
-      error = res.error;
-      if (!error && (res.data as any)?.id) {
-        // Update URL to point to the new saved template so future saves update it
+      toast.success("Saved as new template!");
+      // Redirect to the newly saved template so auto-save updates it going forward
+      if ((res.data as any)?.id) {
         searchParams.set("saved", (res.data as any).id);
         navigate(`?${searchParams.toString()}`, { replace: true });
       }
     }
-
-    if (error) toast.error("Failed to save");
-    else toast.success("Saved!");
     setSaving(false);
   };
 
@@ -1200,11 +1223,20 @@ export default function AdminEmailBuilderPage() {
             </p>
           </div>
 
-          {/* Draft indicator */}
-          {draftSavedAt && (
+          {/* Auto-save indicator */}
+          {savedTemplateId && (
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0 hidden sm:flex">
+              {dbSaving ? (
+                <><Loader2 className="h-3 w-3 animate-spin text-primary" /><span className="hidden md:inline">Saving…</span></>
+              ) : draftSavedAt ? (
+                <><CheckCircle2 className="h-3 w-3 text-emerald-500" /><span className="hidden md:inline">Auto-saved</span></>
+              ) : null}
+            </div>
+          )}
+          {!savedTemplateId && draftSavedAt && (
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0 hidden sm:flex">
               <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-              <span className="hidden md:inline">Saved</span>
+              <span className="hidden md:inline">Draft</span>
               <button onClick={() => { localStorage.removeItem(DRAFT_KEY); window.location.reload(); }} className="text-muted-foreground/50 hover:text-destructive transition-colors">
                 <X className="h-3 w-3" />
               </button>
@@ -1232,7 +1264,7 @@ export default function AdminEmailBuilderPage() {
           </Button>
           <Button variant="outline" size="sm" className="h-8 gap-1.5 shrink-0 hidden sm:flex text-xs px-2.5" onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-            <span className="hidden md:inline">Save</span>
+            <span className="hidden md:inline">Save as Template</span>
           </Button>
           <Button size="sm"
             className={cn("h-8 gap-1.5 font-semibold transition-all duration-200 shrink-0 text-xs px-2.5", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
