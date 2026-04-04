@@ -1971,8 +1971,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── FLOOR PLAN CARDS ── -->
         <tr>
-           <td class="fp-wrap" valign="top"
-               style="background-color: ${DARK}; padding: 12px 20px 24px;">
+           <td valign="top"
+               style="background-color: ${DARK}; padding: 12px 16px 24px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               ${fpRowsHtml}
             </table>
