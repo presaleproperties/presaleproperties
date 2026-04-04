@@ -1956,9 +1956,9 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
 
         <!-- ── BODY COPY ── -->
         <tr>
-          <td class="mobile-pad" valign="top" style="padding: 28px 36px 24px; background-color: #ffffff;">
+           <td class="mobile-pad" valign="top" style="padding: 32px 36px 24px; background-color: #ffffff;">
             ${data.headline ? `
-            <p class="hero-text" style="margin: 0 0 14px 0; ${F} font-size: 24px; font-weight: 800; color: ${DARK}; line-height: 1.2; letter-spacing: -0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
+            <p class="hero-text" style="margin: 0 0 16px 0; ${F} font-size: 26px; font-weight: 800; color: ${DARK}; line-height: 1.2; letter-spacing: -0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
             <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 18px;">
               <tr><td width="40" height="3" style="width: 40px; height: 3px; background-color: ${ACCENT}; font-size: 0; line-height: 0;">&nbsp;</td></tr>
             </table>` : ""}
