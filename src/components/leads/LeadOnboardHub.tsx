@@ -281,7 +281,7 @@ export function LeadOnboardHub() {
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="font-medium text-xs sm:text-sm truncate">{tpl.name}</p>
+          <p className="font-medium text-xs sm:text-sm truncate">{displayName}</p>
           <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{tpl.project_name}</p>
         </div>
         {isSelected && (
