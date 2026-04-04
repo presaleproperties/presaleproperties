@@ -1558,20 +1558,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
             </table>
           </td>
         </tr>
-        <tr>
-          <td class="content-pad" style="padding:0 40px 36px;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
-              <tr>
-                <td align="center" style="padding:14px 24px;text-align:center;">
-                  <a href="*|UNSUB|*"
-                     style="font-family:${F};font-size:11px;font-weight:500;letter-spacing:1px;color:#aaaaaa;text-decoration:underline;">
-                    No longer interested in ${data.projectName || "this project"}? Unsubscribe
-                  </a>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
       </table>
     </td>
   </tr>` : ""}
