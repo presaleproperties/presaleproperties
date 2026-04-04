@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 interface EmailLog {
   id: string;
   email_to: string;
+  recipient_name: string | null;
   subject: string;
   status: string;
   sent_at: string;
