@@ -923,7 +923,7 @@ export function buildPitchDeckEmailHtml(
   // Each floor plan renders full-width (1 per row) on BOTH desktop and mobile
   // so images are large and legible. Each card links to the deck for zoom/detail.
   const fps = (data.floorPlans || []).filter(fp => fp.url);
-  const deckLink = data.deckUrl || "";
+  const deckLink = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
 
   const fpRowsHtml = fps.map(fp => `
     <tr>
