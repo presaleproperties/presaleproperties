@@ -227,11 +227,11 @@ export function LeadOnboardHub() {
   };
 
   const handleSendTemplateEmail = async () => {
-    if (!successData?.leadId || !successData?.templateId) return;
+    if (!successData?.leadId || !selectedTemplateId) return;
     setSendingTemplate(true);
     try {
       const { error } = await supabase.functions.invoke("send-template-email", {
-        body: { leadId: successData.leadId, templateId: successData.templateId },
+        body: { leadId: successData.leadId, templateId: selectedTemplateId },
       });
       if (error) throw error;
       setTemplateSent(true);
