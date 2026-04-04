@@ -1983,7 +1983,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
                   </table>
                 </td>
                 <td valign="top" style="padding: 0 0 10px 12px; vertical-align: top;">
-                  <p style="margin: 0; ${F} font-size: 14px; font-weight: 500; color: #c8d8cc; line-height: 1.75;">${item}</p>
+                  <p style="margin: 0; ${F} font-size: 13px; font-weight: 500; color: #c8d8cc; line-height: 1.7;">${item}</p>
                 </td>
               </tr>`).join("")}
             </table>
