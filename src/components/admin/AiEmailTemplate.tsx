@@ -1459,23 +1459,23 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   <!-- ── STATS BAR (optional) ── -->
   ${(data.startingPrice || data.deposit || data.completion) ? `
   <tr>
-    <td style="padding:0;border-top:1px solid #eeeeee;border-bottom:1px solid #eeeeee;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <td style="padding:0;border-top:1px solid #e8e2d6;border-bottom:1px solid #e8e2d6;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;">
         <tr>
           ${data.startingPrice ? `
-          <td class="stat-cell" style="padding:18px 20px;border-right:1px solid #eeeeee;text-align:center;vertical-align:middle;">
+          <td class="stat-cell" style="padding:18px 20px;border-right:1px solid #e8e2d6;text-align:left;vertical-align:middle;">
             <p style="margin:0 0 3px 0;font-family:${F};font-size:20px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.startingPrice}</p>
-            <p style="margin:0;font-family:${F};font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Starting From</p>
+            <p style="margin:0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">Starting From</p>
           </td>` : ""}
           ${data.deposit ? `
-          <td class="stat-cell" style="padding:18px 20px;${data.completion ? "border-right:1px solid #eeeeee;" : ""}text-align:center;vertical-align:middle;">
+          <td class="stat-cell" style="padding:18px 20px;${data.completion ? `border-right:1px solid #e8e2d6;` : ""}text-align:left;vertical-align:middle;">
             <p style="margin:0 0 3px 0;font-family:${F};font-size:20px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.deposit}</p>
-            <p style="margin:0;font-family:${F};font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Deposit</p>
+            <p style="margin:0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">Deposit</p>
           </td>` : ""}
           ${data.completion ? `
-          <td class="stat-cell" style="padding:18px 20px;text-align:center;vertical-align:middle;">
+          <td class="stat-cell" style="padding:18px 20px;text-align:left;vertical-align:middle;">
             <p style="margin:0 0 3px 0;font-family:${F};font-size:20px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.completion}</p>
-            <p style="margin:0;font-family:${F};font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Completion</p>
+            <p style="margin:0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">Completion</p>
           </td>` : ""}
         </tr>
       </table>
