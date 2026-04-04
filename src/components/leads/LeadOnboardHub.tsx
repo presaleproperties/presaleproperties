@@ -89,24 +89,36 @@ export function LeadOnboardHub() {
     },
   });
 
+  const fetchTemplates = async () => {
+    const { data } = await (supabase as any)
+      .from("campaign_templates")
+      .select("id, name, project_name, thumbnail_url, form_data")
+      .order("updated_at", { ascending: false })
+      .limit(20);
+    if (data) setTemplates(data);
+  };
+
   useEffect(() => {
     if (!user) return;
-    // Fetch decks and templates in parallel
-    Promise.all([
-      supabase
-        .from("pitch_decks")
-        .select("id, project_name, slug, hero_image_url, city, is_published")
-        .eq("is_published", true)
-        .order("updated_at", { ascending: false }),
-      (supabase as any)
-        .from("campaign_templates")
-        .select("id, name, project_name, thumbnail_url, form_data")
-        .order("updated_at", { ascending: false })
-        .limit(20),
-    ]).then(([decksRes, templatesRes]) => {
-      if (decksRes.data) setDecks(decksRes.data);
-      if (templatesRes.data) setTemplates(templatesRes.data);
-    });
+    supabase
+      .from("pitch_decks")
+      .select("id, project_name, slug, hero_image_url, city, is_published")
+      .eq("is_published", true)
+      .order("updated_at", { ascending: false })
+      .then(({ data }) => { if (data) setDecks(data); });
+    fetchTemplates();
+
+    // Realtime: auto-refresh templates when saved/updated
+    const channel = supabase
+      .channel("campaign_templates_changes")
+      .on(
+        "postgres_changes" as any,
+        { event: "*", schema: "public", table: "campaign_templates" },
+        () => { fetchTemplates(); }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
 
   const getTemplatePreview = (t: EmailTemplate): string | null => {
