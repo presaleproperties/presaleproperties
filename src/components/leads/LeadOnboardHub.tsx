@@ -18,8 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Check, Copy, Loader2, Mail, Send, UserPlus, FileText, Presentation } from "lucide-react";
+import { Check, Copy, Eye, Loader2, Mail, Send, UserPlus, FileText, Presentation } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
+import { EmailTemplatePreviewDialog } from "./EmailTemplatePreviewDialog";
 
 const formSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100),
@@ -59,6 +61,9 @@ interface EmailTemplate {
 
 export function LeadOnboardHub() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
+  const isCompact = useIsMobileOrTablet();
+
   const [decks, setDecks] = useState<PitchDeck[]>([]);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
@@ -74,6 +79,7 @@ export function LeadOnboardHub() {
   const [emailSent, setEmailSent] = useState(false);
   const [sendingTemplate, setSendingTemplate] = useState(false);
   const [templateSent, setTemplateSent] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -106,7 +112,6 @@ export function LeadOnboardHub() {
       .then(({ data }) => { if (data) setDecks(data); });
     fetchTemplates();
 
-    // Realtime: auto-refresh templates when saved/updated
     const channel = supabase
       .channel("campaign_templates_changes")
       .on(
@@ -123,9 +128,7 @@ export function LeadOnboardHub() {
     return t.thumbnail_url || t.form_data?.heroImage || null;
   };
 
-  const getTemplateSubject = (t: EmailTemplate): string | null => {
-    return t.form_data?.copy?.subjectLine || null;
-  };
+  const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
 
   const handleCopy = async (url: string) => {
     await navigator.clipboard.writeText(url);
@@ -142,8 +145,6 @@ export function LeadOnboardHub() {
       const deckUrl = selectedDeck
         ? `https://presaleproperties.com/deck/${selectedDeck.slug}`
         : "";
-
-      
 
       const { data: lead, error: insertError } = await supabase
         .from("onboarded_leads")
@@ -164,7 +165,6 @@ export function LeadOnboardHub() {
 
       if (insertError) throw insertError;
 
-      // Sync to Zapier/Lofty (non-blocking)
       const { error: syncError } = await supabase.functions.invoke(
         "sync-onboarded-lead",
         { body: { leadId: lead.id } }
@@ -178,7 +178,6 @@ export function LeadOnboardHub() {
       });
       form.reset();
       setSelectedDeckId(null);
-      setSelectedTemplateId(null);
       setEmailSent(false);
       setTemplateSent(false);
 
@@ -202,6 +201,7 @@ export function LeadOnboardHub() {
     setSuccessData(null);
     setEmailSent(false);
     setTemplateSent(false);
+    setSelectedTemplateId(null);
   };
 
   const handleSendDeckEmail = async () => {
@@ -231,6 +231,7 @@ export function LeadOnboardHub() {
       });
       if (error) throw error;
       setTemplateSent(true);
+      setPreviewOpen(false);
       toast({ title: "Email sent!", description: `Template email sent to ${successData.leadName}.` });
     } catch (err: any) {
       console.error("Send template email error:", err);
@@ -240,26 +241,26 @@ export function LeadOnboardHub() {
     }
   };
 
-  // Success state
+  // ── Success State ──
   if (successData) {
     return (
-      <div className="max-w-lg mx-auto space-y-6">
+      <div className="max-w-lg mx-auto space-y-4 sm:space-y-6 px-1">
         <Card>
-          <CardContent className="pt-8 pb-8 text-center space-y-4">
-            <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-              <Check className="h-7 w-7 text-primary" />
+          <CardContent className="pt-6 sm:pt-8 pb-6 sm:pb-8 text-center space-y-4">
+            <div className="mx-auto w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <Check className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
             </div>
-            <h2 className="text-xl font-semibold">Client Onboarded</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-lg sm:text-xl font-semibold">Client Onboarded</h2>
+            <p className="text-muted-foreground text-sm">
               <span className="font-medium text-foreground">{successData.leadName}</span> has been saved and synced to Lofty.
             </p>
 
             {successData.deckUrl && (
-              <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">Deck Link</Label>
+              <div className="space-y-2 text-left">
+                <Label className="text-xs sm:text-sm text-muted-foreground">Deck Link</Label>
                 <div className="flex items-center gap-2">
-                  <Input readOnly value={successData.deckUrl} className="text-sm" />
-                  <Button size="icon" variant="outline" onClick={() => handleCopy(successData.deckUrl)}>
+                  <Input readOnly value={successData.deckUrl} className="text-xs sm:text-sm" />
+                  <Button size="icon" variant="outline" onClick={() => handleCopy(successData.deckUrl)} className="shrink-0">
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
@@ -270,7 +271,7 @@ export function LeadOnboardHub() {
               <Button
                 onClick={handleSendDeckEmail}
                 variant={emailSent ? "outline" : "secondary"}
-                className="w-full"
+                className="w-full text-sm"
                 disabled={sendingEmail || emailSent}
               >
                 {sendingEmail ? (
@@ -284,11 +285,14 @@ export function LeadOnboardHub() {
               </Button>
             )}
 
-            {/* Email Template Selector — in success section */}
+            {/* Email Template Selector */}
             {templates.length > 0 && (
               <div className="space-y-3 text-left">
-                <Label className="text-sm text-muted-foreground">Send Email Template</Label>
-                <div className="grid grid-cols-2 gap-2">
+                <Label className="text-xs sm:text-sm text-muted-foreground">Send Email Template</Label>
+                <div className={cn(
+                  "grid gap-2",
+                  isMobile ? "grid-cols-1" : "grid-cols-2"
+                )}>
                   {templates.map((tpl) => {
                     const preview = getTemplatePreview(tpl);
                     const isSelected = selectedTemplateId === tpl.id;
@@ -298,21 +302,34 @@ export function LeadOnboardHub() {
                         type="button"
                         onClick={() => setSelectedTemplateId(isSelected ? null : tpl.id)}
                         className={cn(
-                          "relative rounded-lg border-2 p-2.5 text-left transition-all hover:shadow-md",
+                          "relative rounded-lg border-2 p-2.5 text-left transition-all hover:shadow-md flex gap-2.5",
+                          isMobile ? "flex-row items-center" : "flex-col",
                           isSelected
                             ? "border-primary bg-primary/5 shadow-sm"
                             : "border-border hover:border-muted-foreground/30"
                         )}
                       >
                         {preview ? (
-                          <img src={preview} alt={tpl.name} className="w-full h-14 object-cover rounded mb-1.5" />
+                          <img
+                            src={preview}
+                            alt={tpl.name}
+                            className={cn(
+                              "object-cover rounded",
+                              isMobile ? "w-14 h-14 shrink-0" : "w-full h-14"
+                            )}
+                          />
                         ) : (
-                          <div className="w-full h-14 rounded bg-muted flex items-center justify-center mb-1.5">
+                          <div className={cn(
+                            "rounded bg-muted flex items-center justify-center",
+                            isMobile ? "w-14 h-14 shrink-0" : "w-full h-14"
+                          )}>
                             <FileText className="h-4 w-4 text-muted-foreground/40" />
                           </div>
                         )}
-                        <p className="font-medium text-xs truncate">{tpl.name}</p>
-                        <p className="text-[10px] text-muted-foreground truncate">{tpl.project_name}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-xs truncate">{tpl.name}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{tpl.project_name}</p>
+                        </div>
                         {isSelected && (
                           <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
                             <Check className="h-2.5 w-2.5 text-primary-foreground" />
@@ -323,44 +340,64 @@ export function LeadOnboardHub() {
                   })}
                 </div>
 
-                {selectedTemplateId && (
-                  <Button
-                    onClick={handleSendTemplateEmail}
-                    variant={templateSent ? "outline" : "secondary"}
-                    className="w-full"
-                    disabled={sendingTemplate || templateSent}
-                  >
-                    {sendingTemplate ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : templateSent ? (
-                      <Check className="h-4 w-4 mr-2" />
-                    ) : (
-                      <Mail className="h-4 w-4 mr-2" />
-                    )}
-                    {templateSent
-                      ? "Email Sent"
-                      : `Send "${templates.find(t => t.id === selectedTemplateId)?.name}" Email`}
-                  </Button>
+                {selectedTemplateId && selectedTemplate && (
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => setPreviewOpen(true)}
+                      variant="outline"
+                      className="flex-1 text-sm"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview
+                    </Button>
+                    <Button
+                      onClick={handleSendTemplateEmail}
+                      variant={templateSent ? "outline" : "secondary"}
+                      className="flex-1 text-sm"
+                      disabled={sendingTemplate || templateSent}
+                    >
+                      {sendingTemplate ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : templateSent ? (
+                        <Check className="h-4 w-4 mr-2" />
+                      ) : (
+                        <Mail className="h-4 w-4 mr-2" />
+                      )}
+                      {templateSent ? "Sent" : "Send"}
+                    </Button>
+                  </div>
                 )}
               </div>
             )}
 
-            <Button onClick={handleNewLead} className="mt-4 w-full">
+            <Button onClick={handleNewLead} className="mt-4 w-full text-sm">
               <UserPlus className="h-4 w-4 mr-2" />
               Onboard Another Client
             </Button>
           </CardContent>
         </Card>
+
+        {selectedTemplate && (
+          <EmailTemplatePreviewDialog
+            open={previewOpen}
+            onOpenChange={setPreviewOpen}
+            templateName={selectedTemplate.name}
+            formData={selectedTemplate.form_data}
+            onSend={handleSendTemplateEmail}
+            sending={sendingTemplate}
+            sent={templateSent}
+          />
+        )}
       </div>
     );
   }
 
+  // ── Form State ──
   return (
-    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
-      {/* Header */}
+    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6 px-1">
       <div>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Onboard New Client</h1>
-        <p className="text-muted-foreground text-sm mt-1">
+        <p className="text-muted-foreground text-xs sm:text-sm mt-1">
           Add a client, pick a deck, and sync to Lofty — all in one step.
         </p>
       </div>
@@ -369,18 +406,18 @@ export function LeadOnboardHub() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
           {/* Contact Info */}
           <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base">Contact Info</CardTitle>
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="text-sm sm:text-base">Contact Info</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <CardContent className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField
                   control={form.control}
                   name="first_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First Name *</FormLabel>
-                      <FormControl><Input placeholder="John" {...field} /></FormControl>
+                      <FormLabel className="text-xs sm:text-sm">First Name *</FormLabel>
+                      <FormControl><Input placeholder="John" className="text-[16px] sm:text-sm" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -390,22 +427,22 @@ export function LeadOnboardHub() {
                   name="last_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last Name</FormLabel>
-                      <FormControl><Input placeholder="Smith" {...field} /></FormControl>
+                      <FormLabel className="text-xs sm:text-sm">Last Name</FormLabel>
+                      <FormControl><Input placeholder="Smith" className="text-[16px] sm:text-sm" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email *</FormLabel>
-                      <FormControl><Input type="email" placeholder="john@email.com" {...field} /></FormControl>
+                      <FormLabel className="text-xs sm:text-sm">Email *</FormLabel>
+                      <FormControl><Input type="email" placeholder="john@email.com" className="text-[16px] sm:text-sm" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -415,24 +452,24 @@ export function LeadOnboardHub() {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl><Input type="tel" placeholder="604-555-1234" {...field} /></FormControl>
+                      <FormLabel className="text-xs sm:text-sm">Phone</FormLabel>
+                      <FormControl><Input type="tel" placeholder="604-555-1234" className="text-[16px] sm:text-sm" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField
                   control={form.control}
                   name="source"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Lead Source *</FormLabel>
+                      <FormLabel className="text-xs sm:text-sm">Lead Source *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select source" /></SelectTrigger>
+                          <SelectTrigger className="text-[16px] sm:text-sm"><SelectValue placeholder="Select source" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {SOURCES.map((s) => (
@@ -451,9 +488,9 @@ export function LeadOnboardHub() {
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Notes</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Notes</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Any context about this lead..." rows={3} {...field} />
+                      <Textarea placeholder="Any context about this lead..." rows={3} className="text-[16px] sm:text-sm" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -464,34 +501,47 @@ export function LeadOnboardHub() {
 
           {/* Deck Selector */}
           <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base">
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="text-sm sm:text-base">
                 Select Pitch Deck{" "}
-                <span className="text-muted-foreground font-normal text-sm">(optional)</span>
+                <span className="text-muted-foreground font-normal text-xs sm:text-sm">(optional)</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {decks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No published decks yet. Create one in the Decks tab.</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">No published decks yet. Create one in the Decks tab.</p>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className={cn(
+                  "grid gap-2 sm:gap-3",
+                  isMobile ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3"
+                )}>
                   {decks.map((deck) => (
                     <button
                       key={deck.id}
                       type="button"
                       onClick={() => setSelectedDeckId(selectedDeckId === deck.id ? null : deck.id)}
                       className={cn(
-                        "relative rounded-lg border-2 p-3 text-left transition-all hover:shadow-md",
+                        "relative rounded-lg border-2 p-2.5 sm:p-3 text-left transition-all hover:shadow-md",
+                        isMobile ? "flex items-center gap-3" : "",
                         selectedDeckId === deck.id
                           ? "border-primary bg-primary/5 shadow-sm"
                           : "border-border hover:border-muted-foreground/30"
                       )}
                     >
                       {deck.hero_image_url && (
-                        <img src={deck.hero_image_url} alt={deck.project_name} className="w-full h-16 sm:h-20 object-cover rounded mb-2" />
+                        <img
+                          src={deck.hero_image_url}
+                          alt={deck.project_name}
+                          className={cn(
+                            "object-cover rounded",
+                            isMobile ? "w-14 h-14 shrink-0" : "w-full h-16 sm:h-20 mb-2"
+                          )}
+                        />
                       )}
-                      <p className="font-medium text-sm truncate">{deck.project_name}</p>
-                      {deck.city && <p className="text-xs text-muted-foreground truncate">{deck.city}</p>}
+                      <div className="min-w-0">
+                        <p className="font-medium text-xs sm:text-sm truncate">{deck.project_name}</p>
+                        {deck.city && <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{deck.city}</p>}
+                      </div>
                       {selectedDeckId === deck.id && (
                         <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                           <Check className="h-3 w-3 text-primary-foreground" />
@@ -504,11 +554,11 @@ export function LeadOnboardHub() {
             </CardContent>
           </Card>
 
-
-
-
           {/* Submit */}
-          <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm pb-4 pt-2 -mx-4 px-4 sm:static sm:bg-transparent sm:backdrop-blur-none sm:pb-0 sm:pt-0 sm:mx-0 sm:px-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+          <div
+            className="sticky bottom-0 bg-background/95 backdrop-blur-sm pb-4 pt-2 -mx-1 px-1 sm:static sm:bg-transparent sm:backdrop-blur-none sm:pb-0 sm:pt-0 sm:mx-0 sm:px-0"
+            style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+          >
             <Button type="submit" size="lg" className="w-full text-sm sm:text-base" disabled={submitting}>
               {submitting ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
