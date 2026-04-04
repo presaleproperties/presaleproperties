@@ -2301,14 +2301,14 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
 
   <!-- WHAT'S INCLUDED -->
   ${incentiveLines.length > 0 ? `<tr>
-    <td style="padding:0 40px 32px;background:#ffffff;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${WARM};border-radius:6px;border:1px solid ${BORDER};">
+    <td class="mobile-pad" style="padding:0 40px 32px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${WARM};border-radius:6px;border:1px solid ${BORDER};" role="presentation">
         <tr><td style="padding:20px 24px 16px;">
           <p style="margin:0 0 14px 0;font-family:${F};font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
-          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation">
           ${incentiveLines.map(item => `<tr>
             <td valign="top" width="20" style="padding:0 0 8px 0;width:20px;vertical-align:top;">
-              <table cellpadding="0" cellspacing="0" border="0"><tr><td width="5" height="5" style="width:5px;height:5px;background:${ACCENT};border-radius:50%;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+              <table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td width="5" height="5" style="width:5px;height:5px;background:${ACCENT};border-radius:50%;font-size:0;line-height:0;">&nbsp;</td></tr></table>
             </td>
             <td valign="top" style="padding:0 0 8px 10px;vertical-align:top;">
               <p style="margin:0;font-family:${F};font-size:13px;font-weight:500;color:#444444;line-height:1.7;">${item}</p>
@@ -2322,10 +2322,10 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
 
   <!-- I'M INTERESTED CTA -->
   <tr>
-    <td style="padding:8px 40px 12px;background:#ffffff;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <td class="mobile-pad" style="padding:8px 40px 12px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation">
         <tr>
-          <td align="center" style="background:${DARK};border-radius:6px;padding:16px 32px;text-align:center;">
+          <td class="cta-btn" align="center" style="background:${DARK};border-radius:6px;padding:16px 32px;text-align:center;">
             <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName || "this presale"}. Can you send me more details?`)}"
                style="font-family:${F};font-size:13px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">
               I'M INTERESTED &nbsp;&#8594;
@@ -2338,10 +2338,10 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
 
   <!-- CALL NOW CTA -->
   <tr>
-    <td style="padding:0 40px 28px;background:#ffffff;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <td class="mobile-pad" style="padding:0 40px 28px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation">
         <tr>
-          <td align="center" style="background:#ffffff;border:1.5px solid ${BORDER};border-radius:6px;padding:14px 32px;text-align:center;">
+          <td class="cta-btn" align="center" style="background:#ffffff;border:1.5px solid ${BORDER};border-radius:6px;padding:14px 32px;text-align:center;">
             <a href="tel:${phone.replace(/\D/g, "")}"
                style="font-family:${F};font-size:13px;font-weight:700;letter-spacing:1px;color:${DARK};text-decoration:none;display:block;">
               &#9742;&nbsp; CALL ${phone}
@@ -2355,16 +2355,16 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
   <!-- FLOOR PLANS -->
   ${fps.length > 0 ? `<tr>
     <td style="padding:0;background:#ffffff;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
-        <tr><td style="padding:8px 40px 20px;">
-          <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:4px;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation">
+        <tr><td class="mobile-pad" style="padding:8px 40px 20px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:4px;" role="presentation">
             <tr><td width="32" height="2" style="width:32px;height:2px;background:${ACCENT};font-size:0;line-height:0;">&nbsp;</td></tr>
           </table>
           <p style="margin:0 0 4px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
           <p style="margin:0;font-family:${F};font-size:22px;font-weight:800;color:${DARK};letter-spacing:-0.3px;">${fpHeading}</p>
         </td></tr>
-        <tr><td style="padding:0 40px 20px;">
-          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr><td class="mobile-pad" style="padding:0 40px 20px;">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation">
             ${fpRowsHtml}
           </table>
         </td></tr>
@@ -2375,12 +2375,12 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
   <!-- AGENT CARD -->
   <tr>
     <td style="padding:0;background:${WARM};border-top:1px solid ${BORDER};">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation">
         <tr>
           ${agent.photo_url ? `<td width="72" valign="middle" style="padding:24px 0 24px 40px;width:72px;vertical-align:middle;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="56" height="56" style="display:block;width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${ACCENT};" />
+            <img class="agent-photo" src="${agent.photo_url}" alt="${agent.full_name}" width="56" height="56" style="display:block;width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${ACCENT};" />
           </td>` : ""}
-          <td valign="middle" style="padding:24px ${agent.photo_url ? "40px" : "40px"} 24px ${agent.photo_url ? "16px" : "40px"};vertical-align:middle;">
+          <td class="${agent.photo_url ? "agent-pad" : "mobile-pad"}" valign="middle" style="padding:24px ${agent.photo_url ? "40px" : "40px"} 24px ${agent.photo_url ? "16px" : "40px"};vertical-align:middle;">
             <p style="margin:0 0 2px 0;font-family:${F};font-size:15px;font-weight:700;color:${DARK};">${agent.full_name}</p>
             <p style="margin:0 0 6px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">${agent.title}</p>
             <p style="margin:0;font-family:${F};font-size:12px;color:#888888;">
@@ -2396,11 +2396,11 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
 
   <!-- FOOTER -->
   <tr>
-    <td style="padding:20px 40px;background:${DARK};border-radius:0 0 8px 8px;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <td class="footer-pad" style="padding:20px 40px;background:${DARK};border-radius:0 0 8px 8px;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation">
         <tr>
           <td valign="middle" style="vertical-align:middle;">
-            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="90" style="display:inline-block;width:90px;height:auto;opacity:0.8;" />
+            <img class="footer-logo" src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="90" style="display:inline-block;width:90px;height:auto;opacity:0.8;" />
           </td>
           <td align="right" valign="middle" style="text-align:right;vertical-align:middle;">
             <p style="margin:0;font-family:${F};font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);">${locationLine}, BC</p>
@@ -2413,7 +2413,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
 </table>
 
 <!-- LEGAL (outside card) -->
-<table cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;">
+<table cellpadding="0" cellspacing="0" border="0" width="600" class="legal-table" style="max-width:600px;width:100%;" role="presentation">
   <tr>
     <td style="padding:20px 20px 8px;text-align:center;">
       <p style="margin:0 0 6px 0;font-family:${F};font-size:10px;color:#bbbbbb;line-height:1.6;">
