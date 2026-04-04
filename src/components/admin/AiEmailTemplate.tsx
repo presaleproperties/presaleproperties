@@ -2040,7 +2040,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
                 <td align="center" valign="top"
                     style="background-color: ${DARK}; padding: 18px 24px; text-align: center;">
                   <a href="tel:${phone.replace(/\D/g, "")}"
-                     style="${F} font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #ffffff; text-decoration: none; display: block; line-height: 1.4;">
+                     style="${F} font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #ffffff; text-decoration: none; display: block; line-height: 1; white-space: nowrap;">
                     &#128222;&nbsp; CALL NOW &mdash; ${phone}
                   </a>
                 </td>
