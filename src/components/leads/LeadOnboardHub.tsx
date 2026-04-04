@@ -59,6 +59,11 @@ interface EmailTemplate {
   form_data: any;
 }
 
+/** Use subject line from form_data as the display name (matches Marketing Hub), fall back to DB name */
+function getTemplateName(tpl: EmailTemplate): string {
+  return tpl.form_data?.copy?.subjectLine || tpl.name;
+}
+
 export function LeadOnboardHub() {
   const { user } = useAuth();
   const isMobile = useIsMobile();
