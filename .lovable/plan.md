@@ -1,30 +1,66 @@
 
 
-## Plan: Use Saved Email Builder HTML for Preview & Sending
+## Plan: Streamlined Agent Onboarding Flow
 
-### Problem
-The onboarding flow fetches templates from `campaign_templates` (same table as Marketing Hub) — so the **data source is correct**. However, the preview and send functions rebuild HTML from raw `form_data` fields using a simplified `buildEmailHtml()`, which produces a stripped-down version that doesn't match the actual email built in the Email Builder (missing fonts, layout versions, agent signatures, image cards, etc.).
+### Current Problems
+1. The "Send Deck Email" button on the success screen sends an auto-generated email — not connected to Marketing Hub templates
+2. The email preview/send still falls back to a generic `buildEmailHtml()` for templates without `finalHtml` stored
+3. The flow has too many steps — pitch deck email send is redundant since you want to just copy the deck link manually
 
-The real email builder uses a much more complex `buildFinalHtml()` with 10+ parameters. The solution is to **store the final rendered HTML** when saving templates, then reuse it directly.
+### New Flow (Single Screen, Fast)
+
+```text
+┌─────────────────────────────────────┐
+│  FORM: Contact Info                 │
+│  Name, Email, Phone, Source, Notes  │
+├─────────────────────────────────────┤
+│  SELECT: Pitch Deck (optional)      │
+│  [Eden]  [Clover]  [Park]           │
+├─────────────────────────────────────┤
+│  SELECT: Email Template (optional)  │
+│  [Eden Launch]  [Clover Intro]      │
+│  [Preview] button when selected     │
+├─────────────────────────────────────┤
+│  [ Save & Send Email ]              │
+└─────────────────────────────────────┘
+         ↓ after submit
+┌─────────────────────────────────────┐
+│  ✓ Client Onboarded                 │
+│                                     │
+│  Deck Link: [copy field] [📋]      │
+│                                     │
+│  Email Template: [card]             │
+│  [Preview]  [Send to John]          │
+│                                     │
+│  [ Onboard Another Client ]        │
+└─────────────────────────────────────┘
+```
 
 ### Changes
 
-**1. Store `finalHtml` when saving in the AI Email Builder**
-- In `src/pages/admin/AdminAiEmailBuilder.tsx`, add `finalHtml` to the `form_data` object in both `handleSaveClick` (update) and `handleSaveNewTemplate` (insert) flows.
-- The `finalHtml` variable already exists in the component — just include it in `buildFormData()` or append it to the saved object.
+**1. Remove "Send Deck Email" button from success screen**
+- File: `src/components/leads/LeadOnboardHub.tsx`
+- Remove the `handleSendDeckEmail` function and the "Send Deck Email" button
+- Keep the deck link + copy button so agents can manually share it
+- Remove related state: `sendingEmail`, `emailSent`
 
-**2. Store `finalHtml` in the legacy Email Builder too**
-- In `src/pages/admin/AdminEmailBuilder.tsx`, same approach — include `finalHtml` in saved `form_data`.
+**2. Ensure `finalHtml` is the source of truth for preview and sending**
+- The preview dialog already prioritizes `formData.finalHtml` (line 35-48 of `EmailTemplatePreviewDialog.tsx`) — this is correct
+- The edge function already prioritizes `fd.finalHtml` — this is correct
+- The only requirement is that templates have been re-saved in the Marketing Hub since the `finalHtml` storage was added (previous change). Templates saved before that will use the fallback reconstruction.
 
-**3. Update preview dialog to use stored `finalHtml`**
-- In `src/components/leads/EmailTemplatePreviewDialog.tsx`, check for `formData.finalHtml` first. If present, use it directly (with `{first_name}` personalization applied). Fall back to the current `buildEmailHtml()` reconstruction only if `finalHtml` is missing.
+**3. Auto-send email template on form submission (optional enhancement)**
+- Currently the submit button says "Save & Send Email" but does NOT auto-send — it just saves the lead and shows the success screen where you manually click send
+- Update `onSubmit` to automatically invoke `send-template-email` right after saving the lead (if a template was selected), so the email goes out in one click
+- Show the result on the success screen (already sent, with option to preview what was sent)
 
-**4. Update the send edge function to use stored `finalHtml`**
-- In `supabase/functions/send-template-email/index.ts`, check for `fd.finalHtml` first. If present, apply personalization (`{first_name}` replacement) and send it. Fall back to the current reconstruction logic for older templates without `finalHtml`.
+**4. Clean up unused imports and state**
+- Remove `Presentation` icon import (no longer used)
+- Remove `sendingEmail`/`emailSent` state variables
 
 ### Technical Details
-- `buildFormData()` in `AdminAiEmailBuilder.tsx` (~line 650-700) constructs the object saved to DB — add `finalHtml` field there.
-- The `finalHtml` const at line 748 always reflects the latest rendered state.
-- No database migration needed — `form_data` is a `jsonb` column, so adding a new key is seamless.
-- Existing saved templates without `finalHtml` will continue to work via the fallback reconstruction.
+- Only `src/components/leads/LeadOnboardHub.tsx` needs editing
+- No database changes needed
+- No edge function changes needed — `send-template-email` already handles `finalHtml` correctly
+- The email that goes out will be the exact Marketing Hub template with `{first_name}` personalized
 
