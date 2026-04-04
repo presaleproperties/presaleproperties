@@ -1089,6 +1089,9 @@ export default function AdminEmailBuilderPage() {
         completion: copy.completion,
       },
       heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
+      imageCards, loopSlides, selectedAssetId, directCtaUrl,
+      selAgent, fontId: selectedFontId, layoutVersion,
+      showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
     };
     const { error } = await supabase.from("campaign_templates" as any).insert({
       name, project_name: projectName || "Untitled",
