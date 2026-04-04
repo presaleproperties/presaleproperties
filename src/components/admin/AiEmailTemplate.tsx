@@ -2231,20 +2231,43 @@ export function buildMailerLiteEmailHtml(
   const locationLine = data.city ? data.city.toUpperCase() : "VANCOUVER";
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="x-apple-disable-message-reformatting" />
 <title>${data.subjectLine || data.projectName || "New Presale"}</title>
+<!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
+<style type="text/css">
+  @media only screen and (max-width: 620px) {
+    .email-container { width:100% !important; max-width:100% !important; }
+    .mobile-pad { padding-left:24px !important; padding-right:24px !important; }
+    .mobile-pad-sm { padding-left:20px !important; padding-right:20px !important; }
+    .hero-img { width:100% !important; height:auto !important; }
+    .stat-cell { display:block !important; width:100% !important; border-right:none !important; border-bottom:1px solid ${BORDER} !important; padding:14px 20px !important; }
+    .stat-cell:last-child { border-bottom:none !important; }
+    .headline-text { font-size:24px !important; }
+    .body-text { font-size:15px !important; }
+    .fp-price { font-size:20px !important; }
+    .cta-btn { padding:18px 24px !important; font-size:14px !important; }
+    .agent-photo { width:48px !important; height:48px !important; }
+    .agent-pad { padding-left:12px !important; }
+    .footer-logo { width:70px !important; }
+    .footer-pad { padding:16px 24px !important; }
+    .legal-table { width:100% !important; max-width:100% !important; }
+    .fp-card { border-radius:4px !important; }
+    .fp-meta-pad { padding:14px 16px 16px !important; }
+  }
+</style>
 </head>
-<body style="margin:0;padding:0;background:${WARM};font-family:${F};">
-${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-height:0;overflow:hidden;">${data.previewText}&zwnj;</span>` : ""}
+<body style="margin:0;padding:0;background:${WARM};font-family:${F};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-height:0;overflow:hidden;mso-hide:all;">${data.previewText}${"&zwnj;&nbsp;".repeat(30)}</span>` : ""}
 
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${WARM};">
-<tr><td align="center" style="padding:24px 0;">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${WARM};" role="presentation">
+<tr><td align="center" style="padding:24px 12px;">
 
-<table cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid ${BORDER};">
+<table cellpadding="0" cellspacing="0" border="0" width="600" class="email-container" style="max-width:600px;width:100%;background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid ${BORDER};" role="presentation">
 
   <!-- HERO IMAGE -->
   ${data.heroImage ? `<tr>
