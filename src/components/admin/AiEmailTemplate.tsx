@@ -1999,7 +1999,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
            <td class="mobile-pad" valign="top"
               style="background-color: ${DARK}; padding: 24px 36px 12px;">
             <p style="margin: 0 0 4px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">FLOOR PLANS</p>
-            <p style="margin: 0; ${F} font-size: 22px; font-weight: 700; color: #ffffff; line-height: 1.15;">${fpHeading}</p>
+            <p style="margin: 0; ${F} font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.15; letter-spacing: -0.3px;">${fpHeading}</p>
           </td>
         </tr>
 
