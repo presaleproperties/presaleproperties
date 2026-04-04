@@ -1141,6 +1141,22 @@ export default function AdminEmailBuilderPage() {
 
   const buildFormData = () => {
     const copy = currentCopy();
+    const savedDeckMeta = (() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+        if (!saved || typeof saved !== "object") return {};
+        return {
+          _source: saved._source,
+          _deckId: saved._deckId,
+          _deckUrl: saved._deckUrl,
+          _deckParking: saved._deckParking,
+          _deckLocker: saved._deckLocker,
+        };
+      } catch {
+        return {};
+      }
+    })();
+
     return {
       _type: "ai-email",
       copy,
@@ -1155,6 +1171,7 @@ export default function AdminEmailBuilderPage() {
       imageCards, loopSlides, selectedAssetId, directCtaUrl,
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
+      ...savedDeckMeta,
       finalHtml,
     };
   };
