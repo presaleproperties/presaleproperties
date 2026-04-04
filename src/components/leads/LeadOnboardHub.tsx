@@ -266,7 +266,7 @@ export function LeadOnboardHub() {
         {preview ? (
           <img
             src={preview}
-            alt={tpl.name}
+            alt={displayName}
             className={cn(
               "object-cover rounded",
               isMobile ? "w-14 h-14 shrink-0" : "w-full h-16"
