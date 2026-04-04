@@ -184,8 +184,23 @@ export function LeadOnboardHub() {
       let emailAutoSent = false;
       if (selectedTemplateId) {
         try {
+          // Build the exact Marketing Hub HTML on the client so the edge function sends it as-is
+          const tpl = templates.find(t => t.id === selectedTemplateId);
+          let htmlOverride: string | undefined;
+          if (tpl?.form_data) {
+            const fd = tpl.form_data;
+            if (fd.finalHtml) {
+              htmlOverride = personalizeTemplateHtml(fd.finalHtml, values.first_name);
+            } else if (isAiEmailTemplate(fd)) {
+              htmlOverride = personalizeTemplateHtml(
+                buildAiTemplateHtmlFromFormData(fd),
+                values.first_name,
+              );
+            }
+          }
+
           const { error: sendErr } = await supabase.functions.invoke("send-template-email", {
-            body: { leadId: lead.id, templateId: selectedTemplateId },
+            body: { leadId: lead.id, templateId: selectedTemplateId, htmlOverride },
           });
           if (sendErr) throw sendErr;
           emailAutoSent = true;
