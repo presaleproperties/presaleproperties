@@ -1411,7 +1411,7 @@ export function buildLululemonEmailHtml(
       .cta-table{width:100%!important;}
       .cta-td{width:100%!important;border-radius:50px!important;padding:18px 24px!important;}
       /* Stats stacking */
-      .stat-cell{display:block!important;width:100%!important;border-right:none!important;border-bottom:1px solid #eeeeee!important;padding:14px 24px!important;}
+      .stat-cell{display:block!important;width:100%!important;border-right:none!important;border-bottom:1px solid #e8e2d6!important;padding:14px 24px!important;text-align:left!important;}
       /* Agent card */
       .agent-logo-cell{display:none!important;}
     }
