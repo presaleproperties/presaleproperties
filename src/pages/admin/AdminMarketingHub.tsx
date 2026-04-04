@@ -274,8 +274,8 @@ export default function AdminMarketingHub() {
 
                         {/* Info */}
                         <div className="p-3.5">
-                          <p className="text-sm font-semibold truncate mb-0.5">{asset.name}</p>
-                          {subject && (
+                          <p className="text-sm font-semibold truncate mb-0.5">{getDisplayName(asset)}</p>
+                          {subject && subject !== getDisplayName(asset) && (
                             <p className="text-[11px] text-muted-foreground truncate mb-1.5">
                               Subject: {subject}
                             </p>
