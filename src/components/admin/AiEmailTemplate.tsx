@@ -1352,7 +1352,7 @@ export function buildLululemonEmailHtml(
 
   const phone    = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
   const whatsapp = data.ctaWhatsApp || "16722581100";
-  const deckLink = data.deckUrl || "";
+  const deckLink = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
 
   // ── Floor plans ──────────────────────────────────────────────────────────
   const fps = (data.floorPlans || []).filter(fp => fp.url);
