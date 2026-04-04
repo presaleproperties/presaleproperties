@@ -1421,12 +1421,12 @@ export function buildLululemonEmailHtml(
 ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-height:0;overflow:hidden;">${data.previewText}&zwnj;</span>` : ""}
 
 <!-- OUTER WRAPPER -->
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;margin:0;padding:0;">
-<tr><td class="outer-td" align="center" style="padding:0;">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;margin:0;padding:0;">
+<tr><td class="outer-td" align="center" style="padding:24px 0;">
 
 <!-- EMAIL CONTAINER: max 600px, true full-width on mobile -->
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%" class="email-container"
-       style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e5e5e5;">
+       style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e8e2d6;border-radius:8px;overflow:hidden;">
 
   <!-- ── HERO IMAGE: full-bleed, zero padding ── -->
   ${data.heroImage ? `
