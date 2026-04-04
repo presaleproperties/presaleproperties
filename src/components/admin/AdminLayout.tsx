@@ -79,16 +79,6 @@ const navSections = [
     ],
   },
   {
-    id: "people",
-    label: "People",
-    items: [
-      { href: "/admin/leads",    label: "Leads",    icon: Users,        badgeKey: null },
-      { href: "/admin/bookings", label: "Bookings", icon: CalendarDays, badgeKey: "bookings" as const },
-      { href: "/admin/clients",  label: "Clients",  icon: UserRound,    badgeKey: null },
-      { href: "/admin/agents",   label: "Agents",   icon: UserCheck,    badgeKey: "agents" as const },
-    ],
-  },
-  {
     id: "marketing",
     label: "Marketing",
     items: [
@@ -96,6 +86,16 @@ const navSections = [
       { href: "/admin/marketing-hub",  label: "Campaigns", icon: Megaphone, badgeKey: null },
       { href: "/admin/blogs",          label: "Blog",      icon: BookOpen,  badgeKey: null },
       { href: "/admin/google-reviews", label: "Reviews",   icon: Star,      badgeKey: null },
+    ],
+  },
+  {
+    id: "people",
+    label: "People",
+    items: [
+      { href: "/admin/leads",    label: "Leads",    icon: Users,        badgeKey: null },
+      { href: "/admin/bookings", label: "Bookings", icon: CalendarDays, badgeKey: "bookings" as const },
+      { href: "/admin/clients",  label: "Clients",  icon: UserRound,    badgeKey: null },
+      { href: "/admin/agents",   label: "Agents",   icon: UserCheck,    badgeKey: "agents" as const },
     ],
   },
   {
