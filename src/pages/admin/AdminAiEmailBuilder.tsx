@@ -1983,6 +1983,17 @@ export default function AdminEmailBuilderPage() {
           >
             {copied ? <><CheckCircle2 className="h-4 w-4" /> Copied!</> : <><Copy className="h-4 w-4" /> Copy HTML</>}
           </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className={cn("h-12 gap-2 font-semibold transition-all px-3",
+              pushedML ? "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600" : "border-[#09C269] text-[#09C269] hover:bg-[#09C269]/10"
+            )}
+            onClick={handlePushToMailerLite}
+            disabled={pushingML}
+          >
+            {pushingML ? <Loader2 className="h-4 w-4 animate-spin" /> : pushedML ? <CheckCircle2 className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+          </Button>
         </div>
 
         {/* Spacer so sticky bar doesn't cover content on mobile */}
