@@ -568,7 +568,7 @@ export function buildLoopEmailHtml(
   const locationLine = [copy.neighborhood, copy.city].filter(Boolean).join(", ");
 
   // Hero section HTML
-  const heroLink = copy.projectUrl || "";
+  const heroLink = ctaUrl || "";
   const heroHtml = (() => {
     if (slides.length === 0) return "";
     if (slides.length === 1) {
@@ -1072,8 +1072,8 @@ export function buildPitchDeckEmailHtml(
   ${data.heroImage ? `
   <tr>
     <td style="padding:0;line-height:0;font-size:0;">
-       ${(data.projectUrl || deckLink)
-        ? `<a href="${data.projectUrl || deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display:block;width:100%;height:auto;" /></a>`
+       ${deckLink
+        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display:block;width:100%;height:auto;" /></a>`
         : `<img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display:block;width:100%;height:auto;" />`
       }
     </td>
@@ -1469,8 +1469,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   ${data.heroImage ? `
   <tr>
     <td style="padding:0;margin:0;line-height:0;font-size:0;">
-      ${(data.projectUrl || deckLink)
-        ? `<a href="${data.projectUrl || deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" /></a>`
+      ${deckLink
+        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" /></a>`
         : `<img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />`
       }
     </td>
@@ -1932,8 +1932,8 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
         ${data.heroImage ? `
         <tr>
           <td valign="top" style="padding: 0; font-size: 0; line-height: 0;">
-            ${(data.projectUrl || deckLink)
-              ? `<a href="${data.projectUrl || deckLink}" target="_blank" style="display: block; font-size: 0; line-height: 0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;" /></a>`
+            ${deckLink
+              ? `<a href="${deckLink}" target="_blank" style="display: block; font-size: 0; line-height: 0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;" /></a>`
               : `<img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;" />`}
           </td>
         </tr>` : ""}
@@ -2249,8 +2249,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
   <!-- HERO IMAGE -->
   ${data.heroImage ? `<tr>
     <td style="padding:0;line-height:0;font-size:0;">
-      ${(data.projectUrl || deckLink)
-        ? `<a href="${data.projectUrl || deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;height:auto;border:0;" /></a>`
+      ${deckLink
+        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;height:auto;border:0;" /></a>`
         : `<img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;height:auto;border:0;" />`}
     </td>
   </tr>` : `<tr>
