@@ -445,6 +445,42 @@ export default function AdminEmailBuilderPage() {
     short_description?: string | null;
   }>>([]);
 
+  // ── Force-hydrate state from DB when loading a saved template ────────────
+  useEffect(() => {
+    if (!dbDraft) return;
+    const d = dbDraft;
+    setProjectName(d.projectName ?? "");
+    setDevName(d.developerName ?? "");
+    setShowProjectName(d.showProjectName ?? true);
+    setShowDeveloperName(d.showDeveloperName ?? true);
+    setCustomHeader(d.customHeader ?? "");
+    setCity(d.city ?? "");
+    setNeighborhood(d.neighborhood ?? "");
+    setProjectUrl(d.projectUrl ?? "");
+    setStartingPrice(d.startingPrice ?? "");
+    setDeposit(d.deposit ?? "");
+    setCompletion(d.completion ?? "");
+    setInfoRows(d.infoRows ?? []);
+    setSubjectLine(d.subjectLine ?? "");
+    setPreviewText(d.previewText ?? "");
+    setHeadline(d.headline ?? "");
+    setBodyCopy(d.bodyCopy ?? "");
+    setIncentiveText(d.incentiveText ?? "");
+    setHeroImage(d.heroImage ?? "");
+    setFloorPlans(d.floorPlans ?? []);
+    setFpHeading(d.fpHeading ?? "Available Floor Plans");
+    setFpSubheading(d.fpSubheading ?? "");
+    setImageCards(d.imageCards ?? []);
+    setLoopSlides(d.loopSlides ?? []);
+    setSelectedAssetId(d.selectedAssetId ?? "none");
+    setDirectCtaUrl(d.directCtaUrl ?? "");
+    if (d.selAgent) setSelAgent(d.selAgent);
+    if (d.fontId) setSelectedFontId(d.fontId);
+    if (d.layoutVersion) setLayoutVersion(d.layoutVersion);
+    if (d.aiResult) setAiResult(d.aiResult);
+    if (d.activeVersion) setActiveVersion(d.activeVersion);
+  }, [dbDraft]);
+
   // ── Force-hydrate state from localStorage when coming from a pitch deck ────
   // useState initializers only run once, so if the component was already mounted
   // we need a useEffect to push the fresh draft values into state.
