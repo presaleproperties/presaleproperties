@@ -13,6 +13,9 @@ const ALLOWED_ORIGINS = [
   // Allow Supabase studio for admin functions
   "https://supabase.com",
   "https://app.supabase.com",
+  // Lovable preview domains
+  "https://id-preview--08acf871-484d-4365-9aab-01fdfa4c35be.lovable.app",
+  "https://08acf871-484d-4365-9aab-01fdfa4c35be.lovableproject.com",
 ];
 
 // Dev/staging origins — only allowed when not in production
