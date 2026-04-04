@@ -37,7 +37,11 @@ function getPreviewImage(asset: SavedAsset): string | null {
 }
 
 function getSubjectLine(asset: SavedAsset): string | null {
-  return asset.form_data?.subject || null;
+  return asset.form_data?.copy?.subjectLine || asset.form_data?.subject || null;
+}
+
+function getDisplayName(asset: SavedAsset): string {
+  return asset.form_data?.copy?.subjectLine || asset.name;
 }
 
 const CREATE_OPTIONS = [
