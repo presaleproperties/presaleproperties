@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Check, Copy, Eye, Loader2, Mail, Send, UserPlus, FileText, Presentation } from "lucide-react";
+import { Check, Copy, Eye, Loader2, Mail, Send, UserPlus, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EmailTemplatePreviewDialog } from "./EmailTemplatePreviewDialog";
@@ -82,10 +82,9 @@ export function LeadOnboardHub() {
     leadId: string;
     leadEmail: string;
     templateId: string | null;
+    emailAutoSent: boolean;
   } | null>(null);
   const [copied, setCopied] = useState(false);
-  const [sendingEmail, setSendingEmail] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
   const [sendingTemplate, setSendingTemplate] = useState(false);
   const [templateSent, setTemplateSent] = useState(false);
 
@@ -180,22 +179,39 @@ export function LeadOnboardHub() {
       );
       if (syncError) console.error("Zapier sync error (non-blocking):", syncError);
 
+      // Auto-send email template if one was selected
+      let emailAutoSent = false;
+      if (selectedTemplateId) {
+        try {
+          const { error: sendErr } = await supabase.functions.invoke("send-template-email", {
+            body: { leadId: lead.id, templateId: selectedTemplateId },
+          });
+          if (sendErr) throw sendErr;
+          emailAutoSent = true;
+        } catch (emailErr: any) {
+          console.error("Auto-send email error (non-blocking):", emailErr);
+          // Don't block onboarding success — agent can retry from success screen
+        }
+      }
+
       setSuccessData({
         deckUrl,
         leadName: `${values.first_name} ${values.last_name}`.trim(),
         leadId: lead.id,
         leadEmail: values.email.trim().toLowerCase(),
         templateId: selectedTemplateId,
+        emailAutoSent,
       });
       form.reset();
       setSelectedDeckId(null);
       setSelectedTemplateId(null);
-      setEmailSent(false);
-      setTemplateSent(false);
+      setTemplateSent(emailAutoSent);
 
       toast({
         title: "Client onboarded!",
-        description: `${values.first_name} has been saved and synced to Lofty.`,
+        description: emailAutoSent
+          ? `${values.first_name} has been saved, synced to Lofty, and emailed.`
+          : `${values.first_name} has been saved and synced to Lofty.`,
       });
     } catch (err: any) {
       console.error("Onboard error:", err);
@@ -211,25 +227,7 @@ export function LeadOnboardHub() {
 
   const handleNewLead = () => {
     setSuccessData(null);
-    setEmailSent(false);
     setTemplateSent(false);
-  };
-
-  const handleSendDeckEmail = async () => {
-    if (!successData?.leadId) return;
-    setSendingEmail(true);
-    try {
-      const { error } = await supabase.functions.invoke("send-deck-email", {
-        body: { leadId: successData.leadId },
-      });
-      if (error) throw error;
-      setEmailSent(true);
-      toast({ title: "Email sent!", description: `Pitch deck email sent to ${successData.leadName}.` });
-    } catch (err: any) {
-      toast({ title: "Failed to send email", description: err.message || "Something went wrong", variant: "destructive" });
-    } finally {
-      setSendingEmail(false);
-    }
   };
 
   const handleSendTemplateEmail = async () => {
@@ -316,45 +314,31 @@ export function LeadOnboardHub() {
             <h2 className="text-lg sm:text-xl font-semibold">Client Onboarded</h2>
             <p className="text-muted-foreground text-sm">
               <span className="font-medium text-foreground">{successData.leadName}</span> has been saved and synced to Lofty.
+              {successData.emailAutoSent && (
+                <span className="block mt-1 text-primary font-medium">✓ Email template sent automatically.</span>
+              )}
             </p>
 
-            {/* Deck link + send */}
+            {/* Deck link — copy only, no email send */}
             {successData.deckUrl && (
-              <>
-                <div className="space-y-2 text-left">
-                  <Label className="text-xs sm:text-sm text-muted-foreground">Deck Link</Label>
-                  <div className="flex items-center gap-2">
-                    <Input readOnly value={successData.deckUrl} className="text-xs sm:text-sm" />
-                    <Button size="icon" variant="outline" onClick={() => handleCopy(successData.deckUrl)} className="shrink-0">
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    </Button>
-                  </div>
+              <div className="space-y-2 text-left">
+                <Label className="text-xs sm:text-sm text-muted-foreground">Deck Link</Label>
+                <div className="flex items-center gap-2">
+                  <Input readOnly value={successData.deckUrl} className="text-xs sm:text-sm" />
+                  <Button size="icon" variant="outline" onClick={() => handleCopy(successData.deckUrl)} className="shrink-0">
+                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
                 </div>
-                <Button
-                  onClick={handleSendDeckEmail}
-                  variant={emailSent ? "outline" : "secondary"}
-                  className="w-full text-sm"
-                  disabled={sendingEmail || emailSent}
-                >
-                  {sendingEmail ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : emailSent ? (
-                    <Check className="h-4 w-4 mr-2" />
-                  ) : (
-                    <Presentation className="h-4 w-4 mr-2" />
-                  )}
-                  {emailSent ? "Deck Email Sent" : "Send Deck Email"}
-                </Button>
-              </>
+              </div>
             )}
 
-            {/* Template email actions — only if a template was selected in the form */}
+            {/* Template email actions — preview + manual resend if needed */}
             {successTemplate && (
               <div className="space-y-3 text-left">
                 <Label className="text-xs sm:text-sm text-muted-foreground">Email Template</Label>
                 <div className={cn(
                   "rounded-lg border-2 border-primary bg-primary/5 p-3",
-                  isMobile ? "flex items-center gap-3" : "flex items-center gap-3"
+                  "flex items-center gap-3"
                 )}>
                   {getTemplatePreview(successTemplate) ? (
                     <img
