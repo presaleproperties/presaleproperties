@@ -729,6 +729,8 @@ export function buildLoopEmailHtml(
     </td>
   </tr>` : ""}
 
+  ${projectDetailsCta({ projectUrl: copy.projectUrl, projectName: copy.projectName, developerName: copy.developerName, font: bodyFont, accent: ACCENT, dark: DARK })}
+
   <!-- ─── INCENTIVES (conditional) ─── -->
   ${incentives.length > 0 ? `
   <tr>
