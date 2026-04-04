@@ -1937,6 +1937,16 @@ export default function AdminEmailBuilderPage() {
                   ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied!</>
                   : <><Copy className="h-3.5 w-3.5" /> Copy HTML</>}
               </Button>
+              <Button
+                variant="outline"
+                className={cn("w-full h-9 gap-1.5 font-semibold text-sm transition-all",
+                  pushedML ? "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600" : "border-[#09C269] text-[#09C269] hover:bg-[#09C269]/10"
+                )}
+                onClick={handlePushToMailerLite}
+                disabled={pushingML}
+              >
+                {pushingML ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : pushedML ? <><CheckCircle2 className="h-3.5 w-3.5" /> Pushed!</> : <><Upload className="h-3.5 w-3.5" /> Push to MailerLite</>}
+              </Button>
             </div>
           </div>
 
