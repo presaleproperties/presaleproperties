@@ -1801,11 +1801,11 @@ export function buildPitchDeckEmailHtmlLofty(
           const [label, value] = row.split("|").map((s: string) => s.trim());
           const bb = i < infoRowsFiltered.length - 1 ? "border-bottom:1px solid #e8e3db;" : "";
           return `<tr>
-            <td width="45%" style="width:45%;padding:10px 14px;background:#f7f5f1;border-right:1px solid #e8e3db;${bb}vertical-align:top;">
-              <p style="margin:0;${F}font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#999999;">${label}</p>
-            </td>
-            <td style="padding:10px 14px;background:#ffffff;${bb}vertical-align:top;">
-              <p style="margin:0;${F}font-size:13px;font-weight:600;color:#222222;">${value}</p>
+             <td width="45%" style="width:45%;padding:10px 16px;background:#f7f5f1;border-right:1px solid #e8e3db;${bb}vertical-align:top;">
+               <p style="margin:0;${F}font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#999999;">${label}</p>
+             </td>
+             <td style="padding:10px 16px;background:#ffffff;${bb}vertical-align:top;">
+               <p style="margin:0;${F}font-size:13px;font-weight:600;color:#222222;">${value}</p>
             </td>
           </tr>`;
         }).join("")}
