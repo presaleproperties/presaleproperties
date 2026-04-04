@@ -1917,7 +1917,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
           <td class="mobile-pad" valign="top"
               style="background-color: ${DARK}; padding: 28px 36px 24px;">
             <p style="margin: 0 0 6px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">PRESALE PROPERTIES</p>
-            <p class="hero-text" style="margin: 0 0 8px 0; ${F} font-size: 28px; font-weight: 800; color: #ffffff; line-height: 1.1; letter-spacing: -0.5px;">${data.projectName || "New Presale Release"}</p>
+            <p class="hero-text" style="margin: 0 0 8px 0; ${F} font-size: 32px; font-weight: 800; color: #ffffff; line-height: 1.1; letter-spacing: -0.5px;">${data.projectName || "New Presale Release"}</p>
             ${byLine ? `<p style="margin: 0 0 10px 0; ${F} font-size: 11px; color: #7a9a86;">${byLine}</p>` : ""}
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>
