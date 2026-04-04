@@ -2022,7 +2022,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
                 <td align="center" valign="top"
                     style="background-color: ${ACCENT}; padding: 14px 24px; text-align: center;">
                   <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName}. Can you send me more details?`)}"
-                     style="${F} font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ${DARK}; text-decoration: none; display: block;">
+                     style="${F} font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ${DARK}; text-decoration: none; display: block;">
                     I'M INTERESTED &#8594;
                   </a>
                 </td>
