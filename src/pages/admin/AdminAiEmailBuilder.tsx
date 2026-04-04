@@ -2249,7 +2249,7 @@ export default function AdminEmailBuilderPage() {
                   placeholder="e.g. Eden Launch — VIP List"
                   className="mt-1"
                   autoFocus
-                  onKeyDown={e => { if (e.key === "Enter") handleSave(); }}
+                  onKeyDown={e => { if (e.key === "Enter") handleSaveNewTemplate(); }}
                 />
               </div>
               <div className="flex gap-2 justify-end">
