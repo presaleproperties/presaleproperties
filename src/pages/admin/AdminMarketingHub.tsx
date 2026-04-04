@@ -37,7 +37,11 @@ function getPreviewImage(asset: SavedAsset): string | null {
 }
 
 function getSubjectLine(asset: SavedAsset): string | null {
-  return asset.form_data?.subject || null;
+  return asset.form_data?.copy?.subjectLine || asset.form_data?.subject || null;
+}
+
+function getDisplayName(asset: SavedAsset): string {
+  return asset.form_data?.copy?.subjectLine || asset.name;
 }
 
 const CREATE_OPTIONS = [
@@ -270,8 +274,8 @@ export default function AdminMarketingHub() {
 
                         {/* Info */}
                         <div className="p-3.5">
-                          <p className="text-sm font-semibold truncate mb-0.5">{asset.name}</p>
-                          {subject && (
+                          <p className="text-sm font-semibold truncate mb-0.5">{getDisplayName(asset)}</p>
+                          {subject && subject !== getDisplayName(asset) && (
                             <p className="text-[11px] text-muted-foreground truncate mb-1.5">
                               Subject: {subject}
                             </p>
