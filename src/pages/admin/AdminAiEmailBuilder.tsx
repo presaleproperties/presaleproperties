@@ -1183,7 +1183,7 @@ export default function AdminEmailBuilderPage() {
       setSaving(true);
       const formData = buildFormData();
       const res = await supabase.from("campaign_templates" as any)
-        .update({ form_data: formData, project_name: projectName || "Untitled", updated_at: new Date().toISOString() })
+        .update({ form_data: formData, name: subjectLine || projectName || "Untitled", project_name: projectName || "Untitled", updated_at: new Date().toISOString() })
         .eq("id", savedTemplateId);
       if (res.error) {
         toast.error("Failed to save");
@@ -1193,7 +1193,7 @@ export default function AdminEmailBuilderPage() {
       setSaving(false);
     } else {
       // First save — ask for a name
-      setSaveTemplateName(subjectLine || `${projectName || headline?.slice(0, 30) || "Untitled"} · ${city || "Email"}`);
+      setSaveTemplateName(subjectLine || `${projectName || headline?.slice(0, 30) || "Untitled"}`);
       setSaveDialogOpen(true);
     }
   };
