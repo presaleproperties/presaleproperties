@@ -1019,7 +1019,7 @@ export default function AdminEmailBuilderPage() {
         fpSubheading,
       }, agentForEmail);
     }
-    // For other layouts: strip <style> and convert fixed widths to fluid
+    // For other layouts: strip <style>, convert fixed widths to fluid, and swap merge tags
     let html = finalHtml;
     html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
     html = html.replace(/width:\s*(\d+)px/g, (match, px) => {
@@ -1030,6 +1030,13 @@ export default function AdminEmailBuilderPage() {
       const n = parseInt(px, 10);
       return n >= 200 ? `<${tag}${before} width="100%"${after}>` : match;
     });
+    // Replace Mailchimp merge tags with Lofty merge tags
+    html = html.replace(/\*\|UNSUB\|\*/g, "#unsubscribe_url#");
+    html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "#update_preferences_url#");
+    html = html.replace(/\*\|EMAIL_WEB_VERSION_URL\|\*/g, "#view_in_browser_url#");
+    html = html.replace(/\*\|FNAME\|\*/g, "#lead_first_name#");
+    html = html.replace(/\*\|LNAME\|\*/g, "#lead_last_name#");
+    html = html.replace(/\*\|EMAIL\|\*/g, "#lead_email#");
     return html;
   }, [layoutVersion, finalHtml, projectName, city, developerName, heroImage, headline, bodyCopy,
       subjectLine, previewText, startingPrice, deposit, completion, infoRows, incentiveText,
