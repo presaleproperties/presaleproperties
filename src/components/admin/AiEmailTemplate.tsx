@@ -1919,7 +1919,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0;padding:0;width:100%;background-color:#ffffff;">
 <tr><td align="center" valign="top" style="padding:0;margin:0;">
 <!--[if mso]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td><![endif]-->
-<table cellpadding="0" cellspacing="0" border="0" align="center" width="100%"
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="100%" class="email-container"
        style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #e0dbd3;">
 
         <!-- ── HEADER ── -->
