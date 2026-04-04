@@ -687,6 +687,13 @@ export default function AdminEmailBuilderPage() {
     if (p.developer_name)  setDevName(p.developer_name);
     if (p.featured_image)  setHeroImage(p.featured_image);
 
+    // Auto-set project page URL from slug
+    if (p.slug) {
+      const neighborhood = p.neighborhood || p.city || "";
+      const typeSlug = "condos"; // default; will resolve on the website
+      setProjectUrl(`https://presaleproperties.com/${neighborhood.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}-presale-${typeSlug}-${p.slug}`);
+    }
+
     // Auto-populate Loop slideshow from gallery images (up to 6 HQ images)
     const gallerySlides: string[] = [];
     if (p.featured_image) gallerySlides.push(p.featured_image);
