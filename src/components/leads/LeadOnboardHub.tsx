@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { buildAiTemplateHtmlFromFormData, isAiEmailTemplate, personalizeTemplateHtml } from "@/lib/ai-email-html";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
