@@ -2217,9 +2217,9 @@ export function buildMailerLiteEmailHtml(
   ].filter(Boolean) as { label: string; value: string }[];
 
   const statsHtml = statEntries.length > 0 ? `<tr><td style="padding:0;">
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${WARM};">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${WARM};" role="presentation">
       <tr>${statEntries.map((s, i) => `
-        <td style="padding:18px 20px;text-align:left;vertical-align:middle;${i < statEntries.length - 1 ? `border-right:1px solid ${BORDER};` : ""}">
+        <td class="stat-cell" style="padding:18px 20px;text-align:left;vertical-align:middle;${i < statEntries.length - 1 ? `border-right:1px solid ${BORDER};` : ""}">
           <p style="margin:0 0 4px 0;font-family:${F};font-size:18px;font-weight:800;color:${DARK};letter-spacing:-0.3px;">${s.value}</p>
           <p style="margin:0;font-family:${F};font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};">${s.label}</p>
         </td>`).join("")}
