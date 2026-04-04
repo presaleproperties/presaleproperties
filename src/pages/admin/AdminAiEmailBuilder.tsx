@@ -1155,18 +1155,9 @@ export default function AdminEmailBuilderPage() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveTemplateName, setSaveTemplateName] = useState("");
 
-  const openSaveDialog = () => {
-    if (!projectName && !headline) { toast.error("Add a project name or headline first"); return; }
-    setSaveTemplateName(subjectLine || `${projectName || headline?.slice(0, 30) || "Untitled"} · ${city || "Email"}`);
-    setSaveDialogOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!saveTemplateName.trim()) { toast.error("Enter a template name"); return; }
-    setSaving(true);
-    setSaveDialogOpen(false);
+  const buildFormData = () => {
     const copy = currentCopy();
-    const formData = {
+    return {
       _type: "ai-email",
       copy,
       vars: {
@@ -1181,6 +1172,36 @@ export default function AdminEmailBuilderPage() {
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
     };
+  };
+
+  // If already saved → update directly. If new → show naming dialog.
+  const handleSaveClick = async () => {
+    if (!projectName && !headline) { toast.error("Add a project name or headline first"); return; }
+    if (savedTemplateId) {
+      // Already saved — just update the existing template
+      setSaving(true);
+      const formData = buildFormData();
+      const res = await supabase.from("campaign_templates" as any)
+        .update({ form_data: formData, project_name: projectName || "Untitled", updated_at: new Date().toISOString() })
+        .eq("id", savedTemplateId);
+      if (res.error) {
+        toast.error("Failed to save");
+      } else {
+        toast.success("Template saved!");
+      }
+      setSaving(false);
+    } else {
+      // First save — ask for a name
+      setSaveTemplateName(subjectLine || `${projectName || headline?.slice(0, 30) || "Untitled"} · ${city || "Email"}`);
+      setSaveDialogOpen(true);
+    }
+  };
+
+  const handleSaveNewTemplate = async () => {
+    if (!saveTemplateName.trim()) { toast.error("Enter a template name"); return; }
+    setSaving(true);
+    setSaveDialogOpen(false);
+    const formData = buildFormData();
 
     const res = await supabase.from("campaign_templates" as any)
       .insert({ name: saveTemplateName.trim(), project_name: projectName || "Untitled", form_data: formData })
@@ -1190,7 +1211,7 @@ export default function AdminEmailBuilderPage() {
     if (res.error) {
       toast.error("Failed to save");
     } else {
-      toast.success("Saved as new template!");
+      toast.success("Template saved!");
       if ((res.data as any)?.id) {
         searchParams.set("saved", (res.data as any).id);
         navigate(`?${searchParams.toString()}`, { replace: true });
@@ -1270,9 +1291,9 @@ export default function AdminEmailBuilderPage() {
             <span className="hidden md:inline">Send Email</span>
             <span className="md:hidden">Send</span>
           </Button>
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 shrink-0 hidden sm:flex text-xs px-2.5" onClick={openSaveDialog} disabled={saving}>
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 shrink-0 hidden sm:flex text-xs px-2.5" onClick={handleSaveClick} disabled={saving}>
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-            <span className="hidden md:inline">Save as Template</span>
+            <span className="hidden md:inline">{savedTemplateId ? "Save" : "Save as Template"}</span>
           </Button>
           <Button size="sm"
             className={cn("h-8 gap-1.5 font-semibold transition-all duration-200 shrink-0 text-xs px-2.5", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
@@ -2164,7 +2185,7 @@ export default function AdminEmailBuilderPage() {
             variant="outline"
             size="lg"
             className="flex-1 h-12 gap-2 font-semibold"
-            onClick={openSaveDialog}
+            onClick={handleSaveClick}
             disabled={saving}
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -2228,12 +2249,12 @@ export default function AdminEmailBuilderPage() {
                   placeholder="e.g. Eden Launch — VIP List"
                   className="mt-1"
                   autoFocus
-                  onKeyDown={e => { if (e.key === "Enter") handleSave(); }}
+                  onKeyDown={e => { if (e.key === "Enter") handleSaveNewTemplate(); }}
                 />
               </div>
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" size="sm" onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
-                <Button size="sm" onClick={handleSave} disabled={!saveTemplateName.trim() || saving} className="gap-1.5">
+                <Button size="sm" onClick={handleSaveNewTemplate} disabled={!saveTemplateName.trim() || saving} className="gap-1.5">
                   {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                   Save Template
                 </Button>
