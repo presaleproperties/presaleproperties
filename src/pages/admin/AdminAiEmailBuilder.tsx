@@ -1291,9 +1291,9 @@ export default function AdminEmailBuilderPage() {
             <span className="hidden md:inline">Send Email</span>
             <span className="md:hidden">Send</span>
           </Button>
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 shrink-0 hidden sm:flex text-xs px-2.5" onClick={openSaveDialog} disabled={saving}>
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 shrink-0 hidden sm:flex text-xs px-2.5" onClick={handleSaveClick} disabled={saving}>
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-            <span className="hidden md:inline">Save as Template</span>
+            <span className="hidden md:inline">{savedTemplateId ? "Save" : "Save as Template"}</span>
           </Button>
           <Button size="sm"
             className={cn("h-8 gap-1.5 font-semibold transition-all duration-200 shrink-0 text-xs px-2.5", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
