@@ -365,9 +365,10 @@ export default function AdminEmailBuilderPage() {
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile-sm" | "mobile-lg">("desktop");
-  const [codeViewTarget, setCodeViewTarget] = useState<"mailchimp" | "lofty">("mailchimp");
+  const [codeViewTarget, setCodeViewTarget] = useState<"mailchimp" | "lofty" | "mailerlite">("mailchimp");
   const [copied,        setCopied]        = useState(false);
   const [copiedLofty,   setCopiedLofty]   = useState(false);
+  const [copiedML,      setCopiedML]      = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
