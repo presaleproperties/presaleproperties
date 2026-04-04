@@ -629,16 +629,18 @@ export function LeadOnboardHub() {
         </form>
       </Form>
 
-      {/* Preview dialog (usable from form state) */}
+      {/* Preview dialog (usable from form state — preview only, no send) */}
       {selectedTemplate && (
         <EmailTemplatePreviewDialog
           open={previewOpen}
           onOpenChange={setPreviewOpen}
           templateName={selectedTemplate.name}
           formData={selectedTemplate.form_data}
-          onSend={() => {}} // No send from preview during form — just viewing
+          onSend={() => {}}
           sending={false}
           sent={false}
+          showSendButton={false}
+          recipientName={form.getValues("first_name") || undefined}
         />
       )}
     </div>
