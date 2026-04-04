@@ -2178,13 +2178,9 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
             </p>
           </td>
         </tr>
-
 </table>
 <!--[if mso]></td></tr></table><![endif]-->
-</td></tr>
-</table>
-</body>
-</html>`;
+</td></tr></table></body></html>`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
