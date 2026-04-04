@@ -21,7 +21,7 @@ import {
   RefreshCw,
   Mail,
   TrendingUp,
-  
+  Megaphone,
   Palette,
   ExternalLink,
   ClipboardList,
@@ -87,8 +87,7 @@ const navSections = [
     items: [
       { href: "/admin/blogs",         label: "Blog",         icon: BookOpen,  badgeKey: null },
       { href: "/admin/email-center",  label: "Email",        icon: Mail,      badgeKey: null },
-      
-      
+      { href: "/admin/marketing-hub", label: "Marketing Hub",icon: Megaphone, badgeKey: null },
       { href: "/admin/google-reviews",label: "Reviews",      icon: Star,      badgeKey: null },
     ],
   },
