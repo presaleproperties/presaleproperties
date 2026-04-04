@@ -1171,6 +1171,7 @@ export default function AdminEmailBuilderPage() {
       imageCards, loopSlides, selectedAssetId, directCtaUrl,
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
+      finalHtml,
     };
   };
 
