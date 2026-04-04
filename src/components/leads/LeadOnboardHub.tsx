@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Check, Copy, Loader2, Mail, Send, UserPlus } from "lucide-react";
+import { Check, Copy, Loader2, Mail, Send, UserPlus, FileText, Presentation } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
@@ -49,15 +49,33 @@ interface PitchDeck {
   is_published: boolean;
 }
 
+interface EmailTemplate {
+  id: string;
+  name: string;
+  project_name: string;
+  thumbnail_url: string | null;
+  form_data: any;
+}
+
 export function LeadOnboardHub() {
   const { user } = useAuth();
   const [decks, setDecks] = useState<PitchDeck[]>([]);
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [successData, setSuccessData] = useState<{ deckUrl: string; leadName: string; leadId: string } | null>(null);
+  const [successData, setSuccessData] = useState<{
+    deckUrl: string;
+    leadName: string;
+    leadId: string;
+    templateId: string | null;
+    templateName: string | null;
+  } | null>(null);
   const [copied, setCopied] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [sendingTemplate, setSendingTemplate] = useState(false);
+  const [templateSent, setTemplateSent] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -73,15 +91,31 @@ export function LeadOnboardHub() {
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("pitch_decks")
-      .select("id, project_name, slug, hero_image_url, city, is_published")
-      .eq("is_published", true)
-      .order("updated_at", { ascending: false })
-      .then(({ data }) => {
-        if (data) setDecks(data);
-      });
+    // Fetch decks and templates in parallel
+    Promise.all([
+      supabase
+        .from("pitch_decks")
+        .select("id, project_name, slug, hero_image_url, city, is_published")
+        .eq("is_published", true)
+        .order("updated_at", { ascending: false }),
+      (supabase as any)
+        .from("campaign_templates")
+        .select("id, name, project_name, thumbnail_url, form_data")
+        .order("updated_at", { ascending: false })
+        .limit(20),
+    ]).then(([decksRes, templatesRes]) => {
+      if (decksRes.data) setDecks(decksRes.data);
+      if (templatesRes.data) setTemplates(templatesRes.data);
+    });
   }, [user]);
+
+  const getTemplatePreview = (t: EmailTemplate): string | null => {
+    return t.thumbnail_url || t.form_data?.heroImage || null;
+  };
+
+  const getTemplateSubject = (t: EmailTemplate): string | null => {
+    return t.form_data?.copy?.subjectLine || null;
+  };
 
   const handleCopy = async (url: string) => {
     await navigator.clipboard.writeText(url);
@@ -99,7 +133,8 @@ export function LeadOnboardHub() {
         ? `https://presaleproperties.com/deck/${selectedDeck.slug}`
         : "";
 
-      // 1. Insert into onboarded_leads
+      const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
+
       const { data: lead, error: insertError } = await supabase
         .from("onboarded_leads")
         .insert({
@@ -112,26 +147,32 @@ export function LeadOnboardHub() {
           notes: values.notes.trim(),
           deck_id: selectedDeckId,
           deck_url: deckUrl,
-        })
+          template_id: selectedTemplateId,
+        } as any)
         .select("id")
         .single();
 
       if (insertError) throw insertError;
 
-      // 2. Fire edge function to sync to Zapier/Lofty
+      // Sync to Zapier/Lofty (non-blocking)
       const { error: syncError } = await supabase.functions.invoke(
         "sync-onboarded-lead",
         { body: { leadId: lead.id } }
       );
+      if (syncError) console.error("Zapier sync error (non-blocking):", syncError);
 
-      if (syncError) {
-        console.error("Zapier sync error (non-blocking):", syncError);
-      }
-
-      setSuccessData({ deckUrl, leadName: `${values.first_name} ${values.last_name}`.trim(), leadId: lead.id });
+      setSuccessData({
+        deckUrl,
+        leadName: `${values.first_name} ${values.last_name}`.trim(),
+        leadId: lead.id,
+        templateId: selectedTemplateId,
+        templateName: selectedTemplate?.name || null,
+      });
       form.reset();
       setSelectedDeckId(null);
+      setSelectedTemplateId(null);
       setEmailSent(false);
+      setTemplateSent(false);
 
       toast({
         title: "Client onboarded!",
@@ -152,6 +193,7 @@ export function LeadOnboardHub() {
   const handleNewLead = () => {
     setSuccessData(null);
     setEmailSent(false);
+    setTemplateSent(false);
   };
 
   const handleSendDeckEmail = async () => {
@@ -169,6 +211,24 @@ export function LeadOnboardHub() {
       toast({ title: "Failed to send email", description: err.message || "Something went wrong", variant: "destructive" });
     } finally {
       setSendingEmail(false);
+    }
+  };
+
+  const handleSendTemplateEmail = async () => {
+    if (!successData?.leadId || !successData?.templateId) return;
+    setSendingTemplate(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-template-email", {
+        body: { leadId: successData.leadId, templateId: successData.templateId },
+      });
+      if (error) throw error;
+      setTemplateSent(true);
+      toast({ title: "Email sent!", description: `Template email sent to ${successData.leadName}.` });
+    } catch (err: any) {
+      console.error("Send template email error:", err);
+      toast({ title: "Failed to send email", description: err.message || "Something went wrong", variant: "destructive" });
+    } finally {
+      setSendingTemplate(false);
     }
   };
 
@@ -190,16 +250,8 @@ export function LeadOnboardHub() {
               <div className="space-y-2">
                 <Label className="text-sm text-muted-foreground">Deck Link</Label>
                 <div className="flex items-center gap-2">
-                  <Input
-                    readOnly
-                    value={successData.deckUrl}
-                    className="text-sm"
-                  />
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => handleCopy(successData.deckUrl)}
-                  >
+                  <Input readOnly value={successData.deckUrl} className="text-sm" />
+                  <Button size="icon" variant="outline" onClick={() => handleCopy(successData.deckUrl)}>
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
@@ -218,9 +270,27 @@ export function LeadOnboardHub() {
                 ) : emailSent ? (
                   <Check className="h-4 w-4 mr-2" />
                 ) : (
+                  <Presentation className="h-4 w-4 mr-2" />
+                )}
+                {emailSent ? "Deck Email Sent" : "Send Deck Email"}
+              </Button>
+            )}
+
+            {successData.templateId && (
+              <Button
+                onClick={handleSendTemplateEmail}
+                variant={templateSent ? "outline" : "secondary"}
+                className="w-full"
+                disabled={sendingTemplate || templateSent}
+              >
+                {sendingTemplate ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : templateSent ? (
+                  <Check className="h-4 w-4 mr-2" />
+                ) : (
                   <Mail className="h-4 w-4 mr-2" />
                 )}
-                {emailSent ? "Email Sent" : "Send Deck Email"}
+                {templateSent ? "Template Email Sent" : `Send "${successData.templateName}" Email`}
               </Button>
             )}
 
@@ -259,9 +329,7 @@ export function LeadOnboardHub() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>First Name *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John" {...field} />
-                      </FormControl>
+                      <FormControl><Input placeholder="John" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -272,9 +340,7 @@ export function LeadOnboardHub() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Smith" {...field} />
-                      </FormControl>
+                      <FormControl><Input placeholder="Smith" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -288,9 +354,7 @@ export function LeadOnboardHub() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email *</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="john@email.com" {...field} />
-                      </FormControl>
+                      <FormControl><Input type="email" placeholder="john@email.com" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -301,9 +365,7 @@ export function LeadOnboardHub() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
-                      <FormControl>
-                        <Input type="tel" placeholder="604-555-1234" {...field} />
-                      </FormControl>
+                      <FormControl><Input type="tel" placeholder="604-555-1234" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -319,15 +381,11 @@ export function LeadOnboardHub() {
                       <FormLabel>Lead Source *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select source" />
-                          </SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder="Select source" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {SOURCES.map((s) => (
-                            <SelectItem key={s.value} value={s.value}>
-                              {s.label}
-                            </SelectItem>
+                            <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -344,11 +402,7 @@ export function LeadOnboardHub() {
                   <FormItem>
                     <FormLabel>Notes</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Any context about this lead..."
-                        rows={3}
-                        {...field}
-                      />
+                      <Textarea placeholder="Any context about this lead..." rows={3} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -367,18 +421,14 @@ export function LeadOnboardHub() {
             </CardHeader>
             <CardContent>
               {decks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No published decks yet. Create one in the Decks tab.
-                </p>
+                <p className="text-sm text-muted-foreground">No published decks yet. Create one in the Decks tab.</p>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {decks.map((deck) => (
                     <button
                       key={deck.id}
                       type="button"
-                      onClick={() =>
-                        setSelectedDeckId(selectedDeckId === deck.id ? null : deck.id)
-                      }
+                      onClick={() => setSelectedDeckId(selectedDeckId === deck.id ? null : deck.id)}
                       className={cn(
                         "relative rounded-lg border-2 p-3 text-left transition-all hover:shadow-md",
                         selectedDeckId === deck.id
@@ -387,16 +437,10 @@ export function LeadOnboardHub() {
                       )}
                     >
                       {deck.hero_image_url && (
-                        <img
-                          src={deck.hero_image_url}
-                          alt={deck.project_name}
-                          className="w-full h-16 sm:h-20 object-cover rounded mb-2"
-                        />
+                        <img src={deck.hero_image_url} alt={deck.project_name} className="w-full h-16 sm:h-20 object-cover rounded mb-2" />
                       )}
                       <p className="font-medium text-sm truncate">{deck.project_name}</p>
-                      {deck.city && (
-                        <p className="text-xs text-muted-foreground truncate">{deck.city}</p>
-                      )}
+                      {deck.city && <p className="text-xs text-muted-foreground truncate">{deck.city}</p>}
                       {selectedDeckId === deck.id && (
                         <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                           <Check className="h-3 w-3 text-primary-foreground" />
@@ -409,7 +453,57 @@ export function LeadOnboardHub() {
             </CardContent>
           </Card>
 
-          {/* Submit - sticky on mobile */}
+          {/* Email Template Selector */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">
+                Select Email Template{" "}
+                <span className="text-muted-foreground font-normal text-sm">(optional)</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {templates.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No email templates yet. Create one in the Marketing tab.</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {templates.map((tpl) => {
+                    const preview = getTemplatePreview(tpl);
+                    const subject = getTemplateSubject(tpl);
+                    return (
+                      <button
+                        key={tpl.id}
+                        type="button"
+                        onClick={() => setSelectedTemplateId(selectedTemplateId === tpl.id ? null : tpl.id)}
+                        className={cn(
+                          "relative rounded-lg border-2 p-3 text-left transition-all hover:shadow-md",
+                          selectedTemplateId === tpl.id
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border hover:border-muted-foreground/30"
+                        )}
+                      >
+                        {preview ? (
+                          <img src={preview} alt={tpl.name} className="w-full h-16 sm:h-20 object-cover rounded mb-2" />
+                        ) : (
+                          <div className="w-full h-16 sm:h-20 rounded bg-muted flex items-center justify-center mb-2">
+                            <FileText className="h-5 w-5 text-muted-foreground/40" />
+                          </div>
+                        )}
+                        <p className="font-medium text-sm truncate">{subject || tpl.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{tpl.project_name}</p>
+                        {selectedTemplateId === tpl.id && (
+                          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="h-3 w-3 text-primary-foreground" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Submit */}
           <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm pb-4 pt-2 -mx-4 px-4 sm:static sm:bg-transparent sm:backdrop-blur-none sm:pb-0 sm:pt-0 sm:mx-0 sm:px-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
             <Button type="submit" size="lg" className="w-full text-sm sm:text-base" disabled={submitting}>
               {submitting ? (

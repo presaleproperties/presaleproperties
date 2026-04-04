@@ -2527,6 +2527,7 @@ export type Database = {
           notes: string | null
           phone: string | null
           source: string
+          template_id: string | null
           updated_at: string
           user_id: string
           zapier_synced: boolean
@@ -2542,6 +2543,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           source?: string
+          template_id?: string | null
           updated_at?: string
           user_id: string
           zapier_synced?: boolean
@@ -2557,6 +2559,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           source?: string
+          template_id?: string | null
           updated_at?: string
           user_id?: string
           zapier_synced?: boolean
@@ -2567,6 +2570,13 @@ export type Database = {
             columns: ["deck_id"]
             isOneToOne: false
             referencedRelation: "pitch_decks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarded_leads_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_templates"
             referencedColumns: ["id"]
           },
         ]
