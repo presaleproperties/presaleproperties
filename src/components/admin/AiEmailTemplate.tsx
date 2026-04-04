@@ -1879,20 +1879,38 @@ export function buildPitchDeckEmailHtmlLofty(
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
     img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; max-width: 100% !important; }
+    body { margin: 0 !important; padding: 0 !important; background: #ffffff; }
+    * { box-sizing: border-box; }
+    a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+    u+#body a { color: inherit !important; text-decoration: none !important; }
+    #MessageViewBody a { color: inherit !important; text-decoration: none !important; }
     /* Mobile overrides */
-    @media only screen and (max-width: 600px) {
-      .mobile-full  { width: 100% !important; display: block !important; }
-      .mobile-hide  { display: none !important; }
-      .mobile-center { text-align: center !important; }
-      td.mobile-full { padding: 10px 16px !important; border-right: none !important; border-bottom: 1px solid #e8e3db !important; }
+    @media only screen and (max-width: 620px) {
+      /* TRUE edge-to-edge on iPhone — remove all outer spacing and border */
+      .email-container { width: 100% !important; max-width: 100% !important; border: none !important; border-left: none !important; border-right: none !important; }
+      /* Section padding: tighter on mobile */
+      .mobile-pad { padding-left: 20px !important; padding-right: 20px !important; }
+      /* Stats bar: stack vertically */
+      td.mobile-full { display: block !important; width: 100% !important; text-align: center !important; padding: 14px 20px !important; border-right: none !important; border-bottom: 1px solid #e8e3db !important; }
       td.mobile-full:last-child { border-bottom: none !important; }
-      .mobile-pad   { padding-left: 16px !important; padding-right: 16px !important; }
-      .hero-text    { font-size: 22px !important; }
-      .stat-value   { font-size: 15px !important; }
-      .fp-price     { font-size: 20px !important; }
+      /* Floor plan section */
+      .fp-wrap { padding-left: 16px !important; padding-right: 16px !important; }
+      /* Typography scale-up */
+      .hero-text { font-size: 26px !important; line-height: 1.15 !important; }
+      .stat-value { font-size: 22px !important; }
+      .fp-price { font-size: 20px !important; }
+      /* Body copy */
+      .body-copy p { font-size: 15px !important; line-height: 1.8 !important; }
       /* Bullet indentation on mobile */
-      .bullet-dot   { padding-left: 12px !important; font-size: 15px !important; }
-      .bullet-text p { font-size: 15px !important; }
+      .bullet-dot { padding-left: 16px !important; font-size: 16px !important; }
+      .bullet-text p { font-size: 15px !important; line-height: 1.8 !important; }
+      /* Full-width CTA button on mobile */
+      .cta-btn { width: 100% !important; display: block !important; }
+      .cta-btn td { width: 100% !important; text-align: center !important; padding: 18px 20px !important; }
+      /* Hide desktop agent card on mobile */
+      .agent-desktop { display: none !important; max-height: 0 !important; overflow: hidden !important; }
+      /* Show mobile agent card */
+      .agent-mobile { display: table-row !important; max-height: none !important; overflow: visible !important; }
     }
   </style>
 </head>
@@ -1901,7 +1919,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0;padding:0;width:100%;background-color:#ffffff;">
 <tr><td align="center" valign="top" style="padding:0;margin:0;">
 <!--[if mso]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td><![endif]-->
-<table cellpadding="0" cellspacing="0" border="0" align="center" width="100%"
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="100%" class="email-container"
        style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #e0dbd3;">
 
         <!-- ── HEADER ── -->
@@ -1998,7 +2016,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── FLOOR PLAN CARDS ── -->
         <tr>
-           <td class="mobile-pad" valign="top"
+           <td class="fp-wrap" valign="top"
                style="background-color: ${DARK}; padding: 12px 20px 24px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               ${fpRowsHtml}
@@ -2010,7 +2028,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         <tr>
            <td class="mobile-pad" valign="top"
                style="background-color: ${DARK}; padding: 0 28px 28px;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <table class="cta-btn" cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" valign="top"
                     style="background-color: ${ACCENT}; padding: 14px 24px; text-align: center;">
@@ -2046,38 +2064,81 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         </tr>
 
         <!-- ── DIVIDER ── -->
-        <tr>
-          <td style="padding: 0 24px;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
-              <tr><td height="1" style="height: 1px; background-color: #ece8e0; font-size: 0; line-height: 0;">&nbsp;</td></tr>
+        <tr><td style="height:1px;font-size:0;line-height:0;background:#ece8e0;padding:0;margin:0;">&nbsp;</td></tr>
+
+        <!-- ── AGENT CARD — DESKTOP (hidden on mobile) ── -->
+        <tr class="agent-desktop" style="display:table-row;">
+          <td bgcolor="#fafaf8" style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                ${agent.photo_url ? `
+                <td width="110" valign="middle" style="padding:20px 0 20px 24px;vertical-align:middle;line-height:0;font-size:0;width:110px;">
+                  <img src="${agent.photo_url}" alt="${agent.full_name}" width="90" height="90" border="0"
+                       style="display:block;width:90px;height:90px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+                </td>` : ""}
+                <td valign="middle" style="padding:20px 0 20px 16px;vertical-align:middle;">
+                  <div style="${F}font-size:17px;font-weight:700;color:#111111;line-height:1.2;margin-bottom:3px;">${agent.full_name}</div>
+                  <div style="${F}font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};line-height:1.5;margin-bottom:8px;">${agent.title}</div>
+                  ${agent.phone ? `<div style="${F}font-size:12px;color:#555555;margin-bottom:3px;">&#128222; <a href="tel:${agent.phone.replace(/\D/g,"")}" style="color:#555555;text-decoration:none;">${agent.phone}</a></div>` : ""}
+                  ${agent.email ? `<div style="${F}font-size:11px;color:#777777;">&#9993; <a href="mailto:${agent.email}" style="color:#777777;text-decoration:none;">${agent.email}</a></div>` : ""}
+                </td>
+                <td align="right" valign="middle" style="padding:20px 28px 20px 16px;vertical-align:middle;">
+                  <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="130" border="0"
+                       style="display:block;width:130px;height:auto;" />
+                </td>
+              </tr>
             </table>
           </td>
         </tr>
 
-        <!-- ── AGENT CARD ── -->
-        <tr>
-          <td valign="top" style="background-color: #fafaf8; border-top: 2px solid ${ACCENT}; padding: 0;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <!-- ── AGENT CARD — MOBILE ONLY (shown via CSS media query on ≤620px) ── -->
+        <tr class="agent-mobile" style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+          <td style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
               ${agent.photo_url ? `
               <tr>
-                <td align="center" valign="top" style="padding: 24px 24px 12px; text-align: center;">
-                  <img src="${agent.photo_url}" alt="${agent.full_name}" width="90" height="90" border="0"
-                       style="display: inline-block; width: 90px; height: 90px; border-radius: 50%; object-fit: cover; object-position: center top; border: 3px solid ${ACCENT}; -ms-interpolation-mode: bicubic;" />
+                <td align="center" style="padding:28px 24px 14px;text-align:center;">
+                  <img src="${agent.photo_url}" alt="${agent.full_name}" width="100" height="100" border="0"
+                       style="display:inline-block;width:100px;height:100px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
                 </td>
               </tr>` : ""}
               <tr>
-                <td align="center" valign="top" style="padding: 0 24px 14px; text-align: center;">
-                  <p style="margin: 0 0 4px 0; ${F} font-size: 18px; font-weight: 700; color: #111111; line-height: 1.2;">${agent.full_name}</p>
-                  <p style="margin: 0 0 10px 0; ${F} font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: ${ACCENT}; line-height: 1.5;">${agent.title}</p>
-                  ${agent.phone ? `<p style="margin: 0 0 4px 0; ${F} font-size: 13px; color: #555555;">&#128222; <a href="tel:${agent.phone.replace(/\D/g, "")}" style="color: #555555; text-decoration: none;">${agent.phone}</a></p>` : ""}
-                  ${agent.email ? `<p style="margin: 0; ${F} font-size: 12px; color: #777777;">&#9993; <a href="mailto:${agent.email}" style="color: #777777; text-decoration: none;">${agent.email}</a></p>` : ""}
+                <td align="center" style="padding:0 24px 16px;text-align:center;">
+                  <div style="${F}font-size:20px;font-weight:700;color:#111111;line-height:1.2;margin-bottom:5px;">${agent.full_name}</div>
+                  <div style="${F}font-size:9px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};line-height:1.5;">${agent.title}</div>
                 </td>
               </tr>
               <tr>
-                <td align="center" valign="top"
-                    style="padding: 12px 24px 20px; border-top: 1px solid #e8e3db; text-align: center;">
+                <td align="center" style="padding:0 24px 20px;text-align:center;">
+                  ${agent.phone ? `
+                  <table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;margin:0 auto 10px;">
+                    <tr>
+                      <td align="center" style="background:${DARK};padding:13px 28px;">
+                        <a href="tel:${agent.phone.replace(/\D/g,"")}"
+                           style="${F}font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ffffff;text-decoration:none;white-space:nowrap;">
+                          &#128222;&nbsp; ${agent.phone}
+                        </a>
+                      </td>
+                    </tr>
+                  </table>` : ""}
+                  ${agent.email ? `
+                  <br/>
+                  <table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;margin:0 auto;">
+                    <tr>
+                      <td align="center" style="background:#f0ede8;border:1px solid #d8d3ca;padding:11px 28px;">
+                        <a href="mailto:${agent.email}"
+                           style="${F}font-size:12px;font-weight:600;letter-spacing:1px;color:#444444;text-decoration:none;white-space:nowrap;">
+                          &#9993;&nbsp; ${agent.email}
+                        </a>
+                      </td>
+                    </tr>
+                  </table>` : ""}
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding:14px 24px 22px;border-top:1px solid #e8e3db;text-align:center;">
                   <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" border="0"
-                       style="display: inline-block; width: 110px; height: auto; border: 0;" />
+                       style="display:inline-block;width:110px;height:auto;" />
                 </td>
               </tr>
             </table>
