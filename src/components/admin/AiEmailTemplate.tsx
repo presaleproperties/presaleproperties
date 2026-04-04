@@ -1448,10 +1448,10 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   <!-- ── HEADLINE BLOCK ── -->
   <tr>
     <td class="content-pad" style="padding:40px 40px 28px;background:#ffffff;">
-      <p style="margin:0 0 6px 0;font-family:${F};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#999999;">
+      <p style="margin:0 0 6px 0;font-family:${F};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">
         ${data.city ? data.city.toUpperCase() : "PRESALE PROPERTIES"}${data.developerName ? ` &nbsp;·&nbsp; ${data.developerName.toUpperCase()}` : ""}
       </p>
-      ${data.projectName ? `<p style="margin:0 0 20px 0;font-family:${F};font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#999999;">${data.projectName}</p>` : ""}
+      ${data.projectName ? `<p style="margin:0 0 20px 0;font-family:${F};font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#8a7e6b;">${data.projectName}</p>` : ""}
       ${cleanHeadline ? `<p class="hero-headline" style="margin:0;font-family:${F};font-size:42px;font-weight:800;color:${DARK};line-height:1.1;letter-spacing:-1.5px;">${cleanHeadline}</p>` : ""}
     </td>
   </tr>
