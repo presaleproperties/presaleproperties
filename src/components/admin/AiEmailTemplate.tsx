@@ -1295,13 +1295,13 @@ export function buildPitchDeckEmailHtml(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MODERN / LULULEMON-INSPIRED EMAIL TEMPLATE
+// MODERN / PREMIUM GOLD EMAIL TEMPLATE
 // ─────────────────────────────────────────────────────────────────────────────
 // Design principles:
 //  - Full-bleed hero image (zero margin, 100% width, no container border)
-//  - Pure white background, generous white space
+//  - Warm cream (#faf8f4) background with gold (#C9A55A) accent highlights
 //  - Huge bold sans-serif headline (42px desktop, 32px mobile)
-//  - Black pill CTA buttons, full-width on mobile
+//  - Gold CTA buttons, premium warm palette throughout
 //  - No dark header bar — hero IS the header
 //  - Single editorial column, breathing room between sections
 // ─────────────────────────────────────────────────────────────────────────────
