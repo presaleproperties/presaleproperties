@@ -1560,12 +1560,12 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         </tr>
         <tr>
           <td class="content-pad" style="padding:0 40px 36px;">
-            <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
-                <td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
-                  <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${data.projectName || "this presale"}. Can you send me more details?`)}"
-                     style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;white-space:nowrap;">
-                    VIEW FLOOR PLANS
+                <td align="center" style="padding:14px 24px;text-align:center;">
+                  <a href="*|UNSUB|*"
+                     style="font-family:${F};font-size:11px;font-weight:500;letter-spacing:1px;color:#aaaaaa;text-decoration:underline;">
+                    No longer interested in ${data.projectName || "this project"}? Unsubscribe
                   </a>
                 </td>
               </tr>
