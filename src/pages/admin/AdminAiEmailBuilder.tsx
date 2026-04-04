@@ -1252,26 +1252,30 @@ export default function AdminEmailBuilderPage() {
                       onClick={() => setCodeViewTarget("lofty")}
                       className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "lofty" ? "bg-blue-600 text-white" : "text-white/50 hover:text-white/80")}
                     >Lofty / CRM</button>
+                    <button
+                      onClick={() => setCodeViewTarget("mailerlite")}
+                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "mailerlite" ? "bg-purple-600 text-white" : "text-white/50 hover:text-white/80")}
+                    >MailerLite</button>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-white/30">
-                      {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : finalHtml.length.toLocaleString()} chars
+                      {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : codeViewTarget === "mailerlite" ? getMailerLiteHtml().length.toLocaleString() : finalHtml.length.toLocaleString()} chars
                     </span>
                     <button
-                      onClick={codeViewTarget === "lofty" ? handleCopyLofty : handleCopy}
+                      onClick={codeViewTarget === "lofty" ? handleCopyLofty : codeViewTarget === "mailerlite" ? handleCopyMailerLite : handleCopy}
                       className={cn(
                         "text-[10px] px-2.5 py-1 rounded font-medium transition-all",
-                        (codeViewTarget === "lofty" ? copiedLofty : copied)
+                        (codeViewTarget === "lofty" ? copiedLofty : codeViewTarget === "mailerlite" ? copiedML : copied)
                           ? "bg-emerald-600 text-white"
                           : "bg-white/10 text-white/70 hover:bg-white/20"
                       )}
                     >
-                      {(codeViewTarget === "lofty" ? copiedLofty : copied) ? "✓ Copied!" : "Copy HTML"}
+                      {(codeViewTarget === "lofty" ? copiedLofty : codeViewTarget === "mailerlite" ? copiedML : copied) ? "✓ Copied!" : "Copy HTML"}
                     </button>
                   </div>
                 </div>
                 <pre className="flex-1 p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed overflow-auto" style={{ color: "#e6edf3" }}>
-                  {codeViewTarget === "lofty" ? getLoftyHtml() : finalHtml}
+                  {codeViewTarget === "lofty" ? getLoftyHtml() : codeViewTarget === "mailerlite" ? getMailerLiteHtml() : finalHtml}
                 </pre>
               </div>
             )}
