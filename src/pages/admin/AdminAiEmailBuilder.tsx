@@ -2212,6 +2212,36 @@ export default function AdminEmailBuilderPage() {
           fromName={selectedAgent?.full_name ? `${selectedAgent.full_name} | Presale Properties` : undefined}
         />
 
+        {/* Save as Template dialog */}
+        {saveDialogOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setSaveDialogOpen(false)}>
+            <div className="bg-background rounded-xl border border-border shadow-2xl w-full max-w-md mx-4 p-6 space-y-4" onClick={e => e.stopPropagation()}>
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold text-foreground">Save as Template</h3>
+                <p className="text-sm text-muted-foreground">Give this email a name so you can find it later in the Campaign Hub.</p>
+              </div>
+              <div>
+                <Label className="text-xs font-medium text-muted-foreground">Template Name</Label>
+                <Input
+                  value={saveTemplateName}
+                  onChange={e => setSaveTemplateName(e.target.value)}
+                  placeholder="e.g. Eden Launch — VIP List"
+                  className="mt-1"
+                  autoFocus
+                  onKeyDown={e => { if (e.key === "Enter") handleSave(); }}
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
+                <Button size="sm" onClick={handleSave} disabled={!saveTemplateName.trim() || saving} className="gap-1.5">
+                  {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                  Save Template
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </AdminLayout>
   );
