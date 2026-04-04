@@ -412,6 +412,7 @@ export function LeadOnboardHub() {
             onSend={handleSendTemplateEmail}
             sending={sendingTemplate}
             sent={templateSent}
+            recipientName={successData.leadName.split(" ")[0]}
           />
         )}
       </div>
