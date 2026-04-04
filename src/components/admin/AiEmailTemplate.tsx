@@ -1425,8 +1425,10 @@ export function buildLululemonEmailHtml(
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <meta name="x-apple-disable-message-reformatting"/>
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no"/>
+  <!--[if !mso]><!--><meta http-equiv="X-UA-Compatible" content="IE=edge"/><!--<![endif]-->
   <title>${data.subjectLine || data.projectName || "New Presale"}</title>
   <link href="${GOOGLE_FONT}" rel="stylesheet"/>
   <style>
