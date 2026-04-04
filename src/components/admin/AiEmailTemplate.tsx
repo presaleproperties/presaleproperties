@@ -2244,9 +2244,26 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;max-
     </td>
   </tr>` : ""}
 
+  <!-- FLOOR PLANS -->
+  ${fps.length > 0 ? `<tr>
+    <td style="padding:0;border-top:1px solid #eeeeee;background:#fafafa;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr><td style="padding:32px 36px 20px;">
+          <p style="margin:0 0 6px 0;font-family:${F};font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#999999;">FLOOR PLANS</p>
+          <p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${fpHeading}</p>
+        </td></tr>
+        <tr><td style="padding:0 36px 24px;">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            ${fpRowsHtml}
+          </table>
+        </td></tr>
+      </table>
+    </td>
+  </tr>` : ""}
+
   <!-- I'M INTERESTED CTA -->
   <tr>
-    <td style="padding:0 36px 14px;background:#ffffff;">
+    <td style="padding:${fps.length > 0 ? "24px" : "0"} 36px 14px;background:${fps.length > 0 ? "#fafafa" : "#ffffff"};">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
           <td align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
@@ -2262,10 +2279,10 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;max-
 
   <!-- CALL NOW CTA -->
   <tr>
-    <td style="padding:0 36px 36px;background:#ffffff;">
+    <td style="padding:0 36px 24px;background:${fps.length > 0 ? "#fafafa" : "#ffffff"};">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
-          <td align="center" style="background:#ffffff;border:2px solid ${DARK};border-radius:50px;padding:16px 32px;text-align:center;">
+          <td align="center" style="background:${fps.length > 0 ? "#fafafa" : "#ffffff"};border:2px solid ${DARK};border-radius:50px;padding:16px 32px;text-align:center;">
             <a href="tel:${phone.replace(/\D/g, "")}"
                style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${DARK};text-decoration:none;display:block;">
               CALL NOW &nbsp; ${phone}
@@ -2276,36 +2293,21 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;max-
     </td>
   </tr>
 
-  <!-- FLOOR PLANS -->
-  ${fps.length > 0 ? `<tr>
-    <td style="padding:0;border-top:1px solid #eeeeee;background:#fafafa;">
+  <!-- UNSUBSCRIBE -->
+  <tr>
+    <td style="padding:0 36px 28px;background:${fps.length > 0 ? "#fafafa" : "#ffffff"};">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
-        <tr><td style="padding:32px 36px 20px;">
-          <p style="margin:0 0 6px 0;font-family:${F};font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#999999;">FLOOR PLANS</p>
-          <p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${fpHeading}</p>
-        </td></tr>
-        <tr><td style="padding:0 36px 24px;">
-          <table cellpadding="0" cellspacing="0" border="0" width="100%">
-            ${fpRowsHtml}
-          </table>
-        </td></tr>
         <tr>
-          <td style="padding:0 36px 36px;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
-              <tr>
-                <td align="center" style="padding:14px 24px;text-align:center;">
-                  <a href="{$unsubscribe}"
-                     style="font-family:${F};font-size:11px;font-weight:500;letter-spacing:1px;color:#aaaaaa;text-decoration:underline;">
-                    No longer interested in ${data.projectName || "this project"}? Unsubscribe
-                  </a>
-                </td>
-              </tr>
-            </table>
+          <td align="center" style="padding:10px 24px;text-align:center;">
+            <a href="{$unsubscribe}"
+               style="font-family:${F};font-size:11px;font-weight:500;letter-spacing:1px;color:#aaaaaa;text-decoration:underline;">
+              No longer interested in ${data.projectName || "this project"}? Unsubscribe
+            </a>
           </td>
         </tr>
       </table>
     </td>
-  </tr>` : ""}
+  </tr>
 
   <!-- DIVIDER -->
   <tr><td style="height:1px;background:#eeeeee;font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
