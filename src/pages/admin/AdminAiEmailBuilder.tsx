@@ -642,31 +642,7 @@ export default function AdminEmailBuilderPage() {
 
   // ── Auto-save draft to localStorage + DB (if editing a saved template) ─────
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const dbAutoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [dbSaving, setDbSaving] = useState(false);
-
-  // Build the full form_data payload (reused by auto-save and manual save)
-  const buildFormData = useCallback(() => {
-    const copy = currentCopy();
-    return {
-      _type: "ai-email" as const,
-      copy,
-      vars: {
-        subjectLine: copy.subjectLine, previewText: copy.previewText,
-        headline: copy.headline, bodyCopy: copy.bodyCopy, incentiveText: copy.incentiveText,
-        projectName: copy.projectName, city: copy.city, neighborhood: copy.neighborhood,
-        developerName: copy.developerName, startingPrice: copy.startingPrice,
-        deposit: copy.deposit, completion: copy.completion,
-      },
-      heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
-      imageCards, loopSlides, selectedAssetId, directCtaUrl,
-      selAgent, fontId: selectedFontId, layoutVersion,
-      showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
-    };
-  }, [currentCopy, heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
-      imageCards, loopSlides, selectedAssetId, directCtaUrl,
-      selAgent, selectedFontId, layoutVersion,
-      showProjectName, showDeveloperName, customHeader, projectUrl, infoRows]);
 
   useEffect(() => {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
