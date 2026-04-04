@@ -382,7 +382,7 @@ export default function AdminEmailBuilderPage() {
   const [loopSlides, setLoopSlides] = useState<string[]>(savedDraft?.loopSlides ?? []);
 
   const [projects, setProjects] = useState<Array<{
-    id: string; name: string; city: string; neighborhood?: string | null;
+    id: string; name: string; slug?: string; city: string; neighborhood?: string | null;
     developer_name?: string | null; starting_price?: number | null; price_range?: string | null;
     deposit_structure?: string | null; deposit_percent?: number | null;
     completion_year?: number | null; completion_month?: number | null;
