@@ -1001,9 +1001,9 @@ export default function AdminEmailBuilderPage() {
       fpHeading,
       fpSubheading,
     }, agentForEmail);
-  }, [projectName, city, developerName, heroImage, headline, bodyCopy,
+  }, [projectName, city, developerName, showDeveloperName, heroImage, headline, bodyCopy,
       subjectLine, previewText, startingPrice, deposit, completion, infoRows, incentiveText,
-      floorPlans, fpHeading, fpSubheading, selectedAgent]);
+      floorPlans, fpHeading, fpSubheading, selectedAgent, projectUrl]);
 
   const handleCopyMailerLite = () => {
     navigator.clipboard.writeText(getMailerLiteHtml()).then(() => {
