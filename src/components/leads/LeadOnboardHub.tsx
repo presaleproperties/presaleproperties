@@ -611,7 +611,7 @@ export function LeadOnboardHub() {
                     size={isMobile ? "sm" : "default"}
                   >
                     <Eye className="h-4 w-4 mr-2" />
-                    Preview "{selectedTemplate.name}"
+                    Preview "{getTemplateName(selectedTemplate)}"
                   </Button>
                 )}
               </CardContent>
