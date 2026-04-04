@@ -50,6 +50,8 @@ export interface AiEmailCopy {
   startingPrice?: string;
   deposit?: string;
   completion?: string;
+  /** URL to the project page on presaleproperties.com */
+  projectUrl?: string;
   /** Additional info rows rendered as a secondary stats bar. Each entry: "Label|Value" */
   infoRows?: string[];
   /** Image cards rendered below the What's Included section */
