@@ -1961,8 +1961,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
           <td height="3" style="height: 3px; background-color: ${ACCENT}; font-size: 0; line-height: 0; padding: 0;">&nbsp;</td>
         </tr>
         <tr>
-           <td class="mobile-pad" valign="top"
-               style="background-color: ${DARK}; padding: 24px 28px 8px;">
+           <td valign="top"
+               style="background-color: ${DARK}; padding: 24px 20px 8px;">
              <p style="margin: 0 0 4px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">FLOOR PLANS</p>
              <p style="margin: 0 0 6px 0; ${F} font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.15; letter-spacing: -0.3px;">${fpHeading}</p>
              <p style="margin: 0; ${F} font-size: 12px; color: #8aaa96; line-height: 1.6;">${fpSubheading}</p>
