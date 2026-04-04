@@ -2015,8 +2015,8 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
 
         <!-- ── I'M INTERESTED CTA ── -->
         <tr>
-          <td class="mobile-pad" valign="top"
-              style="background-color: ${DARK}; padding: 0 36px 28px;">
+           <td class="mobile-pad" valign="top"
+               style="background-color: ${DARK}; padding: 0 28px 28px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" valign="top"
