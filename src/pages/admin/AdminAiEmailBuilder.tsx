@@ -325,6 +325,7 @@ export default function AdminEmailBuilderPage() {
   const [customHeader,      setCustomHeader]       = useState(savedDraft?.customHeader      ?? "");
   const [city,              setCity]               = useState(savedDraft?.city              ?? "");
   const [neighborhood,      setNeighborhood]       = useState(savedDraft?.neighborhood      ?? "");
+  const [projectUrl,        setProjectUrl]         = useState(savedDraft?.projectUrl        ?? "");
   const [startingPrice,     setStartingPrice]      = useState(savedDraft?.startingPrice     ?? "");
   const [deposit,           setDeposit]            = useState(savedDraft?.deposit           ?? "");
   const [completion,        setCompletion]         = useState(savedDraft?.completion        ?? "");
