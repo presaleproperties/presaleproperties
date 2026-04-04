@@ -31,6 +31,7 @@ import {
   Workflow,
   BarChart3,
   ChevronRight,
+  ChevronDown,
   PanelLeftClose,
   PanelLeftOpen,
   Bell,
