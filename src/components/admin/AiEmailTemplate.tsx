@@ -2107,7 +2107,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
         <!-- ── LEGAL ── -->
         <tr>
           <td class="mobile-pad" valign="top"
-              style="background-color: #f8f7f4; padding: 22px 36px 26px; border-top: 1px solid #e8e8e4;">
+              style="background-color: #f8f7f4; padding: 24px 36px 28px; border-top: 1px solid #e8e8e4;">
             <p style="margin: 0 0 10px 0; ${F} font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #555555; line-height: 1.4;">L E G A L &nbsp; D I S C L A I M E R</p>
             <p style="margin: 0 0 10px 0; ${F} font-size: 11px; font-weight: 300; color: #888888; line-height: 1.8;">
               This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer&rsquo;s agents &mdash; we represent <strong style="${F} font-weight: 500; color: #666666;">you</strong>, not the developer. This is <strong style="${F} font-weight: 500; color: #666666;">not an offering for sale</strong>. An offering can only be made after a Disclosure Statement is filed under REDMA. Prices, availability, and incentives are subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions are subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E.
