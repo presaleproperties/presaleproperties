@@ -2078,3 +2078,293 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
 </body>
 </html>`;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAILERLITE-OPTIMIZED EMAIL TEMPLATE
+// ─────────────────────────────────────────────────────────────────────────────
+// Design principles:
+//  - Zero <style> blocks — MailerLite's custom HTML block strips them
+//  - 100% inline styles, table-based layout
+//  - MailerLite merge tags: {$unsubscribe}, {$email}, {$name}
+//  - Text in simple containers so MailerLite's editor can select/edit them
+//  - Fixed 600px container (MailerLite handles responsive wrapping)
+//  - No media queries
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function buildMailerLiteEmailHtml(
+  data: PitchDeckEmailData,
+  agent: AgentInfo = DEFAULT_AGENT,
+): string {
+  const ACCENT = "#C9A55A";
+  const DARK   = "#111111";
+  const F      = "'Plus Jakarta Sans','DM Sans',Helvetica,Arial,sans-serif";
+
+  const phone    = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
+  const whatsapp = data.ctaWhatsApp || "16722581100";
+  const deckLink = data.deckUrl || "";
+
+  // ── Floor plans ──
+  const fps = (data.floorPlans || []).filter(fp => fp.url);
+  const fpRowsHtml = fps.map(fp => {
+    const imgTag = `<img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="528" style="display:block;width:100%;height:auto;border:0;" />`;
+    return `<tr><td style="padding:0 0 20px 0;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f9f9f9;border:1px solid #eeeeee;">
+        <tr><td style="padding:0;line-height:0;font-size:0;">
+          ${deckLink ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;">${imgTag}</a>` : imgTag}
+        </td></tr>
+        ${(fp.label || fp.sqft || fp.price) ? `<tr><td style="padding:16px 20px 20px;">
+          ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#999999;">${fp.label}</p>` : ""}
+          ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#666666;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
+          ${fp.price ? `<p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
+          ${creditBadgeHtml(fp.exclusive_credit, F)}
+        </td></tr>` : ""}
+      </table>
+    </td></tr>`;
+  }).join("");
+
+  // ── Incentives ──
+  const incentiveLines = (data.incentiveText || "")
+    .split("\n").map(l => l.replace(/^[✦•\-–]\s*/, "").trim()).filter(Boolean);
+
+  // ── Body copy ──
+  const bodyRows = (data.bodyCopy || "")
+    .split("\n").map(l => l.trim())
+    .filter(l => {
+      if (!l) return false;
+      if (/^uzair\b/i.test(l) && l.split(" ").length <= 3 && !/[,.:!?]/.test(l)) return false;
+      return true;
+    })
+    .map(p => {
+      const isList = /^[✦•\-–]/.test(p);
+      const html = p
+        .replace(/^[✦•\-–]\s*/, "")
+        .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:700;color:${DARK};">$1</strong>`)
+        .replace(/\*/g, "");
+      if (isList) {
+        return `<tr>
+          <td valign="top" width="24" style="padding:0 0 10px 0;width:24px;vertical-align:top;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr><td width="6" height="6" style="width:6px;height:6px;background:${ACCENT};border-radius:3px;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+          </td>
+          <td valign="top" style="padding:0 0 10px 8px;vertical-align:top;">
+            <p style="margin:0;font-family:${F};font-size:15px;color:#444444;line-height:1.7;">${html}</p>
+          </td>
+        </tr>`;
+      }
+      return `<tr><td colspan="2" style="padding:0 0 16px 0;">
+        <p style="margin:0;font-family:${F};font-size:15px;color:#444444;line-height:1.75;">${html}</p>
+      </td></tr>`;
+    }).join("");
+
+  const bodyHtml = bodyRows
+    ? `<table cellpadding="0" cellspacing="0" border="0" width="100%">${bodyRows}</table>`
+    : "";
+
+  const cleanHeadline = (data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "");
+
+  // ── Stats bar ──
+  const statEntries = [
+    data.startingPrice && { label: "Starting From", value: data.startingPrice },
+    data.deposit && { label: "Deposit", value: data.deposit },
+    data.completion && { label: "Completion", value: data.completion },
+  ].filter(Boolean) as { label: string; value: string }[];
+
+  const statsHtml = statEntries.length > 0 ? `<tr><td style="padding:0;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fafafa;border-bottom:1px solid #eeeeee;">
+      <tr>${statEntries.map(s => `
+        <td style="padding:16px 20px;text-align:center;vertical-align:middle;${statEntries.length > 1 ? "border-right:1px solid #eeeeee;" : ""}">
+          <p style="margin:0 0 3px 0;font-family:${F};font-size:20px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${s.value}</p>
+          <p style="margin:0;font-family:${F};font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
+        </td>`).join("")}
+      </tr>
+    </table>
+  </td></tr>` : "";
+
+  // ── Floor plan heading ──
+  const fpHeading = data.fpHeading || "Available Units";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<meta name="x-apple-disable-message-reformatting" />
+<title>${data.subjectLine || data.projectName || "New Presale"}</title>
+</head>
+<body style="margin:0;padding:0;background:#ffffff;font-family:${F};">
+${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;max-height:0;overflow:hidden;">${data.previewText}&zwnj;</span>` : ""}
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;">
+<tr><td align="center" style="padding:0;">
+
+<table cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;background:#ffffff;border:1px solid #e5e5e5;">
+
+  <!-- HERO IMAGE -->
+  ${data.heroImage ? `<tr>
+    <td style="padding:0;line-height:0;font-size:0;">
+      ${deckLink
+        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;height:auto;border:0;" /></a>`
+        : `<img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;height:auto;border:0;" />`}
+    </td>
+  </tr>` : `<tr>
+    <td style="background:${DARK};padding:32px 40px;">
+      <p style="margin:0;font-family:${F};font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES</p>
+    </td>
+  </tr>`}
+
+  <!-- STATS -->
+  ${statsHtml}
+
+  <!-- HEADLINE & BODY -->
+  <tr>
+    <td style="padding:36px 36px 28px;background:#ffffff;">
+      ${cleanHeadline ? `<p style="margin:0 0 14px 0;font-family:${F};font-size:32px;font-weight:800;color:${DARK};line-height:1.15;letter-spacing:-0.5px;">${cleanHeadline}</p>
+      <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:18px;">
+        <tr><td width="40" height="3" style="width:40px;height:3px;background:${ACCENT};font-size:0;line-height:0;">&nbsp;</td></tr>
+      </table>` : ""}
+      ${bodyHtml}
+    </td>
+  </tr>
+
+  <!-- WHAT'S INCLUDED -->
+  ${incentiveLines.length > 0 ? `<tr>
+    <td style="padding:0 36px 32px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:2px solid ${DARK};">
+        <tr><td style="padding:20px 0 14px 0;">
+          <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
+        </td></tr>
+        ${incentiveLines.map(item => `<tr>
+          <td valign="top" width="24" style="padding:0 0 10px 0;width:24px;vertical-align:top;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr><td width="6" height="6" style="width:6px;height:6px;background:${ACCENT};border-radius:3px;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+          </td>
+          <td valign="top" style="padding:0 0 10px 8px;vertical-align:top;">
+            <p style="margin:0;font-family:${F};font-size:15px;font-weight:500;color:${DARK};line-height:1.7;">${item}</p>
+          </td>
+        </tr>`).join("")}
+      </table>
+    </td>
+  </tr>` : ""}
+
+  <!-- I'M INTERESTED CTA -->
+  <tr>
+    <td style="padding:0 36px 14px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
+            <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName || "this presale"}. Can you send me more details?`)}"
+               style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">
+              I'M INTERESTED
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- CALL NOW CTA -->
+  <tr>
+    <td style="padding:0 36px 36px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td align="center" style="background:#ffffff;border:2px solid ${DARK};border-radius:50px;padding:16px 32px;text-align:center;">
+            <a href="tel:${phone.replace(/\D/g, "")}"
+               style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${DARK};text-decoration:none;display:block;">
+              CALL NOW &nbsp; ${phone}
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- FLOOR PLANS -->
+  ${fps.length > 0 ? `<tr>
+    <td style="padding:0;border-top:1px solid #eeeeee;background:#fafafa;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr><td style="padding:32px 36px 20px;">
+          <p style="margin:0 0 6px 0;font-family:${F};font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#999999;">FLOOR PLANS</p>
+          <p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${fpHeading}</p>
+        </td></tr>
+        <tr><td style="padding:0 36px 24px;">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            ${fpRowsHtml}
+          </table>
+        </td></tr>
+        <tr>
+          <td style="padding:0 36px 36px;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                <td align="center" style="padding:14px 24px;text-align:center;">
+                  <a href="{$unsubscribe}"
+                     style="font-family:${F};font-size:11px;font-weight:500;letter-spacing:1px;color:#aaaaaa;text-decoration:underline;">
+                    No longer interested in ${data.projectName || "this project"}? Unsubscribe
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>` : ""}
+
+  <!-- DIVIDER -->
+  <tr><td style="height:1px;background:#eeeeee;font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
+
+  <!-- AGENT CARD -->
+  <tr>
+    <td style="padding:0;background:#ffffff;border-top:3px solid ${DARK};">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        ${agent.photo_url ? `<tr>
+          <td align="center" style="padding:28px 24px 12px;">
+            <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${DARK};" />
+          </td>
+        </tr>` : ""}
+        <tr>
+          <td align="center" style="padding:0 24px 8px;text-align:center;">
+            <p style="margin:0 0 4px 0;font-family:${F};font-size:18px;font-weight:800;color:${DARK};">${agent.full_name}</p>
+            <p style="margin:0 0 12px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:#999999;">${agent.title}</p>
+            ${agent.phone ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:14px;color:#555555;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="color:#555555;text-decoration:none;">${agent.phone}</a></p>` : ""}
+            ${agent.email ? `<p style="margin:0;font-family:${F};font-size:13px;color:#777777;"><a href="mailto:${agent.email}" style="color:#777777;text-decoration:none;">${agent.email}</a></p>` : ""}
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:16px 24px 24px;border-top:1px solid #eeeeee;text-align:center;">
+            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" style="display:inline-block;width:110px;height:auto;" />
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- FOOTER -->
+  <tr>
+    <td style="padding:20px 36px;background:${DARK};">
+      <p style="margin:0 0 4px 0;font-family:${F};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES &nbsp;·&nbsp; ${data.city ? `${data.city.toUpperCase()}, BC` : "VANCOUVER, BC"}</p>
+      <p style="margin:0;font-family:${F};font-size:12px;color:#888888;"><a href="https://presaleproperties.com" style="color:#888888;text-decoration:none;">presaleproperties.com</a>${agent.phone ? ` &nbsp;·&nbsp; ${agent.phone}` : ""}</p>
+    </td>
+  </tr>
+
+  <!-- LEGAL -->
+  <tr>
+    <td style="padding:20px 36px 24px;background:#fafafa;border-top:1px solid #eeeeee;">
+      <p style="margin:0 0 8px 0;font-family:${F};font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#777777;">LEGAL DISCLAIMER</p>
+      <p style="margin:0 0 8px 0;font-family:${F};font-size:11px;color:#aaaaaa;line-height:1.7;">
+        This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer&rsquo;s agents. This is <strong style="font-weight:600;color:#888888;">not an offering for sale</strong>. Prices and availability subject to change. E.&amp;O.E.
+      </p>
+      <p style="margin:0 0 12px 0;font-family:${F};font-size:11px;color:#aaaaaa;line-height:1.7;">
+        You received this because you opted in to presale updates.
+      </p>
+      <p style="margin:0;">
+        <a href="{$unsubscribe}" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Unsubscribe</a>
+      </p>
+    </td>
+  </tr>
+
+</table>
+
+</td></tr>
+</table>
+
+</body>
+</html>`;
+}

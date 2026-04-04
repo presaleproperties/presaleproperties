@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, buildLoopEmailHtml, buildPitchDeckEmailHtml, buildPitchDeckEmailHtmlLofty, buildLululemonEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, buildLoopEmailHtml, buildPitchDeckEmailHtml, buildPitchDeckEmailHtmlLofty, buildLululemonEmailHtml, buildMailerLiteEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
@@ -365,9 +365,10 @@ export default function AdminEmailBuilderPage() {
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile-sm" | "mobile-lg">("desktop");
-  const [codeViewTarget, setCodeViewTarget] = useState<"mailchimp" | "lofty">("mailchimp");
+  const [codeViewTarget, setCodeViewTarget] = useState<"mailchimp" | "lofty" | "mailerlite">("mailchimp");
   const [copied,        setCopied]        = useState(false);
   const [copiedLofty,   setCopiedLofty]   = useState(false);
+  const [copiedML,      setCopiedML]      = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
@@ -944,6 +945,46 @@ export default function AdminEmailBuilderPage() {
     });
   };
 
+  // ── MailerLite export ───────────────────────────────────────────────────────
+  const getMailerLiteHtml = useCallback((): string => {
+    const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
+    const agentForEmail = selectedAgent ?? DEFAULT_AGENT;
+    return buildMailerLiteEmailHtml({
+      projectName:    projectName || "",
+      city:           city || undefined,
+      developerName:  developerName || undefined,
+      heroImage:      heroImage || undefined,
+      headline,
+      bodyCopy,
+      subjectLine,
+      previewText,
+      startingPrice,
+      deposit,
+      completion,
+      infoRows,
+      incentiveText,
+      parkingIncluded: saved?._deckParking || "1 Parking Stall Included",
+      lockerIncluded:  saved?._deckLocker  || "1 Storage Locker Included",
+      deckUrl:         saved?._deckUrl     || undefined,
+      floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
+        id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
+        price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
+      })),
+      fpHeading,
+      fpSubheading,
+    }, agentForEmail);
+  }, [projectName, city, developerName, heroImage, headline, bodyCopy,
+      subjectLine, previewText, startingPrice, deposit, completion, infoRows, incentiveText,
+      floorPlans, fpHeading, fpSubheading, selectedAgent]);
+
+  const handleCopyMailerLite = () => {
+    navigator.clipboard.writeText(getMailerLiteHtml()).then(() => {
+      setCopiedML(true);
+      toast.success("MailerLite HTML copied — paste into MailerLite custom HTML block");
+      setTimeout(() => setCopiedML(false), 2500);
+    });
+  };
+
   const handleSave = async () => {
     if (!projectName && !headline) { toast.error("Add a project name or headline first"); return; }
     setSaving(true);
@@ -1211,26 +1252,30 @@ export default function AdminEmailBuilderPage() {
                       onClick={() => setCodeViewTarget("lofty")}
                       className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "lofty" ? "bg-blue-600 text-white" : "text-white/50 hover:text-white/80")}
                     >Lofty / CRM</button>
+                    <button
+                      onClick={() => setCodeViewTarget("mailerlite")}
+                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "mailerlite" ? "bg-purple-600 text-white" : "text-white/50 hover:text-white/80")}
+                    >MailerLite</button>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-white/30">
-                      {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : finalHtml.length.toLocaleString()} chars
+                      {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : codeViewTarget === "mailerlite" ? getMailerLiteHtml().length.toLocaleString() : finalHtml.length.toLocaleString()} chars
                     </span>
                     <button
-                      onClick={codeViewTarget === "lofty" ? handleCopyLofty : handleCopy}
+                      onClick={codeViewTarget === "lofty" ? handleCopyLofty : codeViewTarget === "mailerlite" ? handleCopyMailerLite : handleCopy}
                       className={cn(
                         "text-[10px] px-2.5 py-1 rounded font-medium transition-all",
-                        (codeViewTarget === "lofty" ? copiedLofty : copied)
+                        (codeViewTarget === "lofty" ? copiedLofty : codeViewTarget === "mailerlite" ? copiedML : copied)
                           ? "bg-emerald-600 text-white"
                           : "bg-white/10 text-white/70 hover:bg-white/20"
                       )}
                     >
-                      {(codeViewTarget === "lofty" ? copiedLofty : copied) ? "✓ Copied!" : "Copy HTML"}
+                      {(codeViewTarget === "lofty" ? copiedLofty : codeViewTarget === "mailerlite" ? copiedML : copied) ? "✓ Copied!" : "Copy HTML"}
                     </button>
                   </div>
                 </div>
                 <pre className="flex-1 p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed overflow-auto" style={{ color: "#e6edf3" }}>
-                  {codeViewTarget === "lofty" ? getLoftyHtml() : finalHtml}
+                  {codeViewTarget === "lofty" ? getLoftyHtml() : codeViewTarget === "mailerlite" ? getMailerLiteHtml() : finalHtml}
                 </pre>
               </div>
             )}
