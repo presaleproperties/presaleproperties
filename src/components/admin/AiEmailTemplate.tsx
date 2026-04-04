@@ -1833,7 +1833,7 @@ export function buildPitchDeckEmailHtmlLofty(
           <tr>
             <td style="padding:14px 18px 18px;">
               ${fp.label ? `<p style="margin:0 0 4px 0;${F}font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
-              ${fp.sqft  ? `<p style="margin:0 0 8px 0;${F}font-size:13px;color:#8aaa96;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0 0 8px 0;${F}font-size:12px;color:#8aaa96;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
               ${fp.price ? `<p style="margin:0 0 10px 0;${F}font-size:22px;font-weight:700;color:#ffffff;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
               ${creditBadgeHtml(fp.exclusive_credit, F.replace(/font-family:/,"").replace(/;$/,""))}
               ${deckLink ? `<table cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:0;">
