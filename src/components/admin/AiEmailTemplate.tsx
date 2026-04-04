@@ -2118,12 +2118,10 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
           </td>
         </tr>
 
-      </table>
-      <!--[if mso]></td></tr></table><![endif]-->
-    </td>
-  </tr>
 </table>
-
+<!--[if mso]></td></tr></table><![endif]-->
+</td></tr>
+</table>
 </body>
 </html>`;
 }
