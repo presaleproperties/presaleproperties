@@ -642,6 +642,7 @@ export default function AdminEmailBuilderPage() {
 
   // ── Auto-save draft to localStorage + DB (if editing a saved template) ─────
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dbAutoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [dbSaving, setDbSaving] = useState(false);
 
   useEffect(() => {
@@ -678,7 +679,25 @@ export default function AdminEmailBuilderPage() {
         if (dbAutoSaveRef.current) clearTimeout(dbAutoSaveRef.current);
         dbAutoSaveRef.current = setTimeout(async () => {
           setDbSaving(true);
-          const formData = buildFormData();
+          const pn = showProjectName ? projectName : (customHeader || "");
+          const dn = showDeveloperName ? developerName : "";
+          const formData = {
+            _type: "ai-email",
+            copy: { subjectLine, previewText, headline, bodyCopy, incentiveText,
+              projectName: pn, city, neighborhood, developerName: dn,
+              startingPrice, deposit, completion, projectUrl,
+              infoRows: infoRows.filter((r: string) => r.includes("|")),
+              imageCards: imageCards.filter((c: any) => c.url),
+            },
+            vars: { subjectLine, previewText, headline, bodyCopy, incentiveText,
+              projectName: pn, city, neighborhood, developerName: dn,
+              startingPrice, deposit, completion,
+            },
+            heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
+            imageCards, loopSlides, selectedAssetId, directCtaUrl,
+            selAgent, fontId: selectedFontId, layoutVersion,
+            showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
+          };
           await supabase.from("campaign_templates" as any)
             .update({ form_data: formData, updated_at: new Date().toISOString() })
             .eq("id", savedTemplateId);
@@ -697,7 +716,7 @@ export default function AdminEmailBuilderPage() {
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
-    savedTemplateId, buildFormData,
+    savedTemplateId, projectUrl,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
