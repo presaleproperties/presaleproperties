@@ -1953,6 +1953,8 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
           </td>
         </tr>
 
+        ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F.replace(/font-family:/,"").replace(/;$/,""), accent: ACCENT, dark: DARK })}
+
         <!-- ── WHAT'S INCLUDED ── -->
         ${includedItems.length > 0 ? `
         <tr>
