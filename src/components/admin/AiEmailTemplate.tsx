@@ -1981,8 +1981,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── I'M INTERESTED CTA ── -->
         <tr>
-           <td class="mobile-pad" valign="top"
-               style="background-color: ${DARK}; padding: 0 28px 28px;">
+           <td valign="top"
+               style="background-color: ${DARK}; padding: 0 20px 28px;">
             <table class="cta-btn" cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" valign="top"
