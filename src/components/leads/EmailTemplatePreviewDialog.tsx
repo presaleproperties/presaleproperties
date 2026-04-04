@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Loader2, Mail } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { buildAiTemplateHtmlFromFormData, isAiEmailTemplate, personalizeTemplateHtml } from "@/lib/ai-email-html";
 
 interface EmailTemplatePreviewDialogProps {
   open: boolean;
@@ -31,24 +33,54 @@ export function EmailTemplatePreviewDialog({
   const [previewHtml, setPreviewHtml] = useState<string>("");
 
   useEffect(() => {
-    if (!open || !formData) return;
-    if (formData.finalHtml) {
-      // Use the exact HTML from the Email Builder, just personalise the name
+    let cancelled = false;
+
+    const loadPreview = async () => {
+      if (!open || !formData) return;
+
       const firstName = recipientName || "there";
-      const personalised = formData.finalHtml
-        .replace(/\{first_name\}/gi, firstName)
-        .replace(/\{name\}/gi, firstName)
-        .replace(/\[First Name\]/g, firstName)
-        .replace(/\[first name\]/g, firstName)
-        .replace(/\[Name\]/g, firstName)
-        .replace(/\[name\]/g, firstName)
-        .replace(/\{\{first_name\}\}/g, firstName)
-        .replace(/\{\{firstName\}\}/g, firstName)
-        .replace(/\*\|FNAME\|\*/g, firstName);
-      setPreviewHtml(personalised);
-    } else {
-      setPreviewHtml(buildEmailHtml(formData, recipientName));
-    }
+
+      if (formData.finalHtml) {
+        if (!cancelled) {
+          setPreviewHtml(personalizeTemplateHtml(formData.finalHtml, firstName));
+        }
+        return;
+      }
+
+      if (isAiEmailTemplate(formData)) {
+        let agentRecord: { full_name?: string; title?: string; photo_url?: string | null } | null = null;
+
+        if (formData.selAgent) {
+          const { data } = await (supabase as any)
+            .from("team_members_public")
+            .select("full_name, title, photo_url")
+            .eq("full_name", formData.selAgent)
+            .maybeSingle();
+
+          agentRecord = data ?? null;
+        }
+
+        if (!cancelled) {
+          setPreviewHtml(
+            personalizeTemplateHtml(
+              buildAiTemplateHtmlFromFormData(formData, agentRecord),
+              firstName,
+            ),
+          );
+        }
+        return;
+      }
+
+      if (!cancelled) {
+        setPreviewHtml(buildEmailHtml(formData, recipientName));
+      }
+    };
+
+    loadPreview();
+
+    return () => {
+      cancelled = true;
+    };
   }, [open, formData, recipientName]);
 
   return (
