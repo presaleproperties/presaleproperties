@@ -1766,27 +1766,25 @@ export function buildPitchDeckEmailHtmlLofty(
     ? `<table cellpadding="0" cellspacing="0" border="0" width="100%">${bodyRows}</table>`
     : "";
 
-  // ─── Stats bar ────────────────────────────────────────────────────────────
+  // ─── Stats bar (mobile-first: stacked vertically, no media queries needed) ─
   const stats = [
     data.startingPrice ? { val: data.startingPrice, label: "Starting Price" }    : null,
     data.deposit       ? { val: data.deposit,       label: "Deposit Structure" } : null,
     data.completion    ? { val: data.completion,    label: "Est. Completion" }   : null,
   ].filter(Boolean) as { val: string; label: string }[];
 
-  const colPct = stats.length === 3 ? "33%" : stats.length === 2 ? "50%" : "100%";
-
   const statsHtml = stats.length > 0 ? `
   <tr>
     <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        ${stats.map((s, i) => `
         <tr>
-          ${stats.map((s, i) => `
-          <td class="mobile-full" width="${colPct}" valign="top"
-              style="width:${colPct};padding:16px 8px 14px;${i < stats.length - 1 ? "border-right:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
-            <p style="margin:0 0 3px 0;${F}font-size:20px;font-weight:700;color:#111111;line-height:1.2;letter-spacing:-0.3px;">${s.val}</p>
+          <td valign="top"
+              style="padding:14px 20px;${i < stats.length - 1 ? "border-bottom:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
+            <p style="margin:0 0 3px 0;${F}font-size:22px;font-weight:700;color:#111111;line-height:1.2;letter-spacing:-0.3px;">${s.val}</p>
             <p style="margin:0;${F}font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
-          </td>`).join("")}
-        </tr>
+          </td>
+        </tr>`).join("")}
       </table>
     </td>
   </tr>` : "";
@@ -1857,6 +1855,7 @@ export function buildPitchDeckEmailHtmlLofty(
     : [data.parkingIncluded, data.lockerIncluded].filter(Boolean) as string[];
 
   // ─── HTML ─────────────────────────────────────────────────────────────────
+  // ─── HTML (Lofty-safe: NO <style> block, mobile-first inline styles) ────
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -1869,50 +1868,6 @@ export function buildPitchDeckEmailHtmlLofty(
   <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
   <![endif]-->
   <link href="${GOOGLE_FONT}" rel="stylesheet" type="text/css" />
-  <!--
-    STYLE BLOCK: media queries only — all other styles are fully inlined.
-    Gmail strips <style> entirely; the fluid table layout handles Gmail.
-    Apple Mail, iOS Mail, and Outlook preserve media queries for true responsiveness.
-  -->
-  <style type="text/css">
-    /* Reset */
-    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
-    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; max-width: 100% !important; }
-    body { margin: 0 !important; padding: 0 !important; background: #ffffff; }
-    * { box-sizing: border-box; }
-    a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
-    u+#body a { color: inherit !important; text-decoration: none !important; }
-    #MessageViewBody a { color: inherit !important; text-decoration: none !important; }
-    /* Mobile overrides */
-    @media only screen and (max-width: 620px) {
-      /* TRUE edge-to-edge on iPhone — remove all outer spacing and border */
-      .email-container { width: 100% !important; max-width: 100% !important; border: none !important; border-left: none !important; border-right: none !important; }
-      /* Section padding: tighter on mobile */
-      .mobile-pad { padding-left: 20px !important; padding-right: 20px !important; }
-      /* Stats bar: stack vertically */
-      td.mobile-full { display: block !important; width: 100% !important; text-align: center !important; padding: 14px 20px !important; border-right: none !important; border-bottom: 1px solid #e8e3db !important; }
-      td.mobile-full:last-child { border-bottom: none !important; }
-      /* Floor plan section */
-      .fp-wrap { padding-left: 16px !important; padding-right: 16px !important; }
-      /* Typography scale-up */
-      .hero-text { font-size: 26px !important; line-height: 1.15 !important; }
-      .stat-value { font-size: 22px !important; }
-      .fp-price { font-size: 20px !important; }
-      /* Body copy */
-      .body-copy p { font-size: 15px !important; line-height: 1.8 !important; }
-      /* Bullet indentation on mobile */
-      .bullet-dot { padding-left: 16px !important; font-size: 16px !important; }
-      .bullet-text p { font-size: 15px !important; line-height: 1.8 !important; }
-      /* Full-width CTA button on mobile */
-      .cta-btn { width: 100% !important; display: block !important; }
-      .cta-btn td { width: 100% !important; text-align: center !important; padding: 18px 20px !important; }
-      /* Hide desktop agent card on mobile */
-      .agent-desktop { display: none !important; max-height: 0 !important; overflow: hidden !important; }
-      /* Show mobile agent card */
-      .agent-mobile { display: table-row !important; max-height: none !important; overflow: visible !important; }
-    }
-  </style>
 </head>
 <body style="margin:0;padding:0;background-color:#ffffff;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;" id="body">
 ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${data.previewText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</span>` : ""}
@@ -1925,9 +1880,9 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         <!-- ── HEADER ── -->
         <tr>
           <td class="mobile-pad" valign="top"
-              style="background-color: ${DARK}; padding: 28px 36px 24px;">
+              style="background-color: ${DARK}; padding: 28px 20px 24px;">
             <p style="margin: 0 0 6px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">PRESALE PROPERTIES</p>
-            <p class="hero-text" style="margin: 0 0 8px 0; ${F} font-size: 32px; font-weight: 800; color: #ffffff; line-height: 1.1; letter-spacing: -0.5px;">${data.projectName || "New Presale Release"}</p>
+            <p style="margin: 0 0 8px 0; ${F} font-size: 26px; font-weight: 800; color: #ffffff; line-height: 1.15; letter-spacing: -0.5px;">${data.projectName || "New Presale Release"}</p>
             ${byLine ? `<p style="margin: 0 0 10px 0; ${F} font-size: 11px; color: #7a9a86;">${byLine}</p>` : ""}
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>
@@ -1943,7 +1898,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         ${locationLine ? `
         <tr>
           <td class="mobile-pad" valign="top"
-              style="background-color: ${ACCENT}; padding: 9px 36px;">
+              style="background-color: ${ACCENT}; padding: 9px 20px;">
             <p style="margin: 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #ffffff;">${locationLine}</p>
           </td>
         </tr>` : ""}
@@ -1966,7 +1921,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── BODY COPY ── -->
         <tr>
-           <td class="mobile-pad" valign="top" style="padding: 32px 36px 24px; background-color: #ffffff;">
+           <td valign="top" style="padding: 32px 20px 24px; background-color: #ffffff;">
             ${data.headline ? `
             <p class="hero-text" style="margin: 0 0 16px 0; ${F} font-size: 26px; font-weight: 800; color: ${DARK}; line-height: 1.2; letter-spacing: -0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
             <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 18px;">
@@ -1982,7 +1937,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         ${includedItems.length > 0 ? `
         <tr>
           <td class="mobile-pad" valign="top"
-              style="background-color: ${DARK}; padding: 22px 36px;">
+              style="background-color: ${DARK}; padding: 22px 20px;">
             <p style="margin: 0 0 14px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">WHAT'S INCLUDED</p>
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               ${includedItems.map((item: string) => `
@@ -2006,8 +1961,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
           <td height="3" style="height: 3px; background-color: ${ACCENT}; font-size: 0; line-height: 0; padding: 0;">&nbsp;</td>
         </tr>
         <tr>
-           <td class="mobile-pad" valign="top"
-               style="background-color: ${DARK}; padding: 24px 28px 8px;">
+           <td valign="top"
+               style="background-color: ${DARK}; padding: 24px 20px 8px;">
              <p style="margin: 0 0 4px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">FLOOR PLANS</p>
              <p style="margin: 0 0 6px 0; ${F} font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.15; letter-spacing: -0.3px;">${fpHeading}</p>
              <p style="margin: 0; ${F} font-size: 12px; color: #8aaa96; line-height: 1.6;">${fpSubheading}</p>
@@ -2016,8 +1971,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── FLOOR PLAN CARDS ── -->
         <tr>
-           <td class="fp-wrap" valign="top"
-               style="background-color: ${DARK}; padding: 12px 20px 24px;">
+           <td valign="top"
+               style="background-color: ${DARK}; padding: 12px 16px 24px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               ${fpRowsHtml}
             </table>
@@ -2026,8 +1981,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── I'M INTERESTED CTA ── -->
         <tr>
-           <td class="mobile-pad" valign="top"
-               style="background-color: ${DARK}; padding: 0 28px 28px;">
+           <td valign="top"
+               style="background-color: ${DARK}; padding: 0 20px 28px;">
             <table class="cta-btn" cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" valign="top"
@@ -2044,8 +1999,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── CALL NOW CTA ── -->
         <tr>
-          <td class="mobile-pad" valign="top"
-              style="background-color: #f7f5f1; padding: 28px 36px 28px;">
+          <td valign="top"
+              style="background-color: #f7f5f1; padding: 28px 20px 28px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" valign="top"
@@ -2066,33 +2021,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         <!-- ── DIVIDER ── -->
         <tr><td style="height:1px;font-size:0;line-height:0;background:#ece8e0;padding:0;margin:0;">&nbsp;</td></tr>
 
-        <!-- ── AGENT CARD — DESKTOP (hidden on mobile) ── -->
-        <tr class="agent-desktop" style="display:table-row;">
-          <td bgcolor="#fafaf8" style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-              <tr>
-                ${agent.photo_url ? `
-                <td width="110" valign="middle" style="padding:20px 0 20px 24px;vertical-align:middle;line-height:0;font-size:0;width:110px;">
-                  <img src="${agent.photo_url}" alt="${agent.full_name}" width="90" height="90" border="0"
-                       style="display:block;width:90px;height:90px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
-                </td>` : ""}
-                <td valign="middle" style="padding:20px 0 20px 16px;vertical-align:middle;">
-                  <div style="${F}font-size:17px;font-weight:700;color:#111111;line-height:1.2;margin-bottom:3px;">${agent.full_name}</div>
-                  <div style="${F}font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};line-height:1.5;margin-bottom:8px;">${agent.title}</div>
-                  ${agent.phone ? `<div style="${F}font-size:12px;color:#555555;margin-bottom:3px;">&#128222; <a href="tel:${agent.phone.replace(/\D/g,"")}" style="color:#555555;text-decoration:none;">${agent.phone}</a></div>` : ""}
-                  ${agent.email ? `<div style="${F}font-size:11px;color:#777777;">&#9993; <a href="mailto:${agent.email}" style="color:#777777;text-decoration:none;">${agent.email}</a></div>` : ""}
-                </td>
-                <td align="right" valign="middle" style="padding:20px 28px 20px 16px;vertical-align:middle;">
-                  <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="130" border="0"
-                       style="display:block;width:130px;height:auto;" />
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- ── AGENT CARD — MOBILE ONLY (shown via CSS media query on ≤620px) ── -->
-        <tr class="agent-mobile" style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+        <!-- ── AGENT CARD (mobile-first stacked layout) ── -->
+        <tr>
           <td style="padding:0;background-color:#fafaf8;border-top:2px solid ${ACCENT};">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
               ${agent.photo_url ? `
@@ -2147,8 +2077,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── FOOTER ── -->
         <tr>
-          <td class="mobile-pad" valign="top"
-              style="background-color: ${DARK}; padding: 20px 36px;">
+          <td valign="top"
+              style="background-color: ${DARK}; padding: 20px 20px;">
             <p style="margin: 0 0 6px 0; ${F} font-size: 9px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: ${ACCENT}; line-height: 1.5;">
               PRESALE PROPERTIES &nbsp;&middot;&nbsp; ${data.city ? `${data.city.toUpperCase()}, BC` : "VANCOUVER, BC"}
             </p>
@@ -2160,8 +2090,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── LEGAL ── -->
         <tr>
-          <td class="mobile-pad" valign="top"
-              style="background-color: #f8f7f4; padding: 24px 36px 28px; border-top: 1px solid #e8e8e4;">
+          <td valign="top"
+              style="background-color: #f8f7f4; padding: 24px 20px 28px; border-top: 1px solid #e8e8e4;">
             <p style="margin: 0 0 10px 0; ${F} font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #555555; line-height: 1.4;">L E G A L &nbsp; D I S C L A I M E R</p>
             <p style="margin: 0 0 10px 0; ${F} font-size: 11px; font-weight: 300; color: #888888; line-height: 1.8;">
               This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer&rsquo;s agents &mdash; we represent <strong style="${F} font-weight: 500; color: #666666;">you</strong>, not the developer. This is <strong style="${F} font-weight: 500; color: #666666;">not an offering for sale</strong>. An offering can only be made after a Disclosure Statement is filed under REDMA. Prices, availability, and incentives are subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions are subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E.
