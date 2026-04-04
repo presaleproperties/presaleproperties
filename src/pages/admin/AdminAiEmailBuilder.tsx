@@ -1160,18 +1160,11 @@ export default function AdminEmailBuilderPage() {
       _type: "ai-email",
       copy,
       vars: {
-        subjectLine: copy.subjectLine,
-        previewText: copy.previewText,
-        headline: copy.headline,
-        bodyCopy: copy.bodyCopy,
-        incentiveText: copy.incentiveText,
-        projectName: copy.projectName,
-        city: copy.city,
-        neighborhood: copy.neighborhood,
-        developerName: copy.developerName,
-        startingPrice: copy.startingPrice,
-        deposit: copy.deposit,
-        completion: copy.completion,
+        subjectLine: copy.subjectLine, previewText: copy.previewText,
+        headline: copy.headline, bodyCopy: copy.bodyCopy, incentiveText: copy.incentiveText,
+        projectName: copy.projectName, city: copy.city, neighborhood: copy.neighborhood,
+        developerName: copy.developerName, startingPrice: copy.startingPrice,
+        deposit: copy.deposit, completion: copy.completion,
       },
       heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
       imageCards, loopSlides, selectedAssetId, directCtaUrl,
@@ -1179,30 +1172,22 @@ export default function AdminEmailBuilderPage() {
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
     };
 
-    let error: any = null;
+    // Always create a new template in the campaign hub
+    const res = await supabase.from("campaign_templates" as any)
+      .insert({ name, project_name: projectName || "Untitled", form_data: formData })
+      .select("id")
+      .single();
 
-    if (savedTemplateId) {
-      // Update existing saved template
-      const res = await supabase.from("campaign_templates" as any)
-        .update({ name, project_name: projectName || "Untitled", form_data: formData, updated_at: new Date().toISOString() })
-        .eq("id", savedTemplateId);
-      error = res.error;
+    if (res.error) {
+      toast.error("Failed to save");
     } else {
-      // Insert new template and redirect to its saved URL
-      const res = await supabase.from("campaign_templates" as any)
-        .insert({ name, project_name: projectName || "Untitled", form_data: formData })
-        .select("id")
-        .single();
-      error = res.error;
-      if (!error && (res.data as any)?.id) {
-        // Update URL to point to the new saved template so future saves update it
+      toast.success("Saved as new template!");
+      // Redirect to the newly saved template so auto-save updates it going forward
+      if ((res.data as any)?.id) {
         searchParams.set("saved", (res.data as any).id);
         navigate(`?${searchParams.toString()}`, { replace: true });
       }
     }
-
-    if (error) toast.error("Failed to save");
-    else toast.success("Saved!");
     setSaving(false);
   };
 
