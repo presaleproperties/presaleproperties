@@ -2185,7 +2185,7 @@ export default function AdminEmailBuilderPage() {
             variant="outline"
             size="lg"
             className="flex-1 h-12 gap-2 font-semibold"
-            onClick={openSaveDialog}
+            onClick={handleSaveClick}
             disabled={saving}
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
