@@ -143,7 +143,7 @@ export function LeadOnboardHub() {
         ? `https://presaleproperties.com/deck/${selectedDeck.slug}`
         : "";
 
-      const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
+      
 
       const { data: lead, error: insertError } = await supabase
         .from("onboarded_leads")
