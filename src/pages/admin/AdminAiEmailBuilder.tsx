@@ -1011,6 +1011,32 @@ export default function AdminEmailBuilderPage() {
     });
   };
 
+  const handlePushToMailerLite = async () => {
+    const html = getMailerLiteHtml();
+    if (!html || !subjectLine) {
+      toast.error("Build your email first — need at least a subject line");
+      return;
+    }
+    setPushingML(true);
+    setPushedML(false);
+    try {
+      const campaignName = `${projectName || "Email"} — ${new Date().toLocaleDateString("en-CA")}`;
+      const { data, error } = await supabase.functions.invoke("push-to-mailerlite", {
+        body: { name: campaignName, subject: subjectLine, html },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setPushedML(true);
+      toast.success(data?.message || "Campaign pushed to MailerLite as draft ✓");
+      setTimeout(() => setPushedML(false), 5000);
+    } catch (err: any) {
+      console.error("MailerLite push failed:", err);
+      toast.error("MailerLite push failed: " + (err.message || "Unknown error"));
+    } finally {
+      setPushingML(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!projectName && !headline) { toast.error("Add a project name or headline first"); return; }
     setSaving(true);
