@@ -1718,7 +1718,7 @@ export function buildPitchDeckEmailHtmlLofty(
   const whatsapp   = data.ctaWhatsApp || "16722581100";
   const locationLine = data.city ? data.city.toUpperCase() : "";
   const byLine       = data.developerName ? `by ${data.developerName}` : "";
-  const deckLink     = data.deckUrl || "";
+  const deckLink     = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
   const fps          = (data.floorPlans || []).filter(fp => fp.url);
 
   // ─── Body copy renderer ───────────────────────────────────────────────────
