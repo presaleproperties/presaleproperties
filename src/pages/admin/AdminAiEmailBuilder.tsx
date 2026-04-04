@@ -1117,7 +1117,7 @@ export default function AdminEmailBuilderPage() {
     if (!projectName && !headline) { toast.error("Add a project name or headline first"); return; }
     setSaving(true);
     const copy = currentCopy();
-    const name = `AI Email - ${projectName || headline?.slice(0, 30) || "Untitled"} (${new Date().toLocaleDateString()})`;
+    const name = subjectLine || `${projectName || headline?.slice(0, 30) || "Untitled"} · ${city || "Email"}`;
     const formData = {
       _type: "ai-email",
       copy,
@@ -1140,12 +1140,30 @@ export default function AdminEmailBuilderPage() {
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
     };
-    const { error } = await supabase.from("campaign_templates" as any).insert({
-      name, project_name: projectName || "Untitled",
-      form_data: formData,
-    });
+
+    let error: any = null;
+
+    if (savedTemplateId) {
+      // Update existing saved template
+      const res = await supabase.from("campaign_templates" as any)
+        .update({ name, project_name: projectName || "Untitled", form_data: formData, updated_at: new Date().toISOString() })
+        .eq("id", savedTemplateId);
+      error = res.error;
+    } else {
+      // Insert new template and redirect to its saved URL
+      const res = await supabase.from("campaign_templates" as any)
+        .insert({ name, project_name: projectName || "Untitled", form_data: formData })
+        .select("id")
+        .single();
+      error = res.error;
+      if (!error && res.data?.id) {
+        // Update URL to point to the new saved template so future saves update it
+        setSearchParams({ saved: res.data.id }, { replace: true });
+      }
+    }
+
     if (error) toast.error("Failed to save");
-    else toast.success("Saved to Campaign Hub!");
+    else toast.success("Saved!");
     setSaving(false);
   };
 
