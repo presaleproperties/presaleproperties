@@ -1223,11 +1223,20 @@ export default function AdminEmailBuilderPage() {
             </p>
           </div>
 
-          {/* Draft indicator */}
-          {draftSavedAt && (
+          {/* Auto-save indicator */}
+          {savedTemplateId && (
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0 hidden sm:flex">
+              {dbSaving ? (
+                <><Loader2 className="h-3 w-3 animate-spin text-primary" /><span className="hidden md:inline">Saving…</span></>
+              ) : draftSavedAt ? (
+                <><CheckCircle2 className="h-3 w-3 text-emerald-500" /><span className="hidden md:inline">Auto-saved</span></>
+              ) : null}
+            </div>
+          )}
+          {!savedTemplateId && draftSavedAt && (
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0 hidden sm:flex">
               <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-              <span className="hidden md:inline">Saved</span>
+              <span className="hidden md:inline">Draft</span>
               <button onClick={() => { localStorage.removeItem(DRAFT_KEY); window.location.reload(); }} className="text-muted-foreground/50 hover:text-destructive transition-colors">
                 <X className="h-3 w-3" />
               </button>
@@ -1255,7 +1264,7 @@ export default function AdminEmailBuilderPage() {
           </Button>
           <Button variant="outline" size="sm" className="h-8 gap-1.5 shrink-0 hidden sm:flex text-xs px-2.5" onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-            <span className="hidden md:inline">Save</span>
+            <span className="hidden md:inline">Save as Template</span>
           </Button>
           <Button size="sm"
             className={cn("h-8 gap-1.5 font-semibold transition-all duration-200 shrink-0 text-xs px-2.5", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
