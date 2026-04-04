@@ -288,22 +288,65 @@ export function LeadOnboardHub() {
               </Button>
             )}
 
-            {successData.templateId && (
-              <Button
-                onClick={handleSendTemplateEmail}
-                variant={templateSent ? "outline" : "secondary"}
-                className="w-full"
-                disabled={sendingTemplate || templateSent}
-              >
-                {sendingTemplate ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : templateSent ? (
-                  <Check className="h-4 w-4 mr-2" />
-                ) : (
-                  <Mail className="h-4 w-4 mr-2" />
+            {/* Email Template Selector — in success section */}
+            {templates.length > 0 && (
+              <div className="space-y-3 text-left">
+                <Label className="text-sm text-muted-foreground">Send Email Template</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {templates.map((tpl) => {
+                    const preview = getTemplatePreview(tpl);
+                    const isSelected = selectedTemplateId === tpl.id;
+                    return (
+                      <button
+                        key={tpl.id}
+                        type="button"
+                        onClick={() => setSelectedTemplateId(isSelected ? null : tpl.id)}
+                        className={cn(
+                          "relative rounded-lg border-2 p-2.5 text-left transition-all hover:shadow-md",
+                          isSelected
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border hover:border-muted-foreground/30"
+                        )}
+                      >
+                        {preview ? (
+                          <img src={preview} alt={tpl.name} className="w-full h-14 object-cover rounded mb-1.5" />
+                        ) : (
+                          <div className="w-full h-14 rounded bg-muted flex items-center justify-center mb-1.5">
+                            <FileText className="h-4 w-4 text-muted-foreground/40" />
+                          </div>
+                        )}
+                        <p className="font-medium text-xs truncate">{tpl.name}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{tpl.project_name}</p>
+                        {isSelected && (
+                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {selectedTemplateId && (
+                  <Button
+                    onClick={handleSendTemplateEmail}
+                    variant={templateSent ? "outline" : "secondary"}
+                    className="w-full"
+                    disabled={sendingTemplate || templateSent}
+                  >
+                    {sendingTemplate ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : templateSent ? (
+                      <Check className="h-4 w-4 mr-2" />
+                    ) : (
+                      <Mail className="h-4 w-4 mr-2" />
+                    )}
+                    {templateSent
+                      ? "Email Sent"
+                      : `Send "${templates.find(t => t.id === selectedTemplateId)?.name}" Email`}
+                  </Button>
                 )}
-                {templateSent ? "Template Email Sent" : `Send "${successData.templateName}" Email`}
-              </Button>
+              </div>
             )}
 
             <Button onClick={handleNewLead} className="mt-4 w-full">
