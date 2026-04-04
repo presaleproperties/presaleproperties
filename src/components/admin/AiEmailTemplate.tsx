@@ -1072,8 +1072,8 @@ export function buildPitchDeckEmailHtml(
   ${data.heroImage ? `
   <tr>
     <td style="padding:0;line-height:0;font-size:0;">
-       ${deckLink
-        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display:block;width:100%;height:auto;" /></a>`
+       ${(data.projectUrl || deckLink)
+        ? `<a href="${data.projectUrl || deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display:block;width:100%;height:auto;" /></a>`
         : `<img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display:block;width:100%;height:auto;" />`
       }
     </td>
