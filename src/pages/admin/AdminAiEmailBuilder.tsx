@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, buildLoopEmailHtml, buildPitchDeckEmailHtml, buildPitchDeckEmailHtmlLofty, buildLululemonEmailHtml, buildMailerLiteEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, buildLoopEmailHtml, buildPitchDeckEmailHtml, buildPitchDeckEmailHtmlLofty, buildLululemonEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
@@ -972,38 +972,17 @@ export default function AdminEmailBuilderPage() {
   };
 
   // ── MailerLite export ───────────────────────────────────────────────────────
+  // Uses the EXACT same HTML as the Lovable preview/send, with only
+  // MailerLite merge-tag substitutions for unsubscribe links.
   const getMailerLiteHtml = useCallback((): string => {
-    const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
-    const agentForEmail = selectedAgent ?? DEFAULT_AGENT;
-    return buildMailerLiteEmailHtml({
-      projectName:    projectName || "",
-      city:           city || undefined,
-      developerName:  showDeveloperName ? developerName : undefined,
-      heroImage:      heroImage || undefined,
-      headline,
-      bodyCopy,
-      subjectLine,
-      previewText,
-      startingPrice,
-      deposit,
-      completion,
-      infoRows,
-      incentiveText,
-      parkingIncluded: saved?._deckParking || "1 Parking Stall Included",
-      lockerIncluded:  saved?._deckLocker  || "1 Storage Locker Included",
-      deckUrl:         saved?._deckUrl     || undefined,
-      projectUrl:      projectUrl || undefined,
-      floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
-        id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
-        price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
-        exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
-      })),
-      fpHeading,
-      fpSubheading,
-    }, agentForEmail);
-  }, [projectName, city, developerName, showDeveloperName, heroImage, headline, bodyCopy,
-      subjectLine, previewText, startingPrice, deposit, completion, infoRows, incentiveText,
-      floorPlans, fpHeading, fpSubheading, selectedAgent, projectUrl]);
+    let html = finalHtml;
+    // Replace any generic unsubscribe placeholder with MailerLite merge tag
+    html = html.replace(/\{unsubscribe_url\}/g, "{$unsubscribe}");
+    html = html.replace(/href="#unsubscribe"/g, 'href="{$unsubscribe}"');
+    // Replace any generic email placeholder with MailerLite merge tag
+    html = html.replace(/\{subscriber_email\}/g, "{$email}");
+    return html;
+  }, [finalHtml]);
 
   const handleCopyMailerLite = () => {
     navigator.clipboard.writeText(getMailerLiteHtml()).then(() => {
