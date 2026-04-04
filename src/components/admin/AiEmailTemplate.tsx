@@ -108,9 +108,9 @@ function bodyToHtml(text: string): string {
     .join("");
 }
 
-/** Render a "Project Details" CTA button — only shown when projectUrl, projectName, and developerName are all present */
+/** Render a "Project Details" CTA button — only shown when projectUrl is present */
 function projectDetailsCta(opts: { projectUrl?: string; projectName?: string; developerName?: string; font: string; accent?: string; dark?: string }): string {
-  if (!opts.projectUrl || !opts.projectName || !opts.developerName) return "";
+  if (!opts.projectUrl) return "";
   const ACCENT = opts.accent || "#C9A55A";
   const DARK = opts.dark || "#0d1f18";
   return `

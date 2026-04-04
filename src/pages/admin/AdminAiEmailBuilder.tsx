@@ -382,7 +382,7 @@ export default function AdminEmailBuilderPage() {
   const [loopSlides, setLoopSlides] = useState<string[]>(savedDraft?.loopSlides ?? []);
 
   const [projects, setProjects] = useState<Array<{
-    id: string; name: string; city: string; neighborhood?: string | null;
+    id: string; name: string; slug?: string; city: string; neighborhood?: string | null;
     developer_name?: string | null; starting_price?: number | null; price_range?: string | null;
     deposit_structure?: string | null; deposit_percent?: number | null;
     completion_year?: number | null; completion_month?: number | null;
@@ -589,9 +589,10 @@ export default function AdminEmailBuilderPage() {
     city, neighborhood,
     developerName: showDeveloperName ? developerName : "",
     startingPrice, deposit, completion,
+    projectUrl,
     infoRows: infoRows.filter(r => r.includes("|")),
     imageCards: imageCards.filter(c => c.url),
-  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, infoRows, imageCards]);
+  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, projectUrl, infoRows, imageCards]);
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
@@ -685,6 +686,13 @@ export default function AdminEmailBuilderPage() {
     if (p.neighborhood)    setNeighborhood(p.neighborhood);
     if (p.developer_name)  setDevName(p.developer_name);
     if (p.featured_image)  setHeroImage(p.featured_image);
+
+    // Auto-set project page URL from slug
+    if (p.slug) {
+      const neighborhood = p.neighborhood || p.city || "";
+      const typeSlug = "condos"; // default; will resolve on the website
+      setProjectUrl(`https://presaleproperties.com/${neighborhood.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}-presale-${typeSlug}-${p.slug}`);
+    }
 
     // Auto-populate Loop slideshow from gallery images (up to 6 HQ images)
     const gallerySlides: string[] = [];
