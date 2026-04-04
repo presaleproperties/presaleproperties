@@ -1566,29 +1566,28 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   </tr>` : ""}
 
   <!-- ── DIVIDER ── -->
-  <tr><td style="height:1px;background:#eeeeee;font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
+  <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
 
   <!-- ── AGENT CARD ── -->
-  <!-- This comment is used as injection point for floor plans -->
   <tr>
-    <td style="padding:0;background:#ffffff;border-top:3px solid ${DARK};">
+    <td style="padding:0;background:#ffffff;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${agent.photo_url ? `
         <tr>
           <td align="center" style="padding:28px 24px 12px;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${DARK};-ms-interpolation-mode:bicubic;" />
+            <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
           </td>
         </tr>` : ""}
         <tr>
           <td align="center" style="padding:0 24px 8px;text-align:center;">
             <p style="margin:0 0 4px 0;font-family:${F};font-size:18px;font-weight:800;color:${DARK};">${agent.full_name}</p>
-            <p style="margin:0 0 12px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:#999999;">${agent.title}</p>
+            <p style="margin:0 0 12px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">${agent.title}</p>
             ${agent.phone ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:14px;color:#555555;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="color:#555555;text-decoration:none;">${agent.phone}</a></p>` : ""}
-            ${agent.email ? `<p style="margin:0;font-family:${F};font-size:13px;color:#777777;"><a href="mailto:${agent.email}" style="color:#777777;text-decoration:none;">${agent.email}</a></p>` : ""}
+            ${agent.email ? `<p style="margin:0;font-family:${F};font-size:13px;color:#8a7e6b;"><a href="mailto:${agent.email}" style="color:#8a7e6b;text-decoration:none;">${agent.email}</a></p>` : ""}
           </td>
         </tr>
         <tr>
-          <td align="center" style="padding:16px 24px 24px;border-top:1px solid #eeeeee;text-align:center;">
+          <td align="center" style="padding:16px 24px 24px;border-top:1px solid #e8e2d6;text-align:center;">
             <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" style="display:inline-block;width:110px;height:auto;" />
           </td>
         </tr>
