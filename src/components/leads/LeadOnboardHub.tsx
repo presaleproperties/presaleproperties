@@ -368,7 +368,7 @@ export function LeadOnboardHub() {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium text-xs sm:text-sm truncate">{successTemplate.name}</p>
+                    <p className="font-medium text-xs sm:text-sm truncate">{getTemplateName(successTemplate)}</p>
                     <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{successTemplate.project_name}</p>
                   </div>
                 </div>
