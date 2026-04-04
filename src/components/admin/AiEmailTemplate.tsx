@@ -568,7 +568,7 @@ export function buildLoopEmailHtml(
   const locationLine = [copy.neighborhood, copy.city].filter(Boolean).join(", ");
 
   // Hero section HTML
-  const heroLink = copy.projectUrl || "";
+  const heroLink = ctaUrl || "";
   const heroHtml = (() => {
     if (slides.length === 0) return "";
     if (slides.length === 1) {
