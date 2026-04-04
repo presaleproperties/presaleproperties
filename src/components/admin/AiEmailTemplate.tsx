@@ -1999,8 +1999,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── CALL NOW CTA ── -->
         <tr>
-          <td class="mobile-pad" valign="top"
-              style="background-color: #f7f5f1; padding: 28px 36px 28px;">
+          <td valign="top"
+              style="background-color: #f7f5f1; padding: 28px 20px 28px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" valign="top"
