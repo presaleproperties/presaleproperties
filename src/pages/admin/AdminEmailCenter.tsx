@@ -632,7 +632,7 @@ export default function AdminEmailCenter() {
                   <p className="text-xs text-muted-foreground">See who opened your emails and how many times</p>
                 </div>
               </div>
-              <EmailLogTable logs={logs} loading={loading} />
+              <EmailLogTable logs={logs} loading={loading} onDelete={(id) => setLogs(prev => prev.filter(l => l.id !== id))} />
             </div>
           </TabsContent>
 
