@@ -50,6 +50,8 @@ export interface AiEmailCopy {
   startingPrice?: string;
   deposit?: string;
   completion?: string;
+  /** URL to the project page on presaleproperties.com */
+  projectUrl?: string;
   /** Additional info rows rendered as a secondary stats bar. Each entry: "Label|Value" */
   infoRows?: string[];
   /** Image cards rendered below the What's Included section */
@@ -104,6 +106,28 @@ function bodyToHtml(text: string): string {
       return `<p style="margin:0 0 14px 0;font-family:'DM Sans',Arial,sans-serif;font-size:14px;color:#444444;line-height:1.75;">${withBold}</p>`;
     })
     .join("");
+}
+
+/** Render a "Project Details" CTA button — only shown when projectUrl, projectName, and developerName are all present */
+function projectDetailsCta(opts: { projectUrl?: string; projectName?: string; developerName?: string; font: string; accent?: string; dark?: string }): string {
+  if (!opts.projectUrl || !opts.projectName || !opts.developerName) return "";
+  const ACCENT = opts.accent || "#C9A55A";
+  const DARK = opts.dark || "#0d1f18";
+  return `
+  <tr>
+    <td style="padding:0 36px 8px;background:#ffffff;" class="mobile-pad">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${ACCENT};border-radius:6px;overflow:hidden;">
+        <tr>
+          <td align="center" style="padding:16px 24px;background:#ffffff;">
+            <a href="${opts.projectUrl}" target="_blank"
+               style="font-family:${opts.font};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;line-height:1;">
+              VIEW PROJECT DETAILS &nbsp;→
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>`;
 }
 
 export interface EmailFontPairing {
@@ -331,6 +355,8 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
       </div>
     </td>
   </tr>
+
+  ${projectDetailsCta({ projectUrl: copy.projectUrl, projectName: copy.projectName, developerName: copy.developerName, font: bodyFont, accent: ACCENT, dark: DARK })}
 
   <!-- ─── INCENTIVES (conditional) ─── -->
   ${incentives.length > 0 ? `
@@ -703,6 +729,8 @@ export function buildLoopEmailHtml(
     </td>
   </tr>` : ""}
 
+  ${projectDetailsCta({ projectUrl: copy.projectUrl, projectName: copy.projectName, developerName: copy.developerName, font: bodyFont, accent: ACCENT, dark: DARK })}
+
   <!-- ─── INCENTIVES (conditional) ─── -->
   ${incentives.length > 0 ? `
   <tr>
@@ -867,6 +895,8 @@ export interface PitchDeckEmailData {
   ctaWhatsApp?: string;
   /** Public URL of the pitch deck — floor plans + hero image link here */
   deckUrl?: string;
+  /** URL to the project page on presaleproperties.com */
+  projectUrl?: string;
 }
 
 export function buildPitchDeckEmailHtml(
@@ -1101,6 +1131,8 @@ export function buildPitchDeckEmailHtml(
       ${bodyHtml}
     </td>
   </tr>
+
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: BODY_FONT, accent: ACCENT, dark: DARK })}
 
   <!-- WHAT'S INCLUDED (parking, locker, incentives) -->
   ${includedItems.length > 0 ? `
@@ -1491,6 +1523,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
       ${bodyHtml}
     </td>
   </tr>` : ""}
+
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
 
   <!-- ── WHAT'S INCLUDED ── -->
   ${incentiveLines.length > 0 ? `
@@ -1919,6 +1953,8 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
           </td>
         </tr>
 
+        ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F.replace(/font-family:/,"").replace(/;$/,""), accent: ACCENT, dark: DARK })}
+
         <!-- ── WHAT'S INCLUDED ── -->
         ${includedItems.length > 0 ? `
         <tr>
@@ -2234,6 +2270,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
       ${bodyHtml}
     </td>
   </tr>
+
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
 
   <!-- WHAT'S INCLUDED -->
   ${incentiveLines.length > 0 ? `<tr>
