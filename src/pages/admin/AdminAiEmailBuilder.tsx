@@ -1156,9 +1156,10 @@ export default function AdminEmailBuilderPage() {
         .select("id")
         .single();
       error = res.error;
-      if (!error && res.data?.id) {
+      if (!error && (res.data as any)?.id) {
         // Update URL to point to the new saved template so future saves update it
-        setSearchParams({ saved: res.data.id }, { replace: true });
+        searchParams.set("saved", (res.data as any).id);
+        navigate(`?${searchParams.toString()}`, { replace: true });
       }
     }
 
