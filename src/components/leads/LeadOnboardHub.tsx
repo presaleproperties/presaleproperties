@@ -249,6 +249,7 @@ export function LeadOnboardHub() {
   const renderTemplateCard = (tpl: EmailTemplate, currentSelectedId: string | null, onSelect: (id: string | null) => void) => {
     const preview = getTemplatePreview(tpl);
     const isSelected = currentSelectedId === tpl.id;
+    const displayName = tpl.form_data?.copy?.subjectLine || tpl.name;
     return (
       <button
         key={tpl.id}
