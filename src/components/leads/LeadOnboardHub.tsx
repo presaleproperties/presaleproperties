@@ -68,8 +68,6 @@ export function LeadOnboardHub() {
     deckUrl: string;
     leadName: string;
     leadId: string;
-    templateId: string | null;
-    templateName: string | null;
   } | null>(null);
   const [copied, setCopied] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
