@@ -1882,7 +1882,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
           <td class="mobile-pad" valign="top"
               style="background-color: ${DARK}; padding: 28px 20px 24px;">
             <p style="margin: 0 0 6px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">PRESALE PROPERTIES</p>
-            <p class="hero-text" style="margin: 0 0 8px 0; ${F} font-size: 32px; font-weight: 800; color: #ffffff; line-height: 1.1; letter-spacing: -0.5px;">${data.projectName || "New Presale Release"}</p>
+            <p style="margin: 0 0 8px 0; ${F} font-size: 26px; font-weight: 800; color: #ffffff; line-height: 1.15; letter-spacing: -0.5px;">${data.projectName || "New Presale Release"}</p>
             ${byLine ? `<p style="margin: 0 0 10px 0; ${F} font-size: 11px; color: #7a9a86;">${byLine}</p>` : ""}
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>
