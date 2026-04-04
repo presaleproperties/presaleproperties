@@ -1155,18 +1155,9 @@ export default function AdminEmailBuilderPage() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveTemplateName, setSaveTemplateName] = useState("");
 
-  const openSaveDialog = () => {
-    if (!projectName && !headline) { toast.error("Add a project name or headline first"); return; }
-    setSaveTemplateName(subjectLine || `${projectName || headline?.slice(0, 30) || "Untitled"} · ${city || "Email"}`);
-    setSaveDialogOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!saveTemplateName.trim()) { toast.error("Enter a template name"); return; }
-    setSaving(true);
-    setSaveDialogOpen(false);
+  const buildFormData = () => {
     const copy = currentCopy();
-    const formData = {
+    return {
       _type: "ai-email",
       copy,
       vars: {
@@ -1181,6 +1172,36 @@ export default function AdminEmailBuilderPage() {
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
     };
+  };
+
+  // If already saved → update directly. If new → show naming dialog.
+  const handleSaveClick = async () => {
+    if (!projectName && !headline) { toast.error("Add a project name or headline first"); return; }
+    if (savedTemplateId) {
+      // Already saved — just update the existing template
+      setSaving(true);
+      const formData = buildFormData();
+      const res = await supabase.from("campaign_templates" as any)
+        .update({ form_data: formData, project_name: projectName || "Untitled", updated_at: new Date().toISOString() })
+        .eq("id", savedTemplateId);
+      if (res.error) {
+        toast.error("Failed to save");
+      } else {
+        toast.success("Template saved!");
+      }
+      setSaving(false);
+    } else {
+      // First save — ask for a name
+      setSaveTemplateName(subjectLine || `${projectName || headline?.slice(0, 30) || "Untitled"} · ${city || "Email"}`);
+      setSaveDialogOpen(true);
+    }
+  };
+
+  const handleSaveNewTemplate = async () => {
+    if (!saveTemplateName.trim()) { toast.error("Enter a template name"); return; }
+    setSaving(true);
+    setSaveDialogOpen(false);
+    const formData = buildFormData();
 
     const res = await supabase.from("campaign_templates" as any)
       .insert({ name: saveTemplateName.trim(), project_name: projectName || "Untitled", form_data: formData })
@@ -1190,7 +1211,7 @@ export default function AdminEmailBuilderPage() {
     if (res.error) {
       toast.error("Failed to save");
     } else {
-      toast.success("Saved as new template!");
+      toast.success("Template saved!");
       if ((res.data as any)?.id) {
         searchParams.set("saved", (res.data as any).id);
         navigate(`?${searchParams.toString()}`, { replace: true });
