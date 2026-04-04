@@ -640,8 +640,34 @@ export default function AdminEmailBuilderPage() {
       });
   }, []);
 
-  // ── Auto-save draft to localStorage ─────────────────────────────────────────
+  // ── Auto-save draft to localStorage + DB (if editing a saved template) ─────
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dbAutoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [dbSaving, setDbSaving] = useState(false);
+
+  // Build the full form_data payload (reused by auto-save and manual save)
+  const buildFormData = useCallback(() => {
+    const copy = currentCopy();
+    return {
+      _type: "ai-email" as const,
+      copy,
+      vars: {
+        subjectLine: copy.subjectLine, previewText: copy.previewText,
+        headline: copy.headline, bodyCopy: copy.bodyCopy, incentiveText: copy.incentiveText,
+        projectName: copy.projectName, city: copy.city, neighborhood: copy.neighborhood,
+        developerName: copy.developerName, startingPrice: copy.startingPrice,
+        deposit: copy.deposit, completion: copy.completion,
+      },
+      heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
+      imageCards, loopSlides, selectedAssetId, directCtaUrl,
+      selAgent, fontId: selectedFontId, layoutVersion,
+      showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
+    };
+  }, [currentCopy, heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
+      imageCards, loopSlides, selectedAssetId, directCtaUrl,
+      selAgent, selectedFontId, layoutVersion,
+      showProjectName, showDeveloperName, customHeader, projectUrl, infoRows]);
+
   useEffect(() => {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
@@ -670,8 +696,24 @@ export default function AdminEmailBuilderPage() {
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
+
+      // Auto-save to DB if editing a saved template
+      if (savedTemplateId) {
+        if (dbAutoSaveRef.current) clearTimeout(dbAutoSaveRef.current);
+        dbAutoSaveRef.current = setTimeout(async () => {
+          setDbSaving(true);
+          const formData = buildFormData();
+          await supabase.from("campaign_templates" as any)
+            .update({ form_data: formData, updated_at: new Date().toISOString() })
+            .eq("id", savedTemplateId);
+          setDbSaving(false);
+        }, 500);
+      }
     }, 1500);
-    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
+    return () => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+      if (dbAutoSaveRef.current) clearTimeout(dbAutoSaveRef.current);
+    };
   }, [
     prompt, templateType, selProjectId, activeVersion, aiResult,
     projectName, developerName, showProjectName, showDeveloperName, customHeader,
@@ -679,6 +721,7 @@ export default function AdminEmailBuilderPage() {
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
+    savedTemplateId, buildFormData,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
