@@ -1367,8 +1367,10 @@ export function buildLululemonEmailHtml(
       if (isList) {
         return `
         <tr>
-          <td valign="top" width="20" style="padding:0 0 12px 0;vertical-align:top;width:20px;font-family:${F};font-size:18px;color:${DARK};line-height:1.6;">–</td>
-          <td valign="top" style="padding:0 0 12px 14px;vertical-align:top;">
+          <td valign="top" width="20" style="padding:0 0 12px 0;vertical-align:top;width:20px;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr><td width="6" height="6" style="width:6px;height:6px;background:${ACCENT};border-radius:3px;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+          </td>
+          <td valign="top" style="padding:0 0 12px 10px;vertical-align:top;">
             <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.7;">${html}</p>
           </td>
         </tr>`;
