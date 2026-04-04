@@ -2249,8 +2249,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
   <!-- HERO IMAGE -->
   ${data.heroImage ? `<tr>
     <td style="padding:0;line-height:0;font-size:0;">
-      ${deckLink
-        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;height:auto;border:0;" /></a>`
+      ${(data.projectUrl || deckLink)
+        ? `<a href="${data.projectUrl || deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;height:auto;border:0;" /></a>`
         : `<img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;height:auto;border:0;" />`}
     </td>
   </tr>` : `<tr>
