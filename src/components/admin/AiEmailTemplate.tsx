@@ -1491,15 +1491,17 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   ${incentiveLines.length > 0 ? `
   <tr>
     <td class="content-pad" style="padding:0 40px 36px;background:#ffffff;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:2px solid ${DARK};padding-top:24px;">
-        <tr><td style="padding:24px 0 18px 0;">
-          <p style="margin:0;font-family:${F};font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#999999;">WHAT'S INCLUDED</p>
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:2px solid ${DARK};">
+        <tr><td style="padding:24px 0 16px 0;">
+          <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
         </td></tr>
         ${incentiveLines.map(item => `
         <tr>
-          <td valign="top" width="20" style="padding:0 0 12px 0;vertical-align:top;width:20px;font-family:${F};font-size:18px;color:${DARK};line-height:1.6;">–</td>
-          <td valign="top" style="padding:0 0 12px 14px;vertical-align:top;">
-            <p style="margin:0;font-family:${F};font-size:16px;color:#333333;line-height:1.65;">${item}</p>
+          <td valign="top" width="24" style="padding:0 0 10px 0;vertical-align:top;width:24px;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr><td width="6" height="6" style="width:6px;height:6px;background:${ACCENT};border-radius:3px;font-size:0;line-height:0;margin-top:8px;">&nbsp;</td></tr></table>
+          </td>
+          <td valign="top" style="padding:0 0 10px 8px;vertical-align:top;">
+            <p style="margin:0;font-family:${F};font-size:15px;font-weight:500;color:${DARK};line-height:1.7;">${item}</p>
           </td>
         </tr>`).join("")}
       </table>
@@ -1558,12 +1560,12 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         </tr>
         <tr>
           <td class="content-pad" style="padding:0 40px 36px;">
-            <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
-                <td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
-                  <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${data.projectName || "this presale"}. Can you send me more details?`)}"
-                     style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;white-space:nowrap;">
-                    VIEW FLOOR PLANS
+                <td align="center" style="padding:14px 24px;text-align:center;">
+                  <a href="*|UNSUB|*"
+                     style="font-family:${F};font-size:11px;font-weight:500;letter-spacing:1px;color:#aaaaaa;text-decoration:underline;">
+                    No longer interested in ${data.projectName || "this project"}? Unsubscribe
                   </a>
                 </td>
               </tr>
