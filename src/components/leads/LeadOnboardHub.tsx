@@ -508,55 +508,8 @@ export function LeadOnboardHub() {
             </CardContent>
           </Card>
 
-          {/* Email Template Selector */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base">
-                Select Email Template{" "}
-                <span className="text-muted-foreground font-normal text-sm">(optional)</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {templates.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No email templates yet. Create one in the Marketing tab.</p>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {templates.map((tpl) => {
-                    const preview = getTemplatePreview(tpl);
-                    const subject = getTemplateSubject(tpl);
-                    return (
-                      <button
-                        key={tpl.id}
-                        type="button"
-                        onClick={() => setSelectedTemplateId(selectedTemplateId === tpl.id ? null : tpl.id)}
-                        className={cn(
-                          "relative rounded-lg border-2 p-3 text-left transition-all hover:shadow-md",
-                          selectedTemplateId === tpl.id
-                            ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-border hover:border-muted-foreground/30"
-                        )}
-                      >
-                        {preview ? (
-                          <img src={preview} alt={tpl.name} className="w-full h-16 sm:h-20 object-cover rounded mb-2" />
-                        ) : (
-                          <div className="w-full h-16 sm:h-20 rounded bg-muted flex items-center justify-center mb-2">
-                            <FileText className="h-5 w-5 text-muted-foreground/40" />
-                          </div>
-                        )}
-                        <p className="font-medium text-sm truncate">{subject || tpl.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{tpl.project_name}</p>
-                        {selectedTemplateId === tpl.id && (
-                          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                            <Check className="h-3 w-3 text-primary-foreground" />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+
+
 
           {/* Submit */}
           <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm pb-4 pt-2 -mx-4 px-4 sm:static sm:bg-transparent sm:backdrop-blur-none sm:pb-0 sm:pt-0 sm:mx-0 sm:px-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
