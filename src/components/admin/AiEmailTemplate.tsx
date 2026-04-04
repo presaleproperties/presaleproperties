@@ -108,6 +108,28 @@ function bodyToHtml(text: string): string {
     .join("");
 }
 
+/** Render a "Project Details" CTA button — only shown when projectUrl, projectName, and developerName are all present */
+function projectDetailsCta(opts: { projectUrl?: string; projectName?: string; developerName?: string; font: string; accent?: string; dark?: string }): string {
+  if (!opts.projectUrl || !opts.projectName || !opts.developerName) return "";
+  const ACCENT = opts.accent || "#C9A55A";
+  const DARK = opts.dark || "#0d1f18";
+  return `
+  <tr>
+    <td style="padding:0 36px 8px;background:#ffffff;" class="mobile-pad">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${ACCENT};border-radius:6px;overflow:hidden;">
+        <tr>
+          <td align="center" style="padding:16px 24px;background:#ffffff;">
+            <a href="${opts.projectUrl}" target="_blank"
+               style="font-family:${opts.font};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;line-height:1;">
+              VIEW PROJECT DETAILS &nbsp;→
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>`;
+}
+
 export interface EmailFontPairing {
   id: string;
   label: string;
