@@ -1932,8 +1932,8 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
         ${data.heroImage ? `
         <tr>
           <td valign="top" style="padding: 0; font-size: 0; line-height: 0;">
-            ${(data.projectUrl || deckLink)
-              ? `<a href="${data.projectUrl || deckLink}" target="_blank" style="display: block; font-size: 0; line-height: 0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;" /></a>`
+            ${deckLink
+              ? `<a href="${deckLink}" target="_blank" style="display: block; font-size: 0; line-height: 0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;" /></a>`
               : `<img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;" />`}
           </td>
         </tr>` : ""}
