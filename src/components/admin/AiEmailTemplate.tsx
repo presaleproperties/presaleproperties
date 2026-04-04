@@ -1896,21 +1896,13 @@ export function buildPitchDeckEmailHtmlLofty(
     }
   </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #ffffff; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
-
-${data.previewText ? `<!-- Preview text (hidden) -->
-<span style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${data.previewText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</span>` : ""}
-
-<!-- ═══ OUTER WRAPPER ═══ -->
-<table cellpadding="0" cellspacing="0" border="0" width="100%"
-       style="margin: 0; padding: 0; width: 100%; background-color: #ffffff;">
-  <tr>
-    <td align="center" valign="top" style="padding: 0; margin: 0;">
-      <!--[if mso]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td><![endif]-->
-
-      <!-- ═══ EMAIL CONTAINER: 100% wide, capped at 600px ═══ -->
-      <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%"
-             style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e0dbd3;">
+<body style="margin:0;padding:0;background-color:#ffffff;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;" id="body">
+${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${data.previewText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</span>` : ""}
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0;padding:0;width:100%;background-color:#ffffff;">
+<tr><td align="center" valign="top" style="padding:0;margin:0;">
+<!--[if mso]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td><![endif]-->
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="100%"
+       style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #e0dbd3;">
 
         <!-- ── HEADER ── -->
         <tr>
