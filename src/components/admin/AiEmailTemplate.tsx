@@ -1396,7 +1396,7 @@ export function buildLululemonEmailHtml(
     body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
     table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
     img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;}
-    body{margin:0!important;padding:0!important;background:#ffffff;}
+    body{margin:0!important;padding:0!important;background:#faf8f4;}
     a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;}
     u+#body a{color:inherit!important;text-decoration:none!important;}
     #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
