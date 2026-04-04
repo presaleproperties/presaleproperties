@@ -370,6 +370,8 @@ export default function AdminEmailBuilderPage() {
   const [copied,        setCopied]        = useState(false);
   const [copiedLofty,   setCopiedLofty]   = useState(false);
   const [copiedML,      setCopiedML]      = useState(false);
+  const [pushingML,     setPushingML]     = useState(false);
+  const [pushedML,      setPushedML]      = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
