@@ -1295,13 +1295,13 @@ export function buildPitchDeckEmailHtml(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MODERN / LULULEMON-INSPIRED EMAIL TEMPLATE
+// MODERN / PREMIUM GOLD EMAIL TEMPLATE
 // ─────────────────────────────────────────────────────────────────────────────
 // Design principles:
 //  - Full-bleed hero image (zero margin, 100% width, no container border)
-//  - Pure white background, generous white space
+//  - Warm cream (#faf8f4) background with gold (#C9A55A) accent highlights
 //  - Huge bold sans-serif headline (42px desktop, 32px mobile)
-//  - Black pill CTA buttons, full-width on mobile
+//  - Gold CTA buttons, premium warm palette throughout
 //  - No dark header bar — hero IS the header
 //  - Single editorial column, breathing room between sections
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1326,7 +1326,7 @@ export function buildLululemonEmailHtml(
     return `
     <tr>
       <td style="padding:0 0 24px 0;">
-        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f9f9f9;border:1px solid #eeeeee;">
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;border:1px solid #e8e2d6;border-radius:4px;overflow:hidden;">
           <tr>
             <td style="padding:0;line-height:0;font-size:0;">
               ${deckLink ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;">${imgTag}</a>` : imgTag}
@@ -1334,9 +1334,9 @@ export function buildLululemonEmailHtml(
           </tr>
           ${(fp.label || fp.sqft || fp.price) ? `
           <tr>
-            <td style="padding:16px 20px 20px;">
-              ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#999999;">${fp.label}</p>` : ""}
-              ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#666666;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
+            <td style="padding:16px 20px 20px;border-top:1px solid #e8e2d6;">
+              ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#8a7e6b;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
               ${fp.price ? `<p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
               ${creditBadgeHtml(fp.exclusive_credit, F)}
             </td>
@@ -1367,8 +1367,10 @@ export function buildLululemonEmailHtml(
       if (isList) {
         return `
         <tr>
-          <td valign="top" width="20" style="padding:0 0 12px 0;vertical-align:top;width:20px;font-family:${F};font-size:18px;color:${DARK};line-height:1.6;">–</td>
-          <td valign="top" style="padding:0 0 12px 14px;vertical-align:top;">
+          <td valign="top" width="20" style="padding:0 0 12px 0;vertical-align:top;width:20px;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr><td width="6" height="6" style="width:6px;height:6px;background:${ACCENT};border-radius:3px;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+          </td>
+          <td valign="top" style="padding:0 0 12px 10px;vertical-align:top;">
             <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.7;">${html}</p>
           </td>
         </tr>`;
@@ -1396,7 +1398,7 @@ export function buildLululemonEmailHtml(
     body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
     table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
     img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;}
-    body{margin:0!important;padding:0!important;background:#ffffff;}
+    body{margin:0!important;padding:0!important;background:#faf8f4;}
     a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;}
     u+#body a{color:inherit!important;text-decoration:none!important;}
     #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
@@ -1411,22 +1413,22 @@ export function buildLululemonEmailHtml(
       .cta-table{width:100%!important;}
       .cta-td{width:100%!important;border-radius:50px!important;padding:18px 24px!important;}
       /* Stats stacking */
-      .stat-cell{display:block!important;width:100%!important;border-right:none!important;border-bottom:1px solid #eeeeee!important;padding:14px 24px!important;}
+      .stat-cell{display:block!important;width:100%!important;border-right:none!important;border-bottom:1px solid #e8e2d6!important;padding:14px 24px!important;text-align:left!important;}
       /* Agent card */
       .agent-logo-cell{display:none!important;}
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#ffffff;" id="body">
+<body style="margin:0;padding:0;background:#faf8f4;" id="body">
 ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-height:0;overflow:hidden;">${data.previewText}&zwnj;</span>` : ""}
 
 <!-- OUTER WRAPPER -->
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;margin:0;padding:0;">
-<tr><td class="outer-td" align="center" style="padding:0;">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;margin:0;padding:0;">
+<tr><td class="outer-td" align="center" style="padding:24px 0;">
 
 <!-- EMAIL CONTAINER: max 600px, true full-width on mobile -->
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%" class="email-container"
-       style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e5e5e5;">
+       style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e8e2d6;border-radius:8px;overflow:hidden;">
 
   <!-- ── HERO IMAGE: full-bleed, zero padding ── -->
   ${data.heroImage ? `
@@ -1448,10 +1450,10 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   <!-- ── HEADLINE BLOCK ── -->
   <tr>
     <td class="content-pad" style="padding:40px 40px 28px;background:#ffffff;">
-      <p style="margin:0 0 6px 0;font-family:${F};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#999999;">
+      <p style="margin:0 0 6px 0;font-family:${F};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">
         ${data.city ? data.city.toUpperCase() : "PRESALE PROPERTIES"}${data.developerName ? ` &nbsp;·&nbsp; ${data.developerName.toUpperCase()}` : ""}
       </p>
-      ${data.projectName ? `<p style="margin:0 0 20px 0;font-family:${F};font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#999999;">${data.projectName}</p>` : ""}
+      ${data.projectName ? `<p style="margin:0 0 20px 0;font-family:${F};font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#8a7e6b;">${data.projectName}</p>` : ""}
       ${cleanHeadline ? `<p class="hero-headline" style="margin:0;font-family:${F};font-size:42px;font-weight:800;color:${DARK};line-height:1.1;letter-spacing:-1.5px;">${cleanHeadline}</p>` : ""}
     </td>
   </tr>
@@ -1459,23 +1461,23 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   <!-- ── STATS BAR (optional) ── -->
   ${(data.startingPrice || data.deposit || data.completion) ? `
   <tr>
-    <td style="padding:0;border-top:1px solid #eeeeee;border-bottom:1px solid #eeeeee;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <td style="padding:0;border-top:1px solid #e8e2d6;border-bottom:1px solid #e8e2d6;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;">
         <tr>
           ${data.startingPrice ? `
-          <td class="stat-cell" style="padding:18px 20px;border-right:1px solid #eeeeee;text-align:center;vertical-align:middle;">
+          <td class="stat-cell" style="padding:18px 20px;border-right:1px solid #e8e2d6;text-align:left;vertical-align:middle;">
             <p style="margin:0 0 3px 0;font-family:${F};font-size:20px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.startingPrice}</p>
-            <p style="margin:0;font-family:${F};font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Starting From</p>
+            <p style="margin:0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">Starting From</p>
           </td>` : ""}
           ${data.deposit ? `
-          <td class="stat-cell" style="padding:18px 20px;${data.completion ? "border-right:1px solid #eeeeee;" : ""}text-align:center;vertical-align:middle;">
+          <td class="stat-cell" style="padding:18px 20px;${data.completion ? `border-right:1px solid #e8e2d6;` : ""}text-align:left;vertical-align:middle;">
             <p style="margin:0 0 3px 0;font-family:${F};font-size:20px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.deposit}</p>
-            <p style="margin:0;font-family:${F};font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Deposit</p>
+            <p style="margin:0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">Deposit</p>
           </td>` : ""}
           ${data.completion ? `
-          <td class="stat-cell" style="padding:18px 20px;text-align:center;vertical-align:middle;">
+          <td class="stat-cell" style="padding:18px 20px;text-align:left;vertical-align:middle;">
             <p style="margin:0 0 3px 0;font-family:${F};font-size:20px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.completion}</p>
-            <p style="margin:0;font-family:${F};font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">Completion</p>
+            <p style="margin:0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">Completion</p>
           </td>` : ""}
         </tr>
       </table>
@@ -1516,7 +1518,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     <td class="content-pad" style="padding:0 40px 14px;background:#ffffff;">
       <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
-          <td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
+          <td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
             <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName || "this presale"}. Can you send me more details?`)}"
                style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;white-space:nowrap;">
               I'M INTERESTED
@@ -1532,7 +1534,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     <td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
       <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
-          <td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${DARK};border-radius:50px;padding:16px 32px;text-align:center;">
+          <td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
             <a href="tel:${phone.replace(/\D/g, "")}"
                style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${DARK};text-decoration:none;display:block;white-space:nowrap;">
               CALL NOW &nbsp; ${phone}
@@ -1546,11 +1548,11 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   <!-- ── FLOOR PLANS (optional) ── -->
   ${fps.length > 0 ? `
   <tr>
-    <td style="padding:0;border-top:1px solid #eeeeee;background:#fafafa;">
+    <td style="padding:0;border-top:1px solid #e8e2d6;background:#faf8f4;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
           <td class="content-pad" style="padding:32px 40px 20px;">
-            <p style="margin:0 0 6px 0;font-family:${F};font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#999999;">FLOOR PLANS</p>
+            <p style="margin:0 0 6px 0;font-family:${F};font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
             <p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.fpHeading || "Available Units"}</p>
           </td>
         </tr>
@@ -1566,29 +1568,28 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   </tr>` : ""}
 
   <!-- ── DIVIDER ── -->
-  <tr><td style="height:1px;background:#eeeeee;font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
+  <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
 
   <!-- ── AGENT CARD ── -->
-  <!-- This comment is used as injection point for floor plans -->
   <tr>
-    <td style="padding:0;background:#ffffff;border-top:3px solid ${DARK};">
+    <td style="padding:0;background:#ffffff;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${agent.photo_url ? `
         <tr>
           <td align="center" style="padding:28px 24px 12px;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${DARK};-ms-interpolation-mode:bicubic;" />
+            <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
           </td>
         </tr>` : ""}
         <tr>
           <td align="center" style="padding:0 24px 8px;text-align:center;">
             <p style="margin:0 0 4px 0;font-family:${F};font-size:18px;font-weight:800;color:${DARK};">${agent.full_name}</p>
-            <p style="margin:0 0 12px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:#999999;">${agent.title}</p>
+            <p style="margin:0 0 12px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">${agent.title}</p>
             ${agent.phone ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:14px;color:#555555;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="color:#555555;text-decoration:none;">${agent.phone}</a></p>` : ""}
-            ${agent.email ? `<p style="margin:0;font-family:${F};font-size:13px;color:#777777;"><a href="mailto:${agent.email}" style="color:#777777;text-decoration:none;">${agent.email}</a></p>` : ""}
+            ${agent.email ? `<p style="margin:0;font-family:${F};font-size:13px;color:#8a7e6b;"><a href="mailto:${agent.email}" style="color:#8a7e6b;text-decoration:none;">${agent.email}</a></p>` : ""}
           </td>
         </tr>
         <tr>
-          <td align="center" style="padding:16px 24px 24px;border-top:1px solid #eeeeee;text-align:center;">
+          <td align="center" style="padding:16px 24px 24px;border-top:1px solid #e8e2d6;text-align:center;">
             <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" style="display:inline-block;width:110px;height:auto;" />
           </td>
         </tr>
@@ -1606,7 +1607,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   <!-- ── LEGAL ── -->
   <tr>
-    <td class="content-pad" style="padding:20px 40px 24px;background:#fafafa;border-top:1px solid #eeeeee;">
+    <td class="content-pad" style="padding:20px 40px 24px;background:#faf8f4;border-top:1px solid #e8e2d6;">
       <p style="margin:0 0 8px 0;font-family:${F};font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#777777;">LEGAL DISCLAIMER</p>
       <p style="margin:0 0 8px 0;font-family:${F};font-size:11px;color:#aaaaaa;line-height:1.7;">
         This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer&rsquo;s agents. This is <strong style="font-weight:600;color:#888888;">not an offering for sale</strong>. Prices and availability subject to change. E.&amp;O.E.
