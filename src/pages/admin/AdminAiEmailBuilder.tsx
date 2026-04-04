@@ -2254,7 +2254,7 @@ export default function AdminEmailBuilderPage() {
               </div>
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" size="sm" onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
-                <Button size="sm" onClick={handleSave} disabled={!saveTemplateName.trim() || saving} className="gap-1.5">
+                <Button size="sm" onClick={handleSaveNewTemplate} disabled={!saveTemplateName.trim() || saving} className="gap-1.5">
                   {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                   Save Template
                 </Button>
