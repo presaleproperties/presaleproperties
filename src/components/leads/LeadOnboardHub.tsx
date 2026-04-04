@@ -640,7 +640,7 @@ export function LeadOnboardHub() {
         <EmailTemplatePreviewDialog
           open={previewOpen}
           onOpenChange={setPreviewOpen}
-          templateName={selectedTemplate.name}
+          templateName={getTemplateName(selectedTemplate)}
           formData={selectedTemplate.form_data}
           onSend={() => {}}
           sending={false}
