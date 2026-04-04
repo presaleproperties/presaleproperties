@@ -589,9 +589,10 @@ export default function AdminEmailBuilderPage() {
     city, neighborhood,
     developerName: showDeveloperName ? developerName : "",
     startingPrice, deposit, completion,
+    projectUrl,
     infoRows: infoRows.filter(r => r.includes("|")),
     imageCards: imageCards.filter(c => c.url),
-  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, infoRows, imageCards]);
+  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, projectUrl, infoRows, imageCards]);
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
