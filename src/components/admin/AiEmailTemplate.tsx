@@ -1425,21 +1425,29 @@ export function buildLululemonEmailHtml(
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <meta name="x-apple-disable-message-reformatting"/>
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no"/>
+  <!--[if !mso]><!--><meta http-equiv="X-UA-Compatible" content="IE=edge"/><!--<![endif]-->
   <title>${data.subjectLine || data.projectName || "New Presale"}</title>
   <link href="${GOOGLE_FONT}" rel="stylesheet"/>
   <style>
-    body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
+    /* Force Apple Mail to respect width */
+    :root{color-scheme:light only;}
+    body,table,td,a{-webkit-text-size-adjust:100%!important;-ms-text-size-adjust:100%!important;}
     table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
-    img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;}
-    body{margin:0!important;padding:0!important;background:#faf8f4;}
-    a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;}
+    img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;max-width:100%;}
+    body{margin:0!important;padding:0!important;background:#faf8f4;width:100%!important;min-width:100%!important;-webkit-text-size-adjust:100%!important;}
+    a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}
     u+#body a{color:inherit!important;text-decoration:none!important;}
     #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
+    /* Apple Mail width fix — forces 100% width rendering */
+    u+#body .email-container{width:100%!important;min-width:100%!important;}
+    u+#body{min-width:100vw!important;}
+    div[style*="margin: 16px 0"]{margin:0!important;}
     @media only screen and (max-width:620px){
       /* True edge-to-edge on iPhone */
-      .email-container{width:100%!important;max-width:100%!important;border:none!important;}
+      .email-container{width:100%!important;max-width:100%!important;min-width:100%!important;border:none!important;border-radius:0!important;}
       .outer-td{padding:0!important;}
       .content-pad{padding-left:24px!important;padding-right:24px!important;}
       /* Scale headline */
@@ -1451,6 +1459,8 @@ export function buildLululemonEmailHtml(
       .stat-cell{display:block!important;width:100%!important;border-right:none!important;border-bottom:1px solid #e8e2d6!important;padding:14px 24px!important;text-align:left!important;}
       /* Agent card */
       .agent-logo-cell{display:none!important;}
+      /* Force all tables to 100% on mobile */
+      table[class="email-container"]{width:100%!important;}
     }
   </style>
 </head>
