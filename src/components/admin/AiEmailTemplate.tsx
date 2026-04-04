@@ -869,6 +869,8 @@ export interface PitchDeckEmailData {
   ctaWhatsApp?: string;
   /** Public URL of the pitch deck — floor plans + hero image link here */
   deckUrl?: string;
+  /** URL to the project page on presaleproperties.com */
+  projectUrl?: string;
 }
 
 export function buildPitchDeckEmailHtml(
