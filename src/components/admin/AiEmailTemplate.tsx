@@ -2154,16 +2154,16 @@ export function buildMailerLiteEmailHtml(
   // ── Floor plans ──
   const fps = (data.floorPlans || []).filter(fp => fp.url);
   const fpRowsHtml = fps.map(fp => {
-    const imgTag = `<img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="528" style="display:block;width:100%;height:auto;border:0;" />`;
+    const imgTag = `<img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="528" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />`;
     return `<tr><td style="padding:0 0 16px 0;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border:1px solid ${BORDER};border-radius:4px;overflow:hidden;">
+      <table class="fp-card" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border:1px solid ${BORDER};border-radius:4px;overflow:hidden;" role="presentation">
         <tr><td style="padding:0;line-height:0;font-size:0;">
           ${deckLink ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;">${imgTag}</a>` : imgTag}
         </td></tr>
-        ${(fp.label || fp.sqft || fp.price) ? `<tr><td style="padding:16px 20px 18px;border-top:1px solid ${BORDER};">
+        ${(fp.label || fp.sqft || fp.price) ? `<tr><td class="fp-meta-pad" style="padding:16px 20px 18px;border-top:1px solid ${BORDER};">
           ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
           ${fp.sqft  ? `<p style="margin:0 0 6px 0;font-family:${F};font-size:13px;color:#888888;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
-          ${fp.price ? `<p style="margin:0;font-family:${F};font-size:24px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
+          ${fp.price ? `<p class="fp-price" style="margin:0;font-family:${F};font-size:24px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
           ${creditBadgeHtml(fp.exclusive_credit, F)}
         </td></tr>` : ""}
       </table>
