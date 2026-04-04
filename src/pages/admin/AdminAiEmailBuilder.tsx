@@ -1193,7 +1193,7 @@ export default function AdminEmailBuilderPage() {
       setSaving(false);
     } else {
       // First save — ask for a name
-      setSaveTemplateName(subjectLine || `${projectName || headline?.slice(0, 30) || "Untitled"} · ${city || "Email"}`);
+      setSaveTemplateName(subjectLine || `${projectName || headline?.slice(0, 30) || "Untitled"}`);
       setSaveDialogOpen(true);
     }
   };
