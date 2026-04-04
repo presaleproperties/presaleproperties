@@ -1898,7 +1898,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         ${locationLine ? `
         <tr>
           <td class="mobile-pad" valign="top"
-              style="background-color: ${ACCENT}; padding: 9px 36px;">
+              style="background-color: ${ACCENT}; padding: 9px 20px;">
             <p style="margin: 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #ffffff;">${locationLine}</p>
           </td>
         </tr>` : ""}
