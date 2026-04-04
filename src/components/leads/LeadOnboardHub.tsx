@@ -68,8 +68,6 @@ export function LeadOnboardHub() {
     deckUrl: string;
     leadName: string;
     leadId: string;
-    templateId: string | null;
-    templateName: string | null;
   } | null>(null);
   const [copied, setCopied] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -89,24 +87,36 @@ export function LeadOnboardHub() {
     },
   });
 
+  const fetchTemplates = async () => {
+    const { data } = await (supabase as any)
+      .from("campaign_templates")
+      .select("id, name, project_name, thumbnail_url, form_data")
+      .order("updated_at", { ascending: false })
+      .limit(20);
+    if (data) setTemplates(data);
+  };
+
   useEffect(() => {
     if (!user) return;
-    // Fetch decks and templates in parallel
-    Promise.all([
-      supabase
-        .from("pitch_decks")
-        .select("id, project_name, slug, hero_image_url, city, is_published")
-        .eq("is_published", true)
-        .order("updated_at", { ascending: false }),
-      (supabase as any)
-        .from("campaign_templates")
-        .select("id, name, project_name, thumbnail_url, form_data")
-        .order("updated_at", { ascending: false })
-        .limit(20),
-    ]).then(([decksRes, templatesRes]) => {
-      if (decksRes.data) setDecks(decksRes.data);
-      if (templatesRes.data) setTemplates(templatesRes.data);
-    });
+    supabase
+      .from("pitch_decks")
+      .select("id, project_name, slug, hero_image_url, city, is_published")
+      .eq("is_published", true)
+      .order("updated_at", { ascending: false })
+      .then(({ data }) => { if (data) setDecks(data); });
+    fetchTemplates();
+
+    // Realtime: auto-refresh templates when saved/updated
+    const channel = supabase
+      .channel("campaign_templates_changes")
+      .on(
+        "postgres_changes" as any,
+        { event: "*", schema: "public", table: "campaign_templates" },
+        () => { fetchTemplates(); }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
 
   const getTemplatePreview = (t: EmailTemplate): string | null => {
@@ -133,7 +143,7 @@ export function LeadOnboardHub() {
         ? `https://presaleproperties.com/deck/${selectedDeck.slug}`
         : "";
 
-      const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
+      
 
       const { data: lead, error: insertError } = await supabase
         .from("onboarded_leads")
@@ -165,8 +175,6 @@ export function LeadOnboardHub() {
         deckUrl,
         leadName: `${values.first_name} ${values.last_name}`.trim(),
         leadId: lead.id,
-        templateId: selectedTemplateId,
-        templateName: selectedTemplate?.name || null,
       });
       form.reset();
       setSelectedDeckId(null);
@@ -215,11 +223,11 @@ export function LeadOnboardHub() {
   };
 
   const handleSendTemplateEmail = async () => {
-    if (!successData?.leadId || !successData?.templateId) return;
+    if (!successData?.leadId || !selectedTemplateId) return;
     setSendingTemplate(true);
     try {
       const { error } = await supabase.functions.invoke("send-template-email", {
-        body: { leadId: successData.leadId, templateId: successData.templateId },
+        body: { leadId: successData.leadId, templateId: selectedTemplateId },
       });
       if (error) throw error;
       setTemplateSent(true);
@@ -276,22 +284,65 @@ export function LeadOnboardHub() {
               </Button>
             )}
 
-            {successData.templateId && (
-              <Button
-                onClick={handleSendTemplateEmail}
-                variant={templateSent ? "outline" : "secondary"}
-                className="w-full"
-                disabled={sendingTemplate || templateSent}
-              >
-                {sendingTemplate ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : templateSent ? (
-                  <Check className="h-4 w-4 mr-2" />
-                ) : (
-                  <Mail className="h-4 w-4 mr-2" />
+            {/* Email Template Selector — in success section */}
+            {templates.length > 0 && (
+              <div className="space-y-3 text-left">
+                <Label className="text-sm text-muted-foreground">Send Email Template</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {templates.map((tpl) => {
+                    const preview = getTemplatePreview(tpl);
+                    const isSelected = selectedTemplateId === tpl.id;
+                    return (
+                      <button
+                        key={tpl.id}
+                        type="button"
+                        onClick={() => setSelectedTemplateId(isSelected ? null : tpl.id)}
+                        className={cn(
+                          "relative rounded-lg border-2 p-2.5 text-left transition-all hover:shadow-md",
+                          isSelected
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border hover:border-muted-foreground/30"
+                        )}
+                      >
+                        {preview ? (
+                          <img src={preview} alt={tpl.name} className="w-full h-14 object-cover rounded mb-1.5" />
+                        ) : (
+                          <div className="w-full h-14 rounded bg-muted flex items-center justify-center mb-1.5">
+                            <FileText className="h-4 w-4 text-muted-foreground/40" />
+                          </div>
+                        )}
+                        <p className="font-medium text-xs truncate">{tpl.name}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{tpl.project_name}</p>
+                        {isSelected && (
+                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {selectedTemplateId && (
+                  <Button
+                    onClick={handleSendTemplateEmail}
+                    variant={templateSent ? "outline" : "secondary"}
+                    className="w-full"
+                    disabled={sendingTemplate || templateSent}
+                  >
+                    {sendingTemplate ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : templateSent ? (
+                      <Check className="h-4 w-4 mr-2" />
+                    ) : (
+                      <Mail className="h-4 w-4 mr-2" />
+                    )}
+                    {templateSent
+                      ? "Email Sent"
+                      : `Send "${templates.find(t => t.id === selectedTemplateId)?.name}" Email`}
+                  </Button>
                 )}
-                {templateSent ? "Template Email Sent" : `Send "${successData.templateName}" Email`}
-              </Button>
+              </div>
             )}
 
             <Button onClick={handleNewLead} className="mt-4 w-full">
@@ -453,55 +504,8 @@ export function LeadOnboardHub() {
             </CardContent>
           </Card>
 
-          {/* Email Template Selector */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base">
-                Select Email Template{" "}
-                <span className="text-muted-foreground font-normal text-sm">(optional)</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {templates.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No email templates yet. Create one in the Marketing tab.</p>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {templates.map((tpl) => {
-                    const preview = getTemplatePreview(tpl);
-                    const subject = getTemplateSubject(tpl);
-                    return (
-                      <button
-                        key={tpl.id}
-                        type="button"
-                        onClick={() => setSelectedTemplateId(selectedTemplateId === tpl.id ? null : tpl.id)}
-                        className={cn(
-                          "relative rounded-lg border-2 p-3 text-left transition-all hover:shadow-md",
-                          selectedTemplateId === tpl.id
-                            ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-border hover:border-muted-foreground/30"
-                        )}
-                      >
-                        {preview ? (
-                          <img src={preview} alt={tpl.name} className="w-full h-16 sm:h-20 object-cover rounded mb-2" />
-                        ) : (
-                          <div className="w-full h-16 sm:h-20 rounded bg-muted flex items-center justify-center mb-2">
-                            <FileText className="h-5 w-5 text-muted-foreground/40" />
-                          </div>
-                        )}
-                        <p className="font-medium text-sm truncate">{subject || tpl.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{tpl.project_name}</p>
-                        {selectedTemplateId === tpl.id && (
-                          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                            <Check className="h-3 w-3 text-primary-foreground" />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+
+
 
           {/* Submit */}
           <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm pb-4 pt-2 -mx-4 px-4 sm:static sm:bg-transparent sm:backdrop-blur-none sm:pb-0 sm:pt-0 sm:mx-0 sm:px-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
