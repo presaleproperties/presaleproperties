@@ -978,7 +978,7 @@ export default function AdminEmailBuilderPage() {
     return buildMailerLiteEmailHtml({
       projectName:    projectName || "",
       city:           city || undefined,
-      developerName:  developerName || undefined,
+      developerName:  showDeveloperName ? developerName : undefined,
       heroImage:      heroImage || undefined,
       headline,
       bodyCopy,
@@ -992,16 +992,18 @@ export default function AdminEmailBuilderPage() {
       parkingIncluded: saved?._deckParking || "1 Parking Stall Included",
       lockerIncluded:  saved?._deckLocker  || "1 Storage Locker Included",
       deckUrl:         saved?._deckUrl     || undefined,
+      projectUrl:      projectUrl || undefined,
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
+        exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
       })),
       fpHeading,
       fpSubheading,
     }, agentForEmail);
-  }, [projectName, city, developerName, heroImage, headline, bodyCopy,
+  }, [projectName, city, developerName, showDeveloperName, heroImage, headline, bodyCopy,
       subjectLine, previewText, startingPrice, deposit, completion, infoRows, incentiveText,
-      floorPlans, fpHeading, fpSubheading, selectedAgent]);
+      floorPlans, fpHeading, fpSubheading, selectedAgent, projectUrl]);
 
   const handleCopyMailerLite = () => {
     navigator.clipboard.writeText(getMailerLiteHtml()).then(() => {
