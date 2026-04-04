@@ -603,18 +603,13 @@ export default function AdminEmailBuilderHub() {
                         </div>
 
                         {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold truncate">{template.name}</p>
+                         <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold truncate">{fd.copy?.subjectLine || template.name}</p>
                           <div className="flex items-center gap-2 mt-0.5">
                             {(vars.projectName || template.project_name) && (
                               <span className="text-[11px] text-muted-foreground truncate">
                                 {vars.projectName || template.project_name}
                                 {vars.city && ` · ${vars.city}`}
-                              </span>
-                            )}
-                            {vars.subjectLine && (
-                              <span className="text-[11px] text-muted-foreground/50 truncate italic hidden sm:block">
-                                · {vars.subjectLine.slice(0, 40)}{vars.subjectLine.length > 40 ? "…" : ""}
                               </span>
                             )}
                           </div>
