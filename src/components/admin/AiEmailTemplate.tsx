@@ -1783,8 +1783,8 @@ export function buildPitchDeckEmailHtmlLofty(
           ${stats.map((s, i) => `
           <td class="mobile-full" width="${colPct}" valign="top"
               style="width:${colPct};padding:16px 8px 14px;${i < stats.length - 1 ? "border-right:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
-            <p style="margin:0 0 4px 0;${F}font-size:17px;font-weight:700;color:#111111;line-height:1.2;">${s.val}</p>
-            <p style="margin:0;${F}font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
+            <p style="margin:0 0 3px 0;${F}font-size:20px;font-weight:700;color:#111111;line-height:1.2;letter-spacing:-0.3px;">${s.val}</p>
+            <p style="margin:0;${F}font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
           </td>`).join("")}
         </tr>
       </table>
