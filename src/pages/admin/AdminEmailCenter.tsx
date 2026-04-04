@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 interface EmailLog {
   id: string;
   email_to: string;
+  recipient_name: string | null;
   subject: string;
   status: string;
   sent_at: string;
@@ -367,13 +368,26 @@ function DashboardStats({ logs }: { logs: EmailLog[] }) {
 }
 
 // ── Email Log with Open Tracking ──
-function EmailLogTable({ logs, loading }: { logs: EmailLog[]; loading: boolean }) {
+function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading: boolean; onDelete: (id: string) => void }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [openFilter, setOpenFilter] = useState("all");
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    setDeleting(id);
+    const { error } = await supabase.from("email_logs").delete().eq("id", id);
+    if (!error) {
+      onDelete(id);
+      toast.success("Email log deleted");
+    } else {
+      toast.error("Failed to delete");
+    }
+    setDeleting(null);
+  };
 
   const filtered = logs.filter(l => {
-    const matchSearch = !search || l.email_to.includes(search) || l.subject.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || l.email_to.includes(search) || l.subject.toLowerCase().includes(search.toLowerCase()) || (l.recipient_name || "").toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter === "all" || l.status === statusFilter;
     const matchOpen = openFilter === "all"
       || (openFilter === "opened" && l.opened_at)
@@ -388,7 +402,7 @@ function EmailLogTable({ logs, loading }: { logs: EmailLog[]; loading: boolean }
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search by email or subject…" className="pl-8 h-8 text-sm" />
+            placeholder="Search by name, email or subject…" className="pl-8 h-8 text-sm" />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="h-8 w-28 text-xs"><SelectValue /></SelectTrigger>
@@ -415,13 +429,16 @@ function EmailLogTable({ logs, loading }: { logs: EmailLog[]; loading: boolean }
         <div className="text-center py-12 text-muted-foreground text-sm">No emails found</div>
       ) : (
         <div className="border border-border rounded-lg overflow-hidden">
-          <div className="grid grid-cols-[1fr_1.2fr_70px_90px_70px_80px] gap-0 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted/30 px-4 py-2 border-b border-border">
-            <span>Recipient</span><span>Subject</span><span>Status</span><span>Opens</span><span>Last Open</span><span>Sent</span>
+          <div className="grid grid-cols-[1fr_1fr_70px_80px_70px_80px_40px] gap-0 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted/30 px-4 py-2 border-b border-border">
+            <span>Recipient</span><span>Subject</span><span>Status</span><span>Opens</span><span>Last Open</span><span>Sent</span><span></span>
           </div>
           <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
             {filtered.slice(0, 200).map(log => (
-              <div key={log.id} className="grid grid-cols-[1fr_1.2fr_70px_90px_70px_80px] gap-0 px-4 py-2.5 hover:bg-muted/20 transition-colors items-center">
-                <span className="text-sm truncate pr-2">{log.email_to}</span>
+              <div key={log.id} className="grid grid-cols-[1fr_1fr_70px_80px_70px_80px_40px] gap-0 px-4 py-2.5 hover:bg-muted/20 transition-colors items-center group">
+                <div className="min-w-0 pr-2">
+                  <p className="text-sm font-medium truncate">{log.recipient_name || log.email_to.split("@")[0]}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{log.email_to}</p>
+                </div>
                 <span className="text-xs text-muted-foreground truncate pr-2">{log.subject}</span>
                 <span><StatusBadge status={log.status} /></span>
                 <span className="flex items-center gap-1.5">
@@ -438,6 +455,14 @@ function EmailLogTable({ logs, loading }: { logs: EmailLog[]; loading: boolean }
                   {log.last_opened_at ? timeAgo(log.last_opened_at) : "—"}
                 </span>
                 <span className="text-[10px] text-muted-foreground">{timeAgo(log.sent_at)}</span>
+                <button
+                  onClick={() => handleDelete(log.id)}
+                  disabled={deleting === log.id}
+                  className="h-7 w-7 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                  title="Delete"
+                >
+                  {deleting === log.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                </button>
               </div>
             ))}
           </div>
@@ -607,7 +632,7 @@ export default function AdminEmailCenter() {
                   <p className="text-xs text-muted-foreground">See who opened your emails and how many times</p>
                 </div>
               </div>
-              <EmailLogTable logs={logs} loading={loading} />
+              <EmailLogTable logs={logs} loading={loading} onDelete={(id) => setLogs(prev => prev.filter(l => l.id !== id))} />
             </div>
           </TabsContent>
 

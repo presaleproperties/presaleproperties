@@ -110,6 +110,7 @@ serve(async (req) => {
           .from("email_logs")
           .insert({
             email_to: recipient.email,
+            recipient_name: recipient.name || null,
             subject,
             status: "queued",
             template_type: "builder_send",
