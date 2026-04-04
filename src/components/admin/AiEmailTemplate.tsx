@@ -1417,7 +1417,7 @@ export function buildLululemonEmailHtml(
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#ffffff;" id="body">
+<body style="margin:0;padding:0;background:#faf8f4;" id="body">
 ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-height:0;overflow:hidden;">${data.previewText}&zwnj;</span>` : ""}
 
 <!-- OUTER WRAPPER -->
