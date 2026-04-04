@@ -69,7 +69,10 @@ function calcPsf(priceStr?: string, sqftStr?: string, creditStr?: string): strin
   let price = parseFloat(priceStr.replace(/[^0-9.]/g, ""));
   const credit = parseCredit(creditStr);
   if (credit > 0 && price > credit) price -= credit;
-  const sqft = parseFloat(sqftStr.replace(/[^0-9.]/g, ""));
+  // Extract only the first number from sqft string (interior sqft)
+  // e.g. "589 + 76 ext sq ft" → 589, "678 sq ft" → 678
+  const sqftMatch = sqftStr.match(/(\d+(?:\.\d+)?)/);
+  const sqft = sqftMatch ? parseFloat(sqftMatch[1]) : 0;
   if (price > 0 && sqft > 0) return `$${Math.round(price / sqft).toLocaleString()}`;
   return "";
 }
