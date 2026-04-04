@@ -31,6 +31,7 @@ import {
   Workflow,
   BarChart3,
   ChevronRight,
+  ChevronDown,
   PanelLeftClose,
   PanelLeftOpen,
   Bell,
@@ -222,7 +223,7 @@ function NavItem({
   return content;
 }
 
-// ── Nav section ───────────────────────────────────────────────────
+// ── Nav section (collapsible dropdown) ────────────────────────────
 function NavSection({
   section,
   isActive,
@@ -236,26 +237,54 @@ function NavSection({
   onItemClick?: () => void;
   collapsed?: boolean;
 }) {
+  const hasActiveItem = section.items.some((item) => isActive(item.href));
+  const [open, setOpen] = useState(hasActiveItem || !section.label);
+
+  // Auto-open when navigating into a section
+  useEffect(() => {
+    if (hasActiveItem && !open) setOpen(true);
+  }, [hasActiveItem]);
+
+  // Sections without a label (e.g. Dashboard) are always open
+  if (!section.label) {
+    return (
+      <div className="space-y-0.5">
+        {section.items.map((item) => (
+          <NavItem key={item.href} item={item} active={isActive(item.href)} pending={getPending(item.badgeKey ?? null)} onClick={onItemClick} collapsed={collapsed} />
+        ))}
+      </div>
+    );
+  }
+
+  if (collapsed) {
+    return (
+      <div className="space-y-0.5">
+        <div className="mx-3 my-1.5 h-px bg-border/40" />
+        {section.items.map((item) => (
+          <NavItem key={item.href} item={item} active={isActive(item.href)} pending={getPending(item.badgeKey ?? null)} onClick={onItemClick} collapsed={collapsed} />
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className={cn("space-y-0.5", !collapsed && section.label && "pt-1")}>
-      {section.label && !collapsed && (
-        <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 select-none">
+    <div className="pt-1">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-1 px-3 pb-1 group cursor-pointer"
+      >
+        <ChevronDown className={cn("h-3 w-3 text-muted-foreground/50 transition-transform duration-200 shrink-0", !open && "-rotate-90")} />
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 select-none group-hover:text-muted-foreground transition-colors flex-1 text-left">
           {section.label}
         </p>
+      </button>
+      {open && (
+        <div className="space-y-0.5">
+          {section.items.map((item) => (
+            <NavItem key={item.href} item={item} active={isActive(item.href)} pending={getPending(item.badgeKey ?? null)} onClick={onItemClick} collapsed={collapsed} />
+          ))}
+        </div>
       )}
-      {collapsed && section.label && (
-        <div className="mx-3 my-1.5 h-px bg-border/40" />
-      )}
-      {section.items.map((item) => (
-        <NavItem
-          key={item.href}
-          item={item}
-          active={isActive(item.href)}
-          pending={getPending(item.badgeKey ?? null)}
-          onClick={onItemClick}
-          collapsed={collapsed}
-        />
-      ))}
     </div>
   );
 }
