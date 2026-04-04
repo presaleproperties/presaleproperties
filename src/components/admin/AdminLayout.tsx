@@ -62,6 +62,14 @@ const navSections = [
     ],
   },
   {
+    id: "portals",
+    label: "Portals",
+    items: [
+      { href: "/developer",  label: "Developer Portal", icon: Presentation, badgeKey: null },
+      { href: "/dashboard",  label: "Agent Portal",     icon: UserCheck,    badgeKey: null },
+    ],
+  },
+  {
     id: "properties",
     label: "Properties",
     items: [
@@ -84,10 +92,10 @@ const navSections = [
     id: "marketing",
     label: "Marketing",
     items: [
-      { href: "/admin/email-center",   label: "Email",        icon: Mail,      badgeKey: null },
-      { href: "/admin/marketing-hub",  label: "Campaigns",    icon: Megaphone, badgeKey: null },
-      { href: "/admin/blogs",          label: "Blog",         icon: BookOpen,  badgeKey: null },
-      { href: "/admin/google-reviews", label: "Reviews",      icon: Star,      badgeKey: null },
+      { href: "/admin/email-center",   label: "Email",     icon: Mail,      badgeKey: null },
+      { href: "/admin/marketing-hub",  label: "Campaigns", icon: Megaphone, badgeKey: null },
+      { href: "/admin/blogs",          label: "Blog",      icon: BookOpen,  badgeKey: null },
+      { href: "/admin/google-reviews", label: "Reviews",   icon: Star,      badgeKey: null },
     ],
   },
   {
@@ -108,14 +116,6 @@ const navSections = [
       { href: "/admin/email-workflows",    label: "Automations", icon: Workflow,      badgeKey: null },
       { href: "/admin/mls-sync",           label: "MLS Sync",    icon: RefreshCw,     badgeKey: null },
       { href: "/admin/scheduler-settings", label: "Scheduler",   icon: CalendarCog,   badgeKey: null },
-    ],
-  },
-  {
-    id: "portals",
-    label: "Portals",
-    items: [
-      { href: "/developer",  label: "Developer Portal", icon: Presentation, badgeKey: null },
-      { href: "/dashboard",  label: "Agent Portal",     icon: UserCheck,    badgeKey: null },
     ],
   },
   {
