@@ -1072,6 +1072,10 @@ export default function AdminEmailBuilderPage() {
     html = html.replace(/href="#unsubscribe"/g, 'href="{$unsubscribe}"');
     // Replace any generic email placeholder with MailerLite merge tag
     html = html.replace(/\{subscriber_email\}/g, "{$email}");
+    // Replace Mailchimp name merge tags with MailerLite format
+    html = html.replace(/\*\|FNAME\|\*/g, "{$name}");
+    html = html.replace(/\*\|LNAME\|\*/g, "{$last_name}");
+    html = html.replace(/\*\|EMAIL\|\*/g, "{$email}");
     return html;
   }, [finalHtml]);
 
