@@ -568,15 +568,17 @@ export function buildLoopEmailHtml(
   const locationLine = [copy.neighborhood, copy.city].filter(Boolean).join(", ");
 
   // Hero section HTML
+  const heroLink = copy.projectUrl || "";
   const heroHtml = (() => {
     if (slides.length === 0) return "";
     if (slides.length === 1) {
+      const imgEl = `<img src="${slides[0]}" alt="${copy.projectName || "Project"}" width="600"
+           style="display:block;width:100%;max-width:600px;height:320px;object-fit:cover;" />`;
       return `
   <!-- ─── HERO IMAGE ─── -->
   <tr>
     <td style="padding:0;line-height:0;font-size:0;">
-      <img src="${slides[0]}" alt="${copy.projectName || "Project"}" width="600"
-           style="display:block;width:100%;max-width:600px;height:320px;object-fit:cover;" />
+      ${heroLink ? `<a href="${heroLink}" target="_blank" style="display:block;line-height:0;font-size:0;">${imgEl}</a>` : imgEl}
     </td>
   </tr>`;
     }
@@ -584,12 +586,13 @@ export function buildLoopEmailHtml(
     const imgTags = slides.map((url, i) => `
         <img src="${url}" alt="${copy.projectName || "Project"} – image ${i + 1}" width="600"
              style="display:block;width:100%;height:320px;object-fit:cover;${i > 0 ? "position:absolute;top:0;left:0;" : ""}opacity:${i === 0 ? 1 : 0};animation:pp-s${i} ${totalDur}s linear infinite;" />`).join("");
+    const slideEl = `<div style="position:relative;width:100%;height:320px;overflow:hidden;display:block;line-height:0;font-size:0;">${imgTags}
+      </div>`;
     return `
   <!-- ─── HERO SLIDESHOW ─── -->
   <tr>
     <td style="padding:0;line-height:0;font-size:0;position:relative;height:320px;overflow:hidden;">
-      <div style="position:relative;width:100%;height:320px;overflow:hidden;display:block;line-height:0;font-size:0;">${imgTags}
-      </div>
+      ${heroLink ? `<a href="${heroLink}" target="_blank" style="display:block;line-height:0;font-size:0;">${slideEl}</a>` : slideEl}
     </td>
   </tr>`;
   })();
