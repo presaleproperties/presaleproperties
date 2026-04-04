@@ -1855,6 +1855,7 @@ export function buildPitchDeckEmailHtmlLofty(
     : [data.parkingIncluded, data.lockerIncluded].filter(Boolean) as string[];
 
   // ─── HTML ─────────────────────────────────────────────────────────────────
+  // ─── HTML (Lofty-safe: NO <style> block, mobile-first inline styles) ────
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -1867,50 +1868,6 @@ export function buildPitchDeckEmailHtmlLofty(
   <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
   <![endif]-->
   <link href="${GOOGLE_FONT}" rel="stylesheet" type="text/css" />
-  <!--
-    STYLE BLOCK: media queries only — all other styles are fully inlined.
-    Gmail strips <style> entirely; the fluid table layout handles Gmail.
-    Apple Mail, iOS Mail, and Outlook preserve media queries for true responsiveness.
-  -->
-  <style type="text/css">
-    /* Reset */
-    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
-    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; max-width: 100% !important; }
-    body { margin: 0 !important; padding: 0 !important; background: #ffffff; }
-    * { box-sizing: border-box; }
-    a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
-    u+#body a { color: inherit !important; text-decoration: none !important; }
-    #MessageViewBody a { color: inherit !important; text-decoration: none !important; }
-    /* Mobile overrides */
-    @media only screen and (max-width: 620px) {
-      /* TRUE edge-to-edge on iPhone — remove all outer spacing and border */
-      .email-container { width: 100% !important; max-width: 100% !important; border: none !important; border-left: none !important; border-right: none !important; }
-      /* Section padding: tighter on mobile */
-      .mobile-pad { padding-left: 20px !important; padding-right: 20px !important; }
-      /* Stats bar: stack vertically */
-      td.mobile-full { display: block !important; width: 100% !important; text-align: center !important; padding: 14px 20px !important; border-right: none !important; border-bottom: 1px solid #e8e3db !important; }
-      td.mobile-full:last-child { border-bottom: none !important; }
-      /* Floor plan section */
-      .fp-wrap { padding-left: 16px !important; padding-right: 16px !important; }
-      /* Typography scale-up */
-      .hero-text { font-size: 26px !important; line-height: 1.15 !important; }
-      .stat-value { font-size: 22px !important; }
-      .fp-price { font-size: 20px !important; }
-      /* Body copy */
-      .body-copy p { font-size: 15px !important; line-height: 1.8 !important; }
-      /* Bullet indentation on mobile */
-      .bullet-dot { padding-left: 16px !important; font-size: 16px !important; }
-      .bullet-text p { font-size: 15px !important; line-height: 1.8 !important; }
-      /* Full-width CTA button on mobile */
-      .cta-btn { width: 100% !important; display: block !important; }
-      .cta-btn td { width: 100% !important; text-align: center !important; padding: 18px 20px !important; }
-      /* Hide desktop agent card on mobile */
-      .agent-desktop { display: none !important; max-height: 0 !important; overflow: hidden !important; }
-      /* Show mobile agent card */
-      .agent-mobile { display: table-row !important; max-height: none !important; overflow: visible !important; }
-    }
-  </style>
 </head>
 <body style="margin:0;padding:0;background-color:#ffffff;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;" id="body">
 ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${data.previewText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</span>` : ""}
