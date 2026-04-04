@@ -413,7 +413,7 @@ export function LeadOnboardHub() {
           <EmailTemplatePreviewDialog
             open={previewOpen}
             onOpenChange={setPreviewOpen}
-            templateName={successTemplate.name}
+            templateName={getTemplateName(successTemplate)}
             formData={successTemplate.form_data}
             onSend={handleSendTemplateEmail}
             sending={sendingTemplate}
