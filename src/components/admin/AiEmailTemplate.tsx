@@ -1766,27 +1766,25 @@ export function buildPitchDeckEmailHtmlLofty(
     ? `<table cellpadding="0" cellspacing="0" border="0" width="100%">${bodyRows}</table>`
     : "";
 
-  // ─── Stats bar ────────────────────────────────────────────────────────────
+  // ─── Stats bar (mobile-first: stacked vertically, no media queries needed) ─
   const stats = [
     data.startingPrice ? { val: data.startingPrice, label: "Starting Price" }    : null,
     data.deposit       ? { val: data.deposit,       label: "Deposit Structure" } : null,
     data.completion    ? { val: data.completion,    label: "Est. Completion" }   : null,
   ].filter(Boolean) as { val: string; label: string }[];
 
-  const colPct = stats.length === 3 ? "33%" : stats.length === 2 ? "50%" : "100%";
-
   const statsHtml = stats.length > 0 ? `
   <tr>
     <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        ${stats.map((s, i) => `
         <tr>
-          ${stats.map((s, i) => `
-          <td class="mobile-full" width="${colPct}" valign="top"
-              style="width:${colPct};padding:16px 8px 14px;${i < stats.length - 1 ? "border-right:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
-            <p style="margin:0 0 3px 0;${F}font-size:20px;font-weight:700;color:#111111;line-height:1.2;letter-spacing:-0.3px;">${s.val}</p>
+          <td valign="top"
+              style="padding:14px 20px;${i < stats.length - 1 ? "border-bottom:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
+            <p style="margin:0 0 3px 0;${F}font-size:22px;font-weight:700;color:#111111;line-height:1.2;letter-spacing:-0.3px;">${s.val}</p>
             <p style="margin:0;${F}font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
-          </td>`).join("")}
-        </tr>
+          </td>
+        </tr>`).join("")}
       </table>
     </td>
   </tr>` : "";
