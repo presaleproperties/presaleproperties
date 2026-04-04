@@ -16,7 +16,7 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
-  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Presentation, Send,
+  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Italic, Underline, List, Minus, Presentation, Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -1551,10 +1551,77 @@ export default function AdminEmailBuilderPage() {
                       <span className="text-[9px] text-muted-foreground/50">{bodyCopy.split(/\s+/).filter(Boolean).length} words</span>
                     )}
                   </div>
+                  {/* Rich text toolbar */}
+                  <div className="flex items-center gap-0.5 mt-0.5 mb-1 p-1 rounded-md border border-border bg-muted/30">
+                    {([
+                      { icon: Bold, tag: "strong", title: "Bold" },
+                      { icon: Italic, tag: "em", title: "Italic" },
+                      { icon: Underline, tag: "u", title: "Underline" },
+                    ] as const).map(({ icon: Icon, tag, title }) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        title={title}
+                        className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          const ta = document.getElementById("body-copy-textarea") as HTMLTextAreaElement | null;
+                          if (!ta) return;
+                          const start = ta.selectionStart;
+                          const end = ta.selectionEnd;
+                          if (start === end) return;
+                          const before = bodyCopy.slice(0, start);
+                          const selected = bodyCopy.slice(start, end);
+                          const after = bodyCopy.slice(end);
+                          setBodyCopy(`${before}<${tag}>${selected}</${tag}>${after}`);
+                          requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(start, end + tag.length * 2 + 5); });
+                        }}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                      </button>
+                    ))}
+                    <div className="w-px h-4 bg-border mx-0.5" />
+                    <button
+                      type="button"
+                      title="Bullet list"
+                      className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        const ta = document.getElementById("body-copy-textarea") as HTMLTextAreaElement | null;
+                        if (!ta) return;
+                        const pos = ta.selectionStart;
+                        const before = bodyCopy.slice(0, pos);
+                        const after = bodyCopy.slice(pos);
+                        const bullet = "• ";
+                        setBodyCopy(`${before}${bullet}${after}`);
+                        requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(pos + bullet.length, pos + bullet.length); });
+                      }}
+                    >
+                      <List className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Line break"
+                      className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        const ta = document.getElementById("body-copy-textarea") as HTMLTextAreaElement | null;
+                        if (!ta) return;
+                        const pos = ta.selectionStart;
+                        const before = bodyCopy.slice(0, pos);
+                        const after = bodyCopy.slice(pos);
+                        setBodyCopy(`${before}<br>${after}`);
+                        requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(pos + 4, pos + 4); });
+                      }}
+                    >
+                      <Minus className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                   <Textarea
+                    id="body-copy-textarea"
                     value={bodyCopy}
                     onChange={e => setBodyCopy(e.target.value)}
-                    className="text-xs mt-0.5 min-h-[130px] resize-none leading-relaxed"
+                    className="text-xs min-h-[130px] resize-none leading-relaxed"
                     placeholder={"Hi [First Name],\n\nPaste your full email copy here. The AI will only bold key phrases — it won't change a single word.\n\nUzair Muhammad"}
                   />
                 </div>
