@@ -1532,7 +1532,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     <td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
       <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
-          <td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${DARK};border-radius:50px;padding:16px 32px;text-align:center;">
+          <td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
             <a href="tel:${phone.replace(/\D/g, "")}"
                style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${DARK};text-decoration:none;display:block;white-space:nowrap;">
               CALL NOW &nbsp; ${phone}
