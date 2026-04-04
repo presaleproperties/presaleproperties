@@ -2028,7 +2028,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         <tr>
            <td class="mobile-pad" valign="top"
                style="background-color: ${DARK}; padding: 0 28px 28px;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <table class="cta-btn" cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" valign="top"
                     style="background-color: ${ACCENT}; padding: 14px 24px; text-align: center;">
