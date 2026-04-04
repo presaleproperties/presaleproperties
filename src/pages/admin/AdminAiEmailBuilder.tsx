@@ -681,23 +681,7 @@ export default function AdminEmailBuilderPage() {
           setDbSaving(true);
           const pn = showProjectName ? projectName : (customHeader || "");
           const dn = showDeveloperName ? developerName : "";
-          const formData = {
-            _type: "ai-email",
-            copy: { subjectLine, previewText, headline, bodyCopy, incentiveText,
-              projectName: pn, city, neighborhood, developerName: dn,
-              startingPrice, deposit, completion, projectUrl,
-              infoRows: infoRows.filter((r: string) => r.includes("|")),
-              imageCards: imageCards.filter((c: any) => c.url),
-            },
-            vars: { subjectLine, previewText, headline, bodyCopy, incentiveText,
-              projectName: pn, city, neighborhood, developerName: dn,
-              startingPrice, deposit, completion,
-            },
-            heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
-            imageCards, loopSlides, selectedAssetId, directCtaUrl,
-            selAgent, fontId: selectedFontId, layoutVersion,
-            showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
-          };
+          const formData = buildFormData();
           await supabase.from("campaign_templates" as any)
             .update({ form_data: formData, updated_at: new Date().toISOString() })
             .eq("id", savedTemplateId);

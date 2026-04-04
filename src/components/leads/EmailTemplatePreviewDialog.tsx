@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Loader2, Mail } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { buildAiTemplateHtmlFromFormData, isAiEmailTemplate, personalizeTemplateHtml } from "@/lib/ai-email-html";
 
 interface EmailTemplatePreviewDialogProps {
   open: boolean;
