@@ -1033,6 +1033,7 @@ export type Database = {
           lead_id: string | null
           open_count: number
           opened_at: string | null
+          recipient_name: string | null
           sent_at: string
           status: string
           subject: string
@@ -1048,6 +1049,7 @@ export type Database = {
           lead_id?: string | null
           open_count?: number
           opened_at?: string | null
+          recipient_name?: string | null
           sent_at?: string
           status?: string
           subject: string
@@ -1063,6 +1065,7 @@ export type Database = {
           lead_id?: string | null
           open_count?: number
           opened_at?: string | null
+          recipient_name?: string | null
           sent_at?: string
           status?: string
           subject?: string
