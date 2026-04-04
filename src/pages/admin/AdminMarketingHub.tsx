@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Mail, FileText, Plus, Clock, Trash2, Copy,
-  ChevronRight, Building2, Star, Megaphone,
+  ChevronRight, Building2, Star, Megaphone, ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -32,11 +32,19 @@ function timeAgo(dateStr: string) {
   return "Just now";
 }
 
+function getPreviewImage(asset: SavedAsset): string | null {
+  return asset.thumbnail_url || asset.form_data?.heroImage || null;
+}
+
+function getSubjectLine(asset: SavedAsset): string | null {
+  return asset.form_data?.subject || null;
+}
+
 const CREATE_OPTIONS = [
   {
     key: "project-email",
     title: "Project Email",
-    desc: "Hero image, stats, highlights, floor plans, agent card",
+    desc: "Hero image, stats, highlights, floor plans",
     icon: Building2,
     color: "text-emerald-600",
     bg: "bg-emerald-500/10",
@@ -56,7 +64,7 @@ const CREATE_OPTIONS = [
   {
     key: "blank-email",
     title: "Blank Email",
-    desc: "Start from scratch with your own copy",
+    desc: "Start from scratch",
     icon: Mail,
     color: "text-muted-foreground",
     bg: "bg-muted/40",
@@ -88,8 +96,7 @@ export default function AdminMarketingHub() {
 
   useEffect(() => { fetchAssets(); }, []);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"?`)) return;
+  const handleDelete = async (id: string) => {
     setDeleting(id);
     const { error } = await (supabase as any).from("campaign_templates").delete().eq("id", id);
     if (error) toast.error("Failed to delete");
@@ -112,49 +119,49 @@ export default function AdminMarketingHub() {
   return (
     <AdminLayout>
       <div className="flex flex-col h-full bg-background">
-
         {/* Header */}
-        <div className="border-b border-border bg-card px-6 py-4 shrink-0 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Megaphone className="h-4 w-4 text-primary" />
+        <div className="border-b border-border bg-card px-6 py-5 shrink-0">
+          <div className="flex items-center justify-between max-w-5xl mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Megaphone className="h-4.5 w-4.5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold tracking-tight">Marketing Hub</h1>
+                <p className="text-xs text-muted-foreground">Create and manage email campaigns</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-base font-bold tracking-tight">Marketing Hub</h1>
-              <p className="text-xs text-muted-foreground">Emails, flyers, and campaign assets</p>
-            </div>
+            <Badge variant="outline" className="text-[11px] px-2.5 py-1">
+              {emailAssets.length + campaignAssets.length} saved
+            </Badge>
           </div>
-          <Badge variant="outline" className="text-[10px]">
-            {emailAssets.length + campaignAssets.length} saved
-          </Badge>
         </div>
 
         <div className="flex-1 overflow-auto">
-          <div className="max-w-4xl mx-auto p-6 space-y-8">
-
+          <div className="max-w-5xl mx-auto p-6 space-y-8">
             {/* Create new */}
             <section>
               <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Create New</p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {CREATE_OPTIONS.map((opt) => (
                   <button
                     key={opt.key}
                     onClick={() => navigate(opt.url)}
-                    className="group flex flex-col gap-3 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-accent/30 transition-all text-left"
+                    className="group flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-accent/30 transition-all text-left"
                   >
-                    <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center", opt.bg)}>
-                      <opt.icon className={cn("h-4 w-4", opt.color)} />
+                    <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center shrink-0", opt.bg)}>
+                      <opt.icon className={cn("h-4.5 w-4.5", opt.color)} />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className="text-xs font-semibold">{opt.title}</span>
+                        <span className="text-sm font-semibold">{opt.title}</span>
                         {opt.badge && (
-                          <Badge variant="secondary" className="text-[9px] h-4 px-1 py-0">{opt.badge}</Badge>
+                          <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0">{opt.badge}</Badge>
                         )}
                       </div>
                       <p className="text-[11px] text-muted-foreground leading-snug">{opt.desc}</p>
                     </div>
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary/60 transition-colors" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary/60 transition-colors shrink-0" />
                   </button>
                 ))}
               </div>
@@ -162,7 +169,7 @@ export default function AdminMarketingHub() {
 
             {/* Saved work */}
             <section>
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-4">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Saved Work</p>
                 <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
                   {(["emails", "flyers"] as const).map(tab => (
@@ -181,18 +188,24 @@ export default function AdminMarketingHub() {
               </div>
 
               {loading ? (
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[1, 2, 3].map(i => (
-                    <div key={i} className="h-16 rounded-lg border border-border bg-muted/30 animate-pulse" />
+                    <div key={i} className="rounded-xl border border-border bg-muted/30 animate-pulse">
+                      <div className="h-40 bg-muted/50 rounded-t-xl" />
+                      <div className="p-4 space-y-2">
+                        <div className="h-4 bg-muted/50 rounded w-3/4" />
+                        <div className="h-3 bg-muted/50 rounded w-1/2" />
+                      </div>
+                    </div>
                   ))}
                 </div>
               ) : activeAssets.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-border rounded-xl text-center">
+                <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-border rounded-xl text-center">
                   {activeTab === "emails"
-                    ? <Mail className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                    : <FileText className="h-8 w-8 text-muted-foreground/30 mb-2" />}
+                    ? <Mail className="h-10 w-10 text-muted-foreground/20 mb-3" />
+                    : <FileText className="h-10 w-10 text-muted-foreground/20 mb-3" />}
                   <p className="text-sm font-medium text-muted-foreground">No {activeTab} saved yet</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1 mb-3 max-w-xs">
+                  <p className="text-xs text-muted-foreground/60 mt-1 mb-4 max-w-xs">
                     Create one above and save it to find it here.
                   </p>
                   <Button
@@ -206,8 +219,10 @@ export default function AdminMarketingHub() {
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-1.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {activeAssets.map(asset => {
+                    const preview = getPreviewImage(asset);
+                    const subject = getSubjectLine(asset);
                     const fd = asset.form_data || {};
                     const isEmail = fd._type === "ai-email" || !fd.plans;
                     const openUrl = `/admin/email-builder?saved=${asset.id}`;
@@ -215,65 +230,93 @@ export default function AdminMarketingHub() {
                     return (
                       <div
                         key={asset.id}
-                        className="group flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-card hover:border-primary/30 hover:bg-accent/20 transition-all"
+                        className="group relative rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-md transition-all"
                       >
-                        {/* Icon */}
-                        <div className={cn(
-                          "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
-                          isEmail ? "bg-emerald-500/10" : "bg-violet-500/10"
-                        )}>
-                          {isEmail
-                            ? <Mail className="h-4 w-4 text-emerald-600" />
-                            : <FileText className="h-4 w-4 text-violet-600" />}
-                        </div>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold truncate">{asset.name}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            {(fd.projectName || asset.project_name) && (
-                              <span className="text-[11px] text-muted-foreground truncate">
-                                {fd.projectName || asset.project_name}
-                                {fd.city && ` · ${fd.city}`}
-                              </span>
-                            )}
-                            <span className="text-muted-foreground/30 text-[11px]">·</span>
-                            <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60 shrink-0">
-                              <Clock className="h-3 w-3" />
-                              {timeAgo(asset.updated_at)}
-                            </span>
+                        {/* Preview image */}
+                        <div
+                          className="h-44 bg-muted/30 relative cursor-pointer overflow-hidden"
+                          onClick={() => navigate(openUrl)}
+                        >
+                          {preview ? (
+                            <img
+                              src={preview}
+                              alt={asset.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Mail className="h-10 w-10 text-muted-foreground/15" />
+                            </div>
+                          )}
+                          {/* Hover overlay */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <Button size="sm" variant="secondary" className="gap-1.5 shadow-lg">
+                              <ExternalLink className="h-3.5 w-3.5" />
+                              Open
+                            </Button>
+                          </div>
+                          {/* Type badge */}
+                          <div className="absolute top-2 left-2">
+                            <Badge className={cn(
+                              "text-[9px] px-1.5 py-0.5 shadow-sm",
+                              isEmail
+                                ? "bg-emerald-500/90 text-white hover:bg-emerald-500/90"
+                                : "bg-violet-500/90 text-white hover:bg-violet-500/90"
+                            )}>
+                              {isEmail ? "Email" : "Flyer"}
+                            </Badge>
                           </div>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-1.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 px-3 text-xs"
-                            onClick={() => navigate(openUrl)}
-                          >
-                            Open
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => handleDuplicate(asset)}
-                            title="Duplicate"
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 hover:text-destructive"
-                            disabled={deleting === asset.id}
-                            onClick={() => handleDelete(asset.id, asset.name)}
-                            title="Delete"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                        {/* Info */}
+                        <div className="p-3.5">
+                          <p className="text-sm font-semibold truncate mb-0.5">{asset.name}</p>
+                          {subject && (
+                            <p className="text-[11px] text-muted-foreground truncate mb-1.5">
+                              Subject: {subject}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60">
+                            <Clock className="h-3 w-3" />
+                            {timeAgo(asset.updated_at)}
+                            {(fd.projectName || asset.project_name) && (
+                              <>
+                                <span className="text-muted-foreground/30">·</span>
+                                <span className="truncate">{fd.projectName || asset.project_name}</span>
+                              </>
+                            )}
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 h-8 text-xs gap-1.5"
+                              onClick={() => navigate(openUrl)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 shrink-0"
+                              onClick={() => handleDuplicate(asset)}
+                              title="Duplicate"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              disabled={deleting === asset.id}
+                              onClick={() => handleDelete(asset.id)}
+                              title="Delete"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     );
@@ -281,7 +324,6 @@ export default function AdminMarketingHub() {
                 </div>
               )}
             </section>
-
           </div>
         </div>
       </div>
