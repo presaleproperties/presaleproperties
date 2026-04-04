@@ -568,7 +568,7 @@ export function buildLoopEmailHtml(
   const locationLine = [copy.neighborhood, copy.city].filter(Boolean).join(", ");
 
   // Hero section HTML
-  const heroLink = ctaUrl || "";
+  const heroLink = (copy.projectName || copy.developerName) ? (ctaUrl || "") : "";
   const heroHtml = (() => {
     if (slides.length === 0) return "";
     if (slides.length === 1) {
@@ -923,7 +923,7 @@ export function buildPitchDeckEmailHtml(
   // Each floor plan renders full-width (1 per row) on BOTH desktop and mobile
   // so images are large and legible. Each card links to the deck for zoom/detail.
   const fps = (data.floorPlans || []).filter(fp => fp.url);
-  const deckLink = data.deckUrl || "";
+  const deckLink = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
 
   const fpRowsHtml = fps.map(fp => `
     <tr>
@@ -1352,7 +1352,7 @@ export function buildLululemonEmailHtml(
 
   const phone    = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
   const whatsapp = data.ctaWhatsApp || "16722581100";
-  const deckLink = data.deckUrl || "";
+  const deckLink = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
 
   // ── Floor plans ──────────────────────────────────────────────────────────
   const fps = (data.floorPlans || []).filter(fp => fp.url);
@@ -1718,7 +1718,7 @@ export function buildPitchDeckEmailHtmlLofty(
   const whatsapp   = data.ctaWhatsApp || "16722581100";
   const locationLine = data.city ? data.city.toUpperCase() : "";
   const byLine       = data.developerName ? `by ${data.developerName}` : "";
-  const deckLink     = data.deckUrl || "";
+  const deckLink     = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
   const fps          = (data.floorPlans || []).filter(fp => fp.url);
 
   // ─── Body copy renderer ───────────────────────────────────────────────────
@@ -2149,7 +2149,7 @@ export function buildMailerLiteEmailHtml(
 
   const phone    = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
   const whatsapp = data.ctaWhatsApp || "16722581100";
-  const deckLink = data.deckUrl || "";
+  const deckLink = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
 
   // ── Floor plans ──
   const fps = (data.floorPlans || []).filter(fp => fp.url);
