@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { leadId, templateId } = await req.json();
+    const { leadId, templateId, htmlOverride } = await req.json();
     if (!leadId || !templateId) {
       return new Response(JSON.stringify({ error: "leadId and templateId are required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -83,9 +83,11 @@ Deno.serve(async (req) => {
     const copy = fd.copy || {};
     const subjectLine = copy.subjectLine || fd.projectName || template.project_name || "New Development";
 
-    // If the builder stored fully-rendered HTML, use it directly
+    // If the client passed pre-rendered HTML from the Marketing Hub builder, use it directly
     let html: string;
-    if (fd.finalHtml) {
+    if (htmlOverride) {
+      html = htmlOverride;
+    } else if (fd.finalHtml) {
       html = fd.finalHtml
         .replace(/\{first_name\}/gi, firstName)
         .replace(/\{name\}/gi, firstName)
