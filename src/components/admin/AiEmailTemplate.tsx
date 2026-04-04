@@ -1513,9 +1513,32 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
+
+  <!-- ── FLOOR PLANS (optional) ── -->
+  ${fps.length > 0 ? `
+  <tr>
+    <td style="padding:0;border-top:1px solid #e8e2d6;background:#faf8f4;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td class="content-pad" style="padding:32px 40px 20px;">
+            <p style="margin:0 0 6px 0;font-family:${F};font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
+            <p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.fpHeading || "Available Units"}</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="content-pad" style="padding:0 40px 24px;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+              ${fpRowsHtml}
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>` : ""}
+
   <!-- ── PRIMARY CTA: I'M INTERESTED ── -->
   <tr>
-    <td class="content-pad" style="padding:0 40px 14px;background:#ffffff;">
+    <td class="content-pad" style="padding:28px 40px 14px;background:#ffffff;">
       <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
           <td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
@@ -1544,28 +1567,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
       </table>
     </td>
   </tr>
-
-  <!-- ── FLOOR PLANS (optional) ── -->
-  ${fps.length > 0 ? `
-  <tr>
-    <td style="padding:0;border-top:1px solid #e8e2d6;background:#faf8f4;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
-        <tr>
-          <td class="content-pad" style="padding:32px 40px 20px;">
-            <p style="margin:0 0 6px 0;font-family:${F};font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
-            <p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.fpHeading || "Available Units"}</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="content-pad" style="padding:0 40px 24px;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
-              ${fpRowsHtml}
-            </table>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>` : ""}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
