@@ -2077,8 +2077,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
 
         <!-- ── FOOTER ── -->
         <tr>
-          <td class="mobile-pad" valign="top"
-              style="background-color: ${DARK}; padding: 20px 36px;">
+          <td valign="top"
+              style="background-color: ${DARK}; padding: 20px 20px;">
             <p style="margin: 0 0 6px 0; ${F} font-size: 9px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: ${ACCENT}; line-height: 1.5;">
               PRESALE PROPERTIES &nbsp;&middot;&nbsp; ${data.city ? `${data.city.toUpperCase()}, BC` : "VANCOUVER, BC"}
             </p>
