@@ -559,7 +559,20 @@ export default function AdminEmailBuilderPage() {
   useEffect(() => {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
+      // Preserve deck-specific metadata from the original draft
+      let deckMeta: Record<string, any> = {};
+      try {
+        const prev = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+        if (prev) {
+          if (prev._source) deckMeta._source = prev._source;
+          if (prev._deckId) deckMeta._deckId = prev._deckId;
+          if (prev._deckUrl) deckMeta._deckUrl = prev._deckUrl;
+          if (prev._deckParking) deckMeta._deckParking = prev._deckParking;
+          if (prev._deckLocker) deckMeta._deckLocker = prev._deckLocker;
+        }
+      } catch {}
       const draft = {
+        ...deckMeta,
         _savedAt: new Date().toISOString(),
         prompt, templateType, selProjectId, activeVersion, aiResult,
         projectName, developerName, showProjectName, showDeveloperName, customHeader,
