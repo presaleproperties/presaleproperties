@@ -1937,7 +1937,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         ${includedItems.length > 0 ? `
         <tr>
           <td class="mobile-pad" valign="top"
-              style="background-color: ${DARK}; padding: 22px 36px;">
+              style="background-color: ${DARK}; padding: 22px 20px;">
             <p style="margin: 0 0 14px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">WHAT'S INCLUDED</p>
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               ${includedItems.map((item: string) => `
