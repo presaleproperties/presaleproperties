@@ -298,15 +298,63 @@ export default function AdminEmailBuilderPage() {
   const urlTemplate  = searchParams.get("template") ?? "";
   const urlPreset    = TEMPLATE_PRESETS[urlTemplate] ?? null;
   const fromDeck     = searchParams.get("source") === "deck";
+  const savedTemplateId = searchParams.get("saved") ?? "";
 
-  // ── Restore draft from localStorage ─────────────────────────────────────────
-  // If a URL template preset is specified, skip the saved draft and use preset values
-  // If source=deck, always load the draft (it was written by DashboardDecks)
+  // ── Restore draft from localStorage or DB ───────────────────────────────────
   const draftTimestamp = searchParams.get("t") ?? "";
+  const [dbDraft, setDbDraft] = useState<Record<string, any> | null>(null);
+  const [dbDraftLoading, setDbDraftLoading] = useState(!!savedTemplateId);
+
+  // Load saved template from DB when ?saved=<id> is present
+  useEffect(() => {
+    if (!savedTemplateId) return;
+    (async () => {
+      setDbDraftLoading(true);
+      const { data } = await (supabase as any)
+        .from("campaign_templates")
+        .select("*")
+        .eq("id", savedTemplateId)
+        .single();
+      if (data?.form_data) {
+        const fd = data.form_data;
+        const copy = fd.copy || {};
+        const vars = fd.vars || {};
+        // Build a draft-like object from the saved form_data
+        const restored: Record<string, any> = {
+          ...fd, // spread all saved fields (layoutVersion, fontId, selAgent, etc.)
+          // Ensure copy fields are at top level for state init
+          projectName:       copy.projectName       ?? vars.projectName       ?? "",
+          developerName:     copy.developerName     ?? vars.developerName     ?? "",
+          city:              copy.city              ?? vars.city              ?? "",
+          neighborhood:      copy.neighborhood      ?? vars.neighborhood      ?? "",
+          startingPrice:     copy.startingPrice     ?? vars.startingPrice     ?? "",
+          deposit:           copy.deposit           ?? vars.deposit           ?? "",
+          completion:        copy.completion        ?? vars.completion        ?? "",
+          subjectLine:       copy.subjectLine       ?? vars.subjectLine       ?? "",
+          previewText:       copy.previewText       ?? vars.previewText       ?? "",
+          headline:          copy.headline          ?? vars.headline          ?? "",
+          bodyCopy:          copy.bodyCopy          ?? vars.bodyCopy          ?? "",
+          incentiveText:     copy.incentiveText     ?? vars.incentiveText     ?? "",
+          infoRows:          copy.infoRows          ?? fd.infoRows           ?? [],
+          showProjectName:   fd.showProjectName     ?? true,
+          showDeveloperName: fd.showDeveloperName   ?? true,
+          customHeader:      fd.customHeader        ?? "",
+          projectUrl:        fd.projectUrl          ?? "",
+          _dbTemplateId:     data.id,
+        };
+        setDbDraft(restored);
+        // Also write to localStorage so auto-save continues working
+        try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...restored, _savedAt: new Date().toISOString() })); } catch {}
+      }
+      setDbDraftLoading(false);
+    })();
+  }, []); // eslint-disable-line
+
   const savedDraft = useMemo(() => {
-    if (urlPreset && !fromDeck) return null; // fresh start when navigating from hub
+    if (dbDraft) return dbDraft;
+    if (urlPreset && !fromDeck) return null;
     try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch { return null; }
-  }, [draftTimestamp]); // eslint-disable-line
+  }, [draftTimestamp, dbDraft]); // eslint-disable-line
 
   // AI state
   const [prompt,         setPrompt]         = useState(savedDraft?.prompt         ?? "");
@@ -396,6 +444,42 @@ export default function AdminEmailBuilderPage() {
     highlights?: string[] | null;
     short_description?: string | null;
   }>>([]);
+
+  // ── Force-hydrate state from DB when loading a saved template ────────────
+  useEffect(() => {
+    if (!dbDraft) return;
+    const d = dbDraft;
+    setProjectName(d.projectName ?? "");
+    setDevName(d.developerName ?? "");
+    setShowProjectName(d.showProjectName ?? true);
+    setShowDeveloperName(d.showDeveloperName ?? true);
+    setCustomHeader(d.customHeader ?? "");
+    setCity(d.city ?? "");
+    setNeighborhood(d.neighborhood ?? "");
+    setProjectUrl(d.projectUrl ?? "");
+    setStartingPrice(d.startingPrice ?? "");
+    setDeposit(d.deposit ?? "");
+    setCompletion(d.completion ?? "");
+    setInfoRows(d.infoRows ?? []);
+    setSubjectLine(d.subjectLine ?? "");
+    setPreviewText(d.previewText ?? "");
+    setHeadline(d.headline ?? "");
+    setBodyCopy(d.bodyCopy ?? "");
+    setIncentiveText(d.incentiveText ?? "");
+    setHeroImage(d.heroImage ?? "");
+    setFloorPlans(d.floorPlans ?? []);
+    setFpHeading(d.fpHeading ?? "Available Floor Plans");
+    setFpSubheading(d.fpSubheading ?? "");
+    setImageCards(d.imageCards ?? []);
+    setLoopSlides(d.loopSlides ?? []);
+    setSelectedAssetId(d.selectedAssetId ?? "none");
+    setDirectCtaUrl(d.directCtaUrl ?? "");
+    if (d.selAgent) setSelAgent(d.selAgent);
+    if (d.fontId) setSelectedFontId(d.fontId);
+    if (d.layoutVersion) setLayoutVersion(d.layoutVersion);
+    if (d.aiResult) setAiResult(d.aiResult);
+    if (d.activeVersion) setActiveVersion(d.activeVersion);
+  }, [dbDraft]);
 
   // ── Force-hydrate state from localStorage when coming from a pitch deck ────
   // useState initializers only run once, so if the component was already mounted
@@ -1041,6 +1125,9 @@ export default function AdminEmailBuilderPage() {
         completion: copy.completion,
       },
       heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
+      imageCards, loopSlides, selectedAssetId, directCtaUrl,
+      selAgent, fontId: selectedFontId, layoutVersion,
+      showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
     };
     const { error } = await supabase.from("campaign_templates" as any).insert({
       name, project_name: projectName || "Untitled",
