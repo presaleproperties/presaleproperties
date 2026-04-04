@@ -32,7 +32,23 @@ export function EmailTemplatePreviewDialog({
 
   useEffect(() => {
     if (!open || !formData) return;
-    setPreviewHtml(buildEmailHtml(formData, recipientName));
+    if (formData.finalHtml) {
+      // Use the exact HTML from the Email Builder, just personalise the name
+      const firstName = recipientName || "there";
+      const personalised = formData.finalHtml
+        .replace(/\{first_name\}/gi, firstName)
+        .replace(/\{name\}/gi, firstName)
+        .replace(/\[First Name\]/g, firstName)
+        .replace(/\[first name\]/g, firstName)
+        .replace(/\[Name\]/g, firstName)
+        .replace(/\[name\]/g, firstName)
+        .replace(/\{\{first_name\}\}/g, firstName)
+        .replace(/\{\{firstName\}\}/g, firstName)
+        .replace(/\*\|FNAME\|\*/g, firstName);
+      setPreviewHtml(personalised);
+    } else {
+      setPreviewHtml(buildEmailHtml(formData, recipientName));
+    }
   }, [open, formData, recipientName]);
 
   return (

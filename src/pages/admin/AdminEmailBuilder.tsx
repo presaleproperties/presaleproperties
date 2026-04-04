@@ -1245,6 +1245,7 @@ export default function AdminEmailBuilder() {
         cta,
         fontIdx,
         agentId: selectedAgent?.id,
+        finalHtml,
       };
       if (overwriteId) {
         // Update existing template
