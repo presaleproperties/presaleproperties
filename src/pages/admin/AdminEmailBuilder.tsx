@@ -2143,7 +2143,7 @@ export default function AdminEmailBuilder() {
             onOpenChange={setSendDialogOpen}
             subject={vars.subjectLine}
             html={finalHtml}
-            fromName={selectedAgent?.full_name ? `${selectedAgent.full_name} | Presale Properties` : undefined}
+            fromName={selectedAgent?.full_name ? `Presale Properties | ${selectedAgent.full_name.split(' ')[0]}` : undefined}
           />
         </div>
 
