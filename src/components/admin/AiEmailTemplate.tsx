@@ -2249,26 +2249,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
     </td>
   </tr>` : ""}
 
-  <!-- FLOOR PLANS -->
-  ${fps.length > 0 ? `<tr>
-    <td style="padding:0;background:#ffffff;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
-        <tr><td style="padding:8px 40px 20px;">
-          <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:4px;">
-            <tr><td width="32" height="2" style="width:32px;height:2px;background:${ACCENT};font-size:0;line-height:0;">&nbsp;</td></tr>
-          </table>
-          <p style="margin:0 0 4px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
-          <p style="margin:0;font-family:${F};font-size:22px;font-weight:800;color:${DARK};letter-spacing:-0.3px;">${fpHeading}</p>
-        </td></tr>
-        <tr><td style="padding:0 40px 20px;">
-          <table cellpadding="0" cellspacing="0" border="0" width="100%">
-            ${fpRowsHtml}
-          </table>
-        </td></tr>
-      </table>
-    </td>
-  </tr>` : ""}
-
   <!-- I'M INTERESTED CTA -->
   <tr>
     <td style="padding:8px 40px 12px;background:#ffffff;">
@@ -2300,6 +2280,26 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:${WARM};max-
       </table>
     </td>
   </tr>
+
+  <!-- FLOOR PLANS -->
+  ${fps.length > 0 ? `<tr>
+    <td style="padding:0;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr><td style="padding:8px 40px 20px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:4px;">
+            <tr><td width="32" height="2" style="width:32px;height:2px;background:${ACCENT};font-size:0;line-height:0;">&nbsp;</td></tr>
+          </table>
+          <p style="margin:0 0 4px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
+          <p style="margin:0;font-family:${F};font-size:22px;font-weight:800;color:${DARK};letter-spacing:-0.3px;">${fpHeading}</p>
+        </td></tr>
+        <tr><td style="padding:0 40px 20px;">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            ${fpRowsHtml}
+          </table>
+        </td></tr>
+      </table>
+    </td>
+  </tr>` : ""}
 
   <!-- AGENT CARD -->
   <tr>
