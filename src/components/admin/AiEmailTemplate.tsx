@@ -1783,8 +1783,8 @@ export function buildPitchDeckEmailHtmlLofty(
           ${stats.map((s, i) => `
           <td class="mobile-full" width="${colPct}" valign="top"
               style="width:${colPct};padding:16px 8px 14px;${i < stats.length - 1 ? "border-right:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
-            <p style="margin:0 0 4px 0;${F}font-size:17px;font-weight:700;color:#111111;line-height:1.2;">${s.val}</p>
-            <p style="margin:0;${F}font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
+            <p style="margin:0 0 3px 0;${F}font-size:20px;font-weight:700;color:#111111;line-height:1.2;letter-spacing:-0.3px;">${s.val}</p>
+            <p style="margin:0;${F}font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
           </td>`).join("")}
         </tr>
       </table>
@@ -1801,11 +1801,11 @@ export function buildPitchDeckEmailHtmlLofty(
           const [label, value] = row.split("|").map((s: string) => s.trim());
           const bb = i < infoRowsFiltered.length - 1 ? "border-bottom:1px solid #e8e3db;" : "";
           return `<tr>
-            <td width="45%" style="width:45%;padding:10px 14px;background:#f7f5f1;border-right:1px solid #e8e3db;${bb}vertical-align:top;">
-              <p style="margin:0;${F}font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#999999;">${label}</p>
-            </td>
-            <td style="padding:10px 14px;background:#ffffff;${bb}vertical-align:top;">
-              <p style="margin:0;${F}font-size:13px;font-weight:600;color:#222222;">${value}</p>
+             <td width="45%" style="width:45%;padding:10px 16px;background:#f7f5f1;border-right:1px solid #e8e3db;${bb}vertical-align:top;">
+               <p style="margin:0;${F}font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#999999;">${label}</p>
+             </td>
+             <td style="padding:10px 16px;background:#ffffff;${bb}vertical-align:top;">
+               <p style="margin:0;${F}font-size:13px;font-weight:600;color:#222222;">${value}</p>
             </td>
           </tr>`;
         }).join("")}
@@ -1833,7 +1833,7 @@ export function buildPitchDeckEmailHtmlLofty(
           <tr>
             <td style="padding:14px 18px 18px;">
               ${fp.label ? `<p style="margin:0 0 4px 0;${F}font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
-              ${fp.sqft  ? `<p style="margin:0 0 8px 0;${F}font-size:13px;color:#8aaa96;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0 0 8px 0;${F}font-size:12px;color:#8aaa96;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
               ${fp.price ? `<p style="margin:0 0 10px 0;${F}font-size:22px;font-weight:700;color:#ffffff;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
               ${creditBadgeHtml(fp.exclusive_credit, F.replace(/font-family:/,"").replace(/;$/,""))}
               ${deckLink ? `<table cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:0;">
@@ -1917,7 +1917,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
           <td class="mobile-pad" valign="top"
               style="background-color: ${DARK}; padding: 28px 36px 24px;">
             <p style="margin: 0 0 6px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">PRESALE PROPERTIES</p>
-            <p class="hero-text" style="margin: 0 0 8px 0; ${F} font-size: 28px; font-weight: 800; color: #ffffff; line-height: 1.1; letter-spacing: -0.5px;">${data.projectName || "New Presale Release"}</p>
+            <p class="hero-text" style="margin: 0 0 8px 0; ${F} font-size: 32px; font-weight: 800; color: #ffffff; line-height: 1.1; letter-spacing: -0.5px;">${data.projectName || "New Presale Release"}</p>
             ${byLine ? `<p style="margin: 0 0 10px 0; ${F} font-size: 11px; color: #7a9a86;">${byLine}</p>` : ""}
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>
@@ -1956,9 +1956,9 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
 
         <!-- ── BODY COPY ── -->
         <tr>
-          <td class="mobile-pad" valign="top" style="padding: 28px 36px 24px; background-color: #ffffff;">
+           <td class="mobile-pad" valign="top" style="padding: 32px 36px 24px; background-color: #ffffff;">
             ${data.headline ? `
-            <p class="hero-text" style="margin: 0 0 14px 0; ${F} font-size: 24px; font-weight: 800; color: ${DARK}; line-height: 1.2; letter-spacing: -0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
+            <p class="hero-text" style="margin: 0 0 16px 0; ${F} font-size: 26px; font-weight: 800; color: ${DARK}; line-height: 1.2; letter-spacing: -0.5px;">${(data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "")}</p>
             <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 18px;">
               <tr><td width="40" height="3" style="width: 40px; height: 3px; background-color: ${ACCENT}; font-size: 0; line-height: 0;">&nbsp;</td></tr>
             </table>` : ""}
@@ -1983,7 +1983,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
                   </table>
                 </td>
                 <td valign="top" style="padding: 0 0 10px 12px; vertical-align: top;">
-                  <p style="margin: 0; ${F} font-size: 14px; font-weight: 500; color: #c8d8cc; line-height: 1.75;">${item}</p>
+                  <p style="margin: 0; ${F} font-size: 13px; font-weight: 500; color: #c8d8cc; line-height: 1.7;">${item}</p>
                 </td>
               </tr>`).join("")}
             </table>
@@ -1997,16 +1997,17 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
         </tr>
         <tr>
            <td class="mobile-pad" valign="top"
-              style="background-color: ${DARK}; padding: 24px 36px 12px;">
-            <p style="margin: 0 0 4px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">FLOOR PLANS</p>
-            <p style="margin: 0; ${F} font-size: 22px; font-weight: 700; color: #ffffff; line-height: 1.15;">${fpHeading}</p>
-          </td>
+               style="background-color: ${DARK}; padding: 24px 28px 8px;">
+             <p style="margin: 0 0 4px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">FLOOR PLANS</p>
+             <p style="margin: 0 0 6px 0; ${F} font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.15; letter-spacing: -0.3px;">${fpHeading}</p>
+             <p style="margin: 0; ${F} font-size: 12px; color: #8aaa96; line-height: 1.6;">${fpSubheading}</p>
+           </td>
         </tr>
 
         <!-- ── FLOOR PLAN CARDS ── -->
         <tr>
-          <td class="mobile-pad" valign="top"
-              style="background-color: ${DARK}; padding: 12px 36px 20px;">
+           <td class="mobile-pad" valign="top"
+               style="background-color: ${DARK}; padding: 12px 20px 24px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               ${fpRowsHtml}
             </table>
@@ -2015,14 +2016,14 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
 
         <!-- ── I'M INTERESTED CTA ── -->
         <tr>
-          <td class="mobile-pad" valign="top"
-              style="background-color: ${DARK}; padding: 0 36px 28px;">
+           <td class="mobile-pad" valign="top"
+               style="background-color: ${DARK}; padding: 0 28px 28px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" valign="top"
                     style="background-color: ${ACCENT}; padding: 14px 24px; text-align: center;">
                   <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName}. Can you send me more details?`)}"
-                     style="${F} font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ${DARK}; text-decoration: none; display: block;">
+                     style="${F} font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ${DARK}; text-decoration: none; display: block;">
                     I'M INTERESTED &#8594;
                   </a>
                 </td>
@@ -2034,13 +2035,13 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
         <!-- ── CALL NOW CTA ── -->
         <tr>
           <td class="mobile-pad" valign="top"
-              style="background-color: #f7f5f1; padding: 24px 36px;">
+              style="background-color: #f7f5f1; padding: 28px 36px 28px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" valign="top"
                     style="background-color: ${DARK}; padding: 18px 24px; text-align: center;">
                   <a href="tel:${phone.replace(/\D/g, "")}"
-                     style="${F} font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #ffffff; text-decoration: none; display: block; line-height: 1.4;">
+                     style="${F} font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #ffffff; text-decoration: none; display: block; line-height: 1; white-space: nowrap;">
                     &#128222;&nbsp; CALL NOW &mdash; ${phone}
                   </a>
                 </td>
@@ -2107,7 +2108,7 @@ ${data.previewText ? `<!-- Preview text (hidden) -->
         <!-- ── LEGAL ── -->
         <tr>
           <td class="mobile-pad" valign="top"
-              style="background-color: #f8f7f4; padding: 22px 36px 26px; border-top: 1px solid #e8e8e4;">
+              style="background-color: #f8f7f4; padding: 24px 36px 28px; border-top: 1px solid #e8e8e4;">
             <p style="margin: 0 0 10px 0; ${F} font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #555555; line-height: 1.4;">L E G A L &nbsp; D I S C L A I M E R</p>
             <p style="margin: 0 0 10px 0; ${F} font-size: 11px; font-weight: 300; color: #888888; line-height: 1.8;">
               This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer&rsquo;s agents &mdash; we represent <strong style="${F} font-weight: 500; color: #666666;">you</strong>, not the developer. This is <strong style="${F} font-weight: 500; color: #666666;">not an offering for sale</strong>. An offering can only be made after a Disclosure Statement is filed under REDMA. Prices, availability, and incentives are subject to change without notice. All prices exclude applicable taxes (GST/PST). PTT exemptions are subject to buyer eligibility at time of completion. Information believed accurate but not guaranteed. E.&amp;O.E.
