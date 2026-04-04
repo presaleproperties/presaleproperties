@@ -359,7 +359,7 @@ export function LeadOnboardHub() {
                   {getTemplatePreview(successTemplate) ? (
                     <img
                       src={getTemplatePreview(successTemplate)!}
-                      alt={successTemplate.name}
+                      alt={getTemplateName(successTemplate)}
                       className="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded shrink-0"
                     />
                   ) : (
