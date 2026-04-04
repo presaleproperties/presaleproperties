@@ -1524,6 +1524,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
+
   <!-- ── WHAT'S INCLUDED ── -->
   ${incentiveLines.length > 0 ? `
   <tr>
