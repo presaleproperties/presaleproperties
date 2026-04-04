@@ -59,6 +59,11 @@ interface EmailTemplate {
   form_data: any;
 }
 
+/** Use subject line from form_data as the display name (matches Marketing Hub), fall back to DB name */
+function getTemplateName(tpl: EmailTemplate): string {
+  return tpl.form_data?.copy?.subjectLine || tpl.name;
+}
+
 export function LeadOnboardHub() {
   const { user } = useAuth();
   const isMobile = useIsMobile();
@@ -249,6 +254,7 @@ export function LeadOnboardHub() {
   const renderTemplateCard = (tpl: EmailTemplate, currentSelectedId: string | null, onSelect: (id: string | null) => void) => {
     const preview = getTemplatePreview(tpl);
     const isSelected = currentSelectedId === tpl.id;
+    const displayName = getTemplateName(tpl);
     return (
       <button
         key={tpl.id}
@@ -265,7 +271,7 @@ export function LeadOnboardHub() {
         {preview ? (
           <img
             src={preview}
-            alt={tpl.name}
+            alt={displayName}
             className={cn(
               "object-cover rounded",
               isMobile ? "w-14 h-14 shrink-0" : "w-full h-16"
@@ -280,7 +286,7 @@ export function LeadOnboardHub() {
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="font-medium text-xs sm:text-sm truncate">{tpl.name}</p>
+          <p className="font-medium text-xs sm:text-sm truncate">{displayName}</p>
           <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{tpl.project_name}</p>
         </div>
         {isSelected && (
@@ -353,7 +359,7 @@ export function LeadOnboardHub() {
                   {getTemplatePreview(successTemplate) ? (
                     <img
                       src={getTemplatePreview(successTemplate)!}
-                      alt={successTemplate.name}
+                      alt={getTemplateName(successTemplate)}
                       className="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded shrink-0"
                     />
                   ) : (
@@ -362,7 +368,7 @@ export function LeadOnboardHub() {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium text-xs sm:text-sm truncate">{successTemplate.name}</p>
+                    <p className="font-medium text-xs sm:text-sm truncate">{getTemplateName(successTemplate)}</p>
                     <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{successTemplate.project_name}</p>
                   </div>
                 </div>
@@ -407,7 +413,7 @@ export function LeadOnboardHub() {
           <EmailTemplatePreviewDialog
             open={previewOpen}
             onOpenChange={setPreviewOpen}
-            templateName={successTemplate.name}
+            templateName={getTemplateName(successTemplate)}
             formData={successTemplate.form_data}
             onSend={handleSendTemplateEmail}
             sending={sendingTemplate}
@@ -605,7 +611,7 @@ export function LeadOnboardHub() {
                     size={isMobile ? "sm" : "default"}
                   >
                     <Eye className="h-4 w-4 mr-2" />
-                    Preview "{selectedTemplate.name}"
+                    Preview "{getTemplateName(selectedTemplate)}"
                   </Button>
                 )}
               </CardContent>
@@ -634,7 +640,7 @@ export function LeadOnboardHub() {
         <EmailTemplatePreviewDialog
           open={previewOpen}
           onOpenChange={setPreviewOpen}
-          templateName={selectedTemplate.name}
+          templateName={getTemplateName(selectedTemplate)}
           formData={selectedTemplate.form_data}
           onSend={() => {}}
           sending={false}
