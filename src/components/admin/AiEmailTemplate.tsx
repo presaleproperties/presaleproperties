@@ -1349,7 +1349,9 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${(fps.length > 0 && deckLink) ? `
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+
+  ${(fps.length > 0 && deckLink && !data.floorplanUrl) ? `
   <!-- ── VIEW MORE PLANS CTA ── -->
   <tr>
     <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;text-align:center;">
