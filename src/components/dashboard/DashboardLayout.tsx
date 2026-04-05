@@ -187,50 +187,56 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-3 space-y-1">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2">
-              Menu
-            </p>
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
-                  isActive(item.href)
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <div className={cn(
-                  "p-1.5 rounded-lg transition-colors",
-                  isActive(item.href) 
-                    ? "bg-primary-foreground/20" 
-                    : "bg-muted group-hover:bg-background"
-                )}>
-                  <item.icon className="h-4 w-4" />
+          <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
+            {navSections.map((section) => (
+              <div key={section.label}>
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-3 py-1.5">
+                  {section.label}
+                </p>
+                <div className="space-y-0.5 mt-1">
+                  {section.items.map((item) => (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      className={cn(
+                        "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
+                        isActive(item.href)
+                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <div className={cn(
+                        "p-1.5 rounded-lg transition-colors",
+                        isActive(item.href) 
+                          ? "bg-primary-foreground/20" 
+                          : "bg-muted group-hover:bg-background"
+                      )}>
+                        <item.icon className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{item.label}</span>
+                          {item.badge && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-primary/10 text-primary">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className={cn(
+                          "text-xs truncate",
+                          isActive(item.href) ? "text-primary-foreground/70" : "text-muted-foreground"
+                        )}>
+                          {item.description}
+                        </p>
+                      </div>
+                      <ChevronRight className={cn(
+                        "h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity",
+                        isActive(item.href) && "opacity-100"
+                      )} />
+                    </Link>
+                  ))}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{item.label}</span>
-                    {item.badge && (
-                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-primary/10 text-primary">
-                        {item.badge}
-                      </Badge>
-                    )}
-                  </div>
-                  <p className={cn(
-                    "text-xs truncate",
-                    isActive(item.href) ? "text-primary-foreground/70" : "text-muted-foreground"
-                  )}>
-                    {item.description}
-                  </p>
-                </div>
-                <ChevronRight className={cn(
-                  "h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity",
-                  isActive(item.href) && "opacity-100"
-                )} />
-              </Link>
+              </div>
             ))}
           </nav>
           
