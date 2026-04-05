@@ -2218,6 +2218,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               </Button>
             </div>
           </div>
+          )}
+
+          {/* Floating button to reopen editor */}
+          {!editorOpen && (
+            <button
+              onClick={() => setEditorOpen(true)}
+              className="hidden lg:flex fixed right-6 top-1/2 -translate-y-1/2 z-40 h-10 items-center gap-2 px-3 rounded-lg border border-border bg-card shadow-lg hover:bg-accent/50 transition-all"
+              title="Open editor panel"
+            >
+              <PanelRight className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs font-semibold text-foreground">Editor</span>
+            </button>
+          )}
 
         </div>
 
