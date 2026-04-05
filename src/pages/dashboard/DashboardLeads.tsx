@@ -119,6 +119,51 @@ export default function DashboardLeads() {
   const tagInputRef = useRef<HTMLInputElement>(null);
   const [showAddLead, setShowAddLead] = useState(false);
 
+  // Inline editing state
+  const [editingCell, setEditingCell] = useState<{ leadId: string; field: string } | null>(null);
+  const [editingValue, setEditingValue] = useState("");
+
+  const handleInlineEdit = async (leadId: string, field: string, value: string) => {
+    setEditingCell(null);
+    const trimmed = value.trim();
+    const lead = onboardedLeads.find((l) => l.id === leadId);
+    if (!lead) return;
+
+    // Map field to db columns
+    const dbField = field === "name" ? undefined : field;
+    let updatePayload: Record<string, any> = {};
+    let optimisticUpdate: Partial<OnboardedLead> = {};
+
+    if (field === "name") {
+      const parts = trimmed.split(/\s+/);
+      const firstName = parts[0] || "";
+      const lastName = parts.slice(1).join(" ") || "";
+      updatePayload = { first_name: firstName, last_name: lastName };
+      optimisticUpdate = { first_name: firstName, last_name: lastName };
+    } else {
+      updatePayload = { [field]: trimmed };
+      optimisticUpdate = { [field]: trimmed } as any;
+    }
+
+    const prev = [...onboardedLeads];
+    setOnboardedLeads((leads) =>
+      leads.map((l) => (l.id === leadId ? { ...l, ...optimisticUpdate } : l))
+    );
+    const { error } = await supabase
+      .from("onboarded_leads")
+      .update(updatePayload as any)
+      .eq("id", leadId);
+    if (error) {
+      setOnboardedLeads(prev);
+      toast.error("Failed to update");
+    }
+  };
+
+  const startEditing = (leadId: string, field: string, currentValue: string) => {
+    setEditingCell({ leadId, field });
+    setEditingValue(currentValue);
+  };
+
   useEffect(() => {
     if (user) fetchAll();
   }, [user]);
