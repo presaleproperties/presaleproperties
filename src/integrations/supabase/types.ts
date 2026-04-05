@@ -1035,6 +1035,7 @@ export type Database = {
           opened_at: string | null
           recipient_name: string | null
           sent_at: string
+          sent_by: string | null
           status: string
           subject: string
           template_type: string | null
@@ -1051,6 +1052,7 @@ export type Database = {
           opened_at?: string | null
           recipient_name?: string | null
           sent_at?: string
+          sent_by?: string | null
           status?: string
           subject: string
           template_type?: string | null
@@ -1067,6 +1069,7 @@ export type Database = {
           opened_at?: string | null
           recipient_name?: string | null
           sent_at?: string
+          sent_by?: string | null
           status?: string
           subject?: string
           template_type?: string | null

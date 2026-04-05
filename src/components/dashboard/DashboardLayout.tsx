@@ -21,6 +21,7 @@ import {
   FolderOpen,
   Presentation,
   UserPlus,
+  Mail,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -65,6 +66,12 @@ const navItems = [
     href: "/dashboard/leads", 
     icon: Users,
     description: "View buyer inquiries"
+  },
+  { 
+    label: "Emails", 
+    href: "/dashboard/emails", 
+    icon: Mail,
+    description: "Track sent emails & opens"
   },
   { 
     label: "Onboard Client", 

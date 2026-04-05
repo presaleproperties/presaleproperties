@@ -45,6 +45,7 @@ const Login = lazy(() => import("./pages/Login"));
 const DashboardOverview = lazy(() => import("./pages/dashboard/DashboardOverview"));
 const DashboardListings = lazy(() => import("./pages/dashboard/DashboardListings"));
 const DashboardLeads = lazy(() => import("./pages/dashboard/DashboardLeads"));
+const DashboardEmails = lazy(() => import("./pages/dashboard/DashboardEmails"));
 const DashboardProfile = lazy(() => import("./pages/dashboard/DashboardProfile"));
 const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling"));
 const DashboardMessages = lazy(() => import("./pages/dashboard/DashboardMessages"));
@@ -331,6 +332,7 @@ const App = () => (
             <Route path="/dashboard/decks/:id/edit" element={<ProtectedRoute><DashboardDeckBuilder /></ProtectedRoute>} />
             <Route path="/dashboard/messages" element={<ProtectedRoute><DashboardMessages /></ProtectedRoute>} />
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
+            <Route path="/dashboard/emails" element={<ProtectedRoute><DashboardEmails /></ProtectedRoute>} />
             <Route path="/dashboard/lead-onboard" element={<ProtectedRoute><DashboardLeadOnboard /></ProtectedRoute>} />
             <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />

@@ -180,6 +180,7 @@ ${floorPlanRows ? `<tr><td style="padding:0 32px 16px;"><p style="margin:0 0 12p
       status: "sent",
       template_type: "campaign_template",
       recipient_name: `${lead.first_name} ${lead.last_name}`.trim(),
+      sent_by: user.id,
     });
 
     return new Response(JSON.stringify({ success: true }), {
