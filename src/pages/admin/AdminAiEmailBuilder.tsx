@@ -665,7 +665,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         subjectLine, previewText, headline, bodyCopy, incentiveText,
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
-        layoutVersion,
+        layoutVersion, brochureUrl, floorplanUrl,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
