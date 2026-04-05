@@ -313,7 +313,7 @@ Deno.serve(async (req) => {
     // Fetch project details
     const { data: project, error: projErr } = await supabase
       .from("presale_projects")
-      .select("name, city, neighborhood, developer_name, featured_image, price_range, starting_price, deposit_structure, completion_year, completion_month, slug, brochure_files, floorplan_files, pricing_sheets")
+      .select("name, city, neighborhood, developer_name, featured_image, price_range, starting_price, deposit_structure, deposit_percent, completion_year, completion_month, slug, brochure_files, floorplan_files, pricing_sheets")
       .eq("id", pid)
       .single();
 
