@@ -557,6 +557,10 @@ export interface PitchDeckEmailData {
   deckUrl?: string;
   /** URL to the project page on presaleproperties.com */
   projectUrl?: string;
+  /** URL to the brochure PDF — shows "VIEW BROCHURE" CTA when present */
+  brochureUrl?: string;
+  /** URL to the floor plans / pricing PDF — shows "VIEW FLOOR PLANS" CTA when present */
+  floorplanUrl?: string;
 }
 
 export function buildPitchDeckEmailHtml(
