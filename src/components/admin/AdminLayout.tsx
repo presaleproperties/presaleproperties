@@ -350,10 +350,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <Shield className="h-[13px] w-[13px] text-primary-foreground" />
             </div>
             {!sidebarCollapsed && (
-              <div className="min-w-0">
-                <p className="font-bold text-[13px] text-foreground leading-tight">Admin</p>
-                <p className="text-[10px] text-muted-foreground/70">Command Centre</p>
-              </div>
+              <>
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold text-[13px] text-foreground leading-tight">Admin</p>
+                  <p className="text-[10px] text-muted-foreground/70">Command Centre</p>
+                </div>
+                <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0">
+                  <PanelLeftClose className="h-3.5 w-3.5" />
+                </Button>
+              </>
             )}
           </div>
 
