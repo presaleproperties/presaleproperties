@@ -20,6 +20,7 @@ import {
   Presentation,
   Megaphone,
   FileText,
+  PenTool,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
