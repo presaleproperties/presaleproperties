@@ -2101,9 +2101,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 </div>
               </StepSection>
 
-
-                  </div>
-                  {!showProjectName && (
+              <div className="h-4" />
                     <div className="col-span-2">
                       <Label className="text-[10px] text-muted-foreground">Custom Header</Label>
                       <Input value={customHeader} onChange={e => setCustomHeader(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="New Presale Release" />
