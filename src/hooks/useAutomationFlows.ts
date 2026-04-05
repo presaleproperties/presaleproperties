@@ -202,6 +202,7 @@ export function useAutomationFlows() {
   };
 
   const toggleFlowActive = async (flowId: string, active: boolean) => {
+    // Toggle the flow itself
     const { error } = await (supabase as any)
       .from("automation_flows")
       .update({ is_active: active })
@@ -209,10 +210,20 @@ export function useAutomationFlows() {
 
     if (error) {
       toast.error("Failed to toggle flow");
-    } else {
-      toast.success(active ? "Flow enabled" : "Flow disabled");
-      await loadFlows();
+      return;
     }
+
+    // Also toggle all steps in the flow to stay in sync
+    const flow = flows.find((f) => f.id === flowId);
+    if (flow && flow.steps.length > 0) {
+      await (supabase as any)
+        .from("automation_steps")
+        .update({ is_active: active })
+        .eq("flow_id", flowId);
+    }
+
+    toast.success(active ? "Flow enabled" : "Flow disabled");
+    await loadFlows();
   };
 
   const createFlow = async (name: string, triggerType: string, description?: string) => {
