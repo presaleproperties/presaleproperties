@@ -1988,8 +1988,11 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  <!-- ── PROJECT DETAILS CTA ── -->
-  ${projectUrl ? `
+  <!-- ── DOCUMENT CTAs ── -->
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
+
+  ${(!data.brochureUrl && !data.floorplanUrl && !data.deckUrl && projectUrl) ? `
+  <!-- ── PROJECT DETAILS CTA (fallback) ── -->
   <tr>
     <td class="content-pad" style="padding:28px 40px 8px;background:#ffffff;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${OLIVE};border-radius:6px;overflow:hidden;">
@@ -1997,7 +2000,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
           <td align="center" style="padding:16px 24px;background:#ffffff;">
             <a href="${projectUrl}" target="_blank"
                style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${OLIVE};text-decoration:none;display:block;line-height:1;">
-              VIEW FLOOR PLANS &nbsp;→
+              VIEW PROJECT DETAILS &nbsp;→
             </a>
           </td>
         </tr>
