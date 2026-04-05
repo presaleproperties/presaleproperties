@@ -219,6 +219,7 @@ function docCtaButtons(opts: {
 }
 
 
+export interface EmailFontPairing {
   id: string;
   label: string;
   tag: string;
