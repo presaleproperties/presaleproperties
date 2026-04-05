@@ -203,8 +203,6 @@ ${agentCard(agent, project.city)}`,
 }
 
 function buildTemplateB(project: ProjectData, firstName: string, agent: AgentData, projectUrl?: string): string {
-  const whatsappNumber = "16722581100";
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi! I'm interested in ${project.name}. Can you tell me more?`)}`;
   const subjectLine = `${project.name} — We'll Be in Touch Shortly`;
 
   return emailShell(`
