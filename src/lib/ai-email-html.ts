@@ -105,6 +105,8 @@ function buildAiFinalHtml({
   deckUrl,
   deckParking,
   deckLocker,
+  brochureUrl,
+  floorplanUrl,
 }: {
   fields: AiEmailCopy;
   agent: AgentInfo;
@@ -120,6 +122,8 @@ function buildAiFinalHtml({
   deckUrl?: string;
   deckParking?: string;
   deckLocker?: string;
+  brochureUrl?: string;
+  floorplanUrl?: string;
 }): string {
   if (layoutVersion === "editorial") {
     const slides = (loopSlides && loopSlides.length > 0)
