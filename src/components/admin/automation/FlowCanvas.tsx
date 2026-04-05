@@ -4,6 +4,7 @@ import { AddStepButton } from "./AddStepButton";
 import type { AutomationFlow, StepType, AutomationStep } from "@/hooks/useAutomationFlows";
 import { getTriggerLabel } from "@/hooks/useAutomationFlows";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface FlowCanvasProps {
   flow: AutomationFlow;
@@ -17,6 +18,7 @@ export function FlowCanvas({ flow, onAddStep, onUpdateStep, onDeleteStep, onReor
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [dragOver, setDragOver] = useState<number | null>(null);
   const sortedSteps = [...flow.steps].sort((a, b) => a.step_order - b.step_order);
+  const flowDisabled = !flow.is_active;
 
   const handleDragEnd = () => {
     if (dragFrom !== null && dragOver !== null && dragFrom !== dragOver) {
@@ -34,7 +36,17 @@ export function FlowCanvas({ flow, onAddStep, onUpdateStep, onDeleteStep, onReor
         backgroundSize: "20px 20px",
       }}
     >
-      <div className="flex flex-col items-center py-12 px-4 min-h-full">
+      {/* Disabled overlay */}
+      {flowDisabled && (
+        <div className="absolute inset-0 bg-background/50 z-10 flex items-start justify-center pt-24 pointer-events-none">
+          <div className="bg-card border rounded-lg px-5 py-3 shadow-sm text-center">
+            <p className="text-sm font-medium text-muted-foreground">Flow is disabled</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Toggle the switch above to activate</p>
+          </div>
+        </div>
+      )}
+
+      <div className={cn("flex flex-col items-center py-12 px-4 min-h-full", flowDisabled && "opacity-40")}>
         {/* Trigger node */}
         <div className="flex flex-col items-center">
           <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
@@ -62,6 +74,7 @@ export function FlowCanvas({ flow, onAddStep, onUpdateStep, onDeleteStep, onReor
               onDragEnd={handleDragEnd}
               isDragging={dragFrom === i}
               isDragOver={dragOver === i && dragFrom !== i}
+              flowDisabled={flowDisabled}
             />
             <AddStepButton onAdd={(type) => onAddStep(flow.id, type, step.step_order)} />
           </div>
