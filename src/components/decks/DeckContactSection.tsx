@@ -167,8 +167,7 @@ export function DeckContactSection({
                 href={`https://wa.me/${rawNumber}?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2.5 w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white touch-manipulation transition-all active:scale-[0.98]"
-                style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,0.30)" }}
+                className="flex items-center justify-center gap-2.5 w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-primary text-primary-foreground touch-manipulation transition-all active:scale-[0.98] hover:bg-primary/90 shadow-md"
               >
                 <MessageCircle className="h-5 w-5 shrink-0" />
                 I'm Interested
