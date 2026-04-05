@@ -47,10 +47,7 @@ const DashboardListings = lazy(() => import("./pages/dashboard/DashboardListings
 const DashboardLeads = lazy(() => import("./pages/dashboard/DashboardLeads"));
 const DashboardEmails = lazy(() => import("./pages/dashboard/DashboardEmails"));
 const DashboardProfile = lazy(() => import("./pages/dashboard/DashboardProfile"));
-const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling"));
-const DashboardMessages = lazy(() => import("./pages/dashboard/DashboardMessages"));
 const DashboardProjectDocuments = lazy(() => import("./pages/dashboard/DashboardProjectDocuments"));
-const DashboardLeadOnboard = lazy(() => import("./pages/dashboard/DashboardLeadOnboard"));
 const ListingForm = lazy(() => import("./pages/dashboard/ListingForm"));
 const DashboardMarketingHub = lazy(() => import("./pages/dashboard/DashboardMarketingHub"));
 const DashboardEmailBuilder = lazy(() => import("./pages/dashboard/DashboardEmailBuilder"));
