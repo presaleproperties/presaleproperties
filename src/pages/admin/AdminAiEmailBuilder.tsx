@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, buildLoopEmailHtml, buildPitchDeckEmailHtml, buildPitchDeckEmailHtmlLofty, buildLululemonEmailHtml, buildEditorialEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, buildPitchDeckEmailHtml, buildPitchDeckEmailHtmlLofty, buildLululemonEmailHtml, buildEditorialEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
@@ -88,7 +88,7 @@ function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
-  layoutVersion?: "loop" | "pitch-deck" | "modern" | "editorial",
+  layoutVersion?: "pitch-deck" | "modern" | "editorial",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
 ): string {
@@ -173,53 +173,6 @@ function buildFinalHtml(
       fpSubheading,
     }, agent);
   }
-  // ── LOOP template ──────────────────────────────────────────────────────────
-  if (layoutVersion === "loop") {
-    // Prefer project gallery slides; fall back to heroImage + imageCards
-    const slides = (loopSlides && loopSlides.length > 0)
-      ? loopSlides.filter(Boolean)
-      : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
-    const base = buildLoopEmailHtml(fields, agent, slides, ctaUrl, font);
-    // Inject floor plans if present
-    if (floorPlans.length > 0) {
-      const active = floorPlans.filter(fp => fp.url);
-      if (active.length > 0) {
-        const ACCENT = "#C9A55A"; const DARK = "#0d1f18";
-        const bodyFont = font?.body || "'DM Sans', Helvetica, Arial, sans-serif";
-        const displayFont = font?.display || "'Cormorant Garamond', Georgia, serif";
-        const heading = fpHeading || "Available Floor Plans";
-        const sub = fpSubheading || "Limited units remaining — register now for priority access";
-        const cells = active.map(fp => `
-          <td style="padding:8px;width:${active.length === 1 ? "100%" : "50%"};vertical-align:top;text-align:center;">
-            <div style="border:1px solid #e0dbd3;overflow:hidden;background:#fafaf8;">
-              <img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="100%" style="display:block;width:100%;height:auto;" />
-              ${fp.label || fp.sqft ? `<div style="padding:10px 12px 12px;">${fp.label ? `<p style="margin:0 0 3px 0;font-family:${bodyFont};font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#111;">${fp.label}</p>` : ""}${fp.sqft ? `<p style="margin:0;font-family:${bodyFont};font-size:10px;color:#888;">${fp.sqft}</p>` : ""}</div>` : ""}
-            </div>
-          </td>`).join("");
-        const block = `
-  <!-- ─── FLOOR PLANS ─── -->
-  <tr><td style="background:${DARK};padding:0;"><div style="height:3px;background:${ACCENT};"></div></td></tr>
-  <tr><td style="background:${DARK};padding:28px 36px 8px;">
-    <p style="margin:0 0 6px 0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
-    <p style="margin:0 0 8px 0;font-family:${displayFont};font-size:26px;font-weight:600;color:#ffffff;line-height:1.15;">${heading}</p>
-    <p style="margin:0;font-family:${bodyFont};font-size:12px;color:#8aaa96;line-height:1.6;">${sub}</p>
-  </td></tr>
-  <tr><td style="background:${DARK};padding:16px 28px 28px;">
-    <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>${cells}</tr></table>
-  </td></tr>
-  <tr><td style="background:${DARK};padding:0 36px 28px;">
-    <table cellpadding="0" cellspacing="0" border="0"><tr>
-      <td style="background:${ACCENT};padding:13px 32px;">
-        <a href="https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${fields.projectName || "this project"}. Can you send me more details?`)}" style="font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
-      </td>
-    </tr></table>
-  </td></tr>`;
-        return base.replace("<!-- ─── AGENT CARD", block + "\n  <!-- ─── AGENT CARD");
-      }
-    }
-    return base;
-  }
-
   // ── CLASSIC template ───────────────────────────────────────────────────────
   // Headline always shows in the body — never suppressed
   const base   = buildAiEmailHtml(fields, agent, ctaUrl, font, false);
@@ -435,7 +388,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // Layout version
-  const [layoutVersion, setLayoutVersion] = useState<"loop" | "pitch-deck" | "modern" | "editorial">(savedDraft?.layoutVersion === "classic" ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "loop" | "pitch-deck" | "modern" | "editorial");
+  const [layoutVersion, setLayoutVersion] = useState<"pitch-deck" | "modern" | "editorial">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "pitch-deck" | "modern" | "editorial");
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
@@ -1604,19 +1557,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     {layoutVersion === "editorial" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-[#7a8a5a]" />}
                   </button>
                   <button
-                    onClick={() => setLayoutVersion("loop")}
-                    className={cn(
-                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
-                      layoutVersion === "loop"
-                        ? "border-amber-500 bg-amber-500/8 shadow-sm"
-                        : "border-border bg-muted/10 hover:border-amber-400/50"
-                    )}
-                  >
-                    <div className="text-[11px] font-semibold text-foreground">The Loop</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Slideshow · Editorial</div>
-                    {layoutVersion === "loop" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-amber-500" />}
-                  </button>
-                  <button
                     onClick={() => setLayoutVersion("pitch-deck")}
                     className={cn(
                       "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
@@ -1645,9 +1585,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 </div>
                 {layoutVersion === "editorial" && (
                   <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
-                )}
-                {layoutVersion === "loop" && (
-                  <p className="text-[9px] text-amber-600/70 mt-1.5 leading-relaxed">Hero + Image Cards cycle as a CSS slideshow. Add images in the Images step below.</p>
                 )}
                 {layoutVersion === "pitch-deck" && (
                   <p className="text-[9px] text-emerald-600/70 mt-1.5 leading-relaxed">Optimized for pitch deck sends. Plus Jakarta Sans font, floor plans with pricing, parking &amp; locker included row, Call Now CTA only.</p>
