@@ -1515,9 +1515,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 {layoutVersion === "editorial" && (
                   <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
                 )}
-                {layoutVersion === "pitch-deck" && (
-                  <p className="text-[9px] text-emerald-600/70 mt-1.5 leading-relaxed">Optimized for pitch deck sends. Plus Jakarta Sans font, floor plans with pricing, parking &amp; locker included row, Call Now CTA only.</p>
-                )}
                 {layoutVersion === "modern" && (
                   <p className="text-[9px] text-sky-600/70 mt-1.5 leading-relaxed">Full-bleed hero, huge bold headline, black pill CTAs — inspired by Lululemon's email design. Best for mobile readers.</p>
                 )}
