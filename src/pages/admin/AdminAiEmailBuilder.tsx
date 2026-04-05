@@ -1499,19 +1499,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     {layoutVersion === "editorial" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-[#7a8a5a]" />}
                   </button>
                   <button
-                    onClick={() => setLayoutVersion("pitch-deck")}
-                    className={cn(
-                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
-                      layoutVersion === "pitch-deck"
-                        ? "border-emerald-500 bg-emerald-500/8 shadow-sm"
-                        : "border-border bg-muted/10 hover:border-emerald-400/50"
-                    )}
-                  >
-                    <div className="text-[11px] font-semibold text-foreground">Pitch Deck</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Floor plans + pricing</div>
-                    {layoutVersion === "pitch-deck" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-emerald-500" />}
-                  </button>
-                  <button
                     onClick={() => setLayoutVersion("modern")}
                     className={cn(
                       "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
