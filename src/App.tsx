@@ -17,6 +17,7 @@ import { BlogsRedirect } from "@/components/redirects/BlogsRedirect";
 import { PropertiesCleanupRedirect } from "@/components/redirects/PropertiesSpaceRedirect";
 import { GlobalSEO } from "@/components/seo/GlobalSEO";
 import { FaviconLoader } from "@/components/FaviconLoader";
+import { AgentManifestSwap } from "@/components/dashboard/AgentManifestSwap";
 import { UtmTracker } from "@/components/UtmTracker";
 import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
@@ -176,6 +177,7 @@ const App = () => (
             <ScrollToTop />
             <GlobalSEO />
             <FaviconLoader />
+            <AgentManifestSwap />
             <UtmTracker />
             <LoftyPageTracker />
             <BehaviorTracker />
