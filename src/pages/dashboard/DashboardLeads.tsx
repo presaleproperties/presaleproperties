@@ -506,11 +506,6 @@ export default function DashboardLeads() {
                                       ))}
                                     </DropdownMenuContent>
                                   </DropdownMenu>
-                                  {lead.zapier_synced && (
-                                    <Badge className="text-[10px] h-5 px-1.5 bg-primary/10 text-primary border-0 gap-0.5 ml-1">
-                                      <Check className="h-2.5 w-2.5" /> CRM
-                                    </Badge>
-                                  )}
                                 </td>
 
                                 {/* Tags — project names + custom only */}
