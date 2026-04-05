@@ -110,6 +110,15 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const { signOut, user, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [fullName, setFullName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    import("@/integrations/supabase/client").then(({ supabase }) => {
+      supabase.from("profiles").select("full_name").eq("user_id", user.id).single()
+        .then(({ data }) => { if (data?.full_name) setFullName(data.full_name); });
+    });
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
