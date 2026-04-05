@@ -150,52 +150,45 @@ ${agent.email ? `<p style="margin:0;font-family:${F};font-size:13px;color:#8a7e6
 </td></tr>`;
 }
 
-function buildTemplateA(project: ProjectData, firstName: string, agent: AgentData, projectUrl?: string): string {
+function buildTemplateA(project: ProjectData, firstName: string, agent: AgentData): string {
   const brochureUrl = project.brochure_files?.[0] || null;
-  const floorplanUrl = project.floorplan_files?.[0] || project.pricing_sheets?.[0] || null;
-  const hasBrochure = !!brochureUrl;
-  const hasFloorplan = !!floorplanUrl;
+  const floorplanUrl = project.floorplan_files?.[0] || null;
+  const pricingUrl = project.pricing_sheets?.[0] || null;
 
   let docButtons = "";
-  if (hasBrochure && hasFloorplan) {
-    docButtons = `
+
+  // Brochure button (gold)
+  if (brochureUrl) {
+    docButtons += `
 <tr><td class="content-pad" style="padding:0 40px 12px;background:#ffffff;">
 <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
 <td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
 <a href="${brochureUrl}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">VIEW BROCHURE</a>
 </td></tr></table>
-</td></tr>
+</td></tr>`;
+  }
+
+  // Floor plans button (dark green)
+  if (floorplanUrl) {
+    docButtons += `
 <tr><td class="content-pad" style="padding:0 40px 12px;background:#ffffff;">
 <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
 <td class="cta-td" align="center" style="background:#0d1f18;border-radius:50px;padding:18px 32px;text-align:center;">
 <a href="${floorplanUrl}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${ACCENT};text-decoration:none;display:block;">VIEW FLOOR PLANS</a>
 </td></tr></table>
 </td></tr>`;
-  } else if (hasBrochure) {
-    docButtons = `
+  }
+
+  // Pricing sheet button (only if attached)
+  if (pricingUrl) {
+    docButtons += `
 <tr><td class="content-pad" style="padding:0 40px 12px;background:#ffffff;">
 <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-<td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
-<a href="${brochureUrl}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">VIEW BROCHURE</a>
-</td></tr></table>
-</td></tr>`;
-  } else if (hasFloorplan) {
-    docButtons = `
-<tr><td class="content-pad" style="padding:0 40px 12px;background:#ffffff;">
-<table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-<td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
-<a href="${floorplanUrl}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">VIEW FLOOR PLANS</a>
+<td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
+<a href="${pricingUrl}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${DARK};text-decoration:none;display:block;">PRICING SHEET</a>
 </td></tr></table>
 </td></tr>`;
   }
-
-  const projectCta = projectUrl ? `
-<tr><td class="content-pad" style="padding:0 40px 28px;background:#ffffff;">
-<table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-<td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
-<a href="${projectUrl}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${DARK};text-decoration:none;display:block;">VIEW PROJECT DETAILS</a>
-</td></tr></table>
-</td></tr>` : "";
 
   const subjectLine = `${project.name} — Your Requested Floor Plans & Details`;
 
@@ -210,7 +203,6 @@ ${statsBar(project)}
 </table>
 </td></tr>
 ${docButtons}
-${projectCta}
 <tr><td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
 <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
 <td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
@@ -298,7 +290,7 @@ Deno.serve(async (req) => {
     // Fetch lead
     const { data: lead, error: leadErr } = await supabase
       .from("project_leads")
-      .select("id, name, email, phone, project_id, lead_source")
+      .select("id, name, email, phone, project_id, lead_source, persona, agent_status")
       .eq("id", leadId)
       .single();
 
@@ -334,7 +326,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Determine which template to use
+    // Hard rule: realtors or leads working with an agent ALWAYS get Template B
+    const isRealtorOrHasAgent = 
+      lead.persona === "realtor" || 
+      lead.agent_status === "i_am_realtor" || 
+      lead.agent_status === "working_with_agent";
+
     const hasBrochure = project.brochure_files && project.brochure_files.length > 0;
     const hasFloorplan = project.floorplan_files && project.floorplan_files.length > 0;
     const hasPricing = project.pricing_sheets && project.pricing_sheets.length > 0;
@@ -344,10 +341,12 @@ Deno.serve(async (req) => {
     const projectUrl = project.slug ? `https://presaleproperties.com/projects/${project.slug}` : undefined;
     const agent = DEFAULT_AGENT;
 
-    const templateType = hasDocuments ? "project_details_docs" : "agent_followup";
-    const html = hasDocuments
-      ? buildTemplateA(project as ProjectData, firstName, agent, projectUrl)
-      : buildTemplateB(project as ProjectData, firstName, agent, projectUrl);
+    // Template B for realtors/agent leads (always), or when no docs available
+    const useTemplateB = isRealtorOrHasAgent || !hasDocuments;
+    const templateType = useTemplateB ? "agent_followup" : "project_details_docs";
+    const html = useTemplateB
+      ? buildTemplateB(project as ProjectData, firstName, agent, projectUrl)
+      : buildTemplateA(project as ProjectData, firstName, agent);
 
     const subjectLine = hasDocuments
       ? `${project.name} — Your Requested Floor Plans & Details`
