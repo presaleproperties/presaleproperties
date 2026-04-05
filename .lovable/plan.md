@@ -1,33 +1,39 @@
-## Plan: Agent Marketing Hub + Email Builder
 
-### Goal
-Give agents their own Marketing Hub and Email Builder inside the agent portal (`/dashboard/...`), so they can create email templates, send them to their leads, and track everything — without touching the admin portal.
+## Audit Findings
 
-### Changes (Admin portal stays untouched)
+### 🗑️ Pages to Remove (waste of space/code)
 
-#### 1. Agent Marketing Hub page (`/dashboard/marketing-hub`)
-- Create `src/pages/dashboard/DashboardMarketingHub.tsx` — a copy of `AdminMarketingHub.tsx` but:
-  - Wrapped in `DashboardLayout` instead of `AdminLayout`
-  - Routes point to `/dashboard/email-builder` instead of `/admin/email-builder`
-  - Data scoped: only shows templates created by the logged-in agent (filter by `user_id`)
-  - Agents can create, duplicate, delete their own templates
+1. **Onboard Client** (`/dashboard/lead-onboard`) — **Exact duplicate** of the LeadOnboardHub already embedded in the Overview page. Same component, same functionality, just wrapped in DashboardLayout twice. Dead code.
 
-#### 2. Agent Email Builder page (`/dashboard/email-builder`)
-- Create `src/pages/dashboard/DashboardEmailBuilder.tsx` — wraps the existing `AdminAiEmailBuilder` component but:
-  - Uses `DashboardLayout` instead of `AdminLayout`
-  - Back button navigates to `/dashboard/marketing-hub`
-  - Saves templates with the agent's `user_id` so they're scoped
+2. **Messages** (`/dashboard/messages`) — Agent-to-agent inbox for assignment listings. This feature is tied to a secondary workflow (assignment marketplace) that isn't your core focus. Low/no usage. Remove from nav.
 
-#### 3. Database: Add `user_id` column to `campaign_templates`
-- Add nullable `user_id` UUID column (existing admin templates have null = shared/admin)
-- RLS policy: agents can CRUD their own templates; admins can manage all
+3. **Billing** (`/dashboard/billing`) — Queries a `payments` table for listing payments. Since the assignment listing payment flow isn't live, this page always shows "No payments yet." Dead weight.
 
-#### 4. Update routing (`App.tsx`)
-- Add `/dashboard/marketing-hub` → `DashboardMarketingHub`
-- Add `/dashboard/email-builder` → `DashboardEmailBuilder`
+### 🔄 Reorganized Navigation (11 items → 7 items)
 
-#### 5. Update agent nav (`DashboardLayout.tsx`)
-- Add "Marketing Hub" nav item between "Pitch Decks" and "Leads"
+**Core Workflow Group** (what agents do daily):
+1. **Overview** — Greeting + Lead Onboard form + quick deck links (keep as-is)
+2. **Leads** — All lead management (onboarded + inquiries)  
+3. **Pitch Decks** — Create & share project decks
+4. **Marketing** — Email template builder + saved campaigns
+5. **Emails** — Track sent emails & open rates
 
-#### 6. No changes to admin portal
-- `AdminMarketingHub`, `AdminAiEmailBuilder`, `AdminLayout` — all untouched
+**Resources Group:**
+6. **Project Docs** — Premium floorplan/brochure library
+
+**Account Group:**
+7. **Profile** — Account & license settings
+
+### 📐 Layout Changes
+- Group sidebar nav into labeled sections: **Workflow**, **Resources**, **Account**
+- Keep **My Listings** accessible but move to bottom/secondary position (it works, just not the primary use case)
+- Remove the redundant "Onboard Client" route entirely
+
+### ✅ What stays as-is (working well)
+- LeadOnboardHub on Overview (primary CTA ✓)
+- Leads page with temperature system (✓)
+- Pitch Decks with "Send Email Campaign" flow (✓)
+- Marketing Hub with company template imports (✓)
+- Email tracking with compose (✓)
+- Project Documents with verification gate (✓)
+- Profile with license verification (✓)
