@@ -404,15 +404,14 @@ export default function DashboardLeads() {
                   {/* Desktop Table */}
                   <div className="hidden md:block rounded-lg border border-border overflow-hidden">
                     <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
+                    <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-border bg-muted/50">
-                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs w-8"></th>
+                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Status</th>
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Name</th>
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Phone</th>
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Email</th>
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Source</th>
-                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Status</th>
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Tags</th>
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Date</th>
                             <th className="text-right px-3 py-2.5 font-medium text-muted-foreground text-xs w-10"></th>
