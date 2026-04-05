@@ -1,6 +1,6 @@
 import {
   buildAiEmailHtml,
-  buildPitchDeckEmailHtml,
+  
   buildLululemonEmailHtml,
   buildEditorialEmailHtml,
   DEFAULT_AGENT,
@@ -16,7 +16,7 @@ const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
   Ravish: { phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com" },
 };
 
-type LayoutVersion = "classic" | "loop" | "pitch-deck" | "modern" | "editorial";
+type LayoutVersion = "classic" | "modern" | "editorial";
 
 type StoredFloorPlan = {
   id?: string;
@@ -160,37 +160,6 @@ function buildAiFinalHtml({
       completion: fields.completion,
       infoRows: fields.infoRows,
       incentiveText: fields.incentiveText,
-      deckUrl: deckUrl || undefined,
-      floorPlans: floorPlans.filter((fp) => fp.url).map((fp) => ({
-        id: fp.id || "",
-        url: fp.url || "",
-        label: fp.label || "",
-        sqft: fp.sqft || "",
-        price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
-        exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
-      })),
-      fpHeading,
-      fpSubheading,
-    }, agent);
-  }
-
-  if (layoutVersion === "pitch-deck") {
-    return buildPitchDeckEmailHtml({
-      projectName: fields.projectName || "",
-      city: fields.city,
-      developerName: fields.developerName,
-      heroImage: heroImage || undefined,
-      headline: fields.headline,
-      bodyCopy: fields.bodyCopy,
-      subjectLine: fields.subjectLine,
-      previewText: fields.previewText,
-      startingPrice: fields.startingPrice,
-      deposit: fields.deposit,
-      completion: fields.completion,
-      infoRows: fields.infoRows,
-      incentiveText: fields.incentiveText,
-      parkingIncluded: deckParking || "1 Parking Stall Included",
-      lockerIncluded: deckLocker || "1 Storage Locker Included",
       deckUrl: deckUrl || undefined,
       floorPlans: floorPlans.filter((fp) => fp.url).map((fp) => ({
         id: fp.id || "",

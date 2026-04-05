@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, buildPitchDeckEmailHtml, buildPitchDeckEmailHtmlLofty, buildLululemonEmailHtml, buildEditorialEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, buildLululemonEmailHtml, buildEditorialEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
@@ -88,7 +88,7 @@ function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
-  layoutVersion?: "pitch-deck" | "modern" | "editorial",
+  layoutVersion?: "modern" | "editorial",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
 ): string {
@@ -135,35 +135,6 @@ function buildFinalHtml(
       infoRows:       fields.infoRows,
       incentiveText:  fields.incentiveText,
       deckUrl:        saved?._deckUrl || undefined,
-      floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
-        id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
-        price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
-        exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
-      })),
-      fpHeading,
-      fpSubheading,
-    }, agent);
-  }
-  // ── PITCH DECK template ───────────────────────────────────────────────────
-  if (layoutVersion === "pitch-deck") {
-    const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
-    return buildPitchDeckEmailHtml({
-      projectName:    fields.projectName || "",
-      city:           fields.city,
-      developerName:  fields.developerName,
-      heroImage:      heroImage || undefined,
-      headline:       fields.headline,
-      bodyCopy:       fields.bodyCopy,
-      subjectLine:    fields.subjectLine,
-      previewText:    fields.previewText,
-      startingPrice:  fields.startingPrice,
-      deposit:        fields.deposit,
-      completion:     fields.completion,
-      infoRows:       fields.infoRows,
-      incentiveText:  fields.incentiveText,
-      parkingIncluded: saved?._deckParking   || "1 Parking Stall Included",
-      lockerIncluded:  saved?._deckLocker    || "1 Storage Locker Included",
-      deckUrl:         saved?._deckUrl       || undefined,
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
@@ -388,7 +359,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // Layout version
-  const [layoutVersion, setLayoutVersion] = useState<"pitch-deck" | "modern" | "editorial">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "pitch-deck" | "modern" | "editorial");
+  const [layoutVersion, setLayoutVersion] = useState<"modern" | "editorial">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "editorial");
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
@@ -485,7 +456,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       setFloorPlans(fresh.floorPlans ?? []);
       setFpHeading(fresh.fpHeading ?? "Available Floor Plans");
       setFpSubheading(fresh.fpSubheading ?? "");
-      setLayoutVersion((fresh.layoutVersion === "classic" ? "modern" : fresh.layoutVersion) ?? "pitch-deck");
+      setLayoutVersion((fresh.layoutVersion === "classic" || fresh.layoutVersion === "pitch-deck" ? "modern" : fresh.layoutVersion) ?? "modern");
       if (fresh.selAgent) setSelAgent(fresh.selAgent);
 
       // Live-sync from deck DB to pick up latest floor plans, credits, pricing
@@ -992,36 +963,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // ── Lofty / CRM-safe export (no media queries, fully fluid) ──────────────────
   const getLoftyHtml = useCallback((): string => {
-    // For pitch-deck layout, use the dedicated Lofty-safe builder (no <style>, fixed 600px, inline-only)
-    if (layoutVersion === "pitch-deck") {
-      const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
-      const agentForEmail = selectedAgent ?? DEFAULT_AGENT;
-      return buildPitchDeckEmailHtmlLofty({
-        projectName:    projectName || "",
-        city:           city || undefined,
-        developerName:  developerName || undefined,
-        heroImage:      heroImage || undefined,
-        headline,
-        bodyCopy,
-        subjectLine,
-        previewText,
-        startingPrice,
-        deposit,
-        completion,
-        infoRows,
-        incentiveText,
-        parkingIncluded: saved?._deckParking || "1 Parking Stall Included",
-        lockerIncluded:  saved?._deckLocker  || "1 Storage Locker Included",
-        deckUrl:         saved?._deckUrl     || undefined,
-        floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
-          id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
-          price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
-        })),
-        fpHeading,
-        fpSubheading,
-      }, agentForEmail);
-    }
-    // For other layouts: strip <style>, convert fixed widths to fluid, and swap merge tags
+    // Strip <style>, convert fixed widths to fluid, and swap merge tags
     let html = finalHtml;
     html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
     html = html.replace(/width:\s*(\d+)px/g, (match, px) => {
@@ -1557,19 +1499,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     {layoutVersion === "editorial" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-[#7a8a5a]" />}
                   </button>
                   <button
-                    onClick={() => setLayoutVersion("pitch-deck")}
-                    className={cn(
-                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
-                      layoutVersion === "pitch-deck"
-                        ? "border-emerald-500 bg-emerald-500/8 shadow-sm"
-                        : "border-border bg-muted/10 hover:border-emerald-400/50"
-                    )}
-                  >
-                    <div className="text-[11px] font-semibold text-foreground">Pitch Deck</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Floor plans + pricing</div>
-                    {layoutVersion === "pitch-deck" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-emerald-500" />}
-                  </button>
-                  <button
                     onClick={() => setLayoutVersion("modern")}
                     className={cn(
                       "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
@@ -1585,9 +1514,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 </div>
                 {layoutVersion === "editorial" && (
                   <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
-                )}
-                {layoutVersion === "pitch-deck" && (
-                  <p className="text-[9px] text-emerald-600/70 mt-1.5 leading-relaxed">Optimized for pitch deck sends. Plus Jakarta Sans font, floor plans with pricing, parking &amp; locker included row, Call Now CTA only.</p>
                 )}
                 {layoutVersion === "modern" && (
                   <p className="text-[9px] text-sky-600/70 mt-1.5 leading-relaxed">Full-bleed hero, huge bold headline, black pill CTAs — inspired by Lululemon's email design. Best for mobile readers.</p>
