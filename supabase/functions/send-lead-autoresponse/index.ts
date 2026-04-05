@@ -157,9 +157,29 @@ ${agent.email ? `<p style="margin:0;font-family:${F};font-size:13px;color:#8a7e6
 </td></tr>`;
 }
 
+function docButtons(project: ProjectData): string {
+  const docs: { label: string; url: string; icon: string }[] = [];
+  if (project.brochure_files?.length) docs.push({ label: "VIEW BROCHURE", url: project.brochure_files[0], icon: "📄" });
+  if (project.floorplan_files?.length) docs.push({ label: "VIEW FLOOR PLANS", url: project.floorplan_files[0], icon: "📐" });
+  if (project.pricing_sheets?.length) docs.push({ label: "VIEW PRICING", url: project.pricing_sheets[0], icon: "💰" });
+  if (docs.length === 0) return "";
+
+  return `<tr><td class="content-pad" style="padding:0 40px 28px;background:#ffffff;">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;border-radius:8px;border:1px solid #e8e2d6;">
+<tr><td style="padding:20px 24px;">
+<p style="margin:0 0 14px 0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${ACCENT};">YOUR REQUESTED DOCUMENTS</p>
+${docs.map(d => `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:8px;"><tr>
+<td style="background:${DARK};border-radius:8px;padding:14px 20px;text-align:center;">
+<a href="${d.url}" target="_blank" style="font-family:${F};font-size:13px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">${d.icon} &nbsp; ${d.label}</a>
+</td></tr></table>`).join("")}
+</td></tr>
+</table>
+</td></tr>`;
+}
+
 function buildTemplateA(project: ProjectData, firstName: string, agent: AgentData): string {
   const whatsappNumber = "16722581100";
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi! I'm interested in ${project.name}. Can you share the floor plans and pricing?`)}`;
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi! I'm interested in ${project.name}. Can you share more details?`)}`;
 
   const subjectLine = `${project.name} — Your Requested Floor Plans & Details`;
 
@@ -167,17 +187,17 @@ function buildTemplateA(project: ProjectData, firstName: string, agent: AgentDat
 ${heroBlock(project.featured_image, project.name)}
 ${headlineBlock(project)}
 ${statsBar(project)}
-<tr><td class="content-pad" style="padding:36px 40px 28px;background:#ffffff;">
+<tr><td class="content-pad" style="padding:36px 40px 20px;background:#ffffff;">
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr><td style="padding:0 0 18px 0;"><p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Hi ${firstName},</p></td></tr>
-<tr><td style="padding:0 0 18px 0;"><p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Thank you for your interest in <strong style="font-weight:700;color:${DARK};">${project.name}</strong>${project.city ? ` in <strong style="font-weight:700;color:${DARK};">${project.city}</strong>` : ""}${project.developer_name ? ` by ${project.developer_name}` : ""}. All the details you need &mdash; floor plans, pricing, and availability &mdash; are available through our team.</p></td></tr>
-<tr><td style="padding:0 0 18px 0;"><p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Tap the button below to chat with us instantly and get everything you need.</p></td></tr>
+<tr><td style="padding:0 0 18px 0;"><p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Thank you for your interest in <strong style="font-weight:700;color:${DARK};">${project.name}</strong>${project.city ? ` in <strong style="font-weight:700;color:${DARK};">${project.city}</strong>` : ""}${project.developer_name ? ` by ${project.developer_name}` : ""}. Here are the documents you requested &mdash; tap to view or download.</p></td></tr>
 </table>
 </td></tr>
+${docButtons(project)}
 <tr><td class="content-pad" style="padding:0 40px 12px;background:#ffffff;">
 <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
 <td class="cta-td" align="center" style="background:#25D366;border-radius:50px;padding:18px 32px;text-align:center;">
-<a href="${whatsappLink}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">CHAT NOW</a>
+<a href="${whatsappLink}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">HAVE QUESTIONS? CHAT NOW</a>
 </td></tr></table>
 </td></tr>
 <tr><td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
