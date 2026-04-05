@@ -1585,9 +1585,94 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 )}
               </div>
 
-              {/* ── PROJECT DETAILS ── */}
+              {/* ── 1. IMAGES & FLOOR PLANS (hero = top of email) ── */}
               <StepSection
-                step={1} title="Project Details" icon={<Building2 className="h-3.5 w-3.5" />}
+                step={1} title="Images & Floor Plans" icon={<Image className="h-3.5 w-3.5" />}
+                done={!!(heroImage || floorPlans.length)} doneLabel={[heroImage && "Hero", floorPlans.length && `${floorPlans.length} FP`].filter(Boolean).join(" · ")}
+                defaultOpen={true}
+              >
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Hero Image URL</Label>
+                  <div className="flex gap-1.5 mt-0.5">
+                    <Input value={heroImage} onChange={e => setHeroImage(e.target.value)} className="h-7 text-xs flex-1" placeholder="https://… or upload" />
+                    <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => heroInputRef.current?.click()} disabled={heroUploading}>
+                      {heroUploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                    </Button>
+                  </div>
+                </div>
+                {heroImage && (
+                  <div className="relative rounded overflow-hidden border border-border">
+                    <img src={heroImage} alt="Hero" className="w-full h-20 object-cover" onError={() => setHeroImage("")} />
+                    <button onClick={() => setHeroImage("")} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
+                      <X className="h-3 w-3 text-white" />
+                    </button>
+                  </div>
+                )}
+                {projects.filter(p => p.featured_image).length > 0 && (
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-1">Pick from projects:</p>
+                    <div className="grid grid-cols-3 gap-1">
+                      {projects.filter(p => p.featured_image).slice(0, 6).map(p => (
+                        <button key={p.id} onClick={() => setHeroImage(p.featured_image!)}
+                          className={cn("relative rounded overflow-hidden border-2 aspect-video transition-all", heroImage === p.featured_image ? "border-primary" : "border-transparent hover:border-muted-foreground/40")}>
+                          <img src={p.featured_image!} alt={p.name} className="w-full h-full object-cover" />
+                          {heroImage === p.featured_image && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-white" /></div>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div className="pt-1">
+                  <Label className="text-[10px] text-muted-foreground">Floor Plans <span className="text-muted-foreground/50">(up to 2)</span></Label>
+                  {floorPlans.length < 2 && (
+                    <button onClick={() => fpInputRef.current?.click()} disabled={fpUploading}
+                      className="w-full mt-1 flex items-center justify-center gap-1.5 h-14 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-muted-foreground text-xs font-medium">
+                      {fpUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {fpUploading ? "Uploading…" : `Upload floor plan${floorPlans.length === 1 ? " (1 more)" : "s"}`}
+                    </button>
+                  )}
+                  {floorPlans.map(fp => (
+                    <div key={fp.id} className="mt-1.5 border border-border rounded-lg overflow-hidden bg-muted/20">
+                      <div className="relative">
+                        <img src={fp.url} alt="Floor plan" className="w-full h-24 object-contain bg-white" />
+                        <button onClick={() => removeFp(fp.id)} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
+                          <X className="h-3 w-3 text-white" />
+                        </button>
+                      </div>
+                      <div className="p-2 grid grid-cols-2 gap-1.5">
+                        <div>
+                          <Label className="text-[9px]">Label</Label>
+                          <Input value={fp.label} onChange={e => updateFp(fp.id, "label", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="1 Bed + Den" />
+                        </div>
+                        <div>
+                          <Label className="text-[9px]">Size</Label>
+                          <Input value={fp.sqft} onChange={e => updateFp(fp.id, "sqft", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="678 sq ft" />
+                        </div>
+                        <div className="col-span-2">
+                          <Label className="text-[9px]">Price</Label>
+                          <Input value={fp.price ?? ""} onChange={e => updateFp(fp.id, "price", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="579,900" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {floorPlans.length > 0 && (
+                    <div className="mt-2 space-y-1.5">
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Section Heading</Label>
+                        <Input value={fpHeading} onChange={e => setFpHeading(e.target.value)} className="h-7 text-xs mt-0.5" />
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Sub-heading</Label>
+                        <Input value={fpSubheading} onChange={e => setFpSubheading(e.target.value)} className="h-7 text-xs mt-0.5" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </StepSection>
+
+              {/* ── 2. PROJECT DETAILS ── */}
+              <StepSection
+                step={2} title="Project Details" icon={<Building2 className="h-3.5 w-3.5" />}
                 done={!!projectName} doneLabel={projectName}
                 defaultOpen={true}
               >
@@ -1603,6 +1688,420 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     <Input value={projectName} onChange={e => setProjectName(e.target.value)} className={cn("h-7 text-xs", !showProjectName && "opacity-40")} placeholder="Lumina" />
                   </div>
                   {!showProjectName && (
+                    <div className="col-span-2">
+                      <Label className="text-[10px] text-muted-foreground">Custom Header</Label>
+                      <Input value={customHeader} onChange={e => setCustomHeader(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="New Presale Release" />
+                    </div>
+                  )}
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <Label className="text-[10px] text-muted-foreground">Developer</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-muted-foreground">{showDeveloperName ? "Visible" : "Hidden"}</span>
+                        <Switch checked={showDeveloperName} onCheckedChange={setShowDeveloperName} className="scale-75 origin-right" />
+                      </div>
+                    </div>
+                    <Input value={developerName} onChange={e => setDevName(e.target.value)} className={cn("h-7 text-xs", !showDeveloperName && "opacity-40")} placeholder="Bosa Properties" />
+                  </div>
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground">City</Label>
+                    <Input value={city} onChange={e => setCity(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="Surrey" />
+                  </div>
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground">Neighbourhood</Label>
+                    <Input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="Fleetwood" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5 mt-1">
+                  {([
+                    { val: startingPrice, set: setStartingPrice, label: "From Price", hint: "+ GST",     ph: "$649K"       },
+                    { val: deposit,       set: setDeposit,       label: "Deposit",    hint: "to secure",  ph: "5% signing"  },
+                    { val: completion,    set: setCompletion,    label: "Completion", hint: "est. date",  ph: "2027"        },
+                  ]).map(({ val, set, label, hint, ph }) => (
+                    <div key={label} className={cn("rounded-lg border p-2 transition-all", val ? "border-primary/40 bg-primary/5" : "border-border bg-muted/10")}>
+                      <Label className="text-[9px] text-muted-foreground uppercase tracking-wide block mb-1">{label}</Label>
+                      <Input value={val} onChange={e => set(e.target.value)} className="h-6 text-xs border-0 bg-transparent p-0 focus-visible:ring-0 font-semibold" placeholder={ph} />
+                      <p className="text-[9px] text-muted-foreground/40 mt-0.5">{hint}</p>
+                    </div>
+                  ))}
+                </div>
+              </StepSection>
+
+              {/* ── 3. PASTE YOUR COPY ── */}
+              <StepSection
+                step={3} title="Paste Your Copy" icon={<FileText className="h-3.5 w-3.5" />}
+                done={!!bodyCopy} doneLabel={bodyCopy ? "Copy ready" : undefined}
+                defaultOpen={true}
+              >
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Headline</Label>
+                  <Input value={headline} onChange={e => setHeadline(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="Introducing Lumina — From $649K in Surrey" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <Label className="text-[10px] text-muted-foreground">Body Copy <span className="text-muted-foreground/40">— paste your email copy here</span></Label>
+                    {bodyCopy && (
+                      <span className="text-[9px] text-muted-foreground/50">{bodyCopy.split(/\s+/).filter(Boolean).length} words</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-0.5 mt-0.5 mb-1 p-1 rounded-md border border-border bg-muted/30">
+                    {([
+                      { icon: Bold, tag: "strong", title: "Bold" },
+                      { icon: Italic, tag: "em", title: "Italic" },
+                      { icon: Underline, tag: "u", title: "Underline" },
+                    ] as const).map(({ icon: Icon, tag, title }) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        title={title}
+                        className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          const ta = document.getElementById("body-copy-textarea") as HTMLTextAreaElement | null;
+                          if (!ta) return;
+                          const start = ta.selectionStart;
+                          const end = ta.selectionEnd;
+                          if (start === end) return;
+                          const before = bodyCopy.slice(0, start);
+                          const selected = bodyCopy.slice(start, end);
+                          const after = bodyCopy.slice(end);
+                          setBodyCopy(`${before}<${tag}>${selected}</${tag}>${after}`);
+                          requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(start, end + tag.length * 2 + 5); });
+                        }}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                      </button>
+                    ))}
+                    <div className="w-px h-4 bg-border mx-0.5" />
+                    <button
+                      type="button"
+                      title="Bullet list"
+                      className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        const ta = document.getElementById("body-copy-textarea") as HTMLTextAreaElement | null;
+                        if (!ta) return;
+                        const pos = ta.selectionStart;
+                        const before = bodyCopy.slice(0, pos);
+                        const after = bodyCopy.slice(pos);
+                        const bullet = "• ";
+                        setBodyCopy(`${before}${bullet}${after}`);
+                        requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(pos + bullet.length, pos + bullet.length); });
+                      }}
+                    >
+                      <List className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Line break"
+                      className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        const ta = document.getElementById("body-copy-textarea") as HTMLTextAreaElement | null;
+                        if (!ta) return;
+                        const pos = ta.selectionStart;
+                        const before = bodyCopy.slice(0, pos);
+                        const after = bodyCopy.slice(pos);
+                        setBodyCopy(`${before}<br>${after}`);
+                        requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(pos + 4, pos + 4); });
+                      }}
+                    >
+                      <Minus className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <Textarea
+                    id="body-copy-textarea"
+                    value={bodyCopy}
+                    onChange={e => setBodyCopy(e.target.value)}
+                    className="text-xs min-h-[130px] resize-none leading-relaxed"
+                    placeholder={"Hi [First Name],\n\nPaste your full email copy here. The AI will only bold key phrases — it won't change a single word.\n\nUzair Muhammad"}
+                  />
+                </div>
+                <Button
+                  className="w-full h-8 gap-1.5 text-xs font-semibold"
+                  style={{ background: boldLoading ? undefined : "linear-gradient(135deg,#b8860b,#c9a55a)", color: "white" }}
+                  onClick={handleBoldKeywords}
+                  disabled={boldLoading || (!bodyCopy.trim() && !headline.trim())}
+                >
+                  {boldLoading
+                    ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Formatting copy…</>
+                    : <><Wand2 className="h-3.5 w-3.5" /> Format & Polish Copy</>
+                  }
+                </Button>
+                <p className="text-[10px] text-muted-foreground/50 text-center -mt-1">AI fixes spacing, structure & bolds key phrases — words stay untouched</p>
+                <details className="mt-1 group">
+                  <summary className="cursor-pointer text-[10px] text-muted-foreground/60 hover:text-muted-foreground flex items-center gap-1.5 list-none select-none py-1">
+                    <span className="h-3.5 w-3.5 rounded-full border border-muted-foreground/30 flex items-center justify-center text-[8px] font-bold shrink-0">+</span>
+                    Or generate copy with AI instead
+                  </summary>
+                  <div className="mt-2 space-y-2 border-t border-border pt-2">
+                    <Textarea
+                      value={prompt}
+                      onChange={e => setPrompt(e.target.value)}
+                      placeholder="Describe this email: project, city, price, completion date, incentives, tone…"
+                      className="min-h-[60px] text-xs resize-none"
+                      disabled={aiLoading}
+                    />
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Style</Label>
+                        <Select value={templateType} onValueChange={setTemplateType} disabled={aiLoading}>
+                          <SelectTrigger className="h-7 text-[11px] mt-0.5"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="main-project-email">Main Project</SelectItem>
+                            <SelectItem value="exclusive-offer">Exclusive Offer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Project</Label>
+                        <Select value={selProjectId} onValueChange={handleProjectSelect} disabled={aiLoading}>
+                          <SelectTrigger className="h-7 text-[11px] mt-0.5"><SelectValue placeholder="Select…" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            {projects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    {aiResult && (
+                      <div className="flex gap-1.5">
+                        <button onClick={() => handleVersionSwitch("A")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "A" ? "bg-emerald-600 text-white border-emerald-600" : "border-border text-muted-foreground hover:border-primary/30")}>Version A</button>
+                        {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
+                          <button onClick={() => handleVersionSwitch("B")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "B" ? "bg-amber-500 text-white border-amber-500" : "border-border text-muted-foreground hover:border-amber-300")}>Version B</button>
+                        )}
+                      </div>
+                    )}
+                    <Button className="w-full h-8 gap-1.5 text-xs font-semibold"
+                      style={{ background: aiLoading ? undefined : "linear-gradient(135deg,#7c3aed,#5b21b6)", color: "white" }}
+                      onClick={handleGenerate} disabled={aiLoading || !prompt.trim()}>
+                      {aiLoading ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Writing…</> : <><Wand2 className="h-3.5 w-3.5" />{aiResult ? "Regenerate" : "Generate Email"}</>}
+                    </Button>
+                  </div>
+                </details>
+              </StepSection>
+
+              {/* ── 4. INBOX COPY ── */}
+              <StepSection
+                step={4} title="Inbox Copy" icon={<Mail className="h-3.5 w-3.5" />}
+                done={!!subjectLine} doneLabel={subjectLine ? `"${subjectLine.slice(0, 28)}…"` : undefined}
+                defaultOpen={false}
+              >
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Subject Line <span className="text-muted-foreground/50 font-normal">· shown in inbox</span></Label>
+                  <Input value={subjectLine} onChange={e => setSubjectLine(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="🏙️ Exclusive Access: Lumina" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Preview Text <span className="text-muted-foreground/50 font-normal">· shown after subject</span></Label>
+                  <Input value={previewText} onChange={e => setPreviewText(e.target.value)} className="h-8 text-xs mt-0.5" placeholder="From $649K · limited units" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Incentives <span className="text-muted-foreground/40">— one per line, gold bullets</span></Label>
+                  <Textarea value={incentiveText} onChange={e => setIncentiveText(e.target.value)} className="text-xs mt-0.5 min-h-[60px] resize-none leading-relaxed" placeholder={"✦ Extended deposit: 5% now, 5% in 180 days\n✦ Free parking · $35,000 value"} />
+                </div>
+              </StepSection>
+
+              {/* ── 5. DEPOSIT & OTHER INFO ── */}
+              <StepSection
+                step={5} title="Deposit & Other Info" icon={<FileText className="h-3.5 w-3.5" />}
+                done={infoRows.some(r => r.includes("|"))}
+                doneLabel={infoRows.filter(r => r.includes("|")).length > 0 ? `${infoRows.filter(r => r.includes("|")).length} row${infoRows.filter(r => r.includes("|")).length > 1 ? "s" : ""}` : undefined}
+                defaultOpen={false}
+              >
+                <p className="text-[10px] text-muted-foreground/60 leading-relaxed -mt-1">
+                  Add rows like <span className="font-semibold text-muted-foreground">Deposit Structure | 5% on signing, 5% in 180 days</span>. Each row renders as a label/value table below the stats bar.
+                </p>
+                {infoRows.map((row, idx) => (
+                  <div key={idx} className="flex items-center gap-1.5">
+                    <Input
+                      value={row}
+                      onChange={e => setInfoRows(prev => prev.map((r, i) => i === idx ? e.target.value : r))}
+                      className="h-7 text-xs flex-1"
+                      placeholder="Deposit Structure | 5% on signing"
+                    />
+                    <Button
+                      variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => setInfoRows(prev => prev.filter((_, i) => i !== idx))}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline" size="sm" className="w-full h-7 text-xs gap-1.5 border-dashed"
+                  onClick={() => setInfoRows(prev => [...prev, ""])}
+                >
+                  + Add Row
+                </Button>
+                {infoRows.length === 0 && (
+                  <div className="grid grid-cols-1 gap-1">
+                    {[
+                      "Deposit Structure | 5% on signing, 5% in 180 days",
+                      "Strata Fees | Est. $0.45/sq ft",
+                      "Assignment | Allowed with consent",
+                    ].map(suggestion => (
+                      <button key={suggestion} onClick={() => setInfoRows(prev => [...prev, suggestion])}
+                        className="text-left text-[10px] text-muted-foreground/50 hover:text-primary px-2 py-1 rounded hover:bg-muted/30 transition-colors truncate">
+                        + {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </StepSection>
+
+              {/* ── 6. PLANS & PRICING CTA ── */}
+              <StepSection
+                step={6} title="Plans & Pricing CTA" icon={<FileText className="h-3.5 w-3.5" />}
+                done={!!(ctaUrl)} doneLabel={directCtaUrl ? "PDF uploaded" : selectedAsset?.name}
+                defaultOpen={false}
+              >
+                <div>
+                  <Label className="text-[10px] text-muted-foreground mb-1 block">Upload PDF <span className="text-muted-foreground/50 font-normal">· pricing sheet or brochure</span></Label>
+                  {directCtaUrl ? (
+                    <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-2">
+                      <FileText className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-semibold text-emerald-700 truncate">PDF linked to CTA ✓</p>
+                        <p className="text-[9px] text-muted-foreground truncate">{directCtaUrl.split("/").pop()}</p>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
+                        onClick={() => setDirectCtaUrl("")}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setSelectedAssetId("none"); ctaPdfInputRef.current?.click(); }}
+                      disabled={ctaPdfUploading}
+                      className="w-full flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-muted-foreground text-xs font-medium"
+                    >
+                      {ctaPdfUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {ctaPdfUploading ? "Uploading…" : "Upload pricing sheet / brochure PDF"}
+                    </button>
+                  )}
+                </div>
+                {!directCtaUrl && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-px bg-border" />
+                      <span className="text-[9px] text-muted-foreground uppercase tracking-wider">or link campaign asset</span>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+                    {campaignAssets.length === 0 ? (
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        No assets found. Save a campaign in the <strong>Campaign Builder</strong> with a brochure or pricing sheet.
+                      </p>
+                    ) : (
+                      <>
+                        <Select value={selectedAssetId} onValueChange={id => { setSelectedAssetId(id); setDirectCtaUrl(""); }}>
+                          <SelectTrigger className="h-7 text-[11px]"><SelectValue placeholder="Select campaign…" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            {campaignAssets.map(a => (
+                              <SelectItem key={a.id} value={a.id}>{a.name} — {a.project_name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {selectedAsset && (
+                          <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1.5">
+                            {selectedAsset.thumbnail_url && <img src={selectedAsset.thumbnail_url} alt={selectedAsset.name} className="w-full h-16 object-cover rounded" />}
+                            <p className="text-[11px] font-semibold truncate">{selectedAsset.name}</p>
+                            {selectedAsset.brochure_url && <div className="flex items-center gap-1.5 text-[10px] text-emerald-600"><div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Brochure linked</div>}
+                            {selectedAsset.pricing_sheet_url && <div className="flex items-center gap-1.5 text-[10px] text-amber-600"><div className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Pricing sheet linked</div>}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+              </StepSection>
+
+              {/* ── 7. IMAGE CARDS ── */}
+              <StepSection
+                step={7} title="Image Cards" icon={<Image className="h-3.5 w-3.5" />}
+                done={imageCards.length > 0} doneLabel={imageCards.length > 0 ? `${imageCards.length} card${imageCards.length > 1 ? "s" : ""}` : undefined}
+                defaultOpen={false}
+              >
+                <p className="text-[10px] text-muted-foreground leading-relaxed mb-2">
+                  Add up to 3 images that appear below "What's Included". Great for project renders, amenities, or lifestyle shots.
+                </p>
+                {imageCards.length < 3 && (
+                  <button onClick={() => imgCardInputRef.current?.click()} disabled={imgCardUploading}
+                    className="w-full flex items-center justify-center gap-1.5 h-14 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-muted-foreground text-xs font-medium">
+                    {imgCardUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    {imgCardUploading ? "Uploading…" : `Upload image${imageCards.length > 0 ? ` (${3 - imageCards.length} more)` : "s"}`}
+                  </button>
+                )}
+                {imageCards.map(card => (
+                  <div key={card.id} className="mt-2 border border-border rounded-lg overflow-hidden bg-muted/20">
+                    <div className="relative">
+                      <img src={card.url} alt="Card" className="w-full h-24 object-cover bg-white" />
+                      <button onClick={() => removeImgCard(card.id)} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
+                        <X className="h-3 w-3 text-white" />
+                      </button>
+                    </div>
+                    <div className="p-2">
+                      <Label className="text-[9px]">Caption <span className="text-muted-foreground/50 font-normal">(optional)</span></Label>
+                      <Input value={card.caption} onChange={e => updateImgCard(card.id, e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="Rooftop terrace · 5,000 sq ft" />
+                    </div>
+                  </div>
+                ))}
+              </StepSection>
+
+              {/* ── 8. TYPOGRAPHY ── */}
+              <StepSection
+                step={8} title="Typography" icon={<Type className="h-3.5 w-3.5" />}
+                done={true} doneLabel={selectedFont.label}
+                defaultOpen={false}
+              >
+                <div className="grid grid-cols-2 gap-1.5">
+                  {EMAIL_FONT_PAIRINGS.map(fp => (
+                    <button
+                      key={fp.id}
+                      onClick={() => setSelectedFontId(fp.id)}
+                      className={cn(
+                        "text-left px-2.5 py-2 rounded-lg border transition-all",
+                        selectedFontId === fp.id
+                          ? "border-amber-500 bg-amber-500/8 shadow-sm"
+                          : "border-border bg-muted/10 hover:border-primary/40"
+                      )}
+                    >
+                      <div className="text-[11px] font-semibold truncate text-foreground">{fp.label}</div>
+                      <div className="text-[9px] text-muted-foreground mt-0.5">{fp.tag}</div>
+                    </button>
+                  ))}
+                </div>
+              </StepSection>
+
+              {/* ── 9. AGENT SIGNATURE (footer = bottom of email) ── */}
+              <StepSection
+                step={9} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
+                done={!!selAgent && selAgent !== "default"}
+                doneLabel={selectedAgent.full_name}
+                defaultOpen={false}
+              >
+                <div className="flex gap-1.5 flex-wrap">
+                  {agents.map(a => (
+                    <button key={a.full_name} onClick={() => setSelAgent(a.full_name)}
+                      className={cn(
+                        "flex items-center gap-2 px-2 py-1.5 rounded-lg border text-left transition-all flex-1 min-w-[110px]",
+                        selAgent === a.full_name ? "border-primary bg-primary/8 shadow-sm" : "border-border bg-muted/20 hover:border-primary/40"
+                      )}>
+                      {a.photo_url
+                        ? <img src={a.photo_url} alt={a.full_name} className="w-8 h-8 rounded-full object-cover object-top border border-border shrink-0" />
+                        : <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">{a.full_name.charAt(0)}</div>
+                      }
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[11px] font-semibold truncate">{a.full_name}</div>
+                        <div className="text-[9px] text-muted-foreground">{a.title.split(" ").slice(0, 2).join(" ")}</div>
+                      </div>
+                      {selAgent === a.full_name && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              </StepSection>
+
+              <div className="h-4" />
                     <div className="col-span-2">
                       <Label className="text-[10px] text-muted-foreground">Custom Header</Label>
                       <Input value={customHeader} onChange={e => setCustomHeader(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="New Presale Release" />
