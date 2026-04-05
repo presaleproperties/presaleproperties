@@ -923,17 +923,7 @@ export function buildPitchDeckEmailHtml(
       </table>
     </td>
   </tr>
-  <!-- I'M INTERESTED CTA — full width on mobile -->
-  <tr>
-    <td style="background:${DARK};padding:0 28px 28px;" class="mobile-pad">
-      <table class="cta-btn" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-        <td align="center" style="background:${ACCENT};padding:16px 32px;text-align:center;">
-          <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName}. Can you send me more details?`)}"
-             style="font-family:${BODY_FONT};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:700;display:block;">I'M INTERESTED →</a>
-        </td>
-      </tr></table>
-    </td>
-  </tr>` : ""}
+  ` : ""}
 
   <!-- CALL NOW CTA — full-width button for mobile -->
   <tr>
