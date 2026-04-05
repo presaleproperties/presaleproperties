@@ -1609,44 +1609,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
 
 
-  <!-- ── FLOOR PLANS ── -->
-  ${fps.length > 0 ? `
-  <tr>
-    <td style="padding:0;border-top:1px solid #e8e2d6;background:#faf8f4;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
-        <tr>
-          <td class="content-pad" style="padding:32px 40px 20px;">
-            <p style="margin:0 0 6px 0;font-family:${F};font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
-            <p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.fpHeading || "Available Units"}</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="content-pad" style="padding:0 40px 24px;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
-              ${fpRowsHtml}
-            </table>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>` : ""}
-
-  ${(fps.length > 0 && deckLink) ? `
-  <tr>
-    <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;text-align:center;">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
-        <tr>
-          <td align="center" style="background:#0d1f18;border-radius:50px;padding:14px 36px;text-align:center;">
-            <a href="${deckLink}"
-               style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;white-space:nowrap;">
-              VIEW MORE PLANS &nbsp;→
-            </a>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>` : ""}
-
   <!-- ── PRIMARY CTA: I'M INTERESTED ── -->
   <tr>
     <td class="content-pad" style="padding:28px 40px 14px;background:#ffffff;">
