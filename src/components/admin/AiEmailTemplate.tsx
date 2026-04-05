@@ -1609,15 +1609,15 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
 
 
-  <!-- ── PRIMARY CTA: I'M INTERESTED ── -->
+  <!-- ── PRIMARY CTA: VIEW FLOOR PLANS ── -->
   <tr>
     <td class="content-pad" style="padding:28px 40px 14px;background:#ffffff;">
       <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
           <td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
-            <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName || "this presale"}. Can you send me more details?`)}"
+            <a href="${deckLink || `https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName || "this presale"}. Can you send me the floor plans?`)}`}"
                style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;white-space:nowrap;">
-              I'M INTERESTED
+              VIEW FLOOR PLANS
             </a>
           </td>
         </tr>
