@@ -329,13 +329,14 @@ const App = () => (
             <Route path="/dashboard/decks" element={<ProtectedRoute><DashboardDecks /></ProtectedRoute>} />
             <Route path="/dashboard/decks/new" element={<ProtectedRoute><DashboardDeckBuilder /></ProtectedRoute>} />
             <Route path="/dashboard/decks/:id/edit" element={<ProtectedRoute><DashboardDeckBuilder /></ProtectedRoute>} />
-            <Route path="/dashboard/messages" element={<ProtectedRoute><DashboardMessages /></ProtectedRoute>} />
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
             <Route path="/dashboard/emails" element={<ProtectedRoute><DashboardEmails /></ProtectedRoute>} />
-            <Route path="/dashboard/lead-onboard" element={<ProtectedRoute><DashboardLeadOnboard /></ProtectedRoute>} />
             <Route path="/dashboard/marketing-hub" element={<ProtectedRoute><DashboardMarketingHub /></ProtectedRoute>} />
             <Route path="/dashboard/email-builder" element={<ProtectedRoute><DashboardEmailBuilder /></ProtectedRoute>} />
-            <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
+            {/* Legacy redirects for removed pages */}
+            <Route path="/dashboard/messages" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard/lead-onboard" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard/billing" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
             
             {/* For Agents Marketing Page */}

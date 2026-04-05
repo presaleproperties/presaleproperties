@@ -12,17 +12,14 @@ import {
   Menu,
   X,
   Home,
-  CreditCard,
   Shield,
   ChevronRight,
   Sparkles,
-  MessageSquare,
-  FileText,
+  Mail,
   FolderOpen,
   Presentation,
-  UserPlus,
-  Mail,
   Megaphone,
+  FileText,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -30,73 +27,81 @@ interface DashboardLayoutProps {
   noPadding?: boolean;
 }
 
-const navItems = [
-  { 
-    label: "Overview", 
-    href: "/dashboard", 
-    icon: LayoutDashboard,
-    description: "Your dashboard home"
+interface NavSection {
+  label: string;
+  items: {
+    label: string;
+    href: string;
+    icon: any;
+    description: string;
+    badge?: string;
+  }[];
+}
+
+const navSections: NavSection[] = [
+  {
+    label: "Workflow",
+    items: [
+      { 
+        label: "Overview", 
+        href: "/dashboard", 
+        icon: LayoutDashboard,
+        description: "Onboard leads & quick actions"
+      },
+      { 
+        label: "Leads", 
+        href: "/dashboard/leads", 
+        icon: Users,
+        description: "Manage & prioritize clients"
+      },
+      { 
+        label: "Pitch Decks", 
+        href: "/dashboard/decks", 
+        icon: Presentation,
+        description: "Share project presentations"
+      },
+      { 
+        label: "Marketing", 
+        href: "/dashboard/marketing-hub", 
+        icon: Megaphone,
+        description: "Email campaigns & templates"
+      },
+      { 
+        label: "Emails", 
+        href: "/dashboard/emails", 
+        icon: Mail,
+        description: "Track opens & engagement"
+      },
+    ],
   },
-  { 
-    label: "Project Documents", 
-    href: "/dashboard/projects", 
-    icon: FolderOpen,
-    description: "Floorplans & brochures",
-    badge: "Premium"
+  {
+    label: "Resources",
+    items: [
+      { 
+        label: "Project Docs", 
+        href: "/dashboard/projects", 
+        icon: FolderOpen,
+        description: "Floorplans & brochures",
+        badge: "Premium"
+      },
+      { 
+        label: "My Listings", 
+        href: "/dashboard/listings", 
+        icon: FileText,
+        description: "Assignment marketplace"
+      },
+    ],
   },
-  { 
-    label: "My Listings", 
-    href: "/dashboard/listings", 
-    icon: FileText,
-    description: "Manage your listings"
-  },
-  { 
-    label: "Pitch Decks", 
-    href: "/dashboard/decks", 
-    icon: Presentation,
-    description: "Shareable investor decks"
-  },
-  { 
-    label: "Marketing Hub", 
-    href: "/dashboard/marketing-hub", 
-    icon: Megaphone,
-    description: "Build email campaigns"
-  },
-  { 
-    label: "Messages", 
-    href: "/dashboard/messages", 
-    icon: MessageSquare,
-    description: "Agent-to-agent inbox"
-  },
-  { 
-    label: "Leads", 
-    href: "/dashboard/leads", 
-    icon: Users,
-    description: "View buyer inquiries"
-  },
-  { 
-    label: "Emails", 
-    href: "/dashboard/emails", 
-    icon: Mail,
-    description: "Track sent emails & opens"
-  },
-  { 
-    label: "Onboard Client", 
-    href: "/dashboard/lead-onboard", 
-    icon: UserPlus,
-    description: "Add & sync new client"
-  },
-  { 
-    label: "Billing", 
-    href: "/dashboard/billing", 
-    icon: CreditCard,
-    description: "Subscription & payments"
-  },
-  { 
-    label: "Profile", 
-    href: "/dashboard/profile", 
-    icon: User,
-    description: "Account settings"
+  {
+    label: "Account",
+    items: [
+      { 
+        label: "Profile", 
+        href: "/dashboard/profile", 
+        icon: User,
+        description: "License & settings"
+      },
+    ],
   },
 ];
 
