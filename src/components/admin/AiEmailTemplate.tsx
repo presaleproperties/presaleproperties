@@ -1533,7 +1533,7 @@ export function buildModernV2EmailHtml(
       .stat-cell{display:block!important;width:100%!important;border-right:none!important;border-bottom:1px solid #e8e2d6!important;padding:14px 24px!important;text-align:left!important;}
       .agent-logo-cell{display:none!important;}
       table[class="email-container"]{width:100%!important;}
-    }
+    ${carouselCss}
   </style>
 </head>
 <body style="margin:0;padding:0;background:#faf8f4;" id="body">
