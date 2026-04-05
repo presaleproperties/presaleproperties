@@ -187,6 +187,8 @@ ${agentCard(agent, project.city)}`,
 }
 
 function buildTemplateB(project: ProjectData, firstName: string, agent: AgentData, projectUrl?: string): string {
+  const whatsappNumber = "16722581100";
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi! I'm interested in ${project.name}. Can you tell me more?`)}`;
   const subjectLine = `${project.name} — We'll Be in Touch Shortly`;
 
   return emailShell(`
@@ -207,6 +209,12 @@ ${statsBar(project)}
 <p style="margin:0;font-family:${F};font-size:15px;color:#444444;line-height:1.7;">An agent from our team will personally reach out to you with exclusive access to the floor plans, pricing, and any available incentives for <strong style="font-weight:700;color:${DARK};">${project.name}</strong>.</p>
 </td></tr>
 </table>
+</td></tr>
+<tr><td class="content-pad" style="padding:0 40px 12px;background:#ffffff;">
+<table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+<td class="cta-td" align="center" style="background:#25D366;border-radius:50px;padding:18px 32px;text-align:center;">
+<a href="${whatsappLink}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">CHAT NOW</a>
+</td></tr></table>
 </td></tr>
 <tr><td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
 <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
