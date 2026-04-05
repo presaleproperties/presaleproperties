@@ -69,7 +69,7 @@ ${bodyCopy || ""}`;
           { role: "user", content: userPrompt },
         ],
         temperature: 0.15,
-        max_tokens: 1800,
+        max_tokens: 4096,
       }),
     });
 
