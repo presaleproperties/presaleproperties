@@ -1229,8 +1229,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [mobileTab, setMobileTab] = useState<"build" | "preview">("build");
 
   // ─────────────────────────────────────────────────────────────────────────────
-  return (
-    <AdminLayout>
+    const Layout = agentMode ? DashboardLayout : AdminLayout;
+    return (
+    <Layout>
       {/* Hidden file inputs — always mounted so refs are never null */}
       <input ref={heroInputRef}     type="file" accept="image/*"        className="hidden" onChange={handleHeroUpload} />
       <input ref={fpInputRef}       type="file" accept="image/*" multiple className="hidden" onChange={handleFpUpload} />
