@@ -262,7 +262,7 @@ function ProjectLeadCard({
               )}
             </div>
 
-            {/* Row 3: badges */}
+            {/* Row 3: badges + source tags */}
             <div className="flex items-center gap-2 flex-wrap">
               {lead.presale_projects && (
                 <Badge variant="outline" className="gap-1 font-normal text-xs">
@@ -270,9 +270,15 @@ function ProjectLeadCard({
                   {lead.presale_projects.name} · {lead.presale_projects.city}
                 </Badge>
               )}
-              <Badge variant="secondary" className="text-xs">
-                {getLeadSourceLabel(lead.lead_source)}
-              </Badge>
+              {/* Show all lead sources as tags */}
+              {(lead.lead_sources && lead.lead_sources.length > 0
+                ? lead.lead_sources
+                : lead.lead_source ? [lead.lead_source] : []
+              ).map((src) => (
+                <Badge key={src} variant="secondary" className="text-xs">
+                  {getLeadSourceLabel(src)}
+                </Badge>
+              ))}
               {lead.persona && (
                 <Badge
                   variant={lead.persona === "investor" ? "default" : "secondary"}
