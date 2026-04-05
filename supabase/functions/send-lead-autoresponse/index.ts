@@ -200,6 +200,7 @@ ${statsBar(project)}
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr><td style="padding:0 0 18px 0;"><p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Hi ${firstName},</p></td></tr>
 <tr><td style="padding:0 0 18px 0;"><p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Thank you for your interest in <strong style="font-weight:700;color:${DARK};">${project.name}</strong>${project.city ? ` in <strong style="font-weight:700;color:${DARK};">${project.city}</strong>` : ""}${project.developer_name ? ` by ${project.developer_name}` : ""}. Here are the details you requested:</p></td></tr>
+<tr><td style="padding:0 0 18px 0;"><p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">If you&rsquo;d like to experience the project in person, we&rsquo;d love to invite you to <strong style="font-weight:700;color:${DARK};">book a private preview</strong> of the showroom. Just give us a call or reply to this email and we&rsquo;ll arrange a time that works for you.</p></td></tr>
 </table>
 </td></tr>
 ${docButtons}
