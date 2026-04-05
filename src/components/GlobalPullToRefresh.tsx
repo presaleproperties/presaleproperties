@@ -27,11 +27,13 @@ export function GlobalPullToRefresh({ children }: { children: React.ReactNode })
     isPulling.current = false;
   }, [location.pathname]);
 
+  const isDashboard = location.pathname.startsWith("/dashboard");
+
   const handleTouchStart = useCallback((e: TouchEvent) => {
-    if (window.scrollY > 0 || isRefreshing) return;
+    if (isDashboard || window.scrollY > 0 || isRefreshing) return;
     startY.current = e.touches[0].clientY;
     isPulling.current = true;
-  }, [isRefreshing]);
+  }, [isRefreshing, isDashboard]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isPulling.current || isRefreshing) return;
