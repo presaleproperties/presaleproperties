@@ -165,9 +165,7 @@ export function ExitIntentPopup() {
 
       if (error && !error.message.includes("duplicate")) throw error;
 
-      const leadId = crypto.randomUUID();
-      await supabase.from("project_leads").insert({
-        id: leadId,
+      const leadId = await upsertProjectLead({
         name: data.name.trim(),
         email: data.email.trim(),
         form_type: "exit_intent",
