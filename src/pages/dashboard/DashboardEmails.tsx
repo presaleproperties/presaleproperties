@@ -660,13 +660,15 @@ export default function DashboardEmails() {
                       Shared Templates ({adminTemplates.filter(t => !templateSearch || filteredTemplates.includes(t)).length})
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {filteredTemplates.filter(t => !t.user_id).map(template => (
+                       {filteredTemplates.filter(t => !t.user_id).map(template => (
                         <TemplateCard
                           key={template.id}
                           template={template}
                           onPreview={() => { setPreviewTemplate(template); setPreviewOpen(true); }}
                           onUse={() => handleUseTemplate(template)}
+                          onImport={() => handleImportTemplate(template)}
                           isShared
+                          isImporting={importing === template.id}
                         />
                       ))}
                     </div>
