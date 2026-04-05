@@ -391,6 +391,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Layout version
   const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial");
+  const [layoutSectionOpen, setLayoutSectionOpen] = useState(true);
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
