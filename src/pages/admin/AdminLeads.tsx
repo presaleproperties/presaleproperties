@@ -65,6 +65,7 @@ interface ProjectLead {
   home_size: string | null;
   agent_status: string | null;
   lead_source: string | null;
+  lead_sources: string[] | null;
   landing_page: string | null;
   created_at: string;
   project_id: string | null;
