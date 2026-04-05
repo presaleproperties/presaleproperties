@@ -64,28 +64,51 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
     setIsSubmitting(true);
 
     try {
-      const message = data.isRealtor ? "I'm a Realtor" : null;
+      const message = data.isRealtor ? `Resale inquiry (Realtor) — ${listingTitle}` : `Resale inquiry — ${listingTitle}`;
 
-      const { data: leadData, error } = await (supabase as any)
-        .from("leads")
-        .insert({
-          listing_id: listingId,
-          agent_id: agentId,
-          name: data.name,
+      const leadId = await upsertProjectLead({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        form_type: "resale_inquiry",
+        message,
+        lead_source: "resale_listing",
+        persona: data.isRealtor ? "realtor" : "buyer",
+        agent_status: data.isRealtor ? "i_am_realtor" : "no",
+        visitor_id: getVisitorId(),
+      });
+
+      // Lead scoring & tracking enrichment
+      submitLead({
+        leadId,
+        firstName: data.name.split(" ")[0],
+        lastName: data.name.split(" ").slice(1).join(" "),
+        email: data.email,
+        phone: data.phone,
+        formType: "resale_inquiry",
+        projectUrl: window.location.href,
+        message,
+      });
+
+      // Auto-response email
+      supabase.functions.invoke("send-lead-autoresponse", { body: { leadId } }).catch(console.error);
+
+      // Meta CAPI
+      supabase.functions.invoke("meta-conversions-api", {
+        body: {
+          event_name: "Lead",
           email: data.email,
           phone: data.phone,
-          message: message,
-        })
-        .select("id")
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (leadData?.id) {
-        supabase.functions
-          .invoke("send-lead-notification", { body: { leadId: leadData.id } })
-          .catch((err) => console.log("Email notification skipped:", err));
-      }
+          first_name: data.name.split(" ")[0],
+          last_name: data.name.split(" ").slice(1).join(" "),
+          event_source_url: window.location.href,
+          content_name: listingTitle,
+          content_category: data.isRealtor ? "realtor" : "buyer",
+          client_user_agent: navigator.userAgent,
+          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+        },
+      }).catch(console.error);
 
       setIsSubmitted(true);
       reset();
