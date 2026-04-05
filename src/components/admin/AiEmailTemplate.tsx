@@ -401,7 +401,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   <!-- ─── CTA ─── -->
   <tr>
     <td style="background:#f7f5f1;padding:32px 36px 36px;">
-      <!-- Primary CTA: VIEW PLANS — full gold fill -->
+      ${ctaUrl ? `<!-- Primary CTA: VIEW PLANS — full gold fill -->
       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
         <tr>
           <td align="center" style="background:${ACCENT};padding:18px 24px;text-align:center;">
@@ -411,7 +411,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
             </a>
           </td>
         </tr>
-      </table>
+      </table>` : ""}
       <!-- Secondary CTA: CALL NOW — dark green fill -->
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
@@ -756,7 +756,7 @@ export function buildLoopEmailHtml(
   <!-- ─── CTA ─── -->
   <tr>
     <td style="background:#f7f5f1;padding:36px 36px;text-align:center;border-top:1px solid #e8e3db;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
+      ${ctaUrl ? `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
         <tr>
           <td align="center" style="background:${ACCENT};padding:20px 32px;">
             <a href="${plansPricingUrl}"
@@ -765,7 +765,7 @@ export function buildLoopEmailHtml(
             </a>
           </td>
         </tr>
-      </table>
+      </table>` : ""}
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
           <td align="center" style="background:${DARK};padding:16px 24px;">
