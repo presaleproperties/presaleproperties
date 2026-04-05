@@ -2100,13 +2100,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                   ))}
                 </div>
               </StepSection>
-                done={!!projectName} doneLabel={projectName}
-                defaultOpen={true}
-              >
-                <div className="grid grid-cols-2 gap-1.5">
-                  <div className="col-span-2">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <Label className="text-[10px] text-muted-foreground">Project Name</Label>
+
+
                       <div className="flex items-center gap-1.5">
                         <span className="text-[9px] text-muted-foreground">{showProjectName ? "Visible" : "Hidden"}</span>
                         <Switch checked={showProjectName} onCheckedChange={setShowProjectName} className="scale-75 origin-right" />
