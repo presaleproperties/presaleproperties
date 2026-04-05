@@ -1599,6 +1599,23 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
+  ${(fps.length > 0 && deckLink) ? `
+  <!-- ── VIEW MORE PLANS CTA ── -->
+  <tr>
+    <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;">
+      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
+            <a href="${deckLink}"
+               style="font-family:${F};font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${DARK};text-decoration:none;display:block;white-space:nowrap;">
+              VIEW MORE PLANS &nbsp;→
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>` : ""}
+
   <!-- ── PRIMARY CTA: I'M INTERESTED ── -->
   <tr>
     <td class="content-pad" style="padding:28px 40px 14px;background:#ffffff;">
