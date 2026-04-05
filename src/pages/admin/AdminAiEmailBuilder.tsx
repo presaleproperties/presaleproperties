@@ -1552,20 +1552,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               {/* ── LAYOUT VERSION TOGGLE ── */}
               <div className="px-3 py-2.5 border-b border-border bg-muted/10">
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold block mb-2">Layout</Label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  <button
-                    onClick={() => setLayoutVersion("classic")}
-                    className={cn(
-                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
-                      layoutVersion === "classic"
-                        ? "border-primary bg-primary/8 shadow-sm"
-                        : "border-border bg-muted/10 hover:border-primary/40"
-                    )}
-                  >
-                    <div className="text-[11px] font-semibold text-foreground">Classic</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Header · Stats · Body</div>
-                    {layoutVersion === "classic" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-primary" />}
-                  </button>
+                <div className="grid grid-cols-3 gap-1.5">
                   <button
                     onClick={() => setLayoutVersion("loop")}
                     className={cn(
