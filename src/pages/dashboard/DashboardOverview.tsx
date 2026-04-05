@@ -139,23 +139,23 @@ export default function DashboardOverview() {
         {/* Lead Onboard Hub */}
         <LeadOnboardHub />
 
-        {/* Deck Links */}
+        {/* Deck Links — show most recent, rest in expandable */}
         {decks.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Your Decks</h2>
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Latest Deck</h2>
               <Link to="/dashboard/decks">
                 <Button variant="ghost" size="sm" className="text-xs gap-1.5 text-muted-foreground h-7 hover:text-foreground">
                   View all <ArrowRight className="h-3 w-3" />
                 </Button>
               </Link>
             </div>
-            <div className="grid gap-2.5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {decks.map((deck) => (
-                <div
-                  key={deck.id}
-                  className="group flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:shadow-sm hover:border-primary/20 transition-all"
-                >
+
+            {/* Most recent deck — always visible */}
+            {(() => {
+              const deck = decks[0];
+              return (
+                <div className="group flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:shadow-sm hover:border-primary/20 transition-all">
                   {deck.hero_image_url ? (
                     <img src={deck.hero_image_url} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0" />
                   ) : (
@@ -167,7 +167,7 @@ export default function DashboardOverview() {
                     <p className="text-sm font-medium truncate text-foreground">{deck.project_name}</p>
                     {deck.city && <p className="text-xs text-muted-foreground">{deck.city}</p>}
                   </div>
-                  <div className="flex gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-0.5 shrink-0">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleCopy(deck.slug)}>
                       {copiedSlug === deck.slug ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
                     </Button>
@@ -178,8 +178,53 @@ export default function DashboardOverview() {
                     </a>
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })()}
+
+            {/* Remaining decks — collapsible */}
+            {decks.length > 1 && (
+              <>
+                <button
+                  onClick={() => setShowAllDecks(!showAllDecks)}
+                  className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-1"
+                >
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAllDecks && "rotate-180")} />
+                  {showAllDecks ? "Hide" : `Show ${decks.length - 1} more deck${decks.length - 1 > 1 ? "s" : ""}`}
+                </button>
+                {showAllDecks && (
+                  <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    {decks.slice(1).map((deck) => (
+                      <div
+                        key={deck.id}
+                        className="group flex items-center gap-3 p-2.5 rounded-xl border border-border bg-card hover:shadow-sm hover:border-primary/20 transition-all"
+                      >
+                        {deck.hero_image_url ? (
+                          <img src={deck.hero_image_url} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" />
+                        ) : (
+                          <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                            <Presentation className="h-3.5 w-3.5 text-muted-foreground/40" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate text-foreground">{deck.project_name}</p>
+                          {deck.city && <p className="text-[11px] text-muted-foreground">{deck.city}</p>}
+                        </div>
+                        <div className="flex gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => handleCopy(deck.slug)}>
+                            {copiedSlug === deck.slug ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+                          </Button>
+                          <a href={`https://presaleproperties.com/deck/${deck.slug}`} target="_blank" rel="noopener noreferrer">
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                              <ExternalLink className="h-3 w-3" />
+                            </Button>
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>
