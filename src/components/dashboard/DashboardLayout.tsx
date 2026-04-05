@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -110,6 +110,15 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const { signOut, user, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [fullName, setFullName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    import("@/integrations/supabase/client").then(({ supabase }) => {
+      supabase.from("profiles").select("full_name").eq("user_id", user.id).single()
+        .then(({ data }) => { if (data?.full_name) setFullName(data.full_name); });
+    });
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -177,10 +186,10 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
           <div className="p-4 border-b border-border/50">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold">
-                {user?.email?.charAt(0).toUpperCase() || "A"}
+                {(fullName || user?.email || "A").charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user?.email?.split("@")[0]}</p>
+                <p className="text-sm font-medium truncate">{fullName || user?.email?.split("@")[0]}</p>
                 <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
             </div>
@@ -266,10 +275,10 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
               <div className="p-3 border-b border-border/30">
                 <div className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/50">
                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold text-sm">
-                    {user?.email?.charAt(0).toUpperCase() || "A"}
+                    {(fullName || user?.email || "A").charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{user?.email?.split("@")[0]}</p>
+                    <p className="text-sm font-medium truncate">{fullName || user?.email?.split("@")[0]}</p>
                     <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
                   </div>
                 </div>
