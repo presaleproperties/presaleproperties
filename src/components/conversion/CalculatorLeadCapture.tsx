@@ -66,7 +66,7 @@ export function CalculatorLeadCapture({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  const { submitLead } = useLeadSubmission();
   const config = CALCULATOR_CONFIG[calculatorData.calculatorType];
 
   const handleSubmit = async (e: React.FormEvent) => {
