@@ -3,6 +3,7 @@ import {
   buildLoopEmailHtml,
   buildPitchDeckEmailHtml,
   buildLululemonEmailHtml,
+  buildEditorialEmailHtml,
   DEFAULT_AGENT,
   EMAIL_FONT_PAIRINGS,
   type AiEmailCopy,
@@ -16,7 +17,7 @@ const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
   Ravish: { phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com" },
 };
 
-type LayoutVersion = "classic" | "loop" | "pitch-deck" | "modern";
+type LayoutVersion = "classic" | "loop" | "pitch-deck" | "modern" | "editorial";
 
 type StoredFloorPlan = {
   id?: string;
@@ -121,6 +122,30 @@ function buildAiFinalHtml({
   deckParking?: string;
   deckLocker?: string;
 }): string {
+  if (layoutVersion === "editorial") {
+    const slides = (loopSlides && loopSlides.length > 0)
+      ? loopSlides.filter(Boolean)
+      : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
+    return buildEditorialEmailHtml({
+      projectName: fields.projectName || "",
+      city: fields.city,
+      developerName: fields.developerName,
+      heroImage: heroImage || undefined,
+      headline: fields.headline,
+      bodyCopy: fields.bodyCopy,
+      subjectLine: fields.subjectLine,
+      previewText: fields.previewText,
+      startingPrice: fields.startingPrice,
+      deposit: fields.deposit,
+      completion: fields.completion,
+      infoRows: fields.infoRows,
+      incentiveText: fields.incentiveText,
+      deckUrl: deckUrl || undefined,
+      projectUrl: fields.projectUrl || undefined,
+      loopSlides: slides,
+    }, agent);
+  }
+
   if (layoutVersion === "modern") {
     return buildLululemonEmailHtml({
       projectName: fields.projectName || "",

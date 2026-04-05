@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, buildLoopEmailHtml, buildPitchDeckEmailHtml, buildPitchDeckEmailHtmlLofty, buildLululemonEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, buildLoopEmailHtml, buildPitchDeckEmailHtml, buildPitchDeckEmailHtmlLofty, buildLululemonEmailHtml, buildEditorialEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
@@ -88,10 +88,35 @@ function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
-  layoutVersion?: "loop" | "pitch-deck" | "modern",
+  layoutVersion?: "loop" | "pitch-deck" | "modern" | "editorial",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
 ): string {
+  // ── EDITORIAL template ────────────────────────────────────────────────────
+  if (layoutVersion === "editorial") {
+    const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
+    const slides = (loopSlides && loopSlides.length > 0)
+      ? loopSlides.filter(Boolean)
+      : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
+    return buildEditorialEmailHtml({
+      projectName:    fields.projectName || "",
+      city:           fields.city,
+      developerName:  fields.developerName,
+      heroImage:      heroImage || undefined,
+      headline:       fields.headline,
+      bodyCopy:       fields.bodyCopy,
+      subjectLine:    fields.subjectLine,
+      previewText:    fields.previewText,
+      startingPrice:  fields.startingPrice,
+      deposit:        fields.deposit,
+      completion:     fields.completion,
+      infoRows:       fields.infoRows,
+      incentiveText:  fields.incentiveText,
+      deckUrl:        saved?._deckUrl || undefined,
+      projectUrl:     fields.projectUrl || saved?._projectUrl || undefined,
+      loopSlides:     slides,
+    }, agent);
+  }
   // ── MODERN / Lululemon template ───────────────────────────────────────────
   if (layoutVersion === "modern") {
     const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
@@ -410,7 +435,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // Layout version
-  const [layoutVersion, setLayoutVersion] = useState<"loop" | "pitch-deck" | "modern">(savedDraft?.layoutVersion === "classic" ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "loop" | "pitch-deck" | "modern");
+  const [layoutVersion, setLayoutVersion] = useState<"loop" | "pitch-deck" | "modern" | "editorial">(savedDraft?.layoutVersion === "classic" ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "loop" | "pitch-deck" | "modern" | "editorial");
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
@@ -1552,7 +1577,23 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               {/* ── LAYOUT VERSION TOGGLE ── */}
               <div className="px-3 py-2.5 border-b border-border bg-muted/10">
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold block mb-2">Layout</Label>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    onClick={() => setLayoutVersion("editorial")}
+                    className={cn(
+                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                      layoutVersion === "editorial"
+                        ? "border-[#7a8a5a] bg-[#7a8a5a]/8 shadow-sm"
+                        : "border-border bg-muted/10 hover:border-[#7a8a5a]/50"
+                    )}
+                  >
+                    <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
+                      Editorial
+                      <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-[#7a8a5a]/15 text-[#7a8a5a] uppercase tracking-wide">New</span>
+                    </div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Hero slideshow · Clean</div>
+                    {layoutVersion === "editorial" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-[#7a8a5a]" />}
+                  </button>
                   <button
                     onClick={() => setLayoutVersion("loop")}
                     className={cn(
@@ -1588,14 +1629,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         : "border-border bg-muted/10 hover:border-sky-400/50"
                     )}
                   >
-                    <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
-                      Modern
-                      <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-sky-500/15 text-sky-600 uppercase tracking-wide">New</span>
-                    </div>
+                    <div className="text-[11px] font-semibold text-foreground">Modern</div>
                     <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
                     {layoutVersion === "modern" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-sky-500" />}
                   </button>
                 </div>
+                {layoutVersion === "editorial" && (
+                  <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
+                )}
                 {layoutVersion === "loop" && (
                   <p className="text-[9px] text-amber-600/70 mt-1.5 leading-relaxed">Hero + Image Cards cycle as a CSS slideshow. Add images in the Images step below.</p>
                 )}
