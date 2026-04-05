@@ -1868,21 +1868,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  <!-- ── HEADLINE ── -->
-  <tr>
-    <td class="content-pad" style="padding:36px 40px 8px;background:${CREAM};">
-      ${cleanHeadline ? `<p class="hero-headline" style="margin:0;font-family:${F};font-size:32px;font-weight:800;color:${BROWN};line-height:1.15;letter-spacing:-1px;">${cleanHeadline}</p>` : ""}
-    </td>
-  </tr>
-
-  <!-- ── BODY COPY ── -->
-  ${bodyRows ? `
-  <tr>
-    <td class="content-pad" style="padding:24px 40px 8px;background:${CREAM};">
-      ${bodyRows}
-    </td>
-  </tr>` : ""}
-
   <!-- ── STATS BAR ── -->
   ${(data.startingPrice || data.deposit || data.completion) ? `
   <tr>
@@ -1906,6 +1891,21 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
           </td>` : ""}
         </tr>
       </table>
+    </td>
+  </tr>` : ""}
+
+  <!-- ── HEADLINE ── -->
+  <tr>
+    <td class="content-pad" style="padding:36px 40px 8px;background:${CREAM};">
+      ${cleanHeadline ? `<p class="hero-headline" style="margin:0;font-family:${F};font-size:32px;font-weight:800;color:${BROWN};line-height:1.15;letter-spacing:-1px;">${cleanHeadline}</p>` : ""}
+    </td>
+  </tr>
+
+  <!-- ── BODY COPY ── -->
+  ${bodyRows ? `
+  <tr>
+    <td class="content-pad" style="padding:24px 40px 8px;background:${CREAM};">
+      ${bodyRows}
     </td>
   </tr>` : ""}
 
