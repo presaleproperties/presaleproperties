@@ -41,6 +41,7 @@ import {
   FileText,
   Building2,
   ExternalLink,
+  Download,
 } from "lucide-react";
 import { format, subDays, isAfter } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -398,6 +399,34 @@ export default function DashboardEmails() {
     navigate(`/dashboard/email-builder?saved=${t.id}`);
   };
 
+  const [importing, setImporting] = useState<string | null>(null);
+
+  const handleImportTemplate = async (t: SavedTemplate) => {
+    if (!user) return;
+    setImporting(t.id);
+    try {
+      const { error } = await (supabase as any)
+        .from("campaign_templates")
+        .insert({
+          name: t.name,
+          project_name: t.project_name,
+          form_data: t.form_data,
+          thumbnail_url: t.thumbnail_url,
+          brochure_url: (t as any).brochure_url || null,
+          pricing_sheet_url: (t as any).pricing_sheet_url || null,
+          user_id: user.id,
+        });
+      if (error) throw error;
+      toast.success("Template imported to your library!");
+      fetchTemplates();
+    } catch (err: any) {
+      console.error("Import error:", err);
+      toast.error(err.message || "Failed to import template");
+    } finally {
+      setImporting(null);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-5">
@@ -632,13 +661,15 @@ export default function DashboardEmails() {
                       Shared Templates ({adminTemplates.filter(t => !templateSearch || filteredTemplates.includes(t)).length})
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {filteredTemplates.filter(t => !t.user_id).map(template => (
+                       {filteredTemplates.filter(t => !t.user_id).map(template => (
                         <TemplateCard
                           key={template.id}
                           template={template}
                           onPreview={() => { setPreviewTemplate(template); setPreviewOpen(true); }}
                           onUse={() => handleUseTemplate(template)}
+                          onImport={() => handleImportTemplate(template)}
                           isShared
+                          isImporting={importing === template.id}
                         />
                       ))}
                     </div>
@@ -742,12 +773,16 @@ function TemplateCard({
   template,
   onPreview,
   onUse,
+  onImport,
   isShared,
+  isImporting,
 }: {
   template: SavedTemplate;
   onPreview: () => void;
   onUse: () => void;
+  onImport?: () => void;
   isShared?: boolean;
+  isImporting?: boolean;
 }) {
   const previewImg = template.thumbnail_url || template.form_data?.heroImage || null;
   const subject = template.form_data?.copy?.subjectLine || template.form_data?.subject || null;
@@ -792,9 +827,15 @@ function TemplateCard({
           <Button variant="outline" size="sm" className="flex-1 h-7 text-[11px] gap-1" onClick={onPreview}>
             <Eye className="h-3 w-3" /> Preview
           </Button>
-          <Button size="sm" className="flex-1 h-7 text-[11px] gap-1" onClick={onUse}>
-            <Pencil className="h-3 w-3" /> Edit & Send
-          </Button>
+          {isShared && onImport ? (
+            <Button size="sm" className="flex-1 h-7 text-[11px] gap-1" onClick={onImport} disabled={isImporting}>
+              {isImporting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />} Import
+            </Button>
+          ) : (
+            <Button size="sm" className="flex-1 h-7 text-[11px] gap-1" onClick={onUse}>
+              <Pencil className="h-3 w-3" /> Edit & Send
+            </Button>
+          )}
         </div>
       </div>
     </div>
