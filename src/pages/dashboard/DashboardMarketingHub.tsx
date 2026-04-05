@@ -85,19 +85,21 @@ export default function DashboardMarketingHub() {
   const [assets, setAssets] = useState<SavedAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [adminTemplates, setAdminTemplates] = useState<SavedAsset[]>([]);
+  const [importing, setImporting] = useState<string | null>(null);
 
   const fetchAssets = async () => {
     if (!user) return;
     setLoading(true);
-    // RLS ensures agents only see their own + admin-shared templates
     const { data } = await (supabase as any)
       .from("campaign_templates")
       .select("*")
       .order("updated_at", { ascending: false });
 
     if (data) {
-      // Only show agent's own templates (not admin shared ones in the hub)
-      setAssets((data as SavedAsset[]).filter((a) => a.user_id === user.id));
+      const all = data as SavedAsset[];
+      setAssets(all.filter((a) => a.user_id === user.id));
+      setAdminTemplates(all.filter((a) => !a.user_id));
     }
     setLoading(false);
   };
