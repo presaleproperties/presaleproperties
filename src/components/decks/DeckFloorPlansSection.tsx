@@ -115,8 +115,8 @@ export function DeckFloorPlansSection({
 
         {/* Header */}
         <div className="mb-10 sm:mb-14">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">02 — Hand-Picked For You</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Top Picked Units</h2>
+          <p className="text-primary text-[11px] font-bold uppercase tracking-[0.25em] mb-2">02 — Hand-Picked For You</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight mb-1.5">Top Picked Units</h2>
           <p className="text-muted-foreground text-sm max-w-lg">
             The best available units — tap any to see the full floor plan.{!isUnlocked && " Pricing is exclusive and invite-only — tap Reveal Price to unlock."}
           </p>
