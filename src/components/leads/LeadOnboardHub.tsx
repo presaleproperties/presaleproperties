@@ -610,61 +610,102 @@ export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
             </CardContent>
           </Card>
 
-          {/* ── Deck Selector ── */}
+          {/* ── Deck Selector (most recent + expandable) ── */}
           <Card>
             <CardHeader className="pb-3 sm:pb-4">
               <CardTitle className="text-sm sm:text-base">
                 Pitch Deck <span className="text-muted-foreground font-normal text-xs">(optional)</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-2.5">
               {decks.length === 0 ? (
                 <p className="text-xs sm:text-sm text-muted-foreground">No published decks yet.</p>
               ) : (
-                <div className={cn(
-                  "grid gap-2 sm:gap-3",
-                  isMobile ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3"
-                )}>
-                  {decks.map((deck) => (
-                    <button
-                      key={deck.id}
-                      type="button"
-                      onClick={() => setSelectedDeckId(selectedDeckId === deck.id ? null : deck.id)}
-                      className={cn(
-                        "relative rounded-lg border-2 p-2.5 sm:p-3 text-left transition-all hover:shadow-md",
-                        isMobile ? "flex items-center gap-3" : "",
-                        selectedDeckId === deck.id
-                          ? "border-primary bg-primary/5 shadow-sm"
-                          : "border-border hover:border-muted-foreground/30"
-                      )}
-                    >
-                      {deck.hero_image_url && (
-                        <img
-                          src={deck.hero_image_url}
-                          alt={deck.project_name}
-                          className={cn(
-                            "object-cover rounded",
-                            isMobile ? "w-14 h-14 shrink-0" : "w-full h-16 sm:h-20 mb-2"
-                          )}
-                        />
-                      )}
-                      <div className="min-w-0">
-                        <p className="font-medium text-xs sm:text-sm truncate">{deck.project_name}</p>
-                        {deck.city && <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{deck.city}</p>}
-                      </div>
-                      {selectedDeckId === deck.id && (
-                        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                          <Check className="h-3 w-3 text-primary-foreground" />
+                <>
+                  {/* Most recent deck */}
+                  {(() => {
+                    const deck = decks[0];
+                    return (
+                      <button
+                        key={deck.id}
+                        type="button"
+                        onClick={() => setSelectedDeckId(selectedDeckId === deck.id ? null : deck.id)}
+                        className={cn(
+                          "relative w-full rounded-lg border-2 p-2.5 sm:p-3 text-left transition-all hover:shadow-md flex items-center gap-3",
+                          selectedDeckId === deck.id
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border hover:border-muted-foreground/30"
+                        )}
+                      >
+                        {deck.hero_image_url && (
+                          <img src={deck.hero_image_url} alt={deck.project_name} className="w-14 h-14 shrink-0 object-cover rounded" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-xs sm:text-sm truncate">{deck.project_name}</p>
+                          {deck.city && <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{deck.city}</p>}
+                        </div>
+                        {selectedDeckId === deck.id && (
+                          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="h-3 w-3 text-primary-foreground" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })()}
+
+                  {/* Expand toggle for remaining decks */}
+                  {decks.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setShowAllDecks(!showAllDecks)}
+                        className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAllDecks && "rotate-180")} />
+                        {showAllDecks ? "Show less" : `${decks.length - 1} more deck${decks.length - 1 > 1 ? "s" : ""}`}
+                      </button>
+                      {showAllDecks && (
+                        <div className={cn(
+                          "grid gap-2 sm:gap-2.5 animate-in fade-in slide-in-from-top-2 duration-200",
+                          isMobile ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3"
+                        )}>
+                          {decks.slice(1).map((deck) => (
+                            <button
+                              key={deck.id}
+                              type="button"
+                              onClick={() => setSelectedDeckId(selectedDeckId === deck.id ? null : deck.id)}
+                              className={cn(
+                                "relative rounded-lg border-2 p-2.5 text-left transition-all hover:shadow-md",
+                                isMobile ? "flex items-center gap-3" : "",
+                                selectedDeckId === deck.id
+                                  ? "border-primary bg-primary/5 shadow-sm"
+                                  : "border-border hover:border-muted-foreground/30"
+                              )}
+                            >
+                              {deck.hero_image_url && (
+                                <img src={deck.hero_image_url} alt={deck.project_name} className={cn("object-cover rounded", isMobile ? "w-12 h-12 shrink-0" : "w-full h-16 mb-1.5")} />
+                              )}
+                              <div className="min-w-0">
+                                <p className="font-medium text-xs truncate">{deck.project_name}</p>
+                                {deck.city && <p className="text-[10px] text-muted-foreground truncate">{deck.city}</p>}
+                              </div>
+                              {selectedDeckId === deck.id && (
+                                <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                  <Check className="h-3 w-3 text-primary-foreground" />
+                                </div>
+                              )}
+                            </button>
+                          ))}
                         </div>
                       )}
-                    </button>
-                  ))}
-                </div>
+                    </>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>
 
-          {/* ── Email Template Selector (IN THE FORM) ── */}
+          {/* ── Email Template Selector (most recent + expandable) ── */}
           {templates.length > 0 && (
             <Card>
               <CardHeader className="pb-3 sm:pb-4">
@@ -672,13 +713,31 @@ export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
                   Email Template <span className="text-muted-foreground font-normal text-xs">(optional — sends after save)</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className={cn(
-                  "grid gap-2 sm:gap-3",
-                  isMobile ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3"
-                )}>
-                  {templates.map((tpl) => renderTemplateCard(tpl, selectedTemplateId, setSelectedTemplateId))}
-                </div>
+              <CardContent className="space-y-2.5">
+                {/* Most recent template */}
+                {renderTemplateCard(templates[0], selectedTemplateId, setSelectedTemplateId)}
+
+                {/* Expand toggle for remaining templates */}
+                {templates.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setShowAllTemplates(!showAllTemplates)}
+                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAllTemplates && "rotate-180")} />
+                      {showAllTemplates ? "Show less" : `${templates.length - 1} more template${templates.length - 1 > 1 ? "s" : ""}`}
+                    </button>
+                    {showAllTemplates && (
+                      <div className={cn(
+                        "grid gap-2 sm:gap-2.5 animate-in fade-in slide-in-from-top-2 duration-200",
+                        isMobile ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3"
+                      )}>
+                        {templates.slice(1).map((tpl) => renderTemplateCard(tpl, selectedTemplateId, setSelectedTemplateId))}
+                      </div>
+                    )}
+                  </>
+                )}
 
                 {/* Inline preview button when a template is selected */}
                 {selectedTemplateId && selectedTemplate && (
