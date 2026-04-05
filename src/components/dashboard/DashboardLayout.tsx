@@ -57,6 +57,12 @@ const navItems = [
     description: "Shareable investor decks"
   },
   { 
+    label: "Marketing Hub", 
+    href: "/dashboard/marketing-hub", 
+    icon: Megaphone,
+    description: "Build email campaigns"
+  },
+  { 
     label: "Messages", 
     href: "/dashboard/messages", 
     icon: MessageSquare,
