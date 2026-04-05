@@ -470,6 +470,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setLoopSlides(d.loopSlides ?? []);
     setSelectedAssetId(d.selectedAssetId ?? "none");
     setDirectCtaUrl(d.directCtaUrl ?? "");
+    setBrochureUrl(d.brochureUrl ?? "");
+    setFloorplanUrl(d.floorplanUrl ?? "");
     if (d.selAgent) setSelAgent(d.selAgent);
     if (d.fontId) setSelectedFontId(d.fontId);
     if (d.layoutVersion) setLayoutVersion(d.layoutVersion);
