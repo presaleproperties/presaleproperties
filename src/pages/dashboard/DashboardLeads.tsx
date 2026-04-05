@@ -422,10 +422,16 @@ export default function DashboardLeads() {
                             const temp = (TEMP_CONFIG as any)[lead.temperature] || TEMP_CONFIG.cold;
                             const TempIcon = temp.icon;
                             const projectTag = lead.pitch_decks?.project_name;
+                            // Tags = project names + custom tags only (NOT lead sources)
                             const allTags = [
                               ...(projectTag ? [projectTag] : []),
                               ...(lead.tags || []),
                             ];
+                            // Source display: show primary + count of extras from tags that match sources
+                            const primarySource = SOURCE_LABELS[lead.source] || lead.source;
+                            const extraSourceCount = (lead.tags || []).filter(t => Object.keys(SOURCE_LABELS).includes(t) && t !== lead.source).length;
+                            // Filter tags to exclude source-type tags for display
+                            const displayTags = allTags.filter(t => !Object.keys(SOURCE_LABELS).includes(t));
 
                             return (
                               <tr
@@ -435,7 +441,7 @@ export default function DashboardLeads() {
                                   lead.temperature === "hot" ? "bg-red-500/[0.03]" : "hover:bg-muted/30"
                                 )}
                               >
-                                {/* Temp Icon */}
+                                {/* Status — single temperature indicator */}
                                 <td className="px-3 py-2.5">
                                   <button
                                     onClick={() => {
@@ -443,12 +449,13 @@ export default function DashboardLeads() {
                                       handleSetTemperature(lead.id, cycle);
                                     }}
                                     className={cn(
-                                      "w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-all hover:scale-110",
-                                      lead.temperature === "hot" ? "bg-red-500/20" : lead.temperature === "warm" ? "bg-amber-500/20" : "bg-blue-400/10"
+                                      "inline-flex items-center gap-1.5 px-2 h-6 rounded-full text-[10px] font-medium border transition-all hover:scale-105",
+                                      temp.badgeCn
                                     )}
                                     title={`Click to cycle: ${temp.label}`}
                                   >
-                                    <TempIcon className={cn("h-3.5 w-3.5", temp.className)} />
+                                    <TempIcon className={cn("h-3 w-3", temp.className)} />
+                                    {temp.label}
                                   </button>
                                 </td>
 
@@ -477,18 +484,28 @@ export default function DashboardLeads() {
                                   </a>
                                 </td>
 
-                                {/* Source */}
+                                {/* Source — condensed with expandable */}
                                 <td className="px-3 py-2.5">
-                                  <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal">
-                                    {SOURCE_LABELS[lead.source] || lead.source}
-                                  </Badge>
-                                </td>
-
-                                {/* Status */}
-                                <td className="px-3 py-2.5">
-                                  <Badge variant="outline" className={cn("text-[10px] h-5 px-1.5 font-medium border", temp.badgeCn)}>
-                                    {temp.label}
-                                  </Badge>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <button className="inline-flex items-center gap-1 text-[10px] h-5 px-1.5 rounded border border-border bg-background hover:bg-muted transition-colors">
+                                        {primarySource}
+                                        {extraSourceCount > 0 && (
+                                          <span className="text-primary font-semibold">+{extraSourceCount}</span>
+                                        )}
+                                      </button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="start" className="w-36">
+                                      <DropdownMenuItem className="text-xs font-medium" disabled>
+                                        Lead Sources
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem className="text-xs">{primarySource}</DropdownMenuItem>
+                                      {(lead.tags || []).filter(t => Object.keys(SOURCE_LABELS).includes(t) && t !== lead.source).map(src => (
+                                        <DropdownMenuItem key={src} className="text-xs">{SOURCE_LABELS[src] || src}</DropdownMenuItem>
+                                      ))}
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
                                   {lead.zapier_synced && (
                                     <Badge className="text-[10px] h-5 px-1.5 bg-primary/10 text-primary border-0 gap-0.5 ml-1">
                                       <Check className="h-2.5 w-2.5" /> CRM
@@ -496,22 +513,21 @@ export default function DashboardLeads() {
                                   )}
                                 </td>
 
-                                {/* Tags */}
+                                {/* Tags — project names + custom only */}
                                 <td className="px-3 py-2.5">
                                   <div className="flex items-center gap-1 flex-wrap max-w-[200px]">
-                                    {allTags.map((tag, i) => (
+                                    {displayTags.map((tag, i) => (
                                       <Badge
                                         key={`${tag}-${i}`}
                                         variant="secondary"
                                         className={cn(
                                           "text-[10px] h-5 px-1.5 gap-0.5 font-normal",
-                                          i === 0 && projectTag ? "bg-primary/10 text-primary border-primary/20" : ""
+                                          tag === projectTag ? "bg-primary/10 text-primary border-primary/20" : ""
                                         )}
                                       >
-                                        {i === 0 && projectTag && <Presentation className="h-2.5 w-2.5" />}
+                                        {tag === projectTag && <Presentation className="h-2.5 w-2.5" />}
                                         {tag}
-                                        {/* Only allow removing custom tags (not the auto project tag) */}
-                                        {(i > 0 || !projectTag) && (
+                                        {tag !== projectTag && (
                                           <button
                                             onClick={() => handleRemoveTag(lead.id, tag)}
                                             className="ml-0.5 hover:text-destructive"
