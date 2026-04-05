@@ -85,19 +85,21 @@ export default function DashboardMarketingHub() {
   const [assets, setAssets] = useState<SavedAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [adminTemplates, setAdminTemplates] = useState<SavedAsset[]>([]);
+  const [importing, setImporting] = useState<string | null>(null);
 
   const fetchAssets = async () => {
     if (!user) return;
     setLoading(true);
-    // RLS ensures agents only see their own + admin-shared templates
     const { data } = await (supabase as any)
       .from("campaign_templates")
       .select("*")
       .order("updated_at", { ascending: false });
 
     if (data) {
-      // Only show agent's own templates (not admin shared ones in the hub)
-      setAssets((data as SavedAsset[]).filter((a) => a.user_id === user.id));
+      const all = data as SavedAsset[];
+      setAssets(all.filter((a) => a.user_id === user.id));
+      setAdminTemplates(all.filter((a) => !a.user_id));
     }
     setLoading(false);
   };
@@ -124,6 +126,21 @@ export default function DashboardMarketingHub() {
     });
     if (error) toast.error("Failed to duplicate");
     else { toast.success("Duplicated"); fetchAssets(); }
+  };
+
+  const handleImport = async (asset: SavedAsset) => {
+    if (!user) return;
+    setImporting(asset.id);
+    const { error } = await (supabase as any).from("campaign_templates").insert({
+      name: asset.name,
+      project_name: asset.project_name,
+      form_data: asset.form_data,
+      thumbnail_url: asset.thumbnail_url,
+      user_id: user.id,
+    });
+    if (error) toast.error("Failed to import");
+    else { toast.success("Template imported to your collection"); fetchAssets(); }
+    setImporting(null);
   };
 
   return (
@@ -309,6 +326,71 @@ export default function DashboardMarketingHub() {
                 </div>
               )}
             </section>
+            {/* Admin shared templates */}
+            {adminTemplates.length > 0 && (
+              <section>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+                  Company Templates
+                </p>
+                <p className="text-xs text-muted-foreground/60 mb-4">
+                  Import admin-created templates into your collection
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {adminTemplates.map(asset => {
+                    const preview = getPreviewImage(asset);
+                    return (
+                      <div
+                        key={asset.id}
+                        className="group relative rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-md transition-all"
+                      >
+                        <div className="h-44 bg-muted/30 relative overflow-hidden">
+                          {preview ? (
+                            <img
+                              src={preview}
+                              alt={asset.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Mail className="h-10 w-10 text-muted-foreground/15" />
+                            </div>
+                          )}
+                          <div className="absolute top-2 left-2">
+                            <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 shadow-sm bg-card/90">
+                              Admin
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="p-3.5">
+                          <p className="text-sm font-semibold truncate mb-0.5">{getDisplayName(asset)}</p>
+                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60">
+                            <Clock className="h-3 w-3" />
+                            {timeAgo(asset.updated_at)}
+                            {(asset.form_data?.projectName || asset.project_name) && (
+                              <>
+                                <span className="text-muted-foreground/30">·</span>
+                                <span className="truncate">{asset.form_data?.projectName || asset.project_name}</span>
+                              </>
+                            )}
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-border">
+                            <Button
+                              size="sm"
+                              className="w-full h-8 text-xs gap-1.5"
+                              disabled={importing === asset.id}
+                              onClick={() => handleImport(asset)}
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                              {importing === asset.id ? "Importing..." : "Import to My Templates"}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </div>
