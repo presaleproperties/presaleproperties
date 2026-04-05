@@ -44,6 +44,7 @@ import {
   Tag,
   X,
   Plus,
+  Trash2,
 } from "lucide-react";
 import { format, subDays, isAfter } from "date-fns";
 import { cn } from "@/lib/utils";
