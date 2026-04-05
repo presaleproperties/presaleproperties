@@ -34,6 +34,10 @@ export function FlowSelector({ flows, selectedId, onSelect, onNew, onPublish, on
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
             )}
           >
+            <span className={cn(
+              "h-2 w-2 rounded-full shrink-0",
+              flow.is_active ? "bg-green-500" : "bg-muted-foreground/30"
+            )} />
             {flow.name}
             <Badge variant={flow.is_published ? "default" : "secondary"} className="text-[10px] h-4 px-1.5">
               {flow.is_published ? "Live" : "Draft"}
@@ -56,9 +60,9 @@ export function FlowSelector({ flows, selectedId, onSelect, onNew, onPublish, on
         {/* Selected flow actions */}
         {selected && (
           <div className="flex items-center gap-2 py-2 shrink-0">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mr-1">
-              <span>{getTriggerLabel(selected.trigger_type)}</span>
-            </div>
+            <span className="text-xs text-muted-foreground mr-1">
+              {selected.is_active ? "On" : "Off"}
+            </span>
             <Switch
               checked={selected.is_active}
               onCheckedChange={(v) => onToggleActive(selected.id, v)}

@@ -40,6 +40,7 @@ interface FlowStepCardProps {
   onDragEnd: () => void;
   isDragging: boolean;
   isDragOver: boolean;
+  flowDisabled?: boolean;
 }
 
 export function FlowStepCard({
@@ -52,6 +53,7 @@ export function FlowStepCard({
   onDragEnd,
   isDragging,
   isDragOver,
+  flowDisabled,
 }: FlowStepCardProps) {
   const [expanded, setExpanded] = useState(false);
   const meta = STEP_META[step.step_type];
@@ -75,9 +77,12 @@ export function FlowStepCard({
     }
   };
 
+  // When flow is disabled, step toggle is locked off
+  const effectiveActive = flowDisabled ? false : step.is_active;
+
   return (
     <div
-      draggable
+      draggable={!flowDisabled}
       onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; onDragStart(index); }}
       onDragOver={(e) => { e.preventDefault(); onDragOver(index); }}
       onDragEnd={onDragEnd}
@@ -90,7 +95,7 @@ export function FlowStepCard({
       {isDragOver && (
         <div className="h-1 bg-primary rounded-full mb-2 mx-4 animate-pulse" />
       )}
-      <Card className={cn("border transition-colors", meta.bg, !step.is_active && "opacity-50")}>
+      <Card className={cn("border transition-colors", meta.bg, !effectiveActive && "opacity-50")}>
         <CardContent className="p-0">
           {/* Header row */}
           <div className="flex items-center gap-2 px-3 py-2.5">
@@ -105,8 +110,9 @@ export function FlowStepCard({
               <p className="text-xs text-muted-foreground capitalize">{step.step_type.replace("_", " ")}</p>
             </div>
             <Switch
-              checked={step.is_active}
+              checked={effectiveActive}
               onCheckedChange={(v) => onUpdate(step.id, { is_active: v })}
+              disabled={flowDisabled}
               className="scale-75"
             />
             <Button
