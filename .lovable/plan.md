@@ -1,39 +1,37 @@
 
-## Audit Findings
 
-### 🗑️ Pages to Remove (waste of space/code)
+# Installable Agent Hub App (Add to Home Screen)
 
-1. **Onboard Client** (`/dashboard/lead-onboard`) — **Exact duplicate** of the LeadOnboardHub already embedded in the Overview page. Same component, same functionality, just wrapped in DashboardLayout twice. Dead code.
+## What This Does
+Creates a separate "Add to Home Screen" experience specifically for the Agent Hub. When you save it to your phone, it opens directly to `/dashboard` (the Agent Hub) with its own app name, icon, and no browser chrome — it feels like a standalone app.
 
-2. **Messages** (`/dashboard/messages`) — Agent-to-agent inbox for assignment listings. This feature is tied to a secondary workflow (assignment marketplace) that isn't your core focus. Low/no usage. Remove from nav.
+## How It Works
 
-3. **Billing** (`/dashboard/billing`) — Queries a `payments` table for listing payments. Since the assignment listing payment flow isn't live, this page always shows "No payments yet." Dead weight.
+Since you already have a `manifest.json` for the public site, we'll create a **second manifest** specifically for the Agent Hub and wire it up so it only loads when you're on `/dashboard` routes.
 
-### 🔄 Reorganized Navigation (11 items → 7 items)
+### Changes
 
-**Core Workflow Group** (what agents do daily):
-1. **Overview** — Greeting + Lead Onboard form + quick deck links (keep as-is)
-2. **Leads** — All lead management (onboarded + inquiries)  
-3. **Pitch Decks** — Create & share project decks
-4. **Marketing** — Email template builder + saved campaigns
-5. **Emails** — Track sent emails & open rates
+**1. Create `public/manifest-agent.json`**
+- Name: "Presale Agent Hub" / short name: "Agent Hub"
+- `start_url`: `/dashboard` — so it always opens to the Agent Hub
+- Same brand icons and colors as the main site
+- `display: standalone` for native-app feel
 
-**Resources Group:**
-6. **Project Docs** — Premium floorplan/brochure library
+**2. Swap manifest dynamically in the app**
+- Add a small component (e.g. `AgentManifestSwap`) that detects when the user is on any `/dashboard/*` route
+- It replaces the `<link rel="manifest">` href from `/manifest.json` to `/manifest-agent.json`
+- This means when an agent hits "Add to Home Screen" from the dashboard, the phone picks up the agent-specific manifest
 
-**Account Group:**
-7. **Profile** — Account & license settings
+**3. Auto-redirect on launch**
+- When the app opens from the home screen at `/dashboard`, the existing `ProtectedRoute` handles auth — if not logged in, it redirects to `/login`, then back to `/dashboard` after login
+- No extra routing needed; the current auth flow already handles this
 
-### 📐 Layout Changes
-- Group sidebar nav into labeled sections: **Workflow**, **Resources**, **Account**
-- Keep **My Listings** accessible but move to bottom/secondary position (it works, just not the primary use case)
-- Remove the redundant "Onboard Client" route entirely
+### What You'll Do
+1. Open the Agent Hub on your phone's browser
+2. Tap **Share → Add to Home Screen**
+3. It saves as "Agent Hub" with the brand icon
+4. Opening it launches straight into the dashboard — full screen, no browser bar
 
-### ✅ What stays as-is (working well)
-- LeadOnboardHub on Overview (primary CTA ✓)
-- Leads page with temperature system (✓)
-- Pitch Decks with "Send Email Campaign" flow (✓)
-- Marketing Hub with company template imports (✓)
-- Email tracking with compose (✓)
-- Project Documents with verification gate (✓)
-- Profile with license verification (✓)
+### No PWA Service Worker Needed
+This uses only a web app manifest for installability — no service worker, no offline caching, no complexity. It's the simplest approach that gives you a home-screen icon that launches directly to the Agent Hub.
+
