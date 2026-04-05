@@ -36,6 +36,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
+  const { submitLead } = useLeadSubmission();
 
   const {
     register,
