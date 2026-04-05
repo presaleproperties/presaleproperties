@@ -2942,6 +2942,7 @@ export type Database = {
           last_drip_sent: number | null
           lead_score: number | null
           lead_source: string | null
+          lead_sources: string[]
           lead_status: string
           lead_temperature: string | null
           lofty_id: string | null
@@ -2987,6 +2988,7 @@ export type Database = {
           last_drip_sent?: number | null
           lead_score?: number | null
           lead_source?: string | null
+          lead_sources?: string[]
           lead_status?: string
           lead_temperature?: string | null
           lofty_id?: string | null
@@ -3032,6 +3034,7 @@ export type Database = {
           last_drip_sent?: number | null
           lead_score?: number | null
           lead_source?: string | null
+          lead_sources?: string[]
           lead_status?: string
           lead_temperature?: string | null
           lofty_id?: string | null
