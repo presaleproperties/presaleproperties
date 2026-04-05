@@ -267,6 +267,8 @@ export function buildAiTemplateHtmlFromFormData(formData: any, agentOverride?: P
     deckUrl,
     deckParking,
     deckLocker,
+    brochureUrl: formData?.brochureUrl || undefined,
+    floorplanUrl: formData?.floorplanUrl || undefined,
   });
 }
 
