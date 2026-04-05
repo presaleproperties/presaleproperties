@@ -95,7 +95,7 @@ export function DeckFloorPlansSection({
   };
 
   return (
-    <section id="floor-plans" className="relative py-16 sm:py-24 bg-muted/20 overflow-hidden">
+    <section id="floor-plans" className="relative py-16 sm:py-24 bg-muted/10 overflow-hidden">
 
       {/* Price gate modal — only triggered on demand, never on page load */}
       {priceGateOpen && !isUnlocked && (
