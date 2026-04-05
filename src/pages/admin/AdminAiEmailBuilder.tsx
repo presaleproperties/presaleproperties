@@ -1577,7 +1577,23 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               {/* ── LAYOUT VERSION TOGGLE ── */}
               <div className="px-3 py-2.5 border-b border-border bg-muted/10">
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold block mb-2">Layout</Label>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    onClick={() => setLayoutVersion("editorial")}
+                    className={cn(
+                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                      layoutVersion === "editorial"
+                        ? "border-[#7a8a5a] bg-[#7a8a5a]/8 shadow-sm"
+                        : "border-border bg-muted/10 hover:border-[#7a8a5a]/50"
+                    )}
+                  >
+                    <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
+                      Editorial
+                      <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-[#7a8a5a]/15 text-[#7a8a5a] uppercase tracking-wide">New</span>
+                    </div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Hero slideshow · Clean</div>
+                    {layoutVersion === "editorial" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-[#7a8a5a]" />}
+                  </button>
                   <button
                     onClick={() => setLayoutVersion("loop")}
                     className={cn(
@@ -1613,14 +1629,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         : "border-border bg-muted/10 hover:border-sky-400/50"
                     )}
                   >
-                    <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
-                      Modern
-                      <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-sky-500/15 text-sky-600 uppercase tracking-wide">New</span>
-                    </div>
+                    <div className="text-[11px] font-semibold text-foreground">Modern</div>
                     <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
                     {layoutVersion === "modern" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-sky-500" />}
                   </button>
                 </div>
+                {layoutVersion === "editorial" && (
+                  <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
+                )}
                 {layoutVersion === "loop" && (
                   <p className="text-[9px] text-amber-600/70 mt-1.5 leading-relaxed">Hero + Image Cards cycle as a CSS slideshow. Add images in the Images step below.</p>
                 )}
