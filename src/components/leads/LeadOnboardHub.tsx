@@ -291,6 +291,7 @@ export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
           ? `${values.first_name} has been saved, synced to Lofty, and emailed.`
           : `${values.first_name} has been saved and synced to Lofty.`,
       });
+      onSuccess?.();
     } catch (err: any) {
       console.error("Onboard error:", err);
       toast({
