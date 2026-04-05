@@ -36,6 +36,7 @@ export default function DashboardOverview() {
   const [decks, setDecks] = useState<PitchDeck[]>([]);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [stats, setStats] = useState({ leads: 0, emails: 0, decks: 0 });
+  const [showAllDecks, setShowAllDecks] = useState(false);
 
   useEffect(() => {
     if (!user) return;
