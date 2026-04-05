@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { LeadOnboardHub } from "@/components/leads/LeadOnboardHub";
@@ -15,7 +14,8 @@ import {
   Users,
   Mail,
   Megaphone,
-  TrendingUp,
+  Plus,
+  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +39,6 @@ export default function DashboardOverview() {
   useEffect(() => {
     if (!user) return;
 
-    // Fetch agent name, decks, and stats in parallel
     Promise.all([
       supabase.from("profiles").select("full_name").eq("user_id", user.id).single(),
       (supabase as any).from("pitch_decks")
@@ -67,111 +66,113 @@ export default function DashboardOverview() {
     setTimeout(() => setCopiedSlug(null), 2000);
   };
 
+  const greeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
   return (
     <DashboardLayout>
-      <div className="space-y-6 sm:space-y-8">
-        {/* Greeting */}
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
-          {agentName ? `Hey ${agentName}` : "Welcome back"}
-        </h1>
+      <div className="space-y-6 md:space-y-8 max-w-4xl">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            {agentName ? `${greeting()}, ${agentName.split(" ")[0]}` : greeting()}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Here's what's happening with your pipeline today.
+          </p>
+        </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          <button
-            onClick={() => navigate("/dashboard/leads")}
-            className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-primary/30 transition-colors text-left"
-          >
-            <Users className="h-4 w-4 text-muted-foreground shrink-0" />
-            <div>
-              <p className="text-lg font-bold leading-none">{stats.leads}</p>
-              <p className="text-[11px] text-muted-foreground">Leads</p>
-            </div>
-          </button>
-          <button
-            onClick={() => navigate("/dashboard/emails")}
-            className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-primary/30 transition-colors text-left"
-          >
-            <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
-            <div>
-              <p className="text-lg font-bold leading-none">{stats.emails}</p>
-              <p className="text-[11px] text-muted-foreground">Emails</p>
-            </div>
-          </button>
-          <button
-            onClick={() => navigate("/dashboard/decks")}
-            className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-primary/30 transition-colors text-left"
-          >
-            <Presentation className="h-4 w-4 text-muted-foreground shrink-0" />
-            <div>
-              <p className="text-lg font-bold leading-none">{stats.decks}</p>
-              <p className="text-[11px] text-muted-foreground">Decks</p>
-            </div>
-          </button>
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          {[
+            { label: "Leads", value: stats.leads, icon: Users, href: "/dashboard/leads", color: "text-blue-600 bg-blue-50" },
+            { label: "Emails Sent", value: stats.emails, icon: Mail, href: "/dashboard/emails", color: "text-emerald-600 bg-emerald-50" },
+            { label: "Active Decks", value: stats.decks, icon: Presentation, href: "/dashboard/decks", color: "text-amber-600 bg-amber-50" },
+          ].map((stat) => (
+            <button
+              key={stat.label}
+              onClick={() => navigate(stat.href)}
+              className="group relative overflow-hidden rounded-xl border border-border bg-card p-4 sm:p-5 text-left transition-all hover:shadow-md hover:border-primary/20"
+            >
+              <div className={cn("inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg mb-3", stat.color)}>
+                <stat.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+              </div>
+              <p className="text-2xl sm:text-3xl font-bold text-foreground leading-none">{stat.value}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label}</p>
+              <ArrowRight className="absolute top-4 right-4 h-4 w-4 text-muted-foreground/0 group-hover:text-muted-foreground/60 transition-all" />
+            </button>
+          ))}
         </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            className="h-auto py-3 px-4 justify-start gap-3"
+          <button
             onClick={() => navigate("/dashboard/decks/new")}
+            className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-card/50 p-4 text-left transition-all hover:border-primary/40 hover:bg-primary/5"
           >
-            <Presentation className="h-4 w-4 text-primary shrink-0" />
-            <div className="text-left">
-              <p className="text-sm font-medium">New Pitch Deck</p>
-              <p className="text-[11px] text-muted-foreground font-normal">Create & share</p>
+            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10">
+              <Plus className="h-4 w-4 text-primary" />
             </div>
-          </Button>
-          <Button
-            variant="outline"
-            className="h-auto py-3 px-4 justify-start gap-3"
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">New Pitch Deck</p>
+              <p className="text-xs text-muted-foreground">Create & share</p>
+            </div>
+          </button>
+          <button
             onClick={() => navigate("/dashboard/email-builder?template=project-email")}
+            className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-card/50 p-4 text-left transition-all hover:border-primary/40 hover:bg-primary/5"
           >
-            <Megaphone className="h-4 w-4 text-primary shrink-0" />
-            <div className="text-left">
-              <p className="text-sm font-medium">New Email</p>
-              <p className="text-[11px] text-muted-foreground font-normal">Build campaign</p>
+            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10">
+              <Megaphone className="h-4 w-4 text-primary" />
             </div>
-          </Button>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">New Campaign</p>
+              <p className="text-xs text-muted-foreground">Build & send email</p>
+            </div>
+          </button>
         </div>
 
-        {/* PRIMARY: Onboard Form */}
+        {/* Lead Onboard Hub */}
         <LeadOnboardHub />
 
-        {/* SECONDARY: Quick Deck Links */}
+        {/* Deck Links */}
         {decks.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Your Decks</h2>
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Your Decks</h2>
               <Link to="/dashboard/decks">
-                <Button variant="ghost" size="sm" className="text-xs gap-1 text-muted-foreground h-7">
-                  All Decks <ArrowRight className="h-3 w-3" />
+                <Button variant="ghost" size="sm" className="text-xs gap-1.5 text-muted-foreground h-7 hover:text-foreground">
+                  View all <ArrowRight className="h-3 w-3" />
                 </Button>
               </Link>
             </div>
-            <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-2.5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {decks.map((deck) => (
                 <div
                   key={deck.id}
-                  className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-primary/30 transition-colors"
+                  className="group flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:shadow-sm hover:border-primary/20 transition-all"
                 >
                   {deck.hero_image_url ? (
-                    <img src={deck.hero_image_url} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+                    <img src={deck.hero_image_url} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0" />
                   ) : (
-                    <div className="w-10 h-10 rounded bg-muted flex items-center justify-center shrink-0">
+                    <div className="w-11 h-11 rounded-lg bg-muted flex items-center justify-center shrink-0">
                       <Presentation className="h-4 w-4 text-muted-foreground/40" />
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate">{deck.project_name}</p>
+                    <p className="text-sm font-medium truncate text-foreground">{deck.project_name}</p>
                     {deck.city && <p className="text-xs text-muted-foreground">{deck.city}</p>}
                   </div>
-                  <div className="flex gap-1 shrink-0">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(deck.slug)}>
-                      {copiedSlug === deck.slug ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                  <div className="flex gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleCopy(deck.slug)}>
+                      {copiedSlug === deck.slug ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
                     </Button>
                     <a href={`https://presaleproperties.com/deck/${deck.slug}`} target="_blank" rel="noopener noreferrer">
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
                     </a>
