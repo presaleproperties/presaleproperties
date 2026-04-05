@@ -1399,35 +1399,43 @@ export function buildModernV2EmailHtml(
     heroSlides.push(data.heroImage);
   }
 
-  // ── Carousel CSS (1-second per slide, fast GIF-like rotation) ────────────
+  // ── Carousel CSS (each slide gets its own keyframe for proper cycling) ──
   const slideCount = heroSlides.length;
-  const slideDuration = 1; // 1 second per slide
+  const slideDuration = 2; // 2 seconds per slide (visible time)
+  const fadeDuration = 0.6; // cross-fade transition
   const totalDuration = slideCount * slideDuration;
 
   let carouselCss = "";
   if (slideCount > 1) {
-    const keyframes = heroSlides.map((_, i) => {
-      const start = (i / slideCount) * 100;
-      const hold = ((i + 0.85) / slideCount) * 100;
-      const end = ((i + 1) / slideCount) * 100;
-      return `${start.toFixed(1)}%{opacity:1} ${hold.toFixed(1)}%{opacity:1} ${end.toFixed(1)}%{opacity:0}`;
-    }).join(" ");
-    carouselCss = `@keyframes mv2-fade{${keyframes} 100%{opacity:1}}`;
+    // Each slide gets its own @keyframes: visible for its slot, hidden otherwise
+    const allKeyframes = heroSlides.map((_, i) => {
+      const showStart = (i / slideCount) * 100;
+      const showEnd = ((i + 1) / slideCount) * 100;
+      const fadeIn = Math.max(0, showStart - 2);
+      const fadeOut = Math.min(100, showEnd + 2);
+      return `@keyframes mv2-fade-${i}{` +
+        `0%{opacity:${i === 0 ? 1 : 0}} ` +
+        `${fadeIn.toFixed(1)}%{opacity:0} ` +
+        `${showStart.toFixed(1)}%{opacity:1} ` +
+        `${showEnd.toFixed(1)}%{opacity:1} ` +
+        `${fadeOut.toFixed(1)}%{opacity:0} ` +
+        `100%{opacity:${i === 0 ? 1 : 0}}}`;
+    }).join("\n");
+    carouselCss = allKeyframes;
   }
 
   // ── Hero HTML ────────────────────────────────────────────────────────────
   const heroHtml = heroSlides.length > 0 ? (() => {
     if (slideCount === 1) {
-      const img = `<img src="${heroSlides[0]}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />`;
+      const img = `<img src="${heroSlides[0]}" alt="${data.projectName || "New Presale"}" width="1200" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />`;
       return deckLink
         ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;">${img}</a>`
         : img;
     }
     const layers = heroSlides.map((src, i) => {
-      const delay = i * slideDuration;
-      return `<div style="position:${i === 0 ? "relative" : "absolute"};top:0;left:0;width:100%;${i > 0 ? "opacity:0;" : ""}animation:mv2-fade ${totalDuration}s infinite;animation-delay:${delay}s;">
+      return `<div style="position:${i === 0 ? "relative" : "absolute"};top:0;left:0;width:100%;${i > 0 ? "opacity:0;" : ""}animation:mv2-fade-${i} ${totalDuration}s infinite ease-in-out;">
         ${deckLink ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;">` : ""}
-        <img src="${src}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />
+        <img src="${src}" alt="${data.projectName || "New Presale"}" width="1200" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />
         ${deckLink ? "</a>" : ""}
       </div>`;
     }).join("");
