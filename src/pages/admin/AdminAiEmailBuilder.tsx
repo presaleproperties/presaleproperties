@@ -286,7 +286,7 @@ const TEMPLATE_PRESETS: Record<string, Partial<{
   },
 };
 
-export default function AdminEmailBuilderPage() {
+export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agentMode?: boolean; agentUserId?: string } = {}) {
   const navigate        = useNavigate();
   const [searchParams]  = useSearchParams();
   const heroInputRef    = useRef<HTMLInputElement>(null);
