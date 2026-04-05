@@ -16,7 +16,7 @@ const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
   Ravish: { phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com" },
 };
 
-type LayoutVersion = "classic" | "loop" | "pitch-deck" | "modern" | "editorial";
+type LayoutVersion = "classic" | "modern" | "editorial";
 
 type StoredFloorPlan = {
   id?: string;
