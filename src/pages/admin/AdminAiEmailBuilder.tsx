@@ -2270,7 +2270,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         )}
 
       </div>
-    </AdminLayout>
+    </Layout>
   );
 }
 
