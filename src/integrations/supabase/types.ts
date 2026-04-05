@@ -2533,6 +2533,7 @@ export type Database = {
           notes: string | null
           phone: string | null
           source: string
+          tags: string[]
           temperature: string
           template_id: string | null
           updated_at: string
@@ -2550,6 +2551,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           source?: string
+          tags?: string[]
           temperature?: string
           template_id?: string | null
           updated_at?: string
@@ -2567,6 +2569,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           source?: string
+          tags?: string[]
           temperature?: string
           template_id?: string | null
           updated_at?: string
