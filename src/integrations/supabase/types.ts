@@ -405,6 +405,7 @@ export type Database = {
           project_name: string
           thumbnail_url: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           brochure_url?: string | null
@@ -416,6 +417,7 @@ export type Database = {
           project_name?: string
           thumbnail_url?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           brochure_url?: string | null
@@ -427,6 +429,7 @@ export type Database = {
           project_name?: string
           thumbnail_url?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

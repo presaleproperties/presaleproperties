@@ -3,6 +3,7 @@ import { SendEmailDialog } from "@/components/admin/SendEmailDialog";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -286,7 +287,7 @@ const TEMPLATE_PRESETS: Record<string, Partial<{
   },
 };
 
-export default function AdminEmailBuilderPage() {
+export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agentMode?: boolean; agentUserId?: string } = {}) {
   const navigate        = useNavigate();
   const [searchParams]  = useSearchParams();
   const heroInputRef    = useRef<HTMLInputElement>(null);
@@ -1205,8 +1206,10 @@ export default function AdminEmailBuilderPage() {
     setSaveDialogOpen(false);
     const formData = buildFormData();
 
+    const insertPayload: any = { name: saveTemplateName.trim(), project_name: projectName || "Untitled", form_data: formData };
+    if (agentMode && agentUserId) insertPayload.user_id = agentUserId;
     const res = await supabase.from("campaign_templates" as any)
-      .insert({ name: saveTemplateName.trim(), project_name: projectName || "Untitled", form_data: formData })
+      .insert(insertPayload)
       .select("id")
       .single();
 
@@ -1226,8 +1229,9 @@ export default function AdminEmailBuilderPage() {
   const [mobileTab, setMobileTab] = useState<"build" | "preview">("build");
 
   // ─────────────────────────────────────────────────────────────────────────────
-  return (
-    <AdminLayout>
+    const Layout = agentMode ? DashboardLayout : AdminLayout;
+    return (
+    <Layout>
       {/* Hidden file inputs — always mounted so refs are never null */}
       <input ref={heroInputRef}     type="file" accept="image/*"        className="hidden" onChange={handleHeroUpload} />
       <input ref={fpInputRef}       type="file" accept="image/*" multiple className="hidden" onChange={handleFpUpload} />
@@ -1238,7 +1242,7 @@ export default function AdminEmailBuilderPage() {
 
         {/* ── Top bar ── */}
         <div className="flex items-center gap-2 min-w-0">
-          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate(fromDeck ? "/dashboard/decks" : "/admin/marketing-hub")}>
+          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate(fromDeck ? "/dashboard/decks" : agentMode ? "/dashboard/marketing-hub" : "/admin/marketing-hub")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-sm shrink-0">
@@ -2266,7 +2270,7 @@ export default function AdminEmailBuilderPage() {
         )}
 
       </div>
-    </AdminLayout>
+    </Layout>
   );
 }
 

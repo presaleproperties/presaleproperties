@@ -52,6 +52,8 @@ const DashboardMessages = lazy(() => import("./pages/dashboard/DashboardMessages
 const DashboardProjectDocuments = lazy(() => import("./pages/dashboard/DashboardProjectDocuments"));
 const DashboardLeadOnboard = lazy(() => import("./pages/dashboard/DashboardLeadOnboard"));
 const ListingForm = lazy(() => import("./pages/dashboard/ListingForm"));
+const DashboardMarketingHub = lazy(() => import("./pages/dashboard/DashboardMarketingHub"));
+const DashboardEmailBuilder = lazy(() => import("./pages/dashboard/DashboardEmailBuilder"));
 const DeveloperDashboard = lazy(() => import("./pages/developer/DeveloperDashboardNew"));
 const DeveloperProjects = lazy(() => import("./pages/developer/DeveloperProjects"));
 const DeveloperTourRequests = lazy(() => import("./pages/developer/DeveloperTourRequests"));
@@ -334,6 +336,8 @@ const App = () => (
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
             <Route path="/dashboard/emails" element={<ProtectedRoute><DashboardEmails /></ProtectedRoute>} />
             <Route path="/dashboard/lead-onboard" element={<ProtectedRoute><DashboardLeadOnboard /></ProtectedRoute>} />
+            <Route path="/dashboard/marketing-hub" element={<ProtectedRoute><DashboardMarketingHub /></ProtectedRoute>} />
+            <Route path="/dashboard/email-builder" element={<ProtectedRoute><DashboardEmailBuilder /></ProtectedRoute>} />
             <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
             

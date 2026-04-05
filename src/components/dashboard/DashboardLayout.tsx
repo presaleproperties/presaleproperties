@@ -22,6 +22,7 @@ import {
   Presentation,
   UserPlus,
   Mail,
+  Megaphone,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -54,6 +55,12 @@ const navItems = [
     href: "/dashboard/decks", 
     icon: Presentation,
     description: "Shareable investor decks"
+  },
+  { 
+    label: "Marketing Hub", 
+    href: "/dashboard/marketing-hub", 
+    icon: Megaphone,
+    description: "Build email campaigns"
   },
   { 
     label: "Messages", 
