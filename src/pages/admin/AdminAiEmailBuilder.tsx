@@ -506,7 +506,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       setFloorPlans(fresh.floorPlans ?? []);
       setFpHeading(fresh.fpHeading ?? "Available Floor Plans");
       setFpSubheading(fresh.fpSubheading ?? "");
-      setLayoutVersion(fresh.layoutVersion ?? "pitch-deck");
+      setLayoutVersion((fresh.layoutVersion === "classic" ? "modern" : fresh.layoutVersion) ?? "pitch-deck");
       if (fresh.selAgent) setSelAgent(fresh.selAgent);
 
       // Live-sync from deck DB to pick up latest floor plans, credits, pricing
