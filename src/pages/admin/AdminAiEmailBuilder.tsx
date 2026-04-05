@@ -116,6 +116,8 @@ function buildFinalHtml(
       incentiveText:  fields.incentiveText,
       deckUrl:        saved?._deckUrl || undefined,
       projectUrl:     fields.projectUrl || saved?._projectUrl || undefined,
+      brochureUrl,
+      floorplanUrl,
       loopSlides:     slides,
     }, agent);
   }
