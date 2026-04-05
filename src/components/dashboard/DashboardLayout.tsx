@@ -67,6 +67,12 @@ const navItems = [
     description: "View buyer inquiries"
   },
   { 
+    label: "Emails", 
+    href: "/dashboard/emails", 
+    icon: Mail,
+    description: "Track sent emails & opens"
+  },
+  { 
     label: "Onboard Client", 
     href: "/dashboard/lead-onboard", 
     icon: UserPlus,
