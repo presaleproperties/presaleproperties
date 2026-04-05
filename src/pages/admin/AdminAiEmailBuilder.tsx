@@ -2102,9 +2102,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               </StepSection>
 
 
-                      </div>
-                    </div>
-                    <Input value={projectName} onChange={e => setProjectName(e.target.value)} className={cn("h-7 text-xs", !showProjectName && "opacity-40")} placeholder="Lumina" />
                   </div>
                   {!showProjectName && (
                     <div className="col-span-2">
