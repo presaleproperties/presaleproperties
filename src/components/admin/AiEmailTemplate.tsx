@@ -1918,7 +1918,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
           <td align="center" style="padding:16px 24px;background:#ffffff;">
             <a href="${projectUrl}" target="_blank"
                style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${OLIVE};text-decoration:none;display:block;line-height:1;">
-              VIEW PROJECT DETAILS &nbsp;→
+              VIEW FLOOR PLANS &nbsp;→
             </a>
           </td>
         </tr>
