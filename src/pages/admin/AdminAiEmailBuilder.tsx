@@ -1585,7 +1585,64 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 )}
               </div>
 
-              {/* ── STEP 1: PASTE YOUR COPY ── */}
+              {/* ── PROJECT DETAILS ── */}
+              <StepSection
+                step={1} title="Project Details" icon={<Building2 className="h-3.5 w-3.5" />}
+                done={!!projectName} doneLabel={projectName}
+                defaultOpen={true}
+              >
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <Label className="text-[10px] text-muted-foreground">Project Name</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-muted-foreground">{showProjectName ? "Visible" : "Hidden"}</span>
+                        <Switch checked={showProjectName} onCheckedChange={setShowProjectName} className="scale-75 origin-right" />
+                      </div>
+                    </div>
+                    <Input value={projectName} onChange={e => setProjectName(e.target.value)} className={cn("h-7 text-xs", !showProjectName && "opacity-40")} placeholder="Lumina" />
+                  </div>
+                  {!showProjectName && (
+                    <div className="col-span-2">
+                      <Label className="text-[10px] text-muted-foreground">Custom Header</Label>
+                      <Input value={customHeader} onChange={e => setCustomHeader(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="New Presale Release" />
+                    </div>
+                  )}
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <Label className="text-[10px] text-muted-foreground">Developer</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-muted-foreground">{showDeveloperName ? "Visible" : "Hidden"}</span>
+                        <Switch checked={showDeveloperName} onCheckedChange={setShowDeveloperName} className="scale-75 origin-right" />
+                      </div>
+                    </div>
+                    <Input value={developerName} onChange={e => setDevName(e.target.value)} className={cn("h-7 text-xs", !showDeveloperName && "opacity-40")} placeholder="Bosa Properties" />
+                  </div>
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground">City</Label>
+                    <Input value={city} onChange={e => setCity(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="Surrey" />
+                  </div>
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground">Neighbourhood</Label>
+                    <Input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} className="h-7 text-xs mt-0.5" placeholder="Fleetwood" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5 mt-1">
+                  {([
+                    { val: startingPrice, set: setStartingPrice, label: "From Price", hint: "+ GST",     ph: "$649K"       },
+                    { val: deposit,       set: setDeposit,       label: "Deposit",    hint: "to secure",  ph: "5% signing"  },
+                    { val: completion,    set: setCompletion,    label: "Completion", hint: "est. date",  ph: "2027"        },
+                  ]).map(({ val, set, label, hint, ph }) => (
+                    <div key={label} className={cn("rounded-lg border p-2 transition-all", val ? "border-primary/40 bg-primary/5" : "border-border bg-muted/10")}>
+                      <Label className="text-[9px] text-muted-foreground uppercase tracking-wide block mb-1">{label}</Label>
+                      <Input value={val} onChange={e => set(e.target.value)} className="h-6 text-xs border-0 bg-transparent p-0 focus-visible:ring-0 font-semibold" placeholder={ph} />
+                      <p className="text-[9px] text-muted-foreground/40 mt-0.5">{hint}</p>
+                    </div>
+                  ))}
+                </div>
+              </StepSection>
+
+              {/* ── PASTE YOUR COPY ── */}
               <StepSection
                 step={1} title="Paste Your Copy" icon={<FileText className="h-3.5 w-3.5" />}
                 done={!!bodyCopy} doneLabel={bodyCopy ? "Copy ready" : undefined}
