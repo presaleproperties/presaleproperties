@@ -1375,6 +1375,370 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// MODERN V2 — exact duplicate of Modern (buildLululemonEmailHtml)
+// ─────────────────────────────────────────────────────────────────────────────
+export function buildModernV2EmailHtml(
+  data: PitchDeckEmailData,
+  agent: AgentInfo = DEFAULT_AGENT,
+): string {
+  const ACCENT     = "#C9A55A";
+  const DARK       = "#111111";
+  const F          = "'Plus Jakarta Sans','DM Sans',Helvetica,Arial,sans-serif";
+  const GOOGLE_FONT = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
+
+  const phone    = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
+  const whatsapp = data.ctaWhatsApp || "16722581100";
+  const deckLink = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
+
+  // ── Floor plans ──────────────────────────────────────────────────────────
+  const fps = (data.floorPlans || []).filter(fp => fp.url);
+  const fpRowsHtml = fps.map(fp => {
+    const imgTag = `<img src="${fp.url}" alt="${fp.label || "Floor Plan"}" width="560" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />`;
+    return `
+    <tr>
+      <td style="padding:0 0 24px 0;">
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;border:1px solid #e8e2d6;border-radius:4px;overflow:hidden;">
+          <tr>
+            <td style="padding:0;line-height:0;font-size:0;">
+              ${deckLink ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;">${imgTag}</a>` : imgTag}
+            </td>
+          </tr>
+          ${(fp.label || fp.sqft || fp.price) ? `
+          <tr>
+            <td style="padding:16px 20px 20px;border-top:1px solid #e8e2d6;">
+              ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
+              ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#8a7e6b;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
+              ${fp.price ? `<p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
+              ${creditBadgeHtml(fp.exclusive_credit, F)}
+            </td>
+          </tr>` : ""}
+        </table>
+      </td>
+    </tr>`;
+  }).join("");
+
+  // ── Incentives ────────────────────────────────────────────────────────────
+  const incentiveLines = (data.incentiveText || "")
+    .split("\n").map(l => l.replace(/^[✦•\-–]\s*/, "").trim()).filter(Boolean);
+
+  // ── Body copy ─────────────────────────────────────────────────────────────
+  const bodyRows = (data.bodyCopy || "")
+    .split("\n").map(l => l.trim())
+    .filter(l => {
+      if (!l) return false;
+      if (/^uzair\b/i.test(l) && l.split(" ").length <= 3 && !/[,.:!?]/.test(l)) return false;
+      return true;
+    })
+    .map(p => {
+      const isList = /^[✦•\-–]/.test(p);
+      const html = p
+        .replace(/^[✦•\-–]\s*/, "")
+        .replace(/\*\*(.+?)\*\*/g, `<strong style="font-family:${F};font-weight:700;color:${DARK};">$1</strong>`)
+        .replace(/\*/g, "");
+      if (isList) {
+        return `
+        <tr>
+          <td valign="top" width="20" style="padding:0 0 12px 0;vertical-align:top;width:20px;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr><td width="6" height="6" style="width:6px;height:6px;background:${ACCENT};border-radius:3px;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+          </td>
+          <td valign="top" style="padding:0 0 12px 10px;vertical-align:top;">
+            <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.7;">${html}</p>
+          </td>
+        </tr>`;
+      }
+      return `<tr><td colspan="2" style="padding:0 0 18px 0;">
+        <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">${html}</p>
+      </td></tr>`;
+    }).join("");
+
+  const bodyHtml = bodyRows
+    ? `<table cellpadding="0" cellspacing="0" border="0" width="100%">${bodyRows}</table>`
+    : "";
+
+  const cleanHeadline = (data.headline || "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*/g, "");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta name="x-apple-disable-message-reformatting"/>
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no"/>
+  <!--[if !mso]><!--><meta http-equiv="X-UA-Compatible" content="IE=edge"/><!--<![endif]-->
+  <title>${data.subjectLine || data.projectName || "New Presale"}</title>
+  <link href="${GOOGLE_FONT}" rel="stylesheet"/>
+  <style>
+    :root{color-scheme:light only;}
+    body,table,td,a{-webkit-text-size-adjust:100%!important;-ms-text-size-adjust:100%!important;}
+    table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
+    img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;max-width:100%;}
+    body{margin:0!important;padding:0!important;background:#faf8f4;width:100%!important;min-width:100%!important;-webkit-text-size-adjust:100%!important;}
+    a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}
+    u+#body a{color:inherit!important;text-decoration:none!important;}
+    #MessageViewBody a{color:inherit!important;text-decoration:none!important;}
+    u+#body .email-container{width:100%!important;min-width:100%!important;}
+    u+#body{min-width:100vw!important;}
+    div[style*="margin: 16px 0"]{margin:0!important;}
+    @media only screen and (max-width:620px){
+      .email-container{width:100%!important;max-width:100%!important;min-width:100%!important;border:none!important;border-radius:0!important;}
+      .outer-td{padding:0!important;}
+      .content-pad{padding-left:24px!important;padding-right:24px!important;}
+      .hero-headline{font-size:32px!important;line-height:1.15!important;}
+      .cta-table{width:100%!important;}
+      .cta-td{width:100%!important;border-radius:50px!important;padding:18px 24px!important;}
+      .stat-cell{display:block!important;width:100%!important;border-right:none!important;border-bottom:1px solid #e8e2d6!important;padding:14px 24px!important;text-align:left!important;}
+      .agent-logo-cell{display:none!important;}
+      table[class="email-container"]{width:100%!important;}
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#faf8f4;" id="body">
+${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-height:0;overflow:hidden;">${data.previewText}&zwnj;</span>` : ""}
+
+<!-- OUTER WRAPPER -->
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;margin:0;padding:0;">
+<tr><td class="outer-td" align="center" style="padding:24px 0;">
+
+<!-- EMAIL CONTAINER -->
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="100%" class="email-container"
+       style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e8e2d6;border-radius:8px;overflow:hidden;">
+
+  <!-- ── HERO IMAGE ── -->
+  ${data.heroImage ? `
+  <tr>
+    <td style="padding:0;margin:0;line-height:0;font-size:0;">
+      ${deckLink
+        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" /></a>`
+        : `<img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />`
+      }
+    </td>
+  </tr>` : `
+  <tr>
+    <td class="content-pad" style="background:#111111;padding:32px 40px;">
+      <p style="margin:0;font-family:${F};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES</p>
+    </td>
+  </tr>`}
+
+  <!-- ── HEADLINE BLOCK ── -->
+  <tr>
+    <td class="content-pad" style="padding:40px 40px 28px;background:#ffffff;">
+      <p style="margin:0 0 6px 0;font-family:${F};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">
+        ${data.city ? data.city.toUpperCase() : "PRESALE PROPERTIES"}${data.developerName ? ` &nbsp;·&nbsp; ${data.developerName.toUpperCase()}` : ""}
+      </p>
+      ${data.projectName ? `<p style="margin:0 0 20px 0;font-family:${F};font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#8a7e6b;">${data.projectName}</p>` : ""}
+      ${cleanHeadline ? `<p class="hero-headline" style="margin:0;font-family:${F};font-size:42px;font-weight:800;color:${DARK};line-height:1.1;letter-spacing:-1.5px;">${cleanHeadline}</p>` : ""}
+    </td>
+  </tr>
+
+  <!-- ── STATS BAR ── -->
+  ${(data.startingPrice || data.deposit || data.completion) ? `
+  <tr>
+    <td style="padding:0;border-top:1px solid #e8e2d6;border-bottom:1px solid #e8e2d6;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;">
+        <tr>
+          ${data.startingPrice ? `
+          <td class="stat-cell" style="padding:18px 20px;border-right:1px solid #e8e2d6;text-align:left;vertical-align:middle;">
+            <p style="margin:0 0 3px 0;font-family:${F};font-size:20px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.startingPrice}</p>
+            <p style="margin:0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">Starting From</p>
+          </td>` : ""}
+          ${data.deposit ? `
+          <td class="stat-cell" style="padding:18px 20px;${data.completion ? `border-right:1px solid #e8e2d6;` : ""}text-align:left;vertical-align:middle;">
+            <p style="margin:0 0 3px 0;font-family:${F};font-size:20px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.deposit}</p>
+            <p style="margin:0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">Deposit</p>
+          </td>` : ""}
+          ${data.completion ? `
+          <td class="stat-cell" style="padding:18px 20px;text-align:left;vertical-align:middle;">
+            <p style="margin:0 0 3px 0;font-family:${F};font-size:20px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.completion}</p>
+            <p style="margin:0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};">Completion</p>
+          </td>` : ""}
+        </tr>
+      </table>
+    </td>
+  </tr>` : ""}
+
+  <!-- ── BODY COPY ── -->
+  ${bodyHtml ? `
+  <tr>
+    <td class="content-pad" style="padding:36px 40px 28px;background:#ffffff;">
+      ${bodyHtml}
+    </td>
+  </tr>` : ""}
+
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
+
+  <!-- ── WHAT'S INCLUDED ── -->
+  ${incentiveLines.length > 0 ? `
+  <tr>
+    <td class="content-pad" style="padding:0 40px 36px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr><td style="padding:0 0 20px 0;">
+          <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
+        </td></tr>
+      </table>
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        ${incentiveLines.map((item, i) => `
+        <tr>
+          <td style="padding:0 0 ${i < incentiveLines.length - 1 ? '10' : '0'}px 0;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;border-radius:8px;border-left:3px solid ${ACCENT};">
+              <tr>
+                <td style="padding:14px 18px;">
+                  <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                    <tr>
+                      <td valign="middle" width="28" style="width:28px;vertical-align:middle;">
+                        <p style="margin:0;font-size:16px;line-height:1;">✦</p>
+                      </td>
+                      <td valign="middle" style="vertical-align:middle;">
+                        <p style="margin:0;font-family:${F};font-size:14px;font-weight:600;color:${DARK};line-height:1.5;">${item}</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>`).join("")}
+      </table>
+    </td>
+  </tr>` : ""}
+
+  <!-- ── FLOOR PLANS ── -->
+  ${fps.length > 0 ? `
+  <tr>
+    <td style="padding:0;border-top:1px solid #e8e2d6;background:#faf8f4;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td class="content-pad" style="padding:32px 40px 20px;">
+            <p style="margin:0 0 6px 0;font-family:${F};font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">FLOOR PLANS</p>
+            <p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};letter-spacing:-0.5px;">${data.fpHeading || "Available Units"}</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="content-pad" style="padding:0 40px 24px;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+              ${fpRowsHtml}
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>` : ""}
+
+  ${(fps.length > 0 && deckLink) ? `
+  <tr>
+    <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;text-align:center;">
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
+        <tr>
+          <td align="center" style="background:#0d1f18;border-radius:50px;padding:14px 36px;text-align:center;">
+            <a href="${deckLink}"
+               style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;white-space:nowrap;">
+              VIEW MORE PLANS &nbsp;→
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>` : ""}
+
+  <!-- ── PRIMARY CTA: I'M INTERESTED ── -->
+  <tr>
+    <td class="content-pad" style="padding:28px 40px 14px;background:#ffffff;">
+      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
+            <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName || "this presale"}. Can you send me more details?`)}"
+               style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;white-space:nowrap;">
+              I'M INTERESTED
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- ── SECONDARY CTA: CALL NOW ── -->
+  <tr>
+    <td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
+      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
+            <a href="tel:${phone.replace(/\D/g, "")}"
+               style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${DARK};text-decoration:none;display:block;white-space:nowrap;">
+              CALL NOW &nbsp; ${phone}
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- ── DIVIDER ── -->
+  <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
+
+  <!-- ── AGENT CARD ── -->
+  <tr>
+    <td style="padding:0;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        ${agent.photo_url ? `
+        <tr>
+          <td align="center" style="padding:28px 24px 12px;">
+            <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+          </td>
+        </tr>` : ""}
+        <tr>
+          <td align="center" style="padding:0 24px 8px;text-align:center;">
+            <p style="margin:0 0 4px 0;font-family:${F};font-size:18px;font-weight:800;color:${DARK};">${agent.full_name}</p>
+            <p style="margin:0 0 12px 0;font-family:${F};font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">${agent.title}</p>
+            ${agent.phone ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:14px;color:#555555;"><a href="tel:${agent.phone.replace(/\D/g,"")}" style="color:#555555;text-decoration:none;">${agent.phone}</a></p>` : ""}
+            ${agent.email ? `<p style="margin:0;font-family:${F};font-size:13px;color:#8a7e6b;"><a href="mailto:${agent.email}" style="color:#8a7e6b;text-decoration:none;">${agent.email}</a></p>` : ""}
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:16px 24px 24px;border-top:1px solid #e8e2d6;text-align:center;">
+            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="110" style="display:inline-block;width:110px;height:auto;" />
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- ── FOOTER ── -->
+  <tr>
+    <td class="content-pad" style="padding:20px 40px;background:#111111;">
+      <p style="margin:0 0 4px 0;font-family:${F};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES &nbsp;·&nbsp; ${data.city ? `${data.city.toUpperCase()}, BC` : "VANCOUVER, BC"}</p>
+      <p style="margin:0;font-family:${F};font-size:12px;color:#888888;"><a href="https://presaleproperties.com" style="color:#888888;text-decoration:none;">presaleproperties.com</a>${agent.phone ? ` &nbsp;·&nbsp; ${agent.phone}` : ""}</p>
+    </td>
+  </tr>
+
+  <!-- ── LEGAL ── -->
+  <tr>
+    <td class="content-pad" style="padding:20px 40px 24px;background:#faf8f4;border-top:1px solid #e8e2d6;">
+      <p style="margin:0 0 8px 0;font-family:${F};font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#777777;">LEGAL DISCLAIMER</p>
+      <p style="margin:0 0 8px 0;font-family:${F};font-size:11px;color:#aaaaaa;line-height:1.7;">
+        This email was sent by ${agent.full_name}, a licensed REALTOR&reg; with Presale Properties. We act as buyer&rsquo;s agents. This is <strong style="font-weight:600;color:#888888;">not an offering for sale</strong>. Prices and availability subject to change. E.&amp;O.E.
+      </p>
+      <p style="margin:0 0 12px 0;font-family:${F};font-size:11px;color:#aaaaaa;line-height:1.7;">
+        You received this because you opted in to presale updates. Per CASL, you may withdraw consent at any time.
+      </p>
+      <p style="margin:0;">
+        <a href="*|UNSUB|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Unsubscribe</a>
+        <span style="color:#dddddd;margin:0 8px;">&middot;</span>
+        <a href="*|UPDATE_PROFILE|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Preferences</a>
+        <span style="color:#dddddd;margin:0 8px;">&middot;</span>
+        <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">View in Browser</a>
+      </p>
+    </td>
+  </tr>
+
+</table>
+
+</td></tr>
+</table>
+
+</body>
+</html>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // buildEditorialEmailHtml
 // Clean editorial layout: rotating hero slideshow, stats bar, body copy, CTAs.
 // No floor plans. No "What's Included". Hero links to project URL.
