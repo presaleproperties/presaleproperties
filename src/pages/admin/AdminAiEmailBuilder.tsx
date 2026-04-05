@@ -448,6 +448,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [pushedML,      setPushedML]      = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(true);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
   // Data
