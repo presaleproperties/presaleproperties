@@ -963,36 +963,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // ── Lofty / CRM-safe export (no media queries, fully fluid) ──────────────────
   const getLoftyHtml = useCallback((): string => {
-    // For pitch-deck layout, use the dedicated Lofty-safe builder (no <style>, fixed 600px, inline-only)
-    if (layoutVersion === "pitch-deck") {
-      const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
-      const agentForEmail = selectedAgent ?? DEFAULT_AGENT;
-      return buildPitchDeckEmailHtmlLofty({
-        projectName:    projectName || "",
-        city:           city || undefined,
-        developerName:  developerName || undefined,
-        heroImage:      heroImage || undefined,
-        headline,
-        bodyCopy,
-        subjectLine,
-        previewText,
-        startingPrice,
-        deposit,
-        completion,
-        infoRows,
-        incentiveText,
-        parkingIncluded: saved?._deckParking || "1 Parking Stall Included",
-        lockerIncluded:  saved?._deckLocker  || "1 Storage Locker Included",
-        deckUrl:         saved?._deckUrl     || undefined,
-        floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
-          id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
-          price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
-        })),
-        fpHeading,
-        fpSubheading,
-      }, agentForEmail);
-    }
-    // For other layouts: strip <style>, convert fixed widths to fluid, and swap merge tags
+    // Strip <style>, convert fixed widths to fluid, and swap merge tags
     let html = finalHtml;
     html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
     html = html.replace(/width:\s*(\d+)px/g, (match, px) => {
