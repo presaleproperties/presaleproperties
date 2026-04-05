@@ -109,7 +109,8 @@ function statsBar(project: ProjectData): string {
   const stats: { value: string; label: string }[] = [];
   if (project.price_range) stats.push({ value: project.price_range, label: "Starting From" });
   if (project.deposit_structure) stats.push({ value: project.deposit_structure, label: "Deposit" });
-  if (project.completion_date) stats.push({ value: project.completion_date, label: "Completion" });
+  const completionStr = project.completion_year ? (project.completion_month ? `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][project.completion_month - 1]} ${project.completion_year}` : `${project.completion_year}`) : null;
+  if (completionStr) stats.push({ value: completionStr, label: "Completion" });
   if (stats.length === 0) return "";
 
   return `<tr><td style="padding:0;border-top:1px solid #e8e2d6;border-bottom:1px solid #e8e2d6;">
