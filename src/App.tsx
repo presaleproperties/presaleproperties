@@ -177,6 +177,7 @@ const App = () => (
             <ScrollToTop />
             <GlobalSEO />
             <FaviconLoader />
+            <AgentManifestSwap />
             <UtmTracker />
             <LoftyPageTracker />
             <BehaviorTracker />
