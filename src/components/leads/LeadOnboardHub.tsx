@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Check, Copy, Eye, Loader2, Mail, Send, UserPlus, FileText } from "lucide-react";
+import { Check, ChevronDown, Copy, Eye, Loader2, Mail, Send, UserPlus, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EmailTemplatePreviewDialog } from "./EmailTemplatePreviewDialog";
