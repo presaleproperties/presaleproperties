@@ -122,7 +122,6 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
           if (data?.avatar_url) setAvatarUrl(data.avatar_url);
         });
     });
-    });
   }, [user]);
 
   const handleSignOut = async () => {
