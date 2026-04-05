@@ -1883,14 +1883,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  <!-- ── STARTING PRICE CALLOUT ── -->
-  ${startingPriceHtml ? `
-  <tr>
-    <td class="content-pad" style="padding:8px 40px 24px;background:${CREAM};">
-      ${startingPriceHtml}
-    </td>
-  </tr>` : ""}
-
   <!-- ── STATS BAR ── -->
   ${(data.startingPrice || data.deposit || data.completion) ? `
   <tr>
