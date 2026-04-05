@@ -772,12 +772,16 @@ function TemplateCard({
   template,
   onPreview,
   onUse,
+  onImport,
   isShared,
+  isImporting,
 }: {
   template: SavedTemplate;
   onPreview: () => void;
   onUse: () => void;
+  onImport?: () => void;
   isShared?: boolean;
+  isImporting?: boolean;
 }) {
   const previewImg = template.thumbnail_url || template.form_data?.heroImage || null;
   const subject = template.form_data?.copy?.subjectLine || template.form_data?.subject || null;
