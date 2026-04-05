@@ -69,7 +69,7 @@ ${bodyCopy || ""}`;
           { role: "user", content: userPrompt },
         ],
         temperature: 0.15,
-        max_tokens: 1800,
+        max_tokens: 4096,
       }),
     });
 
@@ -91,17 +91,45 @@ ${bodyCopy || ""}`;
 
     const data = await response.json();
     const raw = data.choices?.[0]?.message?.content?.trim() || "";
-    const cleaned = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
+
+    // Strip markdown fences and find JSON boundaries
+    let cleaned = raw
+      .replace(/```json\s*/gi, "")
+      .replace(/```\s*/g, "")
+      .trim();
+
+    const jsonStart = cleaned.search(/\{/);
+    const jsonEnd = cleaned.lastIndexOf("}");
+
+    if (jsonStart === -1 || jsonEnd === -1) {
+      console.error("No JSON found in format response:", cleaned);
+      return new Response(
+        JSON.stringify({ bodyCopy: bodyCopy, headline: headline }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
 
     let parsed;
     try {
       parsed = JSON.parse(cleaned);
     } catch {
-      console.error("Failed to parse format response:", cleaned);
-      return new Response(
-        JSON.stringify({ error: "AI returned malformed response. Please try again." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      // Fix common JSON issues and retry
+      cleaned = cleaned
+        .replace(/,\s*}/g, "}")
+        .replace(/,\s*]/g, "]")
+        .replace(/[\x00-\x1F\x7F]/g, (ch) => ch === "\n" || ch === "\t" ? ch : "");
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch {
+        console.error("Failed to parse format response after cleanup:", cleaned);
+        // Graceful fallback: return original copy
+        return new Response(
+          JSON.stringify({ bodyCopy: bodyCopy, headline: headline }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     return new Response(
