@@ -6,8 +6,10 @@ import { Mail, ArrowRight, User, Phone, CheckCircle2, FileText, Loader2, Calenda
 import { formatPhoneNumber } from "@/lib/formatPhone";
 import { supabase } from "@/integrations/supabase/client";
 import { upsertProjectLead } from "@/lib/upsertProjectLead";
+import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 import { toast } from "sonner";
 import { z } from "zod";
+import { MetaEvents } from "@/components/tracking/MetaPixel";
 
 const leadSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
