@@ -1393,7 +1393,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         </div>
 
         {/* ── Main layout: side-by-side on desktop, tabs on mobile ── */}
-        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_360px] gap-3 lg:h-[calc(100vh-220px)] lg:min-h-[600px]">
+        <div className={cn("flex flex-col lg:grid gap-3 lg:h-[calc(100vh-220px)] lg:min-h-[600px]", editorOpen ? "lg:grid-cols-[1fr_360px]" : "lg:grid-cols-[1fr]")}>
 
           {/* ── Email preview panel — hidden on mobile when "build" tab active ── */}
           <div className={cn(
