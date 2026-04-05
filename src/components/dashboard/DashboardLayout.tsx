@@ -62,10 +62,16 @@ const navSections: NavSection[] = [
         description: "Share project presentations"
       },
       { 
+        label: "Email Builder", 
+        href: "/dashboard/email-builder", 
+        icon: PenTool,
+        description: "Build & send email campaigns"
+      },
+      { 
         label: "Marketing", 
         href: "/dashboard/marketing-hub", 
         icon: Megaphone,
-        description: "Email campaigns & templates"
+        description: "Saved campaigns & templates"
       },
       { 
         label: "Emails", 
