@@ -353,11 +353,21 @@ Deno.serve(async (req) => {
       ? `${project.name} — Your Requested Floor Plans & Details`
       : `${project.name} — We'll Be in Touch Shortly`;
 
+    // Generate a unique tracking ID for open tracking
+    const trackingId = crypto.randomUUID();
+    const trackingPixelUrl = `${supabaseUrl}/functions/v1/track-email-open?tid=${trackingId}`;
+    
+    // Inject tracking pixel before closing </body> tag
+    const htmlWithPixel = html.replace(
+      "</body>",
+      `<img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;width:1px;height:1px;border:0;" /></body>`
+    );
+
     // Send the email
     const result = await sendEmail({
       to: lead.email,
       subject: subjectLine,
-      html,
+      html: htmlWithPixel,
       fromName: "Presale Properties",
     });
 
@@ -373,6 +383,7 @@ Deno.serve(async (req) => {
         error_message: result.error,
         template_type: `auto_${templateType}`,
         lead_id: lead.id,
+        tracking_id: trackingId,
       });
 
       return new Response(JSON.stringify({ error: result.error }), {
@@ -389,6 +400,7 @@ Deno.serve(async (req) => {
       status: "sent",
       template_type: `auto_${templateType}`,
       lead_id: lead.id,
+      tracking_id: trackingId,
     });
 
     console.log(`[send-lead-autoresponse] Sent ${templateType} email to ${lead.email} for ${project.name}`);
