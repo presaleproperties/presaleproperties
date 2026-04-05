@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,13 +12,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { 
-  Users, 
-  Mail, 
-  Phone, 
+import {
+  Users,
+  Mail,
+  Phone,
   Calendar,
   Building2,
   Loader2,
@@ -27,11 +33,16 @@ import {
   ExternalLink,
   Check,
   Search,
-  Filter,
-  TrendingUp,
+  Flame,
+  Thermometer,
+  Snowflake,
+  MoreVertical,
   Clock,
+  TrendingUp,
+  Filter,
 } from "lucide-react";
 import { format, subDays, isAfter } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface Lead {
   id: string;
@@ -57,15 +68,9 @@ interface OnboardedLead {
   notes: string;
   deck_url: string;
   zapier_synced: boolean;
+  temperature: string;
   created_at: string;
   pitch_decks: { project_name: string; slug: string } | null;
-}
-
-interface GroupedLeads {
-  [listingId: string]: {
-    listing: { id: string; title: string; project_name: string };
-    leads: Lead[];
-  };
 }
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -75,6 +80,12 @@ const SOURCE_LABELS: Record<string, string> = {
   website: "Website",
   referral: "Referral",
 };
+
+const TEMP_CONFIG = {
+  hot: { icon: Flame, label: "Hot", className: "text-red-500", bg: "bg-red-500/10 border-red-500/20" },
+  warm: { icon: Thermometer, label: "Warm", className: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
+  cold: { icon: Snowflake, label: "Cold", className: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
+} as const;
 
 const DATE_FILTERS = [
   { value: "all", label: "All Time" },
@@ -88,14 +99,11 @@ export default function DashboardLeads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [onboardedLeads, setOnboardedLeads] = useState<OnboardedLead[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sendingEmailFor, setSendingEmailFor] = useState<string | null>(null);
-  const [emailSentFor, setEmailSentFor] = useState<Set<string>>(new Set());
 
-  // Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
-  const [syncFilter, setSyncFilter] = useState("all");
+  const [tempFilter, setTempFilter] = useState("all");
 
   useEffect(() => {
     if (user) fetchAll();
@@ -104,7 +112,6 @@ export default function DashboardLeads() {
   const fetchAll = async () => {
     if (!user) return;
     setLoading(true);
-
     try {
       const [listingLeads, onboarded] = await Promise.all([
         (supabase as any)
@@ -114,18 +121,12 @@ export default function DashboardLeads() {
           .order("created_at", { ascending: false }),
         supabase
           .from("onboarded_leads")
-          .select("id, first_name, last_name, email, phone, source, notes, deck_url, zapier_synced, created_at, pitch_decks(project_name, slug)")
+          .select("id, first_name, last_name, email, phone, source, notes, deck_url, zapier_synced, temperature, created_at, pitch_decks(project_name, slug)")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
       ]);
-
       if (listingLeads.data) {
-        setLeads(
-          listingLeads.data.map((item: any) => ({
-            ...item,
-            listing: item.listing as Lead["listing"],
-          }))
-        );
+        setLeads(listingLeads.data.map((item: any) => ({ ...item, listing: item.listing as Lead["listing"] })));
       }
       if (onboarded.data) {
         setOnboardedLeads(onboarded.data as unknown as OnboardedLead[]);
@@ -137,32 +138,42 @@ export default function DashboardLeads() {
     }
   };
 
-  // Filtered onboarded leads
+  const handleSetTemperature = async (leadId: string, temp: string) => {
+    const prev = [...onboardedLeads];
+    setOnboardedLeads((leads) =>
+      leads.map((l) => (l.id === leadId ? { ...l, temperature: temp } : l))
+    );
+    const { error } = await supabase
+      .from("onboarded_leads")
+      .update({ temperature: temp } as any)
+      .eq("id", leadId);
+    if (error) {
+      setOnboardedLeads(prev);
+      toast.error("Failed to update lead temperature");
+    } else {
+      toast.success(`Marked as ${temp}`);
+    }
+  };
+
   const filteredOnboarded = useMemo(() => {
     return onboardedLeads.filter((lead) => {
       const fullName = `${lead.first_name} ${lead.last_name}`.toLowerCase();
       const q = searchQuery.toLowerCase();
-      if (q && !fullName.includes(q) && !lead.email.toLowerCase().includes(q) && !lead.phone?.includes(q)) {
-        return false;
-      }
+      if (q && !fullName.includes(q) && !lead.email.toLowerCase().includes(q) && !lead.phone?.includes(q)) return false;
       if (sourceFilter !== "all" && lead.source !== sourceFilter) return false;
-      if (syncFilter === "synced" && !lead.zapier_synced) return false;
-      if (syncFilter === "unsynced" && lead.zapier_synced) return false;
+      if (tempFilter !== "all" && lead.temperature !== tempFilter) return false;
       if (dateFilter !== "all") {
         const cutoff = subDays(new Date(), parseInt(dateFilter));
         if (!isAfter(new Date(lead.created_at), cutoff)) return false;
       }
       return true;
     });
-  }, [onboardedLeads, searchQuery, sourceFilter, dateFilter, syncFilter]);
+  }, [onboardedLeads, searchQuery, sourceFilter, dateFilter, tempFilter]);
 
-  // Filtered listing leads
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
       const q = searchQuery.toLowerCase();
-      if (q && !lead.name.toLowerCase().includes(q) && !lead.email.toLowerCase().includes(q)) {
-        return false;
-      }
+      if (q && !lead.name.toLowerCase().includes(q) && !lead.email.toLowerCase().includes(q)) return false;
       if (dateFilter !== "all") {
         const cutoff = subDays(new Date(), parseInt(dateFilter));
         if (!isAfter(new Date(lead.created_at), cutoff)) return false;
@@ -171,13 +182,10 @@ export default function DashboardLeads() {
     });
   }, [leads, searchQuery, dateFilter]);
 
-  const groupedLeads = filteredLeads.reduce<GroupedLeads>((acc, lead) => {
+  const groupedLeads = filteredLeads.reduce<Record<string, { listing: Lead["listing"] & {}; leads: Lead[] }>>((acc, lead) => {
     const listingId = lead.listing?.id || "unknown";
     if (!acc[listingId]) {
-      acc[listingId] = {
-        listing: lead.listing || { id: "unknown", title: "Unknown Listing", project_name: "" },
-        leads: [],
-      };
+      acc[listingId] = { listing: lead.listing || { id: "unknown", title: "Unknown Listing", project_name: "" }, leads: [] };
     }
     acc[listingId].leads.push(lead);
     return acc;
@@ -185,110 +193,67 @@ export default function DashboardLeads() {
 
   // Stats
   const totalLeads = onboardedLeads.length + leads.length;
+  const hotCount = onboardedLeads.filter((l) => l.temperature === "hot").length;
   const recentLeads = [...onboardedLeads, ...leads].filter((l) =>
     isAfter(new Date(l.created_at), subDays(new Date(), 7))
   ).length;
-  const syncedCount = onboardedLeads.filter((l) => l.zapier_synced).length;
 
-  // Unique sources for filter
   const availableSources = useMemo(() => {
-    const sources = new Set(onboardedLeads.map((l) => l.source));
-    return Array.from(sources);
+    return Array.from(new Set(onboardedLeads.map((l) => l.source)));
   }, [onboardedLeads]);
-
-  const handleSendDeckEmail = async (leadId: string, leadName: string) => {
-    setSendingEmailFor(leadId);
-    try {
-      const { error } = await supabase.functions.invoke("send-deck-email", {
-        body: { leadId },
-      });
-      if (error) throw error;
-      setEmailSentFor((prev) => new Set(prev).add(leadId));
-      toast.success(`Pitch deck email sent to ${leadName}`);
-    } catch (err: any) {
-      console.error("Send deck email error:", err);
-      toast.error(err.message || "Failed to send email");
-    } finally {
-      setSendingEmailFor(null);
-    }
-  };
 
   const clearFilters = () => {
     setSearchQuery("");
     setSourceFilter("all");
     setDateFilter("all");
-    setSyncFilter("all");
+    setTempFilter("all");
   };
 
-  const hasActiveFilters = searchQuery || sourceFilter !== "all" || dateFilter !== "all" || syncFilter !== "all";
+  const hasActiveFilters = searchQuery || sourceFilter !== "all" || dateFilter !== "all" || tempFilter !== "all";
+
+  // Sort: hot first, then warm, then cold, then by date
+  const sortedOnboarded = useMemo(() => {
+    const order: Record<string, number> = { hot: 0, warm: 1, cold: 2 };
+    return [...filteredOnboarded].sort((a, b) => {
+      const ta = order[a.temperature] ?? 2;
+      const tb = order[b.temperature] ?? 2;
+      if (ta !== tb) return ta - tb;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [filteredOnboarded]);
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">Leads</h1>
-            <p className="text-muted-foreground">
-              Manage onboarded clients and listing inquiries
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold">Leads</h1>
+          <p className="text-sm text-muted-foreground">Manage clients &amp; mark priority leads</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Users className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{totalLeads}</p>
-                  <p className="text-xs text-muted-foreground">Total Leads</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-success/10 flex items-center justify-center">
-                  <TrendingUp className="h-4 w-4 text-success" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{recentLeads}</p>
-                  <p className="text-xs text-muted-foreground">This Week</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-info/10 flex items-center justify-center">
-                  <UserPlus className="h-4 w-4 text-info" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{onboardedLeads.length}</p>
-                  <p className="text-xs text-muted-foreground">Onboarded</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-warning/10 flex items-center justify-center">
-                  <Check className="h-4 w-4 text-warning" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{syncedCount}</p>
-                  <p className="text-xs text-muted-foreground">CRM Synced</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Compact Stats */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <p className="text-lg font-bold leading-none">{totalLeads}</p>
+              <p className="text-[11px] text-muted-foreground">Total</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+            <Flame className="h-4 w-4 text-red-500" />
+            <div>
+              <p className="text-lg font-bold leading-none">{hotCount}</p>
+              <p className="text-[11px] text-muted-foreground">Hot</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+            <TrendingUp className="h-4 w-4 text-primary" />
+            <div>
+              <p className="text-lg font-bold leading-none">{recentLeads}</p>
+              <p className="text-[11px] text-muted-foreground">This Week</p>
+            </div>
+          </div>
         </div>
 
         {loading ? (
@@ -302,262 +267,239 @@ export default function DashboardLeads() {
                 <UserPlus className="h-3.5 w-3.5" />
                 Onboarded
                 {onboardedLeads.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 h-4">
-                    {onboardedLeads.length}
-                  </Badge>
+                  <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 h-4">{onboardedLeads.length}</Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger value="inquiries" className="gap-1.5">
                 <Building2 className="h-3.5 w-3.5" />
-                Listing Inquiries
+                Inquiries
                 {leads.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 h-4">
-                    {leads.length}
-                  </Badge>
+                  <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 h-4">{leads.length}</Badge>
                 )}
               </TabsTrigger>
             </TabsList>
 
-            {/* Filters Bar */}
-            <Card>
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search by name, email, or phone..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 text-sm"
-                    />
-                  </div>
-                  <div className="flex gap-2 flex-wrap">
-                    <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                      <SelectTrigger className="w-[130px] text-sm h-10">
-                        <Filter className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                        <SelectValue placeholder="Source" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Sources</SelectItem>
-                        {availableSources.map((src) => (
-                          <SelectItem key={src} value={src}>
-                            {SOURCE_LABELS[src] || src}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={dateFilter} onValueChange={setDateFilter}>
-                      <SelectTrigger className="w-[130px] text-sm h-10">
-                        <Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                        <SelectValue placeholder="Date" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {DATE_FILTERS.map((f) => (
-                          <SelectItem key={f.value} value={f.value}>
-                            {f.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={syncFilter} onValueChange={setSyncFilter}>
-                      <SelectTrigger className="w-[120px] text-sm h-10">
-                        <SelectValue placeholder="Sync" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="synced">Synced</SelectItem>
-                        <SelectItem value="unsynced">Not Synced</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {hasActiveFilters && (
-                      <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs h-10 px-3">
-                        Clear
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search name, email, phone..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 text-sm h-9"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Select value={tempFilter} onValueChange={setTempFilter}>
+                  <SelectTrigger className="w-[110px] text-sm h-9">
+                    <Flame className="h-3 w-3 mr-1 text-muted-foreground" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Temps</SelectItem>
+                    <SelectItem value="hot">🔥 Hot</SelectItem>
+                    <SelectItem value="warm">🟠 Warm</SelectItem>
+                    <SelectItem value="cold">❄️ Cold</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                  <SelectTrigger className="w-[110px] text-sm h-9">
+                    <Filter className="h-3 w-3 mr-1 text-muted-foreground" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sources</SelectItem>
+                    {availableSources.map((src) => (
+                      <SelectItem key={src} value={src}>{SOURCE_LABELS[src] || src}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={dateFilter} onValueChange={setDateFilter}>
+                  <SelectTrigger className="w-[110px] text-sm h-9">
+                    <Clock className="h-3 w-3 mr-1 text-muted-foreground" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DATE_FILTERS.map((f) => (
+                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {hasActiveFilters && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs h-9 px-2">Clear</Button>
+                )}
+              </div>
+            </div>
 
-            {/* Onboarded Leads Tab */}
-            <TabsContent value="onboarded">
-              {filteredOnboarded.length === 0 ? (
+            {/* Onboarded Tab */}
+            <TabsContent value="onboarded" className="mt-0">
+              {sortedOnboarded.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <UserPlus className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      {hasActiveFilters ? "No leads match your filters" : "No onboarded clients yet"}
-                    </h3>
-                    <p className="text-muted-foreground text-sm">
-                      {hasActiveFilters
-                        ? "Try adjusting your search or filters."
-                        : "Use the onboard form on the dashboard to add your first client."}
+                    <UserPlus className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                    <p className="font-medium">{hasActiveFilters ? "No leads match filters" : "No onboarded clients yet"}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {hasActiveFilters ? "Try adjusting your search." : "Use the onboard form on the dashboard."}
                     </p>
-                    {hasActiveFilters && (
-                      <Button variant="outline" size="sm" className="mt-4" onClick={clearFilters}>
-                        Clear Filters
-                      </Button>
-                    )}
                   </CardContent>
                 </Card>
               ) : (
-                <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">
-                    Showing {filteredOnboarded.length} of {onboardedLeads.length} leads
+                <div className="space-y-2">
+                  <p className="text-[11px] text-muted-foreground">
+                    {filteredOnboarded.length} of {onboardedLeads.length} leads
                   </p>
-                  {filteredOnboarded.map((lead) => (
-                    <Card key={lead.id} className="hover:border-primary/20 transition-colors">
-                      <CardContent className="p-3 sm:p-4">
-                        <div className="space-y-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-center gap-2 flex-wrap min-w-0">
-                              <p className="font-medium text-sm sm:text-base">
-                                {lead.first_name} {lead.last_name}
-                              </p>
-                              <Badge variant="outline" className="text-[10px]">
-                                {SOURCE_LABELS[lead.source] || lead.source}
-                              </Badge>
-                              {lead.zapier_synced && (
-                                <Badge className="text-[10px] bg-primary/10 text-primary border-0 gap-0.5">
-                                  <Check className="h-2.5 w-2.5" />
-                                  Synced
-                                </Badge>
-                              )}
-                            </div>
-                            <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
-                              {format(new Date(lead.created_at), "MMM d")}
-                            </span>
-                          </div>
+                  {sortedOnboarded.map((lead) => {
+                    const temp = (TEMP_CONFIG as any)[lead.temperature] || TEMP_CONFIG.cold;
+                    const TempIcon = temp.icon;
+                    return (
+                      <div
+                        key={lead.id}
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-lg border transition-colors",
+                          lead.temperature === "hot" ? temp.bg : "border-border hover:border-primary/20"
+                        )}
+                      >
+                        {/* Temp indicator */}
+                        <button
+                          onClick={() => {
+                            const cycle = lead.temperature === "cold" ? "warm" : lead.temperature === "warm" ? "hot" : "cold";
+                            handleSetTemperature(lead.id, cycle);
+                          }}
+                          className={cn(
+                            "w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all hover:scale-110",
+                            lead.temperature === "hot" ? "bg-red-500/20" : lead.temperature === "warm" ? "bg-amber-500/20" : "bg-blue-400/10"
+                          )}
+                          title={`Click to cycle: ${temp.label}`}
+                        >
+                          <TempIcon className={cn("h-4 w-4", temp.className)} />
+                        </button>
 
-                          <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                            <a
-                              href={`mailto:${lead.email}`}
-                              className="flex items-center gap-1 hover:text-primary transition-colors"
-                            >
-                              <Mail className="h-3 w-3" />
-                              <span className="truncate max-w-[180px] sm:max-w-none">{lead.email}</span>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-medium text-sm truncate">{lead.first_name} {lead.last_name}</p>
+                            <Badge variant="outline" className="text-[10px] h-4 px-1.5">
+                              {SOURCE_LABELS[lead.source] || lead.source}
+                            </Badge>
+                            {lead.zapier_synced && (
+                              <Badge className="text-[10px] h-4 px-1.5 bg-primary/10 text-primary border-0 gap-0.5">
+                                <Check className="h-2.5 w-2.5" /> CRM
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 mt-0.5">
+                            <a href={`mailto:${lead.email}`} className="text-xs text-muted-foreground hover:text-primary transition-colors truncate">
+                              {lead.email}
                             </a>
                             {lead.phone && (
-                              <a
-                                href={`tel:${lead.phone}`}
-                                className="flex items-center gap-1 hover:text-primary transition-colors"
-                              >
-                                <Phone className="h-3 w-3" />
+                              <a href={`tel:${lead.phone}`} className="text-xs text-muted-foreground hover:text-primary transition-colors hidden sm:inline">
                                 {lead.phone}
                               </a>
                             )}
                           </div>
-
-                          {lead.notes && (
-                            <p className="text-xs sm:text-sm text-muted-foreground bg-muted p-2 rounded border border-border line-clamp-2">
-                              {lead.notes}
-                            </p>
-                          )}
-
-                          {lead.deck_url && (
-                            <div className="flex items-center justify-between gap-2 pt-1">
-                              <div className="flex items-center gap-1.5 text-xs min-w-0">
-                                <Presentation className="h-3 w-3 text-primary shrink-0" />
-                                <a
-                                  href={lead.deck_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:underline truncate"
-                                >
-                                  {(lead.pitch_decks as any)?.project_name || "Pitch Deck"}
-                                  <ExternalLink className="h-2.5 w-2.5 inline ml-1" />
-                                </a>
-                              </div>
-                              <Button
-                                size="sm"
-                                variant={emailSentFor.has(lead.id) ? "outline" : "secondary"}
-                                className="text-xs h-7 px-2.5 shrink-0"
-                                disabled={sendingEmailFor === lead.id || emailSentFor.has(lead.id)}
-                                onClick={() => handleSendDeckEmail(lead.id, `${lead.first_name} ${lead.last_name}`)}
-                              >
-                                {sendingEmailFor === lead.id ? (
-                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                ) : emailSentFor.has(lead.id) ? (
-                                  <Check className="h-3 w-3 mr-1" />
-                                ) : (
-                                  <Mail className="h-3 w-3 mr-1" />
-                                )}
-                                {emailSentFor.has(lead.id) ? "Sent" : "Send Email"}
-                              </Button>
-                            </div>
-                          )}
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+
+                        {/* Date + Actions */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                            {format(new Date(lead.created_at), "MMM d")}
+                          </span>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-7 w-7">
+                                <MoreVertical className="h-3.5 w-3.5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44">
+                              <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "hot")}>
+                                <Flame className="h-3.5 w-3.5 mr-2 text-red-500" /> Mark Hot
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "warm")}>
+                                <Thermometer className="h-3.5 w-3.5 mr-2 text-amber-500" /> Mark Warm
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "cold")}>
+                                <Snowflake className="h-3.5 w-3.5 mr-2 text-blue-400" /> Mark Cold
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <a href={`mailto:${lead.email}`}>
+                                  <Mail className="h-3.5 w-3.5 mr-2" /> Email
+                                </a>
+                              </DropdownMenuItem>
+                              {lead.phone && (
+                                <DropdownMenuItem asChild>
+                                  <a href={`tel:${lead.phone}`}>
+                                    <Phone className="h-3.5 w-3.5 mr-2" /> Call
+                                  </a>
+                                </DropdownMenuItem>
+                              )}
+                              {lead.deck_url && (
+                                <DropdownMenuItem asChild>
+                                  <a href={lead.deck_url} target="_blank" rel="noopener noreferrer">
+                                    <Presentation className="h-3.5 w-3.5 mr-2" /> View Deck
+                                  </a>
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </TabsContent>
 
             {/* Listing Inquiries Tab */}
-            <TabsContent value="inquiries">
+            <TabsContent value="inquiries" className="mt-0">
               {filteredLeads.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Users className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      {hasActiveFilters ? "No leads match your filters" : "No listing inquiries yet"}
-                    </h3>
-                    <p className="text-muted-foreground text-sm">
-                      {hasActiveFilters
-                        ? "Try adjusting your search or filters."
-                        : "When buyers submit inquiries on your listings, they'll appear here."}
+                    <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                    <p className="font-medium">{hasActiveFilters ? "No leads match filters" : "No listing inquiries yet"}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {hasActiveFilters ? "Try adjusting your search." : "Buyer inquiries on your listings appear here."}
                     </p>
-                    {hasActiveFilters && (
-                      <Button variant="outline" size="sm" className="mt-4" onClick={clearFilters}>
-                        Clear Filters
-                      </Button>
-                    )}
                   </CardContent>
                 </Card>
               ) : (
-                <div className="space-y-6">
-                  <p className="text-xs text-muted-foreground">
-                    Showing {filteredLeads.length} of {leads.length} inquiries
+                <div className="space-y-4">
+                  <p className="text-[11px] text-muted-foreground">
+                    {filteredLeads.length} of {leads.length} inquiries
                   </p>
                   {Object.entries(groupedLeads).map(([listingId, { listing, leads: listingLeads }]) => (
                     <Card key={listingId}>
-                      <CardHeader className="pb-3 px-3 sm:px-6">
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                          <CardTitle className="text-base sm:text-lg truncate">{listing.title}</CardTitle>
-                          <Badge variant="secondary">{listingLeads.length}</Badge>
-                        </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground">{listing.project_name}</p>
-                      </CardHeader>
-                      <CardContent className="space-y-3 px-3 sm:px-6">
+                      <div className="px-4 pt-4 pb-2 flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <p className="font-medium text-sm truncate">{listing?.title}</p>
+                        <Badge variant="secondary" className="text-[10px] h-4 px-1.5">{listingLeads.length}</Badge>
+                      </div>
+                      <CardContent className="space-y-2 pt-0">
                         {listingLeads.map((lead) => (
-                          <div key={lead.id} className="p-3 rounded-lg border border-border bg-muted/30">
-                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                              <div className="space-y-2">
-                                <p className="font-medium">{lead.name}</p>
-                                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                                  <a href={`mailto:${lead.email}`} className="flex items-center gap-1 hover:text-primary transition-colors">
-                                    <Mail className="h-3 w-3" />
-                                    {lead.email}
+                          <div key={lead.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm">{lead.name}</p>
+                              <div className="flex items-center gap-3 mt-0.5">
+                                <a href={`mailto:${lead.email}`} className="text-xs text-muted-foreground hover:text-primary transition-colors truncate">
+                                  {lead.email}
+                                </a>
+                                {lead.phone && (
+                                  <a href={`tel:${lead.phone}`} className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                                    {lead.phone}
                                   </a>
-                                  {lead.phone && (
-                                    <a href={`tel:${lead.phone}`} className="flex items-center gap-1 hover:text-primary transition-colors">
-                                      <Phone className="h-3 w-3" />
-                                      {lead.phone}
-                                    </a>
-                                  )}
-                                </div>
-                                {lead.message && (
-                                  <p className="text-sm text-muted-foreground bg-background p-2 rounded border border-border mt-2">
-                                    "{lead.message}"
-                                  </p>
                                 )}
                               </div>
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                                <Calendar className="h-3 w-3" />
-                                {format(new Date(lead.created_at), "MMM d, yyyy 'at' h:mm a")}
-                              </div>
+                              {lead.message && (
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-1">"{lead.message}"</p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                                {format(new Date(lead.created_at), "MMM d")}
+                              </span>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
+                                <a href={`mailto:${lead.email}`}><Mail className="h-3.5 w-3.5" /></a>
+                              </Button>
                             </div>
                           </div>
                         ))}
