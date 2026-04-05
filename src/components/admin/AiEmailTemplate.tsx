@@ -1533,6 +1533,7 @@ export function buildModernV2EmailHtml(
       .stat-cell{display:block!important;width:100%!important;border-right:none!important;border-bottom:1px solid #e8e2d6!important;padding:14px 24px!important;text-align:left!important;}
       .agent-logo-cell{display:none!important;}
       table[class="email-container"]{width:100%!important;}
+    }
     ${carouselCss}
   </style>
 </head>
@@ -1547,14 +1548,11 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%" class="email-container"
        style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e8e2d6;border-radius:8px;overflow:hidden;">
 
-  <!-- ── HERO IMAGE ── -->
-  ${data.heroImage ? `
+  <!-- ── HERO CAROUSEL ── -->
+  ${heroHtml ? `
   <tr>
     <td style="padding:0;margin:0;line-height:0;font-size:0;">
-      ${deckLink
-        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" /></a>`
-        : `<img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />`
-      }
+      ${heroHtml}
     </td>
   </tr>` : `
   <tr>
