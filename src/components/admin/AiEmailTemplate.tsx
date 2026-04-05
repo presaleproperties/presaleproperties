@@ -1378,7 +1378,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 // MODERN V2 — exact duplicate of Modern (buildLululemonEmailHtml)
 // ─────────────────────────────────────────────────────────────────────────────
 export function buildModernV2EmailHtml(
-  data: PitchDeckEmailData,
+  data: PitchDeckEmailData & { loopSlides?: string[] },
   agent: AgentInfo = DEFAULT_AGENT,
 ): string {
   const ACCENT     = "#C9A55A";
@@ -1389,6 +1389,50 @@ export function buildModernV2EmailHtml(
   const phone    = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
   const whatsapp = data.ctaWhatsApp || "16722581100";
   const deckLink = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
+
+  // ── Collect hero slides for carousel ─────────────────────────────────────
+  const heroSlides: string[] = [];
+  if (data.loopSlides && data.loopSlides.length > 0) {
+    heroSlides.push(...data.loopSlides.filter(Boolean));
+  }
+  if (heroSlides.length === 0 && data.heroImage) {
+    heroSlides.push(data.heroImage);
+  }
+
+  // ── Carousel CSS (1-second per slide, fast GIF-like rotation) ────────────
+  const slideCount = heroSlides.length;
+  const slideDuration = 1; // 1 second per slide
+  const totalDuration = slideCount * slideDuration;
+
+  let carouselCss = "";
+  if (slideCount > 1) {
+    const keyframes = heroSlides.map((_, i) => {
+      const start = (i / slideCount) * 100;
+      const hold = ((i + 0.85) / slideCount) * 100;
+      const end = ((i + 1) / slideCount) * 100;
+      return `${start.toFixed(1)}%{opacity:1} ${hold.toFixed(1)}%{opacity:1} ${end.toFixed(1)}%{opacity:0}`;
+    }).join(" ");
+    carouselCss = `@keyframes mv2-fade{${keyframes} 100%{opacity:1}}`;
+  }
+
+  // ── Hero HTML ────────────────────────────────────────────────────────────
+  const heroHtml = heroSlides.length > 0 ? (() => {
+    if (slideCount === 1) {
+      const img = `<img src="${heroSlides[0]}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />`;
+      return deckLink
+        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;">${img}</a>`
+        : img;
+    }
+    const layers = heroSlides.map((src, i) => {
+      const delay = i * slideDuration;
+      return `<div style="position:${i === 0 ? "relative" : "absolute"};top:0;left:0;width:100%;${i > 0 ? "opacity:0;" : ""}animation:mv2-fade ${totalDuration}s infinite;animation-delay:${delay}s;">
+        ${deckLink ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;">` : ""}
+        <img src="${src}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />
+        ${deckLink ? "</a>" : ""}
+      </div>`;
+    }).join("");
+    return `<div style="position:relative;overflow:hidden;">${layers}</div>`;
+  })() : "";
 
   // ── Floor plans ──────────────────────────────────────────────────────────
   const fps = (data.floorPlans || []).filter(fp => fp.url);
