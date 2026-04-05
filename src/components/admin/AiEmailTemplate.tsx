@@ -1602,12 +1602,12 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   ${(fps.length > 0 && deckLink) ? `
   <!-- ── VIEW MORE PLANS CTA ── -->
   <tr>
-    <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;">
-      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
+    <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;text-align:center;">
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
         <tr>
-          <td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
+          <td align="center" style="background:#0d1f18;border-radius:50px;padding:14px 36px;text-align:center;">
             <a href="${deckLink}"
-               style="font-family:${F};font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${DARK};text-decoration:none;display:block;white-space:nowrap;">
+               style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;white-space:nowrap;">
               VIEW MORE PLANS &nbsp;→
             </a>
           </td>
