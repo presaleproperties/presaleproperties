@@ -290,7 +290,7 @@ Deno.serve(async (req) => {
     // Fetch lead
     const { data: lead, error: leadErr } = await supabase
       .from("project_leads")
-      .select("id, name, email, phone, project_id, lead_source")
+      .select("id, name, email, phone, project_id, lead_source, persona, agent_status")
       .eq("id", leadId)
       .single();
 
@@ -326,7 +326,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Determine which template to use
+    // Hard rule: realtors or leads working with an agent ALWAYS get Template B
+    const isRealtorOrHasAgent = 
+      lead.persona === "realtor" || 
+      lead.agent_status === "i_am_realtor" || 
+      lead.agent_status === "working_with_agent";
+
     const hasBrochure = project.brochure_files && project.brochure_files.length > 0;
     const hasFloorplan = project.floorplan_files && project.floorplan_files.length > 0;
     const hasPricing = project.pricing_sheets && project.pricing_sheets.length > 0;
@@ -336,10 +341,12 @@ Deno.serve(async (req) => {
     const projectUrl = project.slug ? `https://presaleproperties.com/projects/${project.slug}` : undefined;
     const agent = DEFAULT_AGENT;
 
-    const templateType = hasDocuments ? "project_details_docs" : "agent_followup";
-    const html = hasDocuments
-      ? buildTemplateA(project as ProjectData, firstName, agent, projectUrl)
-      : buildTemplateB(project as ProjectData, firstName, agent, projectUrl);
+    // Template B for realtors/agent leads (always), or when no docs available
+    const useTemplateB = isRealtorOrHasAgent || !hasDocuments;
+    const templateType = useTemplateB ? "agent_followup" : "project_details_docs";
+    const html = useTemplateB
+      ? buildTemplateB(project as ProjectData, firstName, agent, projectUrl)
+      : buildTemplateA(project as ProjectData, firstName, agent);
 
     const subjectLine = hasDocuments
       ? `${project.name} — Your Requested Floor Plans & Details`
