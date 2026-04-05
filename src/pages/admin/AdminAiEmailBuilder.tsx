@@ -139,6 +139,8 @@ function buildFinalHtml(
       infoRows:       fields.infoRows,
       incentiveText:  fields.incentiveText,
       deckUrl:        saved?._deckUrl || undefined,
+      brochureUrl,
+      floorplanUrl,
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
