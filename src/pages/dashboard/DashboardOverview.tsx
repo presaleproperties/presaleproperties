@@ -51,7 +51,7 @@ export default function DashboardOverview() {
       supabase.from("onboarded_leads").select("id", { count: "exact", head: true }).eq("user_id", user.id),
       supabase.from("email_logs").select("id", { count: "exact", head: true }).eq("sent_by", user.id),
     ]).then(([profileRes, decksRes, leadsRes, emailsRes]) => {
-      if (profileRes.data?.full_name) setAgentName(profileRes.data.full_name.split(" ")[0]);
+      if (profileRes.data?.full_name) setAgentName(profileRes.data.full_name);
       if (decksRes.data) setDecks(decksRes.data);
       setStats({
         leads: leadsRes.count || 0,

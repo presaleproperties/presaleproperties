@@ -186,10 +186,10 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
           <div className="p-4 border-b border-border/50">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold">
-                {user?.email?.charAt(0).toUpperCase() || "A"}
+                {(fullName || user?.email || "A").charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user?.email?.split("@")[0]}</p>
+                <p className="text-sm font-medium truncate">{fullName || user?.email?.split("@")[0]}</p>
                 <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
             </div>
