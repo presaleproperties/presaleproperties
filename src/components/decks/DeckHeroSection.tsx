@@ -63,39 +63,46 @@ export function DeckHeroSection({
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/5" />
       </div>
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-28 sm:pb-24 pt-28 w-full">
-        <div className="max-w-2xl space-y-4">
+        <div className="max-w-2xl space-y-5">
+
+          {/* Developer badge */}
+          {developerName && (
+            <span className="inline-block text-[11px] font-semibold uppercase tracking-[0.25em] text-white/60">
+              By {developerName}
+            </span>
+          )}
 
           {/* Project name */}
-          <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+          <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight">
             {projectName || "Project Name"}
           </h1>
 
           {/* Tagline */}
           {tagline && (
-            <p className="inline-block px-3 py-1.5 rounded-lg bg-black/50 backdrop-blur-sm text-white text-base sm:text-lg font-light leading-snug">
+            <p className="text-white/80 text-lg sm:text-xl font-light leading-snug max-w-lg">
               {tagline}
             </p>
           )}
 
           {/* Divider */}
-          <div className="w-12 h-px bg-primary/80" />
+          <div className="w-10 h-[2px] bg-primary" />
 
-          {/* Stat pills */}
+          {/* Stat pills — frosted glass */}
           {stats.length > 0 && (
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-2.5 flex-wrap">
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/20 shrink-0"
+                  className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 shrink-0"
                 >
                   <stat.icon className="h-4 w-4 text-primary shrink-0" />
                   <div>
-                    <p className="text-white/70 text-[11px] uppercase tracking-wider leading-none mb-1">{stat.label}</p>
+                    <p className="text-white/50 text-[10px] uppercase tracking-[0.15em] font-medium leading-none mb-1">{stat.label}</p>
                     <p className="text-white font-semibold text-sm leading-none whitespace-nowrap">{stat.value}</p>
                   </div>
                 </div>
@@ -110,8 +117,8 @@ export function DeckHeroSection({
         className="hidden sm:flex absolute bottom-6 left-0 right-0 flex-col items-center gap-1 z-10 cursor-pointer"
         onClick={onFloorPlansClick}
       >
-        <span className="text-white/70 text-xs font-semibold uppercase tracking-widest drop-shadow-md">Scroll to explore</span>
-        <ChevronDown className="h-5 w-5 text-white/60 drop-shadow-md animate-bounce" />
+        <span className="text-white/50 text-[10px] font-semibold uppercase tracking-[0.2em]">Scroll to explore</span>
+        <ChevronDown className="h-5 w-5 text-white/40 animate-bounce" />
       </div>
     </section>
   );

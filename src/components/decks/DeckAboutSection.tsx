@@ -36,9 +36,9 @@ export function DeckAboutSection({
 
           {/* Left — description */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="space-y-1">
-              <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em]">02 — About the Development</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+            <div className="space-y-1.5">
+              <p className="text-primary text-[11px] font-bold uppercase tracking-[0.25em]">02 — About the Development</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
                 {projectName ? `Welcome to ${projectName}` : "About the Development"}
               </h2>
             </div>
@@ -52,13 +52,13 @@ export function DeckAboutSection({
 
             {/* Collapsible highlights */}
             {highlights && highlights.length > 0 && (
-              <div className="border border-border/50 rounded-xl overflow-hidden">
+              <div className="border border-border/40 rounded-xl overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setHighlightsOpen((v) => !v)}
-                  className="w-full flex items-center justify-between px-4 py-4 bg-muted/20 hover:bg-muted/40 transition-colors touch-manipulation"
+                  className="w-full flex items-center justify-between px-5 py-4 bg-muted/15 hover:bg-muted/30 transition-colors touch-manipulation"
                 >
-                  <span className="text-base font-semibold text-foreground flex items-center gap-2">
+                  <span className="text-[15px] font-semibold text-foreground flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                     Project Highlights
                     <span className="text-sm font-normal text-muted-foreground">({highlights.length})</span>
@@ -70,11 +70,11 @@ export function DeckAboutSection({
                   className="overflow-hidden transition-all duration-300"
                   style={{ maxHeight: highlightsOpen ? `${highlights.length * 52}px` : "0" }}
                 >
-                  <ul className="px-4 py-4 space-y-3 border-t border-border/30">
+                  <ul className="px-5 py-4 space-y-3 border-t border-border/20">
                     {highlights.map((h, i) => (
                       <li key={i} className="flex items-start gap-2.5">
                         <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <span className="text-base text-foreground leading-snug">{h}</span>
+                        <span className="text-[15px] text-foreground leading-snug">{h}</span>
                       </li>
                     ))}
                   </ul>
@@ -86,10 +86,10 @@ export function DeckAboutSection({
           {/* Right — amenities */}
           {amenities && amenities.length > 0 && (
             <div className="lg:col-span-5">
-              <div className="rounded-2xl border border-border/60 bg-muted/10 p-6 space-y-4 sticky top-24">
+              <div className="rounded-2xl border border-border/40 bg-card p-6 space-y-4 sticky top-24">
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
                     Building Amenities
                   </p>
                 </div>
@@ -97,7 +97,7 @@ export function DeckAboutSection({
                   {amenities.map((amenity, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center px-3.5 py-2 rounded-full text-sm font-medium bg-background border border-border/70 text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                      className="inline-flex items-center px-3.5 py-2 rounded-full text-sm font-medium bg-background border border-border/50 text-foreground hover:border-primary/30 transition-colors"
                     >
                       {amenity}
                     </span>
