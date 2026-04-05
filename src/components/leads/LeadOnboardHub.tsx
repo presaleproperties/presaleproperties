@@ -154,24 +154,86 @@ export function LeadOnboardHub() {
         ? `https://presaleproperties.com/deck/${selectedDeck.slug}`
         : "";
 
-      const { data: lead, error: insertError } = await supabase
-        .from("onboarded_leads")
-        .insert({
-          user_id: user.id,
-          first_name: values.first_name.trim(),
-          last_name: values.last_name.trim(),
-          email: values.email.trim().toLowerCase(),
-          phone: values.phone.trim(),
-          source: values.source,
-          notes: values.notes.trim(),
-          deck_id: selectedDeckId,
-          deck_url: deckUrl,
-          template_id: selectedTemplateId,
-        } as any)
-        .select("id")
-        .single();
+      const normalizedEmail = values.email.trim().toLowerCase();
+      const normalizedPhone = values.phone.trim();
 
-      if (insertError) throw insertError;
+      // Check for existing lead by email or phone
+      let existingQuery = supabase
+        .from("onboarded_leads")
+        .select("id, tags, source, notes")
+        .eq("user_id", user.id);
+
+      // Match by email OR phone
+      if (normalizedPhone) {
+        existingQuery = existingQuery.or(`email.eq.${normalizedEmail},phone.eq.${normalizedPhone}`);
+      } else {
+        existingQuery = existingQuery.eq("email", normalizedEmail);
+      }
+
+      const { data: existingLeads } = await existingQuery.limit(1);
+      
+      let lead: { id: string };
+
+      if (existingLeads && existingLeads.length > 0) {
+        // Merge into existing lead — add new tags & source
+        const existing = existingLeads[0];
+        const existingTags: string[] = (existing.tags as string[]) || [];
+        const newTags = new Set(existingTags);
+        if (values.source && !existingTags.includes(values.source)) {
+          newTags.add(values.source);
+        }
+        if (selectedDeck?.project_name && !existingTags.includes(selectedDeck.project_name)) {
+          newTags.add(selectedDeck.project_name);
+        }
+
+        const mergedNotes = existing.notes && values.notes.trim()
+          ? `${existing.notes}\n---\n${values.notes.trim()}`
+          : values.notes.trim() || existing.notes || "";
+
+        const { error: updateError } = await supabase
+          .from("onboarded_leads")
+          .update({
+            first_name: values.first_name.trim(),
+            last_name: values.last_name.trim(),
+            phone: normalizedPhone || undefined,
+            source: values.source,
+            notes: mergedNotes,
+            deck_id: selectedDeckId,
+            deck_url: deckUrl,
+            template_id: selectedTemplateId,
+            tags: Array.from(newTags),
+          } as any)
+          .eq("id", existing.id);
+
+        if (updateError) throw updateError;
+        lead = { id: existing.id };
+        
+        toast({
+          title: "Existing lead updated",
+          description: `${values.first_name} was already in your leads — updated with new info and tags.`,
+        });
+      } else {
+        // New lead — insert
+        const { data: newLead, error: insertError } = await supabase
+          .from("onboarded_leads")
+          .insert({
+            user_id: user.id,
+            first_name: values.first_name.trim(),
+            last_name: values.last_name.trim(),
+            email: normalizedEmail,
+            phone: normalizedPhone,
+            source: values.source,
+            notes: values.notes.trim(),
+            deck_id: selectedDeckId,
+            deck_url: deckUrl,
+            template_id: selectedTemplateId,
+          } as any)
+          .select("id")
+          .single();
+
+        if (insertError) throw insertError;
+        lead = newLead;
+      }
 
       // Sync to Zapier/Lofty (non-blocking)
       const { error: syncError } = await supabase.functions.invoke(
