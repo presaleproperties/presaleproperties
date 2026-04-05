@@ -506,11 +506,6 @@ export default function DashboardLeads() {
                                       ))}
                                     </DropdownMenuContent>
                                   </DropdownMenu>
-                                  {lead.zapier_synced && (
-                                    <Badge className="text-[10px] h-5 px-1.5 bg-primary/10 text-primary border-0 gap-0.5 ml-1">
-                                      <Check className="h-2.5 w-2.5" /> CRM
-                                    </Badge>
-                                  )}
                                 </td>
 
                                 {/* Tags — project names + custom only */}
@@ -726,11 +721,6 @@ export default function DashboardLeads() {
                                     <span className="text-primary font-semibold ml-1">+{extraSourceCount}</span>
                                   )}
                                 </Badge>
-                                {lead.zapier_synced && (
-                                  <Badge className="text-[10px] h-5 px-1.5 bg-primary/10 text-primary border-0 gap-0.5">
-                                    <Check className="h-2.5 w-2.5" /> CRM
-                                  </Badge>
-                                )}
                                 <span className="text-[10px] text-muted-foreground ml-auto">
                                   {format(new Date(lead.created_at), "MMM d")}
                                 </span>
