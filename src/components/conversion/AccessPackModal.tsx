@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { upsertProjectLead } from "@/lib/upsertProjectLead";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
 import { formatPhoneNumber } from "@/lib/formatPhone";
@@ -146,10 +147,7 @@ export function AccessPackModal({
       const intentScore = getIntentScore();
       const cityInterest = getCityInterests();
       const projectInterest = getTopViewedProjects().map(p => p.project_id);
-      const leadId = crypto.randomUUID();
-
-      const { error } = await supabase.from("project_leads").insert({
-        id: leadId,
+      const leadId = await upsertProjectLead({
         project_id: projectId || null,
         name: fullName,
         email: data.email,
@@ -181,8 +179,6 @@ export function AccessPackModal({
         city_interest: cityInterest,
         project_interest: projectInterest,
       });
-
-      if (error) throw error;
 
       // submitLead patches tracking data then fires send-project-lead → Zapier automatically
       submitLead({

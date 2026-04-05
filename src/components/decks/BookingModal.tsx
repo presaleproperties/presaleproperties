@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { upsertProjectLead } from "@/lib/upsertProjectLead";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
@@ -28,15 +29,13 @@ export function BookingModal({ open, onClose, projectName, agentEmail }: Booking
     if (!name || !phone || !email) return;
     setLoading(true);
     try {
-      await (supabase as any).from("project_leads").insert({
+      await upsertProjectLead({
         name,
         phone,
         email,
         message,
         form_type: "deck_booking",
-        project_name: projectName,
         lead_source: "pitch_deck_booking",
-        lead_status: "new",
         landing_page: window.location.href,
       });
       setDone(true);

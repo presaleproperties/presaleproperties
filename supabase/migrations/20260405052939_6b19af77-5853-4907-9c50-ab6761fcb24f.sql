@@ -1,0 +1,1 @@
+ALTER TABLE public.project_leads ADD COLUMN IF NOT EXISTS lead_sources text[] NOT NULL DEFAULT '{}'::text[];

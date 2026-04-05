@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Mail, ArrowRight, User, Phone, CheckCircle2, FileText, Loader2, Calendar } from "lucide-react";
 import { formatPhoneNumber } from "@/lib/formatPhone";
 import { supabase } from "@/integrations/supabase/client";
+import { upsertProjectLead } from "@/lib/upsertProjectLead";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -90,9 +91,7 @@ export function CalculatorLeadCapture({
       const referrer = sessionStorage.getItem("referrer") || document.referrer || null;
       const landingPage = sessionStorage.getItem("landing_page") || window.location.href;
 
-      const leadId = crypto.randomUUID();
-      const { error } = await supabase.from("project_leads").insert({
-        id: leadId,
+      const leadId = await upsertProjectLead({
         name: formData.name.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
@@ -109,8 +108,6 @@ export function CalculatorLeadCapture({
         utm_medium: utmMedium,
         utm_campaign: utmCampaign,
       });
-
-      if (error) throw error;
 
       await supabase.functions.invoke("send-project-lead", { body: { leadId } });
 

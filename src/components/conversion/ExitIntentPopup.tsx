@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { upsertProjectLead } from "@/lib/upsertProjectLead";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
@@ -164,9 +165,7 @@ export function ExitIntentPopup() {
 
       if (error && !error.message.includes("duplicate")) throw error;
 
-      const leadId = crypto.randomUUID();
-      await supabase.from("project_leads").insert({
-        id: leadId,
+      const leadId = await upsertProjectLead({
         name: data.name.trim(),
         email: data.email.trim(),
         form_type: "exit_intent",
