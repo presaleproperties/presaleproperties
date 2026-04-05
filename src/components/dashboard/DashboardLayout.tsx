@@ -111,12 +111,17 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
   const { signOut, user, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fullName, setFullName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     import("@/integrations/supabase/client").then(({ supabase }) => {
-      supabase.from("profiles").select("full_name").eq("user_id", user.id).single()
-        .then(({ data }) => { if (data?.full_name) setFullName(data.full_name); });
+      supabase.from("profiles").select("full_name, avatar_url").eq("user_id", user.id).single()
+        .then(({ data }) => {
+          if (data?.full_name) setFullName(data.full_name);
+          if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+        });
+    });
     });
   }, [user]);
 
