@@ -336,6 +336,8 @@ const App = () => (
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
             <Route path="/dashboard/emails" element={<ProtectedRoute><DashboardEmails /></ProtectedRoute>} />
             <Route path="/dashboard/lead-onboard" element={<ProtectedRoute><DashboardLeadOnboard /></ProtectedRoute>} />
+            <Route path="/dashboard/marketing-hub" element={<ProtectedRoute><DashboardMarketingHub /></ProtectedRoute>} />
+            <Route path="/dashboard/email-builder" element={<ProtectedRoute><DashboardEmailBuilder /></ProtectedRoute>} />
             <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
             

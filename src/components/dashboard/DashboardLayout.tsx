@@ -22,6 +22,7 @@ import {
   Presentation,
   UserPlus,
   Mail,
+  Megaphone,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
