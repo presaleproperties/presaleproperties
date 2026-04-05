@@ -382,6 +382,10 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [imageCards,    setImageCards]    = useState<ImageCardEntry[]>(savedDraft?.imageCards ?? []);
   const [imgCardUploading, setImgCardUploading] = useState(false);
 
+  // Document URLs (auto-populated from project or manually set)
+  const [brochureUrl,  setBrochureUrl]  = useState(savedDraft?.brochureUrl ?? "");
+  const [floorplanUrl, setFloorplanUrl] = useState(savedDraft?.floorplanUrl ?? "");
+
   // Campaign assets
   const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
   const [selectedAssetId,  setSelectedAssetId]  = useState<string>(savedDraft?.selectedAssetId ?? "none");
