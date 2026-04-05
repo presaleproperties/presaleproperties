@@ -285,10 +285,11 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const draftTimestamp = searchParams.get("t") ?? "";
   const [dbDraft, setDbDraft] = useState<Record<string, any> | null>(null);
   const [dbDraftLoading, setDbDraftLoading] = useState(!!savedTemplateId);
+  const dbHydratedRef = useRef(false);
 
-  // Load saved template from DB when ?saved=<id> is present
+  // Load saved template from DB when ?saved=<id> is present (once only)
   useEffect(() => {
-    if (!savedTemplateId) return;
+    if (!savedTemplateId || dbHydratedRef.current) return;
     (async () => {
       setDbDraftLoading(true);
       const { data } = await (supabase as any)
@@ -300,10 +301,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         const fd = data.form_data;
         const copy = fd.copy || {};
         const vars = fd.vars || {};
-        // Build a draft-like object from the saved form_data
         const restored: Record<string, any> = {
-          ...fd, // spread all saved fields (layoutVersion, fontId, selAgent, etc.)
-          // Ensure copy fields are at top level for state init
+          ...fd,
           projectName:       copy.projectName       ?? vars.projectName       ?? "",
           developerName:     copy.developerName     ?? vars.developerName     ?? "",
           city:              copy.city              ?? vars.city              ?? "",
@@ -323,13 +322,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           projectUrl:        fd.projectUrl          ?? "",
           _dbTemplateId:     data.id,
         };
+        dbHydratedRef.current = true;
         setDbDraft(restored);
-        // Also write to localStorage so auto-save continues working
         try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...restored, _savedAt: new Date().toISOString() })); } catch {}
       }
       setDbDraftLoading(false);
     })();
-  }, []); // eslint-disable-line
+  }, [savedTemplateId]); // eslint-disable-line
 
   const savedDraft = useMemo(() => {
     if (dbDraft) return dbDraft;
@@ -428,9 +427,11 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     short_description?: string | null;
   }>>([]);
 
-  // ── Force-hydrate state from DB when loading a saved template ────────────
+  // ── Force-hydrate state from DB when loading a saved template (once only) ──
+  const stateHydratedRef = useRef(false);
   useEffect(() => {
-    if (!dbDraft) return;
+    if (!dbDraft || stateHydratedRef.current) return;
+    stateHydratedRef.current = true;
     const d = dbDraft;
     setProjectName(d.projectName ?? "");
     setDevName(d.developerName ?? "");
