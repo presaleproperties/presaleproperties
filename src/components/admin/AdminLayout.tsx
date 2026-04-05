@@ -83,10 +83,11 @@ const navSections = [
     id: "marketing",
     label: "Marketing",
     items: [
-      { href: "/admin/email-center",   label: "Email",     icon: Mail,      badgeKey: null },
-      { href: "/admin/marketing-hub",  label: "Campaigns", icon: Megaphone, badgeKey: null },
-      { href: "/admin/blogs",          label: "Blog",      icon: BookOpen,  badgeKey: null },
-      { href: "/admin/google-reviews", label: "Reviews",   icon: Star,      badgeKey: null },
+      { href: "/admin/email-center",   label: "Email",       icon: Mail,         badgeKey: null },
+      { href: "/admin/marketing-hub",  label: "Campaigns",   icon: Megaphone,    badgeKey: null },
+      { href: "/dashboard/decks",      label: "Pitch Decks", icon: Presentation, badgeKey: null },
+      { href: "/admin/blogs",          label: "Blog",        icon: BookOpen,     badgeKey: null },
+      { href: "/admin/google-reviews", label: "Reviews",     icon: Star,         badgeKey: null },
     ],
   },
   {
