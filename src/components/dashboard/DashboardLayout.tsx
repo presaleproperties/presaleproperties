@@ -21,6 +21,7 @@ import {
   FolderOpen,
   Presentation,
   UserPlus,
+  Mail,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
