@@ -1140,6 +1140,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       imageCards, loopSlides, selectedAssetId, directCtaUrl,
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
+      brochureUrl, floorplanUrl,
       ...savedDeckMeta,
       finalHtml,
     };
