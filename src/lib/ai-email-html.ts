@@ -145,6 +145,8 @@ function buildAiFinalHtml({
       incentiveText: fields.incentiveText,
       deckUrl: deckUrl || undefined,
       projectUrl: fields.projectUrl || undefined,
+      brochureUrl,
+      floorplanUrl,
       loopSlides: slides,
     }, agent);
   }
