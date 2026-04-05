@@ -22,12 +22,12 @@ export function DeckKeyFactsBar({ assignmentFee, includedItems }: DeckKeyFactsBa
   if (!hasAny) return null;
 
   return (
-    <div className="bg-muted/40 border-b border-border/50 px-4 sm:px-8 py-3">
+    <div className="bg-card border-b border-border/30 px-4 sm:px-8 py-3.5">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-x-6 gap-y-2">
         {/* Assignment Fee */}
         {assignmentFee && (
-          <div className="flex items-center gap-2 text-sm">
-            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 shrink-0">
+          <div className="flex items-center gap-2.5 text-sm">
+            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/8 shrink-0">
               <DollarSign className="h-3.5 w-3.5 text-primary" />
             </div>
             <span className="text-muted-foreground font-medium">Assignment Fee:</span>
@@ -37,7 +37,7 @@ export function DeckKeyFactsBar({ assignmentFee, includedItems }: DeckKeyFactsBa
 
         {/* Divider */}
         {assignmentFee && includedItems && includedItems.length > 0 && (
-          <div className="hidden sm:block w-px h-4 bg-border/60" />
+          <div className="hidden sm:block w-px h-4 bg-border/50" />
         )}
 
         {/* What's Included */}
@@ -48,7 +48,7 @@ export function DeckKeyFactsBar({ assignmentFee, includedItems }: DeckKeyFactsBa
               {includedItems.map((item) => (
                 <span
                   key={item}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/6 text-primary border border-primary/15"
                 >
                   {getIcon(item)}
                   {item}

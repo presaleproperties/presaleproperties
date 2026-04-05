@@ -95,7 +95,7 @@ export function DeckFloorPlansSection({
   };
 
   return (
-    <section id="floor-plans" className="relative py-16 sm:py-24 bg-muted/20 overflow-hidden">
+    <section id="floor-plans" className="relative py-16 sm:py-24 bg-muted/10 overflow-hidden">
 
       {/* Price gate modal — only triggered on demand, never on page load */}
       {priceGateOpen && !isUnlocked && (
@@ -115,8 +115,8 @@ export function DeckFloorPlansSection({
 
         {/* Header */}
         <div className="mb-10 sm:mb-14">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.2em] mb-2">02 — Hand-Picked For You</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Top Picked Units</h2>
+          <p className="text-primary text-[11px] font-bold uppercase tracking-[0.25em] mb-2">02 — Hand-Picked For You</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight mb-1.5">Top Picked Units</h2>
           <p className="text-muted-foreground text-sm max-w-lg">
             The best available units — tap any to see the full floor plan.{!isUnlocked && " Pricing is exclusive and invite-only — tap Reveal Price to unlock."}
           </p>
@@ -180,7 +180,7 @@ export function DeckFloorPlansSection({
               return (
                 <button
                   key={plan.id}
-                  className="group relative text-left rounded-2xl overflow-hidden border-2 border-border bg-background hover:border-primary hover:shadow-2xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.98] touch-manipulation"
+                  className="group relative text-left rounded-2xl overflow-hidden border border-border/50 bg-card hover:border-primary/40 hover:shadow-xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.98] touch-manipulation"
                   onClick={() => setSelected(plan)}
                 >
                   {/* Floor plan image */}

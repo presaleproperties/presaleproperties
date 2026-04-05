@@ -103,15 +103,15 @@ export function DeckContactSection({
   const hasMore = reviews.length > REVIEWS_VISIBLE;
 
   return (
-    <section id="contact" className="relative py-16 sm:py-24 bg-muted/10">
+    <section id="contact" className="relative py-16 sm:py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         <div className="mb-10 space-y-2">
-          <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em]">08 — Your Next Step</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+          <p className="text-primary text-[11px] font-bold uppercase tracking-[0.25em]">08 — Your Next Step</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
             We Hand-Picked This For You
           </h2>
-          <p className="text-muted-foreground text-base max-w-xl">
+          <p className="text-muted-foreground text-[15px] max-w-xl">
             This deck was put together specifically for you — pricing and floor plans before anyone else. Message us to hold a unit or ask anything.
           </p>
         </div>
@@ -120,8 +120,8 @@ export function DeckContactSection({
         <div className="grid lg:grid-cols-[360px_1fr] gap-8 items-start">
 
           {/* LEFT — Agent card */}
-          <div className="relative rounded-2xl overflow-hidden border border-border/50 bg-background shadow-lg">
-            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/8 to-transparent" />
+          <div className="relative rounded-2xl overflow-hidden border border-border/40 bg-card shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-primary/5 to-transparent" />
 
             <div className="relative p-6 flex flex-col gap-4">
               {/* Agent photo + info */}
@@ -167,8 +167,7 @@ export function DeckContactSection({
                 href={`https://wa.me/${rawNumber}?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2.5 w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white touch-manipulation transition-all active:scale-[0.98]"
-                style={{ background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,0.30)" }}
+                className="flex items-center justify-center gap-2.5 w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-primary text-primary-foreground touch-manipulation transition-all active:scale-[0.98] hover:bg-primary/90 shadow-md"
               >
                 <MessageCircle className="h-5 w-5 shrink-0" />
                 I'm Interested
