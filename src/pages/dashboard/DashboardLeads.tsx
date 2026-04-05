@@ -119,6 +119,51 @@ export default function DashboardLeads() {
   const tagInputRef = useRef<HTMLInputElement>(null);
   const [showAddLead, setShowAddLead] = useState(false);
 
+  // Inline editing state
+  const [editingCell, setEditingCell] = useState<{ leadId: string; field: string } | null>(null);
+  const [editingValue, setEditingValue] = useState("");
+
+  const handleInlineEdit = async (leadId: string, field: string, value: string) => {
+    setEditingCell(null);
+    const trimmed = value.trim();
+    const lead = onboardedLeads.find((l) => l.id === leadId);
+    if (!lead) return;
+
+    // Map field to db columns
+    const dbField = field === "name" ? undefined : field;
+    let updatePayload: Record<string, any> = {};
+    let optimisticUpdate: Partial<OnboardedLead> = {};
+
+    if (field === "name") {
+      const parts = trimmed.split(/\s+/);
+      const firstName = parts[0] || "";
+      const lastName = parts.slice(1).join(" ") || "";
+      updatePayload = { first_name: firstName, last_name: lastName };
+      optimisticUpdate = { first_name: firstName, last_name: lastName };
+    } else {
+      updatePayload = { [field]: trimmed };
+      optimisticUpdate = { [field]: trimmed } as any;
+    }
+
+    const prev = [...onboardedLeads];
+    setOnboardedLeads((leads) =>
+      leads.map((l) => (l.id === leadId ? { ...l, ...optimisticUpdate } : l))
+    );
+    const { error } = await supabase
+      .from("onboarded_leads")
+      .update(updatePayload as any)
+      .eq("id", leadId);
+    if (error) {
+      setOnboardedLeads(prev);
+      toast.error("Failed to update");
+    }
+  };
+
+  const startEditing = (leadId: string, field: string, currentValue: string) => {
+    setEditingCell({ leadId, field });
+    setEditingValue(currentValue);
+  };
+
   useEffect(() => {
     if (user) fetchAll();
   }, [user]);
@@ -481,27 +526,74 @@ export default function DashboardLeads() {
 
                                 {/* Name */}
                                 <td className="px-3 py-2.5">
-                                  <p className="font-medium truncate max-w-[160px]">
-                                    {lead.first_name} {lead.last_name}
-                                  </p>
+                                  {editingCell?.leadId === lead.id && editingCell.field === "name" ? (
+                                    <Input
+                                      value={editingValue}
+                                      onChange={(e) => setEditingValue(e.target.value)}
+                                      className="h-7 text-sm px-1.5 w-[160px]"
+                                      autoFocus
+                                      onBlur={() => handleInlineEdit(lead.id, "name", editingValue)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleInlineEdit(lead.id, "name", editingValue);
+                                        if (e.key === "Escape") setEditingCell(null);
+                                      }}
+                                    />
+                                  ) : (
+                                    <p
+                                      className="font-medium truncate max-w-[160px] cursor-pointer hover:text-primary transition-colors"
+                                      onClick={() => startEditing(lead.id, "name", `${lead.first_name} ${lead.last_name}`.trim())}
+                                    >
+                                      {lead.first_name} {lead.last_name}
+                                    </p>
+                                  )}
                                 </td>
 
                                 {/* Phone */}
                                 <td className="px-3 py-2.5">
-                                  {lead.phone ? (
-                                    <a href={`tel:${lead.phone}`} className="text-muted-foreground hover:text-primary transition-colors text-xs">
-                                      {lead.phone}
-                                    </a>
+                                  {editingCell?.leadId === lead.id && editingCell.field === "phone" ? (
+                                    <Input
+                                      value={editingValue}
+                                      onChange={(e) => setEditingValue(e.target.value)}
+                                      className="h-7 text-xs px-1.5 w-[140px]"
+                                      autoFocus
+                                      onBlur={() => handleInlineEdit(lead.id, "phone", editingValue)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleInlineEdit(lead.id, "phone", editingValue);
+                                        if (e.key === "Escape") setEditingCell(null);
+                                      }}
+                                    />
                                   ) : (
-                                    <span className="text-muted-foreground/40 text-xs">—</span>
+                                    <span
+                                      className="text-muted-foreground hover:text-primary transition-colors text-xs cursor-pointer"
+                                      onClick={() => startEditing(lead.id, "phone", lead.phone || "")}
+                                    >
+                                      {lead.phone || "Add phone"}
+                                    </span>
                                   )}
                                 </td>
 
                                 {/* Email */}
                                 <td className="px-3 py-2.5">
-                                  <a href={`mailto:${lead.email}`} className="text-muted-foreground hover:text-primary transition-colors text-xs truncate block max-w-[180px]">
-                                    {lead.email}
-                                  </a>
+                                  {editingCell?.leadId === lead.id && editingCell.field === "email" ? (
+                                    <Input
+                                      value={editingValue}
+                                      onChange={(e) => setEditingValue(e.target.value)}
+                                      className="h-7 text-xs px-1.5 w-[180px]"
+                                      autoFocus
+                                      onBlur={() => handleInlineEdit(lead.id, "email", editingValue)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleInlineEdit(lead.id, "email", editingValue);
+                                        if (e.key === "Escape") setEditingCell(null);
+                                      }}
+                                    />
+                                  ) : (
+                                    <span
+                                      className="text-muted-foreground hover:text-primary transition-colors text-xs truncate block max-w-[180px] cursor-pointer"
+                                      onClick={() => startEditing(lead.id, "email", lead.email)}
+                                    >
+                                      {lead.email}
+                                    </span>
+                                  )}
                                 </td>
 
                                 {/* Source — condensed with expandable */}
