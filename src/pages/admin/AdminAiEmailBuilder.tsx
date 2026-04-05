@@ -91,6 +91,8 @@ function buildFinalHtml(
   layoutVersion?: "modern" | "modern-v2" | "editorial",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
+  brochureUrl?: string,
+  floorplanUrl?: string,
 ): string {
   // ── EDITORIAL template ────────────────────────────────────────────────────
   if (layoutVersion === "editorial") {
