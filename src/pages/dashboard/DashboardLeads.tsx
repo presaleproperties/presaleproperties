@@ -182,7 +182,7 @@ export default function DashboardLeads() {
     }
   };
 
-
+  const handleAddTag = async (leadId: string, tag: string) => {
     const trimmed = tag.trim();
     if (!trimmed) return;
     const lead = onboardedLeads.find((l) => l.id === leadId);
