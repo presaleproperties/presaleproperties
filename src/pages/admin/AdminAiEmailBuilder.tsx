@@ -1205,8 +1205,10 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setSaveDialogOpen(false);
     const formData = buildFormData();
 
+    const insertPayload: any = { name: saveTemplateName.trim(), project_name: projectName || "Untitled", form_data: formData };
+    if (agentMode && agentUserId) insertPayload.user_id = agentUserId;
     const res = await supabase.from("campaign_templates" as any)
-      .insert({ name: saveTemplateName.trim(), project_name: projectName || "Untitled", form_data: formData })
+      .insert(insertPayload)
       .select("id")
       .single();
 
