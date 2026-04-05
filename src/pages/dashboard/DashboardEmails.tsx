@@ -826,9 +826,15 @@ function TemplateCard({
           <Button variant="outline" size="sm" className="flex-1 h-7 text-[11px] gap-1" onClick={onPreview}>
             <Eye className="h-3 w-3" /> Preview
           </Button>
-          <Button size="sm" className="flex-1 h-7 text-[11px] gap-1" onClick={onUse}>
-            <Pencil className="h-3 w-3" /> Edit & Send
-          </Button>
+          {isShared && onImport ? (
+            <Button size="sm" className="flex-1 h-7 text-[11px] gap-1" onClick={onImport} disabled={isImporting}>
+              {isImporting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />} Import
+            </Button>
+          ) : (
+            <Button size="sm" className="flex-1 h-7 text-[11px] gap-1" onClick={onUse}>
+              <Pencil className="h-3 w-3" /> Edit & Send
+            </Button>
+          )}
         </div>
       </div>
     </div>
