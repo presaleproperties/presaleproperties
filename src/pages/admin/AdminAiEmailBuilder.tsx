@@ -17,7 +17,7 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
-  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Italic, Underline, List, Minus, Presentation, Send,
+  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Italic, Underline, List, Minus, Presentation, Send, PanelRightClose, PanelRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -448,6 +448,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [pushedML,      setPushedML]      = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(true);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
   // Data
@@ -1392,7 +1393,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         </div>
 
         {/* ── Main layout: side-by-side on desktop, tabs on mobile ── */}
-        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_360px] gap-3 lg:h-[calc(100vh-220px)] lg:min-h-[600px]">
+        <div className={cn("flex flex-col lg:grid gap-3 lg:h-[calc(100vh-220px)] lg:min-h-[600px]", editorOpen ? "lg:grid-cols-[1fr_360px]" : "lg:grid-cols-[1fr]")}>
 
           {/* ── Email preview panel — hidden on mobile when "build" tab active ── */}
           <div className={cn(
@@ -1534,6 +1535,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           </div>
 
           {/* ── RIGHT / BOTTOM: Editor panel — hidden on mobile when "preview" tab active ── */}
+          {editorOpen && (
           <div className={cn(
             "flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm",
             mobileTab === "build" ? "flex" : "hidden lg:flex",
@@ -1549,6 +1551,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 {projectName && (
                   <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/20 text-primary/70 font-normal">{projectName}</Badge>
                 )}
+                <button
+                  onClick={() => setEditorOpen(false)}
+                  className="ml-auto h-7 w-7 rounded-lg border border-border bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors"
+                  title="Close editor panel"
+                >
+                  <PanelRightClose className="h-3.5 w-3.5 text-muted-foreground" />
+                </button>
               </div>
             </div>
 
@@ -2209,6 +2218,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               </Button>
             </div>
           </div>
+          )}
+
+          {/* Floating button to reopen editor */}
+          {!editorOpen && (
+            <button
+              onClick={() => setEditorOpen(true)}
+              className="hidden lg:flex fixed right-6 top-1/2 -translate-y-1/2 z-40 h-10 items-center gap-2 px-3 rounded-lg border border-border bg-card shadow-lg hover:bg-accent/50 transition-all"
+              title="Open editor panel"
+            >
+              <PanelRight className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs font-semibold text-foreground">Editor</span>
+            </button>
+          )}
 
         </div>
 
