@@ -47,10 +47,7 @@ const DashboardListings = lazy(() => import("./pages/dashboard/DashboardListings
 const DashboardLeads = lazy(() => import("./pages/dashboard/DashboardLeads"));
 const DashboardEmails = lazy(() => import("./pages/dashboard/DashboardEmails"));
 const DashboardProfile = lazy(() => import("./pages/dashboard/DashboardProfile"));
-const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling"));
-const DashboardMessages = lazy(() => import("./pages/dashboard/DashboardMessages"));
 const DashboardProjectDocuments = lazy(() => import("./pages/dashboard/DashboardProjectDocuments"));
-const DashboardLeadOnboard = lazy(() => import("./pages/dashboard/DashboardLeadOnboard"));
 const ListingForm = lazy(() => import("./pages/dashboard/ListingForm"));
 const DashboardMarketingHub = lazy(() => import("./pages/dashboard/DashboardMarketingHub"));
 const DashboardEmailBuilder = lazy(() => import("./pages/dashboard/DashboardEmailBuilder"));
@@ -332,13 +329,14 @@ const App = () => (
             <Route path="/dashboard/decks" element={<ProtectedRoute><DashboardDecks /></ProtectedRoute>} />
             <Route path="/dashboard/decks/new" element={<ProtectedRoute><DashboardDeckBuilder /></ProtectedRoute>} />
             <Route path="/dashboard/decks/:id/edit" element={<ProtectedRoute><DashboardDeckBuilder /></ProtectedRoute>} />
-            <Route path="/dashboard/messages" element={<ProtectedRoute><DashboardMessages /></ProtectedRoute>} />
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
             <Route path="/dashboard/emails" element={<ProtectedRoute><DashboardEmails /></ProtectedRoute>} />
-            <Route path="/dashboard/lead-onboard" element={<ProtectedRoute><DashboardLeadOnboard /></ProtectedRoute>} />
             <Route path="/dashboard/marketing-hub" element={<ProtectedRoute><DashboardMarketingHub /></ProtectedRoute>} />
             <Route path="/dashboard/email-builder" element={<ProtectedRoute><DashboardEmailBuilder /></ProtectedRoute>} />
-            <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
+            {/* Legacy redirects for removed pages */}
+            <Route path="/dashboard/messages" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard/lead-onboard" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard/billing" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
             
             {/* For Agents Marketing Page */}
