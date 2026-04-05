@@ -191,6 +191,9 @@ export function ExitIntentPopup() {
         projectUrl: window.location.href,
       });
 
+      // Auto-response email (will skip gracefully if no project_id)
+      supabase.functions.invoke("send-lead-autoresponse", { body: { leadId } }).catch(console.error);
+
       trackFormSubmit({ form_name: "exit_intent_guide", form_location: "exit_popup", email: data.email });
 
       MetaEvents.lead({ content_name: "Exit Intent Guide", content_category: "lead_magnet" });

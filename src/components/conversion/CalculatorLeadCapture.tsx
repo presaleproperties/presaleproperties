@@ -6,8 +6,10 @@ import { Mail, ArrowRight, User, Phone, CheckCircle2, FileText, Loader2, Calenda
 import { formatPhoneNumber } from "@/lib/formatPhone";
 import { supabase } from "@/integrations/supabase/client";
 import { upsertProjectLead } from "@/lib/upsertProjectLead";
+import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 import { toast } from "sonner";
 import { z } from "zod";
+import { MetaEvents } from "@/components/tracking/MetaPixel";
 
 const leadSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -64,7 +66,7 @@ export function CalculatorLeadCapture({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  const { submitLead } = useLeadSubmission();
   const config = CALCULATOR_CONFIG[calculatorData.calculatorType];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,7 +111,39 @@ export function CalculatorLeadCapture({
         utm_campaign: utmCampaign,
       });
 
-      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
+      // Lead scoring & tracking enrichment
+      submitLead({
+        leadId,
+        firstName: formData.name.trim().split(" ")[0],
+        lastName: formData.name.trim().split(" ").slice(1).join(" "),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        formType: calculatorData.calculatorType === "roi" ? "calculator_roi" : "calculator_mortgage",
+        projectUrl: window.location.href,
+        message: `${calculatorData.calculatorType === "roi" ? "ROI" : "Mortgage"} Calculator Analysis`,
+      });
+
+      // Auto-response email
+      supabase.functions.invoke("send-lead-autoresponse", { body: { leadId } }).catch(console.error);
+
+      // Meta CAPI
+      supabase.functions.invoke("meta-conversions-api", {
+        body: {
+          event_name: "Lead",
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          first_name: formData.name.trim().split(" ")[0],
+          last_name: formData.name.trim().split(" ").slice(1).join(" "),
+          event_source_url: window.location.href,
+          content_name: `${calculatorData.calculatorType} Calculator`,
+          content_category: "calculator",
+          client_user_agent: navigator.userAgent,
+          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+        },
+      }).catch(console.error);
+
+      MetaEvents.lead({ content_name: `${calculatorData.calculatorType} Calculator`, content_category: "calculator" });
 
       onTrackEvent?.(config.eventName);
       localStorage.setItem("pp_form_submitted", "true");
