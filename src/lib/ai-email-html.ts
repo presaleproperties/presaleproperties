@@ -231,7 +231,7 @@ function buildAiFinalHtml({
   <tr><td style="background:${DARK};padding:0 36px 28px;">
     <table cellpadding="0" cellspacing="0" border="0"><tr>
       <td style="background:${ACCENT};padding:13px 32px;">
-        <a href="https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the floor plans for ${fields.projectName || "this project"}. Can you send me more details?`)}" style="font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">I'M INTERESTED →</a>
+        <a href="tel:16722581100" style="font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;font-weight:600;">CALL NOW →</a>
       </td>
     </tr></table>
   </td></tr>`;

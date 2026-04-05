@@ -178,9 +178,6 @@ ${docs.map(d => `<table cellpadding="0" cellspacing="0" border="0" width="100%" 
 }
 
 function buildTemplateA(project: ProjectData, firstName: string, agent: AgentData): string {
-  const whatsappNumber = "16722581100";
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi! I'm interested in ${project.name}. Can you share more details?`)}`;
-
   const subjectLine = `${project.name} — Your Requested Floor Plans & Details`;
 
   return emailShell(`
@@ -194,16 +191,10 @@ ${statsBar(project)}
 </table>
 </td></tr>
 ${docButtons(project)}
-<tr><td class="content-pad" style="padding:0 40px 12px;background:#ffffff;">
-<table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-<td class="cta-td" align="center" style="background:#25D366;border-radius:50px;padding:18px 32px;text-align:center;">
-<a href="${whatsappLink}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">HAVE QUESTIONS? CHAT NOW</a>
-</td></tr></table>
-</td></tr>
 <tr><td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
 <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-<td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
-<a href="tel:${agent.phone.replace(/\D/g, "")}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${DARK};text-decoration:none;display:block;">CALL NOW &nbsp; ${agent.phone}</a>
+<td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
+<a href="tel:${agent.phone.replace(/\D/g, "")}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">CALL NOW &nbsp; ${agent.phone}</a>
 </td></tr></table>
 </td></tr>
 ${agentCard(agent, project.city)}`,
@@ -212,8 +203,6 @@ ${agentCard(agent, project.city)}`,
 }
 
 function buildTemplateB(project: ProjectData, firstName: string, agent: AgentData, projectUrl?: string): string {
-  const whatsappNumber = "16722581100";
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi! I'm interested in ${project.name}. Can you tell me more?`)}`;
   const subjectLine = `${project.name} — We'll Be in Touch Shortly`;
 
   return emailShell(`
@@ -235,16 +224,10 @@ ${statsBar(project)}
 </td></tr>
 </table>
 </td></tr>
-<tr><td class="content-pad" style="padding:0 40px 12px;background:#ffffff;">
-<table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-<td class="cta-td" align="center" style="background:#25D366;border-radius:50px;padding:18px 32px;text-align:center;">
-<a href="${whatsappLink}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">CHAT NOW</a>
-</td></tr></table>
-</td></tr>
 <tr><td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
 <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-<td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
-<a href="tel:${agent.phone.replace(/\D/g, "")}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${DARK};text-decoration:none;display:block;">CALL NOW &nbsp; ${agent.phone}</a>
+<td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
+<a href="tel:${agent.phone.replace(/\D/g, "")}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">CALL NOW &nbsp; ${agent.phone}</a>
 </td></tr></table>
 </td></tr>
 ${agentCard(agent, project.city)}`,
