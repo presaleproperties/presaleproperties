@@ -114,6 +114,7 @@ serve(async (req) => {
             subject,
             status: "queued",
             template_type: "builder_send",
+            sent_by: user.id,
           })
           .select("id, tracking_id")
           .single();
