@@ -386,7 +386,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // Layout version
-  const [layoutVersion, setLayoutVersion] = useState<"modern" | "editorial">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "editorial");
+  const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial");
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
