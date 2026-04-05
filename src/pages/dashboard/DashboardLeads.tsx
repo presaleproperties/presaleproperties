@@ -44,6 +44,7 @@ import {
   Tag,
   X,
   Plus,
+  Trash2,
 } from "lucide-react";
 import { format, subDays, isAfter } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -165,7 +166,23 @@ export default function DashboardLeads() {
     }
   };
 
-  const handleAddTag = async (leadId: string, tag: string) => {
+  const handleDeleteLead = async (leadId: string) => {
+    if (!confirm("Are you sure you want to delete this lead?")) return;
+    const prev = [...onboardedLeads];
+    setOnboardedLeads((leads) => leads.filter((l) => l.id !== leadId));
+    const { error } = await supabase
+      .from("onboarded_leads")
+      .delete()
+      .eq("id", leadId);
+    if (error) {
+      setOnboardedLeads(prev);
+      toast.error("Failed to delete lead");
+    } else {
+      toast.success("Lead deleted");
+    }
+  };
+
+
     const trimmed = tag.trim();
     if (!trimmed) return;
     const lead = onboardedLeads.find((l) => l.id === leadId);
@@ -619,6 +636,13 @@ export default function DashboardLeads() {
                                           </a>
                                         </DropdownMenuItem>
                                       )}
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        onClick={() => handleDeleteLead(lead.id)}
+                                        className="text-destructive focus:text-destructive"
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                                      </DropdownMenuItem>
                                     </DropdownMenuContent>
                                   </DropdownMenu>
                                 </td>
@@ -700,6 +724,13 @@ export default function DashboardLeads() {
                                         </a>
                                       </DropdownMenuItem>
                                     )}
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      onClick={() => handleDeleteLead(lead.id)}
+                                      className="text-destructive focus:text-destructive"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                                    </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
                               </div>
