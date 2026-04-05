@@ -696,7 +696,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
-    savedTemplateId, projectUrl,
+    savedTemplateId, projectUrl, brochureUrl, floorplanUrl,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
