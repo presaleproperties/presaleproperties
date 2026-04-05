@@ -29,6 +29,7 @@ interface ProjectData {
   price_range?: string;
   starting_price?: number;
   deposit_structure?: string;
+  deposit_percent?: number;
   completion_year?: number;
   completion_month?: number;
   slug?: string;
