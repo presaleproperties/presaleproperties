@@ -65,7 +65,7 @@ function getTemplateName(tpl: EmailTemplate): string {
   return tpl.form_data?.copy?.subjectLine || tpl.name;
 }
 
-export function LeadOnboardHub() {
+export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
   const { user } = useAuth();
   const isMobile = useIsMobile();
 
