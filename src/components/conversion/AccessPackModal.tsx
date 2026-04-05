@@ -193,6 +193,9 @@ export function AccessPackModal({
         message: messageData,
       });
 
+      // Fire auto-response email (Template A for buyers without agent, Template B otherwise)
+      supabase.functions.invoke("send-lead-autoresponse", { body: { leadId, projectId } }).catch(console.error);
+
       trackFormSubmit({
         form_name: variant === "floorplans" ? "access_pack" : variant === "general_interest" ? "general_interest" : "callback_request",
         form_location: "access_pack_modal",

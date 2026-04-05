@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { trackFormStart, trackFormSubmit, getVisitorId } from "@/lib/tracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { upsertProjectLead } from "@/lib/upsertProjectLead";
+import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 
 interface LeadMagnetProps {
   projectId?: string;
@@ -318,20 +320,19 @@ export function ROIAnalysisButton({ projectId, projectName, startingPrice, city 
 }
 
 // Tier 3: High Commitment - Consultation Request
-export function ConsultationButton({ projectName }: LeadMagnetProps) {
+export function ConsultationButton({ projectName, projectId }: LeadMagnetProps) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { submitLead } = useLeadSubmission();
 
   const handleSubmit = async () => {
     if (!formData.email || !formData.phone || !formData.name) return;
     setIsSubmitting(true);
 
     try {
-      const leadId = crypto.randomUUID();
-      await supabase.from("project_leads").insert({
-        id: leadId,
+      const leadId = await upsertProjectLead({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -340,12 +341,43 @@ export function ConsultationButton({ projectName }: LeadMagnetProps) {
         lead_source: "consultation",
         persona: "investor",
         visitor_id: getVisitorId(),
+        project_id: projectId || null,
       });
 
-      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
+      // Lead scoring & tracking enrichment
+      submitLead({
+        leadId,
+        firstName: formData.name.split(" ")[0],
+        lastName: formData.name.split(" ").slice(1).join(" "),
+        email: formData.email,
+        phone: formData.phone,
+        formType: "consultation",
+        projectName: projectName || "",
+        projectUrl: window.location.href,
+        message: `Consultation request${projectName ? ` for ${projectName}` : ""}`,
+      });
+
+      // Auto-response email
+      supabase.functions.invoke("send-lead-autoresponse", { body: { leadId, projectId } }).catch(console.error);
 
       trackFormSubmit({ form_name: "consultation", form_location: "project_detail", email: formData.email, first_name: formData.name });
       MetaEvents.lead({ content_name: "Consultation", content_category: "high_intent" });
+
+      supabase.functions.invoke("meta-conversions-api", {
+        body: {
+          event_name: "Lead",
+          email: formData.email,
+          phone: formData.phone,
+          first_name: formData.name.split(" ")[0],
+          last_name: formData.name.split(" ").slice(1).join(" "),
+          event_source_url: window.location.href,
+          content_name: "Consultation",
+          content_category: "high_intent",
+          client_user_agent: navigator.userAgent,
+          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+        },
+      }).catch(console.error);
 
       setOpen(false);
       toast({ title: "Consultation requested!", description: "We'll call you within 24 hours." });
