@@ -103,15 +103,15 @@ export function DeckContactSection({
   const hasMore = reviews.length > REVIEWS_VISIBLE;
 
   return (
-    <section id="contact" className="relative py-16 sm:py-24 bg-muted/10">
+    <section id="contact" className="relative py-16 sm:py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         <div className="mb-10 space-y-2">
-          <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em]">08 — Your Next Step</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+          <p className="text-primary text-[11px] font-bold uppercase tracking-[0.25em]">08 — Your Next Step</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
             We Hand-Picked This For You
           </h2>
-          <p className="text-muted-foreground text-base max-w-xl">
+          <p className="text-muted-foreground text-[15px] max-w-xl">
             This deck was put together specifically for you — pricing and floor plans before anyone else. Message us to hold a unit or ask anything.
           </p>
         </div>
