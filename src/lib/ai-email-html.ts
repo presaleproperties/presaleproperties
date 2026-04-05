@@ -122,6 +122,30 @@ function buildAiFinalHtml({
   deckParking?: string;
   deckLocker?: string;
 }): string {
+  if (layoutVersion === "editorial") {
+    const slides = (loopSlides && loopSlides.length > 0)
+      ? loopSlides.filter(Boolean)
+      : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
+    return buildEditorialEmailHtml({
+      projectName: fields.projectName || "",
+      city: fields.city,
+      developerName: fields.developerName,
+      heroImage: heroImage || undefined,
+      headline: fields.headline,
+      bodyCopy: fields.bodyCopy,
+      subjectLine: fields.subjectLine,
+      previewText: fields.previewText,
+      startingPrice: fields.startingPrice,
+      deposit: fields.deposit,
+      completion: fields.completion,
+      infoRows: fields.infoRows,
+      incentiveText: fields.incentiveText,
+      deckUrl: deckUrl || undefined,
+      projectUrl: fields.projectUrl || undefined,
+      loopSlides: slides,
+    }, agent);
+  }
+
   if (layoutVersion === "modern") {
     return buildLululemonEmailHtml({
       projectName: fields.projectName || "",
