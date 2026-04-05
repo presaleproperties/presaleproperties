@@ -167,7 +167,7 @@ export default function DashboardLeads() {
   };
 
   const handleDeleteLead = async (leadId: string) => {
-    if (!confirm("Are you sure you want to delete this lead?")) return;
+    
     const prev = [...onboardedLeads];
     setOnboardedLeads((leads) => leads.filter((l) => l.id !== leadId));
     const { error } = await supabase
