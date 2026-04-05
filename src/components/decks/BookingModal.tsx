@@ -29,15 +29,13 @@ export function BookingModal({ open, onClose, projectName, agentEmail }: Booking
     if (!name || !phone || !email) return;
     setLoading(true);
     try {
-      await (supabase as any).from("project_leads").insert({
+      await upsertProjectLead({
         name,
         phone,
         email,
         message,
         form_type: "deck_booking",
-        project_name: projectName,
         lead_source: "pitch_deck_booking",
-        lead_status: "new",
         landing_page: window.location.href,
       });
       setDone(true);
