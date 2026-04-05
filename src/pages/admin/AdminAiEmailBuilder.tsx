@@ -1240,7 +1240,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
         {/* ── Top bar ── */}
         <div className="flex items-center gap-2 min-w-0">
-          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate(fromDeck ? "/dashboard/decks" : "/admin/marketing-hub")}>
+          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate(fromDeck ? "/dashboard/decks" : agentMode ? "/dashboard/marketing-hub" : "/admin/marketing-hub")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-sm shrink-0">
