@@ -45,6 +45,7 @@ const Login = lazy(() => import("./pages/Login"));
 const DashboardOverview = lazy(() => import("./pages/dashboard/DashboardOverview"));
 const DashboardListings = lazy(() => import("./pages/dashboard/DashboardListings"));
 const DashboardLeads = lazy(() => import("./pages/dashboard/DashboardLeads"));
+const DashboardEmails = lazy(() => import("./pages/dashboard/DashboardEmails"));
 const DashboardProfile = lazy(() => import("./pages/dashboard/DashboardProfile"));
 const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling"));
 const DashboardMessages = lazy(() => import("./pages/dashboard/DashboardMessages"));
