@@ -1608,40 +1608,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
 
-  <!-- ── WHAT'S INCLUDED ── -->
-  ${incentiveLines.length > 0 ? `
-  <tr>
-    <td class="content-pad" style="padding:0 40px 36px;background:#ffffff;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
-        <tr><td style="padding:0 0 20px 0;">
-          <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
-        </td></tr>
-      </table>
-      <table cellpadding="0" cellspacing="0" border="0" width="100%">
-        ${incentiveLines.map((item, i) => `
-        <tr>
-          <td style="padding:0 0 ${i < incentiveLines.length - 1 ? '10' : '0'}px 0;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;border-radius:8px;border-left:3px solid ${ACCENT};">
-              <tr>
-                <td style="padding:14px 18px;">
-                  <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                    <tr>
-                      <td valign="middle" width="28" style="width:28px;vertical-align:middle;">
-                        <p style="margin:0;font-size:16px;line-height:1;">✦</p>
-                      </td>
-                      <td valign="middle" style="vertical-align:middle;">
-                        <p style="margin:0;font-family:${F};font-size:14px;font-weight:600;color:${DARK};line-height:1.5;">${item}</p>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>`).join("")}
-      </table>
-    </td>
-  </tr>` : ""}
 
   <!-- ── FLOOR PLANS ── -->
   ${fps.length > 0 ? `
