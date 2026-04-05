@@ -103,13 +103,13 @@ export function DeckDepositTimelineSection({
 
       {/* Header */}
       <div className="mb-10">
-        <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em] mb-3">
+        <p className="text-primary text-[11px] font-bold uppercase tracking-[0.25em] mb-3">
           05 — Payment Plan
         </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
+        <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
           Deposit Structure
         </h2>
-        <p className="text-muted-foreground text-base mt-2">
+        <p className="text-muted-foreground text-[15px] mt-2">
           No payments during construction — here's exactly when money moves.
         </p>
       </div>
