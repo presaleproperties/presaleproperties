@@ -130,6 +130,95 @@ function projectDetailsCta(opts: { projectUrl?: string; projectName?: string; de
   </tr>`;
 }
 
+/** Generate document CTA buttons (brochure / floor plans) — only renders when URLs are present */
+function docCtaButtons(opts: {
+  brochureUrl?: string; floorplanUrl?: string; deckUrl?: string;
+  font: string; accent: string; dark: string;
+  style?: "gold-fill" | "pill" | "outline";
+}): string {
+  const { brochureUrl, floorplanUrl, deckUrl, font: F, accent: ACCENT, dark: DARK } = opts;
+  // Determine which doc URLs are available
+  const hasFloorplan = !!(floorplanUrl || deckUrl);
+  const floorplanHref = floorplanUrl || deckUrl || "";
+  const hasBrochure = !!brochureUrl;
+  if (!hasFloorplan && !hasBrochure) return "";
+
+  const style = opts.style || "pill";
+
+  if (style === "gold-fill") {
+    // Classic template style — gold background, dark text
+    const buttons: string[] = [];
+    if (hasBrochure) {
+      buttons.push(`<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:${hasFloorplan ? '10px' : '14px'};">
+        <tr><td align="center" style="background:${ACCENT};padding:18px 24px;text-align:center;">
+          <a href="${brochureUrl}" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${DARK};text-decoration:none;display:block;line-height:1;">VIEW BROCHURE &nbsp;→</a>
+        </td></tr></table>`);
+    }
+    if (hasFloorplan) {
+      buttons.push(`<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
+        <tr><td align="center" style="background:${hasBrochure ? DARK : ACCENT};padding:18px 24px;text-align:center;">
+          <a href="${floorplanHref}" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${hasBrochure ? '#ffffff' : DARK};text-decoration:none;display:block;line-height:1;">VIEW FLOOR PLANS &nbsp;→</a>
+        </td></tr></table>`);
+    }
+    return buttons.join("\n      ");
+  }
+
+  if (style === "pill") {
+    // Modern template style — pill buttons
+    const buttons: string[] = [];
+    if (hasBrochure) {
+      buttons.push(`<tr>
+    <td class="content-pad" style="padding:${hasFloorplan ? '28px 40px 8px' : '28px 40px 14px'};background:#ffffff;">
+      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+        <td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
+          <a href="${brochureUrl}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;white-space:nowrap;">VIEW BROCHURE</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`);
+    }
+    if (hasFloorplan) {
+      buttons.push(`<tr>
+    <td class="content-pad" style="padding:${hasBrochure ? '8px 40px 14px' : '28px 40px 14px'};background:#ffffff;">
+      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+        <td class="cta-td" align="center" style="background:${hasBrochure ? DARK : ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
+          <a href="${floorplanHref}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${hasBrochure ? ACCENT : '#ffffff'};text-decoration:none;display:block;white-space:nowrap;">VIEW FLOOR PLANS</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`);
+    }
+    return buttons.join("\n  ");
+  }
+
+  // outline style (editorial)
+  const buttons: string[] = [];
+  if (hasBrochure) {
+    buttons.push(`<tr>
+    <td class="content-pad" style="padding:28px 40px ${hasFloorplan ? '8px' : '8px'};background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${ACCENT};border-radius:6px;overflow:hidden;"><tr>
+        <td align="center" style="padding:16px 24px;background:#ffffff;">
+          <a href="${brochureUrl}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;line-height:1;">VIEW BROCHURE &nbsp;→</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`);
+  }
+  if (hasFloorplan) {
+    buttons.push(`<tr>
+    <td class="content-pad" style="padding:${hasBrochure ? '8px' : '28px'} 40px 8px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${ACCENT};border-radius:6px;overflow:hidden;"><tr>
+        <td align="center" style="padding:16px 24px;background:#ffffff;">
+          <a href="${floorplanHref}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;line-height:1;">VIEW FLOOR PLANS &nbsp;→</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`);
+  }
+  return buttons.join("\n  ");
+}
+
+
 export interface EmailFontPairing {
   id: string;
   label: string;
@@ -557,6 +646,10 @@ export interface PitchDeckEmailData {
   deckUrl?: string;
   /** URL to the project page on presaleproperties.com */
   projectUrl?: string;
+  /** URL to the brochure PDF — shows "VIEW BROCHURE" CTA when present */
+  brochureUrl?: string;
+  /** URL to the floor plans / pricing PDF — shows "VIEW FLOOR PLANS" CTA when present */
+  floorplanUrl?: string;
 }
 
 export function buildPitchDeckEmailHtml(
@@ -1256,7 +1349,9 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${(fps.length > 0 && deckLink) ? `
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+
+  ${(fps.length > 0 && deckLink && !data.floorplanUrl) ? `
   <!-- ── VIEW MORE PLANS CTA ── -->
   <tr>
     <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;text-align:center;">
@@ -1616,22 +1711,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
 
-
-  <!-- ── PRIMARY CTA: VIEW FLOOR PLANS ── -->
-  <tr>
-    <td class="content-pad" style="padding:28px 40px 14px;background:#ffffff;">
-      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%">
-        <tr>
-          <td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
-            <a href="${deckLink || `https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName || "this presale"}. Can you send me the floor plans?`)}`}"
-               style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;white-space:nowrap;">
-              VIEW FLOOR PLANS
-            </a>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
@@ -1908,8 +1988,11 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  <!-- ── PROJECT DETAILS CTA ── -->
-  ${projectUrl ? `
+  <!-- ── DOCUMENT CTAs ── -->
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
+
+  ${(!data.brochureUrl && !data.floorplanUrl && !data.deckUrl && projectUrl) ? `
+  <!-- ── PROJECT DETAILS CTA (fallback) ── -->
   <tr>
     <td class="content-pad" style="padding:28px 40px 8px;background:#ffffff;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${OLIVE};border-radius:6px;overflow:hidden;">
@@ -1917,7 +2000,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
           <td align="center" style="padding:16px 24px;background:#ffffff;">
             <a href="${projectUrl}" target="_blank"
                style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${OLIVE};text-decoration:none;display:block;line-height:1;">
-              VIEW FLOOR PLANS &nbsp;→
+              VIEW PROJECT DETAILS &nbsp;→
             </a>
           </td>
         </tr>

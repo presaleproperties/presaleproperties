@@ -105,6 +105,8 @@ function buildAiFinalHtml({
   deckUrl,
   deckParking,
   deckLocker,
+  brochureUrl,
+  floorplanUrl,
 }: {
   fields: AiEmailCopy;
   agent: AgentInfo;
@@ -120,6 +122,8 @@ function buildAiFinalHtml({
   deckUrl?: string;
   deckParking?: string;
   deckLocker?: string;
+  brochureUrl?: string;
+  floorplanUrl?: string;
 }): string {
   if (layoutVersion === "editorial") {
     const slides = (loopSlides && loopSlides.length > 0)
@@ -141,6 +145,8 @@ function buildAiFinalHtml({
       incentiveText: fields.incentiveText,
       deckUrl: deckUrl || undefined,
       projectUrl: fields.projectUrl || undefined,
+      brochureUrl,
+      floorplanUrl,
       loopSlides: slides,
     }, agent);
   }
@@ -161,6 +167,8 @@ function buildAiFinalHtml({
       infoRows: fields.infoRows,
       incentiveText: fields.incentiveText,
       deckUrl: deckUrl || undefined,
+      brochureUrl,
+      floorplanUrl,
       floorPlans: floorPlans.filter((fp) => fp.url).map((fp) => ({
         id: fp.id || "",
         url: fp.url || "",
@@ -259,6 +267,8 @@ export function buildAiTemplateHtmlFromFormData(formData: any, agentOverride?: P
     deckUrl,
     deckParking,
     deckLocker,
+    brochureUrl: formData?.brochureUrl || undefined,
+    floorplanUrl: formData?.floorplanUrl || undefined,
   });
 }
 

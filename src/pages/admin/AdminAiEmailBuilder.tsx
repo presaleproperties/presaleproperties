@@ -91,6 +91,8 @@ function buildFinalHtml(
   layoutVersion?: "modern" | "modern-v2" | "editorial",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
+  brochureUrl?: string,
+  floorplanUrl?: string,
 ): string {
   // ── EDITORIAL template ────────────────────────────────────────────────────
   if (layoutVersion === "editorial") {
@@ -114,6 +116,8 @@ function buildFinalHtml(
       incentiveText:  fields.incentiveText,
       deckUrl:        saved?._deckUrl || undefined,
       projectUrl:     fields.projectUrl || saved?._projectUrl || undefined,
+      brochureUrl,
+      floorplanUrl,
       loopSlides:     slides,
     }, agent);
   }
@@ -135,6 +139,8 @@ function buildFinalHtml(
       infoRows:       fields.infoRows,
       incentiveText:  fields.incentiveText,
       deckUrl:        saved?._deckUrl || undefined,
+      brochureUrl,
+      floorplanUrl,
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
@@ -165,6 +171,8 @@ function buildFinalHtml(
       infoRows:       fields.infoRows,
       incentiveText:  fields.incentiveText,
       deckUrl:        saved?._deckUrl || undefined,
+      brochureUrl,
+      floorplanUrl,
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
@@ -374,6 +382,10 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [imageCards,    setImageCards]    = useState<ImageCardEntry[]>(savedDraft?.imageCards ?? []);
   const [imgCardUploading, setImgCardUploading] = useState(false);
 
+  // Document URLs (auto-populated from project or manually set)
+  const [brochureUrl,  setBrochureUrl]  = useState(savedDraft?.brochureUrl ?? "");
+  const [floorplanUrl, setFloorplanUrl] = useState(savedDraft?.floorplanUrl ?? "");
+
   // Campaign assets
   const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
   const [selectedAssetId,  setSelectedAssetId]  = useState<string>(savedDraft?.selectedAssetId ?? "none");
@@ -458,6 +470,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setLoopSlides(d.loopSlides ?? []);
     setSelectedAssetId(d.selectedAssetId ?? "none");
     setDirectCtaUrl(d.directCtaUrl ?? "");
+    setBrochureUrl(d.brochureUrl ?? "");
+    setFloorplanUrl(d.floorplanUrl ?? "");
     if (d.selAgent) setSelAgent(d.selAgent);
     if (d.fontId) setSelectedFontId(d.fontId);
     if (d.layoutVersion) setLayoutVersion(d.layoutVersion);
@@ -653,7 +667,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         subjectLine, previewText, headline, bodyCopy, incentiveText,
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
-        layoutVersion,
+        layoutVersion, brochureUrl, floorplanUrl,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -684,7 +698,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
-    savedTemplateId, projectUrl,
+    savedTemplateId, projectUrl, brochureUrl, floorplanUrl,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
@@ -701,19 +715,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl, floorplanUrl]);
 
   // finalHtml used only for copy/save — always reflects latest state
-  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides);
+  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined);
 
   // ── AI generation ─────────────────────────────────────────────────────────────
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
@@ -809,12 +823,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     }
     if (gallerySlides.length > 0) setLoopSlides(gallerySlides);
 
+    // ── Auto-set document URLs from project ──────────────────────────────────
+    const projBrochure = p.brochure_files?.find(f => f) || "";
+    const projFloorplan = p.pricing_sheets?.find(f => f) || p.floorplan_files?.find(f => f) || "";
+    setBrochureUrl(projBrochure);
+    setFloorplanUrl(projFloorplan);
+
     // ── Auto-set CTA URL: brochure → pricing sheet → first floor plan ──────────
-    const ctaDocUrl =
-      p.brochure_files?.find(f => f) ||
-      p.pricing_sheets?.find(f => f) ||
-      p.floorplan_files?.find(f => f) ||
-      "";
+    const ctaDocUrl = projBrochure || projFloorplan || "";
     if (ctaDocUrl) {
       setDirectCtaUrl(ctaDocUrl);
       setSelectedAssetId("none");
@@ -1126,6 +1142,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       imageCards, loopSlides, selectedAssetId, directCtaUrl,
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
+      brochureUrl, floorplanUrl,
       ...savedDeckMeta,
       finalHtml,
     };
