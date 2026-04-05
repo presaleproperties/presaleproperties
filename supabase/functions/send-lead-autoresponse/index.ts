@@ -27,6 +27,7 @@ interface ProjectData {
   developer_name?: string;
   featured_image?: string;
   price_range?: string;
+  starting_price?: number;
   deposit_structure?: string;
   completion_year?: number;
   completion_month?: number;
