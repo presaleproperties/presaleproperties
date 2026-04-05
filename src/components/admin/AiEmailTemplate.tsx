@@ -1801,11 +1801,6 @@ export function buildEditorialEmailHtml(
     return `<div style="position:relative;overflow:hidden;">${layers}</div>`;
   })() : "";
 
-  // ── Starting price highlight ──────────────────────────────────────────────
-  const startingPriceHtml = data.startingPrice
-    ? `<p style="margin:0 0 24px 0;font-family:${F};font-size:28px;font-weight:800;color:${OLIVE};line-height:1.2;letter-spacing:-0.5px;">${data.startingPrice.includes("Starting") ? data.startingPrice : `Starting from ${data.startingPrice}`} + GST</p>`
-    : "";
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1885,14 +1880,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   <tr>
     <td class="content-pad" style="padding:24px 40px 8px;background:${CREAM};">
       ${bodyRows}
-    </td>
-  </tr>` : ""}
-
-  <!-- ── STARTING PRICE CALLOUT ── -->
-  ${startingPriceHtml ? `
-  <tr>
-    <td class="content-pad" style="padding:8px 40px 24px;background:${CREAM};">
-      ${startingPriceHtml}
     </td>
   </tr>` : ""}
 
