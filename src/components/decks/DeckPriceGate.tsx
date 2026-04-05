@@ -45,10 +45,8 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
       const visitorId = getVisitorId();
       const sessionId = getSessionId();
       const utmData = getUtmDataForSubmission();
-      const leadId = crypto.randomUUID();
 
-      const { error } = await (supabase as any).from("project_leads").insert({
-        id: leadId,
+      const leadId = await upsertProjectLead({
         name: fullName.trim(),
         email: email.trim().toLowerCase(),
         phone: verPhone,
@@ -72,13 +70,25 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
         landing_page: utmData.landing_page,
       });
 
-      if (error) throw error;
+      // Lead scoring & tracking enrichment
+      submitLead({
+        leadId,
+        firstName: fullName.trim().split(" ")[0],
+        lastName: fullName.trim().split(" ").slice(1).join(" "),
+        email: email.trim().toLowerCase(),
+        phone: verPhone,
+        formType: "deck_gate",
+        projectName,
+        projectUrl: window.location.href,
+        message: `Pitch Deck: ${projectName}`,
+      });
+
+      // Auto-response email (Template A/B based on buyer vs agent)
+      supabase.functions.invoke("send-lead-autoresponse", { body: { leadId, projectId } }).catch(console.error);
 
       supabase.functions.invoke("send-whatsapp-notification", {
         body: { leadName: fullName.trim(), leadPhone: verPhone, leadEmail: email.trim().toLowerCase(), projectName, deckSlug: slug },
       }).catch(console.error);
-
-      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 
       supabase.functions.invoke("trigger-workflow", {
         body: {
