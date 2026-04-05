@@ -1801,11 +1801,6 @@ export function buildEditorialEmailHtml(
     return `<div style="position:relative;overflow:hidden;">${layers}</div>`;
   })() : "";
 
-  // ── Starting price highlight ──────────────────────────────────────────────
-  const startingPriceHtml = data.startingPrice
-    ? `<p style="margin:0 0 24px 0;font-family:${F};font-size:28px;font-weight:800;color:${OLIVE};line-height:1.2;letter-spacing:-0.5px;">${data.startingPrice.includes("Starting") ? data.startingPrice : `Starting from ${data.startingPrice}`} + GST</p>`
-    : "";
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
