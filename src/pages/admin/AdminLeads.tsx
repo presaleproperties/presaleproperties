@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, startOfDay } from "date-fns";
 import { Link } from "react-router-dom";
@@ -23,6 +23,13 @@ import {
   PhoneCall,
   Star,
   Circle,
+  MoreVertical,
+  Trash2,
+  Plus,
+  X,
+  Flame,
+  Thermometer,
+  Snowflake,
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
@@ -31,7 +38,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -50,6 +56,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -145,377 +152,39 @@ const getAgentLabel = (status: string | null) => {
 
 const STATUS_CONFIG: Record<
   LeadStatus,
-  { label: string; color: string; dotColor: string; icon: React.ReactNode }
+  { label: string; color: string; dotColor: string; badgeCn: string }
 > = {
   new: {
     label: "New",
     color: "bg-secondary text-secondary-foreground border-secondary",
     dotColor: "bg-primary",
-    icon: <Circle className="h-3 w-3" />,
+    badgeCn: "border-border bg-secondary text-secondary-foreground",
   },
   contacted: {
     label: "Contacted",
     color: "bg-secondary text-foreground border-border",
     dotColor: "bg-foreground/50",
-    icon: <PhoneCall className="h-3 w-3" />,
+    badgeCn: "border-border bg-muted text-foreground",
   },
   qualified: {
     label: "Qualified",
     color: "bg-primary/10 text-primary border-primary/20",
     dotColor: "bg-primary",
-    icon: <Star className="h-3 w-3" />,
+    badgeCn: "border-primary/20 bg-primary/10 text-primary",
   },
   converted: {
     label: "Converted",
     color: "bg-primary/20 text-primary border-primary/30",
     dotColor: "bg-primary",
-    icon: <CheckCircle2 className="h-3 w-3" />,
+    badgeCn: "border-primary/30 bg-primary/20 text-primary",
   },
   dead: {
     label: "Dead",
     color: "bg-muted text-muted-foreground border-border",
     dotColor: "bg-muted-foreground",
-    icon: <XCircle className="h-3 w-3" />,
+    badgeCn: "border-border bg-muted text-muted-foreground",
   },
 };
-
-function IntentDot({ score }: { score: number | null }) {
-  if (score === null) return null;
-  const color =
-    score >= 8 ? "bg-green-500" : score >= 5 ? "bg-amber-500" : "bg-muted-foreground/40";
-  return (
-    <span
-      className={`inline-block h-2 w-2 rounded-full shrink-0 ${color}`}
-      title={`Intent score: ${score}`}
-    />
-  );
-}
-
-// ─── Lead Card ────────────────────────────────────────────────────────────────
-
-function ProjectLeadCard({
-  lead,
-  onView,
-  onStatusChange,
-  onNoteSave,
-}: {
-  lead: ProjectLead;
-  onView: () => void;
-  onStatusChange: (id: string, status: LeadStatus, timestamps?: Record<string, string>) => void;
-  onNoteSave: (id: string, notes: string) => void;
-}) {
-  const [noteOpen, setNoteOpen] = useState(false);
-  const [noteText, setNoteText] = useState(lead.admin_notes || "");
-
-  const currentStatus = (lead.lead_status as LeadStatus) || "new";
-  const cfg = STATUS_CONFIG[currentStatus];
-
-  const handleStatusChange = (newStatus: LeadStatus) => {
-    const timestamps: Record<string, string> = {};
-    if (newStatus === "contacted" && !lead.contacted_at) {
-      timestamps.contacted_at = new Date().toISOString();
-    }
-    if (newStatus === "converted" && !lead.converted_at) {
-      timestamps.converted_at = new Date().toISOString();
-    }
-    onStatusChange(lead.id, newStatus, timestamps);
-  };
-
-  const phoneClean = lead.phone?.replace(/\D/g, "") ?? "";
-
-  return (
-    <Card className="group hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          {/* Left content */}
-          <div className="flex-1 min-w-0 space-y-2">
-            {/* Row 1: intent dot + name + date */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <IntentDot score={lead.intent_score} />
-              <h3 className="font-semibold text-foreground">{lead.name}</h3>
-              <span className="text-xs text-muted-foreground">
-                {format(new Date(lead.created_at), "MMM d, yyyy · h:mm a")}
-              </span>
-              {lead.contacted_at && (
-                <span className="text-xs text-muted-foreground">
-                  · Contacted {format(new Date(lead.contacted_at), "MMM d")}
-                </span>
-              )}
-              {lead.converted_at && (
-                <span className="text-xs text-primary font-medium">
-                  · Converted {format(new Date(lead.converted_at), "MMM d")}
-                </span>
-              )}
-            </div>
-
-            {/* Row 2: contact */}
-            <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-              <span className="flex items-center gap-1.5 truncate">
-                <Mail className="h-3.5 w-3.5 shrink-0" />
-                {lead.email}
-              </span>
-              {lead.phone && (
-                <span className="flex items-center gap-1.5">
-                  <Phone className="h-3.5 w-3.5 shrink-0" />
-                  {lead.phone}
-                </span>
-              )}
-            </div>
-
-            {/* Row 3: badges + source tags */}
-            <div className="flex items-center gap-2 flex-wrap">
-              {lead.presale_projects && (
-                <Badge variant="outline" className="gap-1 font-normal text-xs">
-                  <Building2 className="h-3 w-3" />
-                  {lead.presale_projects.name} · {lead.presale_projects.city}
-                </Badge>
-              )}
-              {/* Show all lead sources as tags */}
-              {(lead.lead_sources && lead.lead_sources.length > 0
-                ? lead.lead_sources
-                : lead.lead_source ? [lead.lead_source] : []
-              ).map((src) => (
-                <Badge key={src} variant="secondary" className="text-xs">
-                  {getLeadSourceLabel(src)}
-                </Badge>
-              ))}
-              {lead.persona && (
-                <Badge
-                  variant={lead.persona === "investor" ? "default" : "secondary"}
-                  className="text-xs"
-                >
-                  {getPersonaLabel(lead.persona)}
-                </Badge>
-              )}
-              {lead.home_size && (
-                <Badge variant="outline" className="text-xs">
-                  {getHomeSizeLabel(lead.home_size)}
-                </Badge>
-              )}
-              <Badge
-                variant={lead.agent_status === "i_am_realtor" ? "default" : "outline"}
-                className="text-xs"
-              >
-                {getAgentLabel(lead.agent_status)}
-              </Badge>
-            </div>
-
-            {/* Row 4: inline notes */}
-            {noteOpen ? (
-              <div className="flex items-end gap-2 pt-1">
-                <Textarea
-                  value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
-                  placeholder="Add admin notes..."
-                  className="text-xs min-h-[60px] resize-none"
-                  rows={2}
-                />
-                <div className="flex flex-col gap-1">
-                  <Button
-                    size="sm"
-                    className="h-7 text-xs px-2"
-                    onClick={() => {
-                      onNoteSave(lead.id, noteText);
-                      setNoteOpen(false);
-                    }}
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 text-xs px-2"
-                    onClick={() => {
-                      setNoteText(lead.admin_notes || "");
-                      setNoteOpen(false);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : lead.admin_notes ? (
-              <p
-                className="text-xs text-muted-foreground bg-muted/50 rounded px-2 py-1 cursor-pointer hover:bg-muted"
-                onClick={() => setNoteOpen(true)}
-                title="Click to edit note"
-              >
-                📝 {lead.admin_notes}
-              </p>
-            ) : null}
-          </div>
-
-          {/* Right: status dropdown + actions */}
-          <div className="flex items-center gap-1 shrink-0">
-            {/* Status dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={`h-7 text-xs gap-1.5 border ${cfg.color}`}
-                >
-                  <span className={`h-2 w-2 rounded-full ${cfg.dotColor}`} />
-                  {cfg.label}
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuLabel className="text-xs">Set Status</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {(Object.keys(STATUS_CONFIG) as LeadStatus[]).map((s) => (
-                  <DropdownMenuItem
-                    key={s}
-                    className="text-xs gap-2"
-                    onClick={() => handleStatusChange(s)}
-                  >
-                    <span className={`h-2 w-2 rounded-full ${STATUS_CONFIG[s].dotColor}`} />
-                    {STATUS_CONFIG[s].label}
-                    {s === currentStatus && <CheckCircle2 className="h-3 w-3 ml-auto text-primary" />}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Action buttons */}
-            <div className="flex items-center gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onView} title="View details">
-                <Eye className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => setNoteOpen((v) => !v)}
-                title="Add note"
-              >
-                <MessageSquare className="h-3.5 w-3.5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" asChild title="Email">
-                <a href={`mailto:${lead.email}`}>
-                  <Mail className="h-3.5 w-3.5" />
-                </a>
-              </Button>
-              {lead.phone && (
-                <Button variant="ghost" size="icon" className="h-7 w-7" asChild title="WhatsApp">
-                  <a
-                    href={`https://wa.me/${phoneClean}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                    </svg>
-                  </a>
-                </Button>
-              )}
-              {lead.presale_projects && (
-                <Button variant="ghost" size="icon" className="h-7 w-7" asChild title="View project">
-                  <a
-                    href={generateProjectUrl({
-                      slug: lead.presale_projects.slug,
-                      neighborhood: lead.presale_projects.neighborhood || lead.presale_projects.city,
-                      projectType: (lead.presale_projects.project_type || "condo") as any,
-                    })}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ListingLeadCard({
-  lead,
-  onView,
-}: {
-  lead: ListingLead;
-  onView: () => void;
-}) {
-  return (
-    <Card className="group hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0 space-y-2">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h3 className="font-semibold text-foreground">{lead.name}</h3>
-              <span className="text-xs text-muted-foreground">
-                {format(new Date(lead.created_at), "MMM d, yyyy · h:mm a")}
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-              <span className="flex items-center gap-1.5 truncate">
-                <Mail className="h-3.5 w-3.5 shrink-0" />
-                {lead.email}
-              </span>
-              {lead.phone && (
-                <span className="flex items-center gap-1.5">
-                  <Phone className="h-3.5 w-3.5 shrink-0" />
-                  {lead.phone}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              {lead.listings && (
-                <Badge variant="outline" className="gap-1 font-normal text-xs">
-                  <Home className="h-3 w-3" />
-                  {lead.listings.title}
-                </Badge>
-              )}
-              {lead.message && (
-                <span
-                  className="text-xs text-muted-foreground truncate max-w-[200px]"
-                  title={lead.message}
-                >
-                  "{lead.message}"
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-1 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onView}>
-              <Eye className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-              <a href={`mailto:${lead.email}`}>
-                <Mail className="h-4 w-4" />
-              </a>
-            </Button>
-            {lead.listings && (
-              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                <a
-                  href={`/assignments/${lead.listing_id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="rounded-full bg-muted p-4 mb-4">
-        <Inbox className="h-8 w-8 text-muted-foreground" />
-      </div>
-      <p className="text-muted-foreground">{message}</p>
-    </div>
-  );
-}
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
@@ -528,6 +197,10 @@ export default function AdminLeads() {
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
+
+  // Inline editing
+  const [editingCell, setEditingCell] = useState<{ leadId: string; field: string } | null>(null);
+  const [editingValue, setEditingValue] = useState("");
 
   // ── Queries ──────────────────────────────────────────────────────────────
 
@@ -604,6 +277,39 @@ export default function AdminLeads() {
     onError: () => toast.error("Failed to save note"),
   });
 
+  // ── Inline edit handler ─────────────────────────────────────────────────
+
+  const handleInlineEdit = async (leadId: string, field: string, value: string, table: "project_leads" | "leads") => {
+    setEditingCell(null);
+    const trimmed = value.trim();
+    const updatePayload: Record<string, any> = { [field]: trimmed };
+
+    const { error } = await (supabase as any)
+      .from(table)
+      .update(updatePayload)
+      .eq("id", leadId);
+    if (error) {
+      toast.error("Failed to update");
+    } else {
+      queryClient.invalidateQueries({ queryKey: table === "project_leads" ? ["admin-project-leads"] : ["admin-listing-leads"] });
+    }
+  };
+
+  const handleDeleteLead = async (leadId: string, table: "project_leads" | "leads") => {
+    const { error } = await (supabase as any).from(table).delete().eq("id", leadId);
+    if (error) {
+      toast.error("Failed to delete lead");
+    } else {
+      queryClient.invalidateQueries({ queryKey: table === "project_leads" ? ["admin-project-leads"] : ["admin-listing-leads"] });
+      toast.success("Lead deleted");
+    }
+  };
+
+  const startEditing = (leadId: string, field: string, currentValue: string) => {
+    setEditingCell({ leadId, field });
+    setEditingValue(currentValue);
+  };
+
   // ── Filtering ─────────────────────────────────────────────────────────────
 
   const getDateCutoff = () => {
@@ -665,10 +371,7 @@ export default function AdminLeads() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute(
-      "download",
-      `${type}-leads-${format(new Date(), "yyyy-MM-dd")}.csv`
-    );
+    link.setAttribute("download", `${type}-leads-${format(new Date(), "yyyy-MM-dd")}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -685,6 +388,36 @@ export default function AdminLeads() {
   );
 
   const totalLeads = (projectLeads?.length || 0) + (listingLeads?.length || 0);
+
+  // ── Inline editable cell helper ──────────────────────────────────────────
+
+  const EditableCell = ({ leadId, field, value, table, className: cls }: {
+    leadId: string; field: string; value: string; table: "project_leads" | "leads"; className?: string;
+  }) => {
+    if (editingCell?.leadId === leadId && editingCell.field === field) {
+      return (
+        <Input
+          value={editingValue}
+          onChange={(e) => setEditingValue(e.target.value)}
+          className="h-7 text-xs px-1.5 w-full"
+          autoFocus
+          onBlur={() => handleInlineEdit(leadId, field, editingValue, table)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleInlineEdit(leadId, field, editingValue, table);
+            if (e.key === "Escape") setEditingCell(null);
+          }}
+        />
+      );
+    }
+    return (
+      <span
+        className={cn("cursor-pointer hover:text-primary transition-colors", cls)}
+        onClick={() => startEditing(leadId, field, value)}
+      >
+        {value || <span className="text-muted-foreground/40">Add {field}</span>}
+      </span>
+    );
+  };
 
   return (
     <AdminLayout>
@@ -709,63 +442,49 @@ export default function AdminLeads() {
           </Button>
         </div>
 
-        {/* Stats + Pipeline */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Card className="border-l-4 border-l-primary">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-xl bg-primary/10 p-2">
-                <Building2 className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <p className="text-xl font-bold">{projectLeads?.length || 0}</p>
-                <p className="text-xs text-muted-foreground">Project Leads</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-secondary-foreground/30">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-xl bg-secondary p-2">
-                <Home className="h-4 w-4 text-secondary-foreground" />
-              </div>
-              <div>
-                <p className="text-xl font-bold">{listingLeads?.length || 0}</p>
-                <p className="text-xs text-muted-foreground">Listing Leads</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-primary/40 sm:col-span-1 col-span-2">
-            <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground mb-2 font-medium">Pipeline</p>
-              <div className="flex gap-2 flex-wrap">
-                {(Object.keys(STATUS_CONFIG) as LeadStatus[]).map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
-                    className={`flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border transition-colors ${
-                      statusFilter === s
-                        ? STATUS_CONFIG[s].color + " font-semibold"
-                        : "border-border text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    <span className={`h-1.5 w-1.5 rounded-full ${STATUS_CONFIG[s].dotColor}`} />
-                    {STATUS_CONFIG[s].label}
-                    <span className="font-bold">{pipelineCounts[s]}</span>
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-primary sm:col-span-1 col-span-2">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-xl bg-primary/10 p-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <p className="text-xl font-bold text-primary">{pipelineCounts.converted}</p>
-                <p className="text-xs text-muted-foreground">Converted</p>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+            <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+            <div>
+              <p className="text-lg font-bold leading-none">{projectLeads?.length || 0}</p>
+              <p className="text-[11px] text-muted-foreground">Project Leads</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+            <Home className="h-4 w-4 text-muted-foreground shrink-0" />
+            <div>
+              <p className="text-lg font-bold leading-none">{listingLeads?.length || 0}</p>
+              <p className="text-[11px] text-muted-foreground">Listing Leads</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+            <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+            <div>
+              <p className="text-lg font-bold leading-none text-primary">{pipelineCounts.converted}</p>
+              <p className="text-[11px] text-muted-foreground">Converted</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Pipeline filter pills */}
+        <div className="flex gap-2 flex-wrap">
+          {(Object.keys(STATUS_CONFIG) as LeadStatus[]).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
+              className={cn(
+                "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border transition-colors",
+                statusFilter === s
+                  ? STATUS_CONFIG[s].badgeCn + " font-semibold"
+                  : "border-border text-muted-foreground hover:bg-muted"
+              )}
+            >
+              <span className={cn("h-1.5 w-1.5 rounded-full", STATUS_CONFIG[s].dotColor)} />
+              {STATUS_CONFIG[s].label}
+              <span className="font-bold">{pipelineCounts[s]}</span>
+            </button>
+          ))}
         </div>
 
         {/* Tabs + Filters */}
@@ -783,9 +502,8 @@ export default function AdminLeads() {
             </TabsList>
 
             <div className="flex items-center gap-2 flex-1 sm:justify-end flex-wrap">
-              {/* Date filter */}
               <Select value={dateFilter} onValueChange={setDateFilter}>
-                <SelectTrigger className="w-[100px] h-9 text-sm">
+                <SelectTrigger className="w-[100px] h-8 text-xs">
                   <SelectValue placeholder="All Time" />
                 </SelectTrigger>
                 <SelectContent>
@@ -797,119 +515,411 @@ export default function AdminLeads() {
               </Select>
 
               {activeTab === "project" && (
-                <>
-                  <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                    <SelectTrigger className="w-[120px] h-9 text-sm">
-                      <SelectValue placeholder="All Sources" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Sources</SelectItem>
-                      <SelectItem value="floor_plan_request">Floor Plans</SelectItem>
-                      <SelectItem value="scheduler">Tour Requests</SelectItem>
-                      <SelectItem value="general_inquiry">General</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[110px] h-9 text-sm">
-                      <SelectValue placeholder="All Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      {(Object.keys(STATUS_CONFIG) as LeadStatus[]).map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {STATUS_CONFIG[s].label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </>
+                <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                  <SelectTrigger className="w-[120px] h-8 text-xs">
+                    <SelectValue placeholder="All Sources" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sources</SelectItem>
+                    <SelectItem value="floor_plan_request">Floor Plans</SelectItem>
+                    <SelectItem value="scheduler">Tour Requests</SelectItem>
+                    <SelectItem value="general_inquiry">General</SelectItem>
+                  </SelectContent>
+                </Select>
               )}
 
               <div className="relative flex-1 sm:max-w-[200px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 h-9"
+                  className="pl-9 h-8 text-xs"
                 />
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9"
+                className="h-8 text-xs"
                 onClick={() => exportToCSV(activeTab as "project" | "listing")}
               >
-                <Download className="h-4 w-4 sm:mr-1.5" />
+                <Download className="h-3.5 w-3.5 sm:mr-1.5" />
                 <span className="hidden sm:inline">Export</span>
               </Button>
             </div>
           </div>
 
-          {/* Project Leads */}
-          <TabsContent value="project" className="space-y-2">
+          {/* ─── Project Leads Table ───────────────────────────────────── */}
+          <TabsContent value="project" className="mt-0">
             {projectLoading ? (
-              [...Array(4)].map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      <Skeleton className="h-5 w-40" />
-                      <Skeleton className="h-4 w-64" />
-                      <div className="flex gap-2">
-                        <Skeleton className="h-5 w-24" />
-                        <Skeleton className="h-5 w-20" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : filteredProjectLeads?.length === 0 ? (
-              <EmptyState message="No project leads found" />
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </div>
+            ) : !filteredProjectLeads?.length ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="rounded-full bg-muted p-4 mb-4">
+                  <Inbox className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground">No project leads found</p>
+              </div>
             ) : (
-              filteredProjectLeads?.map((lead) => (
-                <ProjectLeadCard
-                  key={lead.id}
-                  lead={lead}
-                  onView={() => {
-                    setSelectedLead(lead);
-                    setModalOpen(true);
-                  }}
-                  onStatusChange={(id, status, timestamps) =>
-                    updateStatusMutation.mutate({ id, status, timestamps })
-                  }
-                  onNoteSave={(id, notes) => updateNotesMutation.mutate({ id, notes })}
-                />
-              ))
+              <div className="border border-border rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/50">
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Status</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Name</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Phone</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Email</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Source</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Project</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Date</th>
+                        <th className="text-right px-3 py-2.5 font-medium text-muted-foreground text-xs w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProjectLeads.map((lead) => {
+                        const currentStatus = (lead.lead_status as LeadStatus) || "new";
+                        const cfg = STATUS_CONFIG[currentStatus];
+                        const allSources = lead.lead_sources?.length
+                          ? lead.lead_sources
+                          : lead.lead_source ? [lead.lead_source] : [];
+                        const primarySource = getLeadSourceLabel(allSources[0] || null);
+                        const extraSourceCount = Math.max(0, allSources.length - 1);
+
+                        return (
+                          <tr
+                            key={lead.id}
+                            className={cn(
+                              "border-b border-border/50 last:border-0 transition-colors hover:bg-muted/30",
+                              currentStatus === "converted" && "bg-primary/[0.02]"
+                            )}
+                          >
+                            {/* Status */}
+                            <td className="px-3 py-2.5">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button
+                                    className={cn(
+                                      "inline-flex items-center gap-1.5 px-2 h-6 rounded-full text-[10px] font-medium border transition-all hover:scale-105",
+                                      cfg.badgeCn
+                                    )}
+                                  >
+                                    <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dotColor)} />
+                                    {cfg.label}
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="w-36">
+                                  <DropdownMenuLabel className="text-xs">Set Status</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  {(Object.keys(STATUS_CONFIG) as LeadStatus[]).map((s) => {
+                                    const timestamps: Record<string, string> = {};
+                                    if (s === "contacted" && !lead.contacted_at) timestamps.contacted_at = new Date().toISOString();
+                                    if (s === "converted" && !lead.converted_at) timestamps.converted_at = new Date().toISOString();
+                                    return (
+                                      <DropdownMenuItem
+                                        key={s}
+                                        className="text-xs gap-2"
+                                        onClick={() => updateStatusMutation.mutate({ id: lead.id, status: s, timestamps })}
+                                      >
+                                        <span className={cn("h-1.5 w-1.5 rounded-full", STATUS_CONFIG[s].dotColor)} />
+                                        {STATUS_CONFIG[s].label}
+                                        {s === currentStatus && <CheckCircle2 className="h-3 w-3 ml-auto text-primary" />}
+                                      </DropdownMenuItem>
+                                    );
+                                  })}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </td>
+
+                            {/* Name — inline editable */}
+                            <td className="px-3 py-2.5">
+                              <div className="flex items-center gap-1.5">
+                                {lead.intent_score !== null && lead.intent_score >= 5 && (
+                                  <span
+                                    className={cn(
+                                      "inline-block h-2 w-2 rounded-full shrink-0",
+                                      lead.intent_score >= 8 ? "bg-green-500" : "bg-amber-500"
+                                    )}
+                                    title={`Intent: ${lead.intent_score}`}
+                                  />
+                                )}
+                                <EditableCell
+                                  leadId={lead.id}
+                                  field="name"
+                                  value={lead.name}
+                                  table="project_leads"
+                                  className="font-medium truncate max-w-[160px] text-sm"
+                                />
+                              </div>
+                            </td>
+
+                            {/* Phone */}
+                            <td className="px-3 py-2.5">
+                              <EditableCell
+                                leadId={lead.id}
+                                field="phone"
+                                value={lead.phone || ""}
+                                table="project_leads"
+                                className="text-xs text-muted-foreground"
+                              />
+                            </td>
+
+                            {/* Email */}
+                            <td className="px-3 py-2.5">
+                              <EditableCell
+                                leadId={lead.id}
+                                field="email"
+                                value={lead.email}
+                                table="project_leads"
+                                className="text-xs text-muted-foreground truncate block max-w-[180px]"
+                              />
+                            </td>
+
+                            {/* Source — condensed */}
+                            <td className="px-3 py-2.5">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button className="inline-flex items-center gap-1 text-[10px] h-5 px-1.5 rounded border border-border bg-background hover:bg-muted transition-colors">
+                                    {primarySource}
+                                    {extraSourceCount > 0 && (
+                                      <span className="text-primary font-semibold">+{extraSourceCount}</span>
+                                    )}
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="w-44">
+                                  <DropdownMenuLabel className="text-xs">Lead Sources</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  {allSources.map((src) => (
+                                    <DropdownMenuItem key={src} className="text-xs">
+                                      {getLeadSourceLabel(src)}
+                                    </DropdownMenuItem>
+                                  ))}
+                                  {lead.persona && (
+                                    <>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem className="text-xs" disabled>
+                                        Persona: {getPersonaLabel(lead.persona)}
+                                      </DropdownMenuItem>
+                                    </>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </td>
+
+                            {/* Project */}
+                            <td className="px-3 py-2.5">
+                              {lead.presale_projects ? (
+                                <a
+                                  href={generateProjectUrl({
+                                    slug: lead.presale_projects.slug,
+                                    neighborhood: lead.presale_projects.neighborhood || lead.presale_projects.city,
+                                    projectType: (lead.presale_projects.project_type || "condo") as any,
+                                  })}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-[10px] h-5 px-1.5 rounded bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
+                                >
+                                  <Building2 className="h-2.5 w-2.5" />
+                                  {lead.presale_projects.name}
+                                </a>
+                              ) : (
+                                <span className="text-muted-foreground/40 text-xs">—</span>
+                              )}
+                            </td>
+
+                            {/* Date */}
+                            <td className="px-3 py-2.5 text-xs text-muted-foreground whitespace-nowrap">
+                              {format(new Date(lead.created_at), "MMM d")}
+                            </td>
+
+                            {/* Actions */}
+                            <td className="px-3 py-2.5 text-right">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                                    <MoreVertical className="h-3.5 w-3.5" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-44">
+                                  <DropdownMenuItem onClick={() => { setSelectedLead(lead); setModalOpen(true); }}>
+                                    <Eye className="h-3.5 w-3.5 mr-2" /> View Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      const note = prompt("Admin note:", lead.admin_notes || "");
+                                      if (note !== null) updateNotesMutation.mutate({ id: lead.id, notes: note });
+                                    }}
+                                  >
+                                    <MessageSquare className="h-3.5 w-3.5 mr-2" /> {lead.admin_notes ? "Edit Note" : "Add Note"}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem asChild>
+                                    <a href={`mailto:${lead.email}`}>
+                                      <Mail className="h-3.5 w-3.5 mr-2" /> Email
+                                    </a>
+                                  </DropdownMenuItem>
+                                  {lead.phone && (
+                                    <DropdownMenuItem asChild>
+                                      <a href={`tel:${lead.phone}`}>
+                                        <Phone className="h-3.5 w-3.5 mr-2" /> Call
+                                      </a>
+                                    </DropdownMenuItem>
+                                  )}
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteLead(lead.id, "project_leads")}
+                                    className="text-destructive focus:text-destructive"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )}
           </TabsContent>
 
-          {/* Listing Leads */}
-          <TabsContent value="listing" className="space-y-2">
+          {/* ─── Listing Leads Table ──────────────────────────────────── */}
+          <TabsContent value="listing" className="mt-0">
             {listingLoading ? (
-              [...Array(4)].map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      <Skeleton className="h-5 w-40" />
-                      <Skeleton className="h-4 w-64" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : filteredListingLeads?.length === 0 ? (
-              <EmptyState message="No listing leads found" />
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </div>
+            ) : !filteredListingLeads?.length ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="rounded-full bg-muted p-4 mb-4">
+                  <Inbox className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground">No listing leads found</p>
+              </div>
             ) : (
-              filteredListingLeads?.map((lead) => (
-                <ListingLeadCard
-                  key={lead.id}
-                  lead={lead}
-                  onView={() => {
-                    setSelectedLead(lead);
-                    setModalOpen(true);
-                  }}
-                />
-              ))
+              <div className="border border-border rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/50">
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Name</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Phone</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Email</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Listing</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Date</th>
+                        <th className="text-right px-3 py-2.5 font-medium text-muted-foreground text-xs w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredListingLeads.map((lead) => (
+                        <tr
+                          key={lead.id}
+                          className="border-b border-border/50 last:border-0 transition-colors hover:bg-muted/30"
+                        >
+                          {/* Name */}
+                          <td className="px-3 py-2.5">
+                            <EditableCell
+                              leadId={lead.id}
+                              field="name"
+                              value={lead.name}
+                              table="leads"
+                              className="font-medium truncate max-w-[160px] text-sm"
+                            />
+                          </td>
+
+                          {/* Phone */}
+                          <td className="px-3 py-2.5">
+                            <EditableCell
+                              leadId={lead.id}
+                              field="phone"
+                              value={lead.phone || ""}
+                              table="leads"
+                              className="text-xs text-muted-foreground"
+                            />
+                          </td>
+
+                          {/* Email */}
+                          <td className="px-3 py-2.5">
+                            <EditableCell
+                              leadId={lead.id}
+                              field="email"
+                              value={lead.email}
+                              table="leads"
+                              className="text-xs text-muted-foreground truncate block max-w-[180px]"
+                            />
+                          </td>
+
+                          {/* Listing */}
+                          <td className="px-3 py-2.5">
+                            {lead.listings ? (
+                              <a
+                                href={`/assignments/${lead.listing_id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-[10px] h-5 px-1.5 rounded bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
+                              >
+                                <Home className="h-2.5 w-2.5" />
+                                {lead.listings.title}
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground/40 text-xs">—</span>
+                            )}
+                          </td>
+
+                          {/* Date */}
+                          <td className="px-3 py-2.5 text-xs text-muted-foreground whitespace-nowrap">
+                            {format(new Date(lead.created_at), "MMM d")}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-3 py-2.5 text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-7 w-7">
+                                  <MoreVertical className="h-3.5 w-3.5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem onClick={() => { setSelectedLead(lead); setModalOpen(true); }}>
+                                  <Eye className="h-3.5 w-3.5 mr-2" /> View Details
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                  <a href={`mailto:${lead.email}`}>
+                                    <Mail className="h-3.5 w-3.5 mr-2" /> Email
+                                  </a>
+                                </DropdownMenuItem>
+                                {lead.phone && (
+                                  <DropdownMenuItem asChild>
+                                    <a href={`tel:${lead.phone}`}>
+                                      <Phone className="h-3.5 w-3.5 mr-2" /> Call
+                                    </a>
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => handleDeleteLead(lead.id, "leads")}
+                                  className="text-destructive focus:text-destructive"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )}
           </TabsContent>
         </Tabs>
