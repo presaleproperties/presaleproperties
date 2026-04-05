@@ -28,6 +28,7 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const triggerSendRef = useRef<((phone: string) => Promise<void>) | null>(null);
   const hasSentRef = useRef(false);
+  const { submitLead } = useLeadSubmission();
   const { toast } = useToast();
 
   const validate = () => {
