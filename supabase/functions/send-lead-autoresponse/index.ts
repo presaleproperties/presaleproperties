@@ -178,9 +178,6 @@ ${docs.map(d => `<table cellpadding="0" cellspacing="0" border="0" width="100%" 
 }
 
 function buildTemplateA(project: ProjectData, firstName: string, agent: AgentData): string {
-  const whatsappNumber = "16722581100";
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi! I'm interested in ${project.name}. Can you share more details?`)}`;
-
   const subjectLine = `${project.name} — Your Requested Floor Plans & Details`;
 
   return emailShell(`
