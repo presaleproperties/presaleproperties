@@ -1535,6 +1535,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           </div>
 
           {/* ── RIGHT / BOTTOM: Editor panel — hidden on mobile when "preview" tab active ── */}
+          {editorOpen && (
           <div className={cn(
             "flex flex-col rounded-xl border border-border bg-card overflow-hidden shadow-sm",
             mobileTab === "build" ? "flex" : "hidden lg:flex",
@@ -1550,6 +1551,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 {projectName && (
                   <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-primary/20 text-primary/70 font-normal">{projectName}</Badge>
                 )}
+                <button
+                  onClick={() => setEditorOpen(false)}
+                  className="ml-auto h-7 w-7 rounded-lg border border-border bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors"
+                  title="Close editor panel"
+                >
+                  <PanelRightClose className="h-3.5 w-3.5 text-muted-foreground" />
+                </button>
               </div>
             </div>
 
