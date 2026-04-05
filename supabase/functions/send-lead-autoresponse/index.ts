@@ -237,12 +237,6 @@ ${statsBar(project)}
 </td></tr>
 </table>
 </td></tr>
-${projectUrl ? `<tr><td class="content-pad" style="padding:0 40px 12px;background:#ffffff;">
-<table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-<td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
-<a href="${projectUrl}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">VIEW PROJECT DETAILS</a>
-</td></tr></table>
-</td></tr>` : ""}
 <tr><td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
 <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
 <td class="cta-td" align="center" style="background:#ffffff;border:2px solid ${ACCENT};border-radius:50px;padding:16px 32px;text-align:center;">
