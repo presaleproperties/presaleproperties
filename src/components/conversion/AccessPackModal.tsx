@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { upsertProjectLead } from "@/lib/upsertProjectLead";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
 import { formatPhoneNumber } from "@/lib/formatPhone";
