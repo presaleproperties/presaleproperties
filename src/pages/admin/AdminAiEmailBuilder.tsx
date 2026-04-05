@@ -92,6 +92,31 @@ function buildFinalHtml(
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
 ): string {
+  // ── EDITORIAL template ────────────────────────────────────────────────────
+  if (layoutVersion === "editorial") {
+    const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
+    const slides = (loopSlides && loopSlides.length > 0)
+      ? loopSlides.filter(Boolean)
+      : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
+    return buildEditorialEmailHtml({
+      projectName:    fields.projectName || "",
+      city:           fields.city,
+      developerName:  fields.developerName,
+      heroImage:      heroImage || undefined,
+      headline:       fields.headline,
+      bodyCopy:       fields.bodyCopy,
+      subjectLine:    fields.subjectLine,
+      previewText:    fields.previewText,
+      startingPrice:  fields.startingPrice,
+      deposit:        fields.deposit,
+      completion:     fields.completion,
+      infoRows:       fields.infoRows,
+      incentiveText:  fields.incentiveText,
+      deckUrl:        saved?._deckUrl || undefined,
+      projectUrl:     fields.projectUrl || saved?._projectUrl || undefined,
+      loopSlides:     slides,
+    }, agent);
+  }
   // ── MODERN / Lululemon template ───────────────────────────────────────────
   if (layoutVersion === "modern") {
     const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
