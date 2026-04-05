@@ -821,12 +821,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     }
     if (gallerySlides.length > 0) setLoopSlides(gallerySlides);
 
+    // ── Auto-set document URLs from project ──────────────────────────────────
+    const projBrochure = p.brochure_files?.find(f => f) || "";
+    const projFloorplan = p.pricing_sheets?.find(f => f) || p.floorplan_files?.find(f => f) || "";
+    setBrochureUrl(projBrochure);
+    setFloorplanUrl(projFloorplan);
+
     // ── Auto-set CTA URL: brochure → pricing sheet → first floor plan ──────────
-    const ctaDocUrl =
-      p.brochure_files?.find(f => f) ||
-      p.pricing_sheets?.find(f => f) ||
-      p.floorplan_files?.find(f => f) ||
-      "";
+    const ctaDocUrl = projBrochure || projFloorplan || "";
     if (ctaDocUrl) {
       setDirectCtaUrl(ctaDocUrl);
       setSelectedAssetId("none");
