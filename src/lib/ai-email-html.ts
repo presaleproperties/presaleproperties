@@ -307,7 +307,7 @@ export function buildAiTemplateHtmlFromFormData(formData: any, agentOverride?: P
     fpSubheading: formData?.fpSubheading || "",
     ctaUrl: formData?.directCtaUrl || formData?.ctaUrl || fields.projectUrl,
     font,
-    layoutVersion: (formData?.layoutVersion || "classic") as LayoutVersion,
+    layoutVersion: (formData?.layoutVersion || "modern") as LayoutVersion,
     imageCards: Array.isArray(formData?.imageCards) ? formData.imageCards : [],
     loopSlides: Array.isArray(formData?.loopSlides) ? formData.loopSlides : [],
     deckUrl,
