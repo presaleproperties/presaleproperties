@@ -372,6 +372,7 @@ const App = () => (
             <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
             <Route path="/admin/email-workflows" element={<AdminProtectedRoute><AdminEmailWorkflows /></AdminProtectedRoute>} />
             <Route path="/admin/email-center" element={<AdminProtectedRoute><AdminEmailCenter /></AdminProtectedRoute>} />
+            <Route path="/admin/email-flows" element={<AdminProtectedRoute><AdminEmailFlows /></AdminProtectedRoute>} />
             {/* Unified Marketing Hub — replaces old email-builder-hub & campaign-hub */}
             <Route path="/admin/marketing-hub" element={<AdminProtectedRoute><AdminMarketingHub /></AdminProtectedRoute>} />
             <Route path="/admin/email-builder" element={<AdminProtectedRoute><AdminAiEmailBuilderKeyed /></AdminProtectedRoute>} />
