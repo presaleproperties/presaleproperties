@@ -1557,19 +1557,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     {layoutVersion === "editorial" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-[#7a8a5a]" />}
                   </button>
                   <button
-                    onClick={() => setLayoutVersion("loop")}
-                    className={cn(
-                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
-                      layoutVersion === "loop"
-                        ? "border-amber-500 bg-amber-500/8 shadow-sm"
-                        : "border-border bg-muted/10 hover:border-amber-400/50"
-                    )}
-                  >
-                    <div className="text-[11px] font-semibold text-foreground">The Loop</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Slideshow · Editorial</div>
-                    {layoutVersion === "loop" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-amber-500" />}
-                  </button>
-                  <button
                     onClick={() => setLayoutVersion("pitch-deck")}
                     className={cn(
                       "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
