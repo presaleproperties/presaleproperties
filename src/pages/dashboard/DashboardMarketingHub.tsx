@@ -128,6 +128,21 @@ export default function DashboardMarketingHub() {
     else { toast.success("Duplicated"); fetchAssets(); }
   };
 
+  const handleImport = async (asset: SavedAsset) => {
+    if (!user) return;
+    setImporting(asset.id);
+    const { error } = await (supabase as any).from("campaign_templates").insert({
+      name: asset.name,
+      project_name: asset.project_name,
+      form_data: asset.form_data,
+      thumbnail_url: asset.thumbnail_url,
+      user_id: user.id,
+    });
+    if (error) toast.error("Failed to import");
+    else { toast.success("Template imported to your collection"); fetchAssets(); }
+    setImporting(null);
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full bg-background">
