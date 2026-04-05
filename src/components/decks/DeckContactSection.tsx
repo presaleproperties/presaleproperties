@@ -120,8 +120,8 @@ export function DeckContactSection({
         <div className="grid lg:grid-cols-[360px_1fr] gap-8 items-start">
 
           {/* LEFT — Agent card */}
-          <div className="relative rounded-2xl overflow-hidden border border-border/50 bg-background shadow-lg">
-            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/8 to-transparent" />
+          <div className="relative rounded-2xl overflow-hidden border border-border/40 bg-card shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-primary/5 to-transparent" />
 
             <div className="relative p-6 flex flex-col gap-4">
               {/* Agent photo + info */}
