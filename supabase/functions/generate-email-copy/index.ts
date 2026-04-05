@@ -120,10 +120,10 @@ Return ONLY a valid JSON object with these exact fields (no markdown, no code fe
     const templateContext = templateType
       ? `\nEmail type: ${
           templateType === "exclusive-offer"
-            ? "Exclusive VIP offer — emphasize urgency of timing and exclusivity of access, not scarcity pressure"
+            ? "Exclusive VIP offer — emphasize urgency and exclusivity. MUST use the 5-part body structure with a bold pricing callout and bold CTA headline."
             : templateType === "project-intro"
-            ? "Project intro email — MUST follow this structure: (1) one-sentence thank you for interest in the project, (2) 2-sentence project overview, (3) 4-5 bullet point highlights covering price/deposit/location/completion/key features, (4) incentives section using ✦ bullets if incentives are provided, (5) soft CTA — call or reply, no pressure, (6) sign-off"
-            : "Core project introduction — professional, informative, low-pressure"
+            ? "Project intro email — MUST use the 5-part body structure: (1) opening paragraph with bold highlights, (2) bold pricing callout line, (3) supporting paragraph with bold details, (4) bold CTA headline, (5) warm one-line close."
+            : "Core project introduction — MUST use the 5-part body structure with bold highlights, pricing callout, and CTA headline."
         }`
       : "";
 
