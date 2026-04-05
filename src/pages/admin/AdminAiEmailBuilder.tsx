@@ -391,6 +391,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Layout version
   const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial");
+  const [layoutSectionOpen, setLayoutSectionOpen] = useState(true);
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
@@ -1509,61 +1510,77 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 </Select>
               </div>
 
-              {/* ── LAYOUT VERSION TOGGLE ── */}
-              <div className="px-3 py-2.5 border-b border-border bg-muted/10">
-                <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold block mb-2">Layout</Label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  <button
-                    onClick={() => setLayoutVersion("editorial")}
-                    className={cn(
-                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
-                      layoutVersion === "editorial"
-                        ? "border-[#7a8a5a] bg-[#7a8a5a]/8 shadow-sm"
-                        : "border-border bg-muted/10 hover:border-[#7a8a5a]/50"
-                    )}
-                  >
-                    <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
-                      Editorial
-                      <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-[#7a8a5a]/15 text-[#7a8a5a] uppercase tracking-wide">New</span>
+              {/* ── LAYOUT VERSION TOGGLE (collapsible) ── */}
+              <div className="border-b border-border bg-muted/10">
+                <button
+                  type="button"
+                  onClick={() => setLayoutSectionOpen(prev => !prev)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-muted/20 transition-colors"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold cursor-pointer">Layout</Label>
+                    <span className="text-[9px] text-muted-foreground font-medium capitalize">
+                      — {layoutVersion === "modern-v2" ? "Modern V2" : layoutVersion.charAt(0).toUpperCase() + layoutVersion.slice(1)}
+                    </span>
+                  </div>
+                  <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform", layoutSectionOpen && "rotate-180")} />
+                </button>
+                {layoutSectionOpen && (
+                  <div className="px-3 pb-2.5">
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <button
+                        onClick={() => setLayoutVersion("editorial")}
+                        className={cn(
+                          "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                          layoutVersion === "editorial"
+                            ? "border-[#7a8a5a] bg-[#7a8a5a]/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-[#7a8a5a]/50"
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
+                          Editorial
+                          <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-[#7a8a5a]/15 text-[#7a8a5a] uppercase tracking-wide">New</span>
+                        </div>
+                        <div className="text-[9px] text-muted-foreground leading-tight">Hero slideshow · Clean</div>
+                        {layoutVersion === "editorial" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-[#7a8a5a]" />}
+                      </button>
+                      <button
+                        onClick={() => setLayoutVersion("modern")}
+                        className={cn(
+                          "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                          layoutVersion === "modern"
+                            ? "border-sky-500 bg-sky-500/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-sky-400/50"
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold text-foreground">Modern</div>
+                        <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
+                        {layoutVersion === "modern" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-sky-500" />}
+                      </button>
+                      <button
+                        onClick={() => setLayoutVersion("modern-v2")}
+                        className={cn(
+                          "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                          layoutVersion === "modern-v2"
+                            ? "border-violet-500 bg-violet-500/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-violet-400/50"
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold text-foreground">Modern V2</div>
+                        <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
+                        {layoutVersion === "modern-v2" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-violet-500" />}
+                      </button>
                     </div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Hero slideshow · Clean</div>
-                    {layoutVersion === "editorial" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-[#7a8a5a]" />}
-                  </button>
-                  <button
-                    onClick={() => setLayoutVersion("modern")}
-                    className={cn(
-                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
-                      layoutVersion === "modern"
-                        ? "border-sky-500 bg-sky-500/8 shadow-sm"
-                        : "border-border bg-muted/10 hover:border-sky-400/50"
+                    {layoutVersion === "editorial" && (
+                      <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
                     )}
-                  >
-                    <div className="text-[11px] font-semibold text-foreground">Modern</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
-                    {layoutVersion === "modern" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-sky-500" />}
-                  </button>
-                  <button
-                    onClick={() => setLayoutVersion("modern-v2")}
-                    className={cn(
-                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
-                      layoutVersion === "modern-v2"
-                        ? "border-violet-500 bg-violet-500/8 shadow-sm"
-                        : "border-border bg-muted/10 hover:border-violet-400/50"
+                    {layoutVersion === "modern" && (
+                      <p className="text-[9px] text-sky-600/70 mt-1.5 leading-relaxed">Full-bleed hero, huge bold headline, black pill CTAs — inspired by Lululemon's email design. Best for mobile readers.</p>
                     )}
-                  >
-                    <div className="text-[11px] font-semibold text-foreground">Modern V2</div>
-                    <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
-                    {layoutVersion === "modern-v2" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-violet-500" />}
-                  </button>
-                </div>
-                {layoutVersion === "editorial" && (
-                  <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
-                )}
-                {layoutVersion === "modern" && (
-                  <p className="text-[9px] text-sky-600/70 mt-1.5 leading-relaxed">Full-bleed hero, huge bold headline, black pill CTAs — inspired by Lululemon's email design. Best for mobile readers.</p>
-                )}
-                {layoutVersion === "modern-v2" && (
-                  <p className="text-[9px] text-violet-600/70 mt-1.5 leading-relaxed">Identical to Modern layout — ready for customization.</p>
+                    {layoutVersion === "modern-v2" && (
+                      <p className="text-[9px] text-violet-600/70 mt-1.5 leading-relaxed">Identical to Modern layout — ready for customization.</p>
+                    )}
+                  </div>
                 )}
               </div>
 
