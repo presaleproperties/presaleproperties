@@ -167,6 +167,8 @@ function buildAiFinalHtml({
       infoRows: fields.infoRows,
       incentiveText: fields.incentiveText,
       deckUrl: deckUrl || undefined,
+      brochureUrl,
+      floorplanUrl,
       floorPlans: floorPlans.filter((fp) => fp.url).map((fp) => ({
         id: fp.id || "",
         url: fp.url || "",
