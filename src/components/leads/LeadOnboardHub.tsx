@@ -75,6 +75,8 @@ export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [showAllDecks, setShowAllDecks] = useState(false);
+  const [showAllTemplates, setShowAllTemplates] = useState(false);
 
   // Success state
   const [successData, setSuccessData] = useState<{
