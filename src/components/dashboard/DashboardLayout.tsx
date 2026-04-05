@@ -275,27 +275,36 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
                 </div>
               </div>
 
-              <div className="p-2 space-y-0.5">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
-                      isActive(item.href)
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    <item.icon className="h-[18px] w-[18px] shrink-0" />
-                    <span className="font-medium">{item.label}</span>
-                    {item.badge && (
-                      <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0 h-4">
-                        {item.badge}
-                      </Badge>
-                    )}
-                  </Link>
+              <div className="p-2 space-y-3">
+                {navSections.map((section) => (
+                  <div key={section.label}>
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-3 py-1">
+                      {section.label}
+                    </p>
+                    <div className="space-y-0.5 mt-1">
+                      {section.items.map((item) => (
+                        <Link
+                          key={item.href}
+                          to={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={cn(
+                            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
+                            isActive(item.href)
+                              ? "bg-primary text-primary-foreground"
+                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          )}
+                        >
+                          <item.icon className="h-[18px] w-[18px] shrink-0" />
+                          <span className="font-medium">{item.label}</span>
+                          {item.badge && (
+                            <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0 h-4">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </nav>
