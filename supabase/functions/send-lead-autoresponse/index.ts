@@ -111,7 +111,11 @@ function statsBar(project: ProjectData): string {
   const stats: { value: string; label: string }[] = [];
   const priceDisplay = project.price_range || (project.starting_price ? `From $${project.starting_price.toLocaleString()}` : null);
   if (priceDisplay) stats.push({ value: priceDisplay, label: "Starting From" });
-  if (project.deposit_structure) stats.push({ value: project.deposit_structure, label: "Deposit" });
+  // Use deposit_structure if meaningful, otherwise fall back to deposit_percent
+  const depositDisplay = (project.deposit_structure && project.deposit_structure.toLowerCase() !== "unknown")
+    ? project.deposit_structure
+    : (project.deposit_percent ? `${project.deposit_percent}%` : null);
+  if (depositDisplay) stats.push({ value: depositDisplay, label: "Deposit" });
   const completionStr = project.completion_year ? (project.completion_month ? `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][project.completion_month - 1]} ${project.completion_year}` : `${project.completion_year}`) : null;
   if (completionStr) stats.push({ value: completionStr, label: "Completion" });
   if (stats.length === 0) return "";
