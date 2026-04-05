@@ -532,7 +532,7 @@ export default function AdminLeads() {
         .from("project_leads")
         .select(`
           id, name, email, phone, message, persona, home_size, agent_status,
-          lead_source, landing_page, created_at, project_id,
+          lead_source, lead_sources, landing_page, created_at, project_id,
           lead_status, admin_notes, contacted_at, converted_at, intent_score,
           presale_projects (name, slug, city, neighborhood, project_type)
         `)
