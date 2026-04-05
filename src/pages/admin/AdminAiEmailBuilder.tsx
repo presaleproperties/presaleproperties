@@ -2016,37 +2016,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 )}
               </StepSection>
 
-              {/* ── 7. IMAGE CARDS ── */}
-              <StepSection
-                step={7} title="Image Cards" icon={<Image className="h-3.5 w-3.5" />}
-                done={imageCards.length > 0} doneLabel={imageCards.length > 0 ? `${imageCards.length} card${imageCards.length > 1 ? "s" : ""}` : undefined}
-                defaultOpen={false}
-              >
-                <p className="text-[10px] text-muted-foreground leading-relaxed mb-2">
-                  Add up to 3 images that appear below "What's Included". Great for project renders, amenities, or lifestyle shots.
-                </p>
-                {imageCards.length < 3 && (
-                  <button onClick={() => imgCardInputRef.current?.click()} disabled={imgCardUploading}
-                    className="w-full flex items-center justify-center gap-1.5 h-14 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-muted-foreground text-xs font-medium">
-                    {imgCardUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    {imgCardUploading ? "Uploading…" : `Upload image${imageCards.length > 0 ? ` (${3 - imageCards.length} more)` : "s"}`}
-                  </button>
-                )}
-                {imageCards.map(card => (
-                  <div key={card.id} className="mt-2 border border-border rounded-lg overflow-hidden bg-muted/20">
-                    <div className="relative">
-                      <img src={card.url} alt="Card" className="w-full h-24 object-cover bg-white" />
-                      <button onClick={() => removeImgCard(card.id)} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
-                        <X className="h-3 w-3 text-white" />
-                      </button>
-                    </div>
-                    <div className="p-2">
-                      <Label className="text-[9px]">Caption <span className="text-muted-foreground/50 font-normal">(optional)</span></Label>
-                      <Input value={card.caption} onChange={e => updateImgCard(card.id, e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="Rooftop terrace · 5,000 sq ft" />
-                    </div>
-                  </div>
-                ))}
-              </StepSection>
 
               {/* ── 8. TYPOGRAPHY ── */}
               <StepSection
@@ -2472,37 +2441,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 </div>
               </StepSection>
 
-              {/* ── STEP 7: IMAGE CARDS ── */}
-              <StepSection
-                step={7} title="Image Cards" icon={<Image className="h-3.5 w-3.5" />}
-                done={imageCards.length > 0} doneLabel={imageCards.length > 0 ? `${imageCards.length} card${imageCards.length > 1 ? "s" : ""}` : undefined}
-                defaultOpen={false}
-              >
-                <p className="text-[10px] text-muted-foreground leading-relaxed mb-2">
-                  Add up to 3 images that appear below "What's Included". Great for project renders, amenities, or lifestyle shots.
-                </p>
-                {imageCards.length < 3 && (
-                  <button onClick={() => imgCardInputRef.current?.click()} disabled={imgCardUploading}
-                    className="w-full flex items-center justify-center gap-1.5 h-14 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-muted-foreground text-xs font-medium">
-                    {imgCardUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    {imgCardUploading ? "Uploading…" : `Upload image${imageCards.length > 0 ? ` (${3 - imageCards.length} more)` : "s"}`}
-                  </button>
-                )}
-                {imageCards.map(card => (
-                  <div key={card.id} className="mt-2 border border-border rounded-lg overflow-hidden bg-muted/20">
-                    <div className="relative">
-                      <img src={card.url} alt="Card" className="w-full h-24 object-cover bg-white" />
-                      <button onClick={() => removeImgCard(card.id)} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
-                        <X className="h-3 w-3 text-white" />
-                      </button>
-                    </div>
-                    <div className="p-2">
-                      <Label className="text-[9px]">Caption <span className="text-muted-foreground/50 font-normal">(optional)</span></Label>
-                      <Input value={card.caption} onChange={e => updateImgCard(card.id, e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="Rooftop terrace · 5,000 sq ft" />
-                    </div>
-                  </div>
-                ))}
-              </StepSection>
 
               {/* ── STEP 8: PLANS & PRICING CTA ── */}
               <StepSection
