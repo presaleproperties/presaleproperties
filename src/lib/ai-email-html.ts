@@ -1,6 +1,5 @@
 import {
   buildAiEmailHtml,
-  buildLoopEmailHtml,
   buildPitchDeckEmailHtml,
   buildLululemonEmailHtml,
   buildEditorialEmailHtml,
