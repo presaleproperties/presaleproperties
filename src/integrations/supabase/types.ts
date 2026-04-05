@@ -146,6 +146,80 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_flows: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_published: boolean
+          name: string
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_published?: boolean
+          name: string
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_published?: boolean
+          name?: string
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      automation_steps: {
+        Row: {
+          config: Json
+          created_at: string
+          flow_id: string
+          id: string
+          is_active: boolean
+          step_order: number
+          step_type: Database["public"]["Enums"]["automation_step_type"]
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          flow_id: string
+          id?: string
+          is_active?: boolean
+          step_order?: number
+          step_type: Database["public"]["Enums"]["automation_step_type"]
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          flow_id?: string
+          id?: string
+          is_active?: boolean
+          step_order?: number
+          step_type?: Database["public"]["Enums"]["automation_step_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_steps_flow_id_fkey"
+            columns: ["flow_id"]
+            isOneToOne: false
+            referencedRelation: "automation_flows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           category: string | null
@@ -4061,6 +4135,12 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user" | "developer"
       appointment_type: "preview" | "showing"
+      automation_step_type:
+        | "delay"
+        | "send_email"
+        | "send_sms"
+        | "send_whatsapp"
+        | "condition"
       booking_status: "pending" | "confirmed" | "cancelled" | "completed"
       buyer_timeline:
         | "0_3_months"
@@ -4199,6 +4279,13 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user", "developer"],
       appointment_type: ["preview", "showing"],
+      automation_step_type: [
+        "delay",
+        "send_email",
+        "send_sms",
+        "send_whatsapp",
+        "condition",
+      ],
       booking_status: ["pending", "confirmed", "cancelled", "completed"],
       buyer_timeline: [
         "0_3_months",
