@@ -1,0 +1,1 @@
+ALTER TABLE public.onboarded_leads ADD COLUMN tags text[] NOT NULL DEFAULT '{}'::text[];

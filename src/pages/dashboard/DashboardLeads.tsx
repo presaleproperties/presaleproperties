@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -40,6 +41,9 @@ import {
   Clock,
   TrendingUp,
   Filter,
+  Tag,
+  X,
+  Plus,
 } from "lucide-react";
 import { format, subDays, isAfter } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -69,6 +73,7 @@ interface OnboardedLead {
   deck_url: string;
   zapier_synced: boolean;
   temperature: string;
+  tags: string[];
   created_at: string;
   pitch_decks: { project_name: string; slug: string } | null;
 }
@@ -82,9 +87,9 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const TEMP_CONFIG = {
-  hot: { icon: Flame, label: "Hot", className: "text-red-500", bg: "bg-red-500/10 border-red-500/20" },
-  warm: { icon: Thermometer, label: "Warm", className: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
-  cold: { icon: Snowflake, label: "Cold", className: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
+  hot: { icon: Flame, label: "Hot", className: "text-red-500", bg: "bg-red-500/10 border-red-500/20", badgeCn: "bg-red-500/10 text-red-600 border-red-500/20" },
+  warm: { icon: Thermometer, label: "Warm", className: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20", badgeCn: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
+  cold: { icon: Snowflake, label: "Cold", className: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20", badgeCn: "bg-blue-400/10 text-blue-500 border-blue-400/20" },
 } as const;
 
 const DATE_FILTERS = [
@@ -105,6 +110,11 @@ export default function DashboardLeads() {
   const [dateFilter, setDateFilter] = useState("all");
   const [tempFilter, setTempFilter] = useState("all");
 
+  // Tag editing state
+  const [editingTagLeadId, setEditingTagLeadId] = useState<string | null>(null);
+  const [newTagValue, setNewTagValue] = useState("");
+  const tagInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (user) fetchAll();
   }, [user]);
@@ -121,7 +131,7 @@ export default function DashboardLeads() {
           .order("created_at", { ascending: false }),
         supabase
           .from("onboarded_leads")
-          .select("id, first_name, last_name, email, phone, source, notes, deck_url, zapier_synced, temperature, created_at, pitch_decks(project_name, slug)")
+          .select("id, first_name, last_name, email, phone, source, notes, deck_url, zapier_synced, temperature, tags, created_at, pitch_decks(project_name, slug)")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
       ]);
@@ -152,6 +162,47 @@ export default function DashboardLeads() {
       toast.error("Failed to update lead temperature");
     } else {
       toast.success(`Marked as ${temp}`);
+    }
+  };
+
+  const handleAddTag = async (leadId: string, tag: string) => {
+    const trimmed = tag.trim();
+    if (!trimmed) return;
+    const lead = onboardedLeads.find((l) => l.id === leadId);
+    if (!lead || lead.tags?.includes(trimmed)) return;
+
+    const newTags = [...(lead.tags || []), trimmed];
+    const prev = [...onboardedLeads];
+    setOnboardedLeads((leads) =>
+      leads.map((l) => (l.id === leadId ? { ...l, tags: newTags } : l))
+    );
+    const { error } = await supabase
+      .from("onboarded_leads")
+      .update({ tags: newTags } as any)
+      .eq("id", leadId);
+    if (error) {
+      setOnboardedLeads(prev);
+      toast.error("Failed to add tag");
+    }
+    setNewTagValue("");
+  };
+
+  const handleRemoveTag = async (leadId: string, tagToRemove: string) => {
+    const lead = onboardedLeads.find((l) => l.id === leadId);
+    if (!lead) return;
+
+    const newTags = (lead.tags || []).filter((t) => t !== tagToRemove);
+    const prev = [...onboardedLeads];
+    setOnboardedLeads((leads) =>
+      leads.map((l) => (l.id === leadId ? { ...l, tags: newTags } : l))
+    );
+    const { error } = await supabase
+      .from("onboarded_leads")
+      .update({ tags: newTags } as any)
+      .eq("id", leadId);
+    if (error) {
+      setOnboardedLeads(prev);
+      toast.error("Failed to remove tag");
     }
   };
 
@@ -332,7 +383,7 @@ export default function DashboardLeads() {
               </div>
             </div>
 
-            {/* Onboarded Tab */}
+            {/* Onboarded Tab — Table Layout */}
             <TabsContent value="onboarded" className="mt-0">
               {sortedOnboarded.length === 0 ? (
                 <Card>
@@ -349,103 +400,361 @@ export default function DashboardLeads() {
                   <p className="text-[11px] text-muted-foreground">
                     {filteredOnboarded.length} of {onboardedLeads.length} leads
                   </p>
-                  {sortedOnboarded.map((lead) => {
-                    const temp = (TEMP_CONFIG as any)[lead.temperature] || TEMP_CONFIG.cold;
-                    const TempIcon = temp.icon;
-                    return (
-                      <div
-                        key={lead.id}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-lg border transition-colors",
-                          lead.temperature === "hot" ? temp.bg : "border-border hover:border-primary/20"
-                        )}
-                      >
-                        {/* Temp indicator */}
-                        <button
-                          onClick={() => {
-                            const cycle = lead.temperature === "cold" ? "warm" : lead.temperature === "warm" ? "hot" : "cold";
-                            handleSetTemperature(lead.id, cycle);
-                          }}
+
+                  {/* Desktop Table */}
+                  <div className="hidden md:block rounded-lg border border-border overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border bg-muted/50">
+                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs w-8"></th>
+                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Name</th>
+                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Phone</th>
+                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Email</th>
+                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Source</th>
+                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Status</th>
+                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Tags</th>
+                            <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Date</th>
+                            <th className="text-right px-3 py-2.5 font-medium text-muted-foreground text-xs w-10"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedOnboarded.map((lead) => {
+                            const temp = (TEMP_CONFIG as any)[lead.temperature] || TEMP_CONFIG.cold;
+                            const TempIcon = temp.icon;
+                            const projectTag = lead.pitch_decks?.project_name;
+                            const allTags = [
+                              ...(projectTag ? [projectTag] : []),
+                              ...(lead.tags || []),
+                            ];
+
+                            return (
+                              <tr
+                                key={lead.id}
+                                className={cn(
+                                  "border-b border-border/50 last:border-0 transition-colors",
+                                  lead.temperature === "hot" ? "bg-red-500/[0.03]" : "hover:bg-muted/30"
+                                )}
+                              >
+                                {/* Temp Icon */}
+                                <td className="px-3 py-2.5">
+                                  <button
+                                    onClick={() => {
+                                      const cycle = lead.temperature === "cold" ? "warm" : lead.temperature === "warm" ? "hot" : "cold";
+                                      handleSetTemperature(lead.id, cycle);
+                                    }}
+                                    className={cn(
+                                      "w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-all hover:scale-110",
+                                      lead.temperature === "hot" ? "bg-red-500/20" : lead.temperature === "warm" ? "bg-amber-500/20" : "bg-blue-400/10"
+                                    )}
+                                    title={`Click to cycle: ${temp.label}`}
+                                  >
+                                    <TempIcon className={cn("h-3.5 w-3.5", temp.className)} />
+                                  </button>
+                                </td>
+
+                                {/* Name */}
+                                <td className="px-3 py-2.5">
+                                  <p className="font-medium truncate max-w-[160px]">
+                                    {lead.first_name} {lead.last_name}
+                                  </p>
+                                </td>
+
+                                {/* Phone */}
+                                <td className="px-3 py-2.5">
+                                  {lead.phone ? (
+                                    <a href={`tel:${lead.phone}`} className="text-muted-foreground hover:text-primary transition-colors text-xs">
+                                      {lead.phone}
+                                    </a>
+                                  ) : (
+                                    <span className="text-muted-foreground/40 text-xs">—</span>
+                                  )}
+                                </td>
+
+                                {/* Email */}
+                                <td className="px-3 py-2.5">
+                                  <a href={`mailto:${lead.email}`} className="text-muted-foreground hover:text-primary transition-colors text-xs truncate block max-w-[180px]">
+                                    {lead.email}
+                                  </a>
+                                </td>
+
+                                {/* Source */}
+                                <td className="px-3 py-2.5">
+                                  <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal">
+                                    {SOURCE_LABELS[lead.source] || lead.source}
+                                  </Badge>
+                                </td>
+
+                                {/* Status */}
+                                <td className="px-3 py-2.5">
+                                  <Badge variant="outline" className={cn("text-[10px] h-5 px-1.5 font-medium border", temp.badgeCn)}>
+                                    {temp.label}
+                                  </Badge>
+                                  {lead.zapier_synced && (
+                                    <Badge className="text-[10px] h-5 px-1.5 bg-primary/10 text-primary border-0 gap-0.5 ml-1">
+                                      <Check className="h-2.5 w-2.5" /> CRM
+                                    </Badge>
+                                  )}
+                                </td>
+
+                                {/* Tags */}
+                                <td className="px-3 py-2.5">
+                                  <div className="flex items-center gap-1 flex-wrap max-w-[200px]">
+                                    {allTags.map((tag, i) => (
+                                      <Badge
+                                        key={`${tag}-${i}`}
+                                        variant="secondary"
+                                        className={cn(
+                                          "text-[10px] h-5 px-1.5 gap-0.5 font-normal",
+                                          i === 0 && projectTag ? "bg-primary/10 text-primary border-primary/20" : ""
+                                        )}
+                                      >
+                                        {i === 0 && projectTag && <Presentation className="h-2.5 w-2.5" />}
+                                        {tag}
+                                        {/* Only allow removing custom tags (not the auto project tag) */}
+                                        {(i > 0 || !projectTag) && (
+                                          <button
+                                            onClick={() => handleRemoveTag(lead.id, tag)}
+                                            className="ml-0.5 hover:text-destructive"
+                                          >
+                                            <X className="h-2.5 w-2.5" />
+                                          </button>
+                                        )}
+                                      </Badge>
+                                    ))}
+                                    {editingTagLeadId === lead.id ? (
+                                      <form
+                                        onSubmit={(e) => {
+                                          e.preventDefault();
+                                          handleAddTag(lead.id, newTagValue);
+                                          setEditingTagLeadId(null);
+                                        }}
+                                        className="inline-flex"
+                                      >
+                                        <Input
+                                          ref={tagInputRef}
+                                          value={newTagValue}
+                                          onChange={(e) => setNewTagValue(e.target.value)}
+                                          placeholder="Tag..."
+                                          className="h-5 w-20 text-[10px] px-1.5"
+                                          autoFocus
+                                          onBlur={() => {
+                                            if (newTagValue.trim()) handleAddTag(lead.id, newTagValue);
+                                            setEditingTagLeadId(null);
+                                            setNewTagValue("");
+                                          }}
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Escape") {
+                                              setEditingTagLeadId(null);
+                                              setNewTagValue("");
+                                            }
+                                          }}
+                                        />
+                                      </form>
+                                    ) : (
+                                      <button
+                                        onClick={() => {
+                                          setEditingTagLeadId(lead.id);
+                                          setNewTagValue("");
+                                        }}
+                                        className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                                        title="Add tag"
+                                      >
+                                        <Plus className="h-3 w-3" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+
+                                {/* Date */}
+                                <td className="px-3 py-2.5 text-xs text-muted-foreground whitespace-nowrap">
+                                  {format(new Date(lead.created_at), "MMM d")}
+                                </td>
+
+                                {/* Actions */}
+                                <td className="px-3 py-2.5 text-right">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                                        <MoreVertical className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-44">
+                                      <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "hot")}>
+                                        <Flame className="h-3.5 w-3.5 mr-2 text-red-500" /> Mark Hot
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "warm")}>
+                                        <Thermometer className="h-3.5 w-3.5 mr-2 text-amber-500" /> Mark Warm
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "cold")}>
+                                        <Snowflake className="h-3.5 w-3.5 mr-2 text-blue-400" /> Mark Cold
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem asChild>
+                                        <a href={`mailto:${lead.email}`}>
+                                          <Mail className="h-3.5 w-3.5 mr-2" /> Email
+                                        </a>
+                                      </DropdownMenuItem>
+                                      {lead.phone && (
+                                        <DropdownMenuItem asChild>
+                                          <a href={`tel:${lead.phone}`}>
+                                            <Phone className="h-3.5 w-3.5 mr-2" /> Call
+                                          </a>
+                                        </DropdownMenuItem>
+                                      )}
+                                      {lead.deck_url && (
+                                        <DropdownMenuItem asChild>
+                                          <a href={lead.deck_url} target="_blank" rel="noopener noreferrer">
+                                            <Presentation className="h-3.5 w-3.5 mr-2" /> View Deck
+                                          </a>
+                                        </DropdownMenuItem>
+                                      )}
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Mobile Cards */}
+                  <div className="md:hidden space-y-2">
+                    {sortedOnboarded.map((lead) => {
+                      const temp = (TEMP_CONFIG as any)[lead.temperature] || TEMP_CONFIG.cold;
+                      const TempIcon = temp.icon;
+                      const projectTag = lead.pitch_decks?.project_name;
+                      const allTags = [
+                        ...(projectTag ? [projectTag] : []),
+                        ...(lead.tags || []),
+                      ];
+
+                      return (
+                        <div
+                          key={lead.id}
                           className={cn(
-                            "w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all hover:scale-110",
-                            lead.temperature === "hot" ? "bg-red-500/20" : lead.temperature === "warm" ? "bg-amber-500/20" : "bg-blue-400/10"
+                            "p-3 rounded-lg border transition-colors",
+                            lead.temperature === "hot" ? temp.bg : "border-border"
                           )}
-                          title={`Click to cycle: ${temp.label}`}
                         >
-                          <TempIcon className={cn("h-4 w-4", temp.className)} />
-                        </button>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-medium text-sm truncate">{lead.first_name} {lead.last_name}</p>
-                            <Badge variant="outline" className="text-[10px] h-4 px-1.5">
-                              {SOURCE_LABELS[lead.source] || lead.source}
-                            </Badge>
-                            {lead.zapier_synced && (
-                              <Badge className="text-[10px] h-4 px-1.5 bg-primary/10 text-primary border-0 gap-0.5">
-                                <Check className="h-2.5 w-2.5" /> CRM
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-3 mt-0.5">
-                            <a href={`mailto:${lead.email}`} className="text-xs text-muted-foreground hover:text-primary transition-colors truncate">
-                              {lead.email}
-                            </a>
-                            {lead.phone && (
-                              <a href={`tel:${lead.phone}`} className="text-xs text-muted-foreground hover:text-primary transition-colors hidden sm:inline">
-                                {lead.phone}
-                              </a>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Date + Actions */}
-                        <div className="flex items-center gap-1 shrink-0">
-                          <span className="text-[11px] text-muted-foreground hidden sm:inline">
-                            {format(new Date(lead.created_at), "MMM d")}
-                          </span>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-7 w-7">
-                                <MoreVertical className="h-3.5 w-3.5" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-44">
-                              <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "hot")}>
-                                <Flame className="h-3.5 w-3.5 mr-2 text-red-500" /> Mark Hot
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "warm")}>
-                                <Thermometer className="h-3.5 w-3.5 mr-2 text-amber-500" /> Mark Warm
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "cold")}>
-                                <Snowflake className="h-3.5 w-3.5 mr-2 text-blue-400" /> Mark Cold
-                              </DropdownMenuItem>
-                              <DropdownMenuItem asChild>
-                                <a href={`mailto:${lead.email}`}>
-                                  <Mail className="h-3.5 w-3.5 mr-2" /> Email
+                          <div className="flex items-start gap-3">
+                            <button
+                              onClick={() => {
+                                const cycle = lead.temperature === "cold" ? "warm" : lead.temperature === "warm" ? "hot" : "cold";
+                                handleSetTemperature(lead.id, cycle);
+                              }}
+                              className={cn(
+                                "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5",
+                                lead.temperature === "hot" ? "bg-red-500/20" : lead.temperature === "warm" ? "bg-amber-500/20" : "bg-blue-400/10"
+                              )}
+                            >
+                              <TempIcon className={cn("h-4 w-4", temp.className)} />
+                            </button>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className="font-medium text-sm">{lead.first_name} {lead.last_name}</p>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 -mr-1">
+                                      <MoreVertical className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-44">
+                                    <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "hot")}>
+                                      <Flame className="h-3.5 w-3.5 mr-2 text-red-500" /> Mark Hot
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "warm")}>
+                                      <Thermometer className="h-3.5 w-3.5 mr-2 text-amber-500" /> Mark Warm
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "cold")}>
+                                      <Snowflake className="h-3.5 w-3.5 mr-2 text-blue-400" /> Mark Cold
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem asChild>
+                                      <a href={`mailto:${lead.email}`}><Mail className="h-3.5 w-3.5 mr-2" /> Email</a>
+                                    </DropdownMenuItem>
+                                    {lead.phone && (
+                                      <DropdownMenuItem asChild>
+                                        <a href={`tel:${lead.phone}`}><Phone className="h-3.5 w-3.5 mr-2" /> Call</a>
+                                      </DropdownMenuItem>
+                                    )}
+                                    {lead.deck_url && (
+                                      <DropdownMenuItem asChild>
+                                        <a href={lead.deck_url} target="_blank" rel="noopener noreferrer">
+                                          <Presentation className="h-3.5 w-3.5 mr-2" /> View Deck
+                                        </a>
+                                      </DropdownMenuItem>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                              {/* Contact row */}
+                              <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
+                                <a href={`tel:${lead.phone}`} className="hover:text-primary flex items-center gap-1">
+                                  <Phone className="h-3 w-3" /> {lead.phone || "—"}
                                 </a>
-                              </DropdownMenuItem>
-                              {lead.phone && (
-                                <DropdownMenuItem asChild>
-                                  <a href={`tel:${lead.phone}`}>
-                                    <Phone className="h-3.5 w-3.5 mr-2" /> Call
-                                  </a>
-                                </DropdownMenuItem>
+                                <span className="text-border">|</span>
+                                <a href={`mailto:${lead.email}`} className="hover:text-primary truncate">
+                                  {lead.email}
+                                </a>
+                              </div>
+                              {/* Meta row */}
+                              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                                <Badge variant="outline" className={cn("text-[10px] h-5 px-1.5 font-medium border", temp.badgeCn)}>
+                                  {temp.label}
+                                </Badge>
+                                <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal">
+                                  {SOURCE_LABELS[lead.source] || lead.source}
+                                </Badge>
+                                {lead.zapier_synced && (
+                                  <Badge className="text-[10px] h-5 px-1.5 bg-primary/10 text-primary border-0 gap-0.5">
+                                    <Check className="h-2.5 w-2.5" /> CRM
+                                  </Badge>
+                                )}
+                                <span className="text-[10px] text-muted-foreground ml-auto">
+                                  {format(new Date(lead.created_at), "MMM d")}
+                                </span>
+                              </div>
+                              {/* Tags */}
+                              {(allTags.length > 0 || true) && (
+                                <div className="flex items-center gap-1 mt-2 flex-wrap">
+                                  {allTags.map((tag, i) => (
+                                    <Badge
+                                      key={`${tag}-${i}`}
+                                      variant="secondary"
+                                      className={cn(
+                                        "text-[10px] h-5 px-1.5 gap-0.5 font-normal",
+                                        i === 0 && projectTag ? "bg-primary/10 text-primary border-primary/20" : ""
+                                      )}
+                                    >
+                                      {i === 0 && projectTag && <Presentation className="h-2.5 w-2.5" />}
+                                      {tag}
+                                      {(i > 0 || !projectTag) && (
+                                        <button onClick={() => handleRemoveTag(lead.id, tag)} className="ml-0.5 hover:text-destructive">
+                                          <X className="h-2.5 w-2.5" />
+                                        </button>
+                                      )}
+                                    </Badge>
+                                  ))}
+                                  <button
+                                    onClick={() => {
+                                      const tag = prompt("Add tag:");
+                                      if (tag) handleAddTag(lead.id, tag);
+                                    }}
+                                    className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </button>
+                                </div>
                               )}
-                              {lead.deck_url && (
-                                <DropdownMenuItem asChild>
-                                  <a href={lead.deck_url} target="_blank" rel="noopener noreferrer">
-                                    <Presentation className="h-3.5 w-3.5 mr-2" /> View Deck
-                                  </a>
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </TabsContent>
