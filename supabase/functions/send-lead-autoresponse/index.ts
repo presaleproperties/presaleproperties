@@ -347,9 +347,9 @@ Deno.serve(async (req) => {
       ? buildTemplateB(project as ProjectData, firstName, agent, projectUrl)
       : buildTemplateA(project as ProjectData, firstName, agent);
 
-    const subjectLine = hasDocuments
-      ? `${project.name} — Your Requested Floor Plans & Details`
-      : `${project.name} — We'll Be in Touch Shortly`;
+    const subjectLine = useTemplateB
+      ? `${project.name} — We'll Be in Touch Shortly`
+      : `${project.name} — Your Requested Floor Plans & Details`;
 
     // Generate a unique tracking ID for open tracking
     const trackingId = crypto.randomUUID();
