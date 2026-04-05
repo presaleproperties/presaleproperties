@@ -237,7 +237,7 @@ export default function DashboardDecks() {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
 
       toast.success(`Email pre-loaded for ${deck.project_name} — opening builder…`);
-      navigate(`/admin/email-builder?source=deck&t=${Date.now()}`);
+      navigate(`/dashboard/email-builder?source=deck&t=${Date.now()}`);
     } catch (err) {
       console.error("handleSendEmail error:", err);
       toast.error("Failed to prepare email");
