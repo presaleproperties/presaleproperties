@@ -398,6 +398,34 @@ export default function DashboardEmails() {
     navigate(`/dashboard/email-builder?saved=${t.id}`);
   };
 
+  const [importing, setImporting] = useState<string | null>(null);
+
+  const handleImportTemplate = async (t: SavedTemplate) => {
+    if (!user) return;
+    setImporting(t.id);
+    try {
+      const { error } = await (supabase as any)
+        .from("campaign_templates")
+        .insert({
+          name: t.name,
+          project_name: t.project_name,
+          form_data: t.form_data,
+          thumbnail_url: t.thumbnail_url,
+          brochure_url: (t as any).brochure_url || null,
+          pricing_sheet_url: (t as any).pricing_sheet_url || null,
+          user_id: user.id,
+        });
+      if (error) throw error;
+      toast.success("Template imported to your library!");
+      fetchTemplates();
+    } catch (err: any) {
+      console.error("Import error:", err);
+      toast.error(err.message || "Failed to import template");
+    } finally {
+      setImporting(null);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-5">
