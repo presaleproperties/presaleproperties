@@ -88,7 +88,7 @@ function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
-  layoutVersion?: "loop" | "pitch-deck" | "modern" | "editorial",
+  layoutVersion?: "pitch-deck" | "modern" | "editorial",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
 ): string {
