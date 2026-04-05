@@ -117,6 +117,7 @@ export default function DashboardLeads() {
   const [editingTagLeadId, setEditingTagLeadId] = useState<string | null>(null);
   const [newTagValue, setNewTagValue] = useState("");
   const tagInputRef = useRef<HTMLInputElement>(null);
+  const [showAddLead, setShowAddLead] = useState(false);
 
   useEffect(() => {
     if (user) fetchAll();
