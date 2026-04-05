@@ -7,6 +7,8 @@ import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 import { cn } from "@/lib/utils";
 import { PhoneVerificationField } from "@/components/ui/PhoneVerificationField";
 import { formatPhoneNumber } from "@/lib/formatPhone";
+import { upsertProjectLead } from "@/lib/upsertProjectLead";
+import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 
 interface DeckPriceGateProps {
   slug: string;
