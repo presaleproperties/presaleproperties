@@ -1264,7 +1264,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       <input ref={imgCardInputRef}  type="file" accept="image/*" multiple className="hidden" onChange={handleImgCardUpload} />
       <input ref={ctaPdfInputRef}   type="file" accept="application/pdf" className="hidden" onChange={handleCtaPdfUpload} />
 
-      <div className="p-3 md:p-6 max-w-[1400px] mx-auto space-y-3">
+      <div className="p-2 md:p-3 max-w-[1600px] mx-auto space-y-2">
 
         {/* ── Top bar ── */}
         <div className="flex items-center gap-2 min-w-0">
