@@ -111,12 +111,16 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
   const { signOut, user, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fullName, setFullName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     import("@/integrations/supabase/client").then(({ supabase }) => {
-      supabase.from("profiles").select("full_name").eq("user_id", user.id).single()
-        .then(({ data }) => { if (data?.full_name) setFullName(data.full_name); });
+      supabase.from("profiles").select("full_name, avatar_url").eq("user_id", user.id).single()
+        .then(({ data }) => {
+          if (data?.full_name) setFullName(data.full_name);
+          if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+        });
     });
   }, [user]);
 
@@ -185,9 +189,13 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
           {/* User Info Card */}
           <div className="p-4 border-b border-border/50">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold">
-                {(fullName || user?.email || "A").charAt(0).toUpperCase()}
-              </div>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold">
+                  {(fullName || user?.email || "A").charAt(0).toUpperCase()}
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{fullName || user?.email?.split("@")[0]}</p>
                 <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
@@ -274,9 +282,13 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
               {/* Mobile User Card */}
               <div className="p-3 border-b border-border/30">
                 <div className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/50">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold text-sm">
-                    {(fullName || user?.email || "A").charAt(0).toUpperCase()}
-                  </div>
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" className="w-9 h-9 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold text-sm">
+                      {(fullName || user?.email || "A").charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{fullName || user?.email?.split("@")[0]}</p>
                     <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
