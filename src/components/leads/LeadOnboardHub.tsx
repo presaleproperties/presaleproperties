@@ -65,7 +65,7 @@ function getTemplateName(tpl: EmailTemplate): string {
   return tpl.form_data?.copy?.subjectLine || tpl.name;
 }
 
-export function LeadOnboardHub() {
+export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
   const { user } = useAuth();
   const isMobile = useIsMobile();
 
@@ -291,6 +291,7 @@ export function LeadOnboardHub() {
           ? `${values.first_name} has been saved, synced to Lofty, and emailed.`
           : `${values.first_name} has been saved and synced to Lofty.`,
       });
+      onSuccess?.();
     } catch (err: any) {
       console.error("Onboard error:", err);
       toast({

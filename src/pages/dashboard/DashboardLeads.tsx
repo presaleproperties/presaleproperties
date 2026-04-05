@@ -1,10 +1,12 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { LeadOnboardHub } from "@/components/leads/LeadOnboardHub";
 import {
   Select,
   SelectContent,
@@ -115,6 +117,7 @@ export default function DashboardLeads() {
   const [editingTagLeadId, setEditingTagLeadId] = useState<string | null>(null);
   const [newTagValue, setNewTagValue] = useState("");
   const tagInputRef = useRef<HTMLInputElement>(null);
+  const [showAddLead, setShowAddLead] = useState(false);
 
   useEffect(() => {
     if (user) fetchAll();
