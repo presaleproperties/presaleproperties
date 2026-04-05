@@ -28,7 +28,8 @@ interface ProjectData {
   featured_image?: string;
   price_range?: string;
   deposit_structure?: string;
-  completion_date?: string;
+  completion_year?: number;
+  completion_month?: number;
   slug?: string;
   brochure_files?: string[];
   floorplan_files?: string[];
