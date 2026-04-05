@@ -756,7 +756,7 @@ export function buildLoopEmailHtml(
   <!-- ─── CTA ─── -->
   <tr>
     <td style="background:#f7f5f1;padding:36px 36px;text-align:center;border-top:1px solid #e8e3db;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
+      ${ctaUrl ? `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
         <tr>
           <td align="center" style="background:${ACCENT};padding:20px 32px;">
             <a href="${plansPricingUrl}"
@@ -765,7 +765,7 @@ export function buildLoopEmailHtml(
             </a>
           </td>
         </tr>
-      </table>
+      </table>` : ""}
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
           <td align="center" style="background:${DARK};padding:16px 24px;">
