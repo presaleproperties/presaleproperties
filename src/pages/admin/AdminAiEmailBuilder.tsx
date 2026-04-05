@@ -147,6 +147,9 @@ function buildFinalHtml(
   // ── MODERN V2 template ────────────────────────────────────────────────────
   if (layoutVersion === "modern-v2") {
     const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
+    const slides = (loopSlides && loopSlides.length > 0)
+      ? loopSlides.filter(Boolean)
+      : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
     return buildModernV2EmailHtml({
       projectName:    fields.projectName || "",
       city:           fields.city,
@@ -169,6 +172,7 @@ function buildFinalHtml(
       })),
       fpHeading,
       fpSubheading,
+      loopSlides: slides,
     }, agent);
   }
   // ── CLASSIC template ───────────────────────────────────────────────────────
