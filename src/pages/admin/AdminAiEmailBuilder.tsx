@@ -427,9 +427,11 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     short_description?: string | null;
   }>>([]);
 
-  // ── Force-hydrate state from DB when loading a saved template ────────────
+  // ── Force-hydrate state from DB when loading a saved template (once only) ──
+  const stateHydratedRef = useRef(false);
   useEffect(() => {
-    if (!dbDraft) return;
+    if (!dbDraft || stateHydratedRef.current) return;
+    stateHydratedRef.current = true;
     const d = dbDraft;
     setProjectName(d.projectName ?? "");
     setDevName(d.developerName ?? "");
