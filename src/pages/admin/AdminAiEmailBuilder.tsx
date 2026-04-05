@@ -1538,12 +1538,28 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
                     {layoutVersion === "modern" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-sky-500" />}
                   </button>
+                  <button
+                    onClick={() => setLayoutVersion("modern-v2")}
+                    className={cn(
+                      "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                      layoutVersion === "modern-v2"
+                        ? "border-violet-500 bg-violet-500/8 shadow-sm"
+                        : "border-border bg-muted/10 hover:border-violet-400/50"
+                    )}
+                  >
+                    <div className="text-[11px] font-semibold text-foreground">Modern V2</div>
+                    <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
+                    {layoutVersion === "modern-v2" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-violet-500" />}
+                  </button>
                 </div>
                 {layoutVersion === "editorial" && (
                   <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
                 )}
                 {layoutVersion === "modern" && (
                   <p className="text-[9px] text-sky-600/70 mt-1.5 leading-relaxed">Full-bleed hero, huge bold headline, black pill CTAs — inspired by Lululemon's email design. Best for mobile readers.</p>
+                )}
+                {layoutVersion === "modern-v2" && (
+                  <p className="text-[9px] text-violet-600/70 mt-1.5 leading-relaxed">Identical to Modern layout — ready for customization.</p>
                 )}
               </div>
 
