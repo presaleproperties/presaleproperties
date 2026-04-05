@@ -2102,9 +2102,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               </StepSection>
 
 
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[9px] text-muted-foreground">{showProjectName ? "Visible" : "Hidden"}</span>
-                        <Switch checked={showProjectName} onCheckedChange={setShowProjectName} className="scale-75 origin-right" />
                       </div>
                     </div>
                     <Input value={projectName} onChange={e => setProjectName(e.target.value)} className={cn("h-7 text-xs", !showProjectName && "opacity-40")} placeholder="Lumina" />
