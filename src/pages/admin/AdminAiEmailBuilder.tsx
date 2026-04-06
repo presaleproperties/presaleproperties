@@ -1010,25 +1010,11 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     return finalHtml;
   }, [previewMode, finalHtml]);
 
-  // ── Lofty / CRM-safe export (same preview HTML, mobile-fluid, Lofty merge tags) ─
+  // ── Lofty / CRM-safe export (same preview HTML, Lofty merge tags, no <style>) ─
   const getLoftyHtml = useCallback((): string => {
     let html = finalHtml;
     // Strip <style> blocks (Lofty CRM strips them anyway)
     html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
-    // Convert fixed pixel widths ≥200 to fluid for mobile
-    html = html.replace(/width:\s*(\d+)px/g, (_match, px) => {
-      const n = parseInt(px, 10);
-      return n >= 200 ? "width:100%" : _match;
-    });
-    html = html.replace(/<(table|td|img)([^>]*)\swidth="(\d+)"([^>]*)>/gi, (_match, tag, before, px, after) => {
-      const n = parseInt(px, 10);
-      return n >= 200 ? `<${tag}${before} width="100%"${after}>` : _match;
-    });
-    // Also fix max-width inline styles
-    html = html.replace(/max-width:\s*(\d+)px/g, (_match, px) => {
-      const n = parseInt(px, 10);
-      return n >= 200 ? "max-width:100%" : _match;
-    });
     // Replace Mailchimp / generic merge tags with Lofty merge tags
     html = html.replace(/\*\|UNSUB\|\*/g, "#unsubscribe_url#");
     html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "#update_preferences_url#");
