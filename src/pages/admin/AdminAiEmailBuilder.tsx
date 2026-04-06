@@ -1010,20 +1010,45 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     return finalHtml;
   }, [previewMode, finalHtml]);
 
-  // ── Lofty / CRM-safe export (no media queries, fully fluid) ──────────────────
+  // ── Lofty / CRM-safe export (dedicated mobile-first Lofty template) ─────────
   const getLoftyHtml = useCallback((): string => {
-    // Strip <style>, convert fixed widths to fluid, and swap merge tags
-    let html = finalHtml;
-    html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
-    html = html.replace(/width:\s*(\d+)px/g, (match, px) => {
-      const n = parseInt(px, 10);
-      return n >= 200 ? "width:100%" : match;
-    });
-    html = html.replace(/<(table|td)([^>]*)\swidth="(\d+)"([^>]*)>/gi, (match, tag, before, px, after) => {
-      const n = parseInt(px, 10);
-      return n >= 200 ? `<${tag}${before} width="100%"${after}>` : match;
-    });
-    // Replace Mailchimp merge tags with Lofty merge tags
+    let deckUrl = "";
+    try {
+      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      deckUrl = saved?._deckUrl || "";
+    } catch {}
+
+    let html = buildPitchDeckEmailHtmlLofty({
+      projectName: currentCopy().projectName || "",
+      city: currentCopy().city || "",
+      developerName: currentCopy().developerName || "",
+      heroImage: heroImage || undefined,
+      headline: currentCopy().headline || "",
+      bodyCopy: currentCopy().bodyCopy || "",
+      startingPrice: currentCopy().startingPrice || "",
+      deposit: currentCopy().deposit || "",
+      completion: currentCopy().completion || "",
+      incentiveText: currentCopy().incentiveText || "",
+      infoRows: currentCopy().infoRows || [],
+      floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
+        id: fp.id,
+        url: fp.url,
+        label: fp.label,
+        sqft: fp.sqft,
+        price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
+        exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
+      })),
+      fpHeading,
+      fpSubheading,
+      subjectLine: currentCopy().subjectLine || "",
+      previewText: currentCopy().previewText || "",
+      ctaPhone: selectedAgent.phone || DEFAULT_AGENT.phone,
+      deckUrl: deckUrl || undefined,
+      projectUrl: projectUrl || undefined,
+      brochureUrl: brochureUrl || undefined,
+      floorplanUrl: floorplanUrl || undefined,
+    }, selectedAgent);
+
     html = html.replace(/\*\|UNSUB\|\*/g, "#unsubscribe_url#");
     html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "#update_preferences_url#");
     html = html.replace(/\*\|EMAIL_WEB_VERSION_URL\|\*/g, "#view_in_browser_url#");
@@ -1031,9 +1056,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     html = html.replace(/\*\|LNAME\|\*/g, "#lead_last_name#");
     html = html.replace(/\*\|EMAIL\|\*/g, "#lead_email#");
     return html;
-  }, [layoutVersion, finalHtml, projectName, city, developerName, heroImage, headline, bodyCopy,
-      subjectLine, previewText, startingPrice, deposit, completion, infoRows, incentiveText,
-      floorPlans, fpHeading, fpSubheading, selectedAgent]);
+  }, [currentCopy, heroImage, floorPlans, fpHeading, fpSubheading, selectedAgent, projectUrl, brochureUrl, floorplanUrl]);
 
 
   
