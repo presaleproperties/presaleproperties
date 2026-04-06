@@ -1010,106 +1010,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     return finalHtml;
   }, [previewMode, finalHtml]);
 
-  // ── Lofty / CRM-safe export: mobile-first, fully inlined, no <style> dependency ─
+  // ── Lofty / CRM export: exact preview HTML, Lofty merge tags only ─
   const getLoftyHtml = useCallback((): string => {
-    let html = finalHtml;
+    let html = getExportHtml();
 
-    // 1. Strip all <style> blocks — Lofty strips them anyway
-    html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
-
-    // 2. Body: remove padding, force white background
-    html = html.replace(
-      /(<body[^>]*style=")([^"]*?)(")/gi,
-      (_m, pre, styles, post) => {
-        let s = styles
-          .replace(/padding:\s*[^;"]+/gi, "padding:0")
-          .replace(/background:\s*[^;"]+/gi, "background:#ffffff");
-        return pre + s + post;
-      }
-    );
-
-    // 3. Outer centering wrapper td: remove padding
-    html = html.replace(
-      /(<td[^>]*align="center"[^>]*style="[^"]*?)padding:\s*\d+px\s+\d+px/gi,
-      "$1padding:0"
-    );
-
-    // 4. Outer background table: white
-    html = html.replace(
-      /(<table[^>]*width="100%"[^>]*style="[^"]*?)background:\s*#f7f5f2/gi,
-      "$1background:#ffffff"
-    );
-
-    // 5. Inner 600px table → 100% width, remove border/radius
-    html = html.replace(
-      /(<table[^>]*)width="600"([^>]*style=")([^"]*?)(")/gi,
-      (_m, pre, mid, styles, post) => {
-        let s = styles
-          .replace(/max-width:\s*600px;?/gi, "max-width:100%;")
-          .replace(/width:\s*600px;?/gi, "width:100%;")
-          .replace(/border:\s*1px solid #e0dbd3;?\s*/gi, "")
-          .replace(/border-radius:\s*\d+px;?\s*/gi, "");
-        return pre + 'width="100%"' + mid + s + post;
-      }
-    );
-
-    // 6. Also catch width="600" on images — make them fluid
-    html = html.replace(
-      /(<img[^>]*)width="600"/gi,
-      '$1width="100%"'
-    );
-
-    // 7. Convert 3-column stats bar to stacked vertical rows
-    // Match the stats bar table with stat-cell tds in a single <tr>
-    html = html.replace(
-      /<table([^>]*class="mobile-stack"[^>]*)>\s*<tr>([\s\S]*?)<\/tr>\s*<\/table>/gi,
-      (_match, tableAttrs, innerCells) => {
-        // Extract each stat-cell <td>...</td>
-        const cellRegex = /<td[^>]*class="stat-cell"[^>]*style="([^"]*)"[^>]*>([\s\S]*?)<\/td>/gi;
-        const cells: { style: string; content: string }[] = [];
-        let cellMatch;
-        while ((cellMatch = cellRegex.exec(innerCells)) !== null) {
-          cells.push({ style: cellMatch[1], content: cellMatch[2] });
-        }
-        if (cells.length === 0) return _match; // fallback
-
-        // Rebuild as stacked rows — each stat gets its own row, left-aligned, full width
-        const rows = cells.map((cell, i) => {
-          let style = cell.style
-            .replace(/width:\s*\d+%;?\s*/gi, "width:100%;")
-            .replace(/text-align:\s*center;?/gi, "text-align:left;")
-            .replace(/border-right:\s*[^;"]+;?\s*/gi, "")
-            .replace(/padding:\s*[^;"]+/gi, "padding:14px 20px 12px");
-          // Add bottom border except last
-          if (i < cells.length - 1) {
-            style += "border-bottom:1px solid #e8e3db;";
-          }
-          return `<tr><td style="${style}">${cell.content}</td></tr>`;
-        }).join("\n          ");
-
-        return `<table width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table>`;
-      }
-    );
-
-    // 8. Reduce padding on mobile-pad cells (36px → 20px 16px)
-    html = html.replace(
-      /class="mobile-pad"\s*style="([^"]*)"/gi,
-      (_m, styles) => {
-        const s = styles.replace(/padding:\s*[^;"]+/gi, "padding:20px 16px");
-        return `style="${s}"`;
-      }
-    );
-
-    // 9. Remove leftover border-radius anywhere
-    html = html.replace(/border-radius:\s*\d+px;?\s*/gi, "");
-
-    // 10. Remove remaining border on content wrappers
-    html = html.replace(/border:\s*1px solid #e0dbd3;?\s*/gi, "");
-
-    // 11. Strip class attributes (Lofty ignores them, keeps HTML cleaner)
-    html = html.replace(/\s+class="[^"]*"/gi, "");
-
-    // 12. Replace merge tags with Lofty merge tags
+    // Keep the HTML identical to preview / MailerLite and only map merge tags for Lofty
+    html = html.replace(/\{unsubscribe_url\}/g, "#unsubscribe_url#");
+    html = html.replace(/href="#unsubscribe"/g, 'href="#unsubscribe_url#"');
     html = html.replace(/\*\|UNSUB\|\*/g, "#unsubscribe_url#");
     html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "#update_preferences_url#");
     html = html.replace(/\*\|EMAIL_WEB_VERSION_URL\|\*/g, "#view_in_browser_url#");
@@ -1118,7 +1025,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     html = html.replace(/\*\|EMAIL\|\*/g, "#lead_email#");
 
     return html;
-  }, [finalHtml]);
+  }, [getExportHtml]);
 
 
   
