@@ -2276,8 +2276,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         <tr>
           <td valign="top" style="padding: 0; font-size: 0; line-height: 0;">
             ${deckLink
-              ? `<a href="${deckLink}" target="_blank" style="display: block; font-size: 0; line-height: 0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;" /></a>`
-              : `<img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;" />`}
+              ? `<a href="${deckLink}" target="_blank" style="display: block; font-size: 0; line-height: 0;"><img src="${data.heroImage}" alt="${data.projectName}" width="414" style="display: block; width: 100%; max-width: 414px; height: auto; border: 0;" /></a>`
+              : `<img src="${data.heroImage}" alt="${data.projectName}" width="414" style="display: block; width: 100%; max-width: 414px; height: auto; border: 0;" />`}
           </td>
         </tr>` : ""}
 
