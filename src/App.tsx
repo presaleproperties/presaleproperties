@@ -324,24 +324,24 @@ const App = () => (
             <Route path="/developer/settings" element={<DeveloperSettings />} />
             
             {/* Agent Dashboard Routes */}
-            <Route path="/dashboard" element={<ProtectedRoute><DashboardOverview /></ProtectedRoute>} />
-            <Route path="/dashboard/projects" element={<ProtectedRoute><DashboardProjectDocuments /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardErrorBoundary><DashboardOverview /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/projects" element={<ProtectedRoute><DashboardErrorBoundary><DashboardProjectDocuments /></DashboardErrorBoundary></ProtectedRoute>} />
             <Route path="/dashboard/assignments" element={<Navigate to="/map-search?mode=assignments" replace />} />
-            <Route path="/dashboard/listings" element={<ProtectedRoute><DashboardListings /></ProtectedRoute>} />
-            <Route path="/dashboard/listings/new" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
-            <Route path="/dashboard/listings/:id/edit" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
-            <Route path="/dashboard/decks" element={<ProtectedRoute><DashboardDecks /></ProtectedRoute>} />
-            <Route path="/dashboard/decks/new" element={<ProtectedRoute><DashboardDeckBuilder /></ProtectedRoute>} />
-            <Route path="/dashboard/decks/:id/edit" element={<ProtectedRoute><DashboardDeckBuilder /></ProtectedRoute>} />
-            <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
-            <Route path="/dashboard/emails" element={<ProtectedRoute><DashboardEmails /></ProtectedRoute>} />
-            <Route path="/dashboard/marketing-hub" element={<ProtectedRoute><DashboardMarketingHub /></ProtectedRoute>} />
-            <Route path="/dashboard/email-builder" element={<ProtectedRoute><DashboardEmailBuilder /></ProtectedRoute>} />
+            <Route path="/dashboard/listings" element={<ProtectedRoute><DashboardErrorBoundary><DashboardListings /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/listings/new" element={<ProtectedRoute><DashboardErrorBoundary><ListingForm /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/listings/:id/edit" element={<ProtectedRoute><DashboardErrorBoundary><ListingForm /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/decks" element={<ProtectedRoute><DashboardErrorBoundary><DashboardDecks /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/decks/new" element={<ProtectedRoute><DashboardErrorBoundary><DashboardDeckBuilder /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/decks/:id/edit" element={<ProtectedRoute><DashboardErrorBoundary><DashboardDeckBuilder /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardErrorBoundary><DashboardLeads /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/emails" element={<ProtectedRoute><DashboardErrorBoundary><DashboardEmails /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/marketing-hub" element={<ProtectedRoute><DashboardErrorBoundary><DashboardMarketingHub /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/email-builder" element={<ProtectedRoute><DashboardErrorBoundary><DashboardEmailBuilder /></DashboardErrorBoundary></ProtectedRoute>} />
             {/* Legacy redirects for removed pages */}
             <Route path="/dashboard/messages" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/lead-onboard" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/billing" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
+            <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardErrorBoundary><DashboardProfile /></DashboardErrorBoundary></ProtectedRoute>} />
             
             {/* For Agents Marketing Page */}
             <Route path="/for-agents" element={<ForAgents />} />
