@@ -187,11 +187,11 @@ export default function ResaleListingDetail() {
       // Fetch agent
       const { data: agentRaw } = await supabase
         .from("mls_agents_public" as any)
-        .select("agent_key, full_name, phone, office_key")
+        .select("agent_key, full_name, office_key")
         .eq("agent_key", listing.list_agent_key)
         .maybeSingle();
       
-      const agent = agentRaw as unknown as { agent_key: string; full_name: string | null; phone: string | null; office_key: string | null } | null;
+      const agent = agentRaw as unknown as { agent_key: string; full_name: string | null; office_key: string | null } | null;
       if (!agent) return null;
 
       // Fetch office if agent has office_key
