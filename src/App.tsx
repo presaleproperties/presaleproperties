@@ -124,6 +124,7 @@ const ResaleListingDetail = lazy(() => import("./pages/ResaleListingDetail"));
 const CityResalePage = lazy(() => import("./pages/CityResalePage"));
 const AssignmentDetail = lazy(() => import("./pages/AssignmentDetail"));
 const Developers = lazy(() => import("./pages/Developers"));
+const DeveloperProfile = lazy(() => import("./pages/DeveloperProfile"));
 const InvestmentSnapshotPage = lazy(() => import("./pages/InvestmentSnapshotPage"));
 const ResalePropertyTypePage = lazy(() => import("./pages/ResalePropertyTypePage"));
 const ResalePriceRangePage = lazy(() => import("./pages/ResalePriceRangePage"));

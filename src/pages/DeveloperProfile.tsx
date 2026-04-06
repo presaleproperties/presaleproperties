@@ -27,11 +27,11 @@ interface PresaleProject {
   slug: string;
   city: string;
   neighborhood: string | null;
-  property_type: string | null;
+  project_type: string | null;
   status: string | null;
   featured_image: string | null;
-  price_range_min: number | null;
-  price_range_max: number | null;
+  starting_price: number | null;
+  price_range: string | null;
 }
 
 export default function DeveloperProfile() {
