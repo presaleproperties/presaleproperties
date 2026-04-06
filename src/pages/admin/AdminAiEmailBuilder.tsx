@@ -1125,9 +1125,12 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // ── Export ────────────────────────────────────────────────────────────────────
   const handleCopy = () => {
-    navigator.clipboard.writeText(getExportHtml()).then(() => {
+    const html = codeViewTarget === "lofty" ? getLoftyHtml() : getMailerLiteHtml();
+    const label = codeViewTarget === "lofty" ? "Lofty / CRM" : "MailerLite";
+
+    navigator.clipboard.writeText(html).then(() => {
       setCopied(true);
-      toast.success("HTML copied — paste into Mailchimp");
+      toast.success(`${label} HTML copied`);
       setTimeout(() => setCopied(false), 2500);
     });
   };
@@ -1135,8 +1138,12 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const handleCopyLofty = () => {
     navigator.clipboard.writeText(getLoftyHtml()).then(() => {
       setCopiedLofty(true);
+      setCopied(true);
       toast.success("Lofty-optimized HTML copied — paste into Lofty");
-      setTimeout(() => setCopiedLofty(false), 2500);
+      setTimeout(() => {
+        setCopiedLofty(false);
+        setCopied(false);
+      }, 2500);
     });
   };
 
