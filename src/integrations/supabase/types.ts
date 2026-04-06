@@ -992,6 +992,8 @@ export type Database = {
           contact_phone: string | null
           created_at: string
           description: string | null
+          focus: string[] | null
+          founded_year: number | null
           id: string
           is_active: boolean
           logo_url: string | null
@@ -1010,6 +1012,8 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string
           description?: string | null
+          focus?: string[] | null
+          founded_year?: number | null
           id?: string
           is_active?: boolean
           logo_url?: string | null
@@ -1028,6 +1032,8 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string
           description?: string | null
+          focus?: string[] | null
+          founded_year?: number | null
           id?: string
           is_active?: boolean
           logo_url?: string | null
