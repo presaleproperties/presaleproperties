@@ -282,6 +282,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               { to: "/faq", label: "FAQ" },
               { to: "/calculator", label: "Calculator" },
               { to: "/about", label: "About" },
+              { to: "/for-agents", label: "Agent Portal" },
             ].map(({ to, label }) => (
               <Link
                 key={to}
@@ -514,6 +515,19 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                           <Users className="h-4 w-4 text-muted-foreground" />
                         </div>
                         <span className="text-lg font-semibold text-foreground">About</span>
+                      </Link>
+
+                      <div className="h-px bg-border/40 my-1" />
+
+                      <Link
+                        to="/for-agents"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 py-4"
+                      >
+                        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Users className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-lg font-semibold text-foreground">Agent Portal</span>
                       </Link>
                     </div>
                   </nav>
