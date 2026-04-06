@@ -1461,23 +1461,23 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-white/30">
-                      {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : codeViewTarget === "mailerlite" ? getMailerLiteHtml().length.toLocaleString() : finalHtml.length.toLocaleString()} chars
+                      {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : getMailerLiteHtml().length.toLocaleString()} chars
                     </span>
                     <button
-                      onClick={codeViewTarget === "lofty" ? handleCopyLofty : codeViewTarget === "mailerlite" ? handleCopyMailerLite : handleCopy}
+                      onClick={codeViewTarget === "lofty" ? handleCopyLofty : handleCopyMailerLite}
                       className={cn(
                         "text-[10px] px-2.5 py-1 rounded font-medium transition-all",
-                        (codeViewTarget === "lofty" ? copiedLofty : codeViewTarget === "mailerlite" ? copiedML : copied)
+                        (codeViewTarget === "lofty" ? copiedLofty : copiedML)
                           ? "bg-emerald-600 text-white"
                           : "bg-white/10 text-white/70 hover:bg-white/20"
                       )}
                     >
-                      {(codeViewTarget === "lofty" ? copiedLofty : codeViewTarget === "mailerlite" ? copiedML : copied) ? "✓ Copied!" : "Copy HTML"}
+                      {(codeViewTarget === "lofty" ? copiedLofty : copiedML) ? "✓ Copied!" : "Copy HTML"}
                     </button>
                   </div>
                 </div>
                 <pre className="flex-1 p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed overflow-auto" style={{ color: "#e6edf3" }}>
-                  {codeViewTarget === "lofty" ? getLoftyHtml() : codeViewTarget === "mailerlite" ? getMailerLiteHtml() : finalHtml}
+                  {codeViewTarget === "lofty" ? getLoftyHtml() : getMailerLiteHtml()}
                 </pre>
               </div>
             )}
