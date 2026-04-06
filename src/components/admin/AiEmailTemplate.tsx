@@ -2093,7 +2093,7 @@ export function buildPitchDeckEmailHtmlLofty(
   const GOOGLE_FONT = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
 
   const phone      = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
-  const whatsapp   = data.ctaWhatsApp || "16722581100";
+  
   const locationLine = data.city ? data.city.toUpperCase() : "";
   const byLine       = data.developerName ? `by ${data.developerName}` : "";
   const deckLink     = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
@@ -2347,23 +2347,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
           </td>
         </tr>
 
-        <!-- ── I'M INTERESTED CTA ── -->
-        <tr>
-           <td valign="top"
-               style="background-color: ${DARK}; padding: 0 20px 28px;">
-            <table class="cta-btn" cellpadding="0" cellspacing="0" border="0" width="100%">
-              <tr>
-                <td align="center" valign="top"
-                    style="background-color: ${ACCENT}; padding: 14px 24px; text-align: center;">
-                  <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in ${data.projectName}. Can you send me more details?`)}"
-                     style="${F} font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ${DARK}; text-decoration: none; display: block;">
-                    I'M INTERESTED &#8594;
-                  </a>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>` : ""}
+        ` : ""}
 
         <!-- ── CALL NOW CTA ── -->
         <tr>
