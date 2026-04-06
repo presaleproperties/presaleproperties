@@ -2,19 +2,29 @@
 <!--
   Sitemap Index for PresaleProperties.com
   
-  This index points to dynamically generated sitemaps served by edge functions.
-  This ensures Google always gets the latest URLs including all presale projects,
-  blog posts, developer pages, and 1000+ programmatic SEO pages.
+  Points to split sitemaps served by edge functions:
+  - pages: static pages, city pages, neighborhood pages
+  - projects: presale project detail pages
+  - guides: blog posts
+  - images: presale project and blog images only (NO MLS)
   
-  Updated: 2026-02-13
+  Updated: 2026-04-06
 -->
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
-    <loc>https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-sitemap</loc>
-    <lastmod>2026-02-13</lastmod>
+    <loc>https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-sitemap?type=pages</loc>
+    <lastmod>2026-04-06</lastmod>
   </sitemap>
   <sitemap>
-    <loc>https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-image-sitemap</loc>
-    <lastmod>2026-02-13</lastmod>
+    <loc>https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-sitemap?type=projects</loc>
+    <lastmod>2026-04-06</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-sitemap?type=guides</loc>
+    <lastmod>2026-04-06</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-sitemap?type=images</loc>
+    <lastmod>2026-04-06</lastmod>
   </sitemap>
 </sitemapindex>

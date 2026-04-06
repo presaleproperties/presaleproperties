@@ -63,13 +63,26 @@ Disallow: /exclusive-offer
 Disallow: /campaign/*
 Disallow: /privacy
 
-# Legacy redirect sources — block crawl to save budget
-# These 301 redirect to canonical destinations already in sitemap
+# ============================================
+# MLS/RESALE LISTINGS - Block entirely to save crawl budget
+# These are volatile content that causes Soft 404s
+# ============================================
 Disallow: /resale/
 Disallow: /resale/*
+Disallow: /resale?*
+
+# Block individual MLS listing pages (address-based slugs)
+# City pages (/properties/surrey) are NOT blocked — only detail pages
+# Detail pages contain listing_key patterns like -29031019
+Disallow: /properties/*-bc-*
+
+# Legacy numeric-only listing URLs
+Disallow: /properties/2*
+Disallow: /properties/3*
+
+# Legacy paths
 Disallow: /deposit/
 Disallow: /deposit/*
-
 
 # ============================================
 # CRAWL BUDGET - Block parameterized dynamic pages
@@ -78,9 +91,6 @@ Disallow: /deposit/*
 # Map search — block entirely (SPA UI, no indexable content)
 Disallow: /map-search
 Disallow: /map-search?*
-
-# Also block resale query-param URLs that are still being crawled
-Disallow: /resale?*
 
 # Calculator with price params
 Disallow: /calculator?*price=
@@ -105,4 +115,3 @@ Disallow: /assignments?*filter=
 
 # Sitemap
 Sitemap: https://presaleproperties.com/sitemap.xml
-Sitemap: https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-image-sitemap
