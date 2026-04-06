@@ -39,6 +39,11 @@ const BOT_PATTERNS = [
   "redditbot",
   "Tumblr",
   "Snap URL Preview Service",
+  "chatgpt-user",
+  "GPTBot",
+  "ClaudeBot",
+  "PerplexityBot",
+  "Bytespider",
 ];
 
 function isBot(ua: string): boolean {
