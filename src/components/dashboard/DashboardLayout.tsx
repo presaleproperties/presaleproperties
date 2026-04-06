@@ -123,12 +123,12 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
   useEffect(() => {
     if (!user) return;
     import("@/integrations/supabase/client").then(({ supabase }) => {
-      supabase.from("profiles").select("full_name, avatar_url").eq("user_id", user.id).single()
+      supabase.from("profiles").select("full_name, avatar_url").eq("user_id", user.id).maybeSingle()
         .then(({ data }) => {
           if (data?.full_name) setFullName(data.full_name);
           if (data?.avatar_url) setAvatarUrl(data.avatar_url);
         });
-    });
+    }).catch((err) => console.error("[DashboardLayout] profile fetch error:", err));
   }, [user]);
 
   const handleSignOut = async () => {
