@@ -252,16 +252,14 @@ export default function DeveloperProfile() {
                         {project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city}
                       </div>
                       <div className="flex items-center justify-between">
-                        {project.property_type && (
-                          <Badge variant="secondary" className="text-xs">{project.property_type}</Badge>
+                        {project.project_type && (
+                          <Badge variant="secondary" className="text-xs">{project.project_type}</Badge>
                         )}
-                        {(project.price_range_min || project.price_range_max) && (
-                          <span className="text-xs text-muted-foreground">
-                            {formatPrice(project.price_range_min)}
-                            {project.price_range_min && project.price_range_max && " – "}
-                            {formatPrice(project.price_range_max)}
-                          </span>
-                        )}
+                        {project.price_range ? (
+                          <span className="text-xs text-muted-foreground">{project.price_range}</span>
+                        ) : project.starting_price ? (
+                          <span className="text-xs text-muted-foreground">From {formatPrice(project.starting_price)}</span>
+                        ) : null}
                       </div>
                     </div>
                   </Link>
