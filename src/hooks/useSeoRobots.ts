@@ -51,7 +51,24 @@ const NOINDEX_ROUTES = [
   "/developer",        // developer portal
   "/developer-portal",
   "/privacy",          // thin legal page — no search value
+  "/resale",           // all resale pages — volatile MLS content, causes soft 404s
 ];
+
+// Routes where individual detail pages (any sub-path) should be noindexed
+// but city-level pages are handled separately
+const NOINDEX_DETAIL_PREFIXES = [
+  "/resale/",          // /resale/{id} and /resale/{city}/{neighborhood}/{type}
+];
+
+// Known city slugs — /properties/{city} pages remain INDEXABLE
+// Everything else under /properties/ (individual listings) is noindexed
+const PROPERTIES_CITY_SLUGS = new Set([
+  "vancouver", "surrey", "coquitlam", "burnaby", "delta",
+  "langley", "abbotsford", "chilliwack", "richmond",
+  "new-westminster", "port-coquitlam", "port-moody",
+  "white-rock", "north-vancouver", "maple-ridge", "west-vancouver",
+  "pitt-meadows", "mission", "popular-searches",
+]);
 
 // Routes that should noindex when they have ANY query params (canonical to base path)
 const NOINDEX_WITH_PARAMS_ROUTES = [
@@ -132,7 +149,31 @@ export function useSeoRobots(): SeoRobotsResult {
         isFilterPage: false,
       };
     }
-    
+
+    // 1b. Noindex detail prefixes (/resale/*)
+    const isNoindexDetail = NOINDEX_DETAIL_PREFIXES.some(prefix => path.startsWith(prefix));
+    if (isNoindexDetail) {
+      return {
+        noindex: true,
+        canonicalUrl: fullUrl,
+        noindexReason: `Detail page under noindex prefix`,
+        isFilterPage: false,
+      };
+    }
+
+    // 1c. /properties/* — noindex individual listings, allow city pages
+    if (path.startsWith("/properties/")) {
+      const slug = path.replace("/properties/", "").split("/")[0];
+      if (!PROPERTIES_CITY_SLUGS.has(slug)) {
+        return {
+          noindex: true,
+          canonicalUrl: fullUrl,
+          noindexReason: `Individual MLS listing — volatile content`,
+          isFilterPage: false,
+        };
+      }
+    }
+
     // 2. Calculator/tool pages with ANY params → noindex, canonical to base
     const isNoindexWithParamsRoute = NOINDEX_WITH_PARAMS_ROUTES.some(route => path === route);
     if (isNoindexWithParamsRoute && hasParams) {
