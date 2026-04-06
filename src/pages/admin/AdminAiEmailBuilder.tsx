@@ -1447,10 +1447,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5 shrink-0" style={{ background: "#161b22" }}>
                   <div className="flex items-center gap-1.5 bg-white/5 rounded-lg p-0.5">
                     <button
-                      onClick={() => setCodeViewTarget("mailchimp")}
-                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "mailchimp" ? "bg-emerald-600 text-white" : "text-white/50 hover:text-white/80")}
-                    >Mailchimp</button>
-                    <button
                       onClick={() => setCodeViewTarget("lofty")}
                       className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "lofty" ? "bg-blue-600 text-white" : "text-white/50 hover:text-white/80")}
                     >Lofty / CRM</button>
