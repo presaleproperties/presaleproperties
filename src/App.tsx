@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from "react-r
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ProtectedRoute } from "@/components/dashboard/ProtectedRoute";
+import { DashboardErrorBoundary } from "@/components/dashboard/DashboardErrorBoundary";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
