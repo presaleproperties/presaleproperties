@@ -57,7 +57,7 @@ export default function DeveloperProfile() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, property_type, status, featured_image, price_range_min, price_range_max")
+        .select("id, name, slug, city, neighborhood, project_type, status, featured_image, starting_price, price_range")
         .eq("developer_id", developer!.id)
         .order("name");
       if (error) throw error;
