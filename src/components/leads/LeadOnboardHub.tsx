@@ -114,24 +114,35 @@ export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
 
   useEffect(() => {
     if (!user) return;
+    
+    // Fetch pitch decks — wrapped in catch to prevent crashes
     supabase
       .from("pitch_decks")
       .select("id, project_name, slug, hero_image_url, city, is_published")
       .eq("is_published", true)
       .order("updated_at", { ascending: false })
-      .then(({ data }) => { if (data) setDecks(data); });
-    fetchTemplates();
+      .then(({ data, error }) => {
+        if (error) { console.error("[LeadOnboardHub] pitch_decks error:", error.message); return; }
+        if (data) setDecks(data);
+      });
+    
+    fetchTemplates().catch((err) => console.error("[LeadOnboardHub] fetchTemplates error:", err));
 
-    const channel = supabase
-      .channel("campaign_templates_changes")
-      .on(
-        "postgres_changes" as any,
-        { event: "*", schema: "public", table: "campaign_templates" },
-        () => { fetchTemplates(); }
-      )
-      .subscribe();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    try {
+      channel = supabase
+        .channel("campaign_templates_changes")
+        .on(
+          "postgres_changes" as any,
+          { event: "*", schema: "public", table: "campaign_templates" },
+          () => { fetchTemplates().catch(() => {}); }
+        )
+        .subscribe();
+    } catch (err) {
+      console.error("[LeadOnboardHub] realtime subscription error:", err);
+    }
 
-    return () => { supabase.removeChannel(channel); };
+    return () => { if (channel) supabase.removeChannel(channel); };
   }, [user]);
 
   const getTemplatePreview = (t: EmailTemplate): string | null => {
