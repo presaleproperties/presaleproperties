@@ -1010,76 +1010,113 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     return finalHtml;
   }, [previewMode, finalHtml]);
 
-  // ── Lofty / CRM-safe export (edge-to-edge, responsive, Lofty merge tags) ─
+  // ── Lofty / CRM-safe export: mobile-first, fully inlined, no <style> dependency ─
   const getLoftyHtml = useCallback((): string => {
     let html = finalHtml;
-    // Strip existing <style> blocks (Lofty strips them, but we inject inline-safe responsive block)
+
+    // 1. Strip all <style> blocks — Lofty strips them anyway
     html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
 
-    // Remove outer wrapper padding so content is edge-to-edge
-    // Target the outermost table cell that adds 32px/16px padding
+    // 2. Body: remove padding, force white background
     html = html.replace(
-      /(<td[^>]*align="center"[^>]*style="[^"]*?)padding:\s*\d+px\s+\d+px([^"]*")/gi,
-      "$1padding:0$2"
+      /(<body[^>]*style=")([^"]*?)(")/gi,
+      (_m, pre, styles, post) => {
+        let s = styles
+          .replace(/padding:\s*[^;"]+/gi, "padding:0")
+          .replace(/background:\s*[^;"]+/gi, "background:#ffffff");
+        return pre + s + post;
+      }
     );
-    // Also catch body-level padding
+
+    // 3. Outer centering wrapper td: remove padding
     html = html.replace(
-      /(<body[^>]*style="[^"]*?)padding:\s*[^;"]+/gi,
+      /(<td[^>]*align="center"[^>]*style="[^"]*?)padding:\s*\d+px\s+\d+px/gi,
       "$1padding:0"
     );
-    // Remove background color on outermost wrapper (goes edge-to-edge white)
+
+    // 4. Outer background table: white
     html = html.replace(
-      /(<body[^>]*style="[^"]*?)background:\s*#f7f5f2/gi,
-      "$1background:#ffffff"
-    );
-    html = html.replace(
-      /(<table[^>]*style="[^"]*?)background:\s*#f7f5f2/gi,
+      /(<table[^>]*width="100%"[^>]*style="[^"]*?)background:\s*#f7f5f2/gi,
       "$1background:#ffffff"
     );
 
-    // Remove border-radius and border on the main content table so it's flush
+    // 5. Inner 600px table → 100% width, remove border/radius
     html = html.replace(
-      /border-radius:\s*\d+px;?\s*/gi,
-      ""
-    );
-    html = html.replace(
-      /border:\s*1px solid #e0dbd3;?\s*/gi,
-      ""
-    );
-
-    // Inject a responsive <style> block right before </head> for desktop vs mobile adaptation
-    // Lofty may strip <style>, but many CRM renderers keep it — this is a progressive enhancement
-    const responsiveStyle = `<style>
-@media screen and (min-width: 601px) {
-  .email-wrapper { max-width: 600px !important; margin: 0 auto !important; }
-}
-@media screen and (max-width: 600px) {
-  .email-wrapper { width: 100% !important; max-width: 100% !important; }
-  .email-wrapper img { width: 100% !important; height: auto !important; }
-  .email-wrapper td { padding-left: 16px !important; padding-right: 16px !important; }
-  .stat-row td { display: block !important; width: 100% !important; text-align: left !important; padding: 8px 16px !important; }
-}
-</style>`;
-    html = html.replace(/<\/head>/i, `${responsiveStyle}\n</head>`);
-
-    // Add class="email-wrapper" to the main content table (the inner 600px one)
-    html = html.replace(
-      /(<table[^>]*width="600")/i,
-      '$1 class="email-wrapper"'
-    );
-    // Also add class to stat rows for mobile stacking
-    html = html.replace(
-      /(<tr[^>]*>)\s*(<td[^>]*style="[^"]*padding:\s*6px\s+0)/gi,
-      '$1<td class="stat-row"$2'.replace('<td class="stat-row"$2', '$1$2')
+      /(<table[^>]*)width="600"([^>]*style=")([^"]*?)(")/gi,
+      (_m, pre, mid, styles, post) => {
+        let s = styles
+          .replace(/max-width:\s*600px;?/gi, "max-width:100%;")
+          .replace(/width:\s*600px;?/gi, "width:100%;")
+          .replace(/border:\s*1px solid #e0dbd3;?\s*/gi, "")
+          .replace(/border-radius:\s*\d+px;?\s*/gi, "");
+        return pre + 'width="100%"' + mid + s + post;
+      }
     );
 
-    // Replace merge tags with Lofty merge tags
+    // 6. Also catch width="600" on images — make them fluid
+    html = html.replace(
+      /(<img[^>]*)width="600"/gi,
+      '$1width="100%"'
+    );
+
+    // 7. Convert 3-column stats bar to stacked vertical rows
+    // Match the stats bar table with stat-cell tds in a single <tr>
+    html = html.replace(
+      /<table([^>]*class="mobile-stack"[^>]*)>\s*<tr>([\s\S]*?)<\/tr>\s*<\/table>/gi,
+      (_match, tableAttrs, innerCells) => {
+        // Extract each stat-cell <td>...</td>
+        const cellRegex = /<td[^>]*class="stat-cell"[^>]*style="([^"]*)"[^>]*>([\s\S]*?)<\/td>/gi;
+        const cells: { style: string; content: string }[] = [];
+        let cellMatch;
+        while ((cellMatch = cellRegex.exec(innerCells)) !== null) {
+          cells.push({ style: cellMatch[1], content: cellMatch[2] });
+        }
+        if (cells.length === 0) return _match; // fallback
+
+        // Rebuild as stacked rows — each stat gets its own row, left-aligned, full width
+        const rows = cells.map((cell, i) => {
+          let style = cell.style
+            .replace(/width:\s*\d+%;?\s*/gi, "width:100%;")
+            .replace(/text-align:\s*center;?/gi, "text-align:left;")
+            .replace(/border-right:\s*[^;"]+;?\s*/gi, "")
+            .replace(/padding:\s*[^;"]+/gi, "padding:14px 20px 12px");
+          // Add bottom border except last
+          if (i < cells.length - 1) {
+            style += "border-bottom:1px solid #e8e3db;";
+          }
+          return `<tr><td style="${style}">${cell.content}</td></tr>`;
+        }).join("\n          ");
+
+        return `<table width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table>`;
+      }
+    );
+
+    // 8. Reduce padding on mobile-pad cells (36px → 20px 16px)
+    html = html.replace(
+      /class="mobile-pad"\s*style="([^"]*)"/gi,
+      (_m, styles) => {
+        const s = styles.replace(/padding:\s*[^;"]+/gi, "padding:20px 16px");
+        return `style="${s}"`;
+      }
+    );
+
+    // 9. Remove leftover border-radius anywhere
+    html = html.replace(/border-radius:\s*\d+px;?\s*/gi, "");
+
+    // 10. Remove remaining border on content wrappers
+    html = html.replace(/border:\s*1px solid #e0dbd3;?\s*/gi, "");
+
+    // 11. Strip class attributes (Lofty ignores them, keeps HTML cleaner)
+    html = html.replace(/\s+class="[^"]*"/gi, "");
+
+    // 12. Replace merge tags with Lofty merge tags
     html = html.replace(/\*\|UNSUB\|\*/g, "#unsubscribe_url#");
     html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "#update_preferences_url#");
     html = html.replace(/\*\|EMAIL_WEB_VERSION_URL\|\*/g, "#view_in_browser_url#");
     html = html.replace(/\*\|FNAME\|\*/g, "#lead_first_name#");
     html = html.replace(/\*\|LNAME\|\*/g, "#lead_last_name#");
     html = html.replace(/\*\|EMAIL\|\*/g, "#lead_email#");
+
     return html;
   }, [finalHtml]);
 
