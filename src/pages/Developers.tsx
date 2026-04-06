@@ -4,7 +4,7 @@ import { Helmet } from "@/components/seo/Helmet";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Building2, ExternalLink, MapPin } from "lucide-react";
+import { Building2, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface Developer {
