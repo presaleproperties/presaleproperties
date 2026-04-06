@@ -10,11 +10,11 @@ export default function DashboardOverview() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => {
-        if (data?.full_name) setAgentName(data.full_name);
-      })
-      .catch((err) => console.error("[DashboardOverview] profile fetch error:", err));
+    Promise.resolve(
+      supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle()
+    ).then(({ data }) => {
+      if (data?.full_name) setAgentName(data.full_name);
+    }).catch((err) => console.error("[DashboardOverview] profile fetch error:", err));
   }, [user]);
 
   const greeting = () => {
