@@ -282,6 +282,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               { to: "/faq", label: "FAQ" },
               { to: "/calculator", label: "Calculator" },
               { to: "/about", label: "About" },
+              { to: "/for-agents", label: "Agent Portal" },
             ].map(({ to, label }) => (
               <Link
                 key={to}
