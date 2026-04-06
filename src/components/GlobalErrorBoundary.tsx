@@ -25,6 +25,7 @@ export class GlobalErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("[GlobalErrorBoundary] Caught error:", error.message, "\nStack:", error.stack?.slice(0, 500), "\nComponent:", info.componentStack?.slice(0, 300));
     // Send to GA4 if available
     if (typeof window !== "undefined" && typeof (window as any).gtag === "function") {
       (window as any).gtag("event", "exception", {
