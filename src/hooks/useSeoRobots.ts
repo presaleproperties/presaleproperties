@@ -149,7 +149,31 @@ export function useSeoRobots(): SeoRobotsResult {
         isFilterPage: false,
       };
     }
-    
+
+    // 1b. Noindex detail prefixes (/resale/*)
+    const isNoindexDetail = NOINDEX_DETAIL_PREFIXES.some(prefix => path.startsWith(prefix));
+    if (isNoindexDetail) {
+      return {
+        noindex: true,
+        canonicalUrl: fullUrl,
+        noindexReason: `Detail page under noindex prefix`,
+        isFilterPage: false,
+      };
+    }
+
+    // 1c. /properties/* — noindex individual listings, allow city pages
+    if (path.startsWith("/properties/")) {
+      const slug = path.replace("/properties/", "").split("/")[0];
+      if (!PROPERTIES_CITY_SLUGS.has(slug)) {
+        return {
+          noindex: true,
+          canonicalUrl: fullUrl,
+          noindexReason: `Individual MLS listing — volatile content`,
+          isFilterPage: false,
+        };
+      }
+    }
+
     // 2. Calculator/tool pages with ANY params → noindex, canonical to base
     const isNoindexWithParamsRoute = NOINDEX_WITH_PARAMS_ROUTES.some(route => path === route);
     if (isNoindexWithParamsRoute && hasParams) {
