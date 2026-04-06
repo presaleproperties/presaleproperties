@@ -1010,45 +1010,26 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     return finalHtml;
   }, [previewMode, finalHtml]);
 
-  // ── Lofty / CRM-safe export (dedicated mobile-first Lofty template) ─────────
+  // ── Lofty / CRM-safe export (same preview HTML, mobile-fluid, Lofty merge tags) ─
   const getLoftyHtml = useCallback((): string => {
-    let deckUrl = "";
-    try {
-      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
-      deckUrl = saved?._deckUrl || "";
-    } catch {}
-
-    let html = buildPitchDeckEmailHtmlLofty({
-      projectName: currentCopy().projectName || "",
-      city: currentCopy().city || "",
-      developerName: currentCopy().developerName || "",
-      heroImage: heroImage || undefined,
-      headline: currentCopy().headline || "",
-      bodyCopy: currentCopy().bodyCopy || "",
-      startingPrice: currentCopy().startingPrice || "",
-      deposit: currentCopy().deposit || "",
-      completion: currentCopy().completion || "",
-      incentiveText: currentCopy().incentiveText || "",
-      infoRows: currentCopy().infoRows || [],
-      floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
-        id: fp.id,
-        url: fp.url,
-        label: fp.label,
-        sqft: fp.sqft,
-        price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
-        exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
-      })),
-      fpHeading,
-      fpSubheading,
-      subjectLine: currentCopy().subjectLine || "",
-      previewText: currentCopy().previewText || "",
-      ctaPhone: selectedAgent.phone || DEFAULT_AGENT.phone,
-      deckUrl: deckUrl || undefined,
-      projectUrl: projectUrl || undefined,
-      brochureUrl: brochureUrl || undefined,
-      floorplanUrl: floorplanUrl || undefined,
-    }, selectedAgent);
-
+    let html = finalHtml;
+    // Strip <style> blocks (Lofty CRM strips them anyway)
+    html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
+    // Convert fixed pixel widths ≥200 to fluid for mobile
+    html = html.replace(/width:\s*(\d+)px/g, (_match, px) => {
+      const n = parseInt(px, 10);
+      return n >= 200 ? "width:100%" : _match;
+    });
+    html = html.replace(/<(table|td|img)([^>]*)\swidth="(\d+)"([^>]*)>/gi, (_match, tag, before, px, after) => {
+      const n = parseInt(px, 10);
+      return n >= 200 ? `<${tag}${before} width="100%"${after}>` : _match;
+    });
+    // Also fix max-width inline styles
+    html = html.replace(/max-width:\s*(\d+)px/g, (_match, px) => {
+      const n = parseInt(px, 10);
+      return n >= 200 ? "max-width:100%" : _match;
+    });
+    // Replace Mailchimp / generic merge tags with Lofty merge tags
     html = html.replace(/\*\|UNSUB\|\*/g, "#unsubscribe_url#");
     html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "#update_preferences_url#");
     html = html.replace(/\*\|EMAIL_WEB_VERSION_URL\|\*/g, "#view_in_browser_url#");
@@ -1056,7 +1037,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     html = html.replace(/\*\|LNAME\|\*/g, "#lead_last_name#");
     html = html.replace(/\*\|EMAIL\|\*/g, "#lead_email#");
     return html;
-  }, [currentCopy, heroImage, floorPlans, fpHeading, fpSubheading, selectedAgent, projectUrl, brochureUrl, floorplanUrl]);
+  }, [finalHtml]);
 
 
   
