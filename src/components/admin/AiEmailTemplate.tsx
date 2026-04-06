@@ -2143,14 +2143,14 @@ export function buildPitchDeckEmailHtmlLofty(
 
   const statsHtml = stats.length > 0 ? `
   <tr>
-    <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
+    <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:16px 20px;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${stats.map((s, i) => `
         <tr>
           <td valign="top"
-              style="padding:14px 20px;${i < stats.length - 1 ? "border-bottom:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
-            <p style="margin:0 0 3px 0;${F}font-size:22px;font-weight:700;color:#111111;line-height:1.2;letter-spacing:-0.3px;">${s.val}</p>
+              style="padding:${i > 0 ? "12px" : "0"} 0 0 0;text-align:left;vertical-align:top;">
             <p style="margin:0;${F}font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
+            <p style="margin:3px 0 0 0;${F}font-size:20px;font-weight:700;color:#111111;line-height:1.2;letter-spacing:-0.3px;">${s.val}</p>
           </td>
         </tr>`).join("")}
       </table>
@@ -2241,9 +2241,9 @@ export function buildPitchDeckEmailHtmlLofty(
 ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${data.previewText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</span>` : ""}
 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0;padding:0;width:100%;background-color:#ffffff;">
 <tr><td align="center" valign="top" style="padding:0;margin:0;">
-<!--[if mso]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td><![endif]-->
+<!--[if mso]><table align="center" border="0" cellspacing="0" cellpadding="0" width="414"><tr><td><![endif]-->
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%"
-       style="max-width:600px;width:100%;background-color:#ffffff;border:none;border-collapse:collapse;">
+       style="max-width:414px;width:100%;background-color:#ffffff;border:none;border-collapse:collapse;">
 
         <!-- ── HEADER ── -->
         <tr>
@@ -2276,8 +2276,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         <tr>
           <td valign="top" style="padding: 0; font-size: 0; line-height: 0;">
             ${deckLink
-              ? `<a href="${deckLink}" target="_blank" style="display: block; font-size: 0; line-height: 0;"><img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;" /></a>`
-              : `<img src="${data.heroImage}" alt="${data.projectName}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;" />`}
+              ? `<a href="${deckLink}" target="_blank" style="display: block; font-size: 0; line-height: 0;"><img src="${data.heroImage}" alt="${data.projectName}" width="414" style="display: block; width: 100%; max-width: 414px; height: auto; border: 0;" /></a>`
+              : `<img src="${data.heroImage}" alt="${data.projectName}" width="414" style="display: block; width: 100%; max-width: 414px; height: auto; border: 0;" />`}
           </td>
         </tr>` : ""}
 
