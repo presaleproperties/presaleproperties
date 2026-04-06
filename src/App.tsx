@@ -124,6 +124,7 @@ const ResaleListingDetail = lazy(() => import("./pages/ResaleListingDetail"));
 const CityResalePage = lazy(() => import("./pages/CityResalePage"));
 const AssignmentDetail = lazy(() => import("./pages/AssignmentDetail"));
 const Developers = lazy(() => import("./pages/Developers"));
+const DeveloperProfile = lazy(() => import("./pages/DeveloperProfile"));
 const InvestmentSnapshotPage = lazy(() => import("./pages/InvestmentSnapshotPage"));
 const ResalePropertyTypePage = lazy(() => import("./pages/ResalePropertyTypePage"));
 const ResalePriceRangePage = lazy(() => import("./pages/ResalePriceRangePage"));
@@ -284,8 +285,7 @@ const App = () => (
             <Route path="/roi-calculator" element={<ROICalculator />} />
             <Route path="/calculator" element={<InvestmentSnapshotPage />} />
             <Route path="/developers" element={<Developers />} />
-            {/* Developer detail pages don't exist yet — redirect to directory to stop soft 404 */}
-            <Route path="/developers/:slug" element={<Navigate to="/developers" replace />} />
+            <Route path="/developers/:slug" element={<DeveloperProfile />} />
             
             {/* Buyer Portal Routes */}
             <Route path="/buyer/signup" element={<BuyerAuth />} />
