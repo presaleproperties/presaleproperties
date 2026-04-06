@@ -2093,7 +2093,7 @@ export function buildPitchDeckEmailHtmlLofty(
   const GOOGLE_FONT = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
 
   const phone      = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
-  const whatsapp   = data.ctaWhatsApp || "16722581100";
+  
   const locationLine = data.city ? data.city.toUpperCase() : "";
   const byLine       = data.developerName ? `by ${data.developerName}` : "";
   const deckLink     = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
