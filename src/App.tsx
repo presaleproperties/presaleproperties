@@ -284,8 +284,7 @@ const App = () => (
             <Route path="/roi-calculator" element={<ROICalculator />} />
             <Route path="/calculator" element={<InvestmentSnapshotPage />} />
             <Route path="/developers" element={<Developers />} />
-            {/* Developer detail pages don't exist yet — redirect to directory to stop soft 404 */}
-            <Route path="/developers/:slug" element={<Navigate to="/developers" replace />} />
+            <Route path="/developers/:slug" element={<DeveloperProfile />} />
             
             {/* Buyer Portal Routes */}
             <Route path="/buyer/signup" element={<BuyerAuth />} />
