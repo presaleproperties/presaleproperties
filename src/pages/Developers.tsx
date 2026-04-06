@@ -67,8 +67,9 @@ export default function Developers() {
             ) : developers && developers.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 {developers.map((developer) => (
-                  <div
+                  <Link
                     key={developer.id}
+                    to={`/developers/${developer.slug}`}
                     className="group bg-card rounded-xl border border-border/50 p-5 hover:shadow-lg hover:border-primary/30 transition-all duration-200"
                   >
                     {/* Logo */}
@@ -97,30 +98,13 @@ export default function Developers() {
                       </div>
                     )}
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 mt-auto pt-2">
-                      <Link
-                        to={`/presale-projects?developer=${encodeURIComponent(developer.name)}`}
-                        className="text-xs text-primary hover:underline"
-                      >
-                        View Projects
-                      </Link>
-                      {developer.website_url && (
-                        <>
-                          <span className="text-muted-foreground">•</span>
-                          <a
-                            href={developer.website_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"
-                          >
-                            Website
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        </>
-                      )}
+                    {/* View Profile */}
+                    <div className="mt-auto pt-2">
+                      <span className="text-xs text-primary group-hover:underline">
+                        View Profile →
+                      </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
