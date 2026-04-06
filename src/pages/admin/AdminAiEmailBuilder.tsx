@@ -1010,12 +1010,70 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     return finalHtml;
   }, [previewMode, finalHtml]);
 
-  // ── Lofty / CRM-safe export (same preview HTML, Lofty merge tags, no <style>) ─
+  // ── Lofty / CRM-safe export (edge-to-edge, responsive, Lofty merge tags) ─
   const getLoftyHtml = useCallback((): string => {
     let html = finalHtml;
-    // Strip <style> blocks (Lofty CRM strips them anyway)
+    // Strip existing <style> blocks (Lofty strips them, but we inject inline-safe responsive block)
     html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
-    // Replace Mailchimp / generic merge tags with Lofty merge tags
+
+    // Remove outer wrapper padding so content is edge-to-edge
+    // Target the outermost table cell that adds 32px/16px padding
+    html = html.replace(
+      /(<td[^>]*align="center"[^>]*style="[^"]*?)padding:\s*\d+px\s+\d+px([^"]*")/gi,
+      "$1padding:0$2"
+    );
+    // Also catch body-level padding
+    html = html.replace(
+      /(<body[^>]*style="[^"]*?)padding:\s*[^;"]+/gi,
+      "$1padding:0"
+    );
+    // Remove background color on outermost wrapper (goes edge-to-edge white)
+    html = html.replace(
+      /(<body[^>]*style="[^"]*?)background:\s*#f7f5f2/gi,
+      "$1background:#ffffff"
+    );
+    html = html.replace(
+      /(<table[^>]*style="[^"]*?)background:\s*#f7f5f2/gi,
+      "$1background:#ffffff"
+    );
+
+    // Remove border-radius and border on the main content table so it's flush
+    html = html.replace(
+      /border-radius:\s*\d+px;?\s*/gi,
+      ""
+    );
+    html = html.replace(
+      /border:\s*1px solid #e0dbd3;?\s*/gi,
+      ""
+    );
+
+    // Inject a responsive <style> block right before </head> for desktop vs mobile adaptation
+    // Lofty may strip <style>, but many CRM renderers keep it — this is a progressive enhancement
+    const responsiveStyle = `<style>
+@media screen and (min-width: 601px) {
+  .email-wrapper { max-width: 600px !important; margin: 0 auto !important; }
+}
+@media screen and (max-width: 600px) {
+  .email-wrapper { width: 100% !important; max-width: 100% !important; }
+  .email-wrapper img { width: 100% !important; height: auto !important; }
+  .email-wrapper td { padding-left: 16px !important; padding-right: 16px !important; }
+  .stat-row td { display: block !important; width: 100% !important; text-align: left !important; padding: 8px 16px !important; }
+}
+</style>`;
+    html = html.replace(/<\/head>/i, `${responsiveStyle}\n</head>`);
+
+    // Add class="email-wrapper" to the main content table (the inner 600px one)
+    html = html.replace(
+      /(<table[^>]*width="600")/i,
+      '$1 class="email-wrapper"'
+    );
+    // Also add class to stat rows for mobile stacking
+    html = html.replace(
+      /(<tr[^>]*>)\s*(<td[^>]*style="[^"]*padding:\s*6px\s+0)/gi,
+      '$1<td class="stat-row"$2'.replace('<td class="stat-row"$2', '$1$2')
+    );
+
+    // Replace merge tags with Lofty merge tags
     html = html.replace(/\*\|UNSUB\|\*/g, "#unsubscribe_url#");
     html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "#update_preferences_url#");
     html = html.replace(/\*\|EMAIL_WEB_VERSION_URL\|\*/g, "#view_in_browser_url#");
