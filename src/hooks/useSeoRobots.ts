@@ -51,7 +51,24 @@ const NOINDEX_ROUTES = [
   "/developer",        // developer portal
   "/developer-portal",
   "/privacy",          // thin legal page — no search value
+  "/resale",           // all resale pages — volatile MLS content, causes soft 404s
 ];
+
+// Routes where individual detail pages (any sub-path) should be noindexed
+// but city-level pages are handled separately
+const NOINDEX_DETAIL_PREFIXES = [
+  "/resale/",          // /resale/{id} and /resale/{city}/{neighborhood}/{type}
+];
+
+// Known city slugs — /properties/{city} pages remain INDEXABLE
+// Everything else under /properties/ (individual listings) is noindexed
+const PROPERTIES_CITY_SLUGS = new Set([
+  "vancouver", "surrey", "coquitlam", "burnaby", "delta",
+  "langley", "abbotsford", "chilliwack", "richmond",
+  "new-westminster", "port-coquitlam", "port-moody",
+  "white-rock", "north-vancouver", "maple-ridge", "west-vancouver",
+  "pitt-meadows", "mission", "popular-searches",
+]);
 
 // Routes that should noindex when they have ANY query params (canonical to base path)
 const NOINDEX_WITH_PARAMS_ROUTES = [
