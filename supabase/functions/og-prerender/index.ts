@@ -217,6 +217,26 @@ Deno.serve(async (req) => {
       meta.description = `Browse presale ${typeLabel.toLowerCase()} in ${cityName}, BC. Get VIP pricing, floor plans, deposit structures & early access to new construction projects.`;
     }
 
+    // 4) Developer profile pages (/developers/:slug)
+    const devMatch = path.match(/^\/developers\/([\w-]+)$/);
+    if (devMatch) {
+      const devSlug = devMatch[1];
+      const { data: dev } = await supabase
+        .from("developers")
+        .select("name, description, city, logo_url, founded_year, focus")
+        .eq("slug", devSlug)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (dev) {
+        const focusTags = dev.focus?.length ? dev.focus.join(", ") : "";
+        meta.title = `${dev.name} | BC Developer Profile | Presale Properties`;
+        meta.description = dev.description?.slice(0, 155) ||
+          `Explore presale condos and townhomes by ${dev.name}${dev.city ? ` in ${dev.city}` : ""}. ${focusTags ? `Specializing in ${focusTags}.` : ""}`;
+        if (dev.logo_url) meta.image = dev.logo_url;
+      }
+    }
+
     const html = buildHtml(meta);
 
     return new Response(html, {
