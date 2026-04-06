@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, buildLululemonEmailHtml, buildModernV2EmailHtml, buildEditorialEmailHtml, buildPitchDeckEmailHtmlLofty, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { buildAiEmailHtml, buildLululemonEmailHtml, buildModernV2EmailHtml, buildEditorialEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
@@ -407,7 +407,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile-sm" | "mobile-lg">("desktop");
-  const [codeViewTarget, setCodeViewTarget] = useState<"mailchimp" | "lofty" | "mailerlite">("mailchimp");
+  const [codeViewTarget, setCodeViewTarget] = useState<"lofty" | "mailerlite">("lofty");
   const [copied,        setCopied]        = useState(false);
   const [copiedLofty,   setCopiedLofty]   = useState(false);
   const [copiedML,      setCopiedML]      = useState(false);
@@ -1010,45 +1010,26 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     return finalHtml;
   }, [previewMode, finalHtml]);
 
-  // ── Lofty / CRM-safe export (dedicated mobile-first Lofty template) ─────────
+  // ── Lofty / CRM-safe export (same preview HTML, mobile-fluid, Lofty merge tags) ─
   const getLoftyHtml = useCallback((): string => {
-    let deckUrl = "";
-    try {
-      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
-      deckUrl = saved?._deckUrl || "";
-    } catch {}
-
-    let html = buildPitchDeckEmailHtmlLofty({
-      projectName: currentCopy().projectName || "",
-      city: currentCopy().city || "",
-      developerName: currentCopy().developerName || "",
-      heroImage: heroImage || undefined,
-      headline: currentCopy().headline || "",
-      bodyCopy: currentCopy().bodyCopy || "",
-      startingPrice: currentCopy().startingPrice || "",
-      deposit: currentCopy().deposit || "",
-      completion: currentCopy().completion || "",
-      incentiveText: currentCopy().incentiveText || "",
-      infoRows: currentCopy().infoRows || [],
-      floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
-        id: fp.id,
-        url: fp.url,
-        label: fp.label,
-        sqft: fp.sqft,
-        price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
-        exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
-      })),
-      fpHeading,
-      fpSubheading,
-      subjectLine: currentCopy().subjectLine || "",
-      previewText: currentCopy().previewText || "",
-      ctaPhone: selectedAgent.phone || DEFAULT_AGENT.phone,
-      deckUrl: deckUrl || undefined,
-      projectUrl: projectUrl || undefined,
-      brochureUrl: brochureUrl || undefined,
-      floorplanUrl: floorplanUrl || undefined,
-    }, selectedAgent);
-
+    let html = finalHtml;
+    // Strip <style> blocks (Lofty CRM strips them anyway)
+    html = html.replace(/<style[\s\S]*?<\/style>/gi, "");
+    // Convert fixed pixel widths ≥200 to fluid for mobile
+    html = html.replace(/width:\s*(\d+)px/g, (_match, px) => {
+      const n = parseInt(px, 10);
+      return n >= 200 ? "width:100%" : _match;
+    });
+    html = html.replace(/<(table|td|img)([^>]*)\swidth="(\d+)"([^>]*)>/gi, (_match, tag, before, px, after) => {
+      const n = parseInt(px, 10);
+      return n >= 200 ? `<${tag}${before} width="100%"${after}>` : _match;
+    });
+    // Also fix max-width inline styles
+    html = html.replace(/max-width:\s*(\d+)px/g, (_match, px) => {
+      const n = parseInt(px, 10);
+      return n >= 200 ? "max-width:100%" : _match;
+    });
+    // Replace Mailchimp / generic merge tags with Lofty merge tags
     html = html.replace(/\*\|UNSUB\|\*/g, "#unsubscribe_url#");
     html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "#update_preferences_url#");
     html = html.replace(/\*\|EMAIL_WEB_VERSION_URL\|\*/g, "#view_in_browser_url#");
@@ -1056,7 +1037,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     html = html.replace(/\*\|LNAME\|\*/g, "#lead_last_name#");
     html = html.replace(/\*\|EMAIL\|\*/g, "#lead_email#");
     return html;
-  }, [currentCopy, heroImage, floorPlans, fpHeading, fpSubheading, selectedAgent, projectUrl, brochureUrl, floorplanUrl]);
+  }, [finalHtml]);
 
 
   
@@ -1466,10 +1447,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5 shrink-0" style={{ background: "#161b22" }}>
                   <div className="flex items-center gap-1.5 bg-white/5 rounded-lg p-0.5">
                     <button
-                      onClick={() => setCodeViewTarget("mailchimp")}
-                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "mailchimp" ? "bg-emerald-600 text-white" : "text-white/50 hover:text-white/80")}
-                    >Mailchimp</button>
-                    <button
                       onClick={() => setCodeViewTarget("lofty")}
                       className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "lofty" ? "bg-blue-600 text-white" : "text-white/50 hover:text-white/80")}
                     >Lofty / CRM</button>
@@ -1480,23 +1457,23 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-white/30">
-                      {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : codeViewTarget === "mailerlite" ? getMailerLiteHtml().length.toLocaleString() : finalHtml.length.toLocaleString()} chars
+                      {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : getMailerLiteHtml().length.toLocaleString()} chars
                     </span>
                     <button
-                      onClick={codeViewTarget === "lofty" ? handleCopyLofty : codeViewTarget === "mailerlite" ? handleCopyMailerLite : handleCopy}
+                      onClick={codeViewTarget === "lofty" ? handleCopyLofty : handleCopyMailerLite}
                       className={cn(
                         "text-[10px] px-2.5 py-1 rounded font-medium transition-all",
-                        (codeViewTarget === "lofty" ? copiedLofty : codeViewTarget === "mailerlite" ? copiedML : copied)
+                        (codeViewTarget === "lofty" ? copiedLofty : copiedML)
                           ? "bg-emerald-600 text-white"
                           : "bg-white/10 text-white/70 hover:bg-white/20"
                       )}
                     >
-                      {(codeViewTarget === "lofty" ? copiedLofty : codeViewTarget === "mailerlite" ? copiedML : copied) ? "✓ Copied!" : "Copy HTML"}
+                      {(codeViewTarget === "lofty" ? copiedLofty : copiedML) ? "✓ Copied!" : "Copy HTML"}
                     </button>
                   </div>
                 </div>
                 <pre className="flex-1 p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed overflow-auto" style={{ color: "#e6edf3" }}>
-                  {codeViewTarget === "lofty" ? getLoftyHtml() : codeViewTarget === "mailerlite" ? getMailerLiteHtml() : finalHtml}
+                  {codeViewTarget === "lofty" ? getLoftyHtml() : getMailerLiteHtml()}
                 </pre>
               </div>
             )}
