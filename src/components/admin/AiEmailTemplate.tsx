@@ -2143,14 +2143,14 @@ export function buildPitchDeckEmailHtmlLofty(
 
   const statsHtml = stats.length > 0 ? `
   <tr>
-    <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:0;">
+    <td style="background:#f7f5f1;border-bottom:1px solid #e8e3db;padding:16px 20px;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${stats.map((s, i) => `
         <tr>
           <td valign="top"
-              style="padding:14px 20px;${i < stats.length - 1 ? "border-bottom:1px solid #e8e3db;" : ""}text-align:center;vertical-align:top;">
-            <p style="margin:0 0 3px 0;${F}font-size:22px;font-weight:700;color:#111111;line-height:1.2;letter-spacing:-0.3px;">${s.val}</p>
+              style="padding:${i > 0 ? "12px" : "0"} 0 0 0;text-align:left;vertical-align:top;">
             <p style="margin:0;${F}font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#aaaaaa;">${s.label}</p>
+            <p style="margin:3px 0 0 0;${F}font-size:20px;font-weight:700;color:#111111;line-height:1.2;letter-spacing:-0.3px;">${s.val}</p>
           </td>
         </tr>`).join("")}
       </table>
