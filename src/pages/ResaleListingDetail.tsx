@@ -209,7 +209,7 @@ export default function ResaleListingDetail() {
       return {
         full_name: agent.full_name || listing.list_agent_name,
         email: listing.list_agent_email,
-        phone: agent.phone || listing.list_agent_phone,
+        phone: listing.list_agent_phone,
         office_name: officeName,
       };
     },
