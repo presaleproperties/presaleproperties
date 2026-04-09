@@ -474,6 +474,8 @@ export type Database = {
           created_at: string
           form_data: Json
           id: string
+          is_favorited: boolean | null
+          last_sent_at: string | null
           name: string
           pricing_sheet_url: string | null
           project_name: string
@@ -487,6 +489,8 @@ export type Database = {
           created_at?: string
           form_data?: Json
           id?: string
+          is_favorited?: boolean | null
+          last_sent_at?: string | null
           name: string
           pricing_sheet_url?: string | null
           project_name?: string
@@ -500,6 +504,8 @@ export type Database = {
           created_at?: string
           form_data?: Json
           id?: string
+          is_favorited?: boolean | null
+          last_sent_at?: string | null
           name?: string
           pricing_sheet_url?: string | null
           project_name?: string
