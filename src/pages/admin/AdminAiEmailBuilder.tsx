@@ -2049,7 +2049,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                       className="min-h-[60px] text-xs resize-none"
                       disabled={aiLoading}
                     />
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <div className="grid grid-cols-3 gap-1.5">
                       <div>
                         <Label className="text-[10px] text-muted-foreground">Style</Label>
                         <Select value={templateType} onValueChange={setTemplateType} disabled={aiLoading}>
@@ -2057,6 +2057,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                           <SelectContent>
                             <SelectItem value="main-project-email">Main Project</SelectItem>
                             <SelectItem value="exclusive-offer">Exclusive Offer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Tone</Label>
+                        <Select value={aiTone} onValueChange={setAiTone} disabled={aiLoading}>
+                          <SelectTrigger className="h-7 text-[11px] mt-0.5"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="confident">Confident</SelectItem>
+                            <SelectItem value="urgent">Urgent</SelectItem>
+                            <SelectItem value="warm">Warm</SelectItem>
+                            <SelectItem value="exclusive">Exclusive</SelectItem>
+                            <SelectItem value="informational">Informational</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
