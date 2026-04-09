@@ -107,6 +107,10 @@ function buildAiFinalHtml({
   deckLocker,
   brochureUrl,
   floorplanUrl,
+  showFloorPlansCta,
+  showBrochureCta,
+  showViewMorePlansCta,
+  showCallNowCta,
 }: {
   fields: AiEmailCopy;
   agent: AgentInfo;
@@ -124,6 +128,10 @@ function buildAiFinalHtml({
   deckLocker?: string;
   brochureUrl?: string;
   floorplanUrl?: string;
+  showFloorPlansCta?: boolean;
+  showBrochureCta?: boolean;
+  showViewMorePlansCta?: boolean;
+  showCallNowCta?: boolean;
 }): string {
   if (layoutVersion === "editorial") {
     const slides = (loopSlides && loopSlides.length > 0)
@@ -148,6 +156,7 @@ function buildAiFinalHtml({
       brochureUrl,
       floorplanUrl,
       loopSlides: slides,
+      showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
     }, agent);
   }
 
@@ -179,6 +188,7 @@ function buildAiFinalHtml({
       })),
       fpHeading,
       fpSubheading,
+      showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
     }, agent);
   }
 
@@ -269,6 +279,10 @@ export function buildAiTemplateHtmlFromFormData(formData: any, agentOverride?: P
     deckLocker,
     brochureUrl: formData?.brochureUrl || undefined,
     floorplanUrl: formData?.floorplanUrl || undefined,
+    showFloorPlansCta: formData?.showFloorPlansCta,
+    showBrochureCta: formData?.showBrochureCta,
+    showViewMorePlansCta: formData?.showViewMorePlansCta,
+    showCallNowCta: formData?.showCallNowCta,
   });
 }
 

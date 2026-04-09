@@ -17,7 +17,7 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
-  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Italic, Underline, List, Minus, Presentation, Send, PanelRightClose, PanelRight,
+  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Italic, Underline, List, Minus, Presentation, Send, PanelRightClose, PanelRight, MousePointerClick,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -93,6 +93,7 @@ function buildFinalHtml(
   loopSlides?: string[],
   brochureUrl?: string,
   floorplanUrl?: string,
+  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean },
 ): string {
   // ── EDITORIAL template ────────────────────────────────────────────────────
   if (layoutVersion === "editorial") {
@@ -119,6 +120,7 @@ function buildFinalHtml(
       brochureUrl,
       floorplanUrl,
       loopSlides:     slides,
+      ...ctaToggles,
     }, agent);
   }
   // ── MODERN / Lululemon template ───────────────────────────────────────────
@@ -148,6 +150,7 @@ function buildFinalHtml(
       })),
       fpHeading,
       fpSubheading,
+      ...ctaToggles,
     }, agent);
   }
   // ── MODERN V2 template ────────────────────────────────────────────────────
@@ -181,6 +184,7 @@ function buildFinalHtml(
       fpHeading,
       fpSubheading,
       loopSlides: slides,
+      ...ctaToggles,
     }, agent);
   }
   // ── CLASSIC template ───────────────────────────────────────────────────────
@@ -386,6 +390,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [brochureUrl,  setBrochureUrl]  = useState(savedDraft?.brochureUrl ?? "");
   const [floorplanUrl, setFloorplanUrl] = useState(savedDraft?.floorplanUrl ?? "");
 
+  // CTA visibility toggles
+  const [showFloorPlansCta,    setShowFloorPlansCta]    = useState<boolean>(savedDraft?.showFloorPlansCta ?? true);
+  const [showBrochureCta,      setShowBrochureCta]      = useState<boolean>(savedDraft?.showBrochureCta ?? true);
+  const [showViewMorePlansCta, setShowViewMorePlansCta] = useState<boolean>(savedDraft?.showViewMorePlansCta ?? true);
+  const [showCallNowCta,       setShowCallNowCta]       = useState<boolean>(savedDraft?.showCallNowCta ?? true);
+  const ctaToggles = { showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta };
+
   // Campaign assets
   const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
   const [selectedAssetId,  setSelectedAssetId]  = useState<string>(savedDraft?.selectedAssetId ?? "none");
@@ -472,6 +483,10 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setDirectCtaUrl(d.directCtaUrl ?? "");
     setBrochureUrl(d.brochureUrl ?? "");
     setFloorplanUrl(d.floorplanUrl ?? "");
+    if (d.showFloorPlansCta !== undefined) setShowFloorPlansCta(d.showFloorPlansCta);
+    if (d.showBrochureCta !== undefined) setShowBrochureCta(d.showBrochureCta);
+    if (d.showViewMorePlansCta !== undefined) setShowViewMorePlansCta(d.showViewMorePlansCta);
+    if (d.showCallNowCta !== undefined) setShowCallNowCta(d.showCallNowCta);
     if (d.selAgent) setSelAgent(d.selAgent);
     if (d.fontId) setSelectedFontId(d.fontId);
     if (d.layoutVersion) setLayoutVersion(d.layoutVersion);
@@ -668,6 +683,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion, brochureUrl, floorplanUrl,
+        showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -699,6 +715,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl,
+    showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
@@ -715,19 +732,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl, floorplanUrl]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl, floorplanUrl, showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta]);
 
   // finalHtml used only for copy/save — always reflects latest state
-  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined);
+  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles);
 
   // ── AI generation ─────────────────────────────────────────────────────────────
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
@@ -1142,6 +1159,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
       brochureUrl, floorplanUrl,
+      showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
       ...savedDeckMeta,
       finalHtml,
     };
@@ -2028,8 +2046,34 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 )}
               </StepSection>
 
+              {/* ── 7. CTA BUTTONS ── */}
+              <StepSection
+                step={7} title="CTA Buttons" icon={<MousePointerClick className="h-3.5 w-3.5" />}
+                done={true} doneLabel={[showFloorPlansCta && "Floor Plans", showBrochureCta && "Brochure", showViewMorePlansCta && "More Plans", showCallNowCta && "Call Now"].filter(Boolean).join(", ") || "None"}
+                defaultOpen={false}
+              >
+                <p className="text-[10px] text-muted-foreground mb-2">Toggle which CTA buttons appear in your email.</p>
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[11px] font-medium">View Floor Plans</Label>
+                    <Switch checked={showFloorPlansCta} onCheckedChange={setShowFloorPlansCta} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[11px] font-medium">View Brochure</Label>
+                    <Switch checked={showBrochureCta} onCheckedChange={setShowBrochureCta} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[11px] font-medium">View More Plans</Label>
+                    <Switch checked={showViewMorePlansCta} onCheckedChange={setShowViewMorePlansCta} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[11px] font-medium">Call Now</Label>
+                    <Switch checked={showCallNowCta} onCheckedChange={setShowCallNowCta} />
+                  </div>
+                </div>
+              </StepSection>
 
-              {/* ── 8. TYPOGRAPHY ── */}
+
               <StepSection
                 step={8} title="Typography" icon={<Type className="h-3.5 w-3.5" />}
                 done={true} doneLabel={selectedFont.label}

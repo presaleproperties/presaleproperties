@@ -135,18 +135,22 @@ function docCtaButtons(opts: {
   brochureUrl?: string; floorplanUrl?: string; deckUrl?: string;
   font: string; accent: string; dark: string;
   style?: "gold-fill" | "pill" | "outline";
+  showBrochureCta?: boolean; showFloorPlansCta?: boolean;
 }): string {
   const { brochureUrl, floorplanUrl, deckUrl, font: F, accent: ACCENT, dark: DARK } = opts;
-  // Determine which doc URLs are available
-  const hasFloorplan = !!(floorplanUrl || deckUrl);
-  const floorplanHref = floorplanUrl || deckUrl || "";
-  const hasBrochure = !!brochureUrl;
+  // Respect visibility toggles (default true)
+  const brochureVisible = opts.showBrochureCta !== false;
+  const floorplanVisible = opts.showFloorPlansCta !== false;
+  // Only use explicit floorplanUrl — do NOT fall back to deckUrl here
+  // (deckUrl is handled separately by "VIEW MORE PLANS" to avoid double buttons)
+  const hasFloorplan = floorplanVisible && !!floorplanUrl;
+  const floorplanHref = floorplanUrl || "";
+  const hasBrochure = brochureVisible && !!brochureUrl;
   if (!hasFloorplan && !hasBrochure) return "";
 
   const style = opts.style || "pill";
 
   if (style === "gold-fill") {
-    // Classic template style — gold background, dark text
     const buttons: string[] = [];
     if (hasBrochure) {
       buttons.push(`<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:${hasFloorplan ? '10px' : '14px'};">
@@ -164,7 +168,6 @@ function docCtaButtons(opts: {
   }
 
   if (style === "pill") {
-    // Modern template style — pill buttons
     const buttons: string[] = [];
     if (hasBrochure) {
       buttons.push(`<tr>
@@ -650,6 +653,11 @@ export interface PitchDeckEmailData {
   brochureUrl?: string;
   /** URL to the floor plans / pricing PDF — shows "VIEW FLOOR PLANS" CTA when present */
   floorplanUrl?: string;
+  /** CTA visibility toggles — all default to true when undefined */
+  showFloorPlansCta?: boolean;
+  showBrochureCta?: boolean;
+  showViewMorePlansCta?: boolean;
+  showCallNowCta?: boolean;
 }
 
 export function buildPitchDeckEmailHtml(
@@ -1339,9 +1347,9 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
 
-  ${(fps.length > 0 && deckLink && !data.floorplanUrl) ? `
+  ${(data.showViewMorePlansCta !== false && fps.length > 0 && deckLink && !data.floorplanUrl) ? `
   <!-- ── VIEW MORE PLANS CTA ── -->
   <tr>
     <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;text-align:center;">
@@ -1359,6 +1367,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   </tr>` : ""}
 
 
+  ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
     <td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
@@ -1373,7 +1382,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         </tr>
       </table>
     </td>
-  </tr>
+  </tr>` : ""}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
@@ -1686,8 +1695,9 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
 
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
 
+  ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
     <td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
@@ -1702,7 +1712,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         </tr>
       </table>
     </td>
-  </tr>
+  </tr>` : ""}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
@@ -1964,7 +1974,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   </tr>` : ""}
 
   <!-- ── DOCUMENT CTAs ── -->
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
 
   ${(!data.brochureUrl && !data.floorplanUrl && !data.deckUrl && projectUrl) ? `
   <!-- ── PROJECT DETAILS CTA (fallback) ── -->
@@ -1983,6 +1993,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
+  ${data.showCallNowCta !== false ? `
   <!-- ── CTA: CALL NOW ── -->
   <tr>
     <td class="content-pad" style="padding:28px 40px 36px;background:#ffffff;">
@@ -1997,7 +2008,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         </tr>
       </table>
     </td>
-  </tr>
+  </tr>` : ""}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${OLIVE};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
