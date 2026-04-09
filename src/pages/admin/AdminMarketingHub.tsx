@@ -304,8 +304,15 @@ export default function AdminMarketingHub() {
                               </>
                             )}
                           </div>
+                          {asset.tags && asset.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {asset.tags.map(tag => (
+                                <Badge key={tag} variant="outline" className="text-[9px] px-1.5 py-0 h-4 text-muted-foreground/70">{tag}</Badge>
+                              ))}
+                            </div>
+                          )}
 
-                          {/* Actions */}
+
                           <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border">
                             <Button
                               size="sm"
