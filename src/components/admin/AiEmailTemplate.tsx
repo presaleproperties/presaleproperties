@@ -270,7 +270,6 @@ function bookShowingCta(opts: {
   </tr>`;
 }
 
-  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
 export interface EmailFontPairing {
   id: string;
@@ -652,7 +651,6 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
 </html>`;
 }
 
-  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: BODY_FONT, accent: ACCENT, dark: DARK, style: "gold-fill" })}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PITCH DECK EMAIL TEMPLATE
