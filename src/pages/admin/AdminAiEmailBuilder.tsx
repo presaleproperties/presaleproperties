@@ -841,7 +841,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     try {
       const project = projects.find(p => p.id === selProjectId && selProjectId !== "none");
       const { data, error } = await supabase.functions.invoke("generate-email-copy", {
-        body: { prompt: prompt.trim(), projectDetails: project ? { name: project.name, city: project.city } : null, templateType },
+        body: { prompt: prompt.trim(), projectDetails: project ? { name: project.name, city: project.city } : null, templateType, tone: aiTone },
       });
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
@@ -1385,7 +1385,15 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             </div>
           )}
 
-          {/* Version tabs (desktop only) */}
+          {/* Undo/redo */}
+          <div className="hidden sm:flex items-center gap-0.5 shrink-0">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleUndo} disabled={undoStackRef.current.length === 0} title="Undo (copy changes)">
+              <Undo2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleRedo} disabled={redoStackRef.current.length === 0} title="Redo">
+              <Redo2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
           {aiResult && (
             <div className="hidden md:flex items-center bg-muted rounded-lg p-0.5 gap-0.5 shrink-0">
               <button onClick={() => handleVersionSwitch("A")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "A" ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver A</button>
