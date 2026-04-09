@@ -18,6 +18,7 @@ import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
   Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Italic, Underline, List, Minus, Presentation, Send, PanelRightClose, PanelRight, MousePointerClick, Settings,
+  Undo2, Redo2, Tag,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -355,11 +356,71 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   // AI state
   const [prompt,         setPrompt]         = useState(savedDraft?.prompt         ?? "");
   const [templateType,   setTemplateType]   = useState(urlPreset?.templateType ?? savedDraft?.templateType   ?? "main-project-email");
+  const [aiTone,         setAiTone]         = useState(savedDraft?.aiTone         ?? "confident");
   const [selProjectId,   setSelProjectId]   = useState(savedDraft?.selProjectId   ?? "none");
   const [aiLoading,      setAiLoading]      = useState(false);
   const [boldLoading,    setBoldLoading]    = useState(false);
   const [activeVersion,  setActiveVersion]  = useState<"A" | "B">(savedDraft?.activeVersion ?? "A");
   const [aiResult,       setAiResult]       = useState<Record<string, string> | null>(savedDraft?.aiResult ?? null);
+
+  // Tags for saved templates
+  const [saveTags, setSaveTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+
+  // Undo/redo history
+  type UndoSnapshot = { subjectLine: string; previewText: string; headline: string; bodyCopy: string; incentiveText: string };
+  const undoStackRef = useRef<UndoSnapshot[]>([]);
+  const redoStackRef = useRef<UndoSnapshot[]>([]);
+  const [undoCount, setUndoCount] = useState(0);
+  const lastSnapshotRef = useRef<string>("");
+
+  const takeSnapshot = useCallback((): UndoSnapshot => ({ subjectLine, previewText, headline, bodyCopy, incentiveText }), [subjectLine, previewText, headline, bodyCopy, incentiveText]);
+
+  const pushUndo = useCallback(() => {
+    const snap = takeSnapshot();
+    const key = JSON.stringify(snap);
+    if (key === lastSnapshotRef.current) return;
+    undoStackRef.current = [...undoStackRef.current.slice(-29), snap];
+    redoStackRef.current = [];
+    lastSnapshotRef.current = key;
+    setUndoCount(undoStackRef.current.length);
+  }, [takeSnapshot]);
+
+  // Push to undo stack on significant changes (debounced)
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    undoTimerRef.current = setTimeout(pushUndo, 1200);
+    return () => { if (undoTimerRef.current) clearTimeout(undoTimerRef.current); };
+  }, [subjectLine, previewText, headline, bodyCopy, incentiveText]); // eslint-disable-line
+
+  const handleUndo = useCallback(() => {
+    if (undoStackRef.current.length === 0) return;
+    const current = takeSnapshot();
+    redoStackRef.current = [current, ...redoStackRef.current];
+    const prev = undoStackRef.current.pop()!;
+    lastSnapshotRef.current = JSON.stringify(prev);
+    setSubjectLine(prev.subjectLine);
+    setPreviewText(prev.previewText);
+    setHeadline(prev.headline);
+    setBodyCopy(prev.bodyCopy);
+    setIncentiveText(prev.incentiveText);
+    setUndoCount(undoStackRef.current.length);
+  }, [takeSnapshot]);
+
+  const handleRedo = useCallback(() => {
+    if (redoStackRef.current.length === 0) return;
+    const current = takeSnapshot();
+    undoStackRef.current = [...undoStackRef.current, current];
+    const next = redoStackRef.current.shift()!;
+    lastSnapshotRef.current = JSON.stringify(next);
+    setSubjectLine(next.subjectLine);
+    setPreviewText(next.previewText);
+    setHeadline(next.headline);
+    setBodyCopy(next.bodyCopy);
+    setIncentiveText(next.incentiveText);
+    setUndoCount(undoStackRef.current.length);
+  }, [takeSnapshot]);
 
   // Copy fields
   const [projectName,       setProjectName]       = useState(savedDraft?.projectName       ?? "");
