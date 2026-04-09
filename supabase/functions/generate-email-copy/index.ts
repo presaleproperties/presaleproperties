@@ -127,9 +127,20 @@ Return ONLY a valid JSON object with these exact fields (no markdown, no code fe
         }`
       : "";
 
+    const TONE_MAP: Record<string, string> = {
+      confident: "Direct and confident — you know the market and guide the reader with authority.",
+      urgent: "Create urgency — limited time, limited units, act now. Punchy and time-sensitive.",
+      warm: "Warm and friendly — like a trusted friend sharing an exciting opportunity. Approachable and personal.",
+      exclusive: "Exclusive and VIP — make the reader feel they're getting insider access. Sophisticated and premium.",
+      informational: "Informational and educational — focus on facts, data, and value proposition. Less emotional, more analytical.",
+    };
+    const toneContext = tone && TONE_MAP[tone]
+      ? `\nTone: ${TONE_MAP[tone]}`
+      : "";
+
     const userPrompt = `Write two versions of email copy based on this brief:
 
-"${prompt}"${projectContext}${templateContext}
+"${prompt}"${projectContext}${templateContext}${toneContext}
 
 Return only the JSON object with both Version A and Version B fields.`;
 
