@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Check, ChevronDown, Copy, Eye, Loader2, Mail, Send, UserPlus, FileText } from "lucide-react";
+import { Check, ChevronDown, Copy, Eye, Loader2, Mail, Send, UserPlus, FileText, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EmailTemplatePreviewDialog } from "./EmailTemplatePreviewDialog";
@@ -90,6 +90,7 @@ export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [showAllDecks, setShowAllDecks] = useState(false);
   const [showAllTemplates, setShowAllTemplates] = useState(false);
+  const [templateSearch, setTemplateSearch] = useState("");
 
   // Success state
   const [successData, setSuccessData] = useState<{
@@ -735,53 +736,107 @@ export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
             </CardContent>
           </Card>
 
-          {/* ── Email Template Selector (most recent + expandable) ── */}
+          {/* ── Email Template Selector ── */}
           {templates.length > 0 && (
             <Card>
-              <CardHeader className="pb-3 sm:pb-4">
-                <CardTitle className="text-sm sm:text-base">
-                  Email Template <span className="text-muted-foreground font-normal text-xs">(optional — sends after save)</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2.5">
-                {/* Most recent template */}
-                {renderTemplateCard(templates[0], selectedTemplateId, setSelectedTemplateId)}
-
-                {/* Expand toggle for remaining templates */}
-                {templates.length > 1 && (
-                  <>
+              <CardHeader className="pb-2 sm:pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm sm:text-base">
+                    Email Template <span className="text-muted-foreground font-normal text-xs">(optional)</span>
+                  </CardTitle>
+                  {selectedTemplateId && (
                     <button
                       type="button"
-                      onClick={() => setShowAllTemplates(!showAllTemplates)}
-                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={() => setSelectedTemplateId(null)}
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
                     >
-                      <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAllTemplates && "rotate-180")} />
-                      {showAllTemplates ? "Show less" : `${templates.length - 1} more template${templates.length - 1 > 1 ? "s" : ""}`}
+                      <X className="h-3 w-3" />
+                      Clear
                     </button>
-                    {showAllTemplates && (
-                      <div className={cn(
-                        "grid gap-2 sm:gap-2.5 animate-in fade-in slide-in-from-top-2 duration-200",
-                        isMobile ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3"
-                      )}>
-                        {templates.slice(1).map((tpl) => renderTemplateCard(tpl, selectedTemplateId, setSelectedTemplateId))}
-                      </div>
-                    )}
-                  </>
+                  )}
+                </div>
+                {/* Selected template indicator */}
+                {selectedTemplateId && selectedTemplate && (
+                  <div className="flex items-center gap-2 mt-1.5 p-2 rounded-md bg-primary/5 border border-primary/20">
+                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span className="text-xs font-medium truncate">{getTemplateName(selectedTemplate)}</span>
+                    <Button
+                      type="button"
+                      onClick={() => setPreviewOpen(true)}
+                      variant="ghost"
+                      size="sm"
+                      className="ml-auto h-6 px-2 text-xs"
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Preview
+                    </Button>
+                  </div>
+                )}
+              </CardHeader>
+              <CardContent className="space-y-2.5">
+                {/* Search bar for 4+ templates */}
+                {templates.length >= 4 && (
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search templates..."
+                      value={templateSearch}
+                      onChange={(e) => { setTemplateSearch(e.target.value); setShowAllTemplates(true); }}
+                      className="h-8 pl-8 text-xs"
+                    />
+                  </div>
                 )}
 
-                {/* Inline preview button when a template is selected */}
-                {selectedTemplateId && selectedTemplate && (
-                  <Button
-                    type="button"
-                    onClick={() => setPreviewOpen(true)}
-                    variant="outline"
-                    className="w-full text-sm"
-                    size={isMobile ? "sm" : "default"}
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Preview "{getTemplateName(selectedTemplate)}"
-                  </Button>
-                )}
+                {(() => {
+                  const filtered = templateSearch
+                    ? templates.filter(t => {
+                        const q = templateSearch.toLowerCase();
+                        return getTemplateName(t).toLowerCase().includes(q) || t.project_name.toLowerCase().includes(q);
+                      })
+                    : templates;
+
+                  const visible = showAllTemplates ? filtered : filtered.slice(0, isMobile ? 2 : 3);
+                  const hasMore = filtered.length > visible.length;
+
+                  return (
+                    <>
+                      <div className={cn(
+                        "grid gap-2 sm:gap-2.5",
+                        isMobile ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3",
+                        showAllTemplates && filtered.length > 6 && "max-h-[360px] overflow-y-auto pr-1"
+                      )}>
+                        {visible.map((tpl) => renderTemplateCard(tpl, selectedTemplateId, setSelectedTemplateId))}
+                      </div>
+
+                      {filtered.length === 0 && templateSearch && (
+                        <p className="text-xs text-muted-foreground text-center py-3">No templates match "{templateSearch}"</p>
+                      )}
+
+                      {hasMore && (
+                        <button
+                          type="button"
+                          onClick={() => setShowAllTemplates(true)}
+                          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <ChevronDown className="h-3.5 w-3.5" />
+                          {filtered.length - visible.length} more template{filtered.length - visible.length > 1 ? "s" : ""}
+                        </button>
+                      )}
+
+                      {showAllTemplates && !hasMore && filtered.length > (isMobile ? 2 : 3) && (
+                        <button
+                          type="button"
+                          onClick={() => setShowAllTemplates(false)}
+                          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <ChevronDown className="h-3.5 w-3.5 rotate-180" />
+                          Show less
+                        </button>
+                      )}
+                    </>
+                  );
+                })()}
               </CardContent>
             </Card>
           )}
