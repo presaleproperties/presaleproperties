@@ -107,6 +107,10 @@ function buildAiFinalHtml({
   deckLocker,
   brochureUrl,
   floorplanUrl,
+  showFloorPlansCta,
+  showBrochureCta,
+  showViewMorePlansCta,
+  showCallNowCta,
 }: {
   fields: AiEmailCopy;
   agent: AgentInfo;
