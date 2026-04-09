@@ -19,6 +19,7 @@ interface SavedAsset {
   form_data: any;
   created_at: string;
   updated_at: string;
+  tags: string[] | null;
 }
 
 function timeAgo(dateStr: string) {
