@@ -135,18 +135,22 @@ function docCtaButtons(opts: {
   brochureUrl?: string; floorplanUrl?: string; deckUrl?: string;
   font: string; accent: string; dark: string;
   style?: "gold-fill" | "pill" | "outline";
+  showBrochureCta?: boolean; showFloorPlansCta?: boolean;
 }): string {
   const { brochureUrl, floorplanUrl, deckUrl, font: F, accent: ACCENT, dark: DARK } = opts;
-  // Determine which doc URLs are available
-  const hasFloorplan = !!(floorplanUrl || deckUrl);
-  const floorplanHref = floorplanUrl || deckUrl || "";
-  const hasBrochure = !!brochureUrl;
+  // Respect visibility toggles (default true)
+  const brochureVisible = opts.showBrochureCta !== false;
+  const floorplanVisible = opts.showFloorPlansCta !== false;
+  // Only use explicit floorplanUrl — do NOT fall back to deckUrl here
+  // (deckUrl is handled separately by "VIEW MORE PLANS" to avoid double buttons)
+  const hasFloorplan = floorplanVisible && !!floorplanUrl;
+  const floorplanHref = floorplanUrl || "";
+  const hasBrochure = brochureVisible && !!brochureUrl;
   if (!hasFloorplan && !hasBrochure) return "";
 
   const style = opts.style || "pill";
 
   if (style === "gold-fill") {
-    // Classic template style — gold background, dark text
     const buttons: string[] = [];
     if (hasBrochure) {
       buttons.push(`<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:${hasFloorplan ? '10px' : '14px'};">
@@ -164,7 +168,6 @@ function docCtaButtons(opts: {
   }
 
   if (style === "pill") {
-    // Modern template style — pill buttons
     const buttons: string[] = [];
     if (hasBrochure) {
       buttons.push(`<tr>
