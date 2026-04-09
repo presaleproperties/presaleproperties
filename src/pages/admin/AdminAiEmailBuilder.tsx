@@ -2025,24 +2025,64 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 doneLabel={[selectedFont.label, selectedAgent.full_name.split(" ")[0]].join(" · ")}
                 defaultOpen={false}
               >
-                {/* CTA toggles */}
+                {/* CTA toggles + document URLs */}
                 <p className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider mb-1">CTA Buttons</p>
-                <div className="space-y-2 mb-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-[11px] font-medium">View Floor Plans</Label>
-                    <Switch checked={showFloorPlansCta} onCheckedChange={setShowFloorPlansCta} />
+                <div className="space-y-3 mb-3">
+                  {/* Floor Plans CTA */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[11px] font-medium">View Floor Plans</Label>
+                      <Switch checked={showFloorPlansCta} onCheckedChange={setShowFloorPlansCta} />
+                    </div>
+                    {showFloorPlansCta && (
+                      <div className="flex gap-1.5">
+                        <Input value={floorplanUrl} onChange={e => setFloorplanUrl(e.target.value)} className="h-7 text-[10px] flex-1" placeholder="PDF URL or upload →" />
+                        <input ref={floorplanInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFloorplanPdfUpload} />
+                        <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => floorplanInputRef.current?.click()} disabled={floorplanUploading}>
+                          {floorplanUploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <Label className="text-[11px] font-medium">View Brochure</Label>
-                    <Switch checked={showBrochureCta} onCheckedChange={setShowBrochureCta} />
+
+                  {/* Brochure CTA */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[11px] font-medium">View Brochure</Label>
+                      <Switch checked={showBrochureCta} onCheckedChange={setShowBrochureCta} />
+                    </div>
+                    {showBrochureCta && (
+                      <div className="flex gap-1.5">
+                        <Input value={brochureUrl} onChange={e => setBrochureUrl(e.target.value)} className="h-7 text-[10px] flex-1" placeholder="PDF URL or upload →" />
+                        <input ref={brochureInputRef} type="file" accept=".pdf" className="hidden" onChange={handleBrochurePdfUpload} />
+                        <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => brochureInputRef.current?.click()} disabled={brochureUploading}>
+                          {brochureUploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                        </Button>
+                      </div>
+                    )}
                   </div>
+
+                  {/* View Details */}
                   <div className="flex items-center justify-between">
                     <Label className="text-[11px] font-medium">View Details</Label>
                     <Switch checked={showViewMorePlansCta} onCheckedChange={setShowViewMorePlansCta} />
                   </div>
+
+                  {/* Call Now */}
                   <div className="flex items-center justify-between">
                     <Label className="text-[11px] font-medium">Call Now</Label>
                     <Switch checked={showCallNowCta} onCheckedChange={setShowCallNowCta} />
+                  </div>
+
+                  {/* Book a Showing */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[11px] font-medium">Book a Showing</Label>
+                      <Switch checked={showBookShowingCta} onCheckedChange={setShowBookShowingCta} />
+                    </div>
+                    {showBookShowingCta && (
+                      <Input value={bookShowingUrl} onChange={e => setBookShowingUrl(e.target.value)} className="h-7 text-[10px]" placeholder="Calendly or booking URL" />
+                    )}
                   </div>
                 </div>
 
