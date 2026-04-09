@@ -1347,9 +1347,9 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
 
-  ${(fps.length > 0 && deckLink && !data.floorplanUrl) ? `
+  ${(data.showViewMorePlansCta !== false && fps.length > 0 && deckLink && !data.floorplanUrl) ? `
   <!-- ── VIEW MORE PLANS CTA ── -->
   <tr>
     <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;text-align:center;">
@@ -1367,6 +1367,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   </tr>` : ""}
 
 
+  ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
     <td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
@@ -1381,7 +1382,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         </tr>
       </table>
     </td>
-  </tr>
+  </tr>` : ""}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
@@ -1694,8 +1695,9 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
 
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
 
+  ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
     <td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
@@ -1710,7 +1712,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         </tr>
       </table>
     </td>
-  </tr>
+  </tr>` : ""}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
