@@ -389,13 +389,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   // Document URLs (auto-populated from project or manually set)
   const [brochureUrl,  setBrochureUrl]  = useState(savedDraft?.brochureUrl ?? "");
   const [floorplanUrl, setFloorplanUrl] = useState(savedDraft?.floorplanUrl ?? "");
+  const [bookShowingUrl, setBookShowingUrl] = useState(savedDraft?.bookShowingUrl ?? "");
+  const [floorplanUploading, setFloorplanUploading] = useState(false);
+  const [brochureUploading,  setBrochureUploading]  = useState(false);
+  const floorplanInputRef = useRef<HTMLInputElement>(null);
+  const brochureInputRef  = useRef<HTMLInputElement>(null);
 
   // CTA visibility toggles
   const [showFloorPlansCta,    setShowFloorPlansCta]    = useState<boolean>(savedDraft?.showFloorPlansCta ?? true);
   const [showBrochureCta,      setShowBrochureCta]      = useState<boolean>(savedDraft?.showBrochureCta ?? true);
   const [showViewMorePlansCta, setShowViewMorePlansCta] = useState<boolean>(savedDraft?.showViewMorePlansCta ?? true);
   const [showCallNowCta,       setShowCallNowCta]       = useState<boolean>(savedDraft?.showCallNowCta ?? true);
-  const ctaToggles = { showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta };
+  const [showBookShowingCta,   setShowBookShowingCta]   = useState<boolean>(savedDraft?.showBookShowingCta ?? false);
+  const ctaToggles = { showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta };
 
   // Campaign assets
   const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
