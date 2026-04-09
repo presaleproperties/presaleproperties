@@ -85,6 +85,7 @@ export default function AdminMarketingHub() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"emails" | "flyers">("emails");
+  const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
 
   const fetchAssets = async () => {
     setLoading(true);
@@ -119,7 +120,19 @@ export default function AdminMarketingHub() {
     else { toast.success("Duplicated"); fetchAssets(); }
   };
 
-  const activeAssets = activeTab === "emails" ? emailAssets : campaignAssets;
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    [...emailAssets, ...campaignAssets].forEach(a => a.tags?.forEach(t => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [emailAssets, campaignAssets]);
+
+  const filteredAssets = useMemo(() => {
+    const base = activeTab === "emails" ? emailAssets : campaignAssets;
+    if (!activeTagFilter) return base;
+    return base.filter(a => a.tags?.includes(activeTagFilter));
+  }, [activeTab, emailAssets, campaignAssets, activeTagFilter]);
+
+  const activeAssets = filteredAssets;
 
   return (
     <AdminLayout>
