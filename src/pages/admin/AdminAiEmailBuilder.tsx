@@ -2359,6 +2359,33 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                   onKeyDown={e => { if (e.key === "Enter") handleSaveNewTemplate(); }}
                 />
               </div>
+              <div>
+                <Label className="text-xs font-medium text-muted-foreground">Tags <span className="text-muted-foreground/50 font-normal">· optional, press Enter to add</span></Label>
+                <div className="flex flex-wrap gap-1.5 mt-1.5 min-h-[28px]">
+                  {saveTags.map(tag => (
+                    <Badge key={tag} variant="secondary" className="text-[11px] gap-1 px-2 py-0.5">
+                      {tag}
+                      <button onClick={() => setSaveTags(prev => prev.filter(t => t !== tag))} className="ml-0.5 hover:text-destructive">
+                        <X className="h-2.5 w-2.5" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+                <Input
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  placeholder="e.g. Surrey, VIP, Promo"
+                  className="mt-1 h-8 text-xs"
+                  onKeyDown={e => {
+                    if (e.key === "Enter" && tagInput.trim()) {
+                      e.preventDefault();
+                      const tag = tagInput.trim();
+                      if (!saveTags.includes(tag)) setSaveTags(prev => [...prev, tag]);
+                      setTagInput("");
+                    }
+                  }}
+                />
+              </div>
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" size="sm" onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
                 <Button size="sm" onClick={handleSaveNewTemplate} disabled={!saveTemplateName.trim() || saving} className="gap-1.5">
