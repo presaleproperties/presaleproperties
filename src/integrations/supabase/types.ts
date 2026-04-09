@@ -477,6 +477,7 @@ export type Database = {
           name: string
           pricing_sheet_url: string | null
           project_name: string
+          tags: string[] | null
           thumbnail_url: string | null
           updated_at: string
           user_id: string | null
@@ -489,6 +490,7 @@ export type Database = {
           name: string
           pricing_sheet_url?: string | null
           project_name?: string
+          tags?: string[] | null
           thumbnail_url?: string | null
           updated_at?: string
           user_id?: string | null
@@ -501,6 +503,7 @@ export type Database = {
           name?: string
           pricing_sheet_url?: string | null
           project_name?: string
+          tags?: string[] | null
           thumbnail_url?: string | null
           updated_at?: string
           user_id?: string | null
