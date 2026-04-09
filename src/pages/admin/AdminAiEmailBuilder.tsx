@@ -1981,7 +1981,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
               {/* ── 6. CTA BUTTONS ── */}
               <StepSection
-                step={6} title="CTA Buttons" icon={<MousePointerClick className="h-3.5 w-3.5" />
+                step={6} title="CTA Buttons" icon={<MousePointerClick className="h-3.5 w-3.5" />}
                 done={true} doneLabel={[showFloorPlansCta && "Floor Plans", showBrochureCta && "Brochure", showViewMorePlansCta && "More Plans", showCallNowCta && "Call Now"].filter(Boolean).join(", ") || "None"}
                 defaultOpen={false}
               >
