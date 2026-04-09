@@ -234,7 +234,7 @@ function bookShowingCta(opts: {
   if (style === "pill") {
     return `<!-- ── CTA: BOOK A SHOWING ── -->
   <tr>
-    <td class="content-pad" style="padding:0 40px 14px;background:#ffffff;">
+    <td class="content-pad" style="padding:28px 40px 14px;background:#ffffff;">
       <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
         <td class="cta-td" align="center" style="background:${ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
           <a href="${bookShowingUrl}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;white-space:nowrap;">BOOK A SHOWING</a>
