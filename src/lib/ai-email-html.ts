@@ -152,6 +152,7 @@ function buildAiFinalHtml({
       brochureUrl,
       floorplanUrl,
       loopSlides: slides,
+      showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
     }, agent);
   }
 
@@ -183,6 +184,7 @@ function buildAiFinalHtml({
       })),
       fpHeading,
       fpSubheading,
+      showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
     }, agent);
   }
 
