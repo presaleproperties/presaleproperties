@@ -658,6 +658,8 @@ export interface PitchDeckEmailData {
   showBrochureCta?: boolean;
   showViewMorePlansCta?: boolean;
   showCallNowCta?: boolean;
+  showBookShowingCta?: boolean;
+  bookShowingUrl?: string;
 }
 
 export function buildPitchDeckEmailHtml(
