@@ -690,8 +690,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         subjectLine, previewText, headline, bodyCopy, incentiveText,
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
-        layoutVersion, brochureUrl, floorplanUrl,
-        showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
+        layoutVersion, brochureUrl, floorplanUrl, bookShowingUrl,
+        showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
