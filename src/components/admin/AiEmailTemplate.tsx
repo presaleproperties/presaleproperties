@@ -1974,7 +1974,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   </tr>` : ""}
 
   <!-- ── DOCUMENT CTAs ── -->
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
 
   ${(!data.brochureUrl && !data.floorplanUrl && !data.deckUrl && projectUrl) ? `
   <!-- ── PROJECT DETAILS CTA (fallback) ── -->
@@ -1993,6 +1993,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
+  ${data.showCallNowCta !== false ? `
   <!-- ── CTA: CALL NOW ── -->
   <tr>
     <td class="content-pad" style="padding:28px 40px 36px;background:#ffffff;">
@@ -2007,7 +2008,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         </tr>
       </table>
     </td>
-  </tr>
+  </tr>` : ""}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${OLIVE};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
