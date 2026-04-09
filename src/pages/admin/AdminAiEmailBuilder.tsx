@@ -1159,6 +1159,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
       brochureUrl, floorplanUrl,
+      showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
       ...savedDeckMeta,
       finalHtml,
     };
