@@ -120,6 +120,7 @@ function buildFinalHtml(
       brochureUrl,
       floorplanUrl,
       loopSlides:     slides,
+      ...ctaToggles,
     }, agent);
   }
   // ── MODERN / Lululemon template ───────────────────────────────────────────
@@ -149,6 +150,7 @@ function buildFinalHtml(
       })),
       fpHeading,
       fpSubheading,
+      ...ctaToggles,
     }, agent);
   }
   // ── MODERN V2 template ────────────────────────────────────────────────────
@@ -182,6 +184,7 @@ function buildFinalHtml(
       fpHeading,
       fpSubheading,
       loopSlides: slides,
+      ...ctaToggles,
     }, agent);
   }
   // ── CLASSIC template ───────────────────────────────────────────────────────
