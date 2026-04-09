@@ -3,6 +3,8 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { LeadOnboardHub } from "@/components/leads/LeadOnboardHub";
+import { DailySummaryWidget } from "@/components/dashboard/DailySummaryWidget";
+import { QuickActions } from "@/components/dashboard/QuickActions";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -73,7 +75,7 @@ export default function DashboardOverview() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 md:space-y-8 max-w-4xl">
+      <div className="space-y-6 md:space-y-8 max-w-5xl">
         {/* Header */}
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
@@ -84,10 +86,21 @@ export default function DashboardOverview() {
           </p>
         </div>
 
+        {/* Daily Summary Stats */}
+        <DailySummaryWidget />
+
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
+          <QuickActions />
+        </div>
+
         {/* Lead Onboard Hub — isolated with error boundary */}
-        <HubErrorBoundary>
-          <LeadOnboardHub />
-        </HubErrorBoundary>
+        <div id="lead-onboard-section">
+          <HubErrorBoundary>
+            <LeadOnboardHub />
+          </HubErrorBoundary>
+        </div>
       </div>
     </DashboardLayout>
   );
