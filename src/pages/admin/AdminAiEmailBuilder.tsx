@@ -722,8 +722,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
-    savedTemplateId, projectUrl, brochureUrl, floorplanUrl,
-    showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
+    savedTemplateId, projectUrl, brochureUrl, floorplanUrl, bookShowingUrl,
+    showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
