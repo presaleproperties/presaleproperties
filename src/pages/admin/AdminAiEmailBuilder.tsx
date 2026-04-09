@@ -750,13 +750,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   useEffect(() => {
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl, floorplanUrl, showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl, floorplanUrl, showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl]);
 
   // finalHtml used only for copy/save — always reflects latest state
-  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles);
+  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined);
 
   // ── AI generation ─────────────────────────────────────────────────────────────
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
