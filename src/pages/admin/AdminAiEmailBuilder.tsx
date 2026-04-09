@@ -1230,21 +1230,43 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setSaving(true);
     setSaveDialogOpen(false);
     const formData = buildFormData();
+    const trimmedName = saveTemplateName.trim();
 
-    const insertPayload: any = { name: saveTemplateName.trim(), project_name: projectName || "Untitled", form_data: formData };
-    if (agentMode && agentUserId) insertPayload.user_id = agentUserId;
-    const res = await supabase.from("campaign_templates" as any)
-      .insert(insertPayload)
+    // Check if a template with the same name already exists
+    const { data: existing } = await supabase.from("campaign_templates" as any)
       .select("id")
-      .single();
+      .eq("name", trimmedName)
+      .limit(1);
 
-    if (res.error) {
-      toast.error("Failed to save");
-    } else {
-      toast.success("Template saved!");
-      if ((res.data as any)?.id) {
-        searchParams.set("saved", (res.data as any).id);
+    if (existing && (existing as any[]).length > 0) {
+      // Override existing template
+      const existingId = (existing as any[])[0].id;
+      const res = await supabase.from("campaign_templates" as any)
+        .update({ form_data: formData, project_name: projectName || "Untitled", updated_at: new Date().toISOString() })
+        .eq("id", existingId);
+      if (res.error) {
+        toast.error("Failed to save");
+      } else {
+        toast.success("Template updated!");
+        searchParams.set("saved", existingId);
         navigate(`?${searchParams.toString()}`, { replace: true });
+      }
+    } else {
+      // Insert new
+      const insertPayload: any = { name: trimmedName, project_name: projectName || "Untitled", form_data: formData };
+      if (agentMode && agentUserId) insertPayload.user_id = agentUserId;
+      const res = await supabase.from("campaign_templates" as any)
+        .insert(insertPayload)
+        .select("id")
+        .single();
+      if (res.error) {
+        toast.error("Failed to save");
+      } else {
+        toast.success("Template saved!");
+        if ((res.data as any)?.id) {
+          searchParams.set("saved", (res.data as any).id);
+          navigate(`?${searchParams.toString()}`, { replace: true });
+        }
       }
     }
     setSaving(false);
