@@ -2027,7 +2027,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               >
                 {/* CTA toggles + document URLs */}
                 <p className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider mb-1">CTA Buttons</p>
-                <div className="space-y-3 mb-3">
+                <div className="space-y-2 mb-3">
                   {/* Floor Plans CTA */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
