@@ -121,6 +121,7 @@ function buildFinalHtml(
       brochureUrl,
       floorplanUrl,
       loopSlides:     slides,
+      bookShowingUrl,
       ...ctaToggles,
     }, agent);
   }
@@ -151,6 +152,7 @@ function buildFinalHtml(
       })),
       fpHeading,
       fpSubheading,
+      bookShowingUrl,
       ...ctaToggles,
     }, agent);
   }
@@ -185,6 +187,7 @@ function buildFinalHtml(
       fpHeading,
       fpSubheading,
       loopSlides: slides,
+      bookShowingUrl,
       ...ctaToggles,
     }, agent);
   }
