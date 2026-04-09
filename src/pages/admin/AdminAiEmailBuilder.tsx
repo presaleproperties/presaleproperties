@@ -483,6 +483,10 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setDirectCtaUrl(d.directCtaUrl ?? "");
     setBrochureUrl(d.brochureUrl ?? "");
     setFloorplanUrl(d.floorplanUrl ?? "");
+    if (d.showFloorPlansCta !== undefined) setShowFloorPlansCta(d.showFloorPlansCta);
+    if (d.showBrochureCta !== undefined) setShowBrochureCta(d.showBrochureCta);
+    if (d.showViewMorePlansCta !== undefined) setShowViewMorePlansCta(d.showViewMorePlansCta);
+    if (d.showCallNowCta !== undefined) setShowCallNowCta(d.showCallNowCta);
     if (d.selAgent) setSelAgent(d.selAgent);
     if (d.fontId) setSelectedFontId(d.fontId);
     if (d.layoutVersion) setLayoutVersion(d.layoutVersion);
@@ -679,6 +683,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion, brochureUrl, floorplanUrl,
+        showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -710,6 +715,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl,
+    showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
