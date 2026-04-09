@@ -270,6 +270,7 @@ function bookShowingCta(opts: {
   </tr>`;
 }
 
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
 export interface EmailFontPairing {
   id: string;
@@ -651,6 +652,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
 </html>`;
 }
 
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: BODY_FONT, accent: ACCENT, dark: DARK, style: "gold-fill" })}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PITCH DECK EMAIL TEMPLATE
@@ -1006,6 +1008,7 @@ export function buildPitchDeckEmailHtml(
   <!-- DIVIDER -->
   <tr><td style="height:1px;font-size:0;line-height:0;background:#ece8e0;padding:0;margin:0;">&nbsp;</td></tr>
 
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
 
   <!-- AGENT CARD — DESKTOP (hidden on mobile) -->
   <tr class="agent-desktop" style="display:table-row;">
@@ -1375,6 +1378,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
   <!-- ── FLOOR PLANS (optional) ── -->
   ${fps.length > 0 ? `
@@ -1417,6 +1421,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
   ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
