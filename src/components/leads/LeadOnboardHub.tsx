@@ -58,11 +58,24 @@ interface EmailTemplate {
   project_name: string;
   thumbnail_url: string | null;
   form_data: any;
+  created_at: string;
+  updated_at: string;
 }
 
 /** Use subject line from form_data as the display name (matches Marketing Hub), fall back to DB name */
 function getTemplateName(tpl: EmailTemplate): string {
   return tpl.form_data?.copy?.subjectLine || tpl.name;
+}
+
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hrs = Math.floor(mins / 60);
+  const days = Math.floor(hrs / 24);
+  if (days > 0) return `${days}d ago`;
+  if (hrs > 0) return `${hrs}h ago`;
+  if (mins > 0) return `${mins}m ago`;
+  return "Just now";
 }
 
 export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
