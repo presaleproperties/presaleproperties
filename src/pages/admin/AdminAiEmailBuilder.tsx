@@ -1056,6 +1056,31 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     return html;
   }, [getExportHtml]);
 
+  const handleFloorplanPdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    setFloorplanUploading(true);
+    try {
+      const path = `email-floorplans/${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage.from("listing-files").upload(path, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      setFloorplanUrl(supabase.storage.from("listing-files").getPublicUrl(path).data.publicUrl);
+      toast.success("Floor plan PDF uploaded ✓");
+    } catch (err: any) { toast.error("Upload failed: " + err.message); }
+    finally { setFloorplanUploading(false); e.target.value = ""; }
+  };
+
+  const handleBrochurePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    setBrochureUploading(true);
+    try {
+      const path = `email-brochures/${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage.from("listing-files").upload(path, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      setBrochureUrl(supabase.storage.from("listing-files").getPublicUrl(path).data.publicUrl);
+      toast.success("Brochure PDF uploaded ✓");
+    } catch (err: any) { toast.error("Upload failed: " + err.message); }
+    finally { setBrochureUploading(false); e.target.value = ""; }
+  };
 
   
 
