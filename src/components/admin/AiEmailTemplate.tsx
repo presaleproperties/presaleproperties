@@ -650,6 +650,11 @@ export interface PitchDeckEmailData {
   brochureUrl?: string;
   /** URL to the floor plans / pricing PDF — shows "VIEW FLOOR PLANS" CTA when present */
   floorplanUrl?: string;
+  /** CTA visibility toggles — all default to true when undefined */
+  showFloorPlansCta?: boolean;
+  showBrochureCta?: boolean;
+  showViewMorePlansCta?: boolean;
+  showCallNowCta?: boolean;
 }
 
 export function buildPitchDeckEmailHtml(
