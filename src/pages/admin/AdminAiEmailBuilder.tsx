@@ -93,7 +93,8 @@ function buildFinalHtml(
   loopSlides?: string[],
   brochureUrl?: string,
   floorplanUrl?: string,
-  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean },
+  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean },
+  bookShowingUrl?: string,
 ): string {
   // ── EDITORIAL template ────────────────────────────────────────────────────
   if (layoutVersion === "editorial") {
