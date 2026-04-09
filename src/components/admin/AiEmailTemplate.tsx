@@ -1376,9 +1376,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
-  <!-- ── FLOOR PLANS (optional) ── -->
   ${fps.length > 0 ? `
   <tr>
     <td style="padding:0;border-top:1px solid #e8e2d6;background:#faf8f4;">
