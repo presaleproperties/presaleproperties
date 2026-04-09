@@ -2008,7 +2008,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
 
               <StepSection
-                step={8} title="Typography" icon={<Type className="h-3.5 w-3.5" />}
+                step={7} title="Typography" icon={<Type className="h-3.5 w-3.5" />}
                 done={true} doneLabel={selectedFont.label}
                 defaultOpen={false}
               >
@@ -2031,9 +2031,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 </div>
               </StepSection>
 
-              {/* ── 9. AGENT SIGNATURE (footer = bottom of email) ── */}
+              {/* ── 8. AGENT SIGNATURE (footer = bottom of email) ── */}
               <StepSection
-                step={9} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
+                step={8} title="Agent Signature" icon={<Mail className="h-3.5 w-3.5" />}
                 done={!!selAgent && selAgent !== "default"}
                 doneLabel={selectedAgent.full_name}
                 defaultOpen={false}
