@@ -984,6 +984,8 @@ export function buildPitchDeckEmailHtml(
   </tr>
   ` : ""}
 
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: BODY_FONT, accent: ACCENT, dark: DARK, style: "gold-fill" })}
+
   <!-- CALL NOW CTA — full-width button for mobile -->
   <tr>
     <td class="mobile-pad" style="background:#f7f5f1;padding:28px 36px 28px;">
@@ -1005,8 +1007,6 @@ export function buildPitchDeckEmailHtml(
 
   <!-- DIVIDER -->
   <tr><td style="height:1px;font-size:0;line-height:0;background:#ece8e0;padding:0;margin:0;">&nbsp;</td></tr>
-
-  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: BODY_FONT, accent: ACCENT, dark: DARK, style: "gold-fill" })}
 
   <!-- AGENT CARD — DESKTOP (hidden on mobile) -->
   <tr class="agent-desktop" style="display:table-row;">
@@ -1417,6 +1417,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+
   ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
@@ -1433,8 +1435,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
       </table>
     </td>
   </tr>` : ""}
-
-  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
@@ -1749,6 +1749,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
 
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+
   ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
@@ -1765,8 +1767,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
       </table>
     </td>
   </tr>` : ""}
-
-  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
@@ -2047,6 +2047,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
+
   ${data.showCallNowCta !== false ? `
   <!-- ── CTA: CALL NOW ── -->
   <tr>
@@ -2063,8 +2065,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
       </table>
     </td>
   </tr>` : ""}
-
-  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${OLIVE};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
@@ -2807,6 +2807,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#faf8f4;max-
     </td>
   </tr>
 
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
     <td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
@@ -2822,8 +2824,6 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#faf8f4;max-
       </table>
     </td>
   </tr>
-
-  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
   <!-- ── DIVIDER ── -->
   <tr><td style="height:2px;background:${ACCENT};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
