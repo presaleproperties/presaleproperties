@@ -1350,7 +1350,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
 
   ${(data.showViewMorePlansCta !== false && fps.length > 0 && deckLink && !data.floorplanUrl) ? `
-  <!-- ── VIEW MORE PLANS CTA ── -->
+  <!-- ── VIEW DETAILS CTA ── -->
   <tr>
     <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;text-align:center;">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
@@ -1358,7 +1358,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
           <td align="center" style="background:#0d1f18;border-radius:50px;padding:14px 36px;text-align:center;">
             <a href="${deckLink}"
                style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;white-space:nowrap;">
-              VIEW MORE PLANS &nbsp;→
+              VIEW DETAILS &nbsp;→
             </a>
           </td>
         </tr>
