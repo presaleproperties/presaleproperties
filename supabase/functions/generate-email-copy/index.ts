@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, projectDetails, templateType } = await req.json();
+    const { prompt, projectDetails, templateType, tone } = await req.json();
 
     if (!prompt?.trim()) {
       return new Response(

@@ -1302,7 +1302,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       // Override existing template
       const existingId = (existing as any[])[0].id;
       const res = await supabase.from("campaign_templates" as any)
-        .update({ form_data: formData, project_name: projectName || "Untitled", updated_at: new Date().toISOString() })
+        .update({ form_data: formData, project_name: projectName || "Untitled", tags: saveTags.length > 0 ? saveTags : undefined, updated_at: new Date().toISOString() })
         .eq("id", existingId);
       if (res.error) {
         toast.error("Failed to save");
@@ -1313,7 +1313,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       }
     } else {
       // Insert new
-      const insertPayload: any = { name: trimmedName, project_name: projectName || "Untitled", form_data: formData };
+      const insertPayload: any = { name: trimmedName, project_name: projectName || "Untitled", form_data: formData, tags: saveTags.length > 0 ? saveTags : [] };
       if (agentMode && agentUserId) insertPayload.user_id = agentUserId;
       const res = await supabase.from("campaign_templates" as any)
         .insert(insertPayload)
