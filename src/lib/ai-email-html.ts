@@ -124,6 +124,10 @@ function buildAiFinalHtml({
   deckLocker?: string;
   brochureUrl?: string;
   floorplanUrl?: string;
+  showFloorPlansCta?: boolean;
+  showBrochureCta?: boolean;
+  showViewMorePlansCta?: boolean;
+  showCallNowCta?: boolean;
 }): string {
   if (layoutVersion === "editorial") {
     const slides = (loopSlides && loopSlides.length > 0)
