@@ -367,6 +367,25 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [saveTags, setSaveTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
 
+  // Copy fields
+  const [projectName,       setProjectName]       = useState(savedDraft?.projectName       ?? "");
+  const [developerName,     setDevName]            = useState(savedDraft?.developerName     ?? "");
+  const [showProjectName,   setShowProjectName]    = useState(savedDraft?.showProjectName   ?? true);
+  const [showDeveloperName, setShowDeveloperName]  = useState(savedDraft?.showDeveloperName ?? true);
+  const [customHeader,      setCustomHeader]       = useState(savedDraft?.customHeader      ?? "");
+  const [city,              setCity]               = useState(savedDraft?.city              ?? "");
+  const [neighborhood,      setNeighborhood]       = useState(savedDraft?.neighborhood      ?? "");
+  const [projectUrl,        setProjectUrl]         = useState(savedDraft?.projectUrl        ?? "");
+  const [startingPrice,     setStartingPrice]      = useState(savedDraft?.startingPrice     ?? "");
+  const [deposit,           setDeposit]            = useState(savedDraft?.deposit           ?? "");
+  const [completion,        setCompletion]         = useState(savedDraft?.completion        ?? "");
+  const [infoRows,          setInfoRows]           = useState<string[]>(savedDraft?.infoRows ?? []);
+  const [subjectLine,       setSubjectLine]        = useState(urlPreset?.subjectLine   ?? savedDraft?.subjectLine       ?? "");
+  const [previewText,       setPreviewText]        = useState(urlPreset?.previewText   ?? savedDraft?.previewText       ?? "");
+  const [headline,          setHeadline]           = useState(urlPreset?.headline      ?? savedDraft?.headline          ?? "");
+  const [bodyCopy,          setBodyCopy]           = useState(urlPreset?.bodyCopy      ?? savedDraft?.bodyCopy          ?? "");
+  const [incentiveText,     setIncentiveText]      = useState(urlPreset?.incentiveText ?? savedDraft?.incentiveText     ?? "");
+
   // Undo/redo history
   type UndoSnapshot = { subjectLine: string; previewText: string; headline: string; bodyCopy: string; incentiveText: string };
   const undoStackRef = useRef<UndoSnapshot[]>([]);
@@ -386,7 +405,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setUndoCount(undoStackRef.current.length);
   }, [takeSnapshot]);
 
-  // Push to undo stack on significant changes (debounced)
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
@@ -421,25 +439,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setIncentiveText(next.incentiveText);
     setUndoCount(undoStackRef.current.length);
   }, [takeSnapshot]);
-
-  // Copy fields
-  const [projectName,       setProjectName]       = useState(savedDraft?.projectName       ?? "");
-  const [developerName,     setDevName]            = useState(savedDraft?.developerName     ?? "");
-  const [showProjectName,   setShowProjectName]    = useState(savedDraft?.showProjectName   ?? true);
-  const [showDeveloperName, setShowDeveloperName]  = useState(savedDraft?.showDeveloperName ?? true);
-  const [customHeader,      setCustomHeader]       = useState(savedDraft?.customHeader      ?? "");
-  const [city,              setCity]               = useState(savedDraft?.city              ?? "");
-  const [neighborhood,      setNeighborhood]       = useState(savedDraft?.neighborhood      ?? "");
-  const [projectUrl,        setProjectUrl]         = useState(savedDraft?.projectUrl        ?? "");
-  const [startingPrice,     setStartingPrice]      = useState(savedDraft?.startingPrice     ?? "");
-  const [deposit,           setDeposit]            = useState(savedDraft?.deposit           ?? "");
-  const [completion,        setCompletion]         = useState(savedDraft?.completion        ?? "");
-  const [infoRows,          setInfoRows]           = useState<string[]>(savedDraft?.infoRows ?? []);
-  const [subjectLine,       setSubjectLine]        = useState(urlPreset?.subjectLine   ?? savedDraft?.subjectLine       ?? "");
-  const [previewText,       setPreviewText]        = useState(urlPreset?.previewText   ?? savedDraft?.previewText       ?? "");
-  const [headline,          setHeadline]           = useState(urlPreset?.headline      ?? savedDraft?.headline          ?? "");
-  const [bodyCopy,          setBodyCopy]           = useState(urlPreset?.bodyCopy      ?? savedDraft?.bodyCopy          ?? "");
-  const [incentiveText,     setIncentiveText]      = useState(urlPreset?.incentiveText ?? savedDraft?.incentiveText     ?? "");
 
   // Media
   const [heroImage,     setHeroImage]     = useState(savedDraft?.heroImage ?? "");
