@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Mail, FileText, Plus, Clock, Trash2, Copy,
+  Mail, FileText, Plus, Clock, Trash2, Copy, Tag,
   ChevronRight, Building2, Star, Megaphone, ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ interface SavedAsset {
   form_data: any;
   created_at: string;
   updated_at: string;
+  tags: string[] | null;
 }
 
 function timeAgo(dateStr: string) {
@@ -84,6 +85,7 @@ export default function AdminMarketingHub() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"emails" | "flyers">("emails");
+  const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
 
   const fetchAssets = async () => {
     setLoading(true);
@@ -118,7 +120,19 @@ export default function AdminMarketingHub() {
     else { toast.success("Duplicated"); fetchAssets(); }
   };
 
-  const activeAssets = activeTab === "emails" ? emailAssets : campaignAssets;
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    [...emailAssets, ...campaignAssets].forEach(a => a.tags?.forEach(t => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [emailAssets, campaignAssets]);
+
+  const filteredAssets = useMemo(() => {
+    const base = activeTab === "emails" ? emailAssets : campaignAssets;
+    if (!activeTagFilter) return base;
+    return base.filter(a => a.tags?.includes(activeTagFilter));
+  }, [activeTab, emailAssets, campaignAssets, activeTagFilter]);
+
+  const activeAssets = filteredAssets;
 
   return (
     <AdminLayout>
@@ -290,8 +304,15 @@ export default function AdminMarketingHub() {
                               </>
                             )}
                           </div>
+                          {asset.tags && asset.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {asset.tags.map(tag => (
+                                <Badge key={tag} variant="outline" className="text-[9px] px-1.5 py-0 h-4 text-muted-foreground/70">{tag}</Badge>
+                              ))}
+                            </div>
+                          )}
 
-                          {/* Actions */}
+
                           <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border">
                             <Button
                               size="sm"

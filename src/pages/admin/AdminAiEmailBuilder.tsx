@@ -18,6 +18,7 @@ import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
   Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Italic, Underline, List, Minus, Presentation, Send, PanelRightClose, PanelRight, MousePointerClick, Settings,
+  Undo2, Redo2, Tag,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -355,11 +356,16 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   // AI state
   const [prompt,         setPrompt]         = useState(savedDraft?.prompt         ?? "");
   const [templateType,   setTemplateType]   = useState(urlPreset?.templateType ?? savedDraft?.templateType   ?? "main-project-email");
+  const [aiTone,         setAiTone]         = useState(savedDraft?.aiTone         ?? "confident");
   const [selProjectId,   setSelProjectId]   = useState(savedDraft?.selProjectId   ?? "none");
   const [aiLoading,      setAiLoading]      = useState(false);
   const [boldLoading,    setBoldLoading]    = useState(false);
   const [activeVersion,  setActiveVersion]  = useState<"A" | "B">(savedDraft?.activeVersion ?? "A");
   const [aiResult,       setAiResult]       = useState<Record<string, string> | null>(savedDraft?.aiResult ?? null);
+
+  // Tags for saved templates
+  const [saveTags, setSaveTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
 
   // Copy fields
   const [projectName,       setProjectName]       = useState(savedDraft?.projectName       ?? "");
@@ -379,6 +385,60 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [headline,          setHeadline]           = useState(urlPreset?.headline      ?? savedDraft?.headline          ?? "");
   const [bodyCopy,          setBodyCopy]           = useState(urlPreset?.bodyCopy      ?? savedDraft?.bodyCopy          ?? "");
   const [incentiveText,     setIncentiveText]      = useState(urlPreset?.incentiveText ?? savedDraft?.incentiveText     ?? "");
+
+  // Undo/redo history
+  type UndoSnapshot = { subjectLine: string; previewText: string; headline: string; bodyCopy: string; incentiveText: string };
+  const undoStackRef = useRef<UndoSnapshot[]>([]);
+  const redoStackRef = useRef<UndoSnapshot[]>([]);
+  const [undoCount, setUndoCount] = useState(0);
+  const lastSnapshotRef = useRef<string>("");
+
+  const takeSnapshot = useCallback((): UndoSnapshot => ({ subjectLine, previewText, headline, bodyCopy, incentiveText }), [subjectLine, previewText, headline, bodyCopy, incentiveText]);
+
+  const pushUndo = useCallback(() => {
+    const snap = takeSnapshot();
+    const key = JSON.stringify(snap);
+    if (key === lastSnapshotRef.current) return;
+    undoStackRef.current = [...undoStackRef.current.slice(-29), snap];
+    redoStackRef.current = [];
+    lastSnapshotRef.current = key;
+    setUndoCount(undoStackRef.current.length);
+  }, [takeSnapshot]);
+
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    undoTimerRef.current = setTimeout(pushUndo, 1200);
+    return () => { if (undoTimerRef.current) clearTimeout(undoTimerRef.current); };
+  }, [subjectLine, previewText, headline, bodyCopy, incentiveText]); // eslint-disable-line
+
+  const handleUndo = useCallback(() => {
+    if (undoStackRef.current.length === 0) return;
+    const current = takeSnapshot();
+    redoStackRef.current = [current, ...redoStackRef.current];
+    const prev = undoStackRef.current.pop()!;
+    lastSnapshotRef.current = JSON.stringify(prev);
+    setSubjectLine(prev.subjectLine);
+    setPreviewText(prev.previewText);
+    setHeadline(prev.headline);
+    setBodyCopy(prev.bodyCopy);
+    setIncentiveText(prev.incentiveText);
+    setUndoCount(undoStackRef.current.length);
+  }, [takeSnapshot]);
+
+  const handleRedo = useCallback(() => {
+    if (redoStackRef.current.length === 0) return;
+    const current = takeSnapshot();
+    undoStackRef.current = [...undoStackRef.current, current];
+    const next = redoStackRef.current.shift()!;
+    lastSnapshotRef.current = JSON.stringify(next);
+    setSubjectLine(next.subjectLine);
+    setPreviewText(next.previewText);
+    setHeadline(next.headline);
+    setBodyCopy(next.bodyCopy);
+    setIncentiveText(next.incentiveText);
+    setUndoCount(undoStackRef.current.length);
+  }, [takeSnapshot]);
 
   // Media
   const [heroImage,     setHeroImage]     = useState(savedDraft?.heroImage ?? "");
@@ -781,7 +841,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     try {
       const project = projects.find(p => p.id === selProjectId && selProjectId !== "none");
       const { data, error } = await supabase.functions.invoke("generate-email-copy", {
-        body: { prompt: prompt.trim(), projectDetails: project ? { name: project.name, city: project.city } : null, templateType },
+        body: { prompt: prompt.trim(), projectDetails: project ? { name: project.name, city: project.city } : null, templateType, tone: aiTone },
       });
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
@@ -1242,7 +1302,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       // Override existing template
       const existingId = (existing as any[])[0].id;
       const res = await supabase.from("campaign_templates" as any)
-        .update({ form_data: formData, project_name: projectName || "Untitled", updated_at: new Date().toISOString() })
+        .update({ form_data: formData, project_name: projectName || "Untitled", tags: saveTags.length > 0 ? saveTags : undefined, updated_at: new Date().toISOString() })
         .eq("id", existingId);
       if (res.error) {
         toast.error("Failed to save");
@@ -1253,7 +1313,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       }
     } else {
       // Insert new
-      const insertPayload: any = { name: trimmedName, project_name: projectName || "Untitled", form_data: formData };
+      const insertPayload: any = { name: trimmedName, project_name: projectName || "Untitled", form_data: formData, tags: saveTags.length > 0 ? saveTags : [] };
       if (agentMode && agentUserId) insertPayload.user_id = agentUserId;
       const res = await supabase.from("campaign_templates" as any)
         .insert(insertPayload)
@@ -1325,7 +1385,15 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             </div>
           )}
 
-          {/* Version tabs (desktop only) */}
+          {/* Undo/redo */}
+          <div className="hidden sm:flex items-center gap-0.5 shrink-0">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleUndo} disabled={undoStackRef.current.length === 0} title="Undo (copy changes)">
+              <Undo2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleRedo} disabled={redoStackRef.current.length === 0} title="Redo">
+              <Redo2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
           {aiResult && (
             <div className="hidden md:flex items-center bg-muted rounded-lg p-0.5 gap-0.5 shrink-0">
               <button onClick={() => handleVersionSwitch("A")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "A" ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver A</button>
@@ -1981,7 +2049,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                       className="min-h-[60px] text-xs resize-none"
                       disabled={aiLoading}
                     />
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <div className="grid grid-cols-3 gap-1.5">
                       <div>
                         <Label className="text-[10px] text-muted-foreground">Style</Label>
                         <Select value={templateType} onValueChange={setTemplateType} disabled={aiLoading}>
@@ -1989,6 +2057,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                           <SelectContent>
                             <SelectItem value="main-project-email">Main Project</SelectItem>
                             <SelectItem value="exclusive-offer">Exclusive Offer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Tone</Label>
+                        <Select value={aiTone} onValueChange={setAiTone} disabled={aiLoading}>
+                          <SelectTrigger className="h-7 text-[11px] mt-0.5"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="confident">Confident</SelectItem>
+                            <SelectItem value="urgent">Urgent</SelectItem>
+                            <SelectItem value="warm">Warm</SelectItem>
+                            <SelectItem value="exclusive">Exclusive</SelectItem>
+                            <SelectItem value="informational">Informational</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -2276,6 +2357,33 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                   className="mt-1"
                   autoFocus
                   onKeyDown={e => { if (e.key === "Enter") handleSaveNewTemplate(); }}
+                />
+              </div>
+              <div>
+                <Label className="text-xs font-medium text-muted-foreground">Tags <span className="text-muted-foreground/50 font-normal">· optional, press Enter to add</span></Label>
+                <div className="flex flex-wrap gap-1.5 mt-1.5 min-h-[28px]">
+                  {saveTags.map(tag => (
+                    <Badge key={tag} variant="secondary" className="text-[11px] gap-1 px-2 py-0.5">
+                      {tag}
+                      <button onClick={() => setSaveTags(prev => prev.filter(t => t !== tag))} className="ml-0.5 hover:text-destructive">
+                        <X className="h-2.5 w-2.5" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+                <Input
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  placeholder="e.g. Surrey, VIP, Promo"
+                  className="mt-1 h-8 text-xs"
+                  onKeyDown={e => {
+                    if (e.key === "Enter" && tagInput.trim()) {
+                      e.preventDefault();
+                      const tag = tagInput.trim();
+                      if (!saveTags.includes(tag)) setSaveTags(prev => [...prev, tag]);
+                      setTagInput("");
+                    }
+                  }}
                 />
               </div>
               <div className="flex gap-2 justify-end">
