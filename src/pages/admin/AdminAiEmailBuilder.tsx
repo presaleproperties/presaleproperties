@@ -2046,8 +2046,34 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 )}
               </StepSection>
 
+              {/* ── 7. CTA BUTTONS ── */}
+              <StepSection
+                step={7} title="CTA Buttons" icon={<MousePointerClick className="h-3.5 w-3.5" />}
+                done={true} doneLabel={[showFloorPlansCta && "Floor Plans", showBrochureCta && "Brochure", showViewMorePlansCta && "More Plans", showCallNowCta && "Call Now"].filter(Boolean).join(", ") || "None"}
+                defaultOpen={false}
+              >
+                <p className="text-[10px] text-muted-foreground mb-2">Toggle which CTA buttons appear in your email.</p>
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[11px] font-medium">View Floor Plans</Label>
+                    <Switch checked={showFloorPlansCta} onCheckedChange={setShowFloorPlansCta} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[11px] font-medium">View Brochure</Label>
+                    <Switch checked={showBrochureCta} onCheckedChange={setShowBrochureCta} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[11px] font-medium">View More Plans</Label>
+                    <Switch checked={showViewMorePlansCta} onCheckedChange={setShowViewMorePlansCta} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[11px] font-medium">Call Now</Label>
+                    <Switch checked={showCallNowCta} onCheckedChange={setShowCallNowCta} />
+                  </div>
+                </div>
+              </StepSection>
 
-              {/* ── 8. TYPOGRAPHY ── */}
+
               <StepSection
                 step={8} title="Typography" icon={<Type className="h-3.5 w-3.5" />}
                 done={true} doneLabel={selectedFont.label}
