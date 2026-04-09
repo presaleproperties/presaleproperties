@@ -86,8 +86,6 @@ export default function DashboardOverview() {
           </p>
         </div>
 
-        {/* Daily Summary Stats */}
-        <DailySummaryWidget />
 
         {/* Quick Actions */}
         <div>
