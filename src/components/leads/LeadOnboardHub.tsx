@@ -58,11 +58,24 @@ interface EmailTemplate {
   project_name: string;
   thumbnail_url: string | null;
   form_data: any;
+  created_at: string;
+  updated_at: string;
 }
 
 /** Use subject line from form_data as the display name (matches Marketing Hub), fall back to DB name */
 function getTemplateName(tpl: EmailTemplate): string {
   return tpl.form_data?.copy?.subjectLine || tpl.name;
+}
+
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hrs = Math.floor(mins / 60);
+  const days = Math.floor(hrs / 24);
+  if (days > 0) return `${days}d ago`;
+  if (hrs > 0) return `${hrs}h ago`;
+  if (mins > 0) return `${mins}m ago`;
+  return "Just now";
 }
 
 export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
@@ -106,7 +119,7 @@ export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
   const fetchTemplates = async () => {
     const { data } = await (supabase as any)
       .from("campaign_templates")
-      .select("id, name, project_name, thumbnail_url, form_data")
+      .select("id, name, project_name, thumbnail_url, form_data, created_at, updated_at")
       .order("updated_at", { ascending: false })
       .limit(20);
     if (data) setTemplates(data);
@@ -391,7 +404,13 @@ export function LeadOnboardHub({ onSuccess }: { onSuccess?: () => void } = {}) {
         )}
         <div className="min-w-0 flex-1">
           <p className="font-medium text-xs sm:text-sm truncate">{displayName}</p>
-          <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{tpl.project_name}</p>
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground truncate">
+            <span>{tpl.project_name}</span>
+            <span className="text-muted-foreground/30">·</span>
+            <span className="shrink-0">
+              {tpl.updated_at !== tpl.created_at ? `Edited ${timeAgo(tpl.updated_at)}` : `Created ${timeAgo(tpl.created_at)}`}
+            </span>
+          </div>
         </div>
         {isSelected && (
           <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
