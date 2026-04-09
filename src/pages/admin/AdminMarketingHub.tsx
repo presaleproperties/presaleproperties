@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Mail, FileText, Plus, Clock, Trash2, Copy,
+  Mail, FileText, Plus, Clock, Trash2, Copy, Tag,
   ChevronRight, Building2, Star, Megaphone, ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
