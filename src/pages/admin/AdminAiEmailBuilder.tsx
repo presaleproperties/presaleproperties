@@ -2000,7 +2000,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     <Switch checked={showBrochureCta} onCheckedChange={setShowBrochureCta} />
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label className="text-[11px] font-medium">View More Plans</Label>
+                    <Label className="text-[11px] font-medium">View Details</Label>
                     <Switch checked={showViewMorePlansCta} onCheckedChange={setShowViewMorePlansCta} />
                   </div>
                   <div className="flex items-center justify-between">
