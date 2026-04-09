@@ -1006,7 +1006,7 @@ export function buildPitchDeckEmailHtml(
   <!-- DIVIDER -->
   <tr><td style="height:1px;font-size:0;line-height:0;background:#ece8e0;padding:0;margin:0;">&nbsp;</td></tr>
 
-  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
+  ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: BODY_FONT, accent: ACCENT, dark: DARK, style: "gold-fill" })}
 
   <!-- AGENT CARD — DESKTOP (hidden on mobile) -->
   <tr class="agent-desktop" style="display:table-row;">
