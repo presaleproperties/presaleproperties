@@ -1,13 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
-  Mail, FileText, Plus, Clock, Trash2, Copy,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Mail, Plus, Clock, Trash2, Copy, Tag,
   ChevronRight, Building2, Star, Megaphone, ExternalLink,
+  Search, LayoutGrid, List, Send, StarOff, Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -21,7 +30,12 @@ interface SavedAsset {
   created_at: string;
   updated_at: string;
   user_id: string | null;
+  tags: string[] | null;
+  is_favorited: boolean;
+  last_sent_at: string | null;
 }
+
+type SortOption = "recent" | "name" | "project";
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -88,6 +102,12 @@ export default function DashboardMarketingHub() {
   const [adminTemplates, setAdminTemplates] = useState<SavedAsset[]>([]);
   const [importing, setImporting] = useState<string | null>(null);
 
+  // Filtering & sorting state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<SortOption>("recent");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
   const fetchAssets = async () => {
     if (!user) return;
     setLoading(true);
@@ -108,6 +128,50 @@ export default function DashboardMarketingHub() {
     if (user) fetchAssets();
   }, [user]);
 
+  // Collect all unique tags
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    assets.forEach(a => a.tags?.forEach(t => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [assets]);
+
+  // Filter & sort
+  const filteredAssets = useMemo(() => {
+    let result = [...assets];
+
+    // Search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(a =>
+        getDisplayName(a).toLowerCase().includes(q) ||
+        a.project_name?.toLowerCase().includes(q) ||
+        getSubjectLine(a)?.toLowerCase().includes(q) ||
+        a.tags?.some(t => t.toLowerCase().includes(q))
+      );
+    }
+
+    // Tag filter
+    if (activeTagFilter) {
+      result = result.filter(a => a.tags?.includes(activeTagFilter));
+    }
+
+    // Sort — favorites always first
+    result.sort((a, b) => {
+      if (a.is_favorited !== b.is_favorited) return a.is_favorited ? -1 : 1;
+      switch (sortBy) {
+        case "name":
+          return getDisplayName(a).localeCompare(getDisplayName(b));
+        case "project":
+          return (a.project_name || "").localeCompare(b.project_name || "");
+        case "recent":
+        default:
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    });
+
+    return result;
+  }, [assets, searchQuery, activeTagFilter, sortBy]);
+
   const handleDelete = async (id: string) => {
     setDeleting(id);
     const { error } = await (supabase as any).from("campaign_templates").delete().eq("id", id);
@@ -123,6 +187,7 @@ export default function DashboardMarketingHub() {
       project_name: asset.project_name,
       form_data: asset.form_data,
       user_id: user.id,
+      tags: asset.tags,
     });
     if (error) toast.error("Failed to duplicate");
     else { toast.success("Duplicated"); fetchAssets(); }
@@ -137,10 +202,239 @@ export default function DashboardMarketingHub() {
       form_data: asset.form_data,
       thumbnail_url: asset.thumbnail_url,
       user_id: user.id,
+      tags: asset.tags,
     });
     if (error) toast.error("Failed to import");
     else { toast.success("Template imported to your collection"); fetchAssets(); }
     setImporting(null);
+  };
+
+  const handleToggleFavorite = async (asset: SavedAsset) => {
+    const newVal = !asset.is_favorited;
+    // Optimistic update
+    setAssets(prev => prev.map(a => a.id === asset.id ? { ...a, is_favorited: newVal } : a));
+    const { error } = await (supabase as any)
+      .from("campaign_templates")
+      .update({ is_favorited: newVal })
+      .eq("id", asset.id);
+    if (error) {
+      toast.error("Failed to update");
+      setAssets(prev => prev.map(a => a.id === asset.id ? { ...a, is_favorited: !newVal } : a));
+    }
+  };
+
+  const handleQuickSend = (asset: SavedAsset) => {
+    // Open email builder with template pre-loaded, ready to send
+    navigate(`/dashboard/email-builder?saved=${asset.id}&mode=send`);
+  };
+
+  // Template card component for grid view
+  const TemplateCardGrid = ({ asset, isAdmin = false }: { asset: SavedAsset; isAdmin?: boolean }) => {
+    const preview = getPreviewImage(asset);
+    const subject = getSubjectLine(asset);
+    const openUrl = `/dashboard/email-builder?saved=${asset.id}`;
+
+    return (
+      <div className="group relative rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-md transition-all">
+        {/* Preview */}
+        <div
+          className="h-44 bg-muted/30 relative cursor-pointer overflow-hidden"
+          onClick={() => isAdmin ? undefined : navigate(openUrl)}
+        >
+          {preview ? (
+            <img
+              src={preview}
+              alt={asset.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Mail className="h-10 w-10 text-muted-foreground/15" />
+            </div>
+          )}
+          {!isAdmin && (
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <Button size="sm" variant="secondary" className="gap-1.5 shadow-lg">
+                <ExternalLink className="h-3.5 w-3.5" /> Open
+              </Button>
+            </div>
+          )}
+          <div className="absolute top-2 left-2 flex gap-1">
+            <Badge className={cn(
+              "text-[9px] px-1.5 py-0.5 shadow-sm hover:bg-emerald-500/90",
+              isAdmin ? "bg-card/90 text-foreground border" : "bg-emerald-500/90 text-white"
+            )}>
+              {isAdmin ? "Admin" : "Email"}
+            </Badge>
+          </div>
+          {!isAdmin && (
+            <button
+              onClick={(e) => { e.stopPropagation(); handleToggleFavorite(asset); }}
+              className={cn(
+                "absolute top-2 right-2 p-1.5 rounded-full transition-all shadow-sm",
+                asset.is_favorited
+                  ? "bg-amber-500 text-white"
+                  : "bg-card/80 text-muted-foreground hover:bg-card hover:text-amber-500"
+              )}
+            >
+              <Star className="h-3 w-3" fill={asset.is_favorited ? "currentColor" : "none"} />
+            </button>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="p-3.5">
+          <p className="text-sm font-semibold truncate mb-0.5">{getDisplayName(asset)}</p>
+          {subject && subject !== getDisplayName(asset) && (
+            <p className="text-[11px] text-muted-foreground truncate mb-1">Subject: {subject}</p>
+          )}
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60">
+            <Clock className="h-3 w-3" />
+            {timeAgo(asset.updated_at)}
+            {(asset.form_data?.projectName || asset.project_name) && (
+              <>
+                <span className="text-muted-foreground/30">·</span>
+                <span className="truncate">{asset.form_data?.projectName || asset.project_name}</span>
+              </>
+            )}
+          </div>
+          {asset.last_sent_at && (
+            <p className="text-[10px] text-muted-foreground/50 mt-0.5 flex items-center gap-1">
+              <Send className="h-2.5 w-2.5" /> Last sent {timeAgo(asset.last_sent_at)}
+            </p>
+          )}
+          {asset.tags && asset.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {asset.tags.map(tag => (
+                <Badge key={tag} variant="outline" className="text-[9px] px-1.5 py-0 h-4 text-muted-foreground/70">{tag}</Badge>
+              ))}
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border">
+            {isAdmin ? (
+              <Button
+                size="sm"
+                className="flex-1 h-8 text-xs gap-1.5"
+                disabled={importing === asset.id}
+                onClick={() => handleImport(asset)}
+              >
+                <Copy className="h-3.5 w-3.5" />
+                {importing === asset.id ? "Importing..." : "Import"}
+              </Button>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 h-8 text-xs gap-1.5"
+                  onClick={() => navigate(openUrl)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs gap-1 px-2.5"
+                  onClick={() => handleQuickSend(asset)}
+                  title="Quick send"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0"
+                  onClick={() => handleDuplicate(asset)} title="Duplicate">
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon"
+                  className="h-8 w-8 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  disabled={deleting === asset.id}
+                  onClick={() => handleDelete(asset.id)} title="Delete">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Template row for list view
+  const TemplateRowList = ({ asset }: { asset: SavedAsset }) => {
+    const preview = getPreviewImage(asset);
+    const openUrl = `/dashboard/email-builder?saved=${asset.id}`;
+
+    return (
+      <div className="group flex items-center gap-4 p-3 rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-sm transition-all">
+        {/* Thumbnail */}
+        <div
+          className="h-14 w-20 rounded-lg bg-muted/30 overflow-hidden shrink-0 cursor-pointer"
+          onClick={() => navigate(openUrl)}
+        >
+          {preview ? (
+            <img src={preview} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Mail className="h-5 w-5 text-muted-foreground/15" />
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold truncate cursor-pointer hover:text-primary" onClick={() => navigate(openUrl)}>
+              {getDisplayName(asset)}
+            </p>
+            {asset.is_favorited && <Star className="h-3 w-3 text-amber-500 shrink-0" fill="currentColor" />}
+          </div>
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground/60 mt-0.5">
+            <span>{timeAgo(asset.updated_at)}</span>
+            {(asset.form_data?.projectName || asset.project_name) && (
+              <>
+                <span>·</span>
+                <span className="truncate">{asset.form_data?.projectName || asset.project_name}</span>
+              </>
+            )}
+            {asset.last_sent_at && (
+              <>
+                <span>·</span>
+                <span className="flex items-center gap-0.5"><Send className="h-2.5 w-2.5" /> Sent {timeAgo(asset.last_sent_at)}</span>
+              </>
+            )}
+          </div>
+          {asset.tags && asset.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {asset.tags.map(tag => (
+                <Badge key={tag} variant="outline" className="text-[9px] px-1.5 py-0 h-4 text-muted-foreground/70">{tag}</Badge>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-1 shrink-0">
+          <Button size="sm" variant="outline" className="h-7 text-xs gap-1 px-2" onClick={() => handleQuickSend(asset)}>
+            <Send className="h-3 w-3" /> Send
+          </Button>
+          <Button size="sm" variant="outline" className="h-7 text-xs px-2" onClick={() => navigate(openUrl)}>
+            Edit
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7"
+            onClick={() => handleToggleFavorite(asset)}>
+            <Star className={cn("h-3 w-3", asset.is_favorited ? "text-amber-500" : "text-muted-foreground")} fill={asset.is_favorited ? "currentColor" : "none"} />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDuplicate(asset)}>
+            <Copy className="h-3 w-3" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
+            disabled={deleting === asset.id} onClick={() => handleDelete(asset.id)}>
+            <Trash2 className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -194,12 +488,86 @@ export default function DashboardMarketingHub() {
               </div>
             </section>
 
-            {/* Saved work */}
+            {/* Your Templates — with search/filter/sort bar */}
             <section>
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-                Your Saved Templates
-              </p>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Your Templates ({filteredAssets.length})
+                </p>
+              </div>
 
+              {/* Search + Filter + Sort bar */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-4">
+                <div className="relative flex-1 w-full sm:max-w-xs">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50" />
+                  <Input
+                    placeholder="Search templates…"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="pl-8 h-8 text-xs"
+                  />
+                </div>
+                <Select value={sortBy} onValueChange={(v: SortOption) => setSortBy(v)}>
+                  <SelectTrigger className="h-8 w-[140px] text-xs">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="recent">Recently Edited</SelectItem>
+                    <SelectItem value="name">Name A-Z</SelectItem>
+                    <SelectItem value="project">Project Name</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="flex items-center border border-border rounded-lg overflow-hidden h-8">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={cn(
+                      "px-2 h-full flex items-center transition-colors",
+                      viewMode === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={cn(
+                      "px-2 h-full flex items-center transition-colors",
+                      viewMode === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <List className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Tag filter chips */}
+              {allTags.length > 0 && (
+                <div className="flex items-center gap-1.5 flex-wrap mb-4">
+                  <Tag className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+                  <button
+                    onClick={() => setActiveTagFilter(null)}
+                    className={cn(
+                      "px-2 py-0.5 text-[10px] font-semibold rounded-full border transition-all",
+                      !activeTagFilter ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/30"
+                    )}
+                  >
+                    All
+                  </button>
+                  {allTags.map(tag => (
+                    <button
+                      key={tag}
+                      onClick={() => setActiveTagFilter(prev => prev === tag ? null : tag)}
+                      className={cn(
+                        "px-2 py-0.5 text-[10px] font-semibold rounded-full border transition-all",
+                        activeTagFilter === tag ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/30"
+                      )}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Template content */}
               {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[1, 2, 3].map(i => (
@@ -212,182 +580,80 @@ export default function DashboardMarketingHub() {
                     </div>
                   ))}
                 </div>
-              ) : assets.length === 0 ? (
+              ) : filteredAssets.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-border rounded-xl text-center">
                   <Mail className="h-10 w-10 text-muted-foreground/20 mb-3" />
-                  <p className="text-sm font-medium text-muted-foreground">No templates saved yet</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1 mb-4 max-w-xs">
-                    Create one above and save it to find it here.
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {searchQuery || activeTagFilter ? "No templates match your filters" : "No templates saved yet"}
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => navigate("/dashboard/email-builder?template=project-email")}
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Create Email
-                  </Button>
+                  <p className="text-xs text-muted-foreground/60 mt-1 mb-4 max-w-xs">
+                    {searchQuery || activeTagFilter
+                      ? "Try adjusting your search or clearing filters."
+                      : "Create one above and save it to find it here."}
+                  </p>
+                  {!searchQuery && !activeTagFilter && (
+                    <Button
+                      variant="outline" size="sm" className="gap-1.5"
+                      onClick={() => navigate("/dashboard/email-builder?template=project-email")}
+                    >
+                      <Plus className="h-3.5 w-3.5" /> Create Email
+                    </Button>
+                  )}
+                </div>
+              ) : viewMode === "grid" ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredAssets.map(asset => (
+                    <TemplateCardGrid key={asset.id} asset={asset} />
+                  ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {assets.map(asset => {
-                    const preview = getPreviewImage(asset);
-                    const subject = getSubjectLine(asset);
-                    const openUrl = `/dashboard/email-builder?saved=${asset.id}`;
-
-                    return (
-                      <div
-                        key={asset.id}
-                        className="group relative rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-md transition-all"
-                      >
-                        {/* Preview image */}
-                        <div
-                          className="h-44 bg-muted/30 relative cursor-pointer overflow-hidden"
-                          onClick={() => navigate(openUrl)}
-                        >
-                          {preview ? (
-                            <img
-                              src={preview}
-                              alt={asset.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Mail className="h-10 w-10 text-muted-foreground/15" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                            <Button size="sm" variant="secondary" className="gap-1.5 shadow-lg">
-                              <ExternalLink className="h-3.5 w-3.5" />
-                              Open
-                            </Button>
-                          </div>
-                          <div className="absolute top-2 left-2">
-                            <Badge className="text-[9px] px-1.5 py-0.5 shadow-sm bg-emerald-500/90 text-white hover:bg-emerald-500/90">
-                              Email
-                            </Badge>
-                          </div>
-                        </div>
-
-                        {/* Info */}
-                        <div className="p-3.5">
-                          <p className="text-sm font-semibold truncate mb-0.5">{getDisplayName(asset)}</p>
-                          {subject && subject !== getDisplayName(asset) && (
-                            <p className="text-[11px] text-muted-foreground truncate mb-1.5">
-                              Subject: {subject}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60">
-                            <Clock className="h-3 w-3" />
-                            {timeAgo(asset.updated_at)}
-                            {(asset.form_data?.projectName || asset.project_name) && (
-                              <>
-                                <span className="text-muted-foreground/30">·</span>
-                                <span className="truncate">{asset.form_data?.projectName || asset.project_name}</span>
-                              </>
-                            )}
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1 h-8 text-xs gap-1.5"
-                              onClick={() => navigate(openUrl)}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0"
-                              onClick={() => handleDuplicate(asset)}
-                              title="Duplicate"
-                            >
-                              <Copy className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                              disabled={deleting === asset.id}
-                              onClick={() => handleDelete(asset.id)}
-                              title="Delete"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="space-y-2">
+                  {filteredAssets.map(asset => (
+                    <TemplateRowList key={asset.id} asset={asset} />
+                  ))}
                 </div>
               )}
             </section>
+
             {/* Admin shared templates */}
             {adminTemplates.length > 0 && (
               <section>
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
-                  Company Templates
+                  Company Templates ({adminTemplates.length})
                 </p>
                 <p className="text-xs text-muted-foreground/60 mb-4">
                   Import admin-created templates into your collection
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {adminTemplates.map(asset => {
-                    const preview = getPreviewImage(asset);
-                    return (
-                      <div
-                        key={asset.id}
-                        className="group relative rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-md transition-all"
-                      >
-                        <div className="h-44 bg-muted/30 relative overflow-hidden">
-                          {preview ? (
-                            <img
-                              src={preview}
-                              alt={asset.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Mail className="h-10 w-10 text-muted-foreground/15" />
-                            </div>
-                          )}
-                          <div className="absolute top-2 left-2">
-                            <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 shadow-sm bg-card/90">
-                              Admin
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="p-3.5">
-                          <p className="text-sm font-semibold truncate mb-0.5">{getDisplayName(asset)}</p>
-                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60">
-                            <Clock className="h-3 w-3" />
-                            {timeAgo(asset.updated_at)}
-                            {(asset.form_data?.projectName || asset.project_name) && (
-                              <>
-                                <span className="text-muted-foreground/30">·</span>
-                                <span className="truncate">{asset.form_data?.projectName || asset.project_name}</span>
-                              </>
+                <div className={viewMode === "grid"
+                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                  : "space-y-2"
+                }>
+                  {adminTemplates.map(asset => (
+                    viewMode === "grid"
+                      ? <TemplateCardGrid key={asset.id} asset={asset} isAdmin />
+                      : (
+                        <div key={asset.id} className="flex items-center gap-4 p-3 rounded-xl border border-border bg-card">
+                          <div className="h-14 w-20 rounded-lg bg-muted/30 overflow-hidden shrink-0">
+                            {getPreviewImage(asset) ? (
+                              <img src={getPreviewImage(asset)!} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Mail className="h-5 w-5 text-muted-foreground/15" />
+                              </div>
                             )}
                           </div>
-                          <div className="mt-3 pt-3 border-t border-border">
-                            <Button
-                              size="sm"
-                              className="w-full h-8 text-xs gap-1.5"
-                              disabled={importing === asset.id}
-                              onClick={() => handleImport(asset)}
-                            >
-                              <Copy className="h-3.5 w-3.5" />
-                              {importing === asset.id ? "Importing..." : "Import to My Templates"}
-                            </Button>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold truncate">{getDisplayName(asset)}</p>
+                            <p className="text-[11px] text-muted-foreground/60">{timeAgo(asset.updated_at)} · {asset.project_name}</p>
                           </div>
+                          <Button size="sm" className="h-7 text-xs gap-1 shrink-0"
+                            disabled={importing === asset.id} onClick={() => handleImport(asset)}>
+                            <Copy className="h-3 w-3" />
+                            {importing === asset.id ? "..." : "Import"}
+                          </Button>
                         </div>
-                      </div>
-                    );
-                  })}
+                      )
+                  ))}
                 </div>
               </section>
             )}
