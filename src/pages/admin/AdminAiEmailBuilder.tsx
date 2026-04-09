@@ -744,7 +744,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
