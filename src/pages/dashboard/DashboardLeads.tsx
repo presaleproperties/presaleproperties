@@ -234,6 +234,30 @@ export default function DashboardLeads() {
     }
   };
 
+  const handleInlineUpdate = async (leadId: string, field: "phone" | "email", value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    if (field === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error("Invalid email format");
+      return;
+    }
+    const prev = [...onboardedLeads];
+    setOnboardedLeads((leads) =>
+      leads.map((l) => (l.id === leadId ? { ...l, [field]: trimmed } : l))
+    );
+    const { error } = await supabase
+      .from("onboarded_leads")
+      .update({ [field]: trimmed } as any)
+      .eq("id", leadId);
+    if (error) {
+      setOnboardedLeads(prev);
+      toast.error(`Failed to update ${field}`);
+    } else {
+      toast.success(`${field === "phone" ? "Phone" : "Email"} updated`);
+    }
+    setEditingField(null);
+    setEditFieldValue("");
+
   const filteredOnboarded = useMemo(() => {
     return onboardedLeads.filter((lead) => {
       const fullName = `${lead.first_name} ${lead.last_name}`.toLowerCase();
