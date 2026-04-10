@@ -5,6 +5,7 @@ import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 import { trackCTAClick } from "@/hooks/useLoftyTracking";
 import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId } from "@/lib/tracking";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
+import { postToDealsFlow } from "@/lib/postToDealsFlow";
 
 interface UsePresaleLeadCaptureProps {
   projectId?: string;
@@ -187,6 +188,17 @@ export function usePresaleLeadCapture({
       }
 
       setStep("success");
+
+      // Fire-and-forget to DealsFlow CRM
+      postToDealsFlow({
+        name: data.fullName,
+        email: capturedEmail,
+        phone: data.phone,
+        project: projectName,
+        source: leadSource,
+        buyer_type: actualPersona,
+      });
+
       toast({
         title: "Request submitted!",
         description: "We'll be in touch shortly.",
