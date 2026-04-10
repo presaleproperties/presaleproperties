@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { Helmet } from "@/components/seo/Helmet";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -182,6 +183,11 @@ export default function Contact() {
       <div className="min-h-screen flex flex-col bg-background">
         <ConversionHeader />
         <main className="flex-1">
+          <div className="border-b bg-muted/30">
+            <div className="container py-3">
+              <Breadcrumbs items={[{ label: "Contact" }]} />
+            </div>
+          </div>
           <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-background">
             <div className="container text-center">
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Get in Touch</h1>

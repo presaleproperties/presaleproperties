@@ -1,4 +1,5 @@
 import { Helmet } from '@/components/seo/Helmet';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { useSearchParams, Link } from 'react-router-dom';
 import { ConversionHeader } from '@/components/conversion/ConversionHeader';
 import { Footer } from '@/components/layout/Footer';
@@ -38,6 +39,11 @@ export default function InvestmentSnapshotPage() {
       <ConversionHeader />
 
       <main className="min-h-screen bg-background">
+        <div className="border-b bg-muted/30">
+          <div className="container py-3">
+            <Breadcrumbs items={[{ label: "Calculator" }]} />
+          </div>
+        </div>
 
         {/* ── Hero ── */}
         <section className="relative overflow-hidden bg-foreground py-14 md:py-20">

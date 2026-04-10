@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Building2, MapPin, Search, X } from "lucide-react";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -73,6 +74,11 @@ export default function Developers() {
       </Helmet>
       <ConversionHeader />
       <main className="min-h-screen bg-background">
+        <div className="border-b bg-muted/30">
+          <div className="container py-3">
+            <Breadcrumbs items={[{ label: "Developers" }]} />
+          </div>
+        </div>
         {/* Hero */}
         <section className="bg-gradient-to-br from-foreground via-foreground to-foreground/90 py-12 md:py-16">
           <div className="container px-4">

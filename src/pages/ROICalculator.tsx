@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Helmet } from "@/components/seo/Helmet";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ROIWizard } from "@/components/roi/ROIWizard";
@@ -16,7 +17,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { FAQSchema } from "@/components/seo/FAQSchema";
-import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 declare global {
   interface Window {
@@ -167,6 +167,11 @@ export default function ROICalculator() {
       <ConversionHeader />
 
       <main className="min-h-screen bg-background">
+        <div className="border-b bg-muted/30">
+          <div className="container py-3">
+            <Breadcrumbs items={[{ label: "ROI Calculator" }]} />
+          </div>
+        </div>
         {/* Hero Section - Light theme matching site design */}
         <section className="bg-gradient-to-b from-muted/50 to-background border-b py-6 md:py-12">
           <div className="container px-4">
