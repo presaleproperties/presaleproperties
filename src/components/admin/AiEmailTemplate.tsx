@@ -1436,7 +1436,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, pricingUrl: data.pricingUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta, showPricingCta: data.showPricingCta })}
 
   ${(data.showViewMorePlansCta !== false && fps.length > 0 && deckLink && !data.floorplanUrl) ? `
   <!-- ── VIEW DETAILS CTA ── -->
@@ -1781,7 +1781,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
 
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, pricingUrl: data.pricingUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta, showPricingCta: data.showPricingCta })}
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
@@ -2058,7 +2058,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   </tr>` : ""}
 
   <!-- ── DOCUMENT CTAs ── -->
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, pricingUrl: data.pricingUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta, showPricingCta: data.showPricingCta })}
 
   ${(!data.brochureUrl && !data.floorplanUrl && !data.deckUrl && projectUrl) ? `
   <!-- ── PROJECT DETAILS CTA (fallback) ── -->
