@@ -15,6 +15,9 @@
 
 const LOGO_EMAIL_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
 
+/** Refined sage-green for "What's Included" items across all layouts */
+const INCLUDED_GREEN = "#6B9E7E";
+
 const AGENT_WEBSITE_URLS: Record<string, string> = {
   Uzair: "https://presalewithuzair.com/",
 };
@@ -513,12 +516,12 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
   ${incentives.length > 0 ? `
   <tr>
     <td class="mobile-pad" style="background:${DARK};padding:28px 36px 24px;">
-      <p style="margin:0 0 16px 0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
+      <p style="margin:0 0 16px 0;font-family:${bodyFont};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${INCLUDED_GREEN};">WHAT'S INCLUDED</p>
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${incentives.map(item => `
         <tr>
           <td style="padding:0 0 10px 0;vertical-align:top;width:16px;">
-            <div style="width:5px;height:5px;background:${ACCENT};margin-top:7px;"></div>
+            <div style="width:5px;height:5px;background:${INCLUDED_GREEN};margin-top:7px;"></div>
           </td>
           <td style="padding:0 0 10px 12px;vertical-align:top;">
             <p style="margin:0;font-family:${bodyFont};font-size:14px;color:#c8d8cc;line-height:1.7;">${item}</p>
@@ -960,12 +963,12 @@ export function buildPitchDeckEmailHtml(
   ${includedItems.length > 0 ? `
   <tr>
     <td class="mobile-pad" style="background:${DARK};padding:24px 36px;">
-      <p style="margin:0 0 14px 0;font-family:${BODY_FONT};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
+      <p style="margin:0 0 14px 0;font-family:${BODY_FONT};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${INCLUDED_GREEN};">WHAT'S INCLUDED</p>
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${includedItems.map(item => `
         <tr>
           <td style="padding:0 0 10px 0;vertical-align:top;width:16px;">
-            <div style="width:5px;height:5px;background:${ACCENT};margin-top:7px;"></div>
+            <div style="width:5px;height:5px;background:${INCLUDED_GREEN};margin-top:7px;"></div>
           </td>
           <td style="padding:0 0 10px 12px;vertical-align:top;">
             <p style="margin:0;font-family:${BODY_FONT};font-size:13px;font-weight:500;color:#c8d8cc;line-height:1.7;">${item}</p>
@@ -1356,7 +1359,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
       <!-- Section header -->
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr><td style="padding:0 0 20px 0;">
-          <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
+          <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${INCLUDED_GREEN};">WHAT'S INCLUDED</p>
         </td></tr>
       </table>
       <!-- Items grid -->
@@ -1364,13 +1367,13 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         ${incentiveLines.map((item, i) => `
         <tr>
           <td style="padding:0 0 ${i < incentiveLines.length - 1 ? '10' : '0'}px 0;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;border-radius:8px;border-left:3px solid ${ACCENT};">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;border-radius:8px;border-left:3px solid ${INCLUDED_GREEN};">
               <tr>
                 <td style="padding:14px 18px;">
                   <table cellpadding="0" cellspacing="0" border="0" width="100%">
                     <tr>
                       <td valign="middle" width="28" style="width:28px;vertical-align:middle;">
-                        <p style="margin:0;font-size:16px;line-height:1;">✦</p>
+                        <p style="margin:0;font-size:16px;line-height:1;color:${INCLUDED_GREEN};">✦</p>
                       </td>
                       <td valign="middle" style="vertical-align:middle;">
                         <p style="margin:0;font-family:${F};font-size:14px;font-weight:600;color:${DARK};line-height:1.5;">${item}</p>
@@ -2383,13 +2386,13 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
         <tr>
           <td class="mobile-pad" valign="top"
               style="background-color: ${DARK}; padding: 22px 20px;">
-            <p style="margin: 0 0 14px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${ACCENT};">WHAT'S INCLUDED</p>
+            <p style="margin: 0 0 14px 0; ${F} font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: ${INCLUDED_GREEN};">WHAT'S INCLUDED</p>
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               ${includedItems.map((item: string) => `
               <tr>
                 <td width="16" valign="top" style="padding: 0 0 10px 0; width: 16px; vertical-align: top;">
                   <table cellpadding="0" cellspacing="0" border="0">
-                    <tr><td width="5" height="5" style="width: 5px; height: 5px; background-color: ${ACCENT}; font-size: 0; line-height: 0; margin-top: 7px;">&nbsp;</td></tr>
+                    <tr><td width="5" height="5" style="width: 5px; height: 5px; background-color: ${INCLUDED_GREEN}; font-size: 0; line-height: 0; margin-top: 7px;">&nbsp;</td></tr>
                   </table>
                 </td>
                 <td valign="top" style="padding: 0 0 10px 12px; vertical-align: top;">
@@ -2750,20 +2753,20 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#faf8f4;max-
     <td class="content-pad" style="padding:0 40px 36px;background:#ffffff;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr><td style="padding:0 0 20px 0;">
-          <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">WHAT'S INCLUDED</p>
+          <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${INCLUDED_GREEN};">WHAT'S INCLUDED</p>
         </td></tr>
       </table>
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         ${incentiveLines.map((item, i) => `
         <tr>
           <td style="padding:0 0 ${i < incentiveLines.length - 1 ? '10' : '0'}px 0;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;border-radius:8px;border-left:3px solid ${ACCENT};">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#faf8f4;border-radius:8px;border-left:3px solid ${INCLUDED_GREEN};">
               <tr>
                 <td style="padding:14px 18px;">
                   <table cellpadding="0" cellspacing="0" border="0" width="100%">
                     <tr>
                       <td valign="middle" width="28" style="width:28px;vertical-align:middle;">
-                        <p style="margin:0;font-size:16px;line-height:1;">&#10022;</p>
+                        <p style="margin:0;font-size:16px;line-height:1;color:${INCLUDED_GREEN};">&#10022;</p>
                       </td>
                       <td valign="middle" style="vertical-align:middle;">
                         <p style="margin:0;font-family:${F};font-size:14px;font-weight:600;color:${DARK};line-height:1.5;">${item}</p>
