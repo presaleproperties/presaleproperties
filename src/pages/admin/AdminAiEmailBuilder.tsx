@@ -3,6 +3,8 @@ import { SendEmailDialog } from "@/components/admin/SendEmailDialog";
 import { CampaignBundleSelector, type CampaignBundle } from "@/components/admin/campaign/CampaignBundleSelector";
 import { CampaignWeekNavigator } from "@/components/admin/campaign/CampaignWeekNavigator";
 import { CAMPAIGN_WEEKS } from "@/components/admin/campaign/CampaignWeekConfig";
+import { buildMultiProjectEmailHtml, type MultiProjectData } from "@/components/admin/campaign/buildMultiProjectEmailHtml";
+import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -508,6 +510,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [campaignCompletedWeeks, setCampaignCompletedWeeks] = useState<Set<number>>(new Set());
   const [bundleSelectorOpen, setBundleSelectorOpen] = useState(false);
   const campaignMode = !!campaignBundle;
+  /** When set, overrides previewHtml/finalHtml for multi-project weeks */
+  const [campaignHtmlOverride, setCampaignHtmlOverride] = useState<string | null>(null);
+  const [campaignAiLoading, setCampaignAiLoading] = useState(false);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
   // Data
