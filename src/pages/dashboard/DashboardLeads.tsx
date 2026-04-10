@@ -467,6 +467,7 @@ export default function DashboardLeads() {
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Source</th>
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Tags</th>
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Date</th>
+                            <th className="text-center px-3 py-2.5 font-medium text-muted-foreground text-xs">Quick Actions</th>
                             <th className="text-right px-3 py-2.5 font-medium text-muted-foreground text-xs w-10"></th>
                           </tr>
                         </thead>
