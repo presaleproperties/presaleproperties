@@ -36,12 +36,15 @@ export function ExitIntentPopup() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  // Suppress on admin, agent, and developer portals
+  // Suppress on admin, agent, developer portals, login, and for-agents pages
   const isPortalRoute =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/admin") ||
     pathname.startsWith("/agent") ||
-    pathname.startsWith("/developer");
+    pathname.startsWith("/developer") ||
+    pathname.startsWith("/for-agents") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup");
 
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
