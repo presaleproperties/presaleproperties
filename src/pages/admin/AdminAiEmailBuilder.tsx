@@ -922,11 +922,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (p.developer_name)  setDevName(p.developer_name);
     if (p.featured_image)  setHeroImage(p.featured_image);
 
-    // Auto-set project page URL from slug
+    // Auto-set project page URL from slug using canonical SEO URL generator
     if (p.slug) {
-      const neighborhood = p.neighborhood || p.city || "";
-      const typeSlug = "condos"; // default; will resolve on the website
-      setProjectUrl(`https://presaleproperties.com/${neighborhood.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}-presale-${typeSlug}-${p.slug}`);
+      const projectPath = generateProjectUrl({
+        slug: p.slug,
+        neighborhood: p.neighborhood || p.city || "",
+        projectType: (p.project_type as "condo" | "townhome" | "mixed" | "duplex" | "single_family") || "condo",
+      });
+      setProjectUrl(`https://presaleproperties.com${projectPath}`);
     }
 
     // Auto-populate Loop slideshow from gallery images (up to 6 HQ images)
