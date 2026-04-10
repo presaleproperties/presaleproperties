@@ -864,7 +864,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -872,14 +872,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (campaignHtmlOverride) return;
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl, campaignHtmlOverride]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, pricingUrl, showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl, campaignHtmlOverride]);
 
   // finalHtml used only for copy/save — always reflects latest state
   // When campaignHtmlOverride is set (multi-project weeks), use it instead
-  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined);
+  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined);
   const finalHtml = campaignHtmlOverride || baseFinalHtml;
 
   // Also update multi-project preview when body copy changes (live editing)
