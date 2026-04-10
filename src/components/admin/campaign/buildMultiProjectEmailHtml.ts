@@ -30,6 +30,7 @@ export interface MultiProjectData {
   completion?: string;
   featuredImage?: string;
   projectUrl?: string;
+  pricingUrl?: string;
   highlights?: string[];
 }
 
@@ -115,18 +116,24 @@ function projectCardHtml(p: MultiProjectData, index: number, ctaLabel: string): 
             ${highlights.map(h => `<p style="margin:0 0 4px;font-family:${F};font-size:13px;color:#555;line-height:1.5;">✦ ${h}</p>`).join("")}
           </td>
         </tr>` : ""}
-        ${p.projectUrl ? `
+        <!-- CTA Buttons -->
         <tr>
           <td style="padding:0 24px 20px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
-              <tr>
+              ${p.projectUrl ? `<tr>
                 <td align="center" bgcolor="${DARK}" style="padding:14px 20px;border-radius:6px;">
-                  <a href="${p.projectUrl}" target="_blank" style="font-family:${F};font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">${ctaLabel}</a>
+                  <a href="${p.projectUrl}" target="_blank" style="font-family:${F};font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">VIEW PROJECT DETAILS</a>
                 </td>
               </tr>
+              <tr><td style="height:8px;font-size:0;line-height:0;">&nbsp;</td></tr>` : ""}
+              ${p.pricingUrl ? `<tr>
+                <td align="center" style="padding:14px 20px;border-radius:6px;border:2px solid ${ACCENT};">
+                  <a href="${p.pricingUrl}" target="_blank" style="font-family:${F};font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;">VIEW PRICING</a>
+                </td>
+              </tr>` : ""}
             </table>
           </td>
-        </tr>` : ""}
+        </tr>
       </table>
     </td>
   </tr>`;
