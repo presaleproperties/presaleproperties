@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Helmet } from "@/components/seo/Helmet";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ROIWizard } from "@/components/roi/ROIWizard";
