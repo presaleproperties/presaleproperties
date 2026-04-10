@@ -1828,7 +1828,25 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                       </div>
                     );
                   }
-                  // Fallback: show featured images from all projects
+                  // Fallback 1: show loopSlides as gallery (e.g. from deck preload)
+                  if (loopSlides.length > 0) {
+                    const uniqueSlides = [...new Set(loopSlides)].filter(Boolean);
+                    return (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground mb-1">Project gallery:</p>
+                        <div className="grid grid-cols-3 gap-1">
+                          {uniqueSlides.slice(0, 9).map((img, i) => (
+                            <button key={i} onClick={() => setHeroImage(img)}
+                              className={cn("relative rounded overflow-hidden border-2 aspect-video transition-all", heroImage === img ? "border-primary" : "border-transparent hover:border-muted-foreground/40")}>
+                              <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+                              {heroImage === img && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-white" /></div>}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  // Fallback 2: show featured images from all projects
                   const projectsWithImages = projects.filter(p => p.featured_image);
                   if (projectsWithImages.length === 0) return null;
                   return (
