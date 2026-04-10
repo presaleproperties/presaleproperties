@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { SendEmailDialog } from "@/components/admin/SendEmailDialog";
+import { CampaignBundleSelector, type CampaignBundle } from "@/components/admin/campaign/CampaignBundleSelector";
+import { CampaignWeekNavigator } from "@/components/admin/campaign/CampaignWeekNavigator";
+import { CAMPAIGN_WEEKS } from "@/components/admin/campaign/CampaignWeekConfig";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -18,7 +21,7 @@ import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
   Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Italic, Underline, List, Minus, Presentation, Send, PanelRightClose, PanelRight, MousePointerClick, Settings,
-  Undo2, Redo2, Tag,
+  Undo2, Redo2, Tag, Package,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -498,6 +501,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [saving,        setSaving]        = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(true);
+
+  // ── Campaign mode state ──────────────────────────────────────────────────────
+  const [campaignBundle, setCampaignBundle] = useState<CampaignBundle | null>(null);
+  const [campaignWeek, setCampaignWeek] = useState(1);
+  const [campaignCompletedWeeks, setCampaignCompletedWeeks] = useState<Set<number>>(new Set());
+  const [bundleSelectorOpen, setBundleSelectorOpen] = useState(false);
+  const campaignMode = !!campaignBundle;
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
   // Data
@@ -1364,6 +1374,59 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setSaving(false);
   };
 
+  // ── Campaign mode: auto-populate from bundle project when switching weeks ──
+  const handleCampaignWeekChange = useCallback((week: number) => {
+    setCampaignWeek(week);
+    if (!campaignBundle) return;
+    const weekDef = CAMPAIGN_WEEKS[week - 1];
+    if (!weekDef) return;
+
+    // Determine which project to load for single-project weeks
+    let targetProjectId: string | null = null;
+    if (weekDef.type === "single-project") {
+      if (weekDef.projectSource === "primary") targetProjectId = campaignBundle.primary_project_id;
+      else if (weekDef.projectSource === "alt1") targetProjectId = campaignBundle.alt_project_1_id;
+      else if (weekDef.projectSource === "alt2") targetProjectId = campaignBundle.alt_project_2_id;
+    }
+
+    // For single-project weeks, trigger handleProjectSelect to auto-fill
+    if (targetProjectId && weekDef.type === "single-project") {
+      const proj = projects.find(p => p.id === targetProjectId);
+      if (proj) {
+        // Auto-select the project (which triggers handleProjectSelect's data loading)
+        handleProjectSelect(targetProjectId);
+      }
+    }
+
+    // For multi-project and ai-content weeks (Phase 2 & 3), we'll add handling later
+    // For now, just set default subject/headline from week config
+    if (weekDef.type !== "single-project") {
+      const primaryProj = projects.find(p => p.id === campaignBundle.primary_project_id);
+      const cityName = primaryProj?.city || "";
+      const projName = primaryProj?.name || "";
+      setSubjectLine(weekDef.defaultSubject.replace("{city}", cityName).replace("{projectName}", projName));
+      setHeadline(weekDef.defaultHeadline.replace("{city}", cityName).replace("{projectName}", projName));
+      // Clear single-project fields for multi-project weeks
+      setBodyCopy("");
+      setIncentiveText("");
+      setHeroImage("");
+      setFloorPlans([]);
+    }
+  }, [campaignBundle, projects]); // eslint-disable-line
+
+  const handleBundleSelect = useCallback((bundle: CampaignBundle) => {
+    setCampaignBundle(bundle);
+    setBundleSelectorOpen(false);
+    setCampaignWeek(1);
+    setCampaignCompletedWeeks(new Set());
+    // Auto-populate Week 1 with primary project
+    const proj = projects.find(p => p.id === bundle.primary_project_id);
+    if (proj) {
+      handleProjectSelect(bundle.primary_project_id);
+    }
+    toast.success(`Campaign "${bundle.name}" loaded — starting Week 1`);
+  }, [projects]); // eslint-disable-line
+
   // Mobile tab: "build" (editor panel) or "preview" (iframe)
   const [mobileTab, setMobileTab] = useState<"build" | "preview">("build");
 
@@ -1435,6 +1498,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             </div>
           )}
 
+          {/* Start Campaign button */}
+          {!campaignMode && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5 shrink-0 hidden sm:flex text-xs px-2.5 border-primary/30 text-primary hover:bg-primary/10"
+              onClick={() => setBundleSelectorOpen(true)}
+            >
+              <Package className="h-3.5 w-3.5" />
+              <span className="hidden lg:inline">Campaign</span>
+            </Button>
+          )}
+
           <Button
             size="sm"
             className="h-8 gap-1.5 shrink-0 text-xs px-2.5"
@@ -1450,9 +1526,29 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           </Button>
           <Button size="sm"
             className={cn("h-8 gap-1.5 font-semibold transition-all duration-200 shrink-0 text-xs px-2.5", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
-            onClick={handleCopy}>
+            onClick={() => {
+              handleCopy();
+              // Auto-mark week done when copying HTML in campaign mode
+              if (campaignMode) {
+                setCampaignCompletedWeeks(prev => new Set([...prev, campaignWeek]));
+              }
+            }}>
             {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /><span className="hidden sm:inline"> Copied!</span></> : <><Copy className="h-3.5 w-3.5" /><span className="hidden sm:inline"> Copy HTML</span></>}
           </Button>
+          {/* Campaign: Next Week button */}
+          {campaignMode && campaignWeek < 12 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5 shrink-0 text-xs px-2.5 border-primary/30"
+              onClick={() => {
+                setCampaignCompletedWeeks(prev => new Set([...prev, campaignWeek]));
+                handleCampaignWeekChange(campaignWeek + 1);
+              }}
+            >
+              Week {campaignWeek + 1} →
+            </Button>
+          )}
         </div>
 
         {/* ── Inbox preview bar ── */}
@@ -1480,6 +1576,21 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             <Badge variant="outline" className="shrink-0 text-[9px] py-0 h-4 px-1.5 text-muted-foreground/60">Gmail</Badge>
           </div>
         </div>
+
+        {/* ── Campaign Week Navigator (shown only in campaign mode) ── */}
+        {campaignMode && (
+          <CampaignWeekNavigator
+            activeWeek={campaignWeek}
+            onWeekChange={handleCampaignWeekChange}
+            completedWeeks={campaignCompletedWeeks}
+            bundleName={campaignBundle!.name}
+            onExitCampaign={() => {
+              setCampaignBundle(null);
+              setCampaignWeek(1);
+              setCampaignCompletedWeeks(new Set());
+            }}
+          />
+        )}
 
         {/* ── Mobile tab switcher (shown only on small screens) ── */}
         <div className="flex lg:hidden items-center bg-muted/40 rounded-xl p-1 gap-1">
@@ -2457,6 +2568,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             </div>
           </div>
         )}
+
+        {/* ── Campaign Bundle Selector Modal ── */}
+        <CampaignBundleSelector
+          open={bundleSelectorOpen}
+          onClose={() => setBundleSelectorOpen(false)}
+          onSelect={handleBundleSelect}
+          userId={agentUserId}
+        />
 
       </div>
     </Layout>
