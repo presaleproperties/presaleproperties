@@ -15,6 +15,21 @@
 
 const LOGO_EMAIL_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
 
+const AGENT_WEBSITE_URLS: Record<string, string> = {
+  Uzair: "https://presalewithuzair.com/",
+};
+
+function getAgentWebsiteUrl(fullName: string): string | undefined {
+  const firstName = fullName.split(" ")[0];
+  return AGENT_WEBSITE_URLS[firstName];
+}
+
+function wrapPhotoWithLink(imgHtml: string, agentName: string): string {
+  const url = getAgentWebsiteUrl(agentName);
+  if (!url) return imgHtml;
+  return `<a href="${url}" target="_blank" style="text-decoration:none;">${imgHtml}</a>`;
+}
+
 export interface AgentInfo {
   full_name: string;
   title: string;
