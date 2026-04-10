@@ -505,6 +505,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const selectedAgent: AgentInfo = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
   // Loop slideshow images (auto-filled from project gallery)
   const [loopSlides, setLoopSlides] = useState<string[]>(savedDraft?.loopSlides ?? []);
+  // Hero mode: "static" = single image, "gif" = rotating carousel
+  const [heroMode, setHeroMode] = useState<"static" | "gif">(savedDraft?.heroMode ?? "gif");
 
   const [projects, setProjects] = useState<Array<{
     id: string; name: string; slug?: string; city: string; neighborhood?: string | null;
@@ -549,6 +551,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setFpSubheading(d.fpSubheading ?? "");
     setImageCards(d.imageCards ?? []);
     setLoopSlides(d.loopSlides ?? []);
+    if (d.heroMode) setHeroMode(d.heroMode);
     setSelectedAssetId(d.selectedAssetId ?? "none");
     setDirectCtaUrl(d.directCtaUrl ?? "");
     setBrochureUrl(d.brochureUrl ?? "");
@@ -752,7 +755,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         projectName, developerName, showProjectName, showDeveloperName, customHeader,
         city, neighborhood, startingPrice, deposit, completion, infoRows,
         subjectLine, previewText, headline, bodyCopy, incentiveText,
-        heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
+        heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion, brochureUrl, floorplanUrl, bookShowingUrl,
         showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
