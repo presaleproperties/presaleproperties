@@ -501,6 +501,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [saving,        setSaving]        = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(true);
+
+  // ── Campaign mode state ──────────────────────────────────────────────────────
+  const [campaignBundle, setCampaignBundle] = useState<CampaignBundle | null>(null);
+  const [campaignWeek, setCampaignWeek] = useState(1);
+  const [campaignCompletedWeeks, setCampaignCompletedWeeks] = useState<Set<number>>(new Set());
+  const [bundleSelectorOpen, setBundleSelectorOpen] = useState(false);
+  const campaignMode = !!campaignBundle;
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
   // Data
