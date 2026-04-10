@@ -1786,23 +1786,43 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     />
                   </div>
                 )}
-                {/* Project gallery — pick a different hero from the same project */}
+                {/* Project gallery — pick a different hero from the same project, or pick from all projects */}
                 {(() => {
                   const selectedProject = projects.find(p => p.id === selProjectId);
-                  const galleryImages = [
-                    ...(selectedProject?.featured_image ? [selectedProject.featured_image] : []),
-                    ...(selectedProject?.gallery_images?.filter(img => img && img !== selectedProject?.featured_image) ?? []),
-                  ].filter(Boolean);
-                  if (galleryImages.length === 0) return null;
+                  if (selectedProject) {
+                    // Show gallery images from the selected project
+                    const galleryImages = [
+                      ...(selectedProject.featured_image ? [selectedProject.featured_image] : []),
+                      ...(selectedProject.gallery_images?.filter(img => img && img !== selectedProject.featured_image) ?? []),
+                    ].filter(Boolean);
+                    if (galleryImages.length === 0) return null;
+                    return (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground mb-1">Project gallery:</p>
+                        <div className="grid grid-cols-3 gap-1">
+                          {galleryImages.slice(0, 9).map((img, i) => (
+                            <button key={i} onClick={() => setHeroImage(img)}
+                              className={cn("relative rounded overflow-hidden border-2 aspect-video transition-all", heroImage === img ? "border-primary" : "border-transparent hover:border-muted-foreground/40")}>
+                              <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+                              {heroImage === img && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-white" /></div>}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  // Fallback: show featured images from all projects
+                  const projectsWithImages = projects.filter(p => p.featured_image);
+                  if (projectsWithImages.length === 0) return null;
                   return (
                     <div>
-                      <p className="text-[10px] text-muted-foreground mb-1">Project gallery:</p>
+                      <p className="text-[10px] text-muted-foreground mb-1">Pick from projects:</p>
                       <div className="grid grid-cols-3 gap-1">
-                        {galleryImages.slice(0, 9).map((img, i) => (
-                          <button key={i} onClick={() => setHeroImage(img)}
-                            className={cn("relative rounded overflow-hidden border-2 aspect-video transition-all", heroImage === img ? "border-primary" : "border-transparent hover:border-muted-foreground/40")}>
-                            <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
-                            {heroImage === img && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-white" /></div>}
+                        {projectsWithImages.slice(0, 6).map(p => (
+                          <button key={p.id} onClick={() => setHeroImage(p.featured_image!)}
+                            className={cn("relative rounded overflow-hidden border-2 aspect-video transition-all", heroImage === p.featured_image ? "border-primary" : "border-transparent hover:border-muted-foreground/40")}>
+                            <img src={p.featured_image!} alt={p.name} className="w-full h-full object-cover" />
+                            {heroImage === p.featured_image && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-white" /></div>}
                           </button>
                         ))}
                       </div>
