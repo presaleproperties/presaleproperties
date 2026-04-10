@@ -7,9 +7,9 @@ import { AboutContactForm } from "./AboutContactForm";
 import { supabase } from "@/integrations/supabase/client";
 
 const problems = [
-  "Not sure if presale is right for you?",
-  "Confused by contracts, deposits & timelines?",
-  "Worried about making a costly mistake?",
+  "Navigate contracts, deposits & timelines with confidence",
+  "Access exclusive pricing & incentives before anyone else",
+  "Expert representation at zero cost to you",
 ];
 
 interface GoogleReview {
@@ -70,25 +70,25 @@ export function AboutHero() {
             {/* LEFT: headline + CTAs */}
             <div className="flex-1 min-w-0 max-w-2xl">
 
-              {/* Empathy-first headline */}
+              {/* Headline */}
               <h1 className="font-extrabold text-white leading-[1.0] tracking-tight mb-5 sm:mb-6">
                 <span className="block text-[13px] sm:text-[14px] font-bold uppercase tracking-[0.3em] text-primary mb-3">
-                  You deserve clarity.
+                  Your New Home Team
                 </span>
                 <span className="block text-[38px] sm:text-[52px] md:text-[62px] lg:text-[68px]">
-                  Buying a new home
+                  We help you buy
                 </span>
                 <span className="block text-[38px] sm:text-[52px] md:text-[62px] lg:text-[68px]">
-                  shouldn't feel like
+                  new construction
                 </span>
                 <span className="block text-[38px] sm:text-[52px] md:text-[62px] lg:text-[68px] text-primary">
-                  a gamble.
+                  with confidence.
                 </span>
               </h1>
 
               {/* Body copy */}
               <p className="text-[14px] sm:text-[15px] text-white/65 leading-relaxed max-w-lg mb-7 sm:mb-8">
-                Most buyers go into presale without a specialist in their corner — and end up paying more, missing incentives, or signing contracts they don't fully understand. We fix that. At no cost to you.
+                Presale Properties Group is Metro Vancouver's dedicated new construction team — guiding first-time buyers and investors from floor plan to keys, completely free.
               </p>
 
               {/* Problems we solve */}
