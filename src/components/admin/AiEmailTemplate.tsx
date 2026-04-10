@@ -15,6 +15,16 @@
 
 const LOGO_EMAIL_URL = "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
 
+const AGENT_WEBSITE_URLS: Record<string, string> = {
+  Uzair: "https://presalewithuzair.com/",
+};
+
+function getAgentWebsiteUrl(fullName: string): string | undefined {
+  const firstName = fullName.split(" ")[0];
+  return AGENT_WEBSITE_URLS[firstName];
+}
+
+
 export interface AgentInfo {
   full_name: string;
   title: string;
@@ -586,8 +596,8 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
         <tr>
           ${agent.photo_url ? `
           <td width="80" valign="middle" class="agent-photo-cell" style="padding:18px 0 18px 20px;vertical-align:middle;line-height:0;font-size:0;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="60" height="60" border="0" class="agent-photo"
-                 style="display:block;width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+            ${getAgentWebsiteUrl(agent.full_name) ? `<a href="${getAgentWebsiteUrl(agent.full_name)}" target="_blank" style="text-decoration:none;">` : ""}<img src="${agent.photo_url}" alt="${agent.full_name}" width="60" height="60" border="0" class="agent-photo"
+                 style="display:block;width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />${getAgentWebsiteUrl(agent.full_name) ? `</a>` : ""}
           </td>` : ""}
           <td valign="middle" class="agent-info-cell" style="padding:18px 12px 18px ${agent.photo_url ? "10px" : "20px"};vertical-align:middle;">
             <div style="font-family:${displayFont};font-size:17px;font-weight:600;color:#111111;line-height:1.15;mso-line-height-rule:exactly;margin-bottom:2px;">${agent.full_name}</div>
@@ -1015,8 +1025,8 @@ export function buildPitchDeckEmailHtml(
         <tr>
           ${agent.photo_url ? `
           <td width="110" valign="middle" style="padding:20px 0 20px 24px;vertical-align:middle;line-height:0;font-size:0;width:110px;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="90" height="90" border="0"
-                 style="display:block;width:90px;height:90px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+            ${getAgentWebsiteUrl(agent.full_name) ? `<a href="${getAgentWebsiteUrl(agent.full_name)}" target="_blank" style="text-decoration:none;">` : ""}<img src="${agent.photo_url}" alt="${agent.full_name}" width="90" height="90" border="0"
+                 style="display:block;width:90px;height:90px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />${getAgentWebsiteUrl(agent.full_name) ? `</a>` : ""}
           </td>` : ""}
           <td valign="middle" style="padding:20px 0 20px 16px;vertical-align:middle;">
             <div style="font-family:${DISPLAY_FONT};font-size:17px;font-weight:700;color:#111111;line-height:1.2;margin-bottom:3px;">${agent.full_name}</div>
@@ -1041,8 +1051,8 @@ export function buildPitchDeckEmailHtml(
         ${agent.photo_url ? `
         <tr>
           <td align="center" style="padding:28px 24px 14px;text-align:center;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="100" height="100" border="0"
-                 style="display:inline-block;width:100px;height:100px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+            ${getAgentWebsiteUrl(agent.full_name) ? `<a href="${getAgentWebsiteUrl(agent.full_name)}" target="_blank" style="text-decoration:none;">` : ""}<img src="${agent.photo_url}" alt="${agent.full_name}" width="100" height="100" border="0"
+                 style="display:inline-block;width:100px;height:100px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />${getAgentWebsiteUrl(agent.full_name) ? `</a>` : ""}
           </td>
         </tr>` : ""}
         <!-- Name + title row -->
@@ -1446,7 +1456,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         ${agent.photo_url ? `
         <tr>
           <td align="center" style="padding:28px 24px 12px;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+            ${getAgentWebsiteUrl(agent.full_name) ? `<a href="${getAgentWebsiteUrl(agent.full_name)}" target="_blank" style="text-decoration:none;">` : ""}<img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />${getAgentWebsiteUrl(agent.full_name) ? `</a>` : ""}
           </td>
         </tr>` : ""}
         <tr>
@@ -1778,7 +1788,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         ${agent.photo_url ? `
         <tr>
           <td align="center" style="padding:28px 24px 12px;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+            ${getAgentWebsiteUrl(agent.full_name) ? `<a href="${getAgentWebsiteUrl(agent.full_name)}" target="_blank" style="text-decoration:none;">` : ""}<img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />${getAgentWebsiteUrl(agent.full_name) ? `</a>` : ""}
           </td>
         </tr>` : ""}
         <tr>
@@ -2076,7 +2086,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         ${agent.photo_url ? `
         <tr>
           <td align="center" style="padding:28px 24px 12px;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${OLIVE};-ms-interpolation-mode:bicubic;" />
+            ${getAgentWebsiteUrl(agent.full_name) ? `<a href="${getAgentWebsiteUrl(agent.full_name)}" target="_blank" style="text-decoration:none;">` : ""}<img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${OLIVE};-ms-interpolation-mode:bicubic;" />${getAgentWebsiteUrl(agent.full_name) ? `</a>` : ""}
           </td>
         </tr>` : ""}
         <tr>
@@ -2447,8 +2457,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
               ${agent.photo_url ? `
               <tr>
                 <td align="center" style="padding:28px 24px 14px;text-align:center;">
-                  <img src="${agent.photo_url}" alt="${agent.full_name}" width="100" height="100" border="0"
-                       style="display:inline-block;width:100px;height:100px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+                  ${getAgentWebsiteUrl(agent.full_name) ? `<a href="${getAgentWebsiteUrl(agent.full_name)}" target="_blank" style="text-decoration:none;">` : ""}<img src="${agent.photo_url}" alt="${agent.full_name}" width="100" height="100" border="0"
+                       style="display:inline-block;width:100px;height:100px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />${getAgentWebsiteUrl(agent.full_name) ? `</a>` : ""}
                 </td>
               </tr>` : ""}
               <tr>
@@ -2835,7 +2845,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#faf8f4;max-
         ${agent.photo_url ? `
         <tr>
           <td align="center" style="padding:28px 24px 12px;">
-            <img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />
+            ${getAgentWebsiteUrl(agent.full_name) ? `<a href="${getAgentWebsiteUrl(agent.full_name)}" target="_blank" style="text-decoration:none;">` : ""}<img src="${agent.photo_url}" alt="${agent.full_name}" width="80" height="80" style="display:inline-block;width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid ${ACCENT};-ms-interpolation-mode:bicubic;" />${getAgentWebsiteUrl(agent.full_name) ? `</a>` : ""}
           </td>
         </tr>` : ""}
         <tr>
