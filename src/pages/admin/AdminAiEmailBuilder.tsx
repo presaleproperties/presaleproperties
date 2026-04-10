@@ -523,6 +523,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   /** When set, overrides previewHtml/finalHtml for multi-project weeks */
   const [campaignHtmlOverride, setCampaignHtmlOverride] = useState<string | null>(null);
   const [campaignAiLoading, setCampaignAiLoading] = useState(false);
+  const [campaignEnrichment, setCampaignEnrichment] = useState<CampaignEnrichmentData | null>(null);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
   // Data
