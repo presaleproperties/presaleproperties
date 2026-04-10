@@ -46,6 +46,8 @@ export interface MultiProjectEmailOptions {
   ctaLabel?: string;
   /** City for footer */
   city?: string;
+  /** Injected HTML snippets (market stats, rental data, guide CTAs, etc.) */
+  enrichmentHtml?: string;
 }
 
 function projectCardHtml(p: MultiProjectData, index: number, ctaLabel: string): string {
