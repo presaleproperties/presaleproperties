@@ -1136,15 +1136,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     // Keep the HTML identical to preview / MailerLite and only map merge tags for Lofty
     html = html.replace(/\{unsubscribe_url\}/g, "#unsubscribe_url#");
     html = html.replace(/href="#unsubscribe"/g, 'href="#unsubscribe_url#"');
+    html = html.replace(/\{\$unsubscribe\}/g, "#unsubscribe_url#");
     html = html.replace(/\*\|UNSUB\|\*/g, "#unsubscribe_url#");
-    html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "#update_preferences_url#");
-    html = html.replace(/\*\|EMAIL_WEB_VERSION_URL\|\*/g, "#view_in_browser_url#");
-    html = html.replace(/\*\|FNAME\|\*/g, "#lead_first_name#");
     html = html.replace(/\{\$name\}/g, "#lead_first_name#");
-    html = html.replace(/\*\|LNAME\|\*/g, "#lead_last_name#");
+    html = html.replace(/\*\|FNAME\|\*/g, "#lead_first_name#");
     html = html.replace(/\{\$last_name\}/g, "#lead_last_name#");
-    html = html.replace(/\*\|EMAIL\|\*/g, "#lead_email#");
+    html = html.replace(/\*\|LNAME\|\*/g, "#lead_last_name#");
     html = html.replace(/\{\$email\}/g, "#lead_email#");
+    html = html.replace(/\*\|EMAIL\|\*/g, "#lead_email#");
 
     return html;
   }, [getExportHtml]);
@@ -1204,15 +1203,17 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   // MailerLite merge-tag substitutions for unsubscribe links.
   const getMailerLiteHtml = useCallback((): string => {
     let html = finalHtml;
-    // Replace any generic unsubscribe placeholder with MailerLite merge tag
+    // Catch any remaining legacy placeholders and normalize to MailerLite tags
     html = html.replace(/\{unsubscribe_url\}/g, "{$unsubscribe}");
     html = html.replace(/href="#unsubscribe"/g, 'href="{$unsubscribe}"');
-    // Replace any generic email placeholder with MailerLite merge tag
+    html = html.replace(/\*\|UNSUB\|\*/g, "{$unsubscribe}");
     html = html.replace(/\{subscriber_email\}/g, "{$email}");
-    // Replace Mailchimp name merge tags with MailerLite format
     html = html.replace(/\*\|FNAME\|\*/g, "{$name}");
     html = html.replace(/\*\|LNAME\|\*/g, "{$last_name}");
     html = html.replace(/\*\|EMAIL\|\*/g, "{$email}");
+    // Remove any leftover Mailchimp-only tags
+    html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "");
+    html = html.replace(/\*\|EMAIL_WEB_VERSION_URL\|\*/g, "");
     return html;
   }, [finalHtml]);
 

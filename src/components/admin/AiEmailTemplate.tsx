@@ -644,11 +644,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
         You are receiving this because you opted in to presale updates from Presale Properties. Per Canada's Anti-Spam Legislation (CASL), you may withdraw consent at any time.
       </div>
       <div>
-        <a href="*|UNSUB|*" style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Unsubscribe</a>
-        <span style="color:#cccccc;margin:0 10px;">&middot;</span>
-        <a href="*|UPDATE_PROFILE|*" style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Update Preferences</a>
-        <span style="color:#cccccc;margin:0 10px;">&middot;</span>
-        <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">View in Browser</a>
+        <a href="{$unsubscribe}" style="font-family:${bodyFont};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Unsubscribe</a>
       </div>
     </td>
   </tr>
@@ -1123,11 +1119,7 @@ export function buildPitchDeckEmailHtml(
         You are receiving this because you opted in to presale updates from Presale Properties. Per Canada's Anti-Spam Legislation (CASL), you may withdraw consent at any time.
       </div>
       <div>
-        <a href="*|UNSUB|*" style="font-family:${BODY_FONT};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Unsubscribe</a>
-        <span style="color:#cccccc;margin:0 10px;">&middot;</span>
-        <a href="*|UPDATE_PROFILE|*" style="font-family:${BODY_FONT};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Update Preferences</a>
-        <span style="color:#cccccc;margin:0 10px;">&middot;</span>
-        <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:${BODY_FONT};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">View in Browser</a>
+        <a href="{$unsubscribe}" style="font-family:${BODY_FONT};font-size:11px;font-weight:300;color:#888888;text-decoration:underline;">Unsubscribe</a>
       </div>
     </td>
   </tr>
@@ -1498,11 +1490,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         You received this because you opted in to presale updates. Per CASL, you may withdraw consent at any time.
       </p>
       <p style="margin:0;">
-        <a href="*|UNSUB|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Unsubscribe</a>
-        <span style="color:#dddddd;margin:0 8px;">&middot;</span>
-        <a href="*|UPDATE_PROFILE|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Preferences</a>
-        <span style="color:#dddddd;margin:0 8px;">&middot;</span>
-        <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">View in Browser</a>
+        <a href="{$unsubscribe}" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Unsubscribe</a>
       </p>
     </td>
   </tr>
@@ -1830,11 +1818,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         You received this because you opted in to presale updates. Per CASL, you may withdraw consent at any time.
       </p>
       <p style="margin:0;">
-        <a href="*|UNSUB|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Unsubscribe</a>
-        <span style="color:#dddddd;margin:0 8px;">&middot;</span>
-        <a href="*|UPDATE_PROFILE|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Preferences</a>
-        <span style="color:#dddddd;margin:0 8px;">&middot;</span>
-        <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">View in Browser</a>
+        <a href="{$unsubscribe}" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Unsubscribe</a>
       </p>
     </td>
   </tr>
@@ -2128,11 +2112,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
         You received this because you opted in to presale updates. Per CASL, you may withdraw consent at any time.
       </p>
       <p style="margin:0;">
-        <a href="*|UNSUB|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Unsubscribe</a>
-        <span style="color:#dddddd;margin:0 8px;">&middot;</span>
-        <a href="*|UPDATE_PROFILE|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Preferences</a>
-        <span style="color:#dddddd;margin:0 8px;">&middot;</span>
-        <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">View in Browser</a>
+        <a href="{$unsubscribe}" style="font-family:${F};font-size:11px;color:#aaaaaa;text-decoration:underline;">Unsubscribe</a>
       </p>
     </td>
   </tr>

@@ -111,6 +111,7 @@ const handler = async (req: Request): Promise<Response> => {
       try {
         let htmlContent = campaign.html_content
           .replace(/\{\{lead_name\}\}/g, lead.name)
+          .replace(/\{\$name\}/g, lead.name)
           .replace(/\{\{project_name\}\}/g, campaign.presale_projects?.name || "")
           .replace(/\{\{project_city\}\}/g, campaign.presale_projects ? 
             `${campaign.presale_projects.neighborhood}, ${campaign.presale_projects.city}` : "");

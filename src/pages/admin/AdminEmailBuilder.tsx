@@ -786,11 +786,7 @@ function buildEmailHtml(vars: TemplateVars, cta: CtaToggles, agent: AgentProfile
                 You are receiving this because you opted in to presale updates from Presale Properties. Per Canada's Anti-Spam Legislation (CASL), you may withdraw consent at any time.
               </div>
               <div>
-                <a href="*|UNSUB|*" style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; text-decoration:underline;">Unsubscribe</a>
-                <span style="color:#cccccc; margin:0 10px;">&middot;</span>
-                <a href="*|UPDATE_PROFILE|*" style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; text-decoration:underline;">Update Preferences</a>
-                <span style="color:#cccccc; margin:0 10px;">&middot;</span>
-                <a href="*|EMAIL_WEB_VERSION_URL|*" style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; text-decoration:underline;">View in Browser</a>
+                <a href="{$unsubscribe}" style="font-family:'DM Sans', Arial, sans-serif; font-size:11px; font-weight:300; color:#888888; text-decoration:underline;">Unsubscribe</a>
               </div>
             </td>
           </tr>
