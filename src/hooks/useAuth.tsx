@@ -56,30 +56,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Check admin role with setTimeout to avoid deadlock
         if (session?.user) {
-          setTimeout(() => checkAdminRole(session.user.id), 0);
+          setTimeout(() => fetchRole(session.user.id), 0);
         } else {
-          setIsAdmin(false);
+          setRole("user");
         }
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
       
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        fetchRole(session.user.id);
       }
     });
 
