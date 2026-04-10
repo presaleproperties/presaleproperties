@@ -468,6 +468,42 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_bundles: {
+        Row: {
+          alt_project_1_id: string
+          alt_project_2_id: string
+          created_at: string
+          id: string
+          name: string
+          primary_project_id: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          alt_project_1_id: string
+          alt_project_2_id: string
+          created_at?: string
+          id?: string
+          name: string
+          primary_project_id: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          alt_project_1_id?: string
+          alt_project_2_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          primary_project_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       campaign_templates: {
         Row: {
           brochure_url: string | null
