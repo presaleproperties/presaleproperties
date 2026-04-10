@@ -105,7 +105,7 @@ export default function DashboardDecks() {
           hero_image_url, tagline, completion_year, assignment_fee,
           included_items, next_price_increase, units_remaining,
           deposit_steps, highlights, description, amenities,
-          floor_plans
+          floor_plans, gallery, linked_project_id
         `)
         .eq("id", deck.id)
         .single();
