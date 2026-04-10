@@ -150,6 +150,7 @@ const BuyerDashboard = lazy(() => import("./pages/buyer/BuyerDashboard"));
 const CrmLayout = lazy(() => import("./components/crm/CrmLayout"));
 const CrmLeads = lazy(() => import("./pages/crm/CrmLeads"));
 const CrmDashboard = lazy(() => import("./pages/crm/CrmDashboard"));
+const CrmPipeline = lazy(() => import("./pages/crm/CrmPipeline"));
 const CrmPlaceholder = lazy(() => import("./pages/crm/CrmPlaceholder"));
 
 const queryClient = new QueryClient({
@@ -494,7 +495,7 @@ const App = () => (
               <Route index element={<Navigate to="/crm/dashboard" replace />} />
               <Route path="dashboard" element={<CrmDashboard />} />
               <Route path="leads" element={<CrmLeads />} />
-              <Route path="pipeline" element={<CrmPlaceholder />} />
+              <Route path="pipeline" element={<CrmPipeline />} />
               <Route path="email" element={<CrmPlaceholder />} />
               <Route path="templates" element={<CrmPlaceholder />} />
               <Route path="automations" element={<CrmPlaceholder />} />
