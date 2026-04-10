@@ -1481,7 +1481,16 @@ export default function MapSearch() {
     return null;
   };
 
-  const totalCount = (filteredResaleListings?.length || 0) + (filteredPresaleProjects?.length || 0);
+  const totalCount = (filteredResaleListings?.length || 0) + (filteredPresaleProjects?.length || 0) + (filteredAssignments?.length || 0);
+
+  const resultsSummary = useMemo(() => {
+    const count = propertiesInViewCount > 0 ? propertiesInViewCount : totalCount;
+    if (count === 0) return "No projects match your filters — try adjusting your search.";
+    const typeLabel = mapMode === "presale" ? "presale projects" : mapMode === "resale" ? "properties" : mapMode === "assignments" ? "assignments" : "properties";
+    const cityLabel = selectedCities.length === 1 ? `in ${selectedCities[0]}` : selectedCities.length > 1 ? `in ${selectedCities.length} cities` : "in Metro Vancouver";
+    const suffix = propertiesInViewCount > 0 ? " in view" : "";
+    return `Showing ${count.toLocaleString()} ${typeLabel} ${cityLabel}${suffix}`;
+  }, [propertiesInViewCount, totalCount, mapMode, selectedCities]);
 
   return (
     <>
@@ -1702,8 +1711,8 @@ export default function MapSearch() {
                     <div className="h-full w-full bg-muted flex items-center justify-center">
                       <div className="text-center text-muted-foreground p-6">
                         <Home className="h-12 w-12 mx-auto mb-3" />
-                        <h3 className="font-semibold text-foreground mb-2">No properties found</h3>
-                        <p className="text-sm mb-4">Try adjusting your filters</p>
+                        <h3 className="font-semibold text-foreground mb-2">No projects match your filters</h3>
+                        <p className="text-sm mb-4">Try adjusting your search or clearing filters</p>
                         <Button onClick={clearAllFilters} size="sm">Clear Filters</Button>
                       </div>
                     </div>
@@ -2298,8 +2307,8 @@ export default function MapSearch() {
 
             {/* Compact Results Bar */}
             <div className="px-2.5 py-1.5 border-y border-border/30 flex items-center justify-between bg-muted/20 relative z-10">
-              <span className="text-xs font-medium text-foreground">
-                {propertiesInViewCount > 0 ? propertiesInViewCount : totalCount} {propertiesInViewCount > 0 ? "in view" : "results"}
+              <span className={cn("text-xs font-medium", totalCount === 0 ? "text-muted-foreground" : "text-foreground")}>
+                {resultsSummary}
               </span>
               <div className="flex items-center gap-1.5">
                 <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
