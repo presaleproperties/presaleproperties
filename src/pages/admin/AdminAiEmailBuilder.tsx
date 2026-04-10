@@ -1697,6 +1697,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               setCampaignBundle(null);
               setCampaignWeek(1);
               setCampaignCompletedWeeks(new Set());
+              setCampaignHtmlOverride(null);
             }}
           />
         )}
