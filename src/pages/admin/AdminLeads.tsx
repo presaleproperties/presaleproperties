@@ -607,8 +607,14 @@ export default function AdminLeads() {
                           return (
                             <tr
                               key={lead.id}
-                              className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors"
+                              className={cn("border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors", selectedProjectIds.has(lead.id) && "bg-primary/5")}
                             >
+                              <td className="px-3 py-2.5">
+                                <Checkbox
+                                  checked={selectedProjectIds.has(lead.id)}
+                                  onCheckedChange={() => toggleSelect(lead.id)}
+                                />
+                              </td>
                               {/* Name */}
                               <td className="px-3 py-2.5">
                                 <div className="flex items-center gap-1.5">
