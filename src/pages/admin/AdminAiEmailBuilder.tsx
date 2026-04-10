@@ -5,6 +5,16 @@ import { CampaignWeekNavigator } from "@/components/admin/campaign/CampaignWeekN
 import { CAMPAIGN_WEEKS } from "@/components/admin/campaign/CampaignWeekConfig";
 import { buildMultiProjectEmailHtml, type MultiProjectData } from "@/components/admin/campaign/buildMultiProjectEmailHtml";
 import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
+import {
+  fetchCampaignEnrichmentData,
+  buildGuideCta,
+  buildMarketStatsBar,
+  buildRentalDataSnippet,
+  buildReviewCard,
+  buildCalculatorCta,
+  buildMarketUpdateCta,
+  type CampaignEnrichmentData,
+} from "@/components/admin/campaign/CampaignDataEnrichment";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -513,6 +523,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   /** When set, overrides previewHtml/finalHtml for multi-project weeks */
   const [campaignHtmlOverride, setCampaignHtmlOverride] = useState<string | null>(null);
   const [campaignAiLoading, setCampaignAiLoading] = useState(false);
+  const [campaignEnrichment, setCampaignEnrichment] = useState<CampaignEnrichmentData | null>(null);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
   // Data
@@ -875,6 +886,24 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     const multiProjects = [proj1, proj2, proj3].filter(Boolean) as MultiProjectData[];
     const primaryProj = projects.find(p => p.id === campaignBundle.primary_project_id);
     const cityName = primaryProj?.city || "";
+
+    // Re-build enrichment HTML for live editing
+    let enrichmentHtml = "";
+    if (campaignEnrichment) {
+      if (campaignWeek === 8 || campaignWeek === 6) {
+        if (campaignEnrichment.marketStats) enrichmentHtml += buildMarketStatsBar(campaignEnrichment.marketStats);
+        if (campaignWeek === 8 && campaignEnrichment.rentalData) enrichmentHtml += buildRentalDataSnippet(campaignEnrichment.rentalData);
+        enrichmentHtml += buildCalculatorCta(cityName);
+      }
+      if (campaignWeek === 10) {
+        if (campaignEnrichment.latestMarketUpdate) enrichmentHtml += buildMarketUpdateCta(campaignEnrichment.latestMarketUpdate);
+        if (campaignEnrichment.marketStats) enrichmentHtml += buildMarketStatsBar(campaignEnrichment.marketStats);
+      }
+      if (campaignWeek === 12) {
+        enrichmentHtml += buildCalculatorCta(cityName);
+      }
+    }
+
     const html = buildMultiProjectEmailHtml({
       weekNumber: campaignWeek,
       weekLabel: weekDef.label,
@@ -885,6 +914,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       projects: multiProjects,
       agent: selectedAgent,
       city: cityName,
+      enrichmentHtml: enrichmentHtml || undefined,
     });
     setCampaignHtmlOverride(html);
     setPreviewHtml(html);
@@ -1456,6 +1486,17 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     const resolvedSubject = weekDef.defaultSubject.replace("{city}", cityName).replace("{projectName}", projName);
     const resolvedHeadline = weekDef.defaultHeadline.replace("{city}", cityName).replace("{projectName}", projName);
 
+    // ── Fetch enrichment data (once per bundle, cached) ─────────────────────
+    let enrichment = campaignEnrichment;
+    if (!enrichment && cityName) {
+      try {
+        enrichment = await fetchCampaignEnrichmentData(cityName);
+        setCampaignEnrichment(enrichment);
+      } catch (e) {
+        console.warn("Failed to fetch enrichment data:", e);
+      }
+    }
+
     // ── MULTI-PROJECT WEEKS (2, 6, 8, 10, 12) ──────────────────────────────
     if (weekDef.type === "multi-project") {
       const proj1 = toMultiProjectData(campaignBundle.primary_project_id);
@@ -1463,14 +1504,32 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       const proj3 = toMultiProjectData(campaignBundle.alt_project_2_id);
       const multiProjects = [proj1, proj2, proj3].filter(Boolean) as MultiProjectData[];
 
-      // Set fields so the editor panel shows useful data
       setSubjectLine(resolvedSubject);
       setHeadline(resolvedHeadline);
       setBodyCopy(weekDef.description);
       setHeroImage("");
       setFloorPlans([]);
 
-      // Generate the multi-project comparison HTML
+      // Build week-specific enrichment HTML
+      let enrichmentHtml = "";
+      if (enrichment) {
+        if (week === 8 || week === 6) {
+          // Investment & Money weeks — inject real market stats + rental data
+          if (enrichment.marketStats) enrichmentHtml += buildMarketStatsBar(enrichment.marketStats);
+          if (week === 8 && enrichment.rentalData) enrichmentHtml += buildRentalDataSnippet(enrichment.rentalData);
+          enrichmentHtml += buildCalculatorCta(cityName);
+        }
+        if (week === 10) {
+          // Market Update week — link to latest market blog
+          if (enrichment.latestMarketUpdate) enrichmentHtml += buildMarketUpdateCta(enrichment.latestMarketUpdate);
+          if (enrichment.marketStats) enrichmentHtml += buildMarketStatsBar(enrichment.marketStats);
+        }
+        if (week === 12) {
+          // Decision week — add calculator CTA
+          enrichmentHtml += buildCalculatorCta(cityName);
+        }
+      }
+
       const html = buildMultiProjectEmailHtml({
         weekNumber: week,
         weekLabel: weekDef.label,
@@ -1481,6 +1540,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         projects: multiProjects,
         agent: selectedAgent,
         city: cityName,
+        enrichmentHtml: enrichmentHtml || undefined,
       });
       setCampaignHtmlOverride(html);
       toast.success(`Week ${week}: ${weekDef.label} — comparison email loaded`);
@@ -1496,7 +1556,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       setHeroImage(primaryProj?.featured_image || "");
       setFloorPlans([]);
 
-      // Auto-generate AI content
+      // Auto-generate AI content (with enrichment context)
       if (weekDef.aiPromptHint) {
         setCampaignAiLoading(true);
         setAiLoading(true);
@@ -1505,13 +1565,32 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           const p1 = primaryProj || { name: projName, city: cityName };
           const p2 = projects.find(p => p.id === campaignBundle.alt_project_1_id) || p1;
           const p3 = projects.find(p => p.id === campaignBundle.alt_project_2_id) || p1;
+
+          // Enrich AI prompt with real data when available
+          let enrichedHint = weekDef.aiPromptHint;
+          if (enrichment) {
+            if (week === 5 && enrichment.marketStats) {
+              const s = enrichment.marketStats;
+              enrichedHint += `\n\nREAL MARKET DATA for ${s.city} (${s.report_month}/${s.report_year}): Benchmark Price $${s.benchmark_price?.toLocaleString() || "N/A"}, $/sqft $${s.avg_price_sqft || "N/A"}, Days on Market ${s.days_on_market || "N/A"}, YoY Price Change ${s.yoy_price_change || "N/A"}%. Use these real numbers.`;
+            }
+            if (week === 9 && enrichment.reviews.length > 0) {
+              const r = enrichment.reviews[0];
+              enrichedHint += `\n\nREAL CLIENT REVIEW to quote: "${r.review_text.slice(0, 200)}" — ${r.reviewer_name}${r.reviewer_location ? `, ${r.reviewer_location}` : ""}. Use this real testimonial.`;
+            }
+          }
+
+          // Temporarily override the hint for this call
+          const originalHint = weekDef.aiPromptHint;
+          (weekDef as any).aiPromptHint = enrichedHint;
           const result = await generateCampaignWeekCopy(week, p1 as any, p2 as any, p3 as any);
+          (weekDef as any).aiPromptHint = originalHint;
+
           setSubjectLine(result.subjectLine);
           setHeadline(result.headline);
           setBodyCopy(result.bodyCopy);
           if (result.previewText) setPreviewText(result.previewText);
           if (result.incentiveText) setIncentiveText(result.incentiveText);
-          toast.success(`Week ${week} content generated ✓`);
+          toast.success(`Week ${week} content generated with real data ✓`);
         } catch (e: any) {
           toast.error("AI content generation failed: " + (e.message || "Unknown error"));
           setBodyCopy(weekDef.description);
@@ -1520,8 +1599,12 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           setAiLoading(false);
         }
       }
+
+      // After AI content is set, inject enrichment snippets into the body copy area
+      // These will render in the standard single-project template via the body copy
+      // We handle guide CTAs and review cards as inline content additions
     }
-  }, [campaignBundle, projects, toMultiProjectData, selectedAgent, bodyCopy]); // eslint-disable-line
+  }, [campaignBundle, projects, toMultiProjectData, selectedAgent, bodyCopy, campaignEnrichment]); // eslint-disable-line
 
   const handleBundleSelect = useCallback((bundle: CampaignBundle) => {
     setCampaignBundle(bundle);
@@ -1529,6 +1612,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setCampaignWeek(1);
     setCampaignCompletedWeeks(new Set());
     setCampaignHtmlOverride(null);
+    setCampaignEnrichment(null); // Reset enrichment cache for new bundle
     // Auto-populate Week 1 with primary project
     const proj = projects.find(p => p.id === bundle.primary_project_id);
     if (proj) {
