@@ -965,8 +965,13 @@ export default function AdminLeads() {
                 {/* Mobile Cards */}
                 <div className="md:hidden space-y-2">
                   {filteredListingLeads.map((lead) => (
-                    <div key={lead.id} className="p-3 rounded-lg border border-border">
-                      <div className="flex items-start justify-between">
+                    <div key={lead.id} className={cn("p-3 rounded-lg border border-border", selectedListingIds.has(lead.id) && "bg-primary/5 border-primary/30")}>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={selectedListingIds.has(lead.id)}
+                          onCheckedChange={() => toggleSelect(lead.id)}
+                          className="mt-1"
+                        />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm">{lead.name}</p>
                           <p className="text-xs text-muted-foreground truncate mt-0.5">{lead.email}</p>
