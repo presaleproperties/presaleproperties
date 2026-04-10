@@ -103,11 +103,24 @@ function VIPModal({ onClose }: { onClose: () => void }) {
               />
               <input
                 type="tel"
-                placeholder="Phone Number (optional)"
+                required
+                placeholder="(604) 555-0123"
                 value={form.phone}
                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                inputMode="numeric"
                 className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
+              <select
+                value={form.interest}
+                onChange={e => setForm(f => ({ ...f, interest: e.target.value }))}
+                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                <option value="">Interested in… (optional)</option>
+                <option value="Condos">Condos</option>
+                <option value="Townhomes">Townhomes</option>
+                <option value="Both">Both</option>
+                <option value="Not sure yet">Not sure yet</option>
+              </select>
               <Button
                 type="submit"
                 disabled={isSubmitting}
