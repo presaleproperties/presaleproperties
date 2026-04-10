@@ -23,7 +23,7 @@ const TRUST_STATS = [
 ];
 
 function VIPModal({ onClose }: { onClose: () => void }) {
-  const [form, setForm] = useState({ firstName: "", email: "", phone: "" });
+  const [form, setForm] = useState({ firstName: "", email: "", phone: "", interest: "" });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +36,8 @@ function VIPModal({ onClose }: { onClose: () => void }) {
       const { error: dbError } = await supabase.from("vip_registrations").insert({
         first_name: form.firstName,
         email: form.email,
-        phone: form.phone || null,
+        phone: form.phone,
+        interest: form.interest || null,
         source: "hero_vip_modal",
         utm_source: new URLSearchParams(window.location.search).get("utm_source"),
         utm_medium: new URLSearchParams(window.location.search).get("utm_medium"),
