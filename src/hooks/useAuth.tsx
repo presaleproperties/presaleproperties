@@ -2,11 +2,15 @@ import { useState, useEffect, createContext, useContext, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+type AppRole = "admin" | "moderator" | "user" | "developer" | "agent";
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  role: AppRole;
   isAdmin: boolean;
+  isAgent: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, metadata: SignUpMetadata) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -26,17 +30,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [role, setRole] = useState<AppRole>("user");
 
-  const checkAdminRole = async (userId: string) => {
+  const isAdmin = role === "admin";
+  const isAgent = role === "agent" || role === "admin";
+
+  const fetchRole = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
+      .order("role");
     
-    setIsAdmin(!!data);
+    if (data && data.length > 0) {
+      // Prioritize: admin > agent > developer > moderator > user
+      const roles = data.map((r) => r.role as AppRole);
+      if (roles.includes("admin")) setRole("admin");
+      else if (roles.includes("agent")) setRole("agent");
+      else if (roles.includes("developer")) setRole("developer");
+      else if (roles.includes("moderator")) setRole("moderator");
+      else setRole("user");
+    } else {
+      setRole("user");
+    }
   };
 
   useEffect(() => {
