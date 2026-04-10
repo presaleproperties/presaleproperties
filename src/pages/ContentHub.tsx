@@ -32,67 +32,65 @@ const CONTENT_CATEGORIES = [
     description: "Learn how to buy presale condos and townhomes",
     icon: BookOpen,
     color: "bg-blue-500/10 text-blue-600",
-    articles: [
-      "First-Time Buyer's Guide to Presale",
-      "Presale Investment Strategies",
-      "Understanding Presale Contracts",
-      "Deposit Structures Explained"
-    ]
+    articles: ["First-Time Buyer's Guide", "Understanding Contracts", "Deposit Structures", "Assignment Sales"]
   },
   {
-    slug: "market-updates",
-    title: "Market Updates",
+    slug: "buyer-education",
+    title: "Buyer Education",
+    description: "Essential knowledge for home buyers",
+    icon: BookOpen,
+    color: "bg-sky-500/10 text-sky-600",
+    articles: ["Home Buying 101", "Mortgage Pre-Approval", "Due Diligence Checklist", "Closing Costs"]
+  },
+  {
+    slug: "market-insights",
+    title: "Market Insights",
     description: "Latest presale market reports and trends",
     icon: TrendingUp,
     color: "bg-green-500/10 text-green-600",
-    articles: [
-      "Vancouver Presale Market Report",
-      "Surrey Price Trends Q4 2025",
-      "Top 10 Upcoming Launches",
-      "Monthly Market Analysis"
-    ]
+    articles: ["Monthly Market Report", "Price Trends", "Upcoming Launches", "Quarterly Forecast"]
   },
   {
-    slug: "neighborhood-guides",
-    title: "Neighborhood Guides",
-    description: "In-depth guides to BC's best neighborhoods",
-    icon: MapPin,
-    color: "bg-purple-500/10 text-purple-600",
-    articles: [
-      "Complete Guide to South Surrey",
-      "Why Langley Willoughby is Booming",
-      "Surrey City Centre Investment",
-      "Burnaby Metrotown Living"
-    ]
-  },
-  {
-    slug: "developer-reviews",
-    title: "Developer Reviews",
-    description: "Track records and reputation analysis",
-    icon: Building2,
-    color: "bg-orange-500/10 text-orange-600",
-    articles: [
-      "Polygon Homes Track Record",
-      "Anthem Properties Review",
-      "Top 5 Surrey Developers",
-      "Developer Comparison Guide"
-    ]
-  },
-  {
-    slug: "investment-analysis",
-    title: "Investment Analysis",
+    slug: "investment-strategy",
+    title: "Investment Strategy",
     description: "ROI calculations and investment strategies",
     icon: DollarSign,
     color: "bg-emerald-500/10 text-emerald-600",
-    articles: [
-      "Best Neighborhoods for Rental Yield",
-      "Presale vs Resale ROI 2026",
-      "Tax Strategies for Investors",
-      "Financing Strategies"
-    ]
+    articles: ["Rental Yield Analysis", "Presale vs Resale ROI", "Portfolio Building", "Financing Strategies"]
+  },
+  {
+    slug: "neighbourhood-guides",
+    title: "Neighbourhood Guides",
+    description: "In-depth guides to BC's best neighbourhoods",
+    icon: MapPin,
+    color: "bg-purple-500/10 text-purple-600",
+    articles: ["South Surrey Guide", "Langley Willoughby", "Surrey City Centre", "Burnaby Metrotown"]
+  },
+  {
+    slug: "tax-finance",
+    title: "Tax & Finance",
+    description: "Tax planning and financial strategies",
+    icon: DollarSign,
+    color: "bg-amber-500/10 text-amber-600",
+    articles: ["Property Transfer Tax", "GST on Presales", "Mortgage Strategies", "Buyer Incentives"]
+  },
+  {
+    slug: "city-spotlight",
+    title: "City Spotlight",
+    description: "Deep dives into BC's fastest-growing cities",
+    icon: Building2,
+    color: "bg-orange-500/10 text-orange-600",
+    articles: ["Surrey Growth Story", "Langley Boom", "Burnaby Urban Plan", "Abbotsford Rising"]
+  },
+  {
+    slug: "assignments",
+    title: "Assignments",
+    description: "Buying and selling presale assignments",
+    icon: TrendingUp,
+    color: "bg-rose-500/10 text-rose-600",
+    articles: ["Assignment Selling Guide", "Buying Assignments", "Pricing Strategy", "Legal Considerations"]
   }
 ];
-
 // Quick resources
 const QUICK_RESOURCES = [
   {
