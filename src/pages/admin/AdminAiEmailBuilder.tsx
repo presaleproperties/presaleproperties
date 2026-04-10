@@ -595,6 +595,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       setFpSubheading(fresh.fpSubheading ?? "");
       setLayoutVersion((fresh.layoutVersion === "classic" || fresh.layoutVersion === "pitch-deck" ? "modern" : fresh.layoutVersion) ?? "modern");
       if (fresh.selAgent) setSelAgent(fresh.selAgent);
+      if (fresh.loopSlides?.length) setLoopSlides(fresh.loopSlides);
+      if (fresh.heroMode) setHeroMode(fresh.heroMode);
+      if (fresh.selProjectId && fresh.selProjectId !== "none") setSelProjectId(fresh.selProjectId);
 
       // Live-sync from deck DB to pick up latest floor plans, credits, pricing
       if (fresh._deckId) {
