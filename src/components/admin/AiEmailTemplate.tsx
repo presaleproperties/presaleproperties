@@ -143,23 +143,25 @@ function projectDetailsCta(opts: { projectUrl?: string; projectName?: string; de
   </tr>`;
 }
 
-/** Generate document CTA buttons (brochure / floor plans) — only renders when URLs are present */
+/** Generate document CTA buttons (brochure / floor plans / pricing) — only renders when URLs are present */
 function docCtaButtons(opts: {
-  brochureUrl?: string; floorplanUrl?: string; deckUrl?: string;
+  brochureUrl?: string; floorplanUrl?: string; pricingUrl?: string; deckUrl?: string;
   font: string; accent: string; dark: string;
   style?: "gold-fill" | "pill" | "outline";
-  showBrochureCta?: boolean; showFloorPlansCta?: boolean;
+  showBrochureCta?: boolean; showFloorPlansCta?: boolean; showPricingCta?: boolean;
 }): string {
-  const { brochureUrl, floorplanUrl, deckUrl, font: F, accent: ACCENT, dark: DARK } = opts;
+  const { brochureUrl, floorplanUrl, pricingUrl, deckUrl, font: F, accent: ACCENT, dark: DARK } = opts;
   // Respect visibility toggles (default true)
   const brochureVisible = opts.showBrochureCta !== false;
   const floorplanVisible = opts.showFloorPlansCta !== false;
+  const pricingVisible = opts.showPricingCta !== false;
   // Only use explicit floorplanUrl — do NOT fall back to deckUrl here
   // (deckUrl is handled separately by "VIEW MORE PLANS" to avoid double buttons)
   const hasFloorplan = floorplanVisible && !!floorplanUrl;
   const floorplanHref = floorplanUrl || "";
   const hasBrochure = brochureVisible && !!brochureUrl;
-  if (!hasFloorplan && !hasBrochure) return "";
+  const hasPricing = pricingVisible && !!pricingUrl;
+  if (!hasFloorplan && !hasBrochure && !hasPricing) return "";
 
   const style = opts.style || "pill";
 
@@ -711,9 +713,12 @@ export interface PitchDeckEmailData {
   brochureUrl?: string;
   /** URL to the floor plans / pricing PDF — shows "VIEW FLOOR PLANS" CTA when present */
   floorplanUrl?: string;
+  /** URL to the pricing sheet — shows "VIEW PRICING" CTA when present */
+  pricingUrl?: string;
   /** CTA visibility toggles — all default to true when undefined */
   showFloorPlansCta?: boolean;
   showBrochureCta?: boolean;
+  showPricingCta?: boolean;
   showViewMorePlansCta?: boolean;
   showCallNowCta?: boolean;
   showBookShowingCta?: boolean;
