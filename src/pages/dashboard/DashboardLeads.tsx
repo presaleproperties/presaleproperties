@@ -47,6 +47,9 @@ import {
   X,
   Plus,
   Trash2,
+  Pencil,
+  PhoneCall,
+  Send,
 } from "lucide-react";
 import { format, subDays, isAfter } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -118,6 +121,11 @@ export default function DashboardLeads() {
   const [newTagValue, setNewTagValue] = useState("");
   const tagInputRef = useRef<HTMLInputElement>(null);
   const [showAddLead, setShowAddLead] = useState(false);
+
+  // Inline editing state
+  const [editingField, setEditingField] = useState<{ leadId: string; field: "phone" | "email" } | null>(null);
+  const [editFieldValue, setEditFieldValue] = useState("");
+  const editFieldRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) fetchAll();
@@ -224,6 +232,31 @@ export default function DashboardLeads() {
       setOnboardedLeads(prev);
       toast.error("Failed to remove tag");
     }
+  };
+
+  const handleInlineUpdate = async (leadId: string, field: "phone" | "email", value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    if (field === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error("Invalid email format");
+      return;
+    }
+    const prev = [...onboardedLeads];
+    setOnboardedLeads((leads) =>
+      leads.map((l) => (l.id === leadId ? { ...l, [field]: trimmed } : l))
+    );
+    const { error } = await supabase
+      .from("onboarded_leads")
+      .update({ [field]: trimmed } as any)
+      .eq("id", leadId);
+    if (error) {
+      setOnboardedLeads(prev);
+      toast.error(`Failed to update ${field}`);
+    } else {
+      toast.success(`${field === "phone" ? "Phone" : "Email"} updated`);
+    }
+    setEditingField(null);
+    setEditFieldValue("");
   };
 
   const filteredOnboarded = useMemo(() => {
@@ -434,6 +467,7 @@ export default function DashboardLeads() {
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Source</th>
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Tags</th>
                             <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Date</th>
+                            <th className="text-center px-3 py-2.5 font-medium text-muted-foreground text-xs">Quick Actions</th>
                             <th className="text-right px-3 py-2.5 font-medium text-muted-foreground text-xs w-10"></th>
                           </tr>
                         </thead>
@@ -486,22 +520,72 @@ export default function DashboardLeads() {
                                   </p>
                                 </td>
 
-                                {/* Phone */}
+                                {/* Phone — inline editable */}
                                 <td className="px-3 py-2.5">
-                                  {lead.phone ? (
-                                    <a href={`tel:${lead.phone}`} className="text-muted-foreground hover:text-primary transition-colors text-xs">
+                                  {editingField?.leadId === lead.id && editingField.field === "phone" ? (
+                                    <form onSubmit={(e) => { e.preventDefault(); handleInlineUpdate(lead.id, "phone", editFieldValue); }} className="inline-flex">
+                                      <Input
+                                        ref={editFieldRef}
+                                        value={editFieldValue}
+                                        onChange={(e) => setEditFieldValue(e.target.value)}
+                                        inputMode="numeric"
+                                        placeholder="(XXX) XXX-XXXX"
+                                        className="h-6 w-[130px] text-[11px] px-1.5"
+                                        autoFocus
+                                        onBlur={() => {
+                                          if (editFieldValue.trim()) handleInlineUpdate(lead.id, "phone", editFieldValue);
+                                          else { setEditingField(null); setEditFieldValue(""); }
+                                        }}
+                                        onKeyDown={(e) => { if (e.key === "Escape") { setEditingField(null); setEditFieldValue(""); } }}
+                                      />
+                                    </form>
+                                  ) : lead.phone ? (
+                                    <button
+                                      onClick={() => { setEditingField({ leadId: lead.id, field: "phone" }); setEditFieldValue(lead.phone || ""); }}
+                                      className="text-muted-foreground hover:text-foreground transition-colors text-xs group inline-flex items-center gap-1"
+                                      title="Click to edit"
+                                    >
                                       {lead.phone}
-                                    </a>
+                                      <Pencil className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </button>
                                   ) : (
-                                    <span className="text-muted-foreground/40 text-xs">—</span>
+                                    <button
+                                      onClick={() => { setEditingField({ leadId: lead.id, field: "phone" }); setEditFieldValue(""); }}
+                                      className="text-muted-foreground/40 hover:text-primary text-xs inline-flex items-center gap-1 transition-colors"
+                                    >
+                                      <Plus className="h-3 w-3" /> Add
+                                    </button>
                                   )}
                                 </td>
 
-                                {/* Email */}
+                                {/* Email — inline editable */}
                                 <td className="px-3 py-2.5">
-                                  <a href={`mailto:${lead.email}`} className="text-muted-foreground hover:text-primary transition-colors text-xs truncate block max-w-[180px]">
-                                    {lead.email}
-                                  </a>
+                                  {editingField?.leadId === lead.id && editingField.field === "email" ? (
+                                    <form onSubmit={(e) => { e.preventDefault(); handleInlineUpdate(lead.id, "email", editFieldValue); }} className="inline-flex">
+                                      <Input
+                                        value={editFieldValue}
+                                        onChange={(e) => setEditFieldValue(e.target.value)}
+                                        type="email"
+                                        placeholder="email@example.com"
+                                        className="h-6 w-[180px] text-[11px] px-1.5"
+                                        autoFocus
+                                        onBlur={() => {
+                                          if (editFieldValue.trim()) handleInlineUpdate(lead.id, "email", editFieldValue);
+                                          else { setEditingField(null); setEditFieldValue(""); }
+                                        }}
+                                        onKeyDown={(e) => { if (e.key === "Escape") { setEditingField(null); setEditFieldValue(""); } }}
+                                      />
+                                    </form>
+                                  ) : (
+                                    <button
+                                      onClick={() => { setEditingField({ leadId: lead.id, field: "email" }); setEditFieldValue(lead.email); }}
+                                      className="text-muted-foreground hover:text-foreground transition-colors text-xs truncate block max-w-[180px] group inline-flex items-center gap-1"
+                                      title="Click to edit"
+                                    >
+                                      {lead.email}
+                                      <Pencil className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                                    </button>
+                                  )}
                                 </td>
 
                                 {/* Source — condensed with expandable */}
@@ -599,6 +683,24 @@ export default function DashboardLeads() {
                                 {/* Date */}
                                 <td className="px-3 py-2.5 text-xs text-muted-foreground whitespace-nowrap">
                                   {format(new Date(lead.created_at), "MMM d")}
+                                </td>
+
+                                {/* Quick Actions */}
+                                <td className="px-3 py-2.5">
+                                  <div className="flex items-center justify-center gap-1">
+                                    {lead.phone && (
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10" asChild title="Call">
+                                        <a href={`tel:${lead.phone.replace(/\D/g, "")}`}>
+                                          <PhoneCall className="h-3.5 w-3.5" />
+                                        </a>
+                                      </Button>
+                                    )}
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10" asChild title="Send Email">
+                                      <a href={`mailto:${lead.email}`}>
+                                        <Send className="h-3.5 w-3.5" />
+                                      </a>
+                                    </Button>
+                                  </div>
                                 </td>
 
                                 {/* Actions */}
