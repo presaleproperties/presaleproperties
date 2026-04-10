@@ -505,6 +505,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const selectedAgent: AgentInfo = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
   // Loop slideshow images (auto-filled from project gallery)
   const [loopSlides, setLoopSlides] = useState<string[]>(savedDraft?.loopSlides ?? []);
+  // Hero mode: "static" = single image, "gif" = rotating carousel
+  const [heroMode, setHeroMode] = useState<"static" | "gif">(savedDraft?.heroMode ?? "gif");
 
   const [projects, setProjects] = useState<Array<{
     id: string; name: string; slug?: string; city: string; neighborhood?: string | null;
@@ -549,6 +551,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setFpSubheading(d.fpSubheading ?? "");
     setImageCards(d.imageCards ?? []);
     setLoopSlides(d.loopSlides ?? []);
+    if (d.heroMode) setHeroMode(d.heroMode);
     setSelectedAssetId(d.selectedAssetId ?? "none");
     setDirectCtaUrl(d.directCtaUrl ?? "");
     setBrochureUrl(d.brochureUrl ?? "");
@@ -752,7 +755,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         projectName, developerName, showProjectName, showDeveloperName, customHeader,
         city, neighborhood, startingPrice, deposit, completion, infoRows,
         subjectLine, previewText, headline, bodyCopy, incentiveText,
-        heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
+        heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion, brochureUrl, floorplanUrl, bookShowingUrl,
         showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
@@ -784,7 +787,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     projectName, developerName, showProjectName, showDeveloperName, customHeader,
     city, neighborhood, startingPrice, deposit, completion, infoRows,
     subjectLine, previewText, headline, bodyCopy, incentiveText,
-    heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
+    heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, bookShowingUrl,
     showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
@@ -802,21 +805,24 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     imageCards: imageCards.filter(c => c.url),
   }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, projectUrl, infoRows, imageCards]);
 
+  // Effective loop slides based on hero mode toggle
+  const effectiveLoopSlides = heroMode === "gif" ? loopSlides : [];
+
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl, floorplanUrl, showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl]);
 
   // finalHtml used only for copy/save — always reflects latest state
-  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, loopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined);
+  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined);
 
   // ── AI generation ─────────────────────────────────────────────────────────────
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
@@ -1252,7 +1258,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         deposit: copy.deposit, completion: copy.completion,
       },
       heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
-      imageCards, loopSlides, selectedAssetId, directCtaUrl,
+      imageCards, loopSlides, heroMode, selectedAssetId, directCtaUrl,
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
       brochureUrl, floorplanUrl, bookShowingUrl,
@@ -1765,6 +1771,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     <button onClick={() => setHeroImage("")} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
                       <X className="h-3 w-3 text-white" />
                     </button>
+                  </div>
+                )}
+                {/* Hero mode toggle: Static vs GIF carousel */}
+                {loopSlides.length > 1 && (
+                  <div className="flex items-center justify-between py-1.5 px-1">
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-medium text-foreground">GIF Carousel</span>
+                      <span className="text-[9px] text-muted-foreground">Rotate through project images</span>
+                    </div>
+                    <Switch
+                      checked={heroMode === "gif"}
+                      onCheckedChange={(checked) => setHeroMode(checked ? "gif" : "static")}
+                    />
                   </div>
                 )}
                 {projects.filter(p => p.featured_image).length > 0 && (
