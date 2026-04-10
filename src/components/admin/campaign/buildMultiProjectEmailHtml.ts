@@ -236,7 +236,13 @@ ${options.previewText || ""}
     </td>
   </tr>
 
-  <!-- ── CALL NOW CTA ── -->
+  ${options.enrichmentHtml ? `<!-- ── ENRICHMENT DATA ── -->
+  <tr>
+    <td class="content-pad" style="padding:0 40px 8px;">
+      ${options.enrichmentHtml}
+    </td>
+  </tr>` : ""}
+
   <tr>
     <td class="content-pad" style="padding:8px 40px 24px;">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
