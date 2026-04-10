@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, startOfDay, isAfter } from "date-fns";
 import { Link } from "react-router-dom";
@@ -22,6 +22,7 @@ import {
   TrendingUp,
   Filter,
   X,
+  CheckSquare,
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
@@ -30,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -171,6 +173,32 @@ export default function AdminLeads() {
   const [modalOpen, setModalOpen] = useState(false);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
+  const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
+  const [selectedListingIds, setSelectedListingIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  const selectedIds = activeTab === "project" ? selectedProjectIds : selectedListingIds;
+  const setSelectedIds = activeTab === "project" ? setSelectedProjectIds : setSelectedListingIds;
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, [activeTab]);
+
+  const toggleSelectAll = useCallback((ids: string[]) => {
+    setSelectedIds(prev => {
+      const allSelected = ids.every(id => prev.has(id));
+      if (allSelected) return new Set();
+      return new Set(ids);
+    });
+  }, [activeTab]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, [activeTab]);
 
   // ── Queries ──────────────────────────────────────────────────────────────
 
@@ -253,6 +281,72 @@ export default function AdminLeads() {
     },
     onError: () => toast.error("Failed to delete lead"),
   });
+
+  // ── Bulk Actions ──────────────────────────────────────────────────────────
+
+  const bulkDeleteProjectLeads = async () => {
+    if (selectedProjectIds.size === 0) return;
+    setBulkDeleting(true);
+    const ids = Array.from(selectedProjectIds);
+    const { error } = await (supabase as any).from("project_leads").delete().in("id", ids);
+    if (error) { toast.error("Failed to delete leads"); }
+    else {
+      toast.success(`${ids.length} lead(s) deleted`);
+      queryClient.invalidateQueries({ queryKey: ["admin-project-leads"] });
+      setSelectedProjectIds(new Set());
+    }
+    setBulkDeleting(false);
+  };
+
+  const bulkDeleteListingLeads = async () => {
+    if (selectedListingIds.size === 0) return;
+    setBulkDeleting(true);
+    const ids = Array.from(selectedListingIds);
+    const { error } = await (supabase as any).from("leads").delete().in("id", ids);
+    if (error) { toast.error("Failed to delete leads"); }
+    else {
+      toast.success(`${ids.length} lead(s) deleted`);
+      queryClient.invalidateQueries({ queryKey: ["admin-listing-leads"] });
+      setSelectedListingIds(new Set());
+    }
+    setBulkDeleting(false);
+  };
+
+  const bulkEmailSelected = () => {
+    const leads = activeTab === "project" ? projectLeads : listingLeads;
+    if (!leads) return;
+    const emails = leads.filter(l => selectedIds.has(l.id)).map(l => l.email);
+    if (emails.length === 0) return;
+    window.open(`mailto:${emails.join(",")}`, "_blank");
+  };
+
+  const bulkExportSelected = () => {
+    const leads = activeTab === "project" ? filteredProjectLeads : filteredListingLeads;
+    if (!leads) return;
+    const selected = leads.filter(l => selectedIds.has(l.id));
+    if (selected.length === 0) return;
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    if (activeTab === "project") {
+      csvContent += "Name,Email,Phone,Persona,Home Size,Source,Project,City,Notes,Submitted At\n";
+      selected.forEach((lead: any) => {
+        const project = lead.presale_projects;
+        csvContent += `"${lead.name}","${lead.email}","${lead.phone || ""}","${getPersonaLabel(lead.persona)}","${getHomeSizeLabel(lead.home_size)}","${getLeadSourceLabel(lead.lead_source)}","${project?.name || ""}","${project?.city || ""}","${(lead.admin_notes || "").replace(/"/g, "'")}","${format(new Date(lead.created_at), "yyyy-MM-dd HH:mm")}"\n`;
+      });
+    } else {
+      csvContent += "Name,Email,Phone,Message,Listing,Project,City,Submitted At\n";
+      selected.forEach((lead: any) => {
+        const listing = lead.listings;
+        csvContent += `"${lead.name}","${lead.email}","${lead.phone || ""}","${lead.message || ""}","${listing?.title || ""}","${listing?.project_name || ""}","${listing?.city || ""}","${format(new Date(lead.created_at), "yyyy-MM-dd HH:mm")}"\n`;
+      });
+    }
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", `selected-${activeTab}-leads-${format(new Date(), "yyyy-MM-dd")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // ── Filtering ─────────────────────────────────────────────────────────────
 
@@ -477,7 +571,7 @@ export default function AdminLeads() {
             ) : (
               <div className="space-y-2">
                 <p className="text-[11px] text-muted-foreground">
-                  {filteredProjectLeads.length} of {projectLeads?.length || 0} leads
+                  {selectedProjectIds.size > 0 ? `${selectedProjectIds.size} selected · ` : ""}{filteredProjectLeads.length} of {projectLeads?.length || 0} leads
                 </p>
 
                 {/* Desktop Table */}
@@ -486,6 +580,12 @@ export default function AdminLeads() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-border bg-muted/50">
+                          <th className="px-3 py-2.5 w-8">
+                            <Checkbox
+                              checked={filteredProjectLeads.length > 0 && filteredProjectLeads.every(l => selectedProjectIds.has(l.id))}
+                              onCheckedChange={() => toggleSelectAll(filteredProjectLeads.map(l => l.id))}
+                            />
+                          </th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Name</th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Phone</th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Email</th>
@@ -507,8 +607,14 @@ export default function AdminLeads() {
                           return (
                             <tr
                               key={lead.id}
-                              className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors"
+                              className={cn("border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors", selectedProjectIds.has(lead.id) && "bg-primary/5")}
                             >
+                              <td className="px-3 py-2.5">
+                                <Checkbox
+                                  checked={selectedProjectIds.has(lead.id)}
+                                  onCheckedChange={() => toggleSelect(lead.id)}
+                                />
+                              </td>
                               {/* Name */}
                               <td className="px-3 py-2.5">
                                 <div className="flex items-center gap-1.5">
@@ -646,9 +752,14 @@ export default function AdminLeads() {
                     return (
                       <div
                         key={lead.id}
-                        className="p-3 rounded-lg border border-border"
+                        className={cn("p-3 rounded-lg border border-border", selectedProjectIds.has(lead.id) && "bg-primary/5 border-primary/30")}
                       >
                         <div className="flex items-start gap-3">
+                          <Checkbox
+                            checked={selectedProjectIds.has(lead.id)}
+                            onCheckedChange={() => toggleSelect(lead.id)}
+                            className="mt-1"
+                          />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-1.5">
@@ -729,7 +840,7 @@ export default function AdminLeads() {
             ) : (
               <div className="space-y-2">
                 <p className="text-[11px] text-muted-foreground">
-                  {filteredListingLeads.length} of {listingLeads?.length || 0} leads
+                  {selectedListingIds.size > 0 ? `${selectedListingIds.size} selected · ` : ""}{filteredListingLeads.length} of {listingLeads?.length || 0} leads
                 </p>
 
                 {/* Desktop Table */}
@@ -738,6 +849,12 @@ export default function AdminLeads() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-border bg-muted/50">
+                          <th className="px-3 py-2.5 w-8">
+                            <Checkbox
+                              checked={filteredListingLeads.length > 0 && filteredListingLeads.every(l => selectedListingIds.has(l.id))}
+                              onCheckedChange={() => toggleSelectAll(filteredListingLeads.map(l => l.id))}
+                            />
+                          </th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Name</th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Phone</th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Email</th>
@@ -751,8 +868,14 @@ export default function AdminLeads() {
                         {filteredListingLeads.map((lead) => (
                           <tr
                             key={lead.id}
-                            className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors"
+                            className={cn("border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors", selectedListingIds.has(lead.id) && "bg-primary/5")}
                           >
+                            <td className="px-3 py-2.5">
+                              <Checkbox
+                                checked={selectedListingIds.has(lead.id)}
+                                onCheckedChange={() => toggleSelect(lead.id)}
+                              />
+                            </td>
                             <td className="px-3 py-2.5">
                               <p className="font-medium truncate max-w-[160px]">{lead.name}</p>
                             </td>
@@ -842,8 +965,13 @@ export default function AdminLeads() {
                 {/* Mobile Cards */}
                 <div className="md:hidden space-y-2">
                   {filteredListingLeads.map((lead) => (
-                    <div key={lead.id} className="p-3 rounded-lg border border-border">
-                      <div className="flex items-start justify-between">
+                    <div key={lead.id} className={cn("p-3 rounded-lg border border-border", selectedListingIds.has(lead.id) && "bg-primary/5 border-primary/30")}>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={selectedListingIds.has(lead.id)}
+                          onCheckedChange={() => toggleSelect(lead.id)}
+                          className="mt-1"
+                        />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm">{lead.name}</p>
                           <p className="text-xs text-muted-foreground truncate mt-0.5">{lead.email}</p>
@@ -895,6 +1023,55 @@ export default function AdminLeads() {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Floating Bulk Action Bar */}
+        {selectedIds.size > 0 && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-foreground text-background rounded-xl shadow-2xl px-5 py-3 flex items-center gap-3 animate-in slide-in-from-bottom-4 duration-200">
+            <div className="flex items-center gap-2">
+              <CheckSquare className="h-4 w-4" />
+              <span className="text-sm font-semibold">{selectedIds.size} selected</span>
+            </div>
+            <div className="h-5 w-px bg-background/20" />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-background hover:text-background hover:bg-background/10 h-8 text-xs gap-1.5"
+              onClick={bulkEmailSelected}
+            >
+              <Mail className="h-3.5 w-3.5" /> Email
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-background hover:text-background hover:bg-background/10 h-8 text-xs gap-1.5"
+              onClick={bulkExportSelected}
+            >
+              <Download className="h-3.5 w-3.5" /> Export
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs gap-1.5"
+              disabled={bulkDeleting}
+              onClick={() => {
+                if (confirm(`Delete ${selectedIds.size} lead(s)? This cannot be undone.`)) {
+                  activeTab === "project" ? bulkDeleteProjectLeads() : bulkDeleteListingLeads();
+                }
+              }}
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Delete
+            </Button>
+            <div className="h-5 w-px bg-background/20" />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-background/60 hover:text-background hover:bg-background/10 h-8 text-xs"
+              onClick={clearSelection}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
 
         <LeadDetailsModal
           lead={selectedLead}
