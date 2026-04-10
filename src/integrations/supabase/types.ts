@@ -902,6 +902,72 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_leads: {
+        Row: {
+          area_interest: string[] | null
+          assigned_agent: string | null
+          budget_max: number | null
+          budget_min: number | null
+          buyer_type: string | null
+          created_at: string
+          email: string | null
+          id: string
+          last_contacted_at: string | null
+          name: string
+          next_followup_at: string | null
+          notes: string | null
+          phone: string | null
+          pipeline_status: string
+          project_interest: string[] | null
+          source: string | null
+          tags: string[] | null
+          temperature: string
+          updated_at: string
+        }
+        Insert: {
+          area_interest?: string[] | null
+          assigned_agent?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
+          buyer_type?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          name: string
+          next_followup_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          pipeline_status?: string
+          project_interest?: string[] | null
+          source?: string | null
+          tags?: string[] | null
+          temperature?: string
+          updated_at?: string
+        }
+        Update: {
+          area_interest?: string[] | null
+          assigned_agent?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
+          buyer_type?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          name?: string
+          next_followup_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          pipeline_status?: string
+          project_interest?: string[] | null
+          source?: string | null
+          tags?: string[] | null
+          temperature?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       deck_visits: {
         Row: {
           created_at: string
