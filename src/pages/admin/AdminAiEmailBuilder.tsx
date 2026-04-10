@@ -1002,6 +1002,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     const p = projects.find(proj => proj.id === id);
     if (!p) return;
 
+    // If editing a saved template and switching to a different project, detach so next save prompts for a new name
+    if (savedTemplateId && savedProjectNameRef.current && p.name !== savedProjectNameRef.current) {
+      searchParams.delete("saved");
+      navigate(`?${searchParams.toString()}`, { replace: true });
+      toast.info("Project changed — next save will create a new template");
+    }
+
     // ── Populate all fields from project data ──────────────────────────────────
     setProjectName(p.name);
     setCity(p.city);
