@@ -2578,10 +2578,32 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     )}
                   </div>
 
+                  {/* Pricing CTA */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[11px] font-medium">View Pricing</Label>
+                      <Switch checked={showPricingCta} onCheckedChange={setShowPricingCta} />
+                    </div>
+                    {showPricingCta && (
+                      <div className="flex gap-1.5">
+                        <Input value={pricingUrl} onChange={e => setPricingUrl(e.target.value)} className="h-7 text-[10px] flex-1" placeholder="PDF URL or upload →" />
+                        <input ref={pricingInputRef} type="file" accept=".pdf" className="hidden" onChange={handlePricingPdfUpload} />
+                        <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => pricingInputRef.current?.click()} disabled={pricingUploading}>
+                          {pricingUploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
                   {/* View Details */}
-                  <div className="flex items-center justify-between">
-                    <Label className="text-[11px] font-medium">View Details</Label>
-                    <Switch checked={showViewMorePlansCta} onCheckedChange={setShowViewMorePlansCta} />
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[11px] font-medium">View Details</Label>
+                      <Switch checked={showViewMorePlansCta} onCheckedChange={setShowViewMorePlansCta} />
+                    </div>
+                    {showViewMorePlansCta && (
+                      <Input value={projectUrl} onChange={e => setProjectUrl(e.target.value)} className="h-7 text-[10px]" placeholder="Project page URL" />
+                    )}
                   </div>
 
                   {/* Call Now */}
