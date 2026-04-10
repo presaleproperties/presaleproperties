@@ -520,22 +520,72 @@ export default function DashboardLeads() {
                                   </p>
                                 </td>
 
-                                {/* Phone */}
+                                {/* Phone — inline editable */}
                                 <td className="px-3 py-2.5">
-                                  {lead.phone ? (
-                                    <a href={`tel:${lead.phone}`} className="text-muted-foreground hover:text-primary transition-colors text-xs">
+                                  {editingField?.leadId === lead.id && editingField.field === "phone" ? (
+                                    <form onSubmit={(e) => { e.preventDefault(); handleInlineUpdate(lead.id, "phone", editFieldValue); }} className="inline-flex">
+                                      <Input
+                                        ref={editFieldRef}
+                                        value={editFieldValue}
+                                        onChange={(e) => setEditFieldValue(e.target.value)}
+                                        inputMode="numeric"
+                                        placeholder="(XXX) XXX-XXXX"
+                                        className="h-6 w-[130px] text-[11px] px-1.5"
+                                        autoFocus
+                                        onBlur={() => {
+                                          if (editFieldValue.trim()) handleInlineUpdate(lead.id, "phone", editFieldValue);
+                                          else { setEditingField(null); setEditFieldValue(""); }
+                                        }}
+                                        onKeyDown={(e) => { if (e.key === "Escape") { setEditingField(null); setEditFieldValue(""); } }}
+                                      />
+                                    </form>
+                                  ) : lead.phone ? (
+                                    <button
+                                      onClick={() => { setEditingField({ leadId: lead.id, field: "phone" }); setEditFieldValue(lead.phone || ""); }}
+                                      className="text-muted-foreground hover:text-foreground transition-colors text-xs group inline-flex items-center gap-1"
+                                      title="Click to edit"
+                                    >
                                       {lead.phone}
-                                    </a>
+                                      <Pencil className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </button>
                                   ) : (
-                                    <span className="text-muted-foreground/40 text-xs">—</span>
+                                    <button
+                                      onClick={() => { setEditingField({ leadId: lead.id, field: "phone" }); setEditFieldValue(""); }}
+                                      className="text-muted-foreground/40 hover:text-primary text-xs inline-flex items-center gap-1 transition-colors"
+                                    >
+                                      <Plus className="h-3 w-3" /> Add
+                                    </button>
                                   )}
                                 </td>
 
-                                {/* Email */}
+                                {/* Email — inline editable */}
                                 <td className="px-3 py-2.5">
-                                  <a href={`mailto:${lead.email}`} className="text-muted-foreground hover:text-primary transition-colors text-xs truncate block max-w-[180px]">
-                                    {lead.email}
-                                  </a>
+                                  {editingField?.leadId === lead.id && editingField.field === "email" ? (
+                                    <form onSubmit={(e) => { e.preventDefault(); handleInlineUpdate(lead.id, "email", editFieldValue); }} className="inline-flex">
+                                      <Input
+                                        value={editFieldValue}
+                                        onChange={(e) => setEditFieldValue(e.target.value)}
+                                        type="email"
+                                        placeholder="email@example.com"
+                                        className="h-6 w-[180px] text-[11px] px-1.5"
+                                        autoFocus
+                                        onBlur={() => {
+                                          if (editFieldValue.trim()) handleInlineUpdate(lead.id, "email", editFieldValue);
+                                          else { setEditingField(null); setEditFieldValue(""); }
+                                        }}
+                                        onKeyDown={(e) => { if (e.key === "Escape") { setEditingField(null); setEditFieldValue(""); } }}
+                                      />
+                                    </form>
+                                  ) : (
+                                    <button
+                                      onClick={() => { setEditingField({ leadId: lead.id, field: "email" }); setEditFieldValue(lead.email); }}
+                                      className="text-muted-foreground hover:text-foreground transition-colors text-xs truncate block max-w-[180px] group inline-flex items-center gap-1"
+                                      title="Click to edit"
+                                    >
+                                      {lead.email}
+                                      <Pencil className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                                    </button>
+                                  )}
                                 </td>
 
                                 {/* Source — condensed with expandable */}
