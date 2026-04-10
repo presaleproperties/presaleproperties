@@ -24,11 +24,6 @@ function getAgentWebsiteUrl(fullName: string): string | undefined {
   return AGENT_WEBSITE_URLS[firstName];
 }
 
-function wrapPhotoWithLink(imgHtml: string, agentName: string): string {
-  const url = getAgentWebsiteUrl(agentName);
-  if (!url) return imgHtml;
-  return `<a href="${url}" target="_blank" style="text-decoration:none;">${imgHtml}</a>`;
-}
 
 export interface AgentInfo {
   full_name: string;
