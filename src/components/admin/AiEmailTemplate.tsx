@@ -174,9 +174,15 @@ function docCtaButtons(opts: {
         </td></tr></table>`);
     }
     if (hasFloorplan) {
-      buttons.push(`<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
+      buttons.push(`<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:${hasPricing ? '10px' : '14px'};">
         <tr><td align="center" style="background:${hasBrochure ? DARK : ACCENT};padding:18px 24px;text-align:center;">
           <a href="${floorplanHref}" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${hasBrochure ? '#ffffff' : DARK};text-decoration:none;display:block;line-height:1;">VIEW FLOOR PLANS &nbsp;→</a>
+        </td></tr></table>`);
+    }
+    if (hasPricing) {
+      buttons.push(`<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
+        <tr><td align="center" style="background:${DARK};padding:18px 24px;text-align:center;">
+          <a href="${pricingUrl}" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;line-height:1;">VIEW PRICING &nbsp;→</a>
         </td></tr></table>`);
     }
     return buttons.join("\n      ");
@@ -201,6 +207,17 @@ function docCtaButtons(opts: {
       <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
         <td class="cta-td" align="center" style="background:${hasBrochure ? DARK : ACCENT};border-radius:50px;padding:18px 32px;text-align:center;">
           <a href="${floorplanHref}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${hasBrochure ? ACCENT : '#ffffff'};text-decoration:none;display:block;white-space:nowrap;">VIEW FLOOR PLANS</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`);
+    }
+    if (hasPricing) {
+      buttons.push(`<tr>
+    <td class="content-pad" style="padding:8px 40px 14px;background:#ffffff;">
+      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+        <td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
+          <a href="${pricingUrl}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${ACCENT};text-decoration:none;display:block;white-space:nowrap;">VIEW PRICING</a>
         </td>
       </tr></table>
     </td>
