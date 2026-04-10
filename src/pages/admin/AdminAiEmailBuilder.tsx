@@ -1526,9 +1526,29 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           </Button>
           <Button size="sm"
             className={cn("h-8 gap-1.5 font-semibold transition-all duration-200 shrink-0 text-xs px-2.5", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
-            onClick={handleCopy}>
+            onClick={() => {
+              handleCopy();
+              // Auto-mark week done when copying HTML in campaign mode
+              if (campaignMode) {
+                setCampaignCompletedWeeks(prev => new Set([...prev, campaignWeek]));
+              }
+            }}>
             {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /><span className="hidden sm:inline"> Copied!</span></> : <><Copy className="h-3.5 w-3.5" /><span className="hidden sm:inline"> Copy HTML</span></>}
           </Button>
+          {/* Campaign: Next Week button */}
+          {campaignMode && campaignWeek < 12 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5 shrink-0 text-xs px-2.5 border-primary/30"
+              onClick={() => {
+                setCampaignCompletedWeeks(prev => new Set([...prev, campaignWeek]));
+                handleCampaignWeekChange(campaignWeek + 1);
+              }}
+            >
+              Week {campaignWeek + 1} →
+            </Button>
+          )}
         </div>
 
         {/* ── Inbox preview bar ── */}
