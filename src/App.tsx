@@ -499,7 +499,7 @@ const App = () => (
               <Route path="leads" element={<CrmLeads />} />
               <Route path="pipeline" element={<CrmPipeline />} />
               <Route path="email" element={<CrmEmailCenter />} />
-              <Route path="templates" element={<CrmPlaceholder />} />
+              <Route path="templates" element={<CrmTemplates />} />
               <Route path="automations" element={<CrmPlaceholder />} />
               <Route path="calendar" element={<CrmPlaceholder />} />
               <Route path="reports" element={<CrmPlaceholder />} />
