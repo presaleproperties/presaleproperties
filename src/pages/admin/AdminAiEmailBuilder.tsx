@@ -587,9 +587,11 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setDirectCtaUrl(d.directCtaUrl ?? "");
     setBrochureUrl(d.brochureUrl ?? "");
     setFloorplanUrl(d.floorplanUrl ?? "");
+    setPricingUrl(d.pricingUrl ?? "");
     setBookShowingUrl(d.bookShowingUrl ?? "");
     if (d.showFloorPlansCta !== undefined) setShowFloorPlansCta(d.showFloorPlansCta);
     if (d.showBrochureCta !== undefined) setShowBrochureCta(d.showBrochureCta);
+    if (d.showPricingCta !== undefined) setShowPricingCta(d.showPricingCta);
     if (d.showBookShowingCta !== undefined) setShowBookShowingCta(d.showBookShowingCta);
     if (d.showViewMorePlansCta !== undefined) setShowViewMorePlansCta(d.showViewMorePlansCta);
     if (d.showCallNowCta !== undefined) setShowCallNowCta(d.showCallNowCta);
@@ -1023,9 +1025,11 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
     // ── Auto-set document URLs from project ──────────────────────────────────
     const projBrochure = p.brochure_files?.find(f => f) || "";
-    const projFloorplan = p.pricing_sheets?.find(f => f) || p.floorplan_files?.find(f => f) || "";
+    const projFloorplan = p.floorplan_files?.find(f => f) || "";
+    const projPricing = p.pricing_sheets?.find(f => f) || "";
     setBrochureUrl(projBrochure);
     setFloorplanUrl(projFloorplan);
+    setPricingUrl(projPricing);
 
     // ── Auto-set CTA URL: brochure → pricing sheet → first floor plan ──────────
     const ctaDocUrl = projBrochure || projFloorplan || "";
