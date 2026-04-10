@@ -601,10 +601,27 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         (async () => {
           const { data: deckData } = await (supabase as any)
             .from("pitch_decks")
-            .select("floor_plans, hero_image_url, tagline, city, developer_name, completion_year, assignment_fee, included_items, next_price_increase, units_remaining, deposit_steps, highlights, project_name")
+            .select("floor_plans, hero_image_url, tagline, city, developer_name, completion_year, assignment_fee, included_items, next_price_increase, units_remaining, deposit_steps, highlights, project_name, gallery, linked_project_id")
             .eq("id", fresh._deckId)
             .single();
           if (!deckData) return;
+
+          // Auto-select linked project for gallery picker
+          if (deckData.linked_project_id) {
+            setSelProjectId(deckData.linked_project_id);
+          }
+
+          // Populate loopSlides from deck gallery images
+          const deckGallery: string[] = [];
+          if (deckData.hero_image_url) deckGallery.push(deckData.hero_image_url);
+          try {
+            const galleryItems = Array.isArray(deckData.gallery) ? deckData.gallery : (typeof deckData.gallery === "string" ? JSON.parse(deckData.gallery || "[]") : []);
+            for (const item of galleryItems) {
+              const url = typeof item === "string" ? item : item?.url;
+              if (url && !deckGallery.includes(url) && deckGallery.length < 8) deckGallery.push(url);
+            }
+          } catch { /* ignore */ }
+          if (deckGallery.length > 0) setLoopSlides(deckGallery);
 
           // Parse floor plans with exclusive_credit
           const rawFps: any[] = Array.isArray(deckData.floor_plans)
