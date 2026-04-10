@@ -282,6 +282,72 @@ export default function AdminLeads() {
     onError: () => toast.error("Failed to delete lead"),
   });
 
+  // ── Bulk Actions ──────────────────────────────────────────────────────────
+
+  const bulkDeleteProjectLeads = async () => {
+    if (selectedProjectIds.size === 0) return;
+    setBulkDeleting(true);
+    const ids = Array.from(selectedProjectIds);
+    const { error } = await (supabase as any).from("project_leads").delete().in("id", ids);
+    if (error) { toast.error("Failed to delete leads"); }
+    else {
+      toast.success(`${ids.length} lead(s) deleted`);
+      queryClient.invalidateQueries({ queryKey: ["admin-project-leads"] });
+      setSelectedProjectIds(new Set());
+    }
+    setBulkDeleting(false);
+  };
+
+  const bulkDeleteListingLeads = async () => {
+    if (selectedListingIds.size === 0) return;
+    setBulkDeleting(true);
+    const ids = Array.from(selectedListingIds);
+    const { error } = await (supabase as any).from("leads").delete().in("id", ids);
+    if (error) { toast.error("Failed to delete leads"); }
+    else {
+      toast.success(`${ids.length} lead(s) deleted`);
+      queryClient.invalidateQueries({ queryKey: ["admin-listing-leads"] });
+      setSelectedListingIds(new Set());
+    }
+    setBulkDeleting(false);
+  };
+
+  const bulkEmailSelected = () => {
+    const leads = activeTab === "project" ? projectLeads : listingLeads;
+    if (!leads) return;
+    const emails = leads.filter(l => selectedIds.has(l.id)).map(l => l.email);
+    if (emails.length === 0) return;
+    window.open(`mailto:${emails.join(",")}`, "_blank");
+  };
+
+  const bulkExportSelected = () => {
+    const leads = activeTab === "project" ? filteredProjectLeads : filteredListingLeads;
+    if (!leads) return;
+    const selected = leads.filter(l => selectedIds.has(l.id));
+    if (selected.length === 0) return;
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    if (activeTab === "project") {
+      csvContent += "Name,Email,Phone,Persona,Home Size,Source,Project,City,Notes,Submitted At\n";
+      selected.forEach((lead: any) => {
+        const project = lead.presale_projects;
+        csvContent += `"${lead.name}","${lead.email}","${lead.phone || ""}","${getPersonaLabel(lead.persona)}","${getHomeSizeLabel(lead.home_size)}","${getLeadSourceLabel(lead.lead_source)}","${project?.name || ""}","${project?.city || ""}","${(lead.admin_notes || "").replace(/"/g, "'")}","${format(new Date(lead.created_at), "yyyy-MM-dd HH:mm")}"\n`;
+      });
+    } else {
+      csvContent += "Name,Email,Phone,Message,Listing,Project,City,Submitted At\n";
+      selected.forEach((lead: any) => {
+        const listing = lead.listings;
+        csvContent += `"${lead.name}","${lead.email}","${lead.phone || ""}","${lead.message || ""}","${listing?.title || ""}","${listing?.project_name || ""}","${listing?.city || ""}","${format(new Date(lead.created_at), "yyyy-MM-dd HH:mm")}"\n`;
+      });
+    }
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", `selected-${activeTab}-leads-${format(new Date(), "yyyy-MM-dd")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // ── Filtering ─────────────────────────────────────────────────────────────
 
   const getDateCutoff = () => {
