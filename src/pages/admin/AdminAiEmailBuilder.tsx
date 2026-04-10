@@ -138,6 +138,7 @@ function buildFinalHtml(
       projectUrl:     fields.projectUrl || saved?._projectUrl || undefined,
       brochureUrl,
       floorplanUrl,
+      pricingUrl,
       loopSlides:     slides,
       bookShowingUrl,
       ...ctaToggles,
