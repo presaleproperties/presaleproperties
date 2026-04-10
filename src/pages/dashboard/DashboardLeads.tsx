@@ -120,6 +120,13 @@ export default function DashboardLeads() {
   const [editingTagLeadId, setEditingTagLeadId] = useState<string | null>(null);
   const [newTagValue, setNewTagValue] = useState("");
   const tagInputRef = useRef<HTMLInputElement>(null);
+
+  // Collect all unique tags across leads for dropdown
+  const allExistingTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    onboardedLeads.forEach((l) => l.tags?.forEach((t) => tagSet.add(t)));
+    return Array.from(tagSet).sort();
+  }, [onboardedLeads]);
   const [showAddLead, setShowAddLead] = useState(false);
 
   // Inline editing state
@@ -636,47 +643,38 @@ export default function DashboardLeads() {
                                         )}
                                       </Badge>
                                     ))}
-                                    {editingTagLeadId === lead.id ? (
-                                      <form
-                                        onSubmit={(e) => {
-                                          e.preventDefault();
-                                          handleAddTag(lead.id, newTagValue);
-                                          setEditingTagLeadId(null);
-                                        }}
-                                        className="inline-flex"
-                                      >
-                                        <Input
-                                          ref={tagInputRef}
-                                          value={newTagValue}
-                                          onChange={(e) => setNewTagValue(e.target.value)}
-                                          placeholder="Tag..."
-                                          className="h-5 w-20 text-[10px] px-1.5"
-                                          autoFocus
-                                          onBlur={() => {
-                                            if (newTagValue.trim()) handleAddTag(lead.id, newTagValue);
-                                            setEditingTagLeadId(null);
-                                            setNewTagValue("");
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <button
+                                          className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                                          title="Add tag"
+                                        >
+                                          <Plus className="h-3 w-3" />
+                                        </button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="start" className="min-w-[140px]">
+                                        {allExistingTags
+                                          .filter((t) => !lead.tags?.includes(t))
+                                          .map((t) => (
+                                            <DropdownMenuItem key={t} onClick={() => handleAddTag(lead.id, t)}>
+                                              <Tag className="h-3 w-3 mr-2" />
+                                              {t}
+                                            </DropdownMenuItem>
+                                          ))}
+                                        {allExistingTags.filter((t) => !lead.tags?.includes(t)).length > 0 && (
+                                          <DropdownMenuSeparator />
+                                        )}
+                                        <DropdownMenuItem
+                                          onClick={() => {
+                                            const tag = prompt("New tag name:");
+                                            if (tag?.trim()) handleAddTag(lead.id, tag.trim());
                                           }}
-                                          onKeyDown={(e) => {
-                                            if (e.key === "Escape") {
-                                              setEditingTagLeadId(null);
-                                              setNewTagValue("");
-                                            }
-                                          }}
-                                        />
-                                      </form>
-                                    ) : (
-                                      <button
-                                        onClick={() => {
-                                          setEditingTagLeadId(lead.id);
-                                          setNewTagValue("");
-                                        }}
-                                        className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
-                                        title="Add tag"
-                                      >
-                                        <Plus className="h-3 w-3" />
-                                      </button>
-                                    )}
+                                        >
+                                          <Plus className="h-3 w-3 mr-2" />
+                                          Create new tag
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
                                   </div>
                                 </td>
 
@@ -882,15 +880,35 @@ export default function DashboardLeads() {
                                       )}
                                     </Badge>
                                   ))}
-                                  <button
-                                    onClick={() => {
-                                      const tag = prompt("Add tag:");
-                                      if (tag) handleAddTag(lead.id, tag);
-                                    }}
-                                    className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
-                                  >
-                                    <Plus className="h-3 w-3" />
-                                  </button>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <button className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted transition-colors">
+                                        <Plus className="h-3 w-3" />
+                                      </button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="start" className="min-w-[140px]">
+                                      {allExistingTags
+                                        .filter((t) => !lead.tags?.includes(t))
+                                        .map((t) => (
+                                          <DropdownMenuItem key={t} onClick={() => handleAddTag(lead.id, t)}>
+                                            <Tag className="h-3 w-3 mr-2" />
+                                            {t}
+                                          </DropdownMenuItem>
+                                        ))}
+                                      {allExistingTags.filter((t) => !lead.tags?.includes(t)).length > 0 && (
+                                        <DropdownMenuSeparator />
+                                      )}
+                                      <DropdownMenuItem
+                                        onClick={() => {
+                                          const tag = prompt("New tag name:");
+                                          if (tag?.trim()) handleAddTag(lead.id, tag.trim());
+                                        }}
+                                      >
+                                        <Plus className="h-3 w-3 mr-2" />
+                                        Create new tag
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
                                 </div>
                               )}
                             </div>
