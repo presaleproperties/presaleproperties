@@ -2549,6 +2549,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           </div>
         )}
 
+        {/* ── Campaign Bundle Selector Modal ── */}
+        <CampaignBundleSelector
+          open={bundleSelectorOpen}
+          onClose={() => setBundleSelectorOpen(false)}
+          onSelect={handleBundleSelect}
+          userId={agentUserId}
+        />
+
       </div>
     </Layout>
   );
