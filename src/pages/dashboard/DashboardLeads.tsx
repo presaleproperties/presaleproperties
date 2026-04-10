@@ -685,6 +685,24 @@ export default function DashboardLeads() {
                                   {format(new Date(lead.created_at), "MMM d")}
                                 </td>
 
+                                {/* Quick Actions */}
+                                <td className="px-3 py-2.5">
+                                  <div className="flex items-center justify-center gap-1">
+                                    {lead.phone && (
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10" asChild title="Call">
+                                        <a href={`tel:${lead.phone.replace(/\D/g, "")}`}>
+                                          <PhoneCall className="h-3.5 w-3.5" />
+                                        </a>
+                                      </Button>
+                                    )}
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10" asChild title="Send Email">
+                                      <a href={`mailto:${lead.email}`}>
+                                        <Send className="h-3.5 w-3.5" />
+                                      </a>
+                                    </Button>
+                                  </div>
+                                </td>
+
                                 {/* Actions */}
                                 <td className="px-3 py-2.5 text-right">
                                   <DropdownMenu>
