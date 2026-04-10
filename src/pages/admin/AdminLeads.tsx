@@ -580,6 +580,12 @@ export default function AdminLeads() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-border bg-muted/50">
+                          <th className="px-3 py-2.5 w-8">
+                            <Checkbox
+                              checked={filteredProjectLeads.length > 0 && filteredProjectLeads.every(l => selectedProjectIds.has(l.id))}
+                              onCheckedChange={() => toggleSelectAll(filteredProjectLeads.map(l => l.id))}
+                            />
+                          </th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Name</th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Phone</th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Email</th>
