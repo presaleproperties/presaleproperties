@@ -61,6 +61,16 @@ export async function upsertProjectLead(
       .update(updatePayload)
       .eq("id", lead.id);
 
+    // Fire-and-forget to DealsFlow CRM
+    postToDealsFlow({
+      name: leadData.name,
+      email,
+      phone: leadData.phone,
+      project: leadData.project_name || "",
+      source: leadData.lead_source || leadData.form_type || "website",
+      buyer_type: leadData.persona || "",
+    });
+
     return lead.id;
   }
 
@@ -78,5 +88,16 @@ export async function upsertProjectLead(
     .insert(insertPayload);
 
   if (error) throw error;
+
+  // Fire-and-forget to DealsFlow CRM
+  postToDealsFlow({
+    name: leadData.name,
+    email,
+    phone: leadData.phone,
+    project: leadData.project_name || "",
+    source: leadData.lead_source || leadData.form_type || "website",
+    buyer_type: leadData.persona || "",
+  });
+
   return newId;
 }
