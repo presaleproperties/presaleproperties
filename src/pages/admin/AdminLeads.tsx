@@ -849,6 +849,12 @@ export default function AdminLeads() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-border bg-muted/50">
+                          <th className="px-3 py-2.5 w-8">
+                            <Checkbox
+                              checked={filteredListingLeads.length > 0 && filteredListingLeads.every(l => selectedListingIds.has(l.id))}
+                              onCheckedChange={() => toggleSelectAll(filteredListingLeads.map(l => l.id))}
+                            />
+                          </th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Name</th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Phone</th>
                           <th className="text-left px-3 py-2.5 font-medium text-muted-foreground text-xs">Email</th>
@@ -862,8 +868,14 @@ export default function AdminLeads() {
                         {filteredListingLeads.map((lead) => (
                           <tr
                             key={lead.id}
-                            className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors"
+                            className={cn("border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors", selectedListingIds.has(lead.id) && "bg-primary/5")}
                           >
+                            <td className="px-3 py-2.5">
+                              <Checkbox
+                                checked={selectedListingIds.has(lead.id)}
+                                onCheckedChange={() => toggleSelect(lead.id)}
+                              />
+                            </td>
                             <td className="px-3 py-2.5">
                               <p className="font-medium truncate max-w-[160px]">{lead.name}</p>
                             </td>
