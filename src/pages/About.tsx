@@ -1,4 +1,5 @@
 import { Helmet } from "@/components/seo/Helmet";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { AboutHero } from "@/components/about/AboutHero";
@@ -69,6 +70,11 @@ export default function About() {
       <ConversionHeader />
       
       <main className="flex-1">
+        <div className="border-b bg-muted/30">
+          <div className="container py-3">
+            <Breadcrumbs items={[{ label: "About Us" }]} />
+          </div>
+        </div>
         <AboutHero />
         
         <ScrollReveal animation="fade-up">

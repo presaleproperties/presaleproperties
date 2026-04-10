@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "react";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { Helmet } from "@/components/seo/Helmet";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -98,6 +99,11 @@ export default function PresaleProcess() {
       <ConversionHeader />
 
       <main className="min-h-screen bg-background">
+        <div className="border-b bg-muted/30">
+          <div className="container py-3">
+            <Breadcrumbs items={[{ label: "Presale Process" }]} />
+          </div>
+        </div>
 
         {/* ── Hero ─────────────────────────────────────────── */}
         <section className="relative overflow-hidden border-b border-border">

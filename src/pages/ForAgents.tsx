@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { Helmet } from "@/components/seo/Helmet";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -156,6 +157,11 @@ export default function ForAgents() {
       <ConversionHeader />
 
       <main className="overflow-hidden">
+        <div className="border-b bg-muted/30">
+          <div className="container py-3">
+            <Breadcrumbs items={[{ label: "For Agents" }]} />
+          </div>
+        </div>
         {/* Hero Section - Premium dark with gold accents */}
         <section className="relative py-24 lg:py-36 bg-foreground text-background overflow-hidden">
           {/* Premium background effects */}
