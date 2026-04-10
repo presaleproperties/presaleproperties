@@ -143,23 +143,25 @@ function projectDetailsCta(opts: { projectUrl?: string; projectName?: string; de
   </tr>`;
 }
 
-/** Generate document CTA buttons (brochure / floor plans) — only renders when URLs are present */
+/** Generate document CTA buttons (brochure / floor plans / pricing) — only renders when URLs are present */
 function docCtaButtons(opts: {
-  brochureUrl?: string; floorplanUrl?: string; deckUrl?: string;
+  brochureUrl?: string; floorplanUrl?: string; pricingUrl?: string; deckUrl?: string;
   font: string; accent: string; dark: string;
   style?: "gold-fill" | "pill" | "outline";
-  showBrochureCta?: boolean; showFloorPlansCta?: boolean;
+  showBrochureCta?: boolean; showFloorPlansCta?: boolean; showPricingCta?: boolean;
 }): string {
-  const { brochureUrl, floorplanUrl, deckUrl, font: F, accent: ACCENT, dark: DARK } = opts;
+  const { brochureUrl, floorplanUrl, pricingUrl, deckUrl, font: F, accent: ACCENT, dark: DARK } = opts;
   // Respect visibility toggles (default true)
   const brochureVisible = opts.showBrochureCta !== false;
   const floorplanVisible = opts.showFloorPlansCta !== false;
+  const pricingVisible = opts.showPricingCta !== false;
   // Only use explicit floorplanUrl — do NOT fall back to deckUrl here
   // (deckUrl is handled separately by "VIEW MORE PLANS" to avoid double buttons)
   const hasFloorplan = floorplanVisible && !!floorplanUrl;
   const floorplanHref = floorplanUrl || "";
   const hasBrochure = brochureVisible && !!brochureUrl;
-  if (!hasFloorplan && !hasBrochure) return "";
+  const hasPricing = pricingVisible && !!pricingUrl;
+  if (!hasFloorplan && !hasBrochure && !hasPricing) return "";
 
   const style = opts.style || "pill";
 
@@ -172,9 +174,15 @@ function docCtaButtons(opts: {
         </td></tr></table>`);
     }
     if (hasFloorplan) {
-      buttons.push(`<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
+      buttons.push(`<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:${hasPricing ? '10px' : '14px'};">
         <tr><td align="center" style="background:${hasBrochure ? DARK : ACCENT};padding:18px 24px;text-align:center;">
           <a href="${floorplanHref}" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${hasBrochure ? '#ffffff' : DARK};text-decoration:none;display:block;line-height:1;">VIEW FLOOR PLANS &nbsp;→</a>
+        </td></tr></table>`);
+    }
+    if (hasPricing) {
+      buttons.push(`<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
+        <tr><td align="center" style="background:${DARK};padding:18px 24px;text-align:center;">
+          <a href="${pricingUrl}" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;line-height:1;">VIEW PRICING &nbsp;→</a>
         </td></tr></table>`);
     }
     return buttons.join("\n      ");
@@ -204,6 +212,17 @@ function docCtaButtons(opts: {
     </td>
   </tr>`);
     }
+    if (hasPricing) {
+      buttons.push(`<tr>
+    <td class="content-pad" style="padding:8px 40px 14px;background:#ffffff;">
+      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+        <td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
+          <a href="${pricingUrl}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${ACCENT};text-decoration:none;display:block;white-space:nowrap;">VIEW PRICING</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`);
+    }
     return buttons.join("\n  ");
   }
 
@@ -226,6 +245,17 @@ function docCtaButtons(opts: {
       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${ACCENT};border-radius:6px;overflow:hidden;"><tr>
         <td align="center" style="padding:16px 24px;background:#ffffff;">
           <a href="${floorplanHref}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;line-height:1;">VIEW FLOOR PLANS &nbsp;→</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`);
+  }
+  if (hasPricing) {
+    buttons.push(`<tr>
+    <td class="content-pad" style="padding:8px 40px 8px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${ACCENT};border-radius:6px;overflow:hidden;"><tr>
+        <td align="center" style="padding:16px 24px;background:#ffffff;">
+          <a href="${pricingUrl}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;line-height:1;">VIEW PRICING &nbsp;→</a>
         </td>
       </tr></table>
     </td>
@@ -711,9 +741,12 @@ export interface PitchDeckEmailData {
   brochureUrl?: string;
   /** URL to the floor plans / pricing PDF — shows "VIEW FLOOR PLANS" CTA when present */
   floorplanUrl?: string;
+  /** URL to the pricing sheet — shows "VIEW PRICING" CTA when present */
+  pricingUrl?: string;
   /** CTA visibility toggles — all default to true when undefined */
   showFloorPlansCta?: boolean;
   showBrochureCta?: boolean;
+  showPricingCta?: boolean;
   showViewMorePlansCta?: boolean;
   showCallNowCta?: boolean;
   showBookShowingCta?: boolean;
@@ -1403,7 +1436,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, pricingUrl: data.pricingUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta, showPricingCta: data.showPricingCta })}
 
   ${(data.showViewMorePlansCta !== false && fps.length > 0 && deckLink && !data.floorplanUrl) ? `
   <!-- ── VIEW DETAILS CTA ── -->
@@ -1748,7 +1781,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
 
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, pricingUrl: data.pricingUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta, showPricingCta: data.showPricingCta })}
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
@@ -2025,7 +2058,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   </tr>` : ""}
 
   <!-- ── DOCUMENT CTAs ── -->
-  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta })}
+  ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, pricingUrl: data.pricingUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta, showPricingCta: data.showPricingCta })}
 
   ${(!data.brochureUrl && !data.floorplanUrl && !data.deckUrl && projectUrl) ? `
   <!-- ── PROJECT DETAILS CTA (fallback) ── -->

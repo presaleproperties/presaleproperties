@@ -110,7 +110,8 @@ function buildFinalHtml(
   loopSlides?: string[],
   brochureUrl?: string,
   floorplanUrl?: string,
-  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean },
+  pricingUrl?: string,
+  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showPricingCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean },
   bookShowingUrl?: string,
 ): string {
   // ── EDITORIAL template ────────────────────────────────────────────────────
@@ -137,6 +138,7 @@ function buildFinalHtml(
       projectUrl:     fields.projectUrl || saved?._projectUrl || undefined,
       brochureUrl,
       floorplanUrl,
+      pricingUrl,
       loopSlides:     slides,
       bookShowingUrl,
       ...ctaToggles,
@@ -162,6 +164,7 @@ function buildFinalHtml(
       deckUrl:        saved?._deckUrl || undefined,
       brochureUrl,
       floorplanUrl,
+      pricingUrl,
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
@@ -196,6 +199,7 @@ function buildFinalHtml(
       deckUrl:        saved?._deckUrl || undefined,
       brochureUrl,
       floorplanUrl,
+      pricingUrl,
       floorPlans: floorPlans.filter(fp => fp.url).map(fp => ({
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
@@ -469,19 +473,23 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   // Document URLs (auto-populated from project or manually set)
   const [brochureUrl,  setBrochureUrl]  = useState(savedDraft?.brochureUrl ?? "");
   const [floorplanUrl, setFloorplanUrl] = useState(savedDraft?.floorplanUrl ?? "");
+  const [pricingUrl,   setPricingUrl]   = useState(savedDraft?.pricingUrl ?? "");
   const [bookShowingUrl, setBookShowingUrl] = useState(savedDraft?.bookShowingUrl ?? "");
   const [floorplanUploading, setFloorplanUploading] = useState(false);
   const [brochureUploading,  setBrochureUploading]  = useState(false);
+  const [pricingUploading,   setPricingUploading]   = useState(false);
   const floorplanInputRef = useRef<HTMLInputElement>(null);
   const brochureInputRef  = useRef<HTMLInputElement>(null);
+  const pricingInputRef   = useRef<HTMLInputElement>(null);
 
   // CTA visibility toggles
   const [showFloorPlansCta,    setShowFloorPlansCta]    = useState<boolean>(savedDraft?.showFloorPlansCta ?? true);
   const [showBrochureCta,      setShowBrochureCta]      = useState<boolean>(savedDraft?.showBrochureCta ?? true);
+  const [showPricingCta,       setShowPricingCta]       = useState<boolean>(savedDraft?.showPricingCta ?? true);
   const [showViewMorePlansCta, setShowViewMorePlansCta] = useState<boolean>(savedDraft?.showViewMorePlansCta ?? true);
   const [showCallNowCta,       setShowCallNowCta]       = useState<boolean>(savedDraft?.showCallNowCta ?? true);
   const [showBookShowingCta,   setShowBookShowingCta]   = useState<boolean>(savedDraft?.showBookShowingCta ?? false);
-  const ctaToggles = { showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta };
+  const ctaToggles = { showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta };
 
   // Campaign assets
   const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
@@ -583,9 +591,11 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setDirectCtaUrl(d.directCtaUrl ?? "");
     setBrochureUrl(d.brochureUrl ?? "");
     setFloorplanUrl(d.floorplanUrl ?? "");
+    setPricingUrl(d.pricingUrl ?? "");
     setBookShowingUrl(d.bookShowingUrl ?? "");
     if (d.showFloorPlansCta !== undefined) setShowFloorPlansCta(d.showFloorPlansCta);
     if (d.showBrochureCta !== undefined) setShowBrochureCta(d.showBrochureCta);
+    if (d.showPricingCta !== undefined) setShowPricingCta(d.showPricingCta);
     if (d.showBookShowingCta !== undefined) setShowBookShowingCta(d.showBookShowingCta);
     if (d.showViewMorePlansCta !== undefined) setShowViewMorePlansCta(d.showViewMorePlansCta);
     if (d.showCallNowCta !== undefined) setShowCallNowCta(d.showCallNowCta);
@@ -804,8 +814,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         subjectLine, previewText, headline, bodyCopy, incentiveText,
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
-        layoutVersion, brochureUrl, floorplanUrl, bookShowingUrl,
-        showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
+        layoutVersion, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
+        showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -836,8 +846,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
-    savedTemplateId, projectUrl, brochureUrl, floorplanUrl, bookShowingUrl,
-    showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
+    savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
+    showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
@@ -857,7 +867,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -865,14 +875,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (campaignHtmlOverride) return;
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl, campaignHtmlOverride]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, pricingUrl, showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl, campaignHtmlOverride]);
 
   // finalHtml used only for copy/save — always reflects latest state
   // When campaignHtmlOverride is set (multi-project weeks), use it instead
-  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined);
+  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined);
   const finalHtml = campaignHtmlOverride || baseFinalHtml;
 
   // Also update multi-project preview when body copy changes (live editing)
@@ -1019,9 +1029,11 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
     // ── Auto-set document URLs from project ──────────────────────────────────
     const projBrochure = p.brochure_files?.find(f => f) || "";
-    const projFloorplan = p.pricing_sheets?.find(f => f) || p.floorplan_files?.find(f => f) || "";
+    const projFloorplan = p.floorplan_files?.find(f => f) || "";
+    const projPricing = p.pricing_sheets?.find(f => f) || "";
     setBrochureUrl(projBrochure);
     setFloorplanUrl(projFloorplan);
+    setPricingUrl(projPricing);
 
     // ── Auto-set CTA URL: brochure → pricing sheet → first floor plan ──────────
     const ctaDocUrl = projBrochure || projFloorplan || "";
@@ -1248,8 +1260,20 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     } catch (err: any) { toast.error("Upload failed: " + err.message); }
     finally { setBrochureUploading(false); e.target.value = ""; }
   };
+  const handlePricingPdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    setPricingUploading(true);
+    try {
+      const path = `email-pricing/${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage.from("listing-files").upload(path, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      setPricingUrl(supabase.storage.from("listing-files").getPublicUrl(path).data.publicUrl);
+      toast.success("Pricing PDF uploaded ✓");
+    } catch (err: any) { toast.error("Upload failed: " + err.message); }
+    finally { setPricingUploading(false); e.target.value = ""; }
+  };
 
-  
+
 
   // ── Export ────────────────────────────────────────────────────────────────────
   const handleCopy = () => {
@@ -2554,10 +2578,32 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     )}
                   </div>
 
+                  {/* Pricing CTA */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[11px] font-medium">View Pricing</Label>
+                      <Switch checked={showPricingCta} onCheckedChange={setShowPricingCta} />
+                    </div>
+                    {showPricingCta && (
+                      <div className="flex gap-1.5">
+                        <Input value={pricingUrl} onChange={e => setPricingUrl(e.target.value)} className="h-7 text-[10px] flex-1" placeholder="PDF URL or upload →" />
+                        <input ref={pricingInputRef} type="file" accept=".pdf" className="hidden" onChange={handlePricingPdfUpload} />
+                        <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => pricingInputRef.current?.click()} disabled={pricingUploading}>
+                          {pricingUploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
                   {/* View Details */}
-                  <div className="flex items-center justify-between">
-                    <Label className="text-[11px] font-medium">View Details</Label>
-                    <Switch checked={showViewMorePlansCta} onCheckedChange={setShowViewMorePlansCta} />
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[11px] font-medium">View Details</Label>
+                      <Switch checked={showViewMorePlansCta} onCheckedChange={setShowViewMorePlansCta} />
+                    </div>
+                    {showViewMorePlansCta && (
+                      <Input value={projectUrl} onChange={e => setProjectUrl(e.target.value)} className="h-7 text-[10px]" placeholder="Project page URL" />
+                    )}
                   </div>
 
                   {/* Call Now */}
