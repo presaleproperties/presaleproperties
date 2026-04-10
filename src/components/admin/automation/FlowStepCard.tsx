@@ -190,7 +190,7 @@ export function FlowStepCard({
                     <textarea
                       value={step.config?.message || ""}
                       onChange={(e) => onUpdate(step.id, { config: { ...step.config, message: e.target.value } })}
-                      placeholder={`Hi {{first_name}}, thanks for your interest in {{project_name}}...`}
+                      placeholder={`Hi {$name}, thanks for your interest in {{project_name}}...`}
                       className="w-full h-20 rounded-md border bg-white px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>

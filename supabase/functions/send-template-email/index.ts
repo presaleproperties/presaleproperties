@@ -97,7 +97,8 @@ Deno.serve(async (req) => {
         .replace(/\[name\]/g, firstName)
         .replace(/\{\{first_name\}\}/g, firstName)
         .replace(/\{\{firstName\}\}/g, firstName)
-        .replace(/\*\|FNAME\|\*/g, firstName);
+        .replace(/\*\|FNAME\|\*/g, firstName)
+        .replace(/\{\$name\}/g, firstName);
     } else {
       // Fallback: reconstruct from form_data fields (legacy templates)
       const projectName = fd.projectName || template.project_name || "New Development";

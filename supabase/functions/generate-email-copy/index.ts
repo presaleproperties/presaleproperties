@@ -49,7 +49,7 @@ UZAIR'S POSITIONING:
 Every bodyCopy MUST follow this exact 5-part visual layout (separated by double line breaks \\n\\n):
 
 PART 1 — OPENING PARAGRAPH
-"Hi {first_name},\\n\\n" followed by 2-4 sentences introducing the opportunity. Use **double asterisks** to bold 2-3 key phrases (project name, key selling point, urgency phrase). This should hook the reader and set context.
+"Hi {$name},\\n\\n" followed by 2-4 sentences introducing the opportunity. Use **double asterisks** to bold 2-3 key phrases (project name, key selling point, urgency phrase). This should hook the reader and set context.
 
 PART 2 — PRICING CALLOUT (on its own line, bold)
 A single standout line with the price or key offer, e.g.:
@@ -70,7 +70,7 @@ One short, warm sentence (no name sign-off — the agent card handles that), e.g
 "We can't wait to see you this weekend!" or "Let me know if you'd like to book a private viewing."
 
 EXAMPLE bodyCopy (follow this exact rhythm):
-"Hi {first_name},\\n\\nWe're excited to welcome you and your clients back to **The Loop this weekend** to discover our **Final Phase of homes!** This release marks the last opportunity to own in South Surrey's most sought-after neighbourhood, with premium homes offering **exceptional value in an established community.**\\n\\n**Final Phase Starting from $789,900 + GST**\\n\\nThis final phase features our most anticipated **park-facing homes** directly overlooking Edgewood Park. If your clients have been waiting to join this community, this is the perfect moment. **Visit us this weekend** to tour our newest collection of thoughtfully designed **2, 3 and 4 bedroom homes** at The Loop.\\n\\n**Display Homes Open This Saturday at Noon!**\\n\\nWe can't wait to see you this weekend!"
+"Hi {$name},\\n\\nWe're excited to welcome you and your clients back to **The Loop this weekend** to discover our **Final Phase of homes!** This release marks the last opportunity to own in South Surrey's most sought-after neighbourhood, with premium homes offering **exceptional value in an established community.**\\n\\n**Final Phase Starting from $789,900 + GST**\\n\\nThis final phase features our most anticipated **park-facing homes** directly overlooking Edgewood Park. If your clients have been waiting to join this community, this is the perfect moment. **Visit us this weekend** to tour our newest collection of thoughtfully designed **2, 3 and 4 bedroom homes** at The Loop.\\n\\n**Display Homes Open This Saturday at Noon!**\\n\\nWe can't wait to see you this weekend!"
 
 ─── END BODY COPY STRUCTURE ───
 
