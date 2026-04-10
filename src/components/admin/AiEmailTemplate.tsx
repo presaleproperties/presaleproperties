@@ -69,6 +69,8 @@ export interface AiEmailCopy {
   infoRows?: string[];
   /** Image cards rendered below the What's Included section */
   imageCards?: ImageCardEntry[];
+  /** CTA visibility toggle for View Details button */
+  showViewMorePlansCta?: boolean;
 }
 
 /** Parse a credit string like "$10,000" into a number */
