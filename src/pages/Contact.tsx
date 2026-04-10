@@ -27,6 +27,7 @@ export default function Contact() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
 
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
