@@ -26,70 +26,16 @@ import {
 
 // Content categories with icons and descriptions
 const CONTENT_CATEGORIES = [
-  {
-    slug: "presale-guides",
-    title: "Presale Guides",
-    description: "Learn how to buy presale condos and townhomes",
-    icon: BookOpen,
-    color: "bg-blue-500/10 text-blue-600",
-    articles: ["First-Time Buyer's Guide", "Understanding Contracts", "Deposit Structures", "Assignment Sales"]
-  },
-  {
-    slug: "buyer-education",
-    title: "Buyer Education",
-    description: "Essential knowledge for home buyers",
-    icon: BookOpen,
-    color: "bg-sky-500/10 text-sky-600",
-    articles: ["Home Buying 101", "Mortgage Pre-Approval", "Due Diligence Checklist", "Closing Costs"]
-  },
-  {
-    slug: "market-insights",
-    title: "Market Insights",
-    description: "Latest presale market reports and trends",
-    icon: TrendingUp,
-    color: "bg-green-500/10 text-green-600",
-    articles: ["Monthly Market Report", "Price Trends", "Upcoming Launches", "Quarterly Forecast"]
-  },
-  {
-    slug: "investment-strategy",
-    title: "Investment Strategy",
-    description: "ROI calculations and investment strategies",
-    icon: DollarSign,
-    color: "bg-emerald-500/10 text-emerald-600",
-    articles: ["Rental Yield Analysis", "Presale vs Resale ROI", "Portfolio Building", "Financing Strategies"]
-  },
-  {
-    slug: "neighbourhood-guides",
-    title: "Neighbourhood Guides",
-    description: "In-depth guides to BC's best neighbourhoods",
-    icon: MapPin,
-    color: "bg-purple-500/10 text-purple-600",
-    articles: ["South Surrey Guide", "Langley Willoughby", "Surrey City Centre", "Burnaby Metrotown"]
-  },
-  {
-    slug: "tax-finance",
-    title: "Tax & Finance",
-    description: "Tax planning and financial strategies",
-    icon: DollarSign,
-    color: "bg-amber-500/10 text-amber-600",
-    articles: ["Property Transfer Tax", "GST on Presales", "Mortgage Strategies", "Buyer Incentives"]
-  },
-  {
-    slug: "city-spotlight",
-    title: "City Spotlight",
-    description: "Deep dives into BC's fastest-growing cities",
-    icon: Building2,
-    color: "bg-orange-500/10 text-orange-600",
-    articles: ["Surrey Growth Story", "Langley Boom", "Burnaby Urban Plan", "Abbotsford Rising"]
-  },
-  {
-    slug: "assignments",
-    title: "Assignments",
-    description: "Buying and selling presale assignments",
-    icon: TrendingUp,
-    color: "bg-rose-500/10 text-rose-600",
-    articles: ["Assignment Selling Guide", "Buying Assignments", "Pricing Strategy", "Legal Considerations"]
-  }
+  { slug: "presale-guides", title: "Presale Guides", description: "Learn how to buy presale condos and townhomes", icon: BookOpen, color: "bg-blue-500/10 text-blue-600", dbCategory: "Presale Guides" },
+  { slug: "buyer-education", title: "Buyer Education", description: "Essential knowledge for home buyers", icon: BookOpen, color: "bg-sky-500/10 text-sky-600", dbCategory: "Buyer Education" },
+  { slug: "market-insights", title: "Market Insights", description: "Latest presale market reports and trends", icon: TrendingUp, color: "bg-green-500/10 text-green-600", dbCategory: "Market Insights" },
+  { slug: "investment-strategy", title: "Investment Strategy", description: "ROI calculations and investment strategies", icon: DollarSign, color: "bg-emerald-500/10 text-emerald-600", dbCategory: "Investment Strategy" },
+  { slug: "neighbourhood-guides", title: "Neighbourhood Guides", description: "In-depth guides to BC's best neighbourhoods", icon: MapPin, color: "bg-purple-500/10 text-purple-600", dbCategory: "Neighbourhood Guides" },
+  { slug: "tax-finance", title: "Tax & Finance", description: "Tax planning and financial strategies", icon: DollarSign, color: "bg-amber-500/10 text-amber-600", dbCategory: "Tax & Finance" },
+  { slug: "city-spotlight", title: "City Spotlight", description: "Deep dives into BC's fastest-growing cities", icon: Building2, color: "bg-orange-500/10 text-orange-600", dbCategory: "City Spotlight" },
+  { slug: "assignments", title: "Assignments", description: "Buying and selling presale assignments", icon: TrendingUp, color: "bg-rose-500/10 text-rose-600", dbCategory: "Assignments" },
+  { slug: "agent-spotlight", title: "Agent Spotlight", description: "Meet the agents behind successful transactions", icon: Users, color: "bg-indigo-500/10 text-indigo-600", dbCategory: "Agent Spotlight" },
+  { slug: "faq", title: "FAQ", description: "Frequently asked questions about presales", icon: BookOpen, color: "bg-teal-500/10 text-teal-600", dbCategory: "FAQ" },
 ];
 // Quick resources
 const QUICK_RESOURCES = [
