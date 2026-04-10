@@ -3,6 +3,8 @@ import { SendEmailDialog } from "@/components/admin/SendEmailDialog";
 import { CampaignBundleSelector, type CampaignBundle } from "@/components/admin/campaign/CampaignBundleSelector";
 import { CampaignWeekNavigator } from "@/components/admin/campaign/CampaignWeekNavigator";
 import { CAMPAIGN_WEEKS } from "@/components/admin/campaign/CampaignWeekConfig";
+import { buildMultiProjectEmailHtml, type MultiProjectData } from "@/components/admin/campaign/buildMultiProjectEmailHtml";
+import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -508,6 +510,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [campaignCompletedWeeks, setCampaignCompletedWeeks] = useState<Set<number>>(new Set());
   const [bundleSelectorOpen, setBundleSelectorOpen] = useState(false);
   const campaignMode = !!campaignBundle;
+  /** When set, overrides previewHtml/finalHtml for multi-project weeks */
+  const [campaignHtmlOverride, setCampaignHtmlOverride] = useState<string | null>(null);
+  const [campaignAiLoading, setCampaignAiLoading] = useState(false);
   const [draftSavedAt,  setDraftSavedAt]  = useState<Date | null>(savedDraft ? new Date(savedDraft._savedAt || Date.now()) : null);
 
   // Data
@@ -845,15 +850,45 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
+    // Skip debounced updates when multi-project override is active
+    if (campaignHtmlOverride) return;
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
       setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl, campaignHtmlOverride]);
 
   // finalHtml used only for copy/save — always reflects latest state
-  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined);
+  // When campaignHtmlOverride is set (multi-project weeks), use it instead
+  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined);
+  const finalHtml = campaignHtmlOverride || baseFinalHtml;
+
+  // Also update multi-project preview when body copy changes (live editing)
+  useEffect(() => {
+    if (!campaignHtmlOverride || !campaignBundle) return;
+    const weekDef = CAMPAIGN_WEEKS[campaignWeek - 1];
+    if (!weekDef || weekDef.type !== "multi-project") return;
+    const proj1 = toMultiProjectData(campaignBundle.primary_project_id);
+    const proj2 = toMultiProjectData(campaignBundle.alt_project_1_id);
+    const proj3 = toMultiProjectData(campaignBundle.alt_project_2_id);
+    const multiProjects = [proj1, proj2, proj3].filter(Boolean) as MultiProjectData[];
+    const primaryProj = projects.find(p => p.id === campaignBundle.primary_project_id);
+    const cityName = primaryProj?.city || "";
+    const html = buildMultiProjectEmailHtml({
+      weekNumber: campaignWeek,
+      weekLabel: weekDef.label,
+      subjectLine,
+      previewText,
+      headline,
+      bodyCopy,
+      projects: multiProjects,
+      agent: selectedAgent,
+      city: cityName,
+    });
+    setCampaignHtmlOverride(html);
+    setPreviewHtml(html);
+  }, [bodyCopy, headline, subjectLine, previewText, selectedAgent]); // eslint-disable-line
 
   // ── AI generation ─────────────────────────────────────────────────────────────
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
@@ -1375,50 +1410,125 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   };
 
   // ── Campaign mode: auto-populate from bundle project when switching weeks ──
-  const handleCampaignWeekChange = useCallback((week: number) => {
+  /** Helper: convert project data to MultiProjectData */
+  const toMultiProjectData = useCallback((projectId: string): MultiProjectData | null => {
+    const p = projects.find(pr => pr.id === projectId);
+    if (!p) return null;
+    const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return {
+      projectName: p.name,
+      city: p.city,
+      neighborhood: p.neighborhood || undefined,
+      developerName: p.developer_name || undefined,
+      startingPrice: p.price_range || (p.starting_price ? `$${p.starting_price.toLocaleString()}` : undefined),
+      deposit: p.deposit_structure || (p.deposit_percent ? `${p.deposit_percent}%` : undefined),
+      completion: p.completion_year ? `${p.completion_month ? MONTHS[p.completion_month - 1] + " " : ""}${p.completion_year}` : undefined,
+      featuredImage: p.featured_image || undefined,
+      projectUrl: p.slug ? `https://presaleproperties.com${generateProjectUrl({ slug: p.slug, neighborhood: p.neighborhood || p.city || "", projectType: ((p as any).project_type as any) || "condo" })}` : undefined,
+      highlights: p.highlights?.slice(0, 4) || undefined,
+    };
+  }, [projects]);
+
+  const handleCampaignWeekChange = useCallback(async (week: number) => {
     setCampaignWeek(week);
+    setCampaignHtmlOverride(null);
     if (!campaignBundle) return;
     const weekDef = CAMPAIGN_WEEKS[week - 1];
     if (!weekDef) return;
 
-    // Determine which project to load for single-project weeks
-    let targetProjectId: string | null = null;
+    // ── SINGLE-PROJECT WEEKS (1, 4, 7) ─────────────────────────────────────
     if (weekDef.type === "single-project") {
+      let targetProjectId: string | null = null;
       if (weekDef.projectSource === "primary") targetProjectId = campaignBundle.primary_project_id;
       else if (weekDef.projectSource === "alt1") targetProjectId = campaignBundle.alt_project_1_id;
       else if (weekDef.projectSource === "alt2") targetProjectId = campaignBundle.alt_project_2_id;
-    }
-
-    // For single-project weeks, trigger handleProjectSelect to auto-fill
-    if (targetProjectId && weekDef.type === "single-project") {
-      const proj = projects.find(p => p.id === targetProjectId);
-      if (proj) {
-        // Auto-select the project (which triggers handleProjectSelect's data loading)
-        handleProjectSelect(targetProjectId);
+      if (targetProjectId) {
+        const proj = projects.find(p => p.id === targetProjectId);
+        if (proj) handleProjectSelect(targetProjectId);
       }
+      return;
     }
 
-    // For multi-project and ai-content weeks (Phase 2 & 3), we'll add handling later
-    // For now, just set default subject/headline from week config
-    if (weekDef.type !== "single-project") {
-      const primaryProj = projects.find(p => p.id === campaignBundle.primary_project_id);
-      const cityName = primaryProj?.city || "";
-      const projName = primaryProj?.name || "";
-      setSubjectLine(weekDef.defaultSubject.replace("{city}", cityName).replace("{projectName}", projName));
-      setHeadline(weekDef.defaultHeadline.replace("{city}", cityName).replace("{projectName}", projName));
-      // Clear single-project fields for multi-project weeks
-      setBodyCopy("");
-      setIncentiveText("");
+    // Resolve project data for multi-project / AI-content weeks
+    const primaryProj = projects.find(p => p.id === campaignBundle.primary_project_id);
+    const cityName = primaryProj?.city || "";
+    const projName = primaryProj?.name || "";
+    const resolvedSubject = weekDef.defaultSubject.replace("{city}", cityName).replace("{projectName}", projName);
+    const resolvedHeadline = weekDef.defaultHeadline.replace("{city}", cityName).replace("{projectName}", projName);
+
+    // ── MULTI-PROJECT WEEKS (2, 6, 8, 10, 12) ──────────────────────────────
+    if (weekDef.type === "multi-project") {
+      const proj1 = toMultiProjectData(campaignBundle.primary_project_id);
+      const proj2 = toMultiProjectData(campaignBundle.alt_project_1_id);
+      const proj3 = toMultiProjectData(campaignBundle.alt_project_2_id);
+      const multiProjects = [proj1, proj2, proj3].filter(Boolean) as MultiProjectData[];
+
+      // Set fields so the editor panel shows useful data
+      setSubjectLine(resolvedSubject);
+      setHeadline(resolvedHeadline);
+      setBodyCopy(weekDef.description);
       setHeroImage("");
       setFloorPlans([]);
+
+      // Generate the multi-project comparison HTML
+      const html = buildMultiProjectEmailHtml({
+        weekNumber: week,
+        weekLabel: weekDef.label,
+        subjectLine: resolvedSubject,
+        previewText: `Week ${week} of your presale campaign`,
+        headline: resolvedHeadline,
+        bodyCopy: bodyCopy || weekDef.description,
+        projects: multiProjects,
+        agent: selectedAgent,
+        city: cityName,
+      });
+      setCampaignHtmlOverride(html);
+      toast.success(`Week ${week}: ${weekDef.label} — comparison email loaded`);
+      return;
     }
-  }, [campaignBundle, projects]); // eslint-disable-line
+
+    // ── AI-CONTENT WEEKS (3, 5, 9, 11) ──────────────────────────────────────
+    if (weekDef.type === "ai-content") {
+      setSubjectLine(resolvedSubject);
+      setHeadline(resolvedHeadline);
+      setBodyCopy("");
+      setIncentiveText("");
+      setHeroImage(primaryProj?.featured_image || "");
+      setFloorPlans([]);
+
+      // Auto-generate AI content
+      if (weekDef.aiPromptHint) {
+        setCampaignAiLoading(true);
+        setAiLoading(true);
+        toast.info(`Generating Week ${week} content…`);
+        try {
+          const p1 = primaryProj || { name: projName, city: cityName };
+          const p2 = projects.find(p => p.id === campaignBundle.alt_project_1_id) || p1;
+          const p3 = projects.find(p => p.id === campaignBundle.alt_project_2_id) || p1;
+          const result = await generateCampaignWeekCopy(week, p1 as any, p2 as any, p3 as any);
+          setSubjectLine(result.subjectLine);
+          setHeadline(result.headline);
+          setBodyCopy(result.bodyCopy);
+          if (result.previewText) setPreviewText(result.previewText);
+          if (result.incentiveText) setIncentiveText(result.incentiveText);
+          toast.success(`Week ${week} content generated ✓`);
+        } catch (e: any) {
+          toast.error("AI content generation failed: " + (e.message || "Unknown error"));
+          setBodyCopy(weekDef.description);
+        } finally {
+          setCampaignAiLoading(false);
+          setAiLoading(false);
+        }
+      }
+    }
+  }, [campaignBundle, projects, toMultiProjectData, selectedAgent, bodyCopy]); // eslint-disable-line
 
   const handleBundleSelect = useCallback((bundle: CampaignBundle) => {
     setCampaignBundle(bundle);
     setBundleSelectorOpen(false);
     setCampaignWeek(1);
     setCampaignCompletedWeeks(new Set());
+    setCampaignHtmlOverride(null);
     // Auto-populate Week 1 with primary project
     const proj = projects.find(p => p.id === bundle.primary_project_id);
     if (proj) {
@@ -1588,6 +1698,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               setCampaignBundle(null);
               setCampaignWeek(1);
               setCampaignCompletedWeeks(new Set());
+              setCampaignHtmlOverride(null);
             }}
           />
         )}
