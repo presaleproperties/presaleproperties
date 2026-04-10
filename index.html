@@ -227,7 +227,7 @@
 
   <body>
     <!-- Premium branded splash screen - first visit only -->
-    <div id="app-splash" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#ffffff;transition:opacity 1s cubic-bezier(.4,0,.2,1),visibility 1s cubic-bezier(.4,0,.2,1);">
+    <div id="app-splash" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#ffffff;transition:opacity 0.3s ease,visibility 0.3s ease;">
       <style>
         @keyframes splash-enter{
           0%{opacity:0;transform:scale(0.96)}
@@ -247,12 +247,22 @@
       </div>
     </div>
     <script>
-      if(sessionStorage.getItem('pp_splash_shown')){
+      (function(){
         var s=document.getElementById('app-splash');
-        if(s)s.style.display='none';
-      }else{
-        sessionStorage.setItem('pp_splash_shown','1');
-      }
+        if(!s)return;
+        if(sessionStorage.getItem('pp_splash_shown')){
+          s.remove();
+        }else{
+          sessionStorage.setItem('pp_splash_shown','1');
+          // Hard timeout: force-hide after 2s no matter what
+          setTimeout(function(){
+            if(s.parentNode){
+              s.style.opacity='0';s.style.visibility='hidden';
+              setTimeout(function(){s.remove()},350);
+            }
+          },2000);
+        }
+      })();
     </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
