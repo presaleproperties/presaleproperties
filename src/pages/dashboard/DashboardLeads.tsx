@@ -122,6 +122,11 @@ export default function DashboardLeads() {
   const tagInputRef = useRef<HTMLInputElement>(null);
   const [showAddLead, setShowAddLead] = useState(false);
 
+  // Inline editing state
+  const [editingField, setEditingField] = useState<{ leadId: string; field: "phone" | "email" } | null>(null);
+  const [editFieldValue, setEditFieldValue] = useState("");
+  const editFieldRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (user) fetchAll();
   }, [user]);
