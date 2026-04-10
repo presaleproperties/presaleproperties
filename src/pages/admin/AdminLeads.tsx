@@ -840,7 +840,7 @@ export default function AdminLeads() {
             ) : (
               <div className="space-y-2">
                 <p className="text-[11px] text-muted-foreground">
-                  {filteredListingLeads.length} of {listingLeads?.length || 0} leads
+                  {selectedListingIds.size > 0 ? `${selectedListingIds.size} selected · ` : ""}{filteredListingLeads.length} of {listingLeads?.length || 0} leads
                 </p>
 
                 {/* Desktop Table */}
