@@ -1374,6 +1374,59 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setSaving(false);
   };
 
+  // ── Campaign mode: auto-populate from bundle project when switching weeks ──
+  const handleCampaignWeekChange = useCallback((week: number) => {
+    setCampaignWeek(week);
+    if (!campaignBundle) return;
+    const weekDef = CAMPAIGN_WEEKS[week - 1];
+    if (!weekDef) return;
+
+    // Determine which project to load for single-project weeks
+    let targetProjectId: string | null = null;
+    if (weekDef.type === "single-project") {
+      if (weekDef.projectSource === "primary") targetProjectId = campaignBundle.primary_project_id;
+      else if (weekDef.projectSource === "alt1") targetProjectId = campaignBundle.alt_project_1_id;
+      else if (weekDef.projectSource === "alt2") targetProjectId = campaignBundle.alt_project_2_id;
+    }
+
+    // For single-project weeks, trigger handleProjectSelect to auto-fill
+    if (targetProjectId && weekDef.type === "single-project") {
+      const proj = projects.find(p => p.id === targetProjectId);
+      if (proj) {
+        // Auto-select the project (which triggers handleProjectSelect's data loading)
+        handleProjectSelect(targetProjectId);
+      }
+    }
+
+    // For multi-project and ai-content weeks (Phase 2 & 3), we'll add handling later
+    // For now, just set default subject/headline from week config
+    if (weekDef.type !== "single-project") {
+      const primaryProj = projects.find(p => p.id === campaignBundle.primary_project_id);
+      const cityName = primaryProj?.city || "";
+      const projName = primaryProj?.name || "";
+      setSubjectLine(weekDef.defaultSubject.replace("{city}", cityName).replace("{projectName}", projName));
+      setHeadline(weekDef.defaultHeadline.replace("{city}", cityName).replace("{projectName}", projName));
+      // Clear single-project fields for multi-project weeks
+      setBodyCopy("");
+      setIncentiveText("");
+      setHeroImage("");
+      setFloorPlans([]);
+    }
+  }, [campaignBundle, projects]); // eslint-disable-line
+
+  const handleBundleSelect = useCallback((bundle: CampaignBundle) => {
+    setCampaignBundle(bundle);
+    setBundleSelectorOpen(false);
+    setCampaignWeek(1);
+    setCampaignCompletedWeeks(new Set());
+    // Auto-populate Week 1 with primary project
+    const proj = projects.find(p => p.id === bundle.primary_project_id);
+    if (proj) {
+      handleProjectSelect(bundle.primary_project_id);
+    }
+    toast.success(`Campaign "${bundle.name}" loaded — starting Week 1`);
+  }, [projects]); // eslint-disable-line
+
   // Mobile tab: "build" (editor panel) or "preview" (iframe)
   const [mobileTab, setMobileTab] = useState<"build" | "preview">("build");
 
