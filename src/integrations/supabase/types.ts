@@ -4205,7 +4205,7 @@ export type Database = {
       update_listing_agent_names: { Args: never; Returns: undefined }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user" | "developer"
+      app_role: "admin" | "moderator" | "user" | "developer" | "agent"
       appointment_type: "preview" | "showing"
       automation_step_type:
         | "delay"
@@ -4349,7 +4349,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user", "developer"],
+      app_role: ["admin", "moderator", "user", "developer", "agent"],
       appointment_type: ["preview", "showing"],
       automation_step_type: [
         "delay",
