@@ -1024,6 +1024,55 @@ export default function AdminLeads() {
           </TabsContent>
         </Tabs>
 
+        {/* Floating Bulk Action Bar */}
+        {selectedIds.size > 0 && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-foreground text-background rounded-xl shadow-2xl px-5 py-3 flex items-center gap-3 animate-in slide-in-from-bottom-4 duration-200">
+            <div className="flex items-center gap-2">
+              <CheckSquare className="h-4 w-4" />
+              <span className="text-sm font-semibold">{selectedIds.size} selected</span>
+            </div>
+            <div className="h-5 w-px bg-background/20" />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-background hover:text-background hover:bg-background/10 h-8 text-xs gap-1.5"
+              onClick={bulkEmailSelected}
+            >
+              <Mail className="h-3.5 w-3.5" /> Email
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-background hover:text-background hover:bg-background/10 h-8 text-xs gap-1.5"
+              onClick={bulkExportSelected}
+            >
+              <Download className="h-3.5 w-3.5" /> Export
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs gap-1.5"
+              disabled={bulkDeleting}
+              onClick={() => {
+                if (confirm(`Delete ${selectedIds.size} lead(s)? This cannot be undone.`)) {
+                  activeTab === "project" ? bulkDeleteProjectLeads() : bulkDeleteListingLeads();
+                }
+              }}
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Delete
+            </Button>
+            <div className="h-5 w-px bg-background/20" />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-background/60 hover:text-background hover:bg-background/10 h-8 text-xs"
+              onClick={clearSelection}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
+
         <LeadDetailsModal
           lead={selectedLead}
           type={activeTab as "project" | "listing"}
