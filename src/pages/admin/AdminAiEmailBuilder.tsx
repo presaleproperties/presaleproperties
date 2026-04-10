@@ -927,7 +927,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       const projectPath = generateProjectUrl({
         slug: p.slug,
         neighborhood: p.neighborhood || p.city || "",
-        projectType: (p.project_type as "condo" | "townhome" | "mixed" | "duplex" | "single_family") || "condo",
+        projectType: ((p as any).project_type as "condo" | "townhome" | "mixed" | "duplex" | "single_family") || "condo",
       });
       setProjectUrl(`https://presaleproperties.com${projectPath}`);
     }
