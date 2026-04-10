@@ -902,6 +902,48 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_automations: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          steps: Json | null
+          total_completed: number | null
+          total_enrolled: number | null
+          trigger_config: Json | null
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          steps?: Json | null
+          total_completed?: number | null
+          total_enrolled?: number | null
+          trigger_config?: Json | null
+          trigger_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          steps?: Json | null
+          total_completed?: number | null
+          total_enrolled?: number | null
+          trigger_config?: Json | null
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       crm_email_campaigns: {
         Row: {
           click_count: number | null
