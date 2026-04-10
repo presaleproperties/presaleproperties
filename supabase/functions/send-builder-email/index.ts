@@ -41,7 +41,8 @@ function personalizeContent(content: string, firstName?: string) {
     .replaceAll("{{client_name}}", safeFirstName)
     .replaceAll("{{clientName}}", safeFirstName)
     .replaceAll("{{name}}", safeFirstName)
-    .replaceAll("*|FNAME|*", safeFirstName);
+    .replaceAll("*|FNAME|*", safeFirstName)
+    .replaceAll("{$name}", safeFirstName);
 }
 
 interface SendBuilderEmailRequest {
