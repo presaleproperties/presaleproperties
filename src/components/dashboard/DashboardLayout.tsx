@@ -166,7 +166,7 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden h-9 w-9"
+              className="lg:hidden h-9 w-9"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -206,7 +206,7 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
 
       <div className="flex flex-1">
         {/* Sidebar - Desktop */}
-        <aside className="hidden md:flex w-64 flex-col border-r border-border/50 bg-gradient-to-b from-background to-muted/10">
+        <aside className="hidden lg:flex w-64 flex-col border-r border-border/50 bg-gradient-to-b from-background to-muted/10">
           {/* User Info */}
           <div className="p-3 border-b border-border/50">
             <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/50">
@@ -277,7 +277,7 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
 
         {/* Mobile slide-out menu (for full nav) */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 top-14 z-50 md:hidden">
+          <div className="fixed inset-0 top-14 z-50 lg:hidden">
             <div 
               className="fixed inset-0 top-14 bg-background/60 backdrop-blur-sm" 
               onClick={() => setMobileMenuOpen(false)} 
@@ -337,9 +337,9 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
         )}
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto pb-16 md:pb-0">
+        <main className="flex-1 overflow-auto pb-16 lg:pb-0">
           {noPadding ? children : (
-            <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+            <div className="p-4 md:p-6 lg:p-8 max-w-5xl lg:max-w-7xl mx-auto">
               {children}
             </div>
           )}
@@ -347,7 +347,7 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
       </div>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-background/95 backdrop-blur-xl border-t border-border/50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[60] bg-background/95 backdrop-blur-xl border-t border-border/50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         <div className="flex items-center justify-around h-14">
           {mobileBottomTabs.map((tab) => {
             const active = isTabActive(tab.href, tab.exact);
