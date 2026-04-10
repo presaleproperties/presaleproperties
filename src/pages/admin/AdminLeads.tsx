@@ -752,9 +752,14 @@ export default function AdminLeads() {
                     return (
                       <div
                         key={lead.id}
-                        className="p-3 rounded-lg border border-border"
+                        className={cn("p-3 rounded-lg border border-border", selectedProjectIds.has(lead.id) && "bg-primary/5 border-primary/30")}
                       >
                         <div className="flex items-start gap-3">
+                          <Checkbox
+                            checked={selectedProjectIds.has(lead.id)}
+                            onCheckedChange={() => toggleSelect(lead.id)}
+                            className="mt-1"
+                          />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-1.5">
