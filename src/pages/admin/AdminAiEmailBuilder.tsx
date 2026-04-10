@@ -1455,6 +1455,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       completion: p.completion_year ? `${p.completion_month ? MONTHS[p.completion_month - 1] + " " : ""}${p.completion_year}` : undefined,
       featuredImage: p.featured_image || undefined,
       projectUrl: p.slug ? `https://presaleproperties.com${generateProjectUrl({ slug: p.slug, neighborhood: p.neighborhood || p.city || "", projectType: ((p as any).project_type as any) || "condo" })}` : undefined,
+      pricingUrl: p.pricing_sheets?.find((f: string) => f) || undefined,
       highlights: p.highlights?.slice(0, 4) || undefined,
     };
   }, [projects]);
