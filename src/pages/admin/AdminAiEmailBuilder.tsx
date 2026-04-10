@@ -1557,6 +1557,21 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           </div>
         </div>
 
+        {/* ── Campaign Week Navigator (shown only in campaign mode) ── */}
+        {campaignMode && (
+          <CampaignWeekNavigator
+            activeWeek={campaignWeek}
+            onWeekChange={handleCampaignWeekChange}
+            completedWeeks={campaignCompletedWeeks}
+            bundleName={campaignBundle!.name}
+            onExitCampaign={() => {
+              setCampaignBundle(null);
+              setCampaignWeek(1);
+              setCampaignCompletedWeeks(new Set());
+            }}
+          />
+        )}
+
         {/* ── Mobile tab switcher (shown only on small screens) ── */}
         <div className="flex lg:hidden items-center bg-muted/40 rounded-xl p-1 gap-1">
           <button
