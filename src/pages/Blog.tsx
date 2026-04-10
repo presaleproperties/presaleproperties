@@ -57,7 +57,14 @@ export default function Blog() {
     }
   };
 
-  const categories = [...new Set(posts.map(p => p.category).filter(Boolean) as string[])].sort();
+  const CANONICAL_CATEGORIES = [
+    "Presale Guides", "Buyer Education", "Market Insights", "Investment Strategy",
+    "Neighbourhood Guides", "Tax & Finance", "Agent Spotlight", "FAQ",
+    "City Spotlight", "Assignments",
+  ];
+  const categories = CANONICAL_CATEGORIES.filter(cat =>
+    posts.some(p => p.category === cat)
+  );
 
   const isSearching = searchQuery.length > 0;
 
