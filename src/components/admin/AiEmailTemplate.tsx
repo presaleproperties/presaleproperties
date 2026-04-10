@@ -250,6 +250,17 @@ function docCtaButtons(opts: {
     </td>
   </tr>`);
   }
+  if (hasPricing) {
+    buttons.push(`<tr>
+    <td class="content-pad" style="padding:8px 40px 8px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${ACCENT};border-radius:6px;overflow:hidden;"><tr>
+        <td align="center" style="padding:16px 24px;background:#ffffff;">
+          <a href="${pricingUrl}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;line-height:1;">VIEW PRICING &nbsp;→</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`);
+  }
   return buttons.join("\n  ");
 }
 
