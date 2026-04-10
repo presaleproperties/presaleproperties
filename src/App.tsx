@@ -78,7 +78,7 @@ const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminLeads = lazy(() => import("./pages/admin/AdminLeads"));
 const AdminLeadAnalytics = lazy(() => import("./pages/admin/AdminLeadAnalytics"));
 const AdminLeadOnboard = lazy(() => import("./pages/admin/AdminLeadOnboard"));
-const AdminLoftyCRM = lazy(() => import("./pages/admin/AdminLoftyCRM"));
+
 const AdminAIAnalytics = lazy(() => import("./pages/admin/AdminAIAnalytics"));
 const AdminBookings = lazy(() => import("./pages/admin/AdminBookings"));
 const AdminSchedulerSettings = lazy(() => import("./pages/admin/AdminSchedulerSettings"));
@@ -363,7 +363,7 @@ const App = () => (
             <Route path="/admin/leads" element={<AdminProtectedRoute><AdminLeads /></AdminProtectedRoute>} />
             <Route path="/admin/leads/analytics" element={<AdminProtectedRoute><AdminLeadAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/lead-onboard" element={<AdminProtectedRoute><AdminLeadOnboard /></AdminProtectedRoute>} />
-            <Route path="/admin/lofty-crm" element={<AdminProtectedRoute><AdminLoftyCRM /></AdminProtectedRoute>} />
+            
             <Route path="/admin/payments" element={<AdminProtectedRoute><AdminPayments /></AdminProtectedRoute>} />
             <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookings /></AdminProtectedRoute>} />
             <Route path="/admin/scheduler-settings" element={<AdminProtectedRoute><AdminSchedulerSettings /></AdminProtectedRoute>} />
