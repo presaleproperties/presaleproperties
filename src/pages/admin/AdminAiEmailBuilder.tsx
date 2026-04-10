@@ -1258,7 +1258,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         deposit: copy.deposit, completion: copy.completion,
       },
       heroImage, floorPlans, fpHeading, fpSubheading, aiResult, activeVersion,
-      imageCards, loopSlides, selectedAssetId, directCtaUrl,
+      imageCards, loopSlides, heroMode, selectedAssetId, directCtaUrl,
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
       brochureUrl, floorplanUrl, bookShowingUrl,
