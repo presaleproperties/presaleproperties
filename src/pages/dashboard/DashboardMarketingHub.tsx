@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -16,10 +22,11 @@ import {
 import {
   Mail, Plus, Clock, Trash2, Copy, Tag,
   ChevronRight, Building2, Star, Megaphone, ExternalLink,
-  Search, LayoutGrid, List, Send, StarOff, Loader2,
+  Search, LayoutGrid, List, Send, StarOff, Loader2, Users,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { personalizeTemplateHtml, buildAiTemplateHtmlFromFormData, isAiEmailTemplate } from "@/lib/ai-email-html";
 
 interface SavedAsset {
   id: string;
@@ -223,9 +230,79 @@ export default function DashboardMarketingHub() {
     }
   };
 
-  const handleQuickSend = (asset: SavedAsset) => {
-    // Open email builder with template pre-loaded, ready to send
-    navigate(`/dashboard/email-builder?saved=${asset.id}&mode=send`);
+  // Quick send dialog state
+  const [quickSendAsset, setQuickSendAsset] = useState<SavedAsset | null>(null);
+  const [quickSendLeads, setQuickSendLeads] = useState<{ id: string; first_name: string; last_name: string; email: string }[]>([]);
+  const [quickSendSearch, setQuickSendSearch] = useState("");
+  const [quickSendSelectedLead, setQuickSendSelectedLead] = useState<string | null>(null);
+  const [quickSendSending, setQuickSendSending] = useState(false);
+  const [quickSendLeadsLoading, setQuickSendLeadsLoading] = useState(false);
+
+  const handleQuickSend = useCallback(async (asset: SavedAsset) => {
+    setQuickSendAsset(asset);
+    setQuickSendSearch("");
+    setQuickSendSelectedLead(null);
+    setQuickSendLeadsLoading(true);
+    const { data } = await supabase
+      .from("onboarded_leads")
+      .select("id, first_name, last_name, email")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    setQuickSendLeads((data as any) || []);
+    setQuickSendLeadsLoading(false);
+  }, []);
+
+  const filteredQuickSendLeads = useMemo(() => {
+    if (!quickSendSearch.trim()) return quickSendLeads;
+    const q = quickSendSearch.toLowerCase();
+    return quickSendLeads.filter(l =>
+      `${l.first_name} ${l.last_name}`.toLowerCase().includes(q) ||
+      l.email.toLowerCase().includes(q)
+    );
+  }, [quickSendLeads, quickSendSearch]);
+
+  const handleQuickSendConfirm = async () => {
+    if (!quickSendAsset || !quickSendSelectedLead) return;
+    const lead = quickSendLeads.find(l => l.id === quickSendSelectedLead);
+    if (!lead) return;
+
+    setQuickSendSending(true);
+    try {
+      // Build HTML from template
+      const fd = quickSendAsset.form_data;
+      let htmlOverride: string | undefined;
+      if (fd?.finalHtml) {
+        htmlOverride = personalizeTemplateHtml(fd.finalHtml, lead.first_name);
+      } else if (fd && isAiEmailTemplate(fd)) {
+        htmlOverride = personalizeTemplateHtml(
+          buildAiTemplateHtmlFromFormData(fd),
+          lead.first_name,
+        );
+      }
+
+      const { error } = await supabase.functions.invoke("send-template-email", {
+        body: { leadId: lead.id, templateId: quickSendAsset.id, htmlOverride },
+      });
+      if (error) throw error;
+
+      // Update last_sent_at
+      await (supabase as any).from("campaign_templates")
+        .update({ last_sent_at: new Date().toISOString() })
+        .eq("id", quickSendAsset.id);
+
+      setAssets(prev => prev.map(a => a.id === quickSendAsset.id
+        ? { ...a, last_sent_at: new Date().toISOString() }
+        : a
+      ));
+
+      toast.success(`Email sent to ${lead.first_name} ${lead.last_name}`);
+      setQuickSendAsset(null);
+    } catch (err: any) {
+      console.error("Quick send error:", err);
+      toast.error("Failed to send email");
+    } finally {
+      setQuickSendSending(false);
+    }
   };
 
   // Template card component for grid view
@@ -660,6 +737,91 @@ export default function DashboardMarketingHub() {
           </div>
         </div>
       </div>
+      {/* Quick Send Dialog */}
+      <Dialog open={!!quickSendAsset} onOpenChange={(open) => !open && setQuickSendAsset(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Send className="h-4 w-4" />
+              Quick Send
+            </DialogTitle>
+          </DialogHeader>
+
+          {quickSendAsset && (
+            <div className="space-y-4">
+              {/* Template info */}
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <p className="text-sm font-medium truncate">{getDisplayName(quickSendAsset)}</p>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">
+                  {quickSendAsset.form_data?.projectName || quickSendAsset.project_name}
+                </p>
+              </div>
+
+              {/* Lead search */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select a lead</label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name or email..."
+                    value={quickSendSearch}
+                    onChange={(e) => setQuickSendSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+
+              {/* Lead list */}
+              <div className="max-h-56 overflow-y-auto border rounded-lg divide-y divide-border">
+                {quickSendLeadsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                ) : filteredQuickSendLeads.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                    <Users className="h-5 w-5 mb-1" />
+                    <p className="text-xs">No leads found</p>
+                  </div>
+                ) : (
+                  filteredQuickSendLeads.map((lead) => (
+                    <button
+                      key={lead.id}
+                      onClick={() => setQuickSendSelectedLead(lead.id)}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors",
+                        quickSendSelectedLead === lead.id && "bg-primary/10 border-l-2 border-l-primary"
+                      )}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {lead.first_name} {lead.last_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">{lead.email}</p>
+                      </div>
+                      {quickSendSelectedLead === lead.id && (
+                        <div className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+
+              {/* Send button */}
+              <Button
+                className="w-full gap-2"
+                disabled={!quickSendSelectedLead || quickSendSending}
+                onClick={handleQuickSendConfirm}
+              >
+                {quickSendSending ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</>
+                ) : (
+                  <><Send className="h-4 w-4" /> Send Email</>
+                )}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
