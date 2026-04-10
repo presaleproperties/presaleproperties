@@ -577,7 +577,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
     </td>
   </tr>
 
-  ${projectDetailsCta({ projectUrl: copy.projectUrl, projectName: copy.projectName, developerName: copy.developerName, font: bodyFont, accent: ACCENT, dark: DARK })}
+  ${projectDetailsCta({ projectUrl: copy.projectUrl, projectName: copy.projectName, developerName: copy.developerName, font: bodyFont, accent: ACCENT, dark: DARK, showViewMorePlansCta: copy.showViewMorePlansCta, style: "gold-fill" })}
 
   <!-- ─── INCENTIVES (conditional) ─── -->
   ${incentives.length > 0 ? `
@@ -1023,7 +1023,7 @@ export function buildPitchDeckEmailHtml(
     </td>
   </tr>
 
-  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: BODY_FONT, accent: ACCENT, dark: DARK })}
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: BODY_FONT, accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "gold-fill" })}
 
   <!-- WHAT'S INCLUDED (parking, locker, incentives) -->
   ${includedItems.length > 0 ? `
@@ -1412,7 +1412,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "pill" })}
 
   <!-- ── WHAT'S INCLUDED ── -->
   ${incentiveLines.length > 0 ? `
@@ -1816,7 +1816,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "pill" })}
 
   ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, pricingUrl: data.pricingUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta, showPricingCta: data.showPricingCta })}
 
@@ -2429,7 +2429,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
           </td>
         </tr>
 
-        ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F.replace(/font-family:/,"").replace(/;$/,""), accent: ACCENT, dark: DARK })}
+        ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F.replace(/font-family:/,"").replace(/;$/,""), accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "pill" })}
 
         <!-- ── WHAT'S INCLUDED ── -->
         ${includedItems.length > 0 ? `
@@ -2795,7 +2795,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#faf8f4;max-
     </td>
   </tr>` : ""}
 
-  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "pill" })}
 
   <!-- ── WHAT'S INCLUDED ── -->
   ${incentiveLines.length > 0 ? `
