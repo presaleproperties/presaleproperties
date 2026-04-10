@@ -1260,8 +1260,20 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     } catch (err: any) { toast.error("Upload failed: " + err.message); }
     finally { setBrochureUploading(false); e.target.value = ""; }
   };
+  const handlePricingPdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    setPricingUploading(true);
+    try {
+      const path = `email-pricing/${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage.from("listing-files").upload(path, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      setPricingUrl(supabase.storage.from("listing-files").getPublicUrl(path).data.publicUrl);
+      toast.success("Pricing PDF uploaded ✓");
+    } catch (err: any) { toast.error("Upload failed: " + err.message); }
+    finally { setPricingUploading(false); e.target.value = ""; }
+  };
 
-  
+
 
   // ── Export ────────────────────────────────────────────────────────────────────
   const handleCopy = () => {
