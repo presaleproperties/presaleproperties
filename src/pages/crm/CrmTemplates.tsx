@@ -131,7 +131,7 @@ export default function CrmTemplates() {
 
   const renderPreview = (body: string) => {
     let out = body;
-    for (const [k, v] of Object.entries(SAMPLE)) out = out.replaceAll(k, v);
+    for (const [k, v] of Object.entries(SAMPLE)) out = out.split(k).join(v);
     return out;
   };
 
