@@ -180,7 +180,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <HeroProjectSlider lightOverlay />
 
         {/* Hero Content — anchored to top only, never covers bottom project card */}
-        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 overflow-visible" style={{ paddingTop: "clamp(60px, 22vh, 180px)" }}>
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 overflow-visible pointer-events-none" style={{ paddingTop: "clamp(60px, 22vh, 180px)" }}>
 
           {/* Headline */}
           <h1 className="text-[2rem] sm:text-4xl font-extrabold text-white leading-[1.08] text-center mb-2 tracking-tight max-w-[320px] sm:max-w-md" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
@@ -194,7 +194,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </p>
 
           {/* Search bar */}
-          <div className="relative z-[10] w-full max-w-[340px] sm:max-w-[500px]">
+          <div className="relative z-[10] w-full max-w-[340px] sm:max-w-[500px] pointer-events-auto">
             <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[60px] sm:h-[68px] border border-white/40">
               {/* Tab switcher — compact on mobile */}
               <div className="flex items-center shrink-0 pl-1 gap-0.5">
@@ -237,7 +237,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </div>
 
           {/* Search by Map CTA */}
-          <div className="flex items-center justify-center mt-4">
+          <div className="flex items-center justify-center mt-4 pointer-events-auto">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold active:scale-95 transition-all shadow-lg"
