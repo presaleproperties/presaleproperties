@@ -173,6 +173,32 @@ export default function AdminLeads() {
   const [modalOpen, setModalOpen] = useState(false);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
+  const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
+  const [selectedListingIds, setSelectedListingIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  const selectedIds = activeTab === "project" ? selectedProjectIds : selectedListingIds;
+  const setSelectedIds = activeTab === "project" ? setSelectedProjectIds : setSelectedListingIds;
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, [activeTab]);
+
+  const toggleSelectAll = useCallback((ids: string[]) => {
+    setSelectedIds(prev => {
+      const allSelected = ids.every(id => prev.has(id));
+      if (allSelected) return new Set();
+      return new Set(ids);
+    });
+  }, [activeTab]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, [activeTab]);
 
   // ── Queries ──────────────────────────────────────────────────────────────
 
