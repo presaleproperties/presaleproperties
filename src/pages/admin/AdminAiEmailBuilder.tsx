@@ -322,7 +322,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const draftTimestamp = searchParams.get("t") ?? "";
   const [dbDraft, setDbDraft] = useState<Record<string, any> | null>(null);
   const [dbDraftLoading, setDbDraftLoading] = useState(!!savedTemplateId);
-  const dbHydratedRef = useRef(false);
+   const dbHydratedRef = useRef(false);
+  const savedProjectNameRef = useRef<string>("");
 
   // Load saved template from DB when ?saved=<id> is present (once only)
   useEffect(() => {
@@ -359,7 +360,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           projectUrl:        fd.projectUrl          ?? "",
           _dbTemplateId:     data.id,
         };
-        dbHydratedRef.current = true;
+         dbHydratedRef.current = true;
+        savedProjectNameRef.current = restored.projectName || data.project_name || "";
         setDbDraft(restored);
         try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...restored, _savedAt: new Date().toISOString() })); } catch {}
       }
