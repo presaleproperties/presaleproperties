@@ -162,11 +162,11 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
       {/* Top Header */}
       <header className="sticky top-0 z-[60] bg-background/80 backdrop-blur-xl border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="flex h-14 md:h-16 items-center justify-between px-3 md:px-6">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden h-9 w-9"
+              className="lg:hidden h-8 w-8"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -181,24 +181,24 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
             </Link>
           </div>
           
-          <div className="flex items-center gap-1 md:gap-2">
+          <div className="flex items-center gap-0.5 md:gap-2">
             {isAdmin && (
               <Link to="/admin">
-                <Button variant="ghost" size="sm" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 h-8 px-2 md:px-3">
-                  <Shield className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Admin</span>
+                <Button variant="ghost" size="icon" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 h-8 w-8 md:h-8 md:w-auto md:px-3">
+                  <Shield className="h-4 w-4 md:mr-1.5" />
+                  <span className="hidden md:inline text-sm">Admin</span>
                 </Button>
               </Link>
             )}
             <Link to="/">
-              <Button variant="ghost" size="sm" className="h-8 px-2 md:px-3">
-                <Home className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Site</span>
+              <Button variant="ghost" size="icon" className="h-8 w-8 md:h-8 md:w-auto md:px-3">
+                <Home className="h-4 w-4 md:mr-1.5" />
+                <span className="hidden md:inline text-sm">Site</span>
               </Button>
             </Link>
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="h-8 px-2 md:px-3">
-              <LogOut className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Sign Out</span>
+            <Button variant="ghost" size="icon" onClick={handleSignOut} className="h-8 w-8 md:h-8 md:w-auto md:px-3">
+              <LogOut className="h-4 w-4 md:mr-1.5" />
+              <span className="hidden md:inline text-sm">Sign Out</span>
             </Button>
           </div>
         </div>

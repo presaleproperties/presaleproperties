@@ -48,20 +48,20 @@ export function QuickActions() {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-1 px-1 sm:grid sm:grid-cols-3 sm:overflow-visible sm:mx-0 sm:px-0">
       {actions.map((action) => (
         <Card
           key={action.label}
-          className="group cursor-pointer border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+          className="group cursor-pointer border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-200 shrink-0 w-[140px] sm:w-auto"
           onClick={() => handleClick(action)}
         >
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className={cn("p-2.5 rounded-xl bg-gradient-to-br text-white shrink-0", action.color)}>
-              <action.icon className="h-5 w-5" />
+          <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3 text-center sm:text-left">
+            <div className={cn("p-2 sm:p-2.5 rounded-xl bg-gradient-to-br text-white shrink-0", action.color)}>
+              <action.icon className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             <div>
-              <p className="font-semibold text-sm group-hover:text-primary transition-colors">{action.label}</p>
-              <p className="text-xs text-muted-foreground">{action.description}</p>
+              <p className="font-semibold text-xs sm:text-sm group-hover:text-primary transition-colors leading-tight">{action.label}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">{action.description}</p>
             </div>
           </CardContent>
         </Card>

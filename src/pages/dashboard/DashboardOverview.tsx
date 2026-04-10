@@ -75,21 +75,22 @@ export default function DashboardOverview() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 md:space-y-8 max-w-5xl">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-            {agentName ? `${greeting()}, ${agentName.split(" ")[0]}` : greeting()}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Here's what's happening with your pipeline today.
-          </p>
+      <div className="space-y-5 md:space-y-8 max-w-5xl">
+        {/* Header — compact on mobile */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {agentName ? `${greeting()}, ${agentName.split(" ")[0]}` : greeting()}
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
+              Here's what's happening with your pipeline today.
+            </p>
+          </div>
         </div>
-
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
+          <h2 className="text-[11px] sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2 sm:mb-3">Quick Actions</h2>
           <QuickActions />
         </div>
 
