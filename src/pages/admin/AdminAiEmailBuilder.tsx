@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { SendEmailDialog } from "@/components/admin/SendEmailDialog";
+import { CampaignBundleSelector, type CampaignBundle } from "@/components/admin/campaign/CampaignBundleSelector";
+import { CampaignWeekNavigator } from "@/components/admin/campaign/CampaignWeekNavigator";
+import { CAMPAIGN_WEEKS } from "@/components/admin/campaign/CampaignWeekConfig";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
