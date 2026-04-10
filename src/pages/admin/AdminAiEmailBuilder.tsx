@@ -5,6 +5,16 @@ import { CampaignWeekNavigator } from "@/components/admin/campaign/CampaignWeekN
 import { CAMPAIGN_WEEKS } from "@/components/admin/campaign/CampaignWeekConfig";
 import { buildMultiProjectEmailHtml, type MultiProjectData } from "@/components/admin/campaign/buildMultiProjectEmailHtml";
 import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
+import {
+  fetchCampaignEnrichmentData,
+  buildGuideCta,
+  buildMarketStatsBar,
+  buildRentalDataSnippet,
+  buildReviewCard,
+  buildCalculatorCta,
+  buildMarketUpdateCta,
+  type CampaignEnrichmentData,
+} from "@/components/admin/campaign/CampaignDataEnrichment";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { AdminLayout } from "@/components/admin/AdminLayout";
