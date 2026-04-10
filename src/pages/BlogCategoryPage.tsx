@@ -18,10 +18,16 @@ import {
   MapPin,
   Building2,
   DollarSign,
-  ChevronRight
+  ChevronRight,
+  GraduationCap,
+  Receipt,
+  Users,
+  HelpCircle,
+  Globe,
+  Repeat
 } from "lucide-react";
 
-// Category configuration with SEO-optimized content
+// Category configuration aligned with canonical categories
 const CATEGORY_CONFIG: Record<string, {
   title: string;
   slug: string;
@@ -39,7 +45,7 @@ const CATEGORY_CONFIG: Record<string, {
     longDescription: "Learn everything you need to know about buying presale properties in British Columbia. From understanding contracts to deposit structures, our comprehensive guides help first-time buyers and seasoned investors navigate the presale market with confidence.",
     icon: BookOpen,
     dbCategory: "Presale Guides",
-    relatedCategories: ["investment-analysis", "neighborhood-guides"],
+    relatedCategories: ["buyer-education", "investment-strategy"],
     featuredTopics: [
       { title: "First-Time Buyer's Guide to Presale", description: "Everything you need to know before buying your first presale property" },
       { title: "Understanding Presale Contracts", description: "Key clauses, rescission periods, and what to watch for" },
@@ -47,14 +53,29 @@ const CATEGORY_CONFIG: Record<string, {
       { title: "Assignment Sales Guide", description: "How to sell your presale contract before completion" }
     ]
   },
-  "market-updates": {
-    title: "Market Updates",
-    slug: "market-updates",
+  "buyer-education": {
+    title: "Buyer Education",
+    slug: "buyer-education",
+    description: "Essential knowledge for home buyers in BC's real estate market",
+    longDescription: "Build your confidence as a buyer with our educational resources. Learn about mortgages, the buying process, due diligence, and how to make smart decisions in BC's competitive real estate market.",
+    icon: GraduationCap,
+    dbCategory: "Buyer Education",
+    relatedCategories: ["presale-guides", "tax-finance"],
+    featuredTopics: [
+      { title: "Home Buying 101", description: "Step-by-step guide to purchasing your first home" },
+      { title: "Mortgage Pre-Approval Guide", description: "What you need to know before applying" },
+      { title: "Due Diligence Checklist", description: "Essential checks before making an offer" },
+      { title: "Closing Costs Breakdown", description: "All the costs beyond the purchase price" }
+    ]
+  },
+  "market-insights": {
+    title: "Market Insights",
+    slug: "market-insights",
     description: "Latest BC real estate market reports and presale trends",
     longDescription: "Stay informed with our regular market updates covering presale launches, price trends, and market conditions across Greater Vancouver and the Fraser Valley. Get data-driven insights to make smarter investment decisions.",
     icon: TrendingUp,
-    dbCategory: "Market Updates",
-    relatedCategories: ["investment-analysis", "presale-guides"],
+    dbCategory: "Market Insights",
+    relatedCategories: ["investment-strategy", "city-spotlight"],
     featuredTopics: [
       { title: "Monthly Market Reports", description: "Comprehensive analysis of presale market conditions" },
       { title: "Price Trend Analysis", description: "Track pricing movements across cities and property types" },
@@ -62,49 +83,109 @@ const CATEGORY_CONFIG: Record<string, {
       { title: "Quarterly Forecasts", description: "Expert predictions for the BC presale market" }
     ]
   },
-  "neighborhood-guides": {
-    title: "Neighborhood Guides",
-    slug: "neighborhood-guides",
-    description: "In-depth guides to BC's best neighborhoods for presale investment",
-    longDescription: "Discover the best neighborhoods for presale investment in Greater Vancouver and the Fraser Valley. Our detailed guides cover everything from walkability and transit access to schools, amenities, and future development plans.",
+  "investment-strategy": {
+    title: "Investment Strategy",
+    slug: "investment-strategy",
+    description: "ROI calculations, rental yields, and presale investment strategies",
+    longDescription: "Maximize your returns with our in-depth investment analysis. Learn about rental yields, ROI calculations, tax strategies, and which markets offer the best opportunities for presale investors in BC.",
+    icon: DollarSign,
+    dbCategory: "Investment Strategy",
+    relatedCategories: ["market-insights", "tax-finance"],
+    featuredTopics: [
+      { title: "Rental Yield Analysis", description: "Compare rental returns across BC neighborhoods" },
+      { title: "Presale vs Resale ROI", description: "Which strategy offers better returns?" },
+      { title: "Portfolio Building", description: "Build a diversified real estate portfolio" },
+      { title: "Financing Strategies", description: "Optimize your mortgage for maximum leverage" }
+    ]
+  },
+  "neighbourhood-guides": {
+    title: "Neighbourhood Guides",
+    slug: "neighbourhood-guides",
+    description: "In-depth guides to BC's best neighbourhoods for presale investment",
+    longDescription: "Discover the best neighbourhoods for presale investment in Greater Vancouver and the Fraser Valley. Our detailed guides cover everything from walkability and transit access to schools, amenities, and future development plans.",
     icon: MapPin,
-    dbCategory: "Neighborhood Guides",
-    relatedCategories: ["market-updates", "investment-analysis"],
+    dbCategory: "Neighbourhood Guides",
+    relatedCategories: ["city-spotlight", "market-insights"],
     featuredTopics: [
       { title: "South Surrey Living Guide", description: "Discover why South Surrey is a top choice for families and investors" },
-      { title: "Langley Willoughby Overview", description: "Explore the booming Willoughby neighborhood" },
+      { title: "Langley Willoughby Overview", description: "Explore the booming Willoughby neighbourhood" },
       { title: "Surrey City Centre Guide", description: "Urban living in Surrey's growing downtown core" },
       { title: "Burnaby Metrotown Guide", description: "High-rise living near BC's largest shopping centre" }
     ]
   },
-  "developer-reviews": {
-    title: "Developer Reviews",
-    slug: "developer-reviews",
-    description: "Honest reviews and track records of BC's top developers",
-    longDescription: "Make informed decisions with our unbiased developer reviews. We analyze track records, build quality, customer satisfaction, and financial stability to help you choose developers you can trust with your investment.",
-    icon: Building2,
-    dbCategory: "Developer Reviews",
-    relatedCategories: ["presale-guides", "investment-analysis"],
+  "tax-finance": {
+    title: "Tax & Finance",
+    slug: "tax-finance",
+    description: "Tax planning, mortgage tips, and financial strategies for property buyers",
+    longDescription: "Navigate the financial side of real estate with confidence. Our guides cover property transfer tax, GST on presales, mortgage strategies, and tax-efficient investing for BC property buyers.",
+    icon: Receipt,
+    dbCategory: "Tax & Finance",
+    relatedCategories: ["buyer-education", "investment-strategy"],
     featuredTopics: [
-      { title: "Developer Track Records", description: "Historical performance and delivery timelines" },
-      { title: "Build Quality Analysis", description: "Construction standards and warranty coverage" },
-      { title: "Top Developers Compared", description: "Side-by-side comparisons of leading developers" },
-      { title: "New Developer Profiles", description: "Emerging developers entering the BC market" }
+      { title: "Property Transfer Tax Guide", description: "Understand PTT and available exemptions" },
+      { title: "GST on Presale Properties", description: "When GST applies and how to claim rebates" },
+      { title: "Mortgage Rate Strategies", description: "Fixed vs variable and when to lock in" },
+      { title: "First-Time Buyer Incentives", description: "Government programs that save you money" }
     ]
   },
-  "investment-analysis": {
-    title: "Investment Analysis",
-    slug: "investment-analysis",
-    description: "ROI calculations, rental yields, and presale investment strategies",
-    longDescription: "Maximize your returns with our in-depth investment analysis. Learn about rental yields, ROI calculations, tax strategies, and which markets offer the best opportunities for presale investors in BC.",
-    icon: DollarSign,
-    dbCategory: "Investment Analysis",
-    relatedCategories: ["market-updates", "presale-guides"],
+  "agent-spotlight": {
+    title: "Agent Spotlight",
+    slug: "agent-spotlight",
+    description: "Meet the agents and teams behind successful presale transactions",
+    longDescription: "Get to know the experienced agents helping buyers navigate BC's presale market. Learn about their strategies, success stories, and what makes them leaders in the industry.",
+    icon: Users,
+    dbCategory: "Agent Spotlight",
+    relatedCategories: ["presale-guides", "buyer-education"],
     featuredTopics: [
-      { title: "Rental Yield Analysis", description: "Compare rental returns across BC neighborhoods" },
-      { title: "Presale vs Resale ROI", description: "Which strategy offers better returns?" },
-      { title: "Tax Strategies for Investors", description: "Minimize taxes on your presale investment" },
-      { title: "Financing Strategies", description: "Optimize your mortgage for maximum leverage" }
+      { title: "Agent Success Stories", description: "Real results from top-performing agents" },
+      { title: "Why Work with a Presale Specialist", description: "The value of expert representation" },
+      { title: "Team Profiles", description: "Meet the professionals behind the brand" },
+      { title: "Client Testimonials", description: "What buyers say about their experience" }
+    ]
+  },
+  "faq": {
+    title: "FAQ",
+    slug: "faq",
+    description: "Frequently asked questions about presale condos and the buying process",
+    longDescription: "Find quick answers to the most common questions about buying presale properties in BC. From deposit timelines to assignment rules, we've got you covered.",
+    icon: HelpCircle,
+    dbCategory: "FAQ",
+    relatedCategories: ["buyer-education", "presale-guides"],
+    featuredTopics: [
+      { title: "Presale FAQ", description: "Common questions about the presale process" },
+      { title: "Assignment FAQ", description: "Everything about selling your presale contract" },
+      { title: "Mortgage FAQ", description: "Financing questions answered" },
+      { title: "Closing FAQ", description: "What to expect at completion" }
+    ]
+  },
+  "city-spotlight": {
+    title: "City Spotlight",
+    slug: "city-spotlight",
+    description: "Deep dives into BC's fastest-growing cities for real estate",
+    longDescription: "Explore the cities driving BC's real estate growth. Our city spotlights cover market conditions, development pipeline, infrastructure investments, and why these cities are attracting buyers and investors.",
+    icon: Globe,
+    dbCategory: "City Spotlight",
+    relatedCategories: ["neighbourhood-guides", "market-insights"],
+    featuredTopics: [
+      { title: "Surrey Growth Story", description: "Why Surrey is BC's fastest-growing city" },
+      { title: "Langley Development Boom", description: "New projects transforming Langley" },
+      { title: "Burnaby Urban Plan", description: "Burnaby's vision for the next decade" },
+      { title: "Abbotsford Rising", description: "Affordable living in the Fraser Valley" }
+    ]
+  },
+  "assignments": {
+    title: "Assignments",
+    slug: "assignments",
+    description: "Guides to buying and selling presale assignment contracts in BC",
+    longDescription: "Learn the ins and outs of presale assignments. Our guides cover how to list, price, and sell your presale contract, as well as how to find and evaluate assignment opportunities as a buyer.",
+    icon: Repeat,
+    dbCategory: "Assignments",
+    relatedCategories: ["presale-guides", "investment-strategy"],
+    featuredTopics: [
+      { title: "Assignment Selling Guide", description: "How to successfully sell your presale contract" },
+      { title: "Buying Assignments", description: "Finding and evaluating assignment opportunities" },
+      { title: "Assignment Pricing", description: "How to price your assignment competitively" },
+      { title: "Legal Considerations", description: "What you need to know about assignment contracts" }
     ]
   }
 };
