@@ -595,16 +595,36 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       setFpSubheading(fresh.fpSubheading ?? "");
       setLayoutVersion((fresh.layoutVersion === "classic" || fresh.layoutVersion === "pitch-deck" ? "modern" : fresh.layoutVersion) ?? "modern");
       if (fresh.selAgent) setSelAgent(fresh.selAgent);
+      if (fresh.loopSlides?.length) setLoopSlides(fresh.loopSlides);
+      if (fresh.heroMode) setHeroMode(fresh.heroMode);
+      if (fresh.selProjectId && fresh.selProjectId !== "none") setSelProjectId(fresh.selProjectId);
 
       // Live-sync from deck DB to pick up latest floor plans, credits, pricing
       if (fresh._deckId) {
         (async () => {
           const { data: deckData } = await (supabase as any)
             .from("pitch_decks")
-            .select("floor_plans, hero_image_url, tagline, city, developer_name, completion_year, assignment_fee, included_items, next_price_increase, units_remaining, deposit_steps, highlights, project_name")
+            .select("floor_plans, hero_image_url, tagline, city, developer_name, completion_year, assignment_fee, included_items, next_price_increase, units_remaining, deposit_steps, highlights, project_name, gallery, linked_project_id")
             .eq("id", fresh._deckId)
             .single();
           if (!deckData) return;
+
+          // Auto-select linked project for gallery picker
+          if (deckData.linked_project_id) {
+            setSelProjectId(deckData.linked_project_id);
+          }
+
+          // Populate loopSlides from deck gallery images
+          const deckGallery: string[] = [];
+          if (deckData.hero_image_url) deckGallery.push(deckData.hero_image_url);
+          try {
+            const galleryItems = Array.isArray(deckData.gallery) ? deckData.gallery : (typeof deckData.gallery === "string" ? JSON.parse(deckData.gallery || "[]") : []);
+            for (const item of galleryItems) {
+              const url = typeof item === "string" ? item : item?.url;
+              if (url && !deckGallery.includes(url) && deckGallery.length < 8) deckGallery.push(url);
+            }
+          } catch { /* ignore */ }
+          if (deckGallery.length > 0) setLoopSlides(deckGallery);
 
           // Parse floor plans with exclusive_credit
           const rawFps: any[] = Array.isArray(deckData.floor_plans)
@@ -1811,7 +1831,25 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                       </div>
                     );
                   }
-                  // Fallback: show featured images from all projects
+                  // Fallback 1: show loopSlides as gallery (e.g. from deck preload)
+                  if (loopSlides.length > 0) {
+                    const uniqueSlides = [...new Set(loopSlides)].filter(Boolean);
+                    return (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground mb-1">Project gallery:</p>
+                        <div className="grid grid-cols-3 gap-1">
+                          {uniqueSlides.slice(0, 9).map((img, i) => (
+                            <button key={i} onClick={() => setHeroImage(img)}
+                              className={cn("relative rounded overflow-hidden border-2 aspect-video transition-all", heroImage === img ? "border-primary" : "border-transparent hover:border-muted-foreground/40")}>
+                              <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+                              {heroImage === img && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-white" /></div>}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  // Fallback 2: show featured images from all projects
                   const projectsWithImages = projects.filter(p => p.featured_image);
                   if (projectsWithImages.length === 0) return null;
                   return (

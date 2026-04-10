@@ -105,7 +105,7 @@ export default function DashboardDecks() {
           hero_image_url, tagline, completion_year, assignment_fee,
           included_items, next_price_increase, units_remaining,
           deposit_steps, highlights, description, amenities,
-          floor_plans
+          floor_plans, gallery, linked_project_id
         `)
         .eq("id", deck.id)
         .single();
@@ -196,7 +196,7 @@ export default function DashboardDecks() {
         _deckLocker:  "1 Storage Locker Included",
         prompt: `Write a concise project intro email for ${deckData.project_name} in ${deckData.city || "BC"}. Focus on floor plans, pricing, and the deposit structure.`,
         templateType: "project-intro",
-        selProjectId: "none",
+        selProjectId: deckData.linked_project_id || "none",
         activeVersion: "A",
         aiResult: null,
         projectName: deckData.project_name || "",
@@ -226,7 +226,18 @@ export default function DashboardDecks() {
           ? `${floorPlanEntries.length} unit type${floorPlanEntries.length > 1 ? "s" : ""} available — exclusive pricing inside`
           : "Contact us for available floor plans",
         imageCards: [],
-        loopSlides: [],
+        loopSlides: (() => {
+          const slides: string[] = [];
+          if (deckData.hero_image_url) slides.push(deckData.hero_image_url);
+          try {
+            const galleryItems = Array.isArray(deckData.gallery) ? deckData.gallery : (typeof deckData.gallery === "string" ? JSON.parse(deckData.gallery || "[]") : []);
+            for (const item of galleryItems) {
+              const url = typeof item === "string" ? item : item?.url;
+              if (url && !slides.includes(url) && slides.length < 8) slides.push(url);
+            }
+          } catch { /* ignore */ }
+          return slides;
+        })(),
         selectedAssetId: "none",
         directCtaUrl: deckPublicUrl,
         selAgent: "Uzair Muhammad",
