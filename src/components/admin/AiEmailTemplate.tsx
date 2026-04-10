@@ -69,6 +69,8 @@ export interface AiEmailCopy {
   infoRows?: string[];
   /** Image cards rendered below the What's Included section */
   imageCards?: ImageCardEntry[];
+  /** CTA visibility toggle for View Details button */
+  showViewMorePlansCta?: boolean;
 }
 
 /** Parse a credit string like "$10,000" into a number */
@@ -121,11 +123,48 @@ function bodyToHtml(text: string): string {
     .join("");
 }
 
-/** Render a "Project Details" CTA button — only shown when projectUrl is present */
-function projectDetailsCta(opts: { projectUrl?: string; projectName?: string; developerName?: string; font: string; accent?: string; dark?: string }): string {
-  if (!opts.projectUrl) return "";
+/** Render a "Project Details" CTA button — only shown when projectUrl is present and toggle is on */
+function projectDetailsCta(opts: { projectUrl?: string; projectName?: string; developerName?: string; font: string; accent?: string; dark?: string; showViewMorePlansCta?: boolean; style?: "pill" | "outline" | "gold-fill" }): string {
+  if (opts.showViewMorePlansCta === false || !opts.projectUrl) return "";
   const ACCENT = opts.accent || "#C9A55A";
   const DARK = opts.dark || "#0d1f18";
+  const style = opts.style || "pill";
+
+  if (style === "pill") {
+    return `
+  <tr>
+    <td class="content-pad" style="padding:8px 40px 14px;background:#ffffff;">
+      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+        <td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
+          <a href="${opts.projectUrl}" target="_blank"
+             style="font-family:${opts.font};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${ACCENT};text-decoration:none;display:block;white-space:nowrap;">
+            VIEW PROJECT DETAILS
+          </a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`;
+  }
+
+  if (style === "outline") {
+    return `
+  <tr>
+    <td class="content-pad" style="padding:8px 40px 8px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${ACCENT};border-radius:6px;overflow:hidden;">
+        <tr>
+          <td align="center" style="padding:16px 24px;background:#ffffff;">
+            <a href="${opts.projectUrl}" target="_blank"
+               style="font-family:${opts.font};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;line-height:1;">
+              VIEW PROJECT DETAILS &nbsp;→
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>`;
+  }
+
+  // gold-fill (classic)
   return `
   <tr>
     <td style="padding:0 36px 8px;background:#ffffff;" class="mobile-pad">
@@ -540,7 +579,7 @@ export function buildAiEmailHtml(copy: AiEmailCopy, agent: AgentInfo = DEFAULT_A
     </td>
   </tr>
 
-  ${projectDetailsCta({ projectUrl: copy.projectUrl, projectName: copy.projectName, developerName: copy.developerName, font: bodyFont, accent: ACCENT, dark: DARK })}
+  ${projectDetailsCta({ projectUrl: copy.projectUrl, projectName: copy.projectName, developerName: copy.developerName, font: bodyFont, accent: ACCENT, dark: DARK, showViewMorePlansCta: copy.showViewMorePlansCta, style: "gold-fill" })}
 
   <!-- ─── INCENTIVES (conditional) ─── -->
   ${incentives.length > 0 ? `
@@ -986,7 +1025,7 @@ export function buildPitchDeckEmailHtml(
     </td>
   </tr>
 
-  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: BODY_FONT, accent: ACCENT, dark: DARK })}
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: BODY_FONT, accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "gold-fill" })}
 
   <!-- WHAT'S INCLUDED (parking, locker, incentives) -->
   ${includedItems.length > 0 ? `
@@ -1375,7 +1414,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "pill" })}
 
   <!-- ── WHAT'S INCLUDED ── -->
   ${incentiveLines.length > 0 ? `
@@ -1438,22 +1477,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, pricingUrl: data.pricingUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta, showPricingCta: data.showPricingCta })}
 
-  ${(data.showViewMorePlansCta !== false && fps.length > 0 && deckLink && !data.floorplanUrl) ? `
-  <!-- ── VIEW DETAILS CTA ── -->
-  <tr>
-    <td class="content-pad" style="padding:0 40px 8px;background:#faf8f4;text-align:center;">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
-        <tr>
-          <td align="center" style="background:#0d1f18;border-radius:50px;padding:14px 36px;text-align:center;">
-            <a href="${deckLink}"
-               style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;white-space:nowrap;">
-              VIEW DETAILS &nbsp;→
-            </a>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>` : ""}
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "pill" })}
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
@@ -1779,7 +1803,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
     </td>
   </tr>` : ""}
 
-  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "pill" })}
 
   ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, pricingUrl: data.pricingUrl, deckUrl: data.deckUrl, font: F, accent: ACCENT, dark: DARK, style: "pill", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta, showPricingCta: data.showPricingCta })}
 
@@ -2060,22 +2084,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   <!-- ── DOCUMENT CTAs ── -->
   ${docCtaButtons({ brochureUrl: data.brochureUrl, floorplanUrl: data.floorplanUrl, pricingUrl: data.pricingUrl, deckUrl: data.deckUrl, font: F, accent: OLIVE, dark: DARK, style: "outline", showBrochureCta: data.showBrochureCta, showFloorPlansCta: data.showFloorPlansCta, showPricingCta: data.showPricingCta })}
 
-  ${(!data.brochureUrl && !data.floorplanUrl && !data.deckUrl && projectUrl) ? `
-  <!-- ── PROJECT DETAILS CTA (fallback) ── -->
-  <tr>
-    <td class="content-pad" style="padding:28px 40px 8px;background:#ffffff;">
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${OLIVE};border-radius:6px;overflow:hidden;">
-        <tr>
-          <td align="center" style="padding:16px 24px;background:#ffffff;">
-            <a href="${projectUrl}" target="_blank"
-               style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${OLIVE};text-decoration:none;display:block;line-height:1;">
-              VIEW PROJECT DETAILS &nbsp;→
-            </a>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>` : ""}
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: OLIVE, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "outline" })}
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
 
@@ -2392,7 +2401,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#ffffff;line
           </td>
         </tr>
 
-        ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F.replace(/font-family:/,"").replace(/;$/,""), accent: ACCENT, dark: DARK })}
+        ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F.replace(/font-family:/,"").replace(/;$/,""), accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "pill" })}
 
         <!-- ── WHAT'S INCLUDED ── -->
         ${includedItems.length > 0 ? `
@@ -2758,7 +2767,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#faf8f4;max-
     </td>
   </tr>` : ""}
 
-  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK })}
+  ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "pill" })}
 
   <!-- ── WHAT'S INCLUDED ── -->
   ${incentiveLines.length > 0 ? `

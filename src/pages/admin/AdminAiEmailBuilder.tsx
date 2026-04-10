@@ -162,6 +162,7 @@ function buildFinalHtml(
       infoRows:       fields.infoRows,
       incentiveText:  fields.incentiveText,
       deckUrl:        saved?._deckUrl || undefined,
+      projectUrl:     fields.projectUrl || saved?._projectUrl || undefined,
       brochureUrl,
       floorplanUrl,
       pricingUrl,
@@ -197,6 +198,7 @@ function buildFinalHtml(
       infoRows:       fields.infoRows,
       incentiveText:  fields.incentiveText,
       deckUrl:        saved?._deckUrl || undefined,
+      projectUrl:     fields.projectUrl || saved?._projectUrl || undefined,
       brochureUrl,
       floorplanUrl,
       pricingUrl,
@@ -862,7 +864,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     projectUrl,
     infoRows: infoRows.filter(r => r.includes("|")),
     imageCards: imageCards.filter(c => c.url),
-  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, projectUrl, infoRows, imageCards]);
+    showViewMorePlansCta,
+  }), [subjectLine, previewText, headline, bodyCopy, incentiveText, projectName, showProjectName, customHeader, city, neighborhood, developerName, showDeveloperName, startingPrice, deposit, completion, projectUrl, infoRows, imageCards, showViewMorePlansCta]);
 
   // Effective loop slides based on hero mode toggle
   const effectiveLoopSlides = heroMode === "gif" ? loopSlides : [];
