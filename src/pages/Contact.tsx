@@ -49,6 +49,7 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (honeypot) return; // Bot detected
     setErrors({});
 
     const result = contactSchema.safeParse(formData);

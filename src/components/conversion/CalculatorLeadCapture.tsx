@@ -72,6 +72,7 @@ export function CalculatorLeadCapture({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (honeypot) return; // Bot detected
     setErrors({});
 
     const validation = leadSchema.safeParse(formData);
