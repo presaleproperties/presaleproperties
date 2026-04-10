@@ -492,7 +492,7 @@ const App = () => (
             {/* CRM Routes */}
             <Route path="/crm" element={<CrmLayout />}>
               <Route index element={<Navigate to="/crm/dashboard" replace />} />
-              <Route path="dashboard" element={<CrmPlaceholder />} />
+              <Route path="dashboard" element={<CrmDashboard />} />
               <Route path="leads" element={<CrmLeads />} />
               <Route path="pipeline" element={<CrmPlaceholder />} />
               <Route path="email" element={<CrmPlaceholder />} />
