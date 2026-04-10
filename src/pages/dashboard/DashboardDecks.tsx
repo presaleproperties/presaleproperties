@@ -196,7 +196,7 @@ export default function DashboardDecks() {
         _deckLocker:  "1 Storage Locker Included",
         prompt: `Write a concise project intro email for ${deckData.project_name} in ${deckData.city || "BC"}. Focus on floor plans, pricing, and the deposit structure.`,
         templateType: "project-intro",
-        selProjectId: "none",
+        selProjectId: deckData.linked_project_id || "none",
         activeVersion: "A",
         aiResult: null,
         projectName: deckData.project_name || "",
