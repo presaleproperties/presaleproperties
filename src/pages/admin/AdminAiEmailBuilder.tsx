@@ -2607,11 +2607,23 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                   {/* View Details */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <Label className="text-[11px] font-medium">View Details</Label>
+                      <div className="space-y-0.5">
+                        <Label className="text-[11px] font-medium">View Details</Label>
+                        {projectUrl && (
+                          <p className="text-[10px] text-muted-foreground truncate max-w-[180px]" title={projectUrl}>
+                            {projectUrl.replace('https://presaleproperties.com', '')}
+                          </p>
+                        )}
+                      </div>
                       <Switch checked={showViewMorePlansCta} onCheckedChange={setShowViewMorePlansCta} />
                     </div>
                     {showViewMorePlansCta && (
-                      <Input value={projectUrl} onChange={e => setProjectUrl(e.target.value)} className="h-7 text-[10px]" placeholder="Project page URL" />
+                      <Input 
+                        value={projectUrl} 
+                        onChange={e => setProjectUrl(e.target.value)} 
+                        className="h-7 text-[10px]" 
+                        placeholder="Project page URL" 
+                      />
                     )}
                   </div>
 
