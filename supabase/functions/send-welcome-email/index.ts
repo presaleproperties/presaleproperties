@@ -54,13 +54,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     let htmlContent = (template?.html_content || `
       <h1>Thank you for your interest in {{project_name}}</h1>
-      <p>Hi {{lead_name}},</p>
+      <p>Hi {$name},</p>
       <p>We're excited that you're interested in {{project_name}} located in {{project_city}}.</p>
       <p>A member of our team will reach out shortly to answer any questions.</p>
       <p>Best regards,<br>PresaleProperties.com</p>
     `)
       .replace(/\{\{project_name\}\}/g, project.name)
       .replace(/\{\{lead_name\}\}/g, lead_name)
+      .replace(/\{\$name\}/g, lead_name)
       .replace(/\{\{project_city\}\}/g, `${project.neighborhood}, ${project.city}`);
 
     // Add project details section
