@@ -116,6 +116,26 @@ export default function ContentHub() {
     }
   };
 
+  const fetchCategoryPosts = async () => {
+    try {
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("title, slug, category")
+        .eq("is_published", true)
+        .order("publish_date", { ascending: false });
+
+      const grouped: Record<string, { title: string; slug: string }[]> = {};
+      (data || []).forEach((p) => {
+        if (!p.category) return;
+        if (!grouped[p.category]) grouped[p.category] = [];
+        grouped[p.category].push({ title: p.title, slug: p.slug });
+      });
+      setCategoryPosts(grouped);
+    } catch (error) {
+      console.error("Error fetching category posts:", error);
+    }
+  };
+
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -213,8 +233,11 @@ export default function ContentHub() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {CONTENT_CATEGORIES.map((category) => {
+              {CONTENT_CATEGORIES
+                .filter((cat) => (categoryPosts[cat.dbCategory]?.length ?? 0) > 0)
+                .map((category) => {
                 const Icon = category.icon;
+                const posts = categoryPosts[category.dbCategory] || [];
                 return (
                   <Link key={category.slug} to={`/guides/${category.slug}`}>
                     <Card className="group h-full hover:shadow-xl transition-all duration-300 hover:border-primary/50">
@@ -229,15 +252,15 @@ export default function ContentHub() {
                           {category.description}
                         </p>
                         <ul className="space-y-2 mb-4">
-                          {category.articles.slice(0, 3).map((article, idx) => (
-                            <li key={idx} className="text-sm text-muted-foreground flex items-center gap-2">
+                          {posts.slice(0, 3).map((post) => (
+                            <li key={post.slug} className="text-sm text-muted-foreground flex items-center gap-2">
                               <ChevronRight className="h-3 w-3 text-primary shrink-0" />
-                              <span className="truncate">{article}</span>
+                              <span className="truncate">{post.title}</span>
                             </li>
                           ))}
                         </ul>
                         <div className="flex items-center text-primary text-sm font-medium">
-                          View all articles
+                          {posts.length} article{posts.length !== 1 ? "s" : ""}
                           <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </CardContent>
