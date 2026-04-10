@@ -81,8 +81,11 @@ export default function ContentHub() {
   const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [categoryPosts, setCategoryPosts] = useState<Record<string, { title: string; slug: string }[]>>({});
+
   useEffect(() => {
     fetchPosts();
+    fetchCategoryPosts();
   }, []);
 
   const fetchPosts = async () => {
