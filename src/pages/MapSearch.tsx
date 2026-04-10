@@ -1711,8 +1711,8 @@ export default function MapSearch() {
                     <div className="h-full w-full bg-muted flex items-center justify-center">
                       <div className="text-center text-muted-foreground p-6">
                         <Home className="h-12 w-12 mx-auto mb-3" />
-                        <h3 className="font-semibold text-foreground mb-2">No properties found</h3>
-                        <p className="text-sm mb-4">Try adjusting your filters</p>
+                        <h3 className="font-semibold text-foreground mb-2">No projects match your filters</h3>
+                        <p className="text-sm mb-4">Try adjusting your search or clearing filters</p>
                         <Button onClick={clearAllFilters} size="sm">Clear Filters</Button>
                       </div>
                     </div>
