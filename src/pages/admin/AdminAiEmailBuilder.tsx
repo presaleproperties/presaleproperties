@@ -886,6 +886,24 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     const multiProjects = [proj1, proj2, proj3].filter(Boolean) as MultiProjectData[];
     const primaryProj = projects.find(p => p.id === campaignBundle.primary_project_id);
     const cityName = primaryProj?.city || "";
+
+    // Re-build enrichment HTML for live editing
+    let enrichmentHtml = "";
+    if (campaignEnrichment) {
+      if (campaignWeek === 8 || campaignWeek === 6) {
+        if (campaignEnrichment.marketStats) enrichmentHtml += buildMarketStatsBar(campaignEnrichment.marketStats);
+        if (campaignWeek === 8 && campaignEnrichment.rentalData) enrichmentHtml += buildRentalDataSnippet(campaignEnrichment.rentalData);
+        enrichmentHtml += buildCalculatorCta(cityName);
+      }
+      if (campaignWeek === 10) {
+        if (campaignEnrichment.latestMarketUpdate) enrichmentHtml += buildMarketUpdateCta(campaignEnrichment.latestMarketUpdate);
+        if (campaignEnrichment.marketStats) enrichmentHtml += buildMarketStatsBar(campaignEnrichment.marketStats);
+      }
+      if (campaignWeek === 12) {
+        enrichmentHtml += buildCalculatorCta(cityName);
+      }
+    }
+
     const html = buildMultiProjectEmailHtml({
       weekNumber: campaignWeek,
       weekLabel: weekDef.label,
@@ -896,6 +914,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       projects: multiProjects,
       agent: selectedAgent,
       city: cityName,
+      enrichmentHtml: enrichmentHtml || undefined,
     });
     setCampaignHtmlOverride(html);
     setPreviewHtml(html);
