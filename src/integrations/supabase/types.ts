@@ -3744,6 +3744,7 @@ export type Database = {
           bathrooms_half: number | null
           bathrooms_total: number | null
           bedrooms_total: number | null
+          buyer_agent_key: string | null
           buyer_agent_name: string | null
           buyer_office_name: string | null
           city: string | null
@@ -3755,6 +3756,7 @@ export type Database = {
           created_at: string | null
           cumulative_days_on_market: number | null
           days_on_market: number | null
+          directions: string | null
           expiration_date: string | null
           exterior_features: string[] | null
           furnished: string | null
@@ -3767,13 +3769,17 @@ export type Database = {
           latitude: number | null
           lease_amount: number | null
           lease_frequency: string | null
+          list_agent_email: string | null
           list_agent_key: string | null
           list_agent_mls_id: string | null
           list_agent_name: string | null
+          list_agent_phone: string | null
           list_date: string | null
           list_office_key: string | null
           list_office_mls_id: string | null
           list_office_name: string | null
+          list_office_phone: string | null
+          listing_contract_date: string | null
           listing_id: string | null
           listing_key: string | null
           listing_price: number | null
@@ -3793,6 +3799,7 @@ export type Database = {
           parking_total: number | null
           pets_allowed: string | null
           photos: Json | null
+          photos_change_timestamp: string | null
           pool_yn: boolean | null
           postal_code: string | null
           property_sub_type: string | null
@@ -3827,6 +3834,7 @@ export type Database = {
           bathrooms_half?: number | null
           bathrooms_total?: number | null
           bedrooms_total?: number | null
+          buyer_agent_key?: string | null
           buyer_agent_name?: string | null
           buyer_office_name?: string | null
           city?: string | null
@@ -3838,6 +3846,7 @@ export type Database = {
           created_at?: string | null
           cumulative_days_on_market?: number | null
           days_on_market?: number | null
+          directions?: string | null
           expiration_date?: string | null
           exterior_features?: string[] | null
           furnished?: string | null
@@ -3850,13 +3859,17 @@ export type Database = {
           latitude?: number | null
           lease_amount?: number | null
           lease_frequency?: string | null
+          list_agent_email?: string | null
           list_agent_key?: string | null
           list_agent_mls_id?: string | null
           list_agent_name?: string | null
+          list_agent_phone?: string | null
           list_date?: string | null
           list_office_key?: string | null
           list_office_mls_id?: string | null
           list_office_name?: string | null
+          list_office_phone?: string | null
+          listing_contract_date?: string | null
           listing_id?: string | null
           listing_key?: string | null
           listing_price?: number | null
@@ -3876,6 +3889,7 @@ export type Database = {
           parking_total?: number | null
           pets_allowed?: string | null
           photos?: Json | null
+          photos_change_timestamp?: string | null
           pool_yn?: boolean | null
           postal_code?: string | null
           property_sub_type?: string | null
@@ -3910,6 +3924,7 @@ export type Database = {
           bathrooms_half?: number | null
           bathrooms_total?: number | null
           bedrooms_total?: number | null
+          buyer_agent_key?: string | null
           buyer_agent_name?: string | null
           buyer_office_name?: string | null
           city?: string | null
@@ -3921,6 +3936,7 @@ export type Database = {
           created_at?: string | null
           cumulative_days_on_market?: number | null
           days_on_market?: number | null
+          directions?: string | null
           expiration_date?: string | null
           exterior_features?: string[] | null
           furnished?: string | null
@@ -3933,13 +3949,17 @@ export type Database = {
           latitude?: number | null
           lease_amount?: number | null
           lease_frequency?: string | null
+          list_agent_email?: string | null
           list_agent_key?: string | null
           list_agent_mls_id?: string | null
           list_agent_name?: string | null
+          list_agent_phone?: string | null
           list_date?: string | null
           list_office_key?: string | null
           list_office_mls_id?: string | null
           list_office_name?: string | null
+          list_office_phone?: string | null
+          listing_contract_date?: string | null
           listing_id?: string | null
           listing_key?: string | null
           listing_price?: number | null
@@ -3959,6 +3979,7 @@ export type Database = {
           parking_total?: number | null
           pets_allowed?: string | null
           photos?: Json | null
+          photos_change_timestamp?: string | null
           pool_yn?: boolean | null
           postal_code?: string | null
           property_sub_type?: string | null
