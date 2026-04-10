@@ -1058,6 +1058,68 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_showings: {
+        Row: {
+          assigned_agent: string | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          lead_email: string | null
+          lead_id: string | null
+          lead_name: string
+          lead_phone: string | null
+          notes: string | null
+          project_name: string | null
+          property_address: string | null
+          showing_date: string
+          showing_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_agent?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          lead_email?: string | null
+          lead_id?: string | null
+          lead_name: string
+          lead_phone?: string | null
+          notes?: string | null
+          project_name?: string | null
+          property_address?: string | null
+          showing_date: string
+          showing_time: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_agent?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          lead_email?: string | null
+          lead_id?: string | null
+          lead_name?: string
+          lead_phone?: string | null
+          notes?: string | null
+          project_name?: string | null
+          property_address?: string | null
+          showing_date?: string
+          showing_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_showings_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_templates: {
         Row: {
           body: string
