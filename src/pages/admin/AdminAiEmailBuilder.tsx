@@ -858,7 +858,35 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl]);
 
   // finalHtml used only for copy/save — always reflects latest state
-  const finalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined);
+  // When campaignHtmlOverride is set (multi-project weeks), use it instead
+  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, ctaToggles, bookShowingUrl || undefined);
+  const finalHtml = campaignHtmlOverride || baseFinalHtml;
+
+  // Also update multi-project preview when body copy changes (live editing)
+  useEffect(() => {
+    if (!campaignHtmlOverride || !campaignBundle) return;
+    const weekDef = CAMPAIGN_WEEKS[campaignWeek - 1];
+    if (!weekDef || weekDef.type !== "multi-project") return;
+    const proj1 = toMultiProjectData(campaignBundle.primary_project_id);
+    const proj2 = toMultiProjectData(campaignBundle.alt_project_1_id);
+    const proj3 = toMultiProjectData(campaignBundle.alt_project_2_id);
+    const multiProjects = [proj1, proj2, proj3].filter(Boolean) as MultiProjectData[];
+    const primaryProj = projects.find(p => p.id === campaignBundle.primary_project_id);
+    const cityName = primaryProj?.city || "";
+    const html = buildMultiProjectEmailHtml({
+      weekNumber: campaignWeek,
+      weekLabel: weekDef.label,
+      subjectLine,
+      previewText,
+      headline,
+      bodyCopy,
+      projects: multiProjects,
+      agent: selectedAgent,
+      city: cityName,
+    });
+    setCampaignHtmlOverride(html);
+    setPreviewHtml(html);
+  }, [bodyCopy, headline, subjectLine, previewText, selectedAgent]); // eslint-disable-line
 
   // ── AI generation ─────────────────────────────────────────────────────────────
   const applyResult = (result: Record<string, string>, v: "A" | "B") => {
