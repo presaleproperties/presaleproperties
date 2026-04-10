@@ -17,7 +17,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { FAQSchema } from "@/components/seo/FAQSchema";
-import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 declare global {
   interface Window {
