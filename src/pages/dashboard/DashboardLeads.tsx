@@ -47,6 +47,9 @@ import {
   X,
   Plus,
   Trash2,
+  Pencil,
+  PhoneCall,
+  Send,
 } from "lucide-react";
 import { format, subDays, isAfter } from "date-fns";
 import { cn } from "@/lib/utils";
