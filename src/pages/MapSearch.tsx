@@ -2307,8 +2307,8 @@ export default function MapSearch() {
 
             {/* Compact Results Bar */}
             <div className="px-2.5 py-1.5 border-y border-border/30 flex items-center justify-between bg-muted/20 relative z-10">
-              <span className="text-xs font-medium text-foreground">
-                {propertiesInViewCount > 0 ? propertiesInViewCount : totalCount} {propertiesInViewCount > 0 ? "in view" : "results"}
+              <span className={cn("text-xs font-medium", totalCount === 0 ? "text-muted-foreground" : "text-foreground")}>
+                {resultsSummary}
               </span>
               <div className="flex items-center gap-1.5">
                 <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
