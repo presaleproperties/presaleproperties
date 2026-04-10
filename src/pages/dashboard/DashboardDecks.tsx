@@ -226,7 +226,18 @@ export default function DashboardDecks() {
           ? `${floorPlanEntries.length} unit type${floorPlanEntries.length > 1 ? "s" : ""} available — exclusive pricing inside`
           : "Contact us for available floor plans",
         imageCards: [],
-        loopSlides: [],
+        loopSlides: (() => {
+          const slides: string[] = [];
+          if (deckData.hero_image_url) slides.push(deckData.hero_image_url);
+          try {
+            const galleryItems = Array.isArray(deckData.gallery) ? deckData.gallery : (typeof deckData.gallery === "string" ? JSON.parse(deckData.gallery || "[]") : []);
+            for (const item of galleryItems) {
+              const url = typeof item === "string" ? item : item?.url;
+              if (url && !slides.includes(url) && slides.length < 8) slides.push(url);
+            }
+          } catch { /* ignore */ }
+          return slides;
+        })(),
         selectedAssetId: "none",
         directCtaUrl: deckPublicUrl,
         selAgent: "Uzair Muhammad",
