@@ -787,7 +787,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     projectName, developerName, showProjectName, showDeveloperName, customHeader,
     city, neighborhood, startingPrice, deposit, completion, infoRows,
     subjectLine, previewText, headline, bodyCopy, incentiveText,
-    heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides,
+    heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, bookShowingUrl,
     showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
