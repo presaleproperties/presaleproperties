@@ -1498,6 +1498,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             </div>
           )}
 
+          {/* Start Campaign button */}
+          {!campaignMode && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5 shrink-0 hidden sm:flex text-xs px-2.5 border-primary/30 text-primary hover:bg-primary/10"
+              onClick={() => setBundleSelectorOpen(true)}
+            >
+              <Package className="h-3.5 w-3.5" />
+              <span className="hidden lg:inline">Campaign</span>
+            </Button>
+          )}
+
           <Button
             size="sm"
             className="h-8 gap-1.5 shrink-0 text-xs px-2.5"
