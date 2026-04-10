@@ -1528,6 +1528,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     setBundleSelectorOpen(false);
     setCampaignWeek(1);
     setCampaignCompletedWeeks(new Set());
+    setCampaignHtmlOverride(null);
     // Auto-populate Week 1 with primary project
     const proj = projects.find(p => p.id === bundle.primary_project_id);
     if (proj) {
