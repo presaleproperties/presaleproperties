@@ -110,7 +110,8 @@ function buildFinalHtml(
   loopSlides?: string[],
   brochureUrl?: string,
   floorplanUrl?: string,
-  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean },
+  pricingUrl?: string,
+  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showPricingCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean },
   bookShowingUrl?: string,
 ): string {
   // ── EDITORIAL template ────────────────────────────────────────────────────
