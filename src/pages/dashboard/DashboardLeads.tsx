@@ -257,6 +257,7 @@ export default function DashboardLeads() {
     }
     setEditingField(null);
     setEditFieldValue("");
+  };
 
   const filteredOnboarded = useMemo(() => {
     return onboardedLeads.filter((lead) => {
