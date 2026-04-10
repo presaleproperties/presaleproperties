@@ -1016,6 +1016,48 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_templates: {
+        Row: {
+          body: string
+          category: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          merge_tags: string[] | null
+          name: string
+          subject: string | null
+          updated_at: string
+          usage_count: number | null
+        }
+        Insert: {
+          body?: string
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          merge_tags?: string[] | null
+          name: string
+          subject?: string | null
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Update: {
+          body?: string
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          merge_tags?: string[] | null
+          name?: string
+          subject?: string | null
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
       deck_visits: {
         Row: {
           created_at: string
