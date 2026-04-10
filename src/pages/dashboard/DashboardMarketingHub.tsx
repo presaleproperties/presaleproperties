@@ -737,6 +737,91 @@ export default function DashboardMarketingHub() {
           </div>
         </div>
       </div>
+      {/* Quick Send Dialog */}
+      <Dialog open={!!quickSendAsset} onOpenChange={(open) => !open && setQuickSendAsset(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Send className="h-4 w-4" />
+              Quick Send
+            </DialogTitle>
+          </DialogHeader>
+
+          {quickSendAsset && (
+            <div className="space-y-4">
+              {/* Template info */}
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <p className="text-sm font-medium truncate">{getDisplayName(quickSendAsset)}</p>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">
+                  {quickSendAsset.form_data?.projectName || quickSendAsset.project_name}
+                </p>
+              </div>
+
+              {/* Lead search */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select a lead</label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name or email..."
+                    value={quickSendSearch}
+                    onChange={(e) => setQuickSendSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+
+              {/* Lead list */}
+              <div className="max-h-56 overflow-y-auto border rounded-lg divide-y divide-border">
+                {quickSendLeadsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                ) : filteredQuickSendLeads.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                    <Users className="h-5 w-5 mb-1" />
+                    <p className="text-xs">No leads found</p>
+                  </div>
+                ) : (
+                  filteredQuickSendLeads.map((lead) => (
+                    <button
+                      key={lead.id}
+                      onClick={() => setQuickSendSelectedLead(lead.id)}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors",
+                        quickSendSelectedLead === lead.id && "bg-primary/10 border-l-2 border-l-primary"
+                      )}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {lead.first_name} {lead.last_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">{lead.email}</p>
+                      </div>
+                      {quickSendSelectedLead === lead.id && (
+                        <div className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+
+              {/* Send button */}
+              <Button
+                className="w-full gap-2"
+                disabled={!quickSendSelectedLead || quickSendSending}
+                onClick={handleQuickSendConfirm}
+              >
+                {quickSendSending ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</>
+                ) : (
+                  <><Send className="h-4 w-4" /> Send Email</>
+                )}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
