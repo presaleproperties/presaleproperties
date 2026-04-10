@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { postToDealsFlow } from "@/lib/postToDealsFlow";
 
 /**
  * Upsert a project lead — if a lead with the same email already exists,
