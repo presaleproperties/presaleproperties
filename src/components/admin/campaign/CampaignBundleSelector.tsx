@@ -161,7 +161,7 @@ export function CampaignBundleSelector({ open, onClose, onSelect, userId }: Prop
                 <Label className="text-xs font-medium">Primary Project <span className="text-muted-foreground font-normal">— Week 1 VIP Launch</span></Label>
                 <Select value={primaryId} onValueChange={setPrimaryId}>
                   <SelectTrigger className="mt-1"><SelectValue placeholder="Select primary project…" /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[150]">
                     {projects.map(p => (
                       <SelectItem key={p.id} value={p.id}>{p.name} · {p.city}</SelectItem>
                     ))}
@@ -172,7 +172,7 @@ export function CampaignBundleSelector({ open, onClose, onSelect, userId }: Prop
                 <Label className="text-xs font-medium">Alternative Project 2 <span className="text-muted-foreground font-normal">— Week 4 Deep Dive</span></Label>
                 <Select value={alt1Id} onValueChange={setAlt1Id}>
                   <SelectTrigger className="mt-1"><SelectValue placeholder="Select second project…" /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[150]">
                     {projects.filter(p => p.id !== primaryId).map(p => (
                       <SelectItem key={p.id} value={p.id}>{p.name} · {p.city}</SelectItem>
                     ))}
@@ -183,7 +183,7 @@ export function CampaignBundleSelector({ open, onClose, onSelect, userId }: Prop
                 <Label className="text-xs font-medium">Alternative Project 3 <span className="text-muted-foreground font-normal">— Week 7 Deep Dive</span></Label>
                 <Select value={alt2Id} onValueChange={setAlt2Id}>
                   <SelectTrigger className="mt-1"><SelectValue placeholder="Select third project…" /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[150]">
                     {projects.filter(p => p.id !== primaryId && p.id !== alt1Id).map(p => (
                       <SelectItem key={p.id} value={p.id}>{p.name} · {p.city}</SelectItem>
                     ))}
