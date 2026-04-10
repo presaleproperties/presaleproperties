@@ -810,8 +810,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         subjectLine, previewText, headline, bodyCopy, incentiveText,
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
-        layoutVersion, brochureUrl, floorplanUrl, bookShowingUrl,
-        showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
+        layoutVersion, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
+        showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -842,8 +842,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     subjectLine, previewText, headline, bodyCopy, incentiveText,
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
-    savedTemplateId, projectUrl, brochureUrl, floorplanUrl, bookShowingUrl,
-    showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
+    savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
+    showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
   ]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
