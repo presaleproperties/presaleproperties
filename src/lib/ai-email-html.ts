@@ -297,5 +297,6 @@ export function personalizeTemplateHtml(html: string, recipientFirstName?: strin
     .replace(/\[name\]/g, firstName)
     .replace(/\{\{first_name\}\}/g, firstName)
     .replace(/\{\{firstName\}\}/g, firstName)
-    .replace(/\*\|FNAME\|\*/g, firstName);
+    .replace(/\*\|FNAME\|\*/g, firstName)
+    .replace(/\{\$name\}/g, firstName);
 }

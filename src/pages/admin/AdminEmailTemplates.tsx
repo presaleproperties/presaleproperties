@@ -256,7 +256,7 @@ export default function AdminEmailTemplates() {
     <h1 style="color: #f5c542; margin: 0;">Email Title</h1>
   </div>
   <div style="padding: 30px; background: #ffffff;">
-    <p style="font-size: 16px; color: #333;">Hi {{first_name}},</p>
+    <p style="font-size: 16px; color: #333;">Hi {$name},</p>
     <p style="font-size: 16px; color: #333;">Your message content here.</p>
     <div style="text-align: center; margin: 30px 0;">
       <a href="https://presaleproperties.com" style="background: #f5c542; color: #1a1a2e; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Call to Action</a>
@@ -417,7 +417,7 @@ export default function AdminEmailTemplates() {
                 <Input
                   value={formData.subject}
                   onChange={(e) => setFormData(p => ({ ...p, subject: e.target.value }))}
-                  placeholder="e.g., Welcome to Presale Properties, {{first_name}}!"
+                  placeholder="e.g., Welcome to Presale Properties, {$name}!"
                 />
                 <p className="text-xs text-muted-foreground">
                   Use {"{{variable}}"} syntax for dynamic content

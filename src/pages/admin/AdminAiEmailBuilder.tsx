@@ -1140,8 +1140,11 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     html = html.replace(/\*\|UPDATE_PROFILE\|\*/g, "#update_preferences_url#");
     html = html.replace(/\*\|EMAIL_WEB_VERSION_URL\|\*/g, "#view_in_browser_url#");
     html = html.replace(/\*\|FNAME\|\*/g, "#lead_first_name#");
+    html = html.replace(/\{\$name\}/g, "#lead_first_name#");
     html = html.replace(/\*\|LNAME\|\*/g, "#lead_last_name#");
+    html = html.replace(/\{\$last_name\}/g, "#lead_last_name#");
     html = html.replace(/\*\|EMAIL\|\*/g, "#lead_email#");
+    html = html.replace(/\{\$email\}/g, "#lead_email#");
 
     return html;
   }, [getExportHtml]);
