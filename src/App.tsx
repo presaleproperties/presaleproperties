@@ -488,6 +488,20 @@ const App = () => (
             {/* Public Pitch Deck pages — must be before /:cityProductSlug catch-all */}
             <Route path="/deck/:slug" element={<DeckPublicPage />} />
 
+            {/* CRM Routes */}
+            <Route path="/crm" element={<CrmLayout />}>
+              <Route index element={<Navigate to="/crm/dashboard" replace />} />
+              <Route path="dashboard" element={<CrmPlaceholder />} />
+              <Route path="leads" element={<CrmLeads />} />
+              <Route path="pipeline" element={<CrmPlaceholder />} />
+              <Route path="email" element={<CrmPlaceholder />} />
+              <Route path="templates" element={<CrmPlaceholder />} />
+              <Route path="automations" element={<CrmPlaceholder />} />
+              <Route path="calendar" element={<CrmPlaceholder />} />
+              <Route path="reports" element={<CrmPlaceholder />} />
+              <Route path="settings" element={<CrmPlaceholder />} />
+            </Route>
+
             {/* SEO City Product Pages - must be before 404 */}
             <Route path="/:cityProductSlug" element={<CityProductPage />} />
             
