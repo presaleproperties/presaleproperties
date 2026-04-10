@@ -151,7 +151,7 @@ export function CalculatorLeadCapture({
       localStorage.setItem("pp_form_submitted", "true");
       setIsSubmitted(true);
       onSubmitSuccess?.();
-      toast.success(config.successTitle);
+      toast.success("Your report is on its way! Check your email.");
     } catch (error) {
       console.error("Error submitting lead:", error);
       toast.error("Something went wrong. Please try again.");
