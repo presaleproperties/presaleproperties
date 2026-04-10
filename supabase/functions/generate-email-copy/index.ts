@@ -49,7 +49,7 @@ UZAIR'S POSITIONING:
 Every bodyCopy MUST follow this exact 5-part visual layout (separated by double line breaks \\n\\n):
 
 PART 1 — OPENING PARAGRAPH
-"Hi {first_name},\\n\\n" followed by 2-4 sentences introducing the opportunity. Use **double asterisks** to bold 2-3 key phrases (project name, key selling point, urgency phrase). This should hook the reader and set context.
+"Hi {$name},\\n\\n" followed by 2-4 sentences introducing the opportunity. Use **double asterisks** to bold 2-3 key phrases (project name, key selling point, urgency phrase). This should hook the reader and set context.
 
 PART 2 — PRICING CALLOUT (on its own line, bold)
 A single standout line with the price or key offer, e.g.:
