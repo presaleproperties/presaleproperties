@@ -169,7 +169,7 @@ export default function DashboardDecks() {
 
       // Compose a smart default body copy seeded from deck content
       const bodyCopy = [
-        `Hi {{lead_name}},`,
+        `Hi {$name},`,
         ``,
         `I wanted to personally reach out with the full details on ${deckData.project_name}${deckData.city ? ` in ${deckData.city}` : ""}.`,
         highlightBullets ? `\n${highlightBullets}` : "",

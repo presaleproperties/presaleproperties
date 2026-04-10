@@ -1179,12 +1179,10 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // ── Export ────────────────────────────────────────────────────────────────────
   const handleCopy = () => {
-    const html = codeViewTarget === "lofty" ? getLoftyHtml() : getMailerLiteHtml();
-    const label = codeViewTarget === "lofty" ? "Lofty / CRM" : "MailerLite";
-
+    const html = getMailerLiteHtml();
     navigator.clipboard.writeText(html).then(() => {
       setCopied(true);
-      toast.success(`${label} HTML copied`);
+      toast.success("HTML copied — paste into MailerLite custom HTML block");
       setTimeout(() => setCopied(false), 2500);
     });
   };
@@ -1453,16 +1451,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             className={cn("h-8 gap-1.5 font-semibold transition-all duration-200 shrink-0 text-xs px-2.5", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
             onClick={handleCopy}>
             {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /><span className="hidden sm:inline"> Copied!</span></> : <><Copy className="h-3.5 w-3.5" /><span className="hidden sm:inline"> Copy HTML</span></>}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className={cn("h-8 gap-1.5 shrink-0 text-xs px-2.5 hidden sm:flex font-semibold transition-all", pushedML ? "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600" : "border-[#09C269] text-[#09C269] hover:bg-[#09C269]/10")}
-            onClick={handlePushToMailerLite}
-            disabled={pushingML}
-          >
-            {pushingML ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : pushedML ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Upload className="h-3.5 w-3.5" />}
-            <span className="hidden md:inline">{pushedML ? "Pushed!" : "MailerLite"}</span>
           </Button>
         </div>
 
@@ -2350,16 +2338,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                   ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied!</>
                   : <><Copy className="h-3.5 w-3.5" /> Copy HTML</>}
               </Button>
-              <Button
-                variant="outline"
-                className={cn("w-full h-9 gap-1.5 font-semibold text-sm transition-all",
-                  pushedML ? "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600" : "border-[#09C269] text-[#09C269] hover:bg-[#09C269]/10"
-                )}
-                onClick={handlePushToMailerLite}
-                disabled={pushingML}
-              >
-                {pushingML ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : pushedML ? <><CheckCircle2 className="h-3.5 w-3.5" /> Pushed!</> : <><Upload className="h-3.5 w-3.5" /> Push to MailerLite</>}
-              </Button>
             </div>
           </div>
           )}
@@ -2408,17 +2386,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             onClick={handleCopy}
           >
             {copied ? <><CheckCircle2 className="h-4 w-4" /> Copied!</> : <><Copy className="h-4 w-4" /> Copy HTML</>}
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            className={cn("h-12 gap-2 font-semibold transition-all px-3",
-              pushedML ? "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600" : "border-[#09C269] text-[#09C269] hover:bg-[#09C269]/10"
-            )}
-            onClick={handlePushToMailerLite}
-            disabled={pushingML}
-          >
-            {pushingML ? <Loader2 className="h-4 w-4 animate-spin" /> : pushedML ? <CheckCircle2 className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
           </Button>
         </div>
 
