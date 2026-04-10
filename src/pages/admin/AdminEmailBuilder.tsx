@@ -68,6 +68,7 @@ import {
 import * as pdfjsLib from "pdfjs-dist";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 import { cn } from "@/lib/utils";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 // ─── Saved Template type ──────────────────────────────────────────────────────
 interface SavedEmailTemplate {
@@ -955,7 +956,7 @@ export default function AdminEmailBuilder() {
     const brochureUrl = p.brochure_files?.[0] ?? "";
     const floorplanUrl = p.floorplan_files?.[0] ?? "";
     const pricingUrl = p.pricing_sheets?.[0] ?? "";
-    const projectUrl = `https://presaleproperties.com/presale/${p.slug}`;
+    const projectUrl = p.slug ? `https://presaleproperties.com${generateProjectUrl({ slug: p.slug, neighborhood: p.neighborhood || p.city || "", projectType: (p.project_type as any) || "condo" })}` : "";
 
     setCta((prev) => ({
       ...prev,

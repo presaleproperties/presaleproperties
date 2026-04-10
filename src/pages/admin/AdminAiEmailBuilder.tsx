@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { buildAiEmailHtml, buildLululemonEmailHtml, buildModernV2EmailHtml, buildEditorialEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
@@ -723,7 +724,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   useEffect(() => {
     supabase.from("presale_projects")
-      .select("id, name, slug, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, gallery_images, incentives, brochure_files, pricing_sheets, floorplan_files, highlights, short_description")
+      .select("id, name, slug, city, neighborhood, developer_name, starting_price, price_range, deposit_structure, deposit_percent, completion_year, completion_month, featured_image, gallery_images, incentives, brochure_files, pricing_sheets, floorplan_files, highlights, short_description, project_type")
       .order("name")
       .then(({ data }: any) => { if (data) setProjects(data); });
 
@@ -921,11 +922,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (p.developer_name)  setDevName(p.developer_name);
     if (p.featured_image)  setHeroImage(p.featured_image);
 
-    // Auto-set project page URL from slug
+    // Auto-set project page URL from slug using canonical SEO URL generator
     if (p.slug) {
-      const neighborhood = p.neighborhood || p.city || "";
-      const typeSlug = "condos"; // default; will resolve on the website
-      setProjectUrl(`https://presaleproperties.com/${neighborhood.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}-presale-${typeSlug}-${p.slug}`);
+      const projectPath = generateProjectUrl({
+        slug: p.slug,
+        neighborhood: p.neighborhood || p.city || "",
+        projectType: ((p as any).project_type as "condo" | "townhome" | "mixed" | "duplex" | "single_family") || "condo",
+      });
+      setProjectUrl(`https://presaleproperties.com${projectPath}`);
     }
 
     // Auto-populate Loop slideshow from gallery images (up to 6 HQ images)
