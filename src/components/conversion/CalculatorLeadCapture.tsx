@@ -66,11 +66,13 @@ export function CalculatorLeadCapture({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [honeypot, setHoneypot] = useState("");
   const { submitLead } = useLeadSubmission();
   const config = CALCULATOR_CONFIG[calculatorData.calculatorType];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (honeypot) return; // Bot detected
     setErrors({});
 
     const validation = leadSchema.safeParse(formData);
@@ -149,7 +151,7 @@ export function CalculatorLeadCapture({
       localStorage.setItem("pp_form_submitted", "true");
       setIsSubmitted(true);
       onSubmitSuccess?.();
-      toast.success(config.successTitle);
+      toast.success("Your report is on its way! Check your email.");
     } catch (error) {
       console.error("Error submitting lead:", error);
       toast.error("Something went wrong. Please try again.");
@@ -191,6 +193,17 @@ export function CalculatorLeadCapture({
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-3">
+      {/* Honeypot - hidden from real users */}
+      <input
+        type="text"
+        name="website_url"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: "absolute", left: "-9999px", opacity: 0, height: 0, width: 0 }}
+      />
       <div className="grid sm:grid-cols-2 gap-3">
         <div className="relative">
           <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

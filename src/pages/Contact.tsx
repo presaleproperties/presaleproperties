@@ -27,6 +27,7 @@ export default function Contact() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
 
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
@@ -48,6 +49,7 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (honeypot) return; // Bot detected
     setErrors({});
 
     const result = contactSchema.safeParse(formData);
@@ -243,6 +245,17 @@ export default function Contact() {
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
                     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                      {/* Honeypot - hidden from real users */}
+                      <input
+                        type="text"
+                        name="website_url"
+                        value={honeypot}
+                        onChange={(e) => setHoneypot(e.target.value)}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        aria-hidden="true"
+                        style={{ position: "absolute", left: "-9999px", opacity: 0, height: 0, width: 0 }}
+                      />
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name" className="text-sm">Name *</Label>
