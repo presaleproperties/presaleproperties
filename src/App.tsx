@@ -149,6 +149,7 @@ const BuyerDashboard = lazy(() => import("./pages/buyer/BuyerDashboard"));
 // CRM pages
 const CrmLayout = lazy(() => import("./components/crm/CrmLayout"));
 const CrmLeads = lazy(() => import("./pages/crm/CrmLeads"));
+const CrmDashboard = lazy(() => import("./pages/crm/CrmDashboard"));
 const CrmPlaceholder = lazy(() => import("./pages/crm/CrmPlaceholder"));
 
 const queryClient = new QueryClient({
