@@ -154,6 +154,7 @@ const CrmPipeline = lazy(() => import("./pages/crm/CrmPipeline"));
 const CrmEmailCenter = lazy(() => import("./pages/crm/CrmEmailCenter"));
 const CrmTemplates = lazy(() => import("./pages/crm/CrmTemplates"));
 const CrmAutomations = lazy(() => import("./pages/crm/CrmAutomations"));
+const CrmCalendar = lazy(() => import("./pages/crm/CrmCalendar"));
 const CrmPlaceholder = lazy(() => import("./pages/crm/CrmPlaceholder"));
 
 const queryClient = new QueryClient({
