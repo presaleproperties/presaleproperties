@@ -121,11 +121,48 @@ function bodyToHtml(text: string): string {
     .join("");
 }
 
-/** Render a "Project Details" CTA button — only shown when projectUrl is present */
-function projectDetailsCta(opts: { projectUrl?: string; projectName?: string; developerName?: string; font: string; accent?: string; dark?: string }): string {
-  if (!opts.projectUrl) return "";
+/** Render a "Project Details" CTA button — only shown when projectUrl is present and toggle is on */
+function projectDetailsCta(opts: { projectUrl?: string; projectName?: string; developerName?: string; font: string; accent?: string; dark?: string; showViewMorePlansCta?: boolean; style?: "pill" | "outline" | "gold-fill" }): string {
+  if (opts.showViewMorePlansCta === false || !opts.projectUrl) return "";
   const ACCENT = opts.accent || "#C9A55A";
   const DARK = opts.dark || "#0d1f18";
+  const style = opts.style || "pill";
+
+  if (style === "pill") {
+    return `
+  <tr>
+    <td class="content-pad" style="padding:8px 40px 14px;background:#ffffff;">
+      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+        <td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
+          <a href="${opts.projectUrl}" target="_blank"
+             style="font-family:${opts.font};font-size:14px;font-weight:700;letter-spacing:1.5px;color:${ACCENT};text-decoration:none;display:block;white-space:nowrap;">
+            VIEW PROJECT DETAILS
+          </a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`;
+  }
+
+  if (style === "outline") {
+    return `
+  <tr>
+    <td class="content-pad" style="padding:8px 40px 8px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${ACCENT};border-radius:6px;overflow:hidden;">
+        <tr>
+          <td align="center" style="padding:16px 24px;background:#ffffff;">
+            <a href="${opts.projectUrl}" target="_blank"
+               style="font-family:${opts.font};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};text-decoration:none;display:block;line-height:1;">
+              VIEW PROJECT DETAILS &nbsp;→
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>`;
+  }
+
+  // gold-fill (classic)
   return `
   <tr>
     <td style="padding:0 36px 8px;background:#ffffff;" class="mobile-pad">
