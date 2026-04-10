@@ -1773,6 +1773,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     </button>
                   </div>
                 )}
+                {/* Hero mode toggle: Static vs GIF carousel */}
+                {loopSlides.length > 1 && (
+                  <div className="flex items-center justify-between py-1.5 px-1">
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-medium text-foreground">GIF Carousel</span>
+                      <span className="text-[9px] text-muted-foreground">Rotate through project images</span>
+                    </div>
+                    <Switch
+                      checked={heroMode === "gif"}
+                      onCheckedChange={(checked) => setHeroMode(checked ? "gif" : "static")}
+                    />
+                  </div>
+                )}
                 {projects.filter(p => p.featured_image).length > 0 && (
                   <div>
                     <p className="text-[10px] text-muted-foreground mb-1">Pick from projects:</p>
