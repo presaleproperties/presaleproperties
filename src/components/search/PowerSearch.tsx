@@ -259,24 +259,32 @@ export function PowerSearch({
       // Wait for all searches to complete
       await Promise.all(promises);
 
-      // 4. Add city suggestions for matching cities
+      // 4. Add city & neighbourhood suggestions
       const matchedCities = new Set<string>();
+      const matchedNeighbourhoods = new Map<string, string>(); // neighbourhood -> city
       searchResults.forEach((r) => {
         if (r.meta?.city && r.meta.city.toLowerCase().includes(qLower)) {
           matchedCities.add(r.meta.city);
         }
+        if (r.subtitle) {
+          const parts = r.subtitle.split("•").map(s => s.trim());
+          const hood = parts[0];
+          if (hood && hood.toLowerCase().includes(qLower) && r.meta?.city) {
+            matchedNeighbourhoods.set(hood, r.meta.city);
+          }
+        }
       });
 
-      const cityResults: SearchResult[] = [];
+      const locationResults: SearchResult[] = [];
+
       matchedCities.forEach((city) => {
-        // Only add if there are multiple results for this city and query closely matches city name
         const cityCount = searchResults.filter(r => r.meta?.city === city).length;
-        if (cityCount >= 2 && city.toLowerCase().startsWith(qLower.slice(0, 3))) {
+        if (cityCount >= 1 && city.toLowerCase().startsWith(qLower.slice(0, 3))) {
           const citySlug = city.toLowerCase().replace(/\s+/g, "-");
           const cityUrl = mode === "resale"
             ? `/properties/${citySlug}`
             : `/${citySlug}-presale-condos`;
-          cityResults.push({
+          locationResults.push({
             id: `city-${city}`,
             type: "city",
             title: city,
@@ -284,6 +292,22 @@ export function PowerSearch({
             url: cityUrl,
           });
         }
+      });
+
+      matchedNeighbourhoods.forEach((city, hood) => {
+        // Skip if it's the same as a city name already shown
+        if (matchedCities.has(hood)) return;
+        const hoodSlug = hood.toLowerCase().replace(/\s+/g, "-");
+        const hoodUrl = mode === "resale"
+          ? `/properties/${city.toLowerCase().replace(/\s+/g, "-")}?neighbourhood=${encodeURIComponent(hood)}`
+          : `/${hoodSlug}-presale-condos`;
+        locationResults.push({
+          id: `neighbourhood-${hood}`,
+          type: "neighborhood",
+          title: hood,
+          subtitle: city,
+          url: hoodUrl,
+        });
       });
 
       // Sort results: exact matches first, then by relevance
@@ -301,8 +325,8 @@ export function PowerSearch({
         return (b.price || 0) - (a.price || 0);
       });
 
-      // Combine: cities first if relevant, then results
-      return [...cityResults.slice(0, 2), ...sortedResults].slice(0, maxResults);
+      // Combine: locations first, then projects/listings
+      return [...locationResults.slice(0, 3), ...sortedResults].slice(0, maxResults);
     },
     enabled: debouncedQuery.length >= 2,
     staleTime: 30000,
