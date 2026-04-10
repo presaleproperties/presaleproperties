@@ -902,6 +902,54 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_email_campaigns: {
+        Row: {
+          click_count: number | null
+          created_at: string
+          html_content: string | null
+          id: string
+          name: string
+          open_count: number | null
+          recipients_count: number | null
+          recipients_group: string | null
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          click_count?: number | null
+          created_at?: string
+          html_content?: string | null
+          id?: string
+          name: string
+          open_count?: number | null
+          recipients_count?: number | null
+          recipients_group?: string | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Update: {
+          click_count?: number | null
+          created_at?: string
+          html_content?: string | null
+          id?: string
+          name?: string
+          open_count?: number | null
+          recipients_count?: number | null
+          recipients_group?: string | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       crm_leads: {
         Row: {
           area_interest: string[] | null
