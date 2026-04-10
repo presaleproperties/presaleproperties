@@ -230,9 +230,79 @@ export default function DashboardMarketingHub() {
     }
   };
 
-  const handleQuickSend = (asset: SavedAsset) => {
-    // Open email builder with template pre-loaded, ready to send
-    navigate(`/dashboard/email-builder?saved=${asset.id}&mode=send`);
+  // Quick send dialog state
+  const [quickSendAsset, setQuickSendAsset] = useState<SavedAsset | null>(null);
+  const [quickSendLeads, setQuickSendLeads] = useState<{ id: string; first_name: string; last_name: string; email: string }[]>([]);
+  const [quickSendSearch, setQuickSendSearch] = useState("");
+  const [quickSendSelectedLead, setQuickSendSelectedLead] = useState<string | null>(null);
+  const [quickSendSending, setQuickSendSending] = useState(false);
+  const [quickSendLeadsLoading, setQuickSendLeadsLoading] = useState(false);
+
+  const handleQuickSend = useCallback(async (asset: SavedAsset) => {
+    setQuickSendAsset(asset);
+    setQuickSendSearch("");
+    setQuickSendSelectedLead(null);
+    setQuickSendLeadsLoading(true);
+    const { data } = await supabase
+      .from("onboarded_leads")
+      .select("id, first_name, last_name, email")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    setQuickSendLeads((data as any) || []);
+    setQuickSendLeadsLoading(false);
+  }, []);
+
+  const filteredQuickSendLeads = useMemo(() => {
+    if (!quickSendSearch.trim()) return quickSendLeads;
+    const q = quickSendSearch.toLowerCase();
+    return quickSendLeads.filter(l =>
+      `${l.first_name} ${l.last_name}`.toLowerCase().includes(q) ||
+      l.email.toLowerCase().includes(q)
+    );
+  }, [quickSendLeads, quickSendSearch]);
+
+  const handleQuickSendConfirm = async () => {
+    if (!quickSendAsset || !quickSendSelectedLead) return;
+    const lead = quickSendLeads.find(l => l.id === quickSendSelectedLead);
+    if (!lead) return;
+
+    setQuickSendSending(true);
+    try {
+      // Build HTML from template
+      const fd = quickSendAsset.form_data;
+      let htmlOverride: string | undefined;
+      if (fd?.finalHtml) {
+        htmlOverride = personalizeTemplateHtml(fd.finalHtml, lead.first_name);
+      } else if (fd && isAiEmailTemplate(fd)) {
+        htmlOverride = personalizeTemplateHtml(
+          buildAiTemplateHtmlFromFormData(fd),
+          lead.first_name,
+        );
+      }
+
+      const { error } = await supabase.functions.invoke("send-template-email", {
+        body: { leadId: lead.id, templateId: quickSendAsset.id, htmlOverride },
+      });
+      if (error) throw error;
+
+      // Update last_sent_at
+      await (supabase as any).from("campaign_templates")
+        .update({ last_sent_at: new Date().toISOString() })
+        .eq("id", quickSendAsset.id);
+
+      setAssets(prev => prev.map(a => a.id === quickSendAsset.id
+        ? { ...a, last_sent_at: new Date().toISOString() }
+        : a
+      ));
+
+      toast.success(`Email sent to ${lead.first_name} ${lead.last_name}`);
+      setQuickSendAsset(null);
+    } catch (err: any) {
+      console.error("Quick send error:", err);
+      toast.error("Failed to send email");
+    } finally {
+      setQuickSendSending(false);
+    }
   };
 
   // Template card component for grid view
