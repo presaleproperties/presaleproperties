@@ -259,7 +259,7 @@ export function TemplateQuickSendDialog({
     setSending(true);
     try {
       const html = getSavedHtml(asset);
-      const subject = asset.form_data?.vars?.subjectLine || asset.form_data?.copy?.subjectLine || asset.name;
+      const subject = subjectLine.trim() || asset.name;
       if (!html || !subject) { toast.error("Template has no content"); setSending(false); return; }
 
       const { data, error } = await supabase.functions.invoke("send-builder-email", {
