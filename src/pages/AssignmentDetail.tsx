@@ -14,6 +14,7 @@ import {
   MapPin, Bed, Bath, Maximize, Building2, Calendar, MessageCircle,
   Phone, Mail, Shield, FileText, Download, BookOpen, Compass, Car,
   CheckCircle, XCircle, Home, FileDown, Loader2, Lock, Share2, Eye,
+  Ruler, Layers,
 } from "lucide-react";
 import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
