@@ -129,8 +129,6 @@ export default function Assignments() {
   const [inquireTitle, setInquireTitle] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
-  const { isVerified } = useVerifiedAgent();
-
   const cityFilter = searchParams.get("city") || "any";
   const bedsFilter = searchParams.get("beds") || "any";
   const priceFilter = searchParams.get("price") || "any";
@@ -393,6 +391,53 @@ export default function Assignments() {
             {isLoading ? "Loading..." : `${filtered.length} assignment${filtered.length !== 1 ? "s" : ""} found`}
           </p>
         </div>
+
+        {/* Content */}
+        {viewMode === "map" ? (
+          <div className="h-[600px] lg:h-[700px] rounded-xl overflow-hidden border border-border">
+            <Suspense fallback={
+              <div className="h-full w-full flex items-center justify-center bg-muted">
+                <MapPin className="h-12 w-12 animate-pulse text-muted-foreground" />
+              </div>
+            }>
+              <AssignmentsMap
+                assignments={mapAssignments}
+                isLoading={isLoading}
+              />
+            </Suspense>
+          </div>
+        ) : isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-border overflow-hidden">
+                <Skeleton className="aspect-[16/10] w-full" />
+                <div className="p-4 space-y-2">
+                  <Skeleton className="h-5 w-2/3" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-9 w-full mt-3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-20 text-muted-foreground">
+            <Building2 className="h-12 w-12 mx-auto mb-4 opacity-30" />
+            <p className="text-lg font-medium mb-1">No assignments found</p>
+            <p className="text-sm mb-4">Try adjusting your filters or check back soon for new listings.</p>
+            {activeFilterCount > 0 && (
+              <Button variant="outline" size="sm" onClick={clearFilters}>Clear Filters</Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map((listing) => (
+              <AssignmentCard
+                key={listing.id}
+                listing={listing}
+              />
+            ))}
+          </div>
+        )}
       </main>
 
       <Footer />
