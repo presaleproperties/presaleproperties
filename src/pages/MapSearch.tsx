@@ -904,8 +904,8 @@ export default function MapSearch() {
       if (priceMax) query = query.lte("assignment_price", priceMax);
 
       // Apply bed/bath filters
-      if (filters.beds !== undefined) query = query.gte("beds", filters.beds);
-      if (filters.baths !== undefined) query = query.gte("baths", filters.baths);
+      if (filters.beds && filters.beds !== "any") query = query.gte("beds", parseInt(filters.beds));
+      if (filters.baths && filters.baths !== "any") query = query.gte("baths", parseInt(filters.baths));
 
       const { data, error } = await query;
       if (error) throw error;
