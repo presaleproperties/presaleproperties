@@ -339,9 +339,9 @@ export default function AssignmentDetail() {
                       Save {formatPrice(discount)}
                     </Badge>
                   )}
-                  {premium && premium > 0 && (
-                    <Badge className="bg-amber-600 hover:bg-amber-700 text-white text-[10px] sm:text-xs">
-                      +{formatPrice(premium)} premium
+                  {developerCredit && (
+                    <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs">
+                      {formatPrice(developerCredit)} Credit
                     </Badge>
                   )}
                 </div>
