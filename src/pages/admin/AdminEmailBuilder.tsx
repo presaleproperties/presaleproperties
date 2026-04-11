@@ -875,6 +875,7 @@ function StepSection({ step, title, icon, done, doneLabel, accent = "default", d
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function AdminEmailBuilder() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
