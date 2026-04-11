@@ -183,7 +183,7 @@ export default function Assignments() {
       if (error) throw error;
 
       const projectIds = [...new Set((data || []).map((l: any) => l.project_id).filter(Boolean))];
-      let projectMap = new Map<string, { featured_image: string | null; gallery_images: string[] | null; map_lat: number | null; map_lng: number | null }>();
+      const projectMap: Record<string, { featured_image: string | null; gallery_images: string[] | null; map_lat: number | null; map_lng: number | null }> = {};
       if (projectIds.length > 0) {
         const { data: projects } = await (supabase as any)
           .from("presale_projects")
