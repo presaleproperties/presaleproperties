@@ -1622,7 +1622,7 @@ export type Database = {
             columns: ["listing_agent_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "listings_project_id_fkey"
