@@ -670,9 +670,16 @@ export default function AssignmentDetail() {
                 <div className="text-3xl font-bold text-foreground mb-3">{priceFormatted}</div>
 
                 {discount && discount > 0 && (
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price!)}</span>
                     <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400">Save {formatPrice(discount)}</Badge>
+                  </div>
+                )}
+                {developerCredit && (
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400">
+                      {formatPrice(developerCredit)} Developer Credit
+                    </Badge>
                   </div>
                 )}
 
