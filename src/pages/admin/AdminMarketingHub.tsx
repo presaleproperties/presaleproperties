@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import {
-  Mail, FileText, Plus, ChevronRight, Building2, Star, Megaphone,
+  Mail, FileText, Plus, ChevronRight, Building2, Star, Megaphone, Share2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ import {
   TemplatePreviewDialog,
   TemplateQuickSendDialog,
 } from "@/components/admin/SharedTemplateComponents";
+import { SocialPostGenerator } from "@/components/admin/marketing/SocialPostGenerator";
 
 const CREATE_OPTIONS = [
   {
