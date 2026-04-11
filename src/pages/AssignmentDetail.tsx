@@ -518,6 +518,24 @@ export default function AssignmentDetail() {
                 </Link>
               </div>
             )}
+
+            {/* Location Map */}
+            {project?.map_lat && project?.map_lng && (
+              <Card>
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><MapPin className="h-5 w-5 text-primary" />Location</CardTitle></CardHeader>
+                <CardContent>
+                  <AssignmentLocationMap
+                    lat={project.map_lat}
+                    lng={project.map_lng}
+                    projectName={listing.project_name}
+                    address={listing.address || project.address}
+                  />
+                  <p className="text-sm text-muted-foreground mt-3">
+                    {listing.address || project.address || listing.project_name}, {listing.neighborhood || project.neighborhood || ""} {listing.city}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* RIGHT COLUMN */}
