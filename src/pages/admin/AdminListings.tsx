@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -1113,6 +1114,31 @@ export default function AdminListings() {
                       <Input value={String(addForm[key] ?? "")} onChange={e => setAddForm(f => ({ ...f, [key]: e.target.value }))} placeholder={ph} className="h-9" />
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* ── Listing Agent ── */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Listing Agent</p>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Select which agent appears on the public listing page</Label>
+                  <Select value={addForm.listing_agent_id} onValueChange={v => setAddForm(f => ({ ...f, listing_agent_id: v }))}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select listing agent…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {agents.map(a => (
+                        <SelectItem key={a.user_id} value={a.user_id}>
+                          {a.full_name || a.email} — {a.brokerage_name || "Real Broker"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {addForm.listing_agent_id && (
+                    <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={() => setAddForm(f => ({ ...f, listing_agent_id: "" }))}>
+                      <X className="h-3 w-3 mr-1" /> Clear agent
+                    </Button>
+                  )}
                 </div>
               </div>
 
