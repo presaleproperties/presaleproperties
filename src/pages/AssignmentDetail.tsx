@@ -152,6 +152,35 @@ export default function AssignmentDetail() {
     enabled: !!id,
   });
 
+  // Fetch listing agent profile
+  const { data: listingAgent } = useQuery({
+    queryKey: ["listing-agent", listing?.listing_agent_id],
+    queryFn: async () => {
+      if (!listing?.listing_agent_id) return null;
+      // Get profile
+      const { data: profile } = await (supabase as any)
+        .from("profiles")
+        .select("full_name, email, phone, avatar_url, user_id")
+        .eq("user_id", listing.listing_agent_id)
+        .maybeSingle();
+      if (!profile) return null;
+      // Get agent brokerage
+      const { data: agentProfile } = await (supabase as any)
+        .from("agent_profiles")
+        .select("brokerage_name")
+        .eq("user_id", listing.listing_agent_id)
+        .maybeSingle();
+      return {
+        full_name: profile.full_name,
+        email: profile.email,
+        phone: profile.phone,
+        avatar_url: profile.avatar_url,
+        brokerage_name: agentProfile?.brokerage_name || "Real Broker",
+      } as ListingAgent;
+    },
+    enabled: !!listing?.listing_agent_id,
+  });
+
   const floorplanFiles = (listingFiles || []).filter(f => f.file_type === "floorplan");
   const videoFiles = (listingFiles || []).filter(f => f.file_type === "video");
   const floorplanImages = floorplanFiles.filter(f => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f.url));
