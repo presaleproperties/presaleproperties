@@ -689,6 +689,8 @@ export default function ListingForm() {
             has_storage: values.has_storage,
             assignment_price: values.assignment_price,
             original_price: values.original_price,
+            deposit_paid: values.deposit_paid,
+            assignment_fee: values.assignment_fee,
             completion_month: values.completion_month,
             completion_year: values.completion_year,
             construction_status: values.construction_status,
