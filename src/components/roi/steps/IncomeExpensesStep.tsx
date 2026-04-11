@@ -139,8 +139,8 @@ export function IncomeExpensesStep({
               <Input
                 id="monthlyRent"
                 type="number"
-                value={rental.monthlyRentStart}
-                onChange={(e) => updateRental("monthlyRentStart", parseInt(e.target.value) || 0)}
+                value={rental.monthlyRentStart || ''}
+                onChange={(e) => updateRental("monthlyRentStart", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                 className="pl-7 text-lg font-medium"
                 placeholder="2400"
               />
@@ -237,8 +237,8 @@ export function IncomeExpensesStep({
                 <Input
                   id="strata"
                   type="number"
-                  value={expenses.strataMonthly}
-                  onChange={(e) => updateExpenses("strataMonthly", parseInt(e.target.value) || 0)}
+                  value={expenses.strataMonthly || ''}
+                  onChange={(e) => updateExpenses("strataMonthly", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="pl-7"
                 />
               </div>
@@ -253,8 +253,8 @@ export function IncomeExpensesStep({
                 <Input
                   id="propertyTax"
                   type="number"
-                  value={expenses.propertyTaxAnnual}
-                  onChange={(e) => updateExpenses("propertyTaxAnnual", parseInt(e.target.value) || 0)}
+                  value={expenses.propertyTaxAnnual || ''}
+                  onChange={(e) => updateExpenses("propertyTaxAnnual", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="pl-7"
                 />
               </div>
@@ -269,8 +269,8 @@ export function IncomeExpensesStep({
                 <Input
                   id="insurance"
                   type="number"
-                  value={expenses.insuranceAnnual}
-                  onChange={(e) => updateExpenses("insuranceAnnual", parseInt(e.target.value) || 0)}
+                  value={expenses.insuranceAnnual || ''}
+                  onChange={(e) => updateExpenses("insuranceAnnual", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="pl-7"
                 />
               </div>
@@ -285,8 +285,8 @@ export function IncomeExpensesStep({
                 <Input
                   id="maintenance"
                   type="number"
-                  value={expenses.maintenanceReserveAnnual}
-                  onChange={(e) => updateExpenses("maintenanceReserveAnnual", parseInt(e.target.value) || 0)}
+                  value={expenses.maintenanceReserveAnnual || ''}
+                  onChange={(e) => updateExpenses("maintenanceReserveAnnual", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="pl-7"
                 />
               </div>

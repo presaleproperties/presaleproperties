@@ -76,8 +76,8 @@ export function ExitAssumptionsStep({ exit, purchasePrice, updateInputs }: ExitA
               <Input
                 id="legal"
                 type="number"
-                value={exit.legalFees}
-                onChange={(e) => updateInputs("legalFees", parseInt(e.target.value) || 0)}
+                value={exit.legalFees || ''}
+                onChange={(e) => updateInputs("legalFees", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                 className="pl-7"
                 placeholder="1500"
               />
@@ -108,8 +108,8 @@ export function ExitAssumptionsStep({ exit, purchasePrice, updateInputs }: ExitA
                 <Input
                   id="gstAmount"
                   type="number"
-                  value={exit.gstAmount}
-                  onChange={(e) => updateInputs("gstAmount", parseInt(e.target.value) || 0)}
+                  value={exit.gstAmount || ''}
+                  onChange={(e) => updateInputs("gstAmount", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="pl-7"
                 />
               </div>
@@ -140,8 +140,8 @@ export function ExitAssumptionsStep({ exit, purchasePrice, updateInputs }: ExitA
                 <Input
                   id="pttAmount"
                   type="number"
-                  value={exit.pttAmount}
-                  onChange={(e) => updateInputs("pttAmount", parseInt(e.target.value) || 0)}
+                  value={exit.pttAmount || ''}
+                  onChange={(e) => updateInputs("pttAmount", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="pl-7"
                 />
               </div>
@@ -159,8 +159,8 @@ export function ExitAssumptionsStep({ exit, purchasePrice, updateInputs }: ExitA
               <Input
                 id="mortgageFees"
                 type="number"
-                value={exit.mortgageFees}
-                onChange={(e) => updateInputs("mortgageFees", parseInt(e.target.value) || 0)}
+                value={exit.mortgageFees || ''}
+                onChange={(e) => updateInputs("mortgageFees", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                 className="pl-7"
                 placeholder="500"
               />
