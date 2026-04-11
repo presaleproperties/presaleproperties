@@ -509,9 +509,11 @@ export function REWPhotoGallery({
                             loading={i < 6 ? "eager" : "lazy"}
                             decoding={i < 6 ? "sync" : "async"}
                             fetchPriority={i < 4 ? "high" : "auto"}
+                            sizes="(max-width: 768px) 100vw, 50vw"
                             style={{ 
                               transform: 'translateZ(0)',
                               contentVisibility: i >= 6 ? 'auto' : 'visible',
+                              imageRendering: 'auto',
                             }}
                           />
                         </div>
