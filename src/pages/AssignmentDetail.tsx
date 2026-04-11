@@ -6,25 +6,27 @@ import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
+import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import {
-  Lock, MapPin, Bed, Bath, Maximize, Building2, Calendar, MessageCircle,
-  ArrowLeft, Phone, Mail, ChevronLeft, ChevronRight, Shield,
-  FileText, MessageSquare, Download, BookOpen, Compass, Car,
-  Box, CheckCircle, XCircle, Home, FileDown, Loader2,
+  MapPin, Bed, Bath, Maximize, Building2, Calendar, MessageCircle,
+  Phone, Mail, Shield, FileText, Download, BookOpen, Compass, Car,
+  CheckCircle, XCircle, Home, FileDown, Loader2, Lock, Share2, Eye,
 } from "lucide-react";
 import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
-import { ExpertAdvisoryCard } from "@/components/listings/ExpertAdvisoryCard";
 import { AboutContactForm } from "@/components/about/AboutContactForm";
 import { AssignmentOnePager } from "@/components/assignments/AssignmentOnePager";
 import { AssignmentLocationMap } from "@/components/assignments/AssignmentLocationMap";
 import { AssignmentMobileCTA } from "@/components/assignments/AssignmentMobileCTA";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
+import DOMPurify from "dompurify";
 
 interface ListingRow {
   id: string;
@@ -102,11 +104,11 @@ const formatPrice = (price: number) =>
 
 export default function AssignmentDetail() {
   const { id } = useParams<{ id: string }>();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const onePagerRef = useRef<HTMLDivElement>(null);
   const { isVerified } = useVerifiedAgent();
+  const { toast: uiToast } = useToast();
 
   const { data: listing, isLoading, error } = useQuery({
     queryKey: ["assignment-detail", id],
@@ -139,7 +141,6 @@ export default function AssignmentDetail() {
     enabled: !!listing?.project_id,
   });
 
-  // Fetch floorplan images and videos from listing_files
   const { data: listingFiles } = useQuery({
     queryKey: ["assignment-files", id],
     queryFn: async () => {
@@ -153,7 +154,6 @@ export default function AssignmentDetail() {
     enabled: !!id,
   });
 
-  // Fetch listing agent from team_members
   const { data: listingAgent } = useQuery({
     queryKey: ["listing-agent", listing?.listing_agent_id],
     queryFn: async () => {
@@ -179,15 +179,12 @@ export default function AssignmentDetail() {
   const videoFiles = (listingFiles || []).filter(f => f.file_type === "video");
   const floorplanImages = floorplanFiles.filter(f => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f.url));
 
-  // Build gallery: photos first, then floor plan images at the end so they're browsable
   const gallery: string[] = [
     ...(listing?.photos || []),
     ...(project?.gallery_images || []),
     ...(listing?.featured_image ? [listing.featured_image] : []),
     ...(project?.featured_image && !listing?.featured_image ? [project.featured_image] : []),
-    // Add floor plan images to gallery so agents can browse/screenshot them
     ...floorplanImages.map(fp => fp.url),
-    // Add legacy floor_plan_url if it's an image
     ...((listing?.floor_plan_url && /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(listing.floor_plan_url)) ? [listing.floor_plan_url] : []),
   ].filter(Boolean);
   const uniqueGallery = [...new Set(gallery)];
@@ -202,6 +199,21 @@ export default function AssignmentDetail() {
     : null;
 
   const developerCredit = listing?.developer_credit && listing.developer_credit > 0 ? listing.developer_credit : null;
+
+  const handleShare = async () => {
+    const shareUrl = `https://presaleproperties.com/assignments/${listing?.id}`;
+    if (navigator.share && navigator.canShare?.({ url: shareUrl })) {
+      try { await navigator.share({ title: listing?.title, url: shareUrl }); return; } catch {}
+    }
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      uiToast({ title: "Link copied to clipboard!" });
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = shareUrl; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+      uiToast({ title: "Link copied to clipboard!" });
+    }
+  };
 
   const handleDownloadOnePager = async () => {
     if (!onePagerRef.current || !listing) return;
@@ -234,38 +246,56 @@ export default function AssignmentDetail() {
     }
   };
 
+  const whatsappLink = `https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the assignment at "${listing?.project_name}" (${listing?.title}). Can you send me more details?`)}`;
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <>
         <ConversionHeader />
-        <main className="container px-4 py-6">
-          <Skeleton className="h-8 w-48 mb-4" />
-          <Skeleton className="aspect-[16/10] w-full rounded-xl mb-4" />
-          <Skeleton className="h-6 w-3/4 mb-2" />
-          <Skeleton className="h-4 w-1/2" />
-        </main>
-      </div>
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </>
     );
   }
 
   if (error || !listing) {
     return (
-      <div className="min-h-screen bg-background">
+      <>
         <ConversionHeader />
-        <main className="container px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold mb-4">Assignment Not Found</h1>
-          <p className="text-muted-foreground mb-8">This assignment may have been sold or removed.</p>
+        <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
+          <Building2 className="h-16 w-16 text-muted-foreground mb-4" />
+          <h1 className="text-2xl font-bold mb-2">Assignment Not Found</h1>
+          <p className="text-muted-foreground mb-6">This assignment may have been sold or removed.</p>
           <Link to="/map-search?mode=assignments"><Button>Browse Assignments</Button></Link>
-        </main>
+        </div>
         <Footer />
-      </div>
+      </>
     );
   }
 
   const priceFormatted = formatPrice(listing.assignment_price);
+  const allImages = uniqueGallery.map(url => ({ url }));
+
+  const breadcrumbItems = [
+    { label: "Assignments", href: "/assignments" },
+    { label: listing.title },
+  ];
+
+  // Parse description markdown to HTML
+  const descriptionHtml = (listing.description || project?.full_description || '');
+  const sanitizedDescription = DOMPurify.sanitize(
+    descriptionHtml
+      .replace(/\*\*(.+?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
+      .replace(/^• (.+)$/gm, '<div class="flex items-start gap-2 text-sm sm:text-sm lg:text-base"><span class="text-primary mt-0.5">•</span><span>$1</span></div>')
+      .replace(/\n{2,}/g, '</p><p class="text-sm sm:text-sm lg:text-base leading-relaxed">')
+      .replace(/\n/g, '<br/>'),
+    { ALLOWED_TAGS: ['strong', 'em', 'span', 'br', 'p', 'div'], ALLOWED_ATTR: ['class'] }
+  );
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <Helmet>
         <title>{listing.title} | Assignment Sale | PresaleProperties</title>
         <meta name="description" content={`${listing.beds}BR assignment at ${listing.project_name} in ${listing.city}. ${priceFormatted}.`} />
@@ -293,577 +323,594 @@ export default function AssignmentDetail() {
         })}</script>
       </Helmet>
 
-      <ConversionHeader />
+      <ConversionHeader hideOnMobile />
 
-      <main className="container px-4 py-4 sm:py-6 lg:py-10">
-        {/* Breadcrumb — hidden on mobile for cleaner look */}
-        <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <Link to="/" className="hover:text-foreground">Home</Link>
-          <span>/</span>
-          <Link to="/map-search?mode=assignments" className="hover:text-foreground">Assignments</Link>
-          <span>/</span>
-          <span className="text-foreground truncate">{listing.title}</span>
+      {/* Mobile/Tablet Scroll-Up Sticky Header — matches presale */}
+      <PropertyStickyHeader
+        price={priceFormatted}
+        specs={`${listing.beds} Bed • ${listing.neighborhood || listing.city} • ${completionDisplay}`}
+        onShare={handleShare}
+        backPath="/assignments"
+      />
+
+      <main className="min-h-screen bg-background pb-24 lg:pb-0">
+        {/* Breadcrumbs — edge-to-edge on mobile */}
+        <div className="px-3 lg:container lg:px-4 pt-3 md:pt-4">
+          <Breadcrumbs items={breadcrumbItems} />
         </div>
 
-        {/* Mobile back button */}
-        <button onClick={() => window.history.back()} className="sm:hidden flex items-center gap-1.5 text-sm text-muted-foreground mb-3 -ml-1">
-          <ChevronLeft className="h-4 w-4" />
-          <span>Back</span>
-        </button>
+        {/* Hero — Side-by-side on desktop, full-width gallery on mobile */}
+        <section className="bg-gradient-to-b from-muted/30 to-background">
+          <div className="lg:container px-0 lg:px-4 py-0 lg:py-6">
+            <div className="grid lg:grid-cols-5 gap-0 lg:gap-8 lg:items-start">
+              {/* Gallery — edge-to-edge on mobile, 3 cols on desktop */}
+              <div className="lg:col-span-3 -mx-0 lg:mx-0">
+                <REWPhotoGallery
+                  photos={allImages}
+                  alt={listing.title}
+                  previewAspectClassName="aspect-[4/3] md:aspect-[4/3] lg:aspect-[3/2]"
+                />
+              </div>
 
-        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* LEFT COLUMN */}
-          <div className="lg:col-span-2 space-y-5 sm:space-y-8">
-
-            {/* ── Photo Gallery ──────────────────────────────── */}
-            <div>
-              <div className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-muted aspect-[16/10]">
-                {uniqueGallery.length > 0 ? (
-                  <img
-                    src={uniqueGallery[currentImageIndex]}
-                    alt={listing.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    <Building2 className="h-12 w-12 sm:h-16 sm:w-16" />
-                  </div>
-                )}
-
-                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex gap-2">
-                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-[10px] sm:text-xs">Assignment</Badge>
+              {/* Info panel — inline on desktop, below gallery on mobile */}
+              <div className="lg:col-span-2 flex flex-col px-4 lg:px-0 pt-4 lg:pt-0">
+                {/* Badges */}
+                <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2 py-0.5">Assignment</Badge>
                   {discount && discount > 0 && (
-                    <Badge className="bg-green-600 hover:bg-green-700 text-white text-[10px] sm:text-xs">
+                    <Badge className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-0.5">
                       Save {formatPrice(discount)}
                     </Badge>
                   )}
                   {developerCredit && (
-                    <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs">
+                    <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-0.5">
                       {formatPrice(developerCredit)} Credit
                     </Badge>
                   )}
                 </div>
 
-                {uniqueGallery.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => setCurrentImageIndex(i => i === 0 ? uniqueGallery.length - 1 : i - 1)}
-                      className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors shadow"
-                    >
-                      <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-                    </button>
-                    <button
-                      onClick={() => setCurrentImageIndex(i => i === uniqueGallery.length - 1 ? 0 : i + 1)}
-                      className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors shadow"
-                    >
-                      <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
-                    </button>
-                    <div className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                      {uniqueGallery.slice(0, 8).map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setCurrentImageIndex(i)}
-                          className={cn("w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors", i === currentImageIndex ? "bg-white" : "bg-white/50")}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
+                {/* Title */}
+                <div className="flex flex-wrap items-center gap-2 mb-1.5 md:mb-2">
+                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight">{listing.title}</h1>
+                  <Badge variant="secondary" className="md:hidden text-[10px] px-1.5 py-0.5 font-medium">
+                    {listing.city}
+                  </Badge>
+                </div>
 
-                {/* Photo counter on mobile */}
-                {uniqueGallery.length > 1 && (
-                  <div className="absolute bottom-2 right-2 sm:hidden bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
-                    {currentImageIndex + 1}/{uniqueGallery.length}
+                {/* Price */}
+                <div className="mb-2 md:mb-3">
+                  <span className="text-muted-foreground text-sm md:text-base font-medium mr-1">Assignment Price</span>
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-bold text-primary !text-[28px] sm:!text-[32px] md:!text-[36px] lg:!text-[40px] leading-tight">
+                      {priceFormatted}
+                    </span>
+                    {listing.original_price && listing.original_price > listing.assignment_price && (
+                      <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price)}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1 md:mb-2">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  <span className="font-medium text-foreground">
+                    {listing.neighborhood || project?.neighborhood || ""}{listing.neighborhood || project?.neighborhood ? ", " : ""}{listing.city}
+                  </span>
+                </div>
+                {listing.address && (
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2 md:hidden">
+                    <span className="ml-5 truncate">{listing.address}</span>
                   </div>
                 )}
-              </div>
 
-              {/* Thumbnails — desktop only */}
-              {uniqueGallery.length > 1 && (
-                <div className="hidden sm:flex gap-2 mt-3 overflow-x-auto pb-1">
-                  {uniqueGallery.slice(0, 8).map((url, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentImageIndex(i)}
-                      className={cn("w-20 h-14 rounded-lg overflow-hidden shrink-0 border-2 transition-all", i === currentImageIndex ? "border-primary" : "border-transparent opacity-70 hover:opacity-100")}
-                    >
-                      <img src={url} alt="" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* ── Title + Quick Stats ────────────────────────── */}
-            <div>
-              {listing.unit_number && (
-                <Badge variant="outline" className="mb-2 sm:mb-3 text-[10px] sm:text-xs">Unit {listing.unit_number}</Badge>
-              )}
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1.5 sm:mb-2">{listing.title}</h1>
-              <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground text-sm mb-3 sm:mb-5">
-                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                <span className="truncate">{listing.project_name}{listing.neighborhood ? `, ${listing.neighborhood}` : ""}, {listing.city}</span>
-              </div>
-
-              {/* Mobile price display — visible only on mobile since desktop has the sidebar card */}
-              <div className="lg:hidden mb-4">
-                <div className="flex items-baseline gap-3 mb-1">
-                  <span className="text-2xl font-bold text-foreground">{priceFormatted}</span>
-                  {listing.original_price && listing.original_price > listing.assignment_price && (
-                    <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price)}</span>
+                {/* Quick Action Buttons — Map, Street View, Share */}
+                <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-3">
+                  {project?.map_lat && project?.map_lng && (
+                    <Link to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors">
+                      <MapPin className="h-3.5 w-3.5 text-primary" />
+                      <span>Map</span>
+                    </Link>
                   )}
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {discount && discount > 0 && (
-                    <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
-                      {formatPrice(discount)} below original
-                    </Badge>
+                  {project?.map_lat && project?.map_lng && (
+                    <a href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${project.map_lat},${project.map_lng}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors">
+                      <Eye className="h-3.5 w-3.5 text-primary" />
+                      <span>Street View</span>
+                    </a>
                   )}
-                  {developerCredit && (
-                    <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs">
-                      {formatPrice(developerCredit)} developer credit
-                    </Badge>
-                  )}
+                  <button onClick={handleShare} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors">
+                    <Share2 className="h-3.5 w-3.5 text-primary" />
+                    <span>Share</span>
+                  </button>
                 </div>
-              </div>
 
-              {/* Quick specs grid */}
-              <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
-                <div className="flex items-center gap-1 sm:gap-1.5"><Bed className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>{listing.beds} Bed{listing.beds !== 1 ? "s" : ""}</span></div>
-                <div className="flex items-center gap-1 sm:gap-1.5"><Bath className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>{listing.baths} Bath{listing.baths !== 1 ? "s" : ""}</span></div>
-                {listing.interior_sqft && <div className="flex items-center gap-1 sm:gap-1.5"><Maximize className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>{listing.interior_sqft.toLocaleString()} sf</span></div>}
-                {listing.floor_level && <div className="flex items-center gap-1 sm:gap-1.5"><Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>Floor {listing.floor_level}</span></div>}
-                {listing.exposure && <div className="flex items-center gap-1 sm:gap-1.5"><Compass className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>{listing.exposure}</span></div>}
-                <div className="flex items-center gap-1 sm:gap-1.5"><Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>{completionDisplay}</span></div>
-              </div>
-            </div>
-
-            {/* ── Unit Details ───────────────────────────────── */}
-            <Card>
-              <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">Unit Details</CardTitle></CardHeader>
-              <CardContent>
-                <dl className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
-                  <div><dt className="text-muted-foreground mb-0.5">Project</dt><dd className="font-medium">{listing.project_name}</dd></div>
+                {/* Quick Facts — visible on tablet and desktop */}
+                <div className="hidden md:block space-y-2 mb-3">
                   {(listing.developer_name || project?.developer_name) && (
-                    <div><dt className="text-muted-foreground mb-0.5">Developer</dt><dd className="font-medium">{listing.developer_name || project?.developer_name}</dd></div>
+                    <div className="flex items-center gap-2.5 text-sm lg:text-base">
+                      <Building2 className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground">Developer:</span>
+                      <span className="font-semibold truncate">{listing.developer_name || project?.developer_name}</span>
+                    </div>
                   )}
-                  <div><dt className="text-muted-foreground mb-0.5">City</dt><dd className="font-medium">{listing.city}</dd></div>
-                  {listing.unit_type && <div><dt className="text-muted-foreground mb-0.5">Unit Type</dt><dd className="font-medium">{listing.unit_type}</dd></div>}
-                  <div><dt className="text-muted-foreground mb-0.5">Est. Completion</dt><dd className="font-medium">{completionDisplay}</dd></div>
-                  <div><dt className="text-muted-foreground mb-0.5">Parking</dt><dd className="font-medium">{listing.parking || "Not included"}</dd></div>
-                  <div>
-                    <dt className="text-muted-foreground mb-0.5">Locker</dt>
-                    <dd className="font-medium flex items-center gap-1">
-                      {listing.has_locker ? <><CheckCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-green-600" /> Included</> : <><XCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" /> No</>}
-                    </dd>
+                  <div className="flex items-center gap-2.5 text-sm lg:text-base">
+                    <Calendar className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
+                    <span className="text-muted-foreground">Completion:</span>
+                    <span className="font-semibold">{completionDisplay}</span>
                   </div>
-                  <div>
-                    <dt className="text-muted-foreground mb-0.5">Dev. Approval</dt>
-                    <dd className="font-medium">{listing.developer_approval_required ? "Required" : "Not required"}</dd>
+                  <div className="flex items-center gap-2.5 text-sm lg:text-base">
+                    <Home className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
+                    <span className="text-muted-foreground">Unit:</span>
+                    <span className="font-semibold truncate">{listing.unit_type || `${listing.beds} Bed ${listing.baths} Bath`}</span>
                   </div>
-                  {listing.buyer_agent_commission && (
-                    <div><dt className="text-muted-foreground mb-0.5">Buyer Agent Commission</dt><dd className="font-medium">{listing.buyer_agent_commission}</dd></div>
+                  {listing.interior_sqft && (
+                    <div className="flex items-center gap-2.5 text-sm lg:text-base">
+                      <Maximize className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground">Interior:</span>
+                      <span className="font-semibold">{listing.interior_sqft.toLocaleString()} sqft{listing.exterior_sqft ? ` + ${listing.exterior_sqft} sqft outdoor` : ""}</span>
+                    </div>
                   )}
-                </dl>
-              </CardContent>
-            </Card>
+                </div>
 
+                {/* Short description — tablet/desktop */}
+                {(listing.description || project?.short_description) && (
+                  <p className="text-sm text-muted-foreground mt-4 mb-2 md:mt-2 md:mb-0 leading-relaxed lg:line-clamp-4 hidden md:block">
+                    {(listing.description || project?.short_description || "").replace(/\*\*(.+?)\*\*/g, '$1').slice(0, 200)}...
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
 
+        {/* Mobile-only Quick Stats — edge-to-edge */}
+        <section className="border-t md:hidden">
+          <div className="px-4 py-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Bedrooms</p>
+                <p className="font-semibold text-sm text-foreground">{listing.beds} Bed{listing.beds !== 1 ? "s" : ""} / {listing.baths} Bath</p>
+              </div>
+              {listing.interior_sqft && (
+                <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Interior</p>
+                  <p className="font-semibold text-sm text-foreground">{listing.interior_sqft.toLocaleString()} sqft</p>
+                </div>
+              )}
+              <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Completion</p>
+                <p className="font-semibold text-sm text-foreground">{completionDisplay}</p>
+              </div>
+              {(listing.developer_name || project?.developer_name) && (
+                <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Developer</p>
+                  <p className="font-semibold text-sm text-foreground truncate">{listing.developer_name || project?.developer_name}</p>
+                </div>
+              )}
+              {listing.exposure && (
+                <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Exposure</p>
+                  <p className="font-semibold text-sm text-foreground">{listing.exposure}</p>
+                </div>
+              )}
+              {listing.floor_level && (
+                <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Floor</p>
+                  <p className="font-semibold text-sm text-foreground">Level {listing.floor_level}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
 
-            {/* ── Amenities ──────────────────────────────────── */}
-            {project?.amenities && project.amenities.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">Building Amenities</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {project.amenities.map((a, i) => (
-                      <Badge key={i} variant="secondary" className="text-[10px] sm:text-xs">{a}</Badge>
-                    ))}
+        {/* Details Grid — edge-to-edge on mobile */}
+        <section className="py-2 sm:py-3 md:py-5 lg:py-8">
+          <div className="px-4 lg:container lg:px-4">
+            <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+              {/* Main Content */}
+              <div className="lg:col-span-2 space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6">
+
+                {/* Unit Details — styled like presale deposit/fees section */}
+                <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6 border border-border/40">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Project</p>
+                      <p className="font-semibold text-sm sm:text-base text-foreground">{listing.project_name}</p>
+                    </div>
+                    <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Parking</p>
+                      <p className="font-semibold text-sm sm:text-base text-foreground">{listing.parking || "Not included"}</p>
+                    </div>
+                    <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Locker</p>
+                      <p className="font-semibold text-sm sm:text-base text-foreground flex items-center gap-1">
+                        {listing.has_locker ? <><CheckCircle className="h-3.5 w-3.5 text-green-500" /> Included</> : <><XCircle className="h-3.5 w-3.5 text-muted-foreground" /> No</>}
+                      </p>
+                    </div>
+                    {listing.unit_type && (
+                      <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Unit Type</p>
+                        <p className="font-semibold text-sm sm:text-base text-foreground">{listing.unit_type}</p>
+                      </div>
+                    )}
+                    {listing.buyer_agent_commission && (
+                      <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Buyer Agent Commission</p>
+                        <p className="font-semibold text-sm sm:text-base text-foreground">{listing.buyer_agent_commission}</p>
+                      </div>
+                    )}
+                    {listing.developer_approval_required && (
+                      <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Dev. Approval</p>
+                        <p className="font-semibold text-sm sm:text-base text-amber-600 dark:text-amber-400">Required</p>
+                      </div>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            )}
 
-            {/* ── Description ────────────────────────────────── */}
-            {(listing.description || project?.full_description) && (
-              <Card>
-                <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">About This Unit</CardTitle></CardHeader>
-                <CardContent>
-                  <div 
-                    className="text-muted-foreground text-xs sm:text-sm leading-relaxed prose prose-sm max-w-none prose-strong:text-foreground prose-ul:list-disc prose-ul:pl-4"
-                    dangerouslySetInnerHTML={{ 
-                      __html: (listing.description || project?.full_description || '')
-                        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                        .replace(/^• (.+)$/gm, '<li>$1</li>')
-                        .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
-                        .replace(/<\/ul>\s*<ul>/g, '')
-                        .replace(/\n{2,}/g, '</p><p>')
-                        .replace(/\n/g, '<br/>')
-                        .replace(/^/, '<p>')
-                        .replace(/$/, '</p>')
-                    }}
-                  />
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ── Floor Plans (Visual) ───────────────────────── */}
-            {floorplanImages.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3 sm:pb-6">
-                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                    <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                    Floor Plan{floorplanImages.length > 1 ? "s" : ""}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className={cn("grid gap-4", floorplanImages.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1")}>
-                    {floorplanImages.map((fp) => (
-                      <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" className="group block">
-                        <div className="rounded-xl overflow-hidden border border-border bg-muted/30 hover:border-primary/40 transition-colors">
-                          <img
-                            src={fp.url}
-                            alt={fp.file_name || "Floor Plan"}
-                            className="w-full h-auto object-contain max-h-[500px] p-2"
-                          />
-                          <div className="px-3 py-2 border-t border-border flex items-center justify-between">
-                            <span className="text-xs sm:text-sm text-muted-foreground truncate">{fp.file_name || "Floor Plan"}</span>
-                            <Download className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                  {/* Discount / Credit highlights */}
+                  {(discount || developerCredit) && (
+                    <div className="mt-3 space-y-2">
+                      {discount && discount > 0 && (
+                        <div className="bg-green-50 dark:bg-green-950/30 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-green-200/50 dark:border-green-800/30">
+                          <div className="flex items-start gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
+                            <div>
+                              <p className="text-[10px] sm:text-xs text-green-700 dark:text-green-400 font-semibold uppercase tracking-wide mb-0.5">Below Original Price</p>
+                              <p className="text-xs sm:text-sm text-green-800 dark:text-green-300">Save {formatPrice(discount)} — Original price was {formatPrice(listing.original_price!)}</p>
+                            </div>
                           </div>
                         </div>
-                      </a>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ── Video Walkthrough ──────────────────────────── */}
-            {videoFiles.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3 sm:pb-6">
-                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
-                    Video Walkthrough
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {videoFiles.map((vid) => (
-                      <div key={vid.id} className="rounded-xl overflow-hidden border border-border bg-black">
-                        <video
-                          controls
-                          preload="metadata"
-                          className="w-full max-h-[500px]"
-                          playsInline
-                        >
-                          <source src={vid.url} type={vid.url.endsWith(".webm") ? "video/webm" : vid.url.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
-                          Your browser does not support the video tag.
-                        </video>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ── Documents — prominent download section ──── */}
-            {(listing.floor_plan_url || listing.brochure_url || floorplanFiles.filter(f => !floorplanImages.includes(f)).length > 0) && (
-              <Card className="border-primary/20">
-                <CardHeader className="pb-3 sm:pb-6">
-                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                    <Download className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                    Downloads
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {listing.floor_plan_url && (
-                    <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer" download
-                      className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <FileText className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">{listing.floor_plan_name || "Floor Plan"}</p>
-                        <p className="text-xs text-muted-foreground">Tap to download</p>
-                      </div>
-                      <Download className="h-4 w-4 text-primary shrink-0" />
-                    </a>
-                  )}
-                  {/* PDF floorplans as downloadable docs */}
-                  {floorplanFiles.filter(f => !floorplanImages.includes(f)).map((fp) => (
-                    <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" download
-                      className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <FileText className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">{fp.file_name || "Floor Plan PDF"}</p>
-                        <p className="text-xs text-muted-foreground">Tap to download</p>
-                      </div>
-                      <Download className="h-4 w-4 text-primary shrink-0" />
-                    </a>
-                  ))}
-                  {listing.brochure_url && (
-                    <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer" download
-                      className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <BookOpen className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold">Project Brochure</p>
-                        <p className="text-xs text-muted-foreground">Tap to download</p>
-                      </div>
-                      <Download className="h-4 w-4 text-primary shrink-0" />
-                    </a>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-
-
-
-            {/* ── Location Map ───────────────────────────────── */}
-            {project?.map_lat && project?.map_lng && (
-              <Card>
-                <CardHeader className="pb-3 sm:pb-6">
-                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                    <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />Location
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <AssignmentLocationMap
-                    lat={project.map_lat}
-                    lng={project.map_lng}
-                    projectName={listing.project_name}
-                    address={listing.address || project.address}
-                  />
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-3">
-                    {listing.address || project.address || listing.project_name}, {listing.neighborhood || project.neighborhood || ""} {listing.city}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* ── RIGHT COLUMN (desktop only sidebar) ──────── */}
-          <div className="hidden lg:block space-y-6">
-            {/* Pricing Card */}
-            <Card className="border-primary/20 sticky top-4 overflow-hidden">
-              <CardContent className="pt-6 relative">
-                {!isVerified && (
-                  <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-6 text-center rounded-xl">
-                    <Lock className="h-8 w-8 text-primary mb-3" />
-                    <p className="font-semibold text-foreground mb-1">Agent Access Only</p>
-                    <p className="text-sm text-muted-foreground mb-4">Verify your agent credentials to view full pricing & details.</p>
-                    <Button size="sm" className="w-full" onClick={() => setFormOpen(true)}>
-                      <Shield className="h-4 w-4 mr-2" />
-                      Request Access
-                    </Button>
-                  </div>
-                )}
-
-                <p className="text-sm text-muted-foreground mb-1">Assignment Price</p>
-                <div className="text-3xl font-bold text-foreground mb-3">{priceFormatted}</div>
-
-                {discount && discount > 0 && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price!)}</span>
-                    <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400">Save {formatPrice(discount)}</Badge>
-                  </div>
-                )}
-                {developerCredit && (
-                  <div className="flex items-center gap-2 mb-4">
-                    <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400">
-                      {formatPrice(developerCredit)} Developer Credit
-                    </Badge>
-                  </div>
-                )}
-
-                <Separator className="my-4" />
-
-                <div className="space-y-3 text-sm">
-                  {listing.original_price && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Original Purchase Price</span>
-                      <span className="font-medium">{formatPrice(listing.original_price)}</span>
-                    </div>
-                  )}
-                  {listing.deposit_to_lock && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Deposit to Lock</span>
-                      <span className="font-medium">{formatPrice(listing.deposit_to_lock)}</span>
-                    </div>
-                  )}
-                  {developerCredit && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Developer Credit</span>
-                      <span className="font-medium text-blue-600 dark:text-blue-400">{formatPrice(developerCredit)}</span>
-                    </div>
-                  )}
-                  {listing.buyer_agent_commission && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Buyer Agent Commission</span>
-                      <span className="font-medium">{listing.buyer_agent_commission}</span>
-                    </div>
-                  )}
-                  {listing.developer_approval_required && (
-                    <div className="flex justify-between text-amber-600 dark:text-amber-400">
-                      <span>Developer Approval Required</span>
-                      <CheckCircle className="h-4 w-4" />
+                      )}
+                      {developerCredit && (
+                        <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200/50 dark:border-blue-800/30">
+                          <div className="flex items-start gap-2">
+                            <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                            <div>
+                              <p className="text-[10px] sm:text-xs text-blue-700 dark:text-blue-400 font-semibold uppercase tracking-wide mb-0.5">Developer Credit</p>
+                              <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-300">{formatPrice(developerCredit)} credit included with this assignment</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
 
-                <Separator className="my-4" />
-
-                {/* Agent CTA */}
-                {listingAgent ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-                        {listingAgent.avatar_url ? (
-                          <img src={listingAgent.avatar_url} alt="" className="h-full w-full object-cover" />
-                        ) : (
-                          <span className="text-sm font-bold text-primary">
-                            {(listingAgent.full_name || "A").charAt(0).toUpperCase()}
-                          </span>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm truncate">{listingAgent.full_name || "Listing Agent"}</p>
-                        <p className="text-xs text-muted-foreground">Real Broker</p>
-                      </div>
+                {/* Amenities */}
+                {project?.amenities && project.amenities.length > 0 && (
+                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4">Building Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-3 md:gap-4">
+                      {project.amenities.map((a, i) => (
+                        <div key={i} className="flex items-center gap-2 sm:gap-2">
+                          <CheckCircle className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-500 shrink-0" />
+                          <span className="text-sm sm:text-sm md:text-base text-foreground">{a}</span>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex gap-2">
-                      {listingAgent.phone && (
-                        <a href={`tel:${listingAgent.phone}`} className="flex-1">
-                          <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
-                            <Phone className="h-3.5 w-3.5" />Call
-                          </Button>
+                  </div>
+                )}
+
+                {/* Description */}
+                {(listing.description || project?.full_description) && (
+                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4">About This Unit</h2>
+                    <div
+                      className="prose prose-sm max-w-none text-muted-foreground space-y-3 sm:space-y-3"
+                      dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+                    />
+                  </div>
+                )}
+
+                {/* Floor Plans */}
+                {floorplanImages.length > 0 && (
+                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4 flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-primary" />
+                      Floor Plan{floorplanImages.length > 1 ? "s" : ""}
+                    </h2>
+                    <div className={cn("grid gap-4", floorplanImages.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1")}>
+                      {floorplanImages.map((fp) => (
+                        <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" className="group block">
+                          <div className="rounded-xl overflow-hidden border border-border bg-background hover:border-primary/40 transition-colors">
+                            <img src={fp.url} alt={fp.file_name || "Floor Plan"} className="w-full h-auto object-contain max-h-[500px] p-2" />
+                            <div className="px-3 py-2 border-t border-border flex items-center justify-between">
+                              <span className="text-xs sm:text-sm text-muted-foreground truncate">{fp.file_name || "Floor Plan"}</span>
+                              <Download className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                            </div>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Video */}
+                {videoFiles.length > 0 && (
+                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4">Video Walkthrough</h2>
+                    <div className="space-y-4">
+                      {videoFiles.map((vid) => (
+                        <div key={vid.id} className="rounded-xl overflow-hidden border border-border bg-black">
+                          <video controls preload="metadata" className="w-full max-h-[500px]" playsInline>
+                            <source src={vid.url} type={vid.url.endsWith(".webm") ? "video/webm" : vid.url.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
+                          </video>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Downloads */}
+                {(listing.floor_plan_url || listing.brochure_url || floorplanFiles.filter(f => !floorplanImages.includes(f)).length > 0) && (
+                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4 flex items-center gap-2">
+                      <Download className="h-5 w-5 text-primary" />
+                      Downloads
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {listing.floor_plan_url && (
+                        <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer" download
+                          className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-background hover:bg-primary/5 transition-colors">
+                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <FileText className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold truncate">{listing.floor_plan_name || "Floor Plan"}</p>
+                            <p className="text-xs text-muted-foreground">Tap to download</p>
+                          </div>
+                          <Download className="h-4 w-4 text-primary shrink-0" />
                         </a>
                       )}
-                      <a href={`mailto:${listingAgent.email}?subject=Assignment Inquiry: ${listing.title}`} className="flex-1">
-                        <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
-                          <Mail className="h-3.5 w-3.5" />Email
+                      {floorplanFiles.filter(f => !floorplanImages.includes(f)).map((fp) => (
+                        <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" download
+                          className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-background hover:bg-primary/5 transition-colors">
+                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <FileText className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold truncate">{fp.file_name || "Floor Plan PDF"}</p>
+                            <p className="text-xs text-muted-foreground">Tap to download</p>
+                          </div>
+                          <Download className="h-4 w-4 text-primary shrink-0" />
+                        </a>
+                      ))}
+                      {listing.brochure_url && (
+                        <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer" download
+                          className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-background hover:bg-primary/5 transition-colors">
+                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <BookOpen className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold">Project Brochure</p>
+                            <p className="text-xs text-muted-foreground">Tap to download</p>
+                          </div>
+                          <Download className="h-4 w-4 text-primary shrink-0" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Location Map */}
+                {project?.map_lat && project?.map_lng && (
+                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4 flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-primary" />
+                      Location
+                    </h2>
+                    <AssignmentLocationMap
+                      lat={project.map_lat}
+                      lng={project.map_lng}
+                      projectName={listing.project_name}
+                      address={listing.address || project.address}
+                    />
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-3">
+                      {listing.address || project.address || listing.project_name}, {listing.neighborhood || project.neighborhood || ""} {listing.city}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Sidebar — Desktop only */}
+              <aside className="hidden lg:block lg:col-span-1" aria-label="Pricing and contact">
+                <div className="w-full lg:sticky lg:top-20 space-y-4">
+                  {/* Pricing Card */}
+                  <div className="bg-background rounded-xl sm:rounded-2xl p-5 border border-border shadow-sm relative overflow-hidden">
+                    {!isVerified && (
+                      <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-6 text-center rounded-xl">
+                        <Lock className="h-8 w-8 text-primary mb-3" />
+                        <p className="font-semibold text-foreground mb-1">Agent Access Only</p>
+                        <p className="text-sm text-muted-foreground mb-4">Verify your agent credentials to view full pricing & details.</p>
+                        <Button size="sm" className="w-full" onClick={() => setFormOpen(true)}>
+                          <Shield className="h-4 w-4 mr-2" />
+                          Request Access
+                        </Button>
+                      </div>
+                    )}
+
+                    <p className="text-sm text-muted-foreground mb-1">Assignment Price</p>
+                    <div className="text-3xl font-bold text-foreground mb-3">{priceFormatted}</div>
+
+                    {discount && discount > 0 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price!)}</span>
+                        <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400">Save {formatPrice(discount)}</Badge>
+                      </div>
+                    )}
+                    {developerCredit && (
+                      <div className="flex items-center gap-2 mb-4">
+                        <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400">
+                          {formatPrice(developerCredit)} Developer Credit
+                        </Badge>
+                      </div>
+                    )}
+
+                    <Separator className="my-4" />
+
+                    <div className="space-y-3 text-sm">
+                      {listing.original_price && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Original Purchase Price</span>
+                          <span className="font-medium">{formatPrice(listing.original_price)}</span>
+                        </div>
+                      )}
+                      {listing.deposit_to_lock && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Deposit to Lock</span>
+                          <span className="font-medium">{formatPrice(listing.deposit_to_lock)}</span>
+                        </div>
+                      )}
+                      {developerCredit && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Developer Credit</span>
+                          <span className="font-medium text-blue-600 dark:text-blue-400">{formatPrice(developerCredit)}</span>
+                        </div>
+                      )}
+                      {listing.buyer_agent_commission && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Buyer Agent Commission</span>
+                          <span className="font-medium">{listing.buyer_agent_commission}</span>
+                        </div>
+                      )}
+                      {listing.developer_approval_required && (
+                        <div className="flex justify-between text-amber-600 dark:text-amber-400">
+                          <span>Developer Approval Required</span>
+                          <CheckCircle className="h-4 w-4" />
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    {/* Agent CTA */}
+                    {listingAgent ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                            {listingAgent.avatar_url ? (
+                              <img src={listingAgent.avatar_url} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                              <span className="text-sm font-bold text-primary">
+                                {(listingAgent.full_name || "A").charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm truncate">{listingAgent.full_name || "Listing Agent"}</p>
+                            <p className="text-xs text-muted-foreground">Real Broker</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          {listingAgent.phone && (
+                            <a href={`tel:${listingAgent.phone}`} className="flex-1">
+                              <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
+                                <Phone className="h-3.5 w-3.5" />Call
+                              </Button>
+                            </a>
+                          )}
+                          <a href={`mailto:${listingAgent.email}?subject=Assignment Inquiry: ${listing.title}`} className="flex-1">
+                            <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
+                              <Mail className="h-3.5 w-3.5" />Email
+                            </Button>
+                          </a>
+                        </div>
+                        <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
+                          <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#1da851] text-white">
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            WhatsApp {listingAgent.full_name?.split(" ")[0] || "Agent"}
+                          </Button>
+                        </a>
+                      </div>
+                    ) : (
+                      <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
+                        <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#1da851] text-white">
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          WhatsApp Us
                         </Button>
                       </a>
-                    </div>
-                    <a href={`https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the assignment at "${listing.project_name}" (${listing.title}). Can you send me more details?`)}`} target="_blank" rel="noopener noreferrer" className="block">
-                      <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#1da851] text-white">
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        WhatsApp {listingAgent.full_name?.split(" ")[0] || "Agent"}
-                      </Button>
-                    </a>
+                    )}
                   </div>
-                ) : (
-                  <a href={`https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the assignment at "${listing.project_name}" (${listing.title}). Can you send me more details?`)}`} target="_blank" rel="noopener noreferrer">
-                    <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#1da851] text-white">
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      WhatsApp Us
+
+                  {/* Quick Actions */}
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="default" className="flex-1 justify-center h-11 text-sm" asChild>
+                      <a href="tel:+16722581100">
+                        <Phone className="h-4 w-4 mr-1.5" />
+                        Call
+                      </a>
                     </Button>
-                  </a>
-                )}
-              </CardContent>
-            </Card>
-
-
-
-
-            {/* Key Dates */}
-            <Card>
-              <CardHeader><CardTitle className="text-base">Key Dates</CardTitle></CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                    <div>
-                      <p className="font-medium">Estimated Completion</p>
-                      <p className="text-muted-foreground">{completionDisplay}</p>
-                    </div>
+                    <Button variant="outline" size="default" className="flex-1 justify-center h-11 text-sm" onClick={handleShare}>
+                      <Share2 className="h-4 w-4 mr-1.5" />
+                      Share
+                    </Button>
                   </div>
-                  {listing.address && (
-                    <div className="flex items-start gap-3">
-                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                      <div>
-                        <p className="font-medium">Address</p>
-                        <p className="text-muted-foreground">{listing.address}</p>
+
+                  {/* Downloads Sidebar */}
+                  {(listing.floor_plan_url || listing.brochure_url) && (
+                    <div className="bg-background rounded-xl p-5 border border-border shadow-sm">
+                      <h3 className="text-base font-bold mb-3 flex items-center gap-2"><Download className="h-4 w-4 text-primary" />Downloads</h3>
+                      <div className="space-y-2">
+                        {listing.floor_plan_url && (
+                          <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer" download
+                            className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+                            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                              <FileText className="h-4 w-4 text-primary" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold truncate">{listing.floor_plan_name || "Floor Plan"}</p>
+                              <p className="text-[10px] text-muted-foreground">Tap to download</p>
+                            </div>
+                            <Download className="h-4 w-4 text-primary shrink-0" />
+                          </a>
+                        )}
+                        {listing.brochure_url && (
+                          <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer" download
+                            className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+                            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                              <BookOpen className="h-4 w-4 text-primary" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold">Project Brochure</p>
+                              <p className="text-[10px] text-muted-foreground">Tap to download</p>
+                            </div>
+                            <Download className="h-4 w-4 text-primary shrink-0" />
+                          </a>
+                        )}
                       </div>
+                    </div>
+                  )}
+
+                  {/* One-Pager Download — verified agents only */}
+                  {isVerified && (
+                    <div className="bg-primary/5 rounded-xl p-5 border border-primary/20">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <FileDown className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm text-foreground">Download One-Pager</p>
+                          <p className="text-xs text-muted-foreground">Branded PDF for client sharing</p>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={handleDownloadOnePager}
+                        disabled={isExporting}
+                        variant="outline"
+                        className="w-full h-10 gap-2 text-sm font-semibold border-primary/30 hover:bg-primary/5"
+                      >
+                        {isExporting ? (
+                          <><Loader2 className="h-4 w-4 animate-spin" />Generating...</>
+                        ) : (
+                          <><Download className="h-4 w-4" />Download PNG One-Pager</>
+                        )}
+                      </Button>
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Documents Sidebar */}
-            {(listing.floor_plan_url || listing.brochure_url) && (
-              <Card className="border-primary/20">
-                <CardHeader><CardTitle className="text-base flex items-center gap-2"><Download className="h-4 w-4 text-primary" />Downloads</CardTitle></CardHeader>
-                <CardContent className="space-y-2">
-                  {listing.floor_plan_url && (
-                    <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer" download
-                      className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
-                      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <FileText className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">{listing.floor_plan_name || "Floor Plan"}</p>
-                        <p className="text-[10px] text-muted-foreground">Tap to download</p>
-                      </div>
-                      <Download className="h-4 w-4 text-primary shrink-0" />
-                    </a>
-                  )}
-                  {listing.brochure_url && (
-                    <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer" download
-                      className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
-                      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <BookOpen className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold">Project Brochure</p>
-                        <p className="text-[10px] text-muted-foreground">Tap to download</p>
-                      </div>
-                      <Download className="h-4 w-4 text-primary shrink-0" />
-                    </a>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-
-
-
-            {/* One-Pager Download — verified agents only */}
-            {isVerified && (
-              <Card className="border-primary/20 bg-primary/5">
-                <CardContent className="pt-5">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <FileDown className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm text-foreground">Download One-Pager</p>
-                      <p className="text-xs text-muted-foreground">Branded PDF for client sharing</p>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={handleDownloadOnePager}
-                    disabled={isExporting}
-                    variant="outline"
-                    className="w-full h-10 gap-2 text-sm font-semibold border-primary/30 hover:bg-primary/5"
-                  >
-                    {isExporting ? (
-                      <><Loader2 className="h-4 w-4 animate-spin" />Generating...</>
-                    ) : (
-                      <><Download className="h-4 w-4" />Download PNG One-Pager</>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+              </aside>
+            </div>
           </div>
-        </div>
+        </section>
       </main>
 
       <Footer />
@@ -882,7 +929,7 @@ export default function AssignmentDetail() {
         selectedAgentName={listingAgent?.full_name || listing.title}
       />
 
-      {/* Off-screen one-pager template for html2canvas capture */}
+      {/* Off-screen one-pager template */}
       <div
         style={{
           position: "fixed", top: 0, left: "-9999px", width: 612,
@@ -897,6 +944,6 @@ export default function AssignmentDetail() {
           completionDisplay={completionDisplay}
         />
       </div>
-    </div>
+    </>
   );
 }
