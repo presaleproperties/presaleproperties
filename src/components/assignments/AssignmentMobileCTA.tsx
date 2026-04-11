@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, MessageSquare, ChevronDown } from "lucide-react";
+import { FileText, BookOpen, MessageCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,9 +8,11 @@ interface AssignmentMobileCTAProps {
   price: string;
   onInquireClick: () => void;
   agentName?: string;
+  floorPlanUrl?: string | null;
+  brochureUrl?: string | null;
 }
 
-export function AssignmentMobileCTA({ projectName, price, onInquireClick, agentName }: AssignmentMobileCTAProps) {
+export function AssignmentMobileCTA({ projectName, price, onInquireClick, agentName, floorPlanUrl, brochureUrl }: AssignmentMobileCTAProps) {
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [isHidden, setIsHidden] = useState(false);
 
@@ -35,7 +37,6 @@ export function AssignmentMobileCTA({ projectName, price, onInquireClick, agentN
 
   return (
     <>
-      {/* Spacer so content isn't hidden behind the fixed bar */}
       <div className="h-24 lg:hidden" aria-hidden="true" />
 
       <div
@@ -54,20 +55,35 @@ export function AssignmentMobileCTA({ projectName, price, onInquireClick, agentN
 
           <div className="pb-3 bg-background"
             style={{ paddingLeft: "max(16px, env(safe-area-inset-left, 16px))", paddingRight: "max(16px, env(safe-area-inset-right, 16px))", paddingBottom: "max(16px, env(safe-area-inset-bottom, 16px))" }}>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl" asChild>
-                <a href="tel:+16722581100" aria-label="Call agent"><Phone className="h-5 w-5" /></a>
-              </Button>
-              {whatsappLink && (
-                <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl text-primary border-border hover:bg-accent" asChild>
-                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp"><MessageCircle className="h-5 w-5" /></a>
+            <div className="flex items-center gap-2">
+              {floorPlanUrl && (
+                <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl" asChild>
+                  <a href={floorPlanUrl} target="_blank" rel="noopener noreferrer" download aria-label="Download Floor Plan">
+                    <FileText className="h-5 w-5" />
+                  </a>
                 </Button>
               )}
-              <Button size="lg" className="flex-1 h-14 min-h-[56px] rounded-xl font-semibold text-base gap-2 bg-foreground hover:bg-foreground/90 text-background"
-                onClick={onInquireClick}>
-                <MessageSquare className="h-4 w-4" />
-                <span>{agentName ? `Contact ${agentName.split(" ")[0]}` : "Inquire Now"}</span>
-              </Button>
+              {brochureUrl && (
+                <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl" asChild>
+                  <a href={brochureUrl} target="_blank" rel="noopener noreferrer" download aria-label="Download Brochure">
+                    <BookOpen className="h-5 w-5" />
+                  </a>
+                </Button>
+              )}
+              {whatsappLink ? (
+                <Button size="lg" className="flex-1 h-14 min-h-[56px] rounded-xl font-semibold text-base gap-2 bg-[#25D366] hover:bg-[#1da851] text-white" asChild>
+                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-5 w-5" />
+                    <span>{agentName ? `WhatsApp ${agentName.split(" ")[0]}` : "WhatsApp Us"}</span>
+                  </a>
+                </Button>
+              ) : (
+                <Button size="lg" className="flex-1 h-14 min-h-[56px] rounded-xl font-semibold text-base gap-2 bg-foreground hover:bg-foreground/90 text-background"
+                  onClick={onInquireClick}>
+                  <MessageCircle className="h-4 w-4" />
+                  <span>{agentName ? `Contact ${agentName.split(" ")[0]}` : "Inquire Now"}</span>
+                </Button>
+              )}
             </div>
           </div>
         </div>
