@@ -41,9 +41,12 @@ function getDisplayName(asset: SavedAsset): string {
   return asset.form_data?.copy?.subjectLine || asset.name;
 }
 
-function buildPreviewHtml(asset: SavedAsset): string {
+function getSavedHtml(asset: SavedAsset): string {
+  const fd = asset.form_data;
+  // Use the exact saved/rendered HTML if available
+  if (fd?.finalHtml) return fd.finalHtml;
+  // Fallback: rebuild from vars
   try {
-    const fd = asset.form_data;
     if (!fd?.vars) return "";
     const copy: AiEmailCopy = {
       headline: fd.vars?.headline || "",
