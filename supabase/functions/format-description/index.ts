@@ -81,11 +81,11 @@ Write the promotional description now:`;
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "google/gemini-3-flash-preview",
           messages: [
             { role: "user", content: assignmentPrompt },
           ],
-          max_tokens: 1000,
+          max_tokens: 1500,
         }),
       });
 
