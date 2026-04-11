@@ -1,0 +1,2 @@
+ALTER TABLE public.listings DROP CONSTRAINT listings_listing_agent_id_fkey;
+ALTER TABLE public.listings ADD CONSTRAINT listings_listing_agent_id_fkey FOREIGN KEY (listing_agent_id) REFERENCES profiles(user_id) ON DELETE SET NULL;
