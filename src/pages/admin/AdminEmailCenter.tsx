@@ -229,7 +229,9 @@ function QuickSendPanel({
               const isSelected = selectedTemplate === c.id;
               let previewHtml = "";
               try {
-                if (c.form_data?.vars) {
+                if (c.form_data?.finalHtml) {
+                  previewHtml = c.form_data.finalHtml;
+                } else if (c.form_data?.vars) {
                   const fd = c.form_data;
                   previewHtml = buildAiEmailHtml({
                     headline: fd.vars?.headline || "",
