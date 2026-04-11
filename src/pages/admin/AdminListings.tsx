@@ -191,9 +191,13 @@ export default function AdminListings() {
   const [editForm, setEditForm] = useState<AddListingForm>(EMPTY_FORM);
   const [editSaving, setEditSaving] = useState(false);
 
+  // Agent list for listing agent selector
+  const [agents, setAgents] = useState<AgentOption[]>([]);
+
   useEffect(() => {
     fetchListings();
     fetchProjects();
+    fetchAgents();
   }, []);
 
   useEffect(() => {
