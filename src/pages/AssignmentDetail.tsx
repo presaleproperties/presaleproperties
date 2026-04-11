@@ -784,6 +784,8 @@ export default function AssignmentDetail() {
         price={priceFormatted}
         onInquireClick={() => setFormOpen(true)}
         agentName={listingAgent?.full_name || undefined}
+        floorPlanUrl={listing.floor_plan_url}
+        brochureUrl={listing.brochure_url}
       />
 
       <AboutContactForm
