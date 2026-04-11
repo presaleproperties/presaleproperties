@@ -96,12 +96,15 @@ function QuickSendPanel({
   campaigns,
   pitchDecks,
   onSent,
+  onRefreshCampaigns,
 }: {
   campaigns: SavedCampaign[];
   pitchDecks: PitchDeck[];
   onSent: () => void;
+  onRefreshCampaigns: () => void;
 }) {
   const navigate = useNavigate();
+  const [previewingCampaign, setPreviewingCampaign] = useState<SavedCampaign | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("none");
   const [subject, setSubject] = useState("");
   const [htmlBody, setHtmlBody] = useState("");
