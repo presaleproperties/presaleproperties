@@ -66,7 +66,7 @@ export function AssignmentMobileCTA({ projectName, price, onInquireClick, agentN
               <Button size="lg" className="flex-1 h-14 min-h-[56px] rounded-xl font-semibold text-base gap-2 bg-foreground hover:bg-foreground/90 text-background"
                 onClick={onInquireClick}>
                 <MessageSquare className="h-4 w-4" />
-                <span>Inquire Now</span>
+                <span>{agentName ? `Contact ${agentName.split(" ")[0]}` : "Inquire Now"}</span>
               </Button>
             </div>
           </div>
