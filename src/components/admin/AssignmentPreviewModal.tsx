@@ -2,17 +2,15 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import {
   MapPin,
   Bed,
+  Bath,
   Maximize,
   Building2,
   Calendar,
@@ -33,6 +31,12 @@ import {
   Download,
   BookOpen,
   Layers,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
 } from "lucide-react";
 
 interface Listing {
@@ -110,7 +114,6 @@ export function AssignmentPreviewModal({
 
   const fetchPhotosAndFiles = async () => {
     if (!listing) return;
-    
     setLoadingPhotos(true);
     try {
       const [photosRes, filesRes, projectRes] = await Promise.all([
@@ -146,406 +149,397 @@ export function AssignmentPreviewModal({
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-CA", {
-      style: "currency",
-      currency: "CAD",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const getCompletionDate = () => {
-    return listing?.estimated_completion || "TBD";
-  };
-
-  const getUnitTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      studio: "Studio",
-      "1bed": "1 Bedroom",
-      "1bed_den": "1 Bed + Den",
-      "2bed": "2 Bedroom",
-      "2bed_den": "2 Bed + Den",
-      "3bed": "3 Bedroom",
-      penthouse: "Penthouse",
-    };
-    return labels[type] || type;
-  };
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(price);
 
   if (!listing) return null;
 
-  const assignmentPremium = listing.original_price 
-    ? listing.assignment_price - listing.original_price 
+  const assignmentPremium = listing.original_price
+    ? (listing.assignment_price || 0) - listing.original_price
     : null;
+
+  const premiumPercent = listing.original_price && assignmentPremium !== null
+    ? ((assignmentPremium / listing.original_price) * 100).toFixed(1)
+    : null;
+
+  const heroPhoto = photos[selectedPhoto] || null;
+
+  const statusConfig: Record<string, { label: string; className: string }> = {
+    draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
+    pending_approval: { label: "Pending Review", className: "bg-amber-100 text-amber-800 border-amber-300" },
+    published: { label: "Published", className: "bg-emerald-100 text-emerald-800 border-emerald-300" },
+    rejected: { label: "Rejected", className: "bg-red-100 text-red-800 border-red-300" },
+    paused: { label: "Paused", className: "bg-muted text-muted-foreground" },
+    expired: { label: "Expired", className: "bg-muted text-muted-foreground" },
+  };
+
+  const currentStatus = statusConfig[listing.status || "draft"] || statusConfig.draft;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-0">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <DialogTitle className="text-xl font-bold">{listing.title}</DialogTitle>
-              <p className="text-muted-foreground mt-1">{listing.project_name}</p>
+      <DialogContent className="max-w-5xl max-h-[95vh] p-0 overflow-hidden gap-0">
+        {/* ── Hero Image Section ──────────────────────────────────── */}
+        <div className="relative">
+          {loadingPhotos ? (
+            <div className="h-72 bg-muted flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
-            <div className="flex items-center gap-2">
-              {listing.visibility_mode === "restricted" ? (
-                <Badge variant="outline" className="text-amber-600 border-amber-600">
-                  <Lock className="h-3 w-3 mr-1" />
-                  Restricted
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="text-green-600 border-green-600">
-                  <Globe className="h-3 w-3 mr-1" />
-                  Public
-                </Badge>
-              )}
-            </div>
-          </div>
-        </DialogHeader>
+          ) : heroPhoto ? (
+            <div className="relative h-72 sm:h-80 bg-muted overflow-hidden group">
+              <img
+                src={heroPhoto}
+                alt={listing.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-        <ScrollArea className="max-h-[calc(90vh-180px)]">
-          <div className="p-6 pt-4 space-y-6">
-            {/* Photo Gallery */}
-            <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <ImageIcon className="h-4 w-4" />
-                Photos ({photos.length})
-              </h3>
-              {loadingPhotos ? (
-                <div className="flex items-center justify-center h-48 bg-muted rounded-lg">
-                  <Loader2 className="h-6 w-6 animate-spin" />
+              {/* Navigation arrows */}
+              {photos.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setSelectedPhoto((prev) => (prev === 0 ? photos.length - 1 : prev - 1))}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedPhoto((prev) => (prev === photos.length - 1 ? 0 : prev + 1))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </>
+              )}
+
+              {/* Photo counter */}
+              {photos.length > 1 && (
+                <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                  <ImageIcon className="h-3 w-3" />
+                  {selectedPhoto + 1} / {photos.length}
                 </div>
-              ) : photos.length > 0 ? (
-                <div className="space-y-2">
-                  {/* Hero image */}
-                  <div className="aspect-[16/9] rounded-lg overflow-hidden bg-muted">
-                    <img
-                      src={photos[selectedPhoto]}
-                      alt={`Photo ${selectedPhoto + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  {/* Thumbnail strip */}
-                  {photos.length > 1 && (
-                    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-                      {photos.map((photo, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setSelectedPhoto(index)}
-                          className={`flex-shrink-0 w-16 h-12 rounded overflow-hidden border-2 transition-colors ${
-                            selectedPhoto === index
-                              ? "border-primary"
-                              : "border-transparent opacity-60 hover:opacity-100"
-                          }`}
-                        >
-                          <img
-                            src={photo}
-                            alt={`Thumb ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
+              )}
+
+              {/* Hero overlay info */}
+              <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge className={`${currentStatus.className} border text-xs`}>
+                    {currentStatus.label}
+                  </Badge>
+                  {listing.visibility_mode === "restricted" ? (
+                    <Badge variant="outline" className="bg-black/30 border-amber-400/50 text-amber-200 text-xs">
+                      <Lock className="h-3 w-3 mr-1" /> Restricted
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="bg-black/30 border-emerald-400/50 text-emerald-200 text-xs">
+                      <Globe className="h-3 w-3 mr-1" /> Public
+                    </Badge>
                   )}
                 </div>
-              ) : (
-                <div className="flex items-center justify-center h-32 bg-muted rounded-lg text-muted-foreground">
-                  No photos available
+                <h2 className="text-2xl font-bold leading-tight mb-1 drop-shadow-lg">{listing.title}</h2>
+                <div className="flex items-center gap-3 text-sm text-white/80">
+                  <span className="flex items-center gap-1"><Building2 className="h-3.5 w-3.5" />{listing.project_name}</span>
+                  <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{listing.city}{listing.neighborhood ? `, ${listing.neighborhood}` : ""}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="h-48 bg-muted flex flex-col items-center justify-center gap-2 text-muted-foreground">
+              <ImageIcon className="h-10 w-10" />
+              <span className="text-sm">No photos available</span>
+            </div>
+          )}
+
+          {/* Thumbnail strip */}
+          {photos.length > 1 && (
+            <div className="flex gap-1 p-2 bg-muted/50 overflow-x-auto scrollbar-hide">
+              {photos.map((photo, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedPhoto(index)}
+                  className={`flex-shrink-0 w-14 h-10 rounded-md overflow-hidden border-2 transition-all ${
+                    selectedPhoto === index
+                      ? "border-primary ring-1 ring-primary/30"
+                      : "border-transparent opacity-50 hover:opacity-100"
+                  }`}
+                >
+                  <img src={photo} alt={`Thumb ${index + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <ScrollArea className="max-h-[calc(95vh-420px)]">
+          <div className="p-5 sm:p-6 space-y-5">
+
+            {/* ── Price Highlight Bar ────────────────────────────────── */}
+            <div className="flex flex-wrap items-stretch gap-3">
+              <div className="flex-1 min-w-[140px] bg-primary/5 border border-primary/20 rounded-xl p-4">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Assignment Price</p>
+                <p className="text-2xl font-bold text-primary">{formatPrice(listing.assignment_price || 0)}</p>
+              </div>
+              {listing.original_price && (
+                <div className="flex-1 min-w-[120px] bg-muted/50 rounded-xl p-4">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Original Price</p>
+                  <p className="text-xl font-bold">{formatPrice(listing.original_price)}</p>
                 </div>
               )}
-            </div>
-
-            <Separator />
-
-            {/* Key Details Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                  <MapPin className="h-4 w-4" />
-                  Location
-                </div>
-                <p className="font-medium">{listing.city}</p>
-                {listing.neighborhood && (
-                  <p className="text-sm text-muted-foreground">{listing.neighborhood}</p>
-                )}
-              </div>
-
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                  <Bed className="h-4 w-4" />
-                  Unit Type
-                </div>
-                <p className="font-medium">{getUnitTypeLabel(listing.unit_type)}</p>
-                <p className="text-sm text-muted-foreground">
-                  {listing.beds} bed, {listing.baths} bath
-                </p>
-              </div>
-
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                  <Maximize className="h-4 w-4" />
-                  Size
-                </div>
-                <p className="font-medium">
-                  {listing.interior_sqft ? `${listing.interior_sqft} sqft` : "N/A"}
-                </p>
-                {listing.exterior_sqft && (
-                  <p className="text-sm text-muted-foreground">
-                    +{listing.exterior_sqft} sqft outdoor
-                  </p>
-                )}
-              </div>
-
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                  <Calendar className="h-4 w-4" />
-                  Completion
-                </div>
-                <p className="font-medium">{getCompletionDate()}</p>
-                <p className="text-sm text-muted-foreground capitalize">
-                  {listing.construction_status?.replace("_", " ")}
-                </p>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Pricing Section */}
-            <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />
-                Pricing Details
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
-                  <p className="text-sm text-muted-foreground mb-1">Assignment Price</p>
-                  <p className="text-xl font-bold text-primary">
-                    {formatPrice(listing.assignment_price)}
-                  </p>
-                </div>
-
-                {listing.original_price && (
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <p className="text-sm text-muted-foreground mb-1">Original Price</p>
-                    <p className="text-lg font-semibold">{formatPrice(listing.original_price)}</p>
-                  </div>
-                )}
-
-                {assignmentPremium !== null && (
-                  <div className={`rounded-lg p-4 ${assignmentPremium > 0 ? "bg-green-50 border border-green-200" : "bg-amber-50 border border-amber-200"}`}>
-                    <p className="text-sm text-muted-foreground mb-1">Premium/Discount</p>
-                    <p className={`text-lg font-semibold ${assignmentPremium > 0 ? "text-green-600" : "text-amber-600"}`}>
+              {assignmentPremium !== null && (
+                <div className={`flex-1 min-w-[120px] rounded-xl p-4 border ${
+                  assignmentPremium > 0 
+                    ? "bg-emerald-50 border-emerald-200" 
+                    : assignmentPremium < 0 
+                    ? "bg-red-50 border-red-200"
+                    : "bg-muted/50 border-border"
+                }`}>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Premium</p>
+                  <div className="flex items-center gap-1.5">
+                    {assignmentPremium > 0 ? (
+                      <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+                    ) : assignmentPremium < 0 ? (
+                      <ArrowDownRight className="h-4 w-4 text-red-600" />
+                    ) : (
+                      <Minus className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <p className={`text-xl font-bold ${
+                      assignmentPremium > 0 ? "text-emerald-700" : assignmentPremium < 0 ? "text-red-700" : ""
+                    }`}>
                       {assignmentPremium > 0 ? "+" : ""}{formatPrice(assignmentPremium)}
                     </p>
+                    {premiumPercent && (
+                      <span className={`text-xs font-medium ml-1 ${
+                        assignmentPremium > 0 ? "text-emerald-600" : "text-red-600"
+                      }`}>
+                        ({assignmentPremium > 0 ? "+" : ""}{premiumPercent}%)
+                      </span>
+                    )}
                   </div>
-                )}
-
-                {listing.deposit_to_lock && (
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <p className="text-sm text-muted-foreground mb-1">Deposit to Lock</p>
-                    <p className="text-lg font-semibold">{formatPrice(listing.deposit_to_lock)}</p>
-                  </div>
-                )}
-                {listing.buyer_agent_commission && (
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <p className="text-sm text-muted-foreground mb-1">Buyer Agent Commission</p>
-                    <p className="text-lg font-semibold">{listing.buyer_agent_commission}</p>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
-            <Separator />
-
-            {/* Additional Details */}
-            <div className="grid grid-cols-2 gap-6">
-                <div>
-                <h3 className="font-semibold mb-3">Features</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Car className="h-4 w-4 text-muted-foreground" />
-                    <span>Parking: {listing.parking || "Not included"}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Box className="h-4 w-4 text-muted-foreground" />
-                    <span>Locker: {listing.has_locker ? "Yes" : "No"}</span>
-                  </div>
-                  {listing.floor_level && (
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <span>Floor: {listing.floor_level}</span>
-                    </div>
-                  )}
-                  {listing.exposure && (
-                    <div className="flex items-center gap-2">
-                      <Compass className="h-4 w-4 text-muted-foreground" />
-                      <span>Exposure: {listing.exposure}</span>
-                    </div>
-                  )}
-                  {listing.developer_approval_required && (
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-amber-500" />
-                      <span>Developer Approval Required</span>
-                    </div>
-                  )}
+            {/* ── Quick Stats Row ────────────────────────────────────── */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5">
+              {[
+                { icon: Bed, label: "Beds", value: listing.beds ?? "–" },
+                { icon: Bath, label: "Baths", value: listing.baths ?? "–" },
+                { icon: Maximize, label: "Interior", value: listing.interior_sqft ? `${listing.interior_sqft} sf` : "–" },
+                { icon: Building2, label: "Floor", value: listing.floor_level ?? "–" },
+                { icon: Compass, label: "Exposure", value: listing.exposure || "–" },
+                { icon: Calendar, label: "Completion", value: listing.estimated_completion || "TBD" },
+              ].map((stat, i) => (
+                <div key={i} className="bg-muted/40 rounded-lg p-3 text-center">
+                  <stat.icon className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground mb-0.5">{stat.label}</p>
+                  <p className="text-sm font-semibold truncate">{stat.value}</p>
                 </div>
-              </div>
+              ))}
+            </div>
 
-              <div>
-                <h3 className="font-semibold mb-3">Agent Information</h3>
-                {listing.agent_profile ? (
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <span>{listing.agent_profile.full_name || "Unknown Agent"}</span>
+            {/* ── Details Grid ───────────────────────────────────────── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Left: Features & Financial */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2.5">Unit Features</h4>
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-2.5">
+                    {listing.unit_type && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Type</span>
+                        <span className="font-medium">{listing.unit_type}</span>
+                      </div>
+                    )}
+                    {listing.unit_number && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Unit #</span>
+                        <span className="font-medium">{listing.unit_number}</span>
+                      </div>
+                    )}
+                    {listing.exterior_sqft && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Outdoor</span>
+                        <span className="font-medium">{listing.exterior_sqft} sqft</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Parking</span>
+                      <span className="font-medium">{listing.parking || "Not included"}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span>{listing.agent_profile.email}</span>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Locker</span>
+                      <span className="font-medium">{listing.has_locker ? "Yes" : "No"}</span>
                     </div>
-                    {listing.agent_profile.phone && (
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{listing.agent_profile.phone}</span>
+                    {listing.developer_approval_required && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Dev. Approval</span>
+                        <Badge variant="outline" className="text-amber-600 border-amber-400 text-xs h-5">Required</Badge>
                       </div>
                     )}
                   </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Agent info not available</p>
-                )}
-              </div>
-            </div>
-
-            {/* Documents & Download Bundle */}
-            <>
-              <Separator />
-              <div>
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Documents
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {listing.floor_plan_url && (
-                    <a href={listing.floor_plan_url} target="_blank" rel="noreferrer" download>
-                      <Badge variant="outline" className="cursor-pointer hover:bg-muted gap-1.5 py-1.5 px-3">
-                        <Layers className="h-3.5 w-3.5" />
-                        Floor Plan
-                        <Download className="h-3 w-3 ml-1 opacity-60" />
-                      </Badge>
-                    </a>
-                  )}
-                  {listing.brochure_url && (
-                    <a href={listing.brochure_url} target="_blank" rel="noreferrer" download>
-                      <Badge variant="outline" className="cursor-pointer hover:bg-muted gap-1.5 py-1.5 px-3">
-                        <BookOpen className="h-3.5 w-3.5" />
-                        Project Brochure
-                        <Download className="h-3 w-3 ml-1 opacity-60" />
-                      </Badge>
-                    </a>
-                  )}
-                  {files.map((file, index) => (
-                    <a key={index} href={file.url} target="_blank" rel="noreferrer" download>
-                      <Badge variant="outline" className="cursor-pointer hover:bg-muted gap-1.5 py-1.5 px-3">
-                        <FileText className="h-3.5 w-3.5" />
-                        {file.file_name || `Document ${index + 1}`}
-                        <Download className="h-3 w-3 ml-1 opacity-60" />
-                      </Badge>
-                    </a>
-                  ))}
-                  {!listing.floor_plan_url && !listing.brochure_url && files.length === 0 && (
-                    <p className="text-sm text-muted-foreground">No documents attached</p>
-                  )}
                 </div>
-              </div>
-              {listing.status === "published" && (listing.floor_plan_url || listing.brochure_url) && (
-                <>
-                  <Separator />
-                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-                    <h3 className="font-semibold mb-1 flex items-center gap-2 text-primary">
-                      <Download className="h-4 w-4" />
-                      Buyer's Agent Download Bundle
-                    </h3>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      These documents are available for download on the live listing page for verified buyer's agents.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {listing.floor_plan_url && (
-                        <a href={listing.floor_plan_url} target="_blank" rel="noreferrer" download>
-                          <Button variant="outline" size="sm" className="gap-2 h-8 text-xs">
-                            <Layers className="h-3.5 w-3.5" />
-                            Floor Plan
-                            <Download className="h-3 w-3" />
-                          </Button>
-                        </a>
+
+                {/* Financial */}
+                {(listing.deposit_to_lock || listing.buyer_agent_commission) && (
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2.5">Financial</h4>
+                    <div className="bg-muted/30 rounded-xl p-4 space-y-2.5">
+                      {listing.deposit_to_lock && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Deposit to Lock</span>
+                          <span className="font-semibold">{formatPrice(listing.deposit_to_lock)}</span>
+                        </div>
                       )}
-                      {listing.brochure_url && (
-                        <a href={listing.brochure_url} target="_blank" rel="noreferrer" download>
-                          <Button variant="outline" size="sm" className="gap-2 h-8 text-xs">
-                            <BookOpen className="h-3.5 w-3.5" />
-                            Brochure
-                            <Download className="h-3 w-3" />
-                          </Button>
-                        </a>
+                      {listing.buyer_agent_commission && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Buyer Agent Commission</span>
+                          <span className="font-semibold">{listing.buyer_agent_commission}</span>
+                        </div>
                       )}
                     </div>
                   </div>
-                </>
-              )}
-            </>
+                )}
+              </div>
 
-            {/* Description */}
-            {listing.description && (
-              <>
-                <Separator />
+              {/* Right: Agent & Documents */}
+              <div className="space-y-4">
+                {/* Agent Card */}
                 <div>
-                  <h3 className="font-semibold mb-2">Description</h3>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {listing.description}
-                  </p>
-                </div>
-              </>
-            )}
-
-            {/* Address & Coordinates */}
-            {listing.address && (
-              <>
-                <Separator />
-                <div>
-                  <h3 className="font-semibold mb-2">Full Address</h3>
-                  <p className="text-sm">{listing.address}</p>
-                  {listing.map_lat && listing.map_lng && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Coordinates: {listing.map_lat}, {listing.map_lng}
-                    </p>
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2.5">Listing Agent</h4>
+                  {listing.agent_profile ? (
+                    <div className="bg-muted/30 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <User className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">{listing.agent_profile.full_name || "Unknown Agent"}</p>
+                          <p className="text-xs text-muted-foreground">{listing.developer_name || "Agent"}</p>
+                        </div>
+                      </div>
+                      <div className="space-y-1.5 text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Mail className="h-3.5 w-3.5" />
+                          <span className="truncate">{listing.agent_profile.email}</span>
+                        </div>
+                        {listing.agent_profile.phone && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Phone className="h-3.5 w-3.5" />
+                            <span>{listing.agent_profile.phone}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-muted/30 rounded-xl p-4 text-center text-sm text-muted-foreground">
+                      No agent info available
+                    </div>
                   )}
                 </div>
-              </>
+
+                {/* Documents */}
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2.5">Documents</h4>
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                    {listing.floor_plan_url && (
+                      <a href={listing.floor_plan_url} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group">
+                        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <Layers className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">{listing.floor_plan_name || "Floor Plan"}</p>
+                          <p className="text-xs text-muted-foreground">View / Download</p>
+                        </div>
+                        <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      </a>
+                    )}
+                    {listing.brochure_url && (
+                      <a href={listing.brochure_url} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group">
+                        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <BookOpen className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">Project Brochure</p>
+                          <p className="text-xs text-muted-foreground">View / Download</p>
+                        </div>
+                        <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      </a>
+                    )}
+                    {files.map((file, index) => (
+                      <a key={index} href={file.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group">
+                        <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{file.file_name || `Document ${index + 1}`}</p>
+                          <p className="text-xs text-muted-foreground">{file.file_type}</p>
+                        </div>
+                        <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      </a>
+                    ))}
+                    {!listing.floor_plan_url && !listing.brochure_url && files.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-2">No documents attached</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Description ─────────────────────────────────────── */}
+            {listing.description && (
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2.5">Description</h4>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{listing.description}</p>
+                </div>
+              </div>
+            )}
+
+            {/* ── Address ──────────────────────────────────────────── */}
+            {listing.address && (
+              <div className="flex items-center gap-3 bg-muted/30 rounded-xl p-4">
+                <MapPin className="h-5 w-5 text-muted-foreground shrink-0" />
+                <div>
+                  <p className="text-sm font-medium">{listing.address}</p>
+                  {listing.city && (
+                    <p className="text-xs text-muted-foreground">{listing.city}{listing.neighborhood ? `, ${listing.neighborhood}` : ""}</p>
+                  )}
+                </div>
+                {listing.status === "published" && (
+                  <a href={`/assignments/${listing.id}`} target="_blank" rel="noopener noreferrer" className="ml-auto">
+                    <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                      <ExternalLink className="h-3.5 w-3.5" /> View Live
+                    </Button>
+                  </a>
+                )}
+              </div>
             )}
           </div>
         </ScrollArea>
 
-        {/* Action Footer */}
-        <div className="border-t p-4 bg-muted/30 flex items-center justify-between gap-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        {/* ── Action Footer ───────────────────────────────────────── */}
+        <div className="border-t p-4 bg-muted/20 flex items-center justify-between gap-3 shrink-0">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground">
             Close
           </Button>
-          
+
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              className="text-red-600 border-red-600 hover:bg-red-50"
+              className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
               onClick={onReject}
               disabled={processing}
             >
-              <XCircle className="h-4 w-4 mr-2" />
+              <XCircle className="h-4 w-4 mr-1.5" />
               Reject
             </Button>
             <Button
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
               onClick={onApprove}
               disabled={processing}
             >
-              {processing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              <CheckCircle className="h-4 w-4 mr-2" />
+              {processing && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
+              <CheckCircle className="h-4 w-4 mr-1.5" />
               Approve & Publish
             </Button>
           </div>
