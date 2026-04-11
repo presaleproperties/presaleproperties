@@ -149,6 +149,7 @@ export default function DashboardListings() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Add listing dialog state
   const [addOpen, setAddOpen] = useState(false);
