@@ -352,7 +352,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
               <Shield className="h-[13px] w-[13px] text-primary-foreground" />
             </div>
-            {!sidebarCollapsed && (
+            {sidebarCollapsed ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0 mt-1">
+                    <PanelLeftOpen className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Expand</TooltipContent>
+              </Tooltip>
+            ) : (
               <>
                 <div className="min-w-0 flex-1">
                   <p className="font-bold text-[13px] text-foreground leading-tight">Admin</p>
@@ -389,14 +398,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                      <PanelLeftOpen className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">Expand</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
                     <Link to="/" target="_blank">
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                         <ExternalLink className="h-3.5 w-3.5" />
@@ -416,13 +417,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </>
             ) : (
               <>
-                <Button
-                  variant="ghost" size="sm" onClick={toggleSidebar}
-                  className="w-full justify-start h-8 text-[12px] text-muted-foreground hover:text-foreground gap-2"
-                >
-                  <PanelLeftClose className="h-3.5 w-3.5" />
-                  Collapse
-                </Button>
                 <Link to="/" target="_blank">
                   <Button variant="ghost" size="sm" className="w-full justify-start h-8 text-[12px] text-muted-foreground hover:text-foreground gap-2">
                     <ExternalLink className="h-3.5 w-3.5" />
