@@ -35,6 +35,9 @@ interface Assignment {
   unit_number: string | null;
   estimated_completion: string | null;
   exposure: string | null;
+  project_id: string | null;
+  _project_featured_image?: string | null;
+  _project_gallery_images?: string[] | null;
 }
 
 const formatPrice = (price: number) =>
@@ -59,7 +62,7 @@ function AssignmentCard({ listing, isVerified, onInquire }: {
   isVerified: boolean;
   onInquire: (title: string) => void;
 }) {
-  const photo = listing.photos?.[0] || listing.featured_image;
+  const photo = listing.photos?.[0] || listing.featured_image || listing._project_gallery_images?.[0] || listing._project_featured_image;
   const savings = listing.original_price && listing.original_price > listing.assignment_price
     ? listing.original_price - listing.assignment_price : null;
 
@@ -184,11 +187,30 @@ export default function Assignments() {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("listings")
-        .select("id, title, project_name, city, neighborhood, assignment_price, original_price, beds, baths, interior_sqft, featured_image, photos, status, unit_number, estimated_completion, exposure")
+        .select("id, title, project_name, city, neighborhood, assignment_price, original_price, beds, baths, interior_sqft, featured_image, photos, status, unit_number, estimated_completion, exposure, project_id")
         .eq("status", "published")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as Assignment[];
+      
+      // Fetch project images for fallback
+      const projectIds = [...new Set((data || []).map((l: any) => l.project_id).filter(Boolean))];
+      let projectMap = new Map<string, { featured_image: string | null; gallery_images: string[] | null }>();
+      if (projectIds.length > 0) {
+        const { data: projects } = await (supabase as any)
+          .from("presale_projects")
+          .select("id, featured_image, gallery_images")
+          .in("id", projectIds);
+        (projects || []).forEach((p: any) => projectMap.set(p.id, p));
+      }
+      
+      return (data || []).map((l: any) => {
+        const proj = l.project_id ? projectMap.get(l.project_id) : null;
+        return {
+          ...l,
+          _project_featured_image: proj?.featured_image || null,
+          _project_gallery_images: proj?.gallery_images || null,
+        };
+      }) as Assignment[];
     },
   });
 

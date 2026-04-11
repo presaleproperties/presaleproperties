@@ -25,6 +25,14 @@ export function FeaturedListings() {
 
       if (error) throw error;
       
+      // Fetch project images for fallback
+      const projectIds = [...new Set((listingsData as any[])?.map((l: any) => l.project_id).filter(Boolean) || [])];
+      let projectMap = new Map<string, any>();
+      if (projectIds.length > 0) {
+        const { data: projects } = await db.from("presale_projects").select("id, featured_image, gallery_images").in("id", projectIds);
+        (projects || []).forEach((p: any) => projectMap.set(p.id, p));
+      }
+
       const agentIds = [...new Set((listingsData as any[])?.map((l: any) => l.agent_id).filter(Boolean) || [])];
       
       const [profilesResult, agentProfilesResult] = await Promise.all([
@@ -35,11 +43,16 @@ export function FeaturedListings() {
       const profilesMap = new Map((profilesResult.data as any[])?.map((p: any) => [p.user_id, p]) || []);
       const agentProfilesMap = new Map((agentProfilesResult.data as any[])?.map((a: any) => [a.user_id, a]) || []);
       
-      return (listingsData as any[])?.map((listing: any) => ({
-        ...listing,
-        agentProfile: profilesMap.get(listing.agent_id),
-        agentInfo: agentProfilesMap.get(listing.agent_id),
-      }));
+      return (listingsData as any[])?.map((listing: any) => {
+        const proj = listing.project_id ? projectMap.get(listing.project_id) : null;
+        return {
+          ...listing,
+          _projectFeaturedImage: proj?.featured_image || null,
+          _projectGalleryImages: proj?.gallery_images || null,
+          agentProfile: profilesMap.get(listing.agent_id),
+          agentInfo: agentProfilesMap.get(listing.agent_id),
+        };
+      });
     },
   });
 
@@ -100,7 +113,7 @@ export function FeaturedListings() {
                 completionYear={listing.completion_year || undefined}
                 completionMonth={listing.completion_month || undefined}
                 isFeatured={listing.is_featured || false}
-                imageUrl={listing.listing_photos?.[0]?.url}
+                imageUrl={listing.listing_photos?.[0]?.url || listing._projectGalleryImages?.[0] || listing._projectFeaturedImage}
                 photoCount={listing.listing_photos?.length || 0}
                 agent={{
                   name: listing.agentProfile?.full_name || undefined,
