@@ -10,31 +10,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Lock,
-  MapPin,
-  Bed,
-  Bath,
-  Maximize,
-  Building2,
-  Calendar,
-  ArrowLeft,
-  Phone,
-  Mail,
-  ChevronLeft,
-  ChevronRight,
-  Shield,
-  FileText,
-  MessageSquare,
-  Download,
-  BookOpen,
-  Compass,
-  Car,
-  Box,
-  CheckCircle,
-  XCircle,
-  Home,
-  FileDown,
-  Loader2,
+  Lock, MapPin, Bed, Bath, Maximize, Building2, Calendar,
+  ArrowLeft, Phone, Mail, ChevronLeft, ChevronRight, Shield,
+  FileText, MessageSquare, Download, BookOpen, Compass, Car,
+  Box, CheckCircle, XCircle, Home, FileDown, Loader2,
 } from "lucide-react";
 import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
@@ -43,6 +22,7 @@ import { ExpertAdvisoryCard } from "@/components/listings/ExpertAdvisoryCard";
 import { AboutContactForm } from "@/components/about/AboutContactForm";
 import { AssignmentOnePager } from "@/components/assignments/AssignmentOnePager";
 import { AssignmentLocationMap } from "@/components/assignments/AssignmentLocationMap";
+import { AssignmentMobileCTA } from "@/components/assignments/AssignmentMobileCTA";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
 
@@ -135,7 +115,6 @@ export default function AssignmentDetail() {
     enabled: !!id,
   });
 
-  // Fetch the parent presale project for full details
   const { data: project } = useQuery({
     queryKey: ["assignment-project", listing?.project_id],
     queryFn: async () => {
@@ -150,7 +129,6 @@ export default function AssignmentDetail() {
     enabled: !!listing?.project_id,
   });
 
-  // Build gallery: listing photos array → project gallery → featured image fallback
   const gallery: string[] = [
     ...(listing?.photos || []),
     ...(project?.gallery_images || []),
@@ -168,6 +146,10 @@ export default function AssignmentDetail() {
     ? listing.original_price - listing.assignment_price
     : null;
 
+  const premium = listing?.original_price && listing.assignment_price > listing.original_price
+    ? listing.assignment_price - listing.original_price
+    : null;
+
   const handleDownloadOnePager = async () => {
     if (!onePagerRef.current || !listing) return;
     setIsExporting(true);
@@ -177,17 +159,9 @@ export default function AssignmentDetail() {
       await new Promise((r) => setTimeout(r, 150));
       const rect = el.getBoundingClientRect();
       const canvas = await html2canvas(el, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        backgroundColor: "#ffffff",
-        x: 0,
-        y: 0,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: rect.width,
-        windowHeight: rect.height,
+        scale: 3, useCORS: true, allowTaint: false, logging: false,
+        backgroundColor: "#ffffff", x: 0, y: 0, scrollX: 0, scrollY: 0,
+        windowWidth: rect.width, windowHeight: rect.height,
       });
       canvas.toBlob((blob) => {
         if (!blob) return;
@@ -211,19 +185,11 @@ export default function AssignmentDetail() {
     return (
       <div className="min-h-screen bg-background">
         <ConversionHeader />
-        <main className="container px-4 py-8">
-          <Skeleton className="h-8 w-48 mb-6" />
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Skeleton className="aspect-[16/10] w-full rounded-xl mb-4" />
-              <Skeleton className="h-6 w-3/4 mb-2" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-            <div className="space-y-4">
-              <Skeleton className="h-48 w-full rounded-xl" />
-              <Skeleton className="h-32 w-full rounded-xl" />
-            </div>
-          </div>
+        <main className="container px-4 py-6">
+          <Skeleton className="h-8 w-48 mb-4" />
+          <Skeleton className="aspect-[16/10] w-full rounded-xl mb-4" />
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-1/2" />
         </main>
       </div>
     );
@@ -243,57 +209,42 @@ export default function AssignmentDetail() {
     );
   }
 
+  const priceFormatted = formatPrice(listing.assignment_price);
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>{listing.title} | Assignment Sale | PresaleProperties</title>
-        <meta
-          name="description"
-          content={`${listing.beds}BR assignment at ${listing.project_name} in ${listing.city}. ${formatPrice(listing.assignment_price)}.`}
-        />
+        <meta name="description" content={`${listing.beds}BR assignment at ${listing.project_name} in ${listing.city}. ${priceFormatted}.`} />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <link rel="canonical" href={`https://presaleproperties.com/assignments/${listing.id}`} />
         <meta property="og:title" content={`${listing.title} | Assignment Sale`} />
-        <meta property="og:description" content={`${listing.beds}BR at ${listing.project_name} in ${listing.city}. ${formatPrice(listing.assignment_price)}.`} />
+        <meta property="og:description" content={`${listing.beds}BR at ${listing.project_name} in ${listing.city}. ${priceFormatted}.`} />
         <meta property="og:type" content="website" />
         {listing.featured_image && <meta property="og:image" content={listing.featured_image} />}
         <script type="application/ld+json">{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "RealEstateListing",
-          "name": listing.title,
-          "description": `${listing.beds} bed assignment at ${listing.project_name}, ${listing.city} BC`,
-          "url": `https://presaleproperties.com/assignments/${listing.id}`,
+          "@context": "https://schema.org", "@type": "RealEstateListing",
+          "name": listing.title, "url": `https://presaleproperties.com/assignments/${listing.id}`,
           "image": listing.featured_image || undefined,
-          "offers": {
-            "@type": "Offer",
-            "price": listing.assignment_price,
-            "priceCurrency": "CAD",
-            "availability": "https://schema.org/InStock"
-          },
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": listing.city,
-            "addressRegion": "BC",
-            "addressCountry": "CA"
-          },
+          "offers": { "@type": "Offer", "price": listing.assignment_price, "priceCurrency": "CAD", "availability": "https://schema.org/InStock" },
+          "address": { "@type": "PostalAddress", "addressLocality": listing.city, "addressRegion": "BC", "addressCountry": "CA" },
           "numberOfRooms": listing.beds
         })}</script>
         <script type="application/ld+json">{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
+          "@context": "https://schema.org", "@type": "BreadcrumbList",
           "itemListElement": [
-            {"@type":"ListItem","position":1,"name":"Home","item":"https://presaleproperties.com"},
-            {"@type":"ListItem","position":2,"name":"Assignments","item":"https://presaleproperties.com/assignments"},
-            {"@type":"ListItem","position":3,"name":listing.title,"item":`https://presaleproperties.com/assignments/${listing.id}`}
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
+            { "@type": "ListItem", "position": 2, "name": "Assignments", "item": "https://presaleproperties.com/assignments" },
+            { "@type": "ListItem", "position": 3, "name": listing.title, "item": `https://presaleproperties.com/assignments/${listing.id}` }
           ]
         })}</script>
       </Helmet>
 
       <ConversionHeader />
 
-      <main className="container px-4 py-6 lg:py-10">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+      <main className="container px-4 py-4 sm:py-6 lg:py-10">
+        {/* Breadcrumb — hidden on mobile for cleaner look */}
+        <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground mb-6">
           <Link to="/" className="hover:text-foreground">Home</Link>
           <span>/</span>
           <Link to="/map-search?mode=assignments" className="hover:text-foreground">Assignments</Link>
@@ -301,13 +252,19 @@ export default function AssignmentDetail() {
           <span className="text-foreground truncate">{listing.title}</span>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* LEFT COLUMN */}
-          <div className="lg:col-span-2 space-y-8">
+        {/* Mobile back button */}
+        <button onClick={() => window.history.back()} className="sm:hidden flex items-center gap-1.5 text-sm text-muted-foreground mb-3 -ml-1">
+          <ChevronLeft className="h-4 w-4" />
+          <span>Back</span>
+        </button>
 
-            {/* Photo Gallery */}
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* LEFT COLUMN */}
+          <div className="lg:col-span-2 space-y-5 sm:space-y-8">
+
+            {/* ── Photo Gallery ──────────────────────────────── */}
             <div>
-              <div className="relative rounded-2xl overflow-hidden bg-muted aspect-[16/10]">
+              <div className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-muted aspect-[16/10]">
                 {uniqueGallery.length > 0 ? (
                   <img
                     src={uniqueGallery[currentImageIndex]}
@@ -316,15 +273,20 @@ export default function AssignmentDetail() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    <Building2 className="h-16 w-16" />
+                    <Building2 className="h-12 w-12 sm:h-16 sm:w-16" />
                   </div>
                 )}
 
-                <div className="absolute top-4 left-4 flex gap-2">
-                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white">Assignment</Badge>
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex gap-2">
+                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-[10px] sm:text-xs">Assignment</Badge>
                   {discount && discount > 0 && (
-                    <Badge className="bg-green-600 hover:bg-green-700 text-white">
+                    <Badge className="bg-green-600 hover:bg-green-700 text-white text-[10px] sm:text-xs">
                       Save {formatPrice(discount)}
+                    </Badge>
+                  )}
+                  {premium && premium > 0 && (
+                    <Badge className="bg-amber-600 hover:bg-amber-700 text-white text-[10px] sm:text-xs">
+                      +{formatPrice(premium)} premium
                     </Badge>
                   )}
                 </div>
@@ -333,32 +295,39 @@ export default function AssignmentDetail() {
                   <>
                     <button
                       onClick={() => setCurrentImageIndex(i => i === 0 ? uniqueGallery.length - 1 : i - 1)}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors shadow"
+                      className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors shadow"
                     >
-                      <ChevronLeft className="h-5 w-5" />
+                      <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
                     <button
                       onClick={() => setCurrentImageIndex(i => i === uniqueGallery.length - 1 ? 0 : i + 1)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors shadow"
+                      className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors shadow"
                     >
-                      <ChevronRight className="h-5 w-5" />
+                      <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    <div className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
                       {uniqueGallery.slice(0, 8).map((_, i) => (
                         <button
                           key={i}
                           onClick={() => setCurrentImageIndex(i)}
-                          className={cn("w-2 h-2 rounded-full transition-colors", i === currentImageIndex ? "bg-white" : "bg-white/50")}
+                          className={cn("w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors", i === currentImageIndex ? "bg-white" : "bg-white/50")}
                         />
                       ))}
                     </div>
                   </>
                 )}
+
+                {/* Photo counter on mobile */}
+                {uniqueGallery.length > 1 && (
+                  <div className="absolute bottom-2 right-2 sm:hidden bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
+                    {currentImageIndex + 1}/{uniqueGallery.length}
+                  </div>
+                )}
               </div>
 
-              {/* Thumbnails */}
+              {/* Thumbnails — desktop only */}
               {uniqueGallery.length > 1 && (
-                <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                <div className="hidden sm:flex gap-2 mt-3 overflow-x-auto pb-1">
                   {uniqueGallery.slice(0, 8).map((url, i) => (
                     <button
                       key={i}
@@ -372,30 +341,48 @@ export default function AssignmentDetail() {
               )}
             </div>
 
-            {/* Title + Quick Stats */}
+            {/* ── Title + Quick Stats ────────────────────────── */}
             <div>
-              <Badge variant="outline" className="mb-3 text-xs">Unit {listing.unit_number}</Badge>
-              <h1 className="text-2xl lg:text-3xl font-bold mb-2">{listing.title}</h1>
-              <div className="flex items-center gap-2 text-muted-foreground mb-5">
-                <MapPin className="h-4 w-4 shrink-0" />
-                <span>{listing.project_name}{listing.neighborhood ? `, ${listing.neighborhood}` : ""}, {listing.city}</span>
+              {listing.unit_number && (
+                <Badge variant="outline" className="mb-2 sm:mb-3 text-[10px] sm:text-xs">Unit {listing.unit_number}</Badge>
+              )}
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1.5 sm:mb-2">{listing.title}</h1>
+              <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground text-sm mb-3 sm:mb-5">
+                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="truncate">{listing.project_name}{listing.neighborhood ? `, ${listing.neighborhood}` : ""}, {listing.city}</span>
               </div>
 
-              <div className="flex flex-wrap gap-4 text-sm">
-                <div className="flex items-center gap-1.5"><Bed className="h-4 w-4 text-muted-foreground" /><span>{listing.beds} Bed{listing.beds !== 1 ? "s" : ""}</span></div>
-                <div className="flex items-center gap-1.5"><Bath className="h-4 w-4 text-muted-foreground" /><span>{listing.baths} Bath{listing.baths !== 1 ? "s" : ""}</span></div>
-                {listing.interior_sqft && <div className="flex items-center gap-1.5"><Maximize className="h-4 w-4 text-muted-foreground" /><span>{listing.interior_sqft.toLocaleString()} sqft interior</span></div>}
-                {listing.exterior_sqft && <div className="flex items-center gap-1.5"><Maximize className="h-4 w-4 text-muted-foreground" /><span>{listing.exterior_sqft.toLocaleString()} sqft outdoor</span></div>}
-                {listing.floor_level && <div className="flex items-center gap-1.5"><Building2 className="h-4 w-4 text-muted-foreground" /><span>Floor {listing.floor_level}</span></div>}
-                {listing.exposure && <div className="flex items-center gap-1.5"><Compass className="h-4 w-4 text-muted-foreground" /><span>{listing.exposure} Exposure</span></div>}
+              {/* Mobile price display — visible only on mobile since desktop has the sidebar card */}
+              <div className="lg:hidden mb-4">
+                <div className="flex items-baseline gap-3 mb-1">
+                  <span className="text-2xl font-bold text-foreground">{priceFormatted}</span>
+                  {listing.original_price && (
+                    <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price)}</span>
+                  )}
+                </div>
+                {discount && discount > 0 && (
+                  <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
+                    {formatPrice(discount)} below original
+                  </Badge>
+                )}
+              </div>
+
+              {/* Quick specs grid */}
+              <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
+                <div className="flex items-center gap-1 sm:gap-1.5"><Bed className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>{listing.beds} Bed{listing.beds !== 1 ? "s" : ""}</span></div>
+                <div className="flex items-center gap-1 sm:gap-1.5"><Bath className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>{listing.baths} Bath{listing.baths !== 1 ? "s" : ""}</span></div>
+                {listing.interior_sqft && <div className="flex items-center gap-1 sm:gap-1.5"><Maximize className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>{listing.interior_sqft.toLocaleString()} sf</span></div>}
+                {listing.floor_level && <div className="flex items-center gap-1 sm:gap-1.5"><Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>Floor {listing.floor_level}</span></div>}
+                {listing.exposure && <div className="flex items-center gap-1 sm:gap-1.5"><Compass className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>{listing.exposure}</span></div>}
+                <div className="flex items-center gap-1 sm:gap-1.5"><Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" /><span>{completionDisplay}</span></div>
               </div>
             </div>
 
-            {/* Unit Details Card */}
+            {/* ── Unit Details ───────────────────────────────── */}
             <Card>
-              <CardHeader><CardTitle className="text-lg">Unit Details</CardTitle></CardHeader>
+              <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">Unit Details</CardTitle></CardHeader>
               <CardContent>
-                <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+                <dl className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
                   <div><dt className="text-muted-foreground mb-0.5">Project</dt><dd className="font-medium">{listing.project_name}</dd></div>
                   {(listing.developer_name || project?.developer_name) && (
                     <div><dt className="text-muted-foreground mb-0.5">Developer</dt><dd className="font-medium">{listing.developer_name || project?.developer_name}</dd></div>
@@ -403,14 +390,11 @@ export default function AssignmentDetail() {
                   <div><dt className="text-muted-foreground mb-0.5">City</dt><dd className="font-medium">{listing.city}</dd></div>
                   {listing.unit_type && <div><dt className="text-muted-foreground mb-0.5">Unit Type</dt><dd className="font-medium">{listing.unit_type}</dd></div>}
                   <div><dt className="text-muted-foreground mb-0.5">Est. Completion</dt><dd className="font-medium">{completionDisplay}</dd></div>
-                  <div>
-                    <dt className="text-muted-foreground mb-0.5">Parking</dt>
-                    <dd className="font-medium">{listing.parking || "Not included"}</dd>
-                  </div>
+                  <div><dt className="text-muted-foreground mb-0.5">Parking</dt><dd className="font-medium">{listing.parking || "Not included"}</dd></div>
                   <div>
                     <dt className="text-muted-foreground mb-0.5">Locker</dt>
                     <dd className="font-medium flex items-center gap-1">
-                      {listing.has_locker ? <><CheckCircle className="h-3.5 w-3.5 text-green-600" /> Included</> : <><XCircle className="h-3.5 w-3.5 text-muted-foreground" /> Not included</>}
+                      {listing.has_locker ? <><CheckCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-green-600" /> Included</> : <><XCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" /> No</>}
                     </dd>
                   </div>
                   <div>
@@ -424,15 +408,15 @@ export default function AssignmentDetail() {
               </CardContent>
             </Card>
 
-            {/* Project Highlights */}
-            {(project?.highlights && project.highlights.length > 0) && (
+            {/* ── Project Highlights ─────────────────────────── */}
+            {project?.highlights && project.highlights.length > 0 && (
               <Card>
-                <CardHeader><CardTitle className="text-lg">Project Highlights</CardTitle></CardHeader>
+                <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">Project Highlights</CardTitle></CardHeader>
                 <CardContent>
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {project.highlights.map((h, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm">
-                        <CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <li key={i} className="flex items-start gap-2 text-xs sm:text-sm">
+                        <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary mt-0.5 shrink-0" />
                         <span>{h}</span>
                       </li>
                     ))}
@@ -441,88 +425,84 @@ export default function AssignmentDetail() {
               </Card>
             )}
 
-            {/* Amenities */}
-            {(project?.amenities && project.amenities.length > 0) && (
+            {/* ── Amenities ──────────────────────────────────── */}
+            {project?.amenities && project.amenities.length > 0 && (
               <Card>
-                <CardHeader><CardTitle className="text-lg">Building Amenities</CardTitle></CardHeader>
+                <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">Building Amenities</CardTitle></CardHeader>
                 <CardContent>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {project.amenities.map((a, i) => (
-                      <Badge key={i} variant="secondary" className="text-xs">{a}</Badge>
+                      <Badge key={i} variant="secondary" className="text-[10px] sm:text-xs">{a}</Badge>
                     ))}
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Description */}
+            {/* ── Description ────────────────────────────────── */}
             {(listing.description || project?.full_description) && (
               <Card>
-                <CardHeader><CardTitle className="text-lg">About This Unit</CardTitle></CardHeader>
+                <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">About This Unit</CardTitle></CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground whitespace-pre-wrap text-sm leading-relaxed">
+                  <p className="text-muted-foreground whitespace-pre-wrap text-xs sm:text-sm leading-relaxed">
                     {listing.description || project?.full_description}
                   </p>
                 </CardContent>
               </Card>
             )}
 
-            {/* Documents */}
+            {/* ── Documents ──────────────────────────────────── */}
             {(listing.floor_plan_url || listing.brochure_url) && (
               <Card>
-                <CardHeader><CardTitle className="text-lg">Documents</CardTitle></CardHeader>
+                <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">Documents</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
                   {listing.floor_plan_url && (
-                    <a
-                      href={listing.floor_plan_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors"
-                    >
-                      <FileText className="h-5 w-5 text-primary shrink-0" />
-                      <span className="flex-1 text-sm font-medium">{listing.floor_plan_name || "Floor Plan"}</span>
-                      <Download className="h-4 w-4 text-muted-foreground" />
+                    <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
+                      <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+                      <span className="flex-1 text-xs sm:text-sm font-medium">{listing.floor_plan_name || "Floor Plan"}</span>
+                      <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                     </a>
                   )}
                   {listing.brochure_url && (
-                    <a
-                      href={listing.brochure_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors"
-                    >
-                      <BookOpen className="h-5 w-5 text-primary shrink-0" />
-                      <span className="flex-1 text-sm font-medium">Project Brochure</span>
-                      <Download className="h-4 w-4 text-muted-foreground" />
+                    <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
+                      <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+                      <span className="flex-1 text-xs sm:text-sm font-medium">Project Brochure</span>
+                      <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                     </a>
                   )}
                 </CardContent>
               </Card>
             )}
 
-            {/* Project link */}
+            {/* ── Parent Project Link ────────────────────────── */}
             {project && (
-              <div className="rounded-xl border border-border bg-muted/30 p-4 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
+              <div className="rounded-xl border border-border bg-muted/30 p-3 sm:p-4 flex items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                   {project.featured_image && (
-                    <img src={project.featured_image} alt={project.name} className="h-12 w-16 rounded-lg object-cover shrink-0" />
+                    <img src={project.featured_image} alt={project.name} className="h-10 w-14 sm:h-12 sm:w-16 rounded-lg object-cover shrink-0" />
                   )}
-                  <div>
-                    <p className="text-xs text-muted-foreground">Presale Project</p>
-                    <p className="font-semibold">{project.name}</p>
-                    <p className="text-sm text-muted-foreground">{project.city}{project.neighborhood ? ` · ${project.neighborhood}` : ""}</p>
+                  <div className="min-w-0">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">Presale Project</p>
+                    <p className="font-semibold text-sm sm:text-base truncate">{project.name}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{project.city}{project.neighborhood ? ` · ${project.neighborhood}` : ""}</p>
                   </div>
                 </div>
                 <Link to={`/presale/${project.slug}`}>
-                  <Button variant="outline" size="sm">View Project</Button>
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm shrink-0">View Project</Button>
                 </Link>
               </div>
             )}
 
-            {/* Location Map */}
+            {/* ── Location Map ───────────────────────────────── */}
             {project?.map_lat && project?.map_lng && (
               <Card>
-                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><MapPin className="h-5 w-5 text-primary" />Location</CardTitle></CardHeader>
+                <CardHeader className="pb-3 sm:pb-6">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />Location
+                  </CardTitle>
+                </CardHeader>
                 <CardContent>
                   <AssignmentLocationMap
                     lat={project.map_lat}
@@ -530,7 +510,7 @@ export default function AssignmentDetail() {
                     projectName={listing.project_name}
                     address={listing.address || project.address}
                   />
-                  <p className="text-sm text-muted-foreground mt-3">
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-3">
                     {listing.address || project.address || listing.project_name}, {listing.neighborhood || project.neighborhood || ""} {listing.city}
                   </p>
                 </CardContent>
@@ -538,12 +518,11 @@ export default function AssignmentDetail() {
             )}
           </div>
 
-          {/* RIGHT COLUMN */}
-          <div className="space-y-6">
+          {/* ── RIGHT COLUMN (desktop only sidebar) ──────── */}
+          <div className="hidden lg:block space-y-6">
             {/* Pricing Card */}
             <Card className="border-primary/20 sticky top-4 overflow-hidden">
               <CardContent className="pt-6 relative">
-                {/* Non-verified soft gate */}
                 {!isVerified && (
                   <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-6 text-center rounded-xl">
                     <Lock className="h-8 w-8 text-primary mb-3" />
@@ -557,9 +536,7 @@ export default function AssignmentDetail() {
                 )}
 
                 <p className="text-sm text-muted-foreground mb-1">Assignment Price</p>
-                <div className="text-3xl font-bold text-foreground mb-3">
-                  {formatPrice(listing.assignment_price)}
-                </div>
+                <div className="text-3xl font-bold text-foreground mb-3">{priceFormatted}</div>
 
                 {discount && discount > 0 && (
                   <div className="flex items-center gap-2 mb-4">
@@ -706,6 +683,13 @@ export default function AssignmentDetail() {
 
       <Footer />
 
+      {/* Mobile sticky CTA */}
+      <AssignmentMobileCTA
+        projectName={listing.project_name}
+        price={priceFormatted}
+        onInquireClick={() => setFormOpen(true)}
+      />
+
       <AboutContactForm
         open={formOpen}
         onOpenChange={setFormOpen}
@@ -715,13 +699,8 @@ export default function AssignmentDetail() {
       {/* Off-screen one-pager template for html2canvas capture */}
       <div
         style={{
-          position: "fixed",
-          top: 0,
-          left: "-9999px",
-          width: 612,
-          visibility: "visible",
-          pointerEvents: "none",
-          zIndex: -1,
+          position: "fixed", top: 0, left: "-9999px", width: 612,
+          visibility: "visible", pointerEvents: "none", zIndex: -1,
         }}
       >
         <AssignmentOnePager
