@@ -246,7 +246,12 @@ export function PropertyFinancingStep({
             </div>
             <Slider
               value={[financing.downPaymentPercent]}
-              onValueChange={([value]) => updateFinancing("downPaymentPercent", value)}
+              onValueChange={([value]) => {
+                updateFinancing("downPaymentPercent", value);
+                if (value <= financing.deposit1Percent) {
+                  updateFinancing("deposit2Percent", 0);
+                }
+              }}
               min={5}
               max={50}
               step={5}
