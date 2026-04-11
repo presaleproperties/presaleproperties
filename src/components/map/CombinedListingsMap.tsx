@@ -248,25 +248,10 @@ function presalePopupHtml(project: PresaleProject): string {
   `;
 }
 
-function assignmentPopupHtml(assignment: Assignment, isVerified: boolean): string {
+function assignmentPopupHtml(assignment: Assignment): string {
   const price = `$${assignment.assignment_price.toLocaleString()}`;
   const specs = `${assignment.beds} bd • ${assignment.baths} ba`;
   const photo = assignment.featured_image || assignment.floor_plan_url || null;
-  
-  if (!isVerified) {
-    return `
-      <div class="popup-card assignment locked">
-        <div class="popup-lock">
-          <div class="lock-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          </div>
-          <div class="lock-title">Agent Access Only</div>
-          <div class="lock-desc">Verify as an agent to view</div>
-          <a href="/login" class="lock-btn">Agent Login</a>
-        </div>
-      </div>
-    `;
-  }
   
   return `
     <div class="popup-card-wrap">
@@ -908,7 +893,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           });
 
           if (!disablePopupsOnMobile) {
-            marker.bindPopup(assignmentPopupHtml(assignment, isVerifiedAgent), {
+            marker.bindPopup(assignmentPopupHtml(assignment), {
               maxWidth: 300,
               className: "premium-popup assignment-popup",
               closeButton: true,
@@ -951,7 +936,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     });
     // Note: internalHighlightId and highlightedItemId are NOT dependencies here
     // Highlighting is handled by a separate useEffect to prevent full marker rebuilds
-  }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, isVerifiedAgent, updateVisibleItems, mapReady]);
+  }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, updateVisibleItems, mapReady]);
 
   // Center on user location - only when no saved/URL state exists
   useEffect(() => {
