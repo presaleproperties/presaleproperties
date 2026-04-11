@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { syncTemplateToDealsFlow } from "@/lib/syncTemplateToDealsFlow";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import {
   Mail, FileText, Plus, ChevronRight, Building2, Star, Megaphone,
@@ -52,6 +53,7 @@ const CREATE_OPTIONS = [
 
 export default function AdminMarketingHub() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [emailAssets, setEmailAssets] = useState<SavedAsset[]>([]);
   const [campaignAssets, setCampaignAssets] = useState<SavedAsset[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,6 +91,7 @@ export default function AdminMarketingHub() {
       name: `${asset.name} (Copy)`,
       project_name: asset.project_name,
       form_data: asset.form_data,
+      user_id: user?.id || null,
     });
     if (error) toast.error("Failed to duplicate");
     else { toast.success("Duplicated"); fetchAssets(); }
