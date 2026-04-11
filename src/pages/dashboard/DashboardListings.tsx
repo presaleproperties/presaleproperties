@@ -562,41 +562,111 @@ export default function DashboardListings() {
               </Card>
             ) : (
               <div className="space-y-4">
-                {filteredListings.map((listing) => (
-                  <Card key={listing.id} className="overflow-hidden">
-                    <CardContent className="p-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold truncate">{listing.title}</h3>
-                            <Badge variant={statusLabels[listing.status]?.variant || "secondary"}>
-                              {statusLabels[listing.status]?.label || listing.status}
-                            </Badge>
+                {filteredListings.map((listing) => {
+                  const thumbUrl = listing.featured_image || listing.floor_plan_url || null;
+                  return (
+                    <Card key={listing.id} className="overflow-hidden group hover:shadow-md transition-shadow">
+                      <CardContent className="p-4 sm:p-5">
+                        <div className="flex gap-4">
+                          {/* Thumbnail */}
+                          <div className="hidden sm:block shrink-0">
+                            {thumbUrl ? (
+                              <img src={thumbUrl} alt={listing.title} className="h-24 w-32 rounded-lg object-cover bg-muted" />
+                            ) : (
+                              <div className="h-24 w-32 rounded-lg bg-muted flex items-center justify-center">
+                                <Building2 className="h-8 w-8 text-muted-foreground" />
+                              </div>
+                            )}
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">{listing.project_name}</p>
-                          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{listing.city}</span>
-                            <span className="flex items-center gap-1"><Bed className="h-3 w-3" />{listing.beds} bed</span>
-                            <span className="flex items-center gap-1"><Bath className="h-3 w-3" />{listing.baths} bath</span>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                                <h3 className="font-semibold text-base truncate max-w-[300px]">{listing.title}</h3>
+                                <Badge variant={statusLabels[listing.status]?.variant || "secondary"}>
+                                  {statusLabels[listing.status]?.label || listing.status}
+                                </Badge>
+                              </div>
+                              <p className="text-lg font-bold text-primary shrink-0">{formatPrice(listing.assignment_price)}</p>
+                            </div>
+
+                            <p className="text-sm text-muted-foreground">{listing.project_name}</p>
+
+                            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                              <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{listing.city}{listing.neighborhood ? `, ${listing.neighborhood}` : ""}</span>
+                              <span className="flex items-center gap-1"><Bed className="h-3.5 w-3.5" />{listing.beds} bed</span>
+                              <span className="flex items-center gap-1"><Bath className="h-3.5 w-3.5" />{listing.baths} bath</span>
+                            </div>
+
+                            {listing.rejection_reason && listing.status === "rejected" && (
+                              <p className="text-sm text-destructive">Rejection reason: {listing.rejection_reason}</p>
+                            )}
+                            {listing.expires_at && (listing.status === "published" || listing.status === "expired") && (
+                              <p className={`text-sm ${listing.status === "expired" ? "text-destructive" : "text-muted-foreground"}`}>
+                                {listing.status === "expired" ? "Expired: " : "Expires: "}
+                                {new Date(listing.expires_at).toLocaleDateString("en-CA", { year: "numeric", month: "short", day: "numeric" })}
+                              </p>
+                            )}
+
+                            {/* Action buttons */}
+                            <div className="flex items-center gap-2 pt-1 flex-wrap">
+                              <Link to={`/dashboard/listings/${listing.id}/edit`}>
+                                <Button variant="outline" size="sm" className="gap-1.5">
+                                  <Edit className="h-3.5 w-3.5" /> Edit
+                                </Button>
+                              </Link>
+
+                              {listing.status === "published" && (
+                                <a href={`/assignments/${listing.id}`} target="_blank" rel="noopener noreferrer">
+                                  <Button variant="outline" size="sm" className="gap-1.5">
+                                    <Globe className="h-3.5 w-3.5" /> View Live
+                                  </Button>
+                                </a>
+                              )}
+
+                              {listing.status === "draft" && (
+                                <Button size="sm" onClick={() => handleSubmitForApproval(listing)} disabled={actionLoading === listing.id} className="gap-1.5">
+                                  {actionLoading === listing.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <><Send className="h-3.5 w-3.5" />Submit for Approval</>}
+                                </Button>
+                              )}
+
+                              {(listing.status === "published" || listing.status === "paused" || listing.status === "expired") && (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={actionLoading === listing.id}>
+                                      {actionLoading === listing.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
+                                    <DropdownMenuItem onClick={() => window.open(`/assignments/${listing.id}`, '_blank')}>
+                                      <Eye className="h-4 w-4 mr-2" /> Preview
+                                    </DropdownMenuItem>
+                                    {listing.status === "published" && (
+                                      <DropdownMenuItem onClick={() => handlePauseListing(listing)}>
+                                        <Pause className="h-4 w-4 mr-2" /> Pause
+                                      </DropdownMenuItem>
+                                    )}
+                                    {listing.status === "paused" && (
+                                      <DropdownMenuItem onClick={() => handleResumeListing(listing)}>
+                                        <Play className="h-4 w-4 mr-2" /> Resume
+                                      </DropdownMenuItem>
+                                    )}
+                                    {listing.status === "expired" && (
+                                      <DropdownMenuItem onClick={() => handleRenewListing(listing)}>
+                                        <RefreshCw className="h-4 w-4 mr-2" /> Renew
+                                      </DropdownMenuItem>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
+                            </div>
                           </div>
-                          {listing.rejection_reason && listing.status === "rejected" && (
-                            <p className="text-sm text-destructive mt-2">Rejection reason: {listing.rejection_reason}</p>
-                          )}
-                          {listing.expires_at && (listing.status === "published" || listing.status === "expired") && (
-                            <p className={`text-sm mt-2 ${listing.status === "expired" ? "text-destructive" : "text-muted-foreground"}`}>
-                              {listing.status === "expired" ? "Expired: " : "Expires: "}
-                              {new Date(listing.expires_at).toLocaleDateString("en-CA", { year: "numeric", month: "short", day: "numeric" })}
-                            </p>
-                          )}
                         </div>
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-primary">{formatPrice(listing.assignment_price)}</p>
-                        </div>
-                        {renderListingActions(listing)}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </TabsContent>

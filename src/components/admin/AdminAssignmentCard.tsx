@@ -51,6 +51,8 @@ interface Listing {
   map_lat?: number | null;
   map_lng?: number | null;
   agent_id?: string | null;
+  featured_image?: string | null;
+  floor_plan_url?: string | null;
   agent_profile?: {
     full_name: string | null;
     email: string;
@@ -144,6 +146,22 @@ export function AdminAssignmentCard({
     <Card className="group hover:shadow-md transition-shadow">
       <CardContent className="p-4 sm:p-5">
         <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+          {/* Thumbnail */}
+          {(() => {
+            const thumbUrl = listing.featured_image || listing.floor_plan_url || null;
+            return (
+              <div className="hidden sm:block shrink-0">
+                {thumbUrl ? (
+                  <img src={thumbUrl} alt={listing.title} className="h-24 w-32 rounded-lg object-cover bg-muted" />
+                ) : (
+                  <div className="h-24 w-32 rounded-lg bg-muted flex items-center justify-center">
+                    <MapPin className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {/* Main Content */}
           <div className="flex-1 space-y-3 min-w-0">
             {/* Header Row */}
