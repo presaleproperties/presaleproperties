@@ -53,7 +53,7 @@ export function TopMlsListingsTable({ listings }: TopMlsListingsTableProps) {
             </div>
             <CardTitle className="text-sm font-semibold">Move-In Ready (MLS) - Last 90 Days</CardTitle>
           </div>
-          <Link to="/admin/listings?type=mls" className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/admin/assignments?type=mls" className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">
             View all →
           </Link>
         </div>

@@ -50,7 +50,7 @@ export function TopListingsTable({ listings }: TopListingsTableProps) {
             </div>
             <CardTitle className="text-sm font-semibold">Top Listings (Assignments)</CardTitle>
           </div>
-          <Link to="/admin/listings" className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/admin/assignments" className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">
             View all →
           </Link>
         </div>

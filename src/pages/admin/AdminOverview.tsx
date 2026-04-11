@@ -216,7 +216,7 @@ export default function AdminOverview() {
               </span>
             )},
             { label: "Projects", value: stats.publishedProjects, icon: Building2, color: "text-blue-600", bg: "bg-blue-100", href: "/admin/projects", sub: <span className="text-xs text-muted-foreground">{stats.totalProjects} total</span> },
-            { label: "Assignments", value: stats.totalAssignments, icon: FileStack, color: "text-violet-600", bg: "bg-violet-100", href: "/admin/listings", sub: stats.pendingAssignments > 0 ? <span className="text-xs text-amber-600">{stats.pendingAssignments} pending</span> : <span className="text-xs text-muted-foreground">All clear</span> },
+            { label: "Assignments", value: stats.totalAssignments, icon: FileStack, color: "text-violet-600", bg: "bg-violet-100", href: "/admin/assignments", sub: stats.pendingAssignments > 0 ? <span className="text-xs text-amber-600">{stats.pendingAssignments} pending</span> : <span className="text-xs text-muted-foreground">All clear</span> },
             { label: "Bookings", value: stats.totalBookings, icon: Calendar, color: "text-amber-600", bg: "bg-amber-100", href: "/admin/bookings", sub: stats.pendingBookings > 0 ? <span className="text-xs text-amber-600">{stats.pendingBookings} pending</span> : <span className="text-xs text-muted-foreground">None pending</span> },
           ].map(({ label, value, icon: Icon, color, bg, href, sub }) => (
             <Link key={label} to={href}>

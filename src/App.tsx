@@ -72,7 +72,7 @@ const AdminBlogs = lazy(() => import("./pages/admin/AdminBlogs"));
 const AdminBlogForm = lazy(() => import("./pages/admin/AdminBlogForm"));
 const AdminBlogImport = lazy(() => import("./pages/admin/AdminBlogImport"));
 const AdminAgents = lazy(() => import("./pages/admin/AdminAgents"));
-const AdminListings = lazy(() => import("./pages/admin/AdminListings"));
+const AdminAssignments = lazy(() => import("./pages/admin/AdminAssignments"));
 const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminLeads = lazy(() => import("./pages/admin/AdminLeads"));
@@ -353,7 +353,7 @@ const App = () => (
             <Route path="/admin/projects/new" element={<AdminProtectedRoute><AdminProjectForm /></AdminProtectedRoute>} />
             <Route path="/admin/projects/import" element={<AdminProtectedRoute><AdminProjectImport /></AdminProtectedRoute>} />
             <Route path="/admin/projects/:id/edit" element={<AdminProtectedRoute><AdminProjectForm /></AdminProtectedRoute>} />
-            <Route path="/admin/listings" element={<AdminProtectedRoute><AdminListings /></AdminProtectedRoute>} />
+            <Route path="/admin/assignments" element={<AdminProtectedRoute><AdminAssignments /></AdminProtectedRoute>} />
             <Route path="/admin/blogs" element={<AdminProtectedRoute><AdminBlogs /></AdminProtectedRoute>} />
             <Route path="/admin/blogs/new" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
             <Route path="/admin/blogs/import" element={<AdminProtectedRoute><AdminBlogImport /></AdminProtectedRoute>} />
