@@ -619,7 +619,7 @@ export default function AssignmentDetail() {
                         </div>
                       )}
                       {developerCredit && (
-                        <div className="flex justify-between text-blue-600 dark:text-blue-400">
+                        <div className="flex justify-between text-green-600 dark:text-green-400">
                           <span>Developer Credit</span>
                           <span className="font-semibold">{formatPrice(developerCredit)}</span>
                         </div>
@@ -716,7 +716,7 @@ export default function AssignmentDetail() {
                       </p>
                     )}
                     {developerCredit && (
-                      <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-1">
+                      <p className="text-sm text-green-600 dark:text-green-400 font-medium mb-1">
                         {formatPrice(developerCredit)} developer credit
                       </p>
                     )}
