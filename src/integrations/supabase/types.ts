@@ -1491,6 +1491,7 @@ export type Database = {
           deposit_to_lock: number | null
           description: string | null
           developer_approval_required: boolean
+          developer_credit: number | null
           developer_name: string | null
           estimated_completion: string | null
           expires_at: string | null
@@ -1536,6 +1537,7 @@ export type Database = {
           deposit_to_lock?: number | null
           description?: string | null
           developer_approval_required?: boolean
+          developer_credit?: number | null
           developer_name?: string | null
           estimated_completion?: string | null
           expires_at?: string | null
@@ -1581,6 +1583,7 @@ export type Database = {
           deposit_to_lock?: number | null
           description?: string | null
           developer_approval_required?: boolean
+          developer_credit?: number | null
           developer_name?: string | null
           estimated_completion?: string | null
           expires_at?: string | null
