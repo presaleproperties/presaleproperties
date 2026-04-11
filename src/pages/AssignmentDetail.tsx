@@ -469,8 +469,68 @@ export default function AssignmentDetail() {
               </Card>
             )}
 
+            {/* ── Floor Plans (Visual) ───────────────────────── */}
+            {floorplanImages.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3 sm:pb-6">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                    Floor Plan{floorplanImages.length > 1 ? "s" : ""}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className={cn("grid gap-4", floorplanImages.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1")}>
+                    {floorplanImages.map((fp) => (
+                      <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" className="group block">
+                        <div className="rounded-xl overflow-hidden border border-border bg-muted/30 hover:border-primary/40 transition-colors">
+                          <img
+                            src={fp.url}
+                            alt={fp.file_name || "Floor Plan"}
+                            className="w-full h-auto object-contain max-h-[500px] p-2"
+                          />
+                          <div className="px-3 py-2 border-t border-border flex items-center justify-between">
+                            <span className="text-xs sm:text-sm text-muted-foreground truncate">{fp.file_name || "Floor Plan"}</span>
+                            <Download className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ── Video Walkthrough ──────────────────────────── */}
+            {videoFiles.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3 sm:pb-6">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
+                    Video Walkthrough
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {videoFiles.map((vid) => (
+                      <div key={vid.id} className="rounded-xl overflow-hidden border border-border bg-black">
+                        <video
+                          controls
+                          preload="metadata"
+                          className="w-full max-h-[500px]"
+                          playsInline
+                        >
+                          <source src={vid.url} type={vid.url.endsWith(".webm") ? "video/webm" : vid.url.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* ── Documents ──────────────────────────────────── */}
-            {(listing.floor_plan_url || listing.brochure_url) && (
+            {(listing.floor_plan_url || listing.brochure_url || floorplanFiles.filter(f => !floorplanImages.includes(f)).length > 0) && (
               <Card>
                 <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">Documents</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
@@ -482,6 +542,15 @@ export default function AssignmentDetail() {
                       <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                     </a>
                   )}
+                  {/* PDF floorplans as downloadable docs */}
+                  {floorplanFiles.filter(f => !floorplanImages.includes(f)).map((fp) => (
+                    <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
+                      <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+                      <span className="flex-1 text-xs sm:text-sm font-medium">{fp.file_name || "Floor Plan PDF"}</span>
+                      <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                    </a>
+                  ))}
                   {listing.brochure_url && (
                     <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
