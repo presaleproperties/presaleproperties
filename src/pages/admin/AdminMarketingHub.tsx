@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import {
-  Mail, FileText, Plus, ChevronRight, Building2, Star, Megaphone,
+  Mail, FileText, Plus, ChevronRight, Building2, Star, Megaphone, Share2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ import {
   TemplatePreviewDialog,
   TemplateQuickSendDialog,
 } from "@/components/admin/SharedTemplateComponents";
+import { SocialPostGenerator } from "@/components/admin/marketing/SocialPostGenerator";
 
 const CREATE_OPTIONS = [
   {
@@ -58,7 +59,7 @@ export default function AdminMarketingHub() {
   const [campaignAssets, setCampaignAssets] = useState<SavedAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"emails" | "flyers">("emails");
+  const [activeTab, setActiveTab] = useState<"emails" | "flyers" | "social">("emails");
   const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
   const [sendAsset, setSendAsset] = useState<SavedAsset | null>(null);
   const [previewAsset, setPreviewAsset] = useState<SavedAsset | null>(null);
@@ -179,7 +180,7 @@ export default function AdminMarketingHub() {
               <div className="flex items-center justify-between mb-4">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Saved Work</p>
                 <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
-                  {(["emails", "flyers"] as const).map(tab => (
+                  {(["emails", "flyers", "social"] as const).map(tab => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
@@ -188,13 +189,19 @@ export default function AdminMarketingHub() {
                         activeTab === tab ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
                       )}
                     >
-                      {tab} ({tab === "emails" ? emailAssets.length : campaignAssets.length})
+                      {tab === "social" ? (
+                        <span className="flex items-center gap-1"><Share2 className="h-3 w-3" /> Social</span>
+                      ) : (
+                        <>{tab} ({tab === "emails" ? emailAssets.length : campaignAssets.length})</>
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {loading ? (
+              {activeTab === "social" ? (
+                <SocialPostGenerator />
+              ) : loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[1, 2, 3].map(i => (
                     <div key={i} className="rounded-xl border border-border bg-muted/30 animate-pulse">
