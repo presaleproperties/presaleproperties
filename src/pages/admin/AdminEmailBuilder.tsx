@@ -65,6 +65,7 @@ import {
   Cloud,
   ArrowLeft,
   Send,
+  Pencil,
 } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
@@ -1321,6 +1322,26 @@ export default function AdminEmailBuilder() {
             <h1 className="text-sm font-bold text-foreground tracking-tight leading-tight">Email Builder</h1>
             <p className="text-[11px] text-muted-foreground">Mailchimp-ready HTML</p>
           </div>
+          {overwriteId && templateName && (
+            <>
+              <Separator orientation="vertical" className="h-7" />
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Input
+                  value={templateName}
+                  onChange={e => setTemplateName(e.target.value)}
+                  className="h-7 text-xs font-semibold border-dashed border-muted-foreground/30 bg-transparent px-2 max-w-[200px] focus:border-primary/50"
+                  onBlur={async () => {
+                    if (overwriteId && templateName.trim()) {
+                      await supabase.from("campaign_templates").update({ name: templateName.trim() } as any).eq("id", overwriteId);
+                    }
+                  }}
+                  onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+                  title="Click to rename template"
+                />
+                <Pencil className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+              </div>
+            </>
+          )}
           <Separator orientation="vertical" className="h-7" />
 
           <div className="flex items-center gap-2 min-w-0">

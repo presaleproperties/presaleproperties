@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
   Mail, Send, Eye, Copy, Trash2, Clock, Plus, Search,
-  Loader2, User, X, ChevronRight,
+  Loader2, User, X, ChevronRight, Pencil, Check,
 } from "lucide-react";
 import type { SavedAsset } from "@/lib/emailTemplateHelpers";
 import { timeAgo, getDisplayName, getSavedHtml } from "@/lib/emailTemplateHelpers";
@@ -21,6 +21,7 @@ interface TemplateCardProps {
   onPreview: (asset: SavedAsset) => void;
   onDelete: (id: string) => void;
   onDuplicate: (asset: SavedAsset) => void;
+  onRename?: (id: string, newName: string) => void;
   deleting: string | null;
   /** If true, shows a selectable style instead of action buttons */
   selectable?: boolean;
@@ -29,12 +30,30 @@ interface TemplateCardProps {
 }
 
 export function TemplateCard({
-  asset, onSend, onPreview, onDelete, onDuplicate, deleting,
+  asset, onSend, onPreview, onDelete, onDuplicate, onRename, deleting,
   selectable, selected, onSelect,
 }: TemplateCardProps) {
   const navigate = useNavigate();
   const fd = asset.form_data || {};
   const isEmail = fd._type === "ai-email" || !fd.plans;
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const editRef = useRef<HTMLInputElement>(null);
+
+  const startRename = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditName(getDisplayName(asset));
+    setEditing(true);
+    setTimeout(() => editRef.current?.select(), 50);
+  };
+
+  const commitRename = () => {
+    const trimmed = editName.trim();
+    if (trimmed && trimmed !== asset.name && onRename) {
+      onRename(asset.id, trimmed);
+    }
+    setEditing(false);
+  };
 
   return (
     <div
@@ -83,7 +102,31 @@ export function TemplateCard({
       </div>
 
       <div className="p-3.5">
-        <p className="text-sm font-semibold truncate mb-0.5">{getDisplayName(asset)}</p>
+        {editing ? (
+          <div className="flex items-center gap-1">
+            <input
+              ref={editRef}
+              value={editName}
+              onChange={e => setEditName(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") commitRename(); if (e.key === "Escape") setEditing(false); }}
+              onBlur={commitRename}
+              className="text-sm font-semibold bg-transparent border-b border-primary/40 outline-none w-full py-0.5"
+              autoFocus
+            />
+            <button onClick={commitRename} className="shrink-0 h-5 w-5 rounded flex items-center justify-center hover:bg-muted">
+              <Check className="h-3 w-3 text-primary" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 group/name">
+            <p className="text-sm font-semibold truncate mb-0.5">{getDisplayName(asset)}</p>
+            {onRename && !selectable && (
+              <button onClick={startRename} className="shrink-0 h-5 w-5 rounded flex items-center justify-center opacity-0 group-hover/name:opacity-100 hover:bg-muted transition-opacity" title="Rename">
+                <Pencil className="h-3 w-3 text-muted-foreground" />
+              </button>
+            )}
+          </div>
+        )}
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60 mb-1">
           <Clock className="h-3 w-3" />
           {timeAgo(asset.updated_at)}
