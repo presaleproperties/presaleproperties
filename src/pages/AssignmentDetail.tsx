@@ -847,8 +847,8 @@ export default function AssignmentDetail() {
               </Card>
             )}
 
-            {/* Expert Advisory Card */}
-            <ExpertAdvisoryCard />
+
+
 
             {/* One-Pager Download — verified agents only */}
             {isVerified && (
