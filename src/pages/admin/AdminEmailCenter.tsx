@@ -221,24 +221,91 @@ function QuickSendPanel({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {campaigns.map(c => (
-              <button
-                key={c.id}
-                onClick={() => setSelectedTemplate(c.id === selectedTemplate ? "none" : c.id)}
-                className={cn(
-                  "text-left border rounded-lg p-3 transition-all hover:border-primary/40",
-                  selectedTemplate === c.id
-                    ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                    : "border-border bg-card"
-                )}
-              >
-                {c.thumbnail_url && (
-                  <img src={c.thumbnail_url} alt="" className="w-full h-24 object-cover rounded-md mb-2" />
-                )}
-                <p className="text-xs font-semibold truncate">{c.project_name || c.name}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(c.updated_at)}</p>
-              </button>
-            ))}
+            {campaigns.map(c => {
+              const isSelected = selectedTemplate === c.id;
+              let previewHtml = "";
+              try {
+                if (c.form_data?.vars) {
+                  const fd = c.form_data;
+                  previewHtml = buildAiEmailHtml({
+                    headline: fd.vars?.headline || "",
+                    bodyCopy: fd.vars?.bodyCopy || "",
+                    subjectLine: fd.vars?.subjectLine || "",
+                    previewText: fd.vars?.previewText || "",
+                    incentiveText: fd.vars?.incentiveText || "",
+                    projectName: fd.vars?.projectName || c.project_name || "",
+                    city: fd.vars?.city || "",
+                    neighborhood: fd.vars?.neighborhood || "",
+                    developerName: fd.vars?.developerName || "",
+                    startingPrice: fd.vars?.startingPrice || "",
+                    deposit: fd.vars?.deposit || "",
+                    completion: fd.vars?.completion || "",
+                  });
+                }
+              } catch {}
+              return (
+                <div
+                  key={c.id}
+                  className={cn(
+                    "relative border rounded-lg overflow-hidden transition-all hover:border-primary/40 group",
+                    isSelected
+                      ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                      : "border-border bg-card"
+                  )}
+                >
+                  {/* Preview iframe */}
+                  <div
+                    className="relative w-full bg-white cursor-pointer"
+                    style={{ height: 180 }}
+                    onClick={() => setSelectedTemplate(c.id === selectedTemplate ? "none" : c.id)}
+                  >
+                    {previewHtml ? (
+                      <iframe
+                        srcDoc={previewHtml}
+                        className="w-full h-full pointer-events-none"
+                        style={{ transform: "scale(0.35)", transformOrigin: "top left", width: "286%", height: "286%" }}
+                        sandbox="allow-same-origin"
+                        title={`Preview ${c.name}`}
+                      />
+                    ) : c.thumbnail_url ? (
+                      <img src={c.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-muted/30">
+                        <Mail className="h-8 w-8 text-muted-foreground/30" />
+                      </div>
+                    )}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary-foreground" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info + actions */}
+                  <div className="px-3 py-2.5 space-y-1.5">
+                    <p className="text-xs font-semibold truncate">{c.name || c.project_name}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{c.project_name}{c.form_data?.vars?.subjectLine ? ` · ${c.form_data.vars.subjectLine}` : ""}</p>
+                    <p className="text-[10px] text-muted-foreground">{timeAgo(c.updated_at)}</p>
+                    <div className="flex items-center gap-1 pt-1">
+                      <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={(e) => { e.stopPropagation(); setPreviewingCampaign(c); }}>
+                        <Eye className="h-3 w-3" /> Preview
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={(e) => { e.stopPropagation(); navigate(`/admin/email-builder?template=${c.id}`); }}>
+                        <ArrowUpRight className="h-3 w-3" /> Edit
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1 text-destructive hover:text-destructive" onClick={async (e) => {
+                        e.stopPropagation();
+                        if (!confirm("Delete this template?")) return;
+                        const { error } = await (supabase as any).from("campaign_templates").delete().eq("id", c.id);
+                        if (!error) { toast.success("Template deleted"); fetchAll(); } else { toast.error("Failed to delete"); }
+                      }}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
