@@ -524,7 +524,53 @@ export default function AssignmentDetail() {
               {/* Main content */}
               <div className="lg:col-span-2 space-y-4 lg:space-y-6">
 
-                {/* Pricing Summary — single clean card */}
+                {/* Key Documents — Floor Plans & Brochure (top priority) */}
+                {(floorplanImages.length > 0 || allDownloads.length > 0) && (
+                  <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
+                    <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-primary" />
+                      Key Documents
+                    </h2>
+
+                    {/* Download buttons first — prominent */}
+                    {allDownloads.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+                        {allDownloads.map((dl, i) => (
+                          <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" download
+                            className="flex items-center gap-3 p-3.5 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+                            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                              {dl.icon === "brochure" ? <BookOpen className="h-5 w-5 text-primary" /> : <FileText className="h-5 w-5 text-primary" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold truncate">{dl.label}</p>
+                              <p className="text-[11px] text-muted-foreground">Tap to download</p>
+                            </div>
+                            <Download className="h-4 w-4 text-primary shrink-0" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Floor plan images */}
+                    {floorplanImages.length > 0 && (
+                      <div className={cn("grid gap-3", floorplanImages.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1")}>
+                        {floorplanImages.map((fp) => (
+                          <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" className="group block">
+                            <div className="rounded-lg overflow-hidden border border-border bg-muted/20 hover:border-primary/40 transition-colors">
+                              <img src={fp.url} alt={fp.file_name || "Floor Plan"} className="w-full h-auto object-contain max-h-[400px] p-2" />
+                              <div className="px-3 py-2 border-t border-border/50 flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground truncate">{fp.file_name || "Floor Plan"}</span>
+                                <Download className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                              </div>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Pricing Summary */}
                 <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
                   <h2 className="text-base font-bold text-foreground mb-3">Pricing Summary</h2>
                   <div className="space-y-2.5 text-sm">
@@ -571,7 +617,7 @@ export default function AssignmentDetail() {
                   </div>
                 </div>
 
-                {/* About + Description — merged into one section */}
+                {/* About This Unit */}
                 {(listing.description || project?.full_description) && (
                   <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
                     <h2 className="text-base font-bold text-foreground mb-3">About This Unit</h2>
@@ -579,51 +625,6 @@ export default function AssignmentDetail() {
                       className="prose prose-sm max-w-none text-muted-foreground space-y-2"
                       dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
                     />
-                  </div>
-                )}
-
-                {/* Floor Plans + Downloads — merged */}
-                {(floorplanImages.length > 0 || allDownloads.length > 0) && (
-                  <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
-                    <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-primary" />
-                      Floor Plans & Documents
-                    </h2>
-
-                    {/* Inline floor plan images */}
-                    {floorplanImages.length > 0 && (
-                      <div className={cn("grid gap-3 mb-4", floorplanImages.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1")}>
-                        {floorplanImages.map((fp) => (
-                          <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" className="group block">
-                            <div className="rounded-lg overflow-hidden border border-border bg-muted/20 hover:border-primary/40 transition-colors">
-                              <img src={fp.url} alt={fp.file_name || "Floor Plan"} className="w-full h-auto object-contain max-h-[400px] p-2" />
-                              <div className="px-3 py-2 border-t border-border/50 flex items-center justify-between">
-                                <span className="text-xs text-muted-foreground truncate">{fp.file_name || "Floor Plan"}</span>
-                                <Download className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                              </div>
-                            </div>
-                          </a>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Download links */}
-                    {allDownloads.length > 0 && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {allDownloads.map((dl, i) => (
-                          <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" download
-                            className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/30 transition-colors">
-                            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                              {dl.icon === "brochure" ? <BookOpen className="h-4 w-4 text-primary" /> : <FileText className="h-4 w-4 text-primary" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{dl.label}</p>
-                            </div>
-                            <Download className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                          </a>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 )}
 
