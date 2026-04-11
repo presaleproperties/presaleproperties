@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { syncTemplateToDealsFlow } from "@/lib/syncTemplateToDealsFlow";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -96,7 +97,21 @@ export default function AdminMarketingHub() {
   const handleRename = async (id: string, newName: string) => {
     const { error } = await (supabase as any).from("campaign_templates").update({ name: newName }).eq("id", id);
     if (error) toast.error("Failed to rename");
-    else { toast.success("Renamed"); fetchAssets(); }
+    else {
+      toast.success("Renamed");
+      // Re-sync renamed template to DealsFlow
+      const asset = [...emailAssets, ...campaignAssets].find(a => a.id === id);
+      if (asset) {
+        const html = (await import("@/lib/emailTemplateHelpers")).getSavedHtml(asset);
+        syncTemplateToDealsFlow({
+          name: newName,
+          subject: asset.form_data?.vars?.subjectLine || newName,
+          html,
+          project: asset.form_data?.vars?.projectName || asset.project_name || undefined,
+        });
+      }
+      fetchAssets();
+    }
   };
 
   const filteredAssets = useMemo(() => {
