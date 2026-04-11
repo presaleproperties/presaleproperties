@@ -768,32 +768,6 @@ export default function AssignmentDetail() {
                     </Button>
                   </div>
 
-                  {/* One-Pager Download — verified agents only */}
-                  {isVerified && (
-                    <div className="bg-primary/5 rounded-xl p-5 border border-primary/20">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                          <FileDown className="h-4 w-4 text-primary" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-sm text-foreground">Download One-Pager</p>
-                          <p className="text-xs text-muted-foreground">Branded PDF for client sharing</p>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={handleDownloadOnePager}
-                        disabled={isExporting}
-                        variant="outline"
-                        className="w-full h-10 gap-2 text-sm font-semibold border-primary/30 hover:bg-primary/5"
-                      >
-                        {isExporting ? (
-                          <><Loader2 className="h-4 w-4 animate-spin" />Generating...</>
-                        ) : (
-                          <><Download className="h-4 w-4" />Download PNG One-Pager</>
-                        )}
-                      </Button>
-                    </div>
-                  )}
                 </div>
               </aside>
             </div>
