@@ -1823,6 +1823,50 @@ export default function ListingForm() {
               </CardContent>
             </Card>
 
+            {/* Video */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Video Walkthrough</CardTitle>
+                <CardDescription>Upload a video tour of the unit (MP4, MOV, WebM — max 100MB)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  {videos.map((vid, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
+                      <span className="text-sm flex-1 truncate">{vid.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeVideo(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                <label className="flex items-center gap-3 p-4 rounded-lg border-2 border-dashed border-border cursor-pointer hover:border-primary/50 transition-colors">
+                  <input
+                    type="file"
+                    accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
+                    onChange={handleVideoUpload}
+                    className="hidden"
+                    disabled={uploadingVideos}
+                  />
+                  {uploadingVideos ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  ) : (
+                    <>
+                      <Upload className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Upload video walkthrough</span>
+                    </>
+                  )}
+                </label>
+              </CardContent>
+            </Card>
+
             {/* Submit */}
             <div className="flex gap-4">
               <Button type="submit" disabled={saving} className="flex-1 sm:flex-none">
