@@ -102,6 +102,7 @@ Return the copy text ready to paste into Facebook. The headline for the graphic 
                 required: ["caption", "headline", "subline", "cta"],
               },
             },
+          },
         ],
         tool_choice: { type: "function", function: { name: "return_copy" } },
       }),
