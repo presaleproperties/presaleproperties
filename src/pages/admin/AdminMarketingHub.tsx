@@ -93,6 +93,12 @@ export default function AdminMarketingHub() {
     else { toast.success("Duplicated"); fetchAssets(); }
   };
 
+  const handleRename = async (id: string, newName: string) => {
+    const { error } = await (supabase as any).from("campaign_templates").update({ name: newName }).eq("id", id);
+    if (error) toast.error("Failed to rename");
+    else { toast.success("Renamed"); fetchAssets(); }
+  };
+
   const filteredAssets = useMemo(() => {
     const base = activeTab === "emails" ? emailAssets : campaignAssets;
     if (!activeTagFilter) return base;
@@ -211,6 +217,7 @@ export default function AdminMarketingHub() {
                       onPreview={setPreviewAsset}
                       onDelete={handleDelete}
                       onDuplicate={handleDuplicate}
+                      onRename={handleRename}
                       deleting={deleting}
                     />
                   ))}
