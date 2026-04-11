@@ -531,6 +531,7 @@ export default function AdminListings() {
         buyer_agent_commission: addForm.buyer_agent_commission || null,
         developer_approval_required: addForm.developer_approval_required,
         description: addForm.description || null,
+        listing_agent_id: addForm.listing_agent_id || null,
         status: "pending_approval",
       };
 
@@ -622,6 +623,7 @@ export default function AdminListings() {
         buyer_agent_commission: editForm.buyer_agent_commission || null,
         developer_approval_required: editForm.developer_approval_required,
         description: editForm.description || null,
+        listing_agent_id: editForm.listing_agent_id || null,
       };
 
       const { error } = await (supabase as any).from("listings").update(payload).eq("id", editListingId);
