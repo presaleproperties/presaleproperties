@@ -227,10 +227,6 @@ export default function Assignments() {
     !!searchQuery,
   ].filter(Boolean).length;
 
-  const handleInquire = (title: string) => {
-    setInquireTitle(title);
-    setFormOpen(true);
-  };
 
   const clearFilters = () => setSearchParams({}, { replace: true });
 
@@ -439,11 +435,6 @@ export default function Assignments() {
 
       <Footer />
 
-      <AboutContactForm
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        selectedAgentName={inquireTitle || undefined}
-      />
     </div>
   );
 }
