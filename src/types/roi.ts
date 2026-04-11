@@ -179,9 +179,9 @@ export const DEFAULT_INPUTS: ROIInputs = {
     managementPercent: 0,
   },
   expenses: {
-    strataMonthly: 350,
+    strataMonthly: 275,
     strataAnnualGrowthPercent: 3,
-    propertyTaxAnnual: 2800,
+    propertyTaxAnnual: 1440,
     propertyTaxGrowthPercent: 3,
     insuranceAnnual: 600,
     utilitiesAnnual: 0,
