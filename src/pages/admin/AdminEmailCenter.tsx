@@ -238,12 +238,12 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
         <div className="text-center py-12 text-muted-foreground text-sm">No emails found</div>
       ) : (
         <div className="border border-border rounded-lg overflow-hidden">
-          <div className="grid grid-cols-[1fr_1fr_70px_80px_70px_80px_40px] gap-0 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted/30 px-4 py-2 border-b border-border">
-            <span>Recipient</span><span>Subject</span><span>Status</span><span>Opens</span><span>Last Open</span><span>Sent</span><span></span>
+          <div className="grid grid-cols-[1fr_1fr_70px_80px_60px_70px_80px_40px] gap-0 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted/30 px-4 py-2 border-b border-border">
+            <span>Recipient</span><span>Subject</span><span>Status</span><span>Opens</span><span>Clicks</span><span>Last Open</span><span>Sent</span><span></span>
           </div>
           <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
             {filtered.slice(0, 200).map(log => (
-              <div key={log.id} className="grid grid-cols-[1fr_1fr_70px_80px_70px_80px_40px] gap-0 px-4 py-2.5 hover:bg-muted/20 transition-colors items-center group">
+              <div key={log.id} className="grid grid-cols-[1fr_1fr_70px_80px_60px_70px_80px_40px] gap-0 px-4 py-2.5 hover:bg-muted/20 transition-colors items-center group">
                 <div className="min-w-0 pr-2">
                   <p className="text-sm font-medium truncate">{log.recipient_name || log.email_to.split("@")[0]}</p>
                   <p className="text-[11px] text-muted-foreground truncate">{log.email_to}</p>
