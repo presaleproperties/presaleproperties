@@ -12,10 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   MapPin, Bed, Bath, Maximize, Search,
-  Building2, ArrowRight, Lock, X, Map, LayoutGrid
+  Building2, ArrowRight, X, Map, LayoutGrid
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
 import { AboutContactForm } from "@/components/about/AboutContactForm";
 
 const AssignmentsMap = lazy(() => import("@/components/assignments/AssignmentsMap"));
