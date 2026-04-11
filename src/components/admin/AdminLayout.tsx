@@ -76,7 +76,7 @@ const navSections = [
     label: "Properties",
     items: [
       { href: "/admin/projects",   label: "Projects",    icon: Building2, badgeKey: null },
-      { href: "/admin/listings",   label: "Assignments", icon: FileStack, badgeKey: "assignments" as const },
+      { href: "/admin/assignments",   label: "Assignments", icon: FileStack, badgeKey: "assignments" as const },
       { href: "/admin/developers", label: "Developers",  icon: Landmark,  badgeKey: null },
     ],
   },
