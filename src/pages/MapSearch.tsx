@@ -866,7 +866,7 @@ export default function MapSearch() {
     placeholderData: (prev) => prev, // Keep showing previous data while refreshing
   });
 
-  // Fetch assignments (listings table)
+  // Fetch assignments (listings table) with coordinates from linked presale_projects
   type Assignment = {
     id: string;
     title: string;
@@ -879,15 +879,73 @@ export default function MapSearch() {
     interior_sqft: number | null;
     map_lat: number | null;
     map_lng: number | null;
+    featured_image: string | null;
     status: string;
   };
 
   const { data: assignments, isLoading: assignmentsLoading } = useQuery<Assignment[]>({
     queryKey: ["unified-map-assignments", selectedCities, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths],
     queryFn: async () => {
-      // NOTE: The listings (assignments) table does not have map_lat/map_lng columns,
-      // so assignments cannot be plotted on the map. Return empty array to avoid DB errors.
-      return [];
+      let query = (supabase as any)
+        .from("listings")
+        .select("id, title, project_name, city, neighborhood, assignment_price, beds, baths, interior_sqft, featured_image, status, project_id")
+        .eq("status", "published")
+        .eq("listing_type", "assignment");
+
+      // Apply city filter
+      if (selectedCities.length > 0) {
+        query = query.in("city", selectedCities);
+      }
+
+      // Apply price filters
+      const priceMin = filters.priceMin ? parseInt(filters.priceMin) : undefined;
+      const priceMax = filters.priceMax ? parseInt(filters.priceMax) : undefined;
+      if (priceMin) query = query.gte("assignment_price", priceMin);
+      if (priceMax) query = query.lte("assignment_price", priceMax);
+
+      // Apply bed/bath filters
+      if (filters.beds && filters.beds !== "any") query = query.gte("beds", parseInt(filters.beds));
+      if (filters.baths && filters.baths !== "any") query = query.gte("baths", parseInt(filters.baths));
+
+      const { data, error } = await query;
+      if (error) throw error;
+      if (!data || data.length === 0) return [];
+
+      // Fetch coordinates from linked presale_projects
+      const projectIds = [...new Set((data as any[]).map((l: any) => l.project_id).filter(Boolean))];
+      let coordsMap: Record<string, { lat: number; lng: number }> = {};
+      if (projectIds.length > 0) {
+        const { data: projData } = await supabase
+          .from("presale_projects")
+          .select("id, map_lat, map_lng")
+          .in("id", projectIds);
+        if (projData) {
+          for (const p of projData) {
+            if (p.map_lat && p.map_lng) {
+              coordsMap[p.id] = { lat: p.map_lat, lng: p.map_lng };
+            }
+          }
+        }
+      }
+
+      return (data as any[]).map((l: any) => {
+        const coords = l.project_id ? coordsMap[l.project_id] : null;
+        return {
+          id: l.id,
+          title: l.title,
+          project_name: l.project_name,
+          city: l.city,
+          neighborhood: l.neighborhood,
+          assignment_price: l.assignment_price,
+          beds: l.beds,
+          baths: l.baths,
+          interior_sqft: l.interior_sqft,
+          featured_image: l.featured_image,
+          status: l.status,
+          map_lat: coords?.lat ?? null,
+          map_lng: coords?.lng ?? null,
+        };
+      });
     },
     staleTime: 3 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
