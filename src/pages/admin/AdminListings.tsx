@@ -213,6 +213,29 @@ export default function AdminListings() {
     if (data) setProjects(data as PresaleProject[]);
   };
 
+  const fetchAgents = async () => {
+    const { data: agentProfiles } = await (supabase as any)
+      .from("agent_profiles")
+      .select("user_id, brokerage_name, verification_status")
+      .eq("verification_status", "verified");
+    if (!agentProfiles || agentProfiles.length === 0) return;
+    const userIds = agentProfiles.map((a: any) => a.user_id);
+    const { data: profiles } = await (supabase as any)
+      .from("profiles")
+      .select("user_id, full_name, email, phone")
+      .in("user_id", userIds);
+    if (profiles) {
+      const brokerageMap = Object.fromEntries(agentProfiles.map((a: any) => [a.user_id, a.brokerage_name]));
+      setAgents(profiles.map((p: any) => ({
+        user_id: p.user_id,
+        full_name: p.full_name,
+        email: p.email,
+        phone: p.phone,
+        brokerage_name: brokerageMap[p.user_id] || "Real Broker",
+      })));
+    }
+  };
+
   const fetchListings = async () => {
     try {
       const { data, error } = await (supabase as any)
