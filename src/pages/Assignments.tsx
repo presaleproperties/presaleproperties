@@ -189,11 +189,11 @@ export default function Assignments() {
           .from("presale_projects")
           .select("id, featured_image, gallery_images, map_lat, map_lng")
           .in("id", projectIds);
-        (projects || []).forEach((p: any) => projectMap.set(p.id, p));
+        (projects || []).forEach((p: any) => { projectMap[p.id] = p; });
       }
 
       return (data || []).map((l: any) => {
-        const proj = l.project_id ? projectMap.get(l.project_id) : null;
+        const proj = l.project_id ? projectMap[l.project_id] : null;
         return {
           ...l,
           _project_featured_image: proj?.featured_image || null,
