@@ -30,12 +30,30 @@ interface TemplateCardProps {
 }
 
 export function TemplateCard({
-  asset, onSend, onPreview, onDelete, onDuplicate, deleting,
+  asset, onSend, onPreview, onDelete, onDuplicate, onRename, deleting,
   selectable, selected, onSelect,
 }: TemplateCardProps) {
   const navigate = useNavigate();
   const fd = asset.form_data || {};
   const isEmail = fd._type === "ai-email" || !fd.plans;
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const editRef = useRef<HTMLInputElement>(null);
+
+  const startRename = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditName(getDisplayName(asset));
+    setEditing(true);
+    setTimeout(() => editRef.current?.select(), 50);
+  };
+
+  const commitRename = () => {
+    const trimmed = editName.trim();
+    if (trimmed && trimmed !== asset.name && onRename) {
+      onRename(asset.id, trimmed);
+    }
+    setEditing(false);
+  };
 
   return (
     <div
