@@ -302,6 +302,7 @@ export function TemplateQuickSendDialog({
             Quick Send: {asset ? getDisplayName(asset) : ""}
           </DialogTitle>
         </DialogHeader>
+        <div className="space-y-4">
           {/* Subject line - editable */}
           <div className="space-y-1.5">
             <p className="text-xs font-semibold text-muted-foreground">Subject Line</p>
