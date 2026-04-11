@@ -113,7 +113,7 @@ export function FeaturedListings() {
                 completionYear={listing.completion_year || undefined}
                 completionMonth={listing.completion_month || undefined}
                 isFeatured={listing.is_featured || false}
-                imageUrl={listing.listing_photos?.[0]?.url}
+                imageUrl={listing.listing_photos?.[0]?.url || listing._projectGalleryImages?.[0] || listing._projectFeaturedImage}
                 photoCount={listing.listing_photos?.length || 0}
                 agent={{
                   name: listing.agentProfile?.full_name || undefined,
