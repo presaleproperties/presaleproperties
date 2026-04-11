@@ -179,11 +179,16 @@ export default function AssignmentDetail() {
   const videoFiles = (listingFiles || []).filter(f => f.file_type === "video");
   const floorplanImages = floorplanFiles.filter(f => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f.url));
 
+  // Build gallery: photos first, then floor plan images at the end so they're browsable
   const gallery: string[] = [
     ...(listing?.photos || []),
     ...(project?.gallery_images || []),
     ...(listing?.featured_image ? [listing.featured_image] : []),
     ...(project?.featured_image && !listing?.featured_image ? [project.featured_image] : []),
+    // Add floor plan images to gallery so agents can browse/screenshot them
+    ...floorplanImages.map(fp => fp.url),
+    // Add legacy floor_plan_url if it's an image
+    ...((listing?.floor_plan_url && /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(listing.floor_plan_url)) ? [listing.floor_plan_url] : []),
   ].filter(Boolean);
   const uniqueGallery = [...new Set(gallery)];
 
@@ -566,34 +571,54 @@ export default function AssignmentDetail() {
               </Card>
             )}
 
-            {/* ── Documents ──────────────────────────────────── */}
+            {/* ── Documents — prominent download section ──── */}
             {(listing.floor_plan_url || listing.brochure_url || floorplanFiles.filter(f => !floorplanImages.includes(f)).length > 0) && (
-              <Card>
-                <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">Documents</CardTitle></CardHeader>
-                <CardContent className="space-y-2">
+              <Card className="border-primary/20">
+                <CardHeader className="pb-3 sm:pb-6">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Download className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                    Downloads
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {listing.floor_plan_url && (
-                    <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
-                      <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
-                      <span className="flex-1 text-xs sm:text-sm font-medium">{listing.floor_plan_name || "Floor Plan"}</span>
-                      <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                    <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer" download
+                      className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <FileText className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{listing.floor_plan_name || "Floor Plan"}</p>
+                        <p className="text-xs text-muted-foreground">Tap to download</p>
+                      </div>
+                      <Download className="h-4 w-4 text-primary shrink-0" />
                     </a>
                   )}
                   {/* PDF floorplans as downloadable docs */}
                   {floorplanFiles.filter(f => !floorplanImages.includes(f)).map((fp) => (
-                    <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
-                      <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
-                      <span className="flex-1 text-xs sm:text-sm font-medium">{fp.file_name || "Floor Plan PDF"}</span>
-                      <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                    <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" download
+                      className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <FileText className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{fp.file_name || "Floor Plan PDF"}</p>
+                        <p className="text-xs text-muted-foreground">Tap to download</p>
+                      </div>
+                      <Download className="h-4 w-4 text-primary shrink-0" />
                     </a>
                   ))}
                   {listing.brochure_url && (
-                    <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
-                      <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
-                      <span className="flex-1 text-xs sm:text-sm font-medium">Project Brochure</span>
-                      <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                    <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer" download
+                      className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <BookOpen className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold">Project Brochure</p>
+                        <p className="text-xs text-muted-foreground">Tap to download</p>
+                      </div>
+                      <Download className="h-4 w-4 text-primary shrink-0" />
                     </a>
                   )}
                 </CardContent>
@@ -799,23 +824,33 @@ export default function AssignmentDetail() {
 
             {/* Documents Sidebar */}
             {(listing.floor_plan_url || listing.brochure_url) && (
-              <Card>
+              <Card className="border-primary/20">
                 <CardHeader><CardTitle className="text-base flex items-center gap-2"><Download className="h-4 w-4 text-primary" />Downloads</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
                   {listing.floor_plan_url && (
-                    <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
-                      <FileText className="h-4 w-4 text-primary shrink-0" />
-                      <span className="flex-1 text-sm font-medium">{listing.floor_plan_name || "Floor Plan"}</span>
-                      <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                    <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer" download
+                      className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+                      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <FileText className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{listing.floor_plan_name || "Floor Plan"}</p>
+                        <p className="text-[10px] text-muted-foreground">Tap to download</p>
+                      </div>
+                      <Download className="h-4 w-4 text-primary shrink-0" />
                     </a>
                   )}
                   {listing.brochure_url && (
-                    <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
-                      <BookOpen className="h-4 w-4 text-primary shrink-0" />
-                      <span className="flex-1 text-sm font-medium">Project Brochure</span>
-                      <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                    <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer" download
+                      className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+                      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <BookOpen className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold">Project Brochure</p>
+                        <p className="text-[10px] text-muted-foreground">Tap to download</p>
+                      </div>
+                      <Download className="h-4 w-4 text-primary shrink-0" />
                     </a>
                   )}
                 </CardContent>
