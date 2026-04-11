@@ -595,52 +595,50 @@ export default function AssignmentDetail() {
                   </div>
                 )}
 
-                {/* Pricing Summary */}
-                <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
-                  <h2 className="text-base font-bold text-foreground mb-3">Pricing Summary</h2>
-                  <div className="space-y-2.5 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Assignment Price</span>
-                      <span className="font-bold text-foreground">{priceFormatted}</span>
+                {/* Pricing Details — no duplicate of hero price */}
+                {(listing.original_price || listing.deposit_to_lock || developerCredit || listing.buyer_agent_commission || listing.developer_approval_required) && (
+                  <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
+                    <h2 className="text-base font-bold text-foreground mb-3">Pricing Details</h2>
+                    <div className="space-y-2.5 text-sm">
+                      {listing.original_price && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Original Purchase Price</span>
+                          <span className="font-medium">{formatPrice(listing.original_price)}</span>
+                        </div>
+                      )}
+                      {discount && discount > 0 && (
+                        <div className="flex justify-between text-green-600 dark:text-green-400">
+                          <span>Savings vs. Original</span>
+                          <span className="font-semibold">{formatPrice(discount)}</span>
+                        </div>
+                      )}
+                      {listing.deposit_to_lock && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Deposit to Lock</span>
+                          <span className="font-medium">{formatPrice(listing.deposit_to_lock)}</span>
+                        </div>
+                      )}
+                      {developerCredit && (
+                        <div className="flex justify-between text-blue-600 dark:text-blue-400">
+                          <span>Developer Credit</span>
+                          <span className="font-semibold">{formatPrice(developerCredit)}</span>
+                        </div>
+                      )}
+                      {listing.buyer_agent_commission && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Buyer Agent Commission</span>
+                          <span className="font-medium">{listing.buyer_agent_commission}</span>
+                        </div>
+                      )}
+                      {listing.developer_approval_required && (
+                        <div className="flex justify-between text-amber-600 dark:text-amber-400">
+                          <span>Developer Approval</span>
+                          <span className="font-medium">Required</span>
+                        </div>
+                      )}
                     </div>
-                    {listing.original_price && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Original Purchase Price</span>
-                        <span className="font-medium">{formatPrice(listing.original_price)}</span>
-                      </div>
-                    )}
-                    {discount && discount > 0 && (
-                      <div className="flex justify-between text-green-600 dark:text-green-400">
-                        <span>Savings vs. Original</span>
-                        <span className="font-semibold">{formatPrice(discount)}</span>
-                      </div>
-                    )}
-                    {listing.deposit_to_lock && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Deposit to Lock</span>
-                        <span className="font-medium">{formatPrice(listing.deposit_to_lock)}</span>
-                      </div>
-                    )}
-                    {developerCredit && (
-                      <div className="flex justify-between text-blue-600 dark:text-blue-400">
-                        <span>Developer Credit</span>
-                        <span className="font-semibold">{formatPrice(developerCredit)}</span>
-                      </div>
-                    )}
-                    {listing.buyer_agent_commission && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Buyer Agent Commission</span>
-                        <span className="font-medium">{listing.buyer_agent_commission}</span>
-                      </div>
-                    )}
-                    {listing.developer_approval_required && (
-                      <div className="flex justify-between text-amber-600 dark:text-amber-400">
-                        <span>Developer Approval</span>
-                        <span className="font-medium">Required</span>
-                      </div>
-                    )}
                   </div>
-                </div>
+                )}
 
                 {/* About This Unit */}
                 {(listing.description || project?.full_description) && (
