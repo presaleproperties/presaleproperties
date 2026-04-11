@@ -15,7 +15,6 @@ import {
   Building2, ArrowRight, X, Map, LayoutGrid
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AboutContactForm } from "@/components/about/AboutContactForm";
 
 const AssignmentsMap = lazy(() => import("@/components/assignments/AssignmentsMap"));
 
@@ -125,8 +124,6 @@ function AssignmentCard({ listing }: {
 
 export default function Assignments() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [formOpen, setFormOpen] = useState(false);
-  const [inquireTitle, setInquireTitle] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   const cityFilter = searchParams.get("city") || "any";
