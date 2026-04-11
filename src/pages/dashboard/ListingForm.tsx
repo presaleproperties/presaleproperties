@@ -166,8 +166,10 @@ export default function ListingForm() {
   const [saving, setSaving] = useState(false);
   const [photos, setPhotos] = useState<UploadedFile[]>([]);
   const [floorplans, setFloorplans] = useState<UploadedFile[]>([]);
+  const [videos, setVideos] = useState<UploadedFile[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [uploadingFloorplans, setUploadingFloorplans] = useState(false);
+  const [uploadingVideos, setUploadingVideos] = useState(false);
   const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
   const [socialImporterOpen, setSocialImporterOpen] = useState(false);
   const [brochureContent, setBrochureContent] = useState<string>("");
@@ -302,6 +304,17 @@ export default function ListingForm() {
       if (fileData) {
         setFloorplans(fileData.map(f => ({ id: f.id, url: f.url, name: f.file_name || "floorplan" })));
       }
+
+      // Fetch videos
+      const { data: videoData } = await (supabase as any)
+        .from("listing_files")
+        .select("id, url, file_name")
+        .eq("listing_id", listingId)
+        .eq("file_type", "video");
+
+      if (videoData) {
+        setVideos(videoData.map(v => ({ id: v.id, url: v.url, name: v.file_name || "video" })));
+      }
     } catch (error) {
       console.error("Error fetching listing:", error);
       toast({
@@ -382,6 +395,29 @@ export default function ListingForm() {
 
   const removeFloorplan = (index: number) => {
     setFloorplans(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingVideos(true);
+    const newVideos: UploadedFile[] = [];
+
+    for (const file of Array.from(files)) {
+      const url = await uploadFile(file, "listing-files");
+      if (url) {
+        newVideos.push({ url, name: file.name, isNew: true });
+      }
+    }
+
+    setVideos(prev => [...prev, ...newVideos]);
+    setUploadingVideos(false);
+    e.target.value = "";
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos(prev => prev.filter((_, i) => i !== index));
   };
 
   // Debounced address autocomplete
@@ -801,6 +837,19 @@ export default function ListingForm() {
             url: fp.url,
             file_name: fp.name,
             file_type: "floorplan",
+          }))
+        );
+      }
+
+      // Save new videos
+      const newVideos = videos.filter(v => v.isNew);
+      if (newVideos.length > 0 && listingId) {
+        await (supabase as any).from("listing_files").insert(
+          newVideos.map(v => ({
+            listing_id: listingId,
+            url: v.url,
+            file_name: v.name,
+            file_type: "video",
           }))
         );
       }
