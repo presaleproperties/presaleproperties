@@ -409,7 +409,9 @@ function QuickSendPanel({
         let html = "";
         try {
           const fd = previewingCampaign.form_data;
-          if (fd?.vars) {
+          if (fd?.finalHtml) {
+            html = fd.finalHtml;
+          } else if (fd?.vars) {
             html = buildAiEmailHtml({
               headline: fd.vars?.headline || "",
               bodyCopy: fd.vars?.bodyCopy || "",
