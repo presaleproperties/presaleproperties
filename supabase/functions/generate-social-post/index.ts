@@ -149,9 +149,9 @@ EXACT STYLE TO FOLLOW — this is a premium real estate ad:
 2. Add a SOLID warm orange/amber colored bar at the bottom portion of the image (roughly bottom 25-30% for post, bottom 20% for story). The bar should be opaque, not transparent.
 
 3. On the orange bar, add LARGE BOLD WHITE TEXT showing the key offer:
-   - Main headline: "${copy.headline}" — make this HUGE, bold, impactful
-   - Sub-line: "From ${price}" and completion info if available
-   - Small CTA text: "${copy.cta}" with a small download/arrow icon
+   - Main headline: "${copy.headline}" — make this HUGE, bold, impactful (biggest text on the image)
+   - Sub-line: "${copy.subline || `From ${price}`}"
+   - Small CTA text at bottom-right: "${copy.cta}" with a small arrow icon
 
 4. Above the orange bar, on the photo itself, add a small clean white rectangular badge with dark text showing: "${project.neighborhood}, ${project.city}"
 
