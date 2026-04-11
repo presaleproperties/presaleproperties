@@ -67,6 +67,7 @@ interface Assignment {
   baths: number;
   map_lat: number | null;
   map_lng: number | null;
+  featured_image?: string | null;
 }
 
 interface SavedMapState {
