@@ -260,6 +260,16 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
                     <span className="text-[10px] text-muted-foreground">—</span>
                   ) : null}
                 </span>
+                <span className="flex items-center gap-1">
+                  {log.clicked_at ? (
+                    <>
+                      <Zap className="h-3 w-3 text-orange-500" />
+                      <span className="text-xs font-medium text-orange-600">{log.click_count}×</span>
+                    </>
+                  ) : (
+                    <span className="text-[10px] text-muted-foreground">—</span>
+                  )}
+                </span>
                 <span className="text-[10px] text-muted-foreground">
                   {log.last_opened_at ? timeAgo(log.last_opened_at) : "—"}
                 </span>
