@@ -411,15 +411,22 @@ export default function AssignmentDetail() {
               <div className="lg:hidden mb-4">
                 <div className="flex items-baseline gap-3 mb-1">
                   <span className="text-2xl font-bold text-foreground">{priceFormatted}</span>
-                  {listing.original_price && (
+                  {listing.original_price && listing.original_price > listing.assignment_price && (
                     <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price)}</span>
                   )}
                 </div>
-                {discount && discount > 0 && (
-                  <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
-                    {formatPrice(discount)} below original
-                  </Badge>
-                )}
+                <div className="flex flex-wrap gap-1.5">
+                  {discount && discount > 0 && (
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
+                      {formatPrice(discount)} below original
+                    </Badge>
+                  )}
+                  {developerCredit && (
+                    <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs">
+                      {formatPrice(developerCredit)} developer credit
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               {/* Quick specs grid */}
