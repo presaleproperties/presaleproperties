@@ -698,6 +698,12 @@ export default function AssignmentDetail() {
                       <span className="font-medium">{formatPrice(listing.deposit_to_lock)}</span>
                     </div>
                   )}
+                  {developerCredit && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Developer Credit</span>
+                      <span className="font-medium text-blue-600 dark:text-blue-400">{formatPrice(developerCredit)}</span>
+                    </div>
+                  )}
                   {listing.buyer_agent_commission && (
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Buyer Agent Commission</span>
