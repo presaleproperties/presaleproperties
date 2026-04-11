@@ -41,6 +41,10 @@ interface EmailLog {
   open_count: number;
   last_opened_at: string | null;
   tracking_id: string | null;
+  clicked_at: string | null;
+  click_count: number;
+  last_clicked_at: string | null;
+  clicked_url: string | null;
 }
 
 interface AutomationWorkflow {
@@ -147,15 +151,17 @@ function DashboardStats({ logs }: { logs: EmailLog[] }) {
   const failed = logs.filter(l => l.status === "failed").length;
   const opened = logs.filter(l => l.opened_at).length;
   const openRate = sent > 0 ? Math.round((opened / sent) * 100) : 0;
+  const clicked = logs.filter(l => l.clicked_at).length;
+  const clickRate = sent > 0 ? Math.round((clicked / sent) * 100) : 0;
   const reopened = logs.filter(l => l.open_count >= 2).length;
 
   const stats = [
     { label: "Total Sent", value: sent, icon: <Send className="h-4 w-4 text-emerald-500" />, color: "text-emerald-600" },
     { label: "Opened", value: opened, icon: <MailOpen className="h-4 w-4 text-blue-500" />, color: "text-blue-600" },
     { label: "Open Rate", value: `${openRate}%`, icon: <TrendingUp className="h-4 w-4 text-violet-500" />, color: "text-violet-600" },
+    { label: "Clicked", value: `${clicked} (${clickRate}%)`, icon: <Zap className="h-4 w-4 text-orange-500" />, color: "text-orange-600" },
     { label: "Re-opened", value: reopened, icon: <RefreshCw className="h-4 w-4 text-amber-500" />, color: "text-amber-600" },
     { label: "Failed", value: failed, icon: <XCircle className="h-4 w-4 text-red-500" />, color: failed > 0 ? "text-red-600" : "text-muted-foreground" },
-    { label: "Total", value: total, icon: <BarChart3 className="h-4 w-4 text-muted-foreground" />, color: "text-foreground" },
   ];
 
   return (
