@@ -504,9 +504,20 @@ export default function AssignmentDetail() {
               <Card>
                 <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">About This Unit</CardTitle></CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground whitespace-pre-wrap text-xs sm:text-sm leading-relaxed">
-                    {listing.description || project?.full_description}
-                  </p>
+                  <div 
+                    className="text-muted-foreground text-xs sm:text-sm leading-relaxed prose prose-sm max-w-none prose-strong:text-foreground prose-ul:list-disc prose-ul:pl-4"
+                    dangerouslySetInnerHTML={{ 
+                      __html: (listing.description || project?.full_description || '')
+                        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/^• (.+)$/gm, '<li>$1</li>')
+                        .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+                        .replace(/<\/ul>\s*<ul>/g, '')
+                        .replace(/\n{2,}/g, '</p><p>')
+                        .replace(/\n/g, '<br/>')
+                        .replace(/^/, '<p>')
+                        .replace(/$/, '</p>')
+                    }}
+                  />
                 </CardContent>
               </Card>
             )}
