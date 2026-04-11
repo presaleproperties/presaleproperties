@@ -129,6 +129,24 @@ export default function AssignmentDetail() {
     enabled: !!listing?.project_id,
   });
 
+  // Fetch floorplan images and videos from listing_files
+  const { data: listingFiles } = useQuery({
+    queryKey: ["assignment-files", id],
+    queryFn: async () => {
+      if (!id) return [];
+      const { data } = await (supabase as any)
+        .from("listing_files")
+        .select("id, url, file_name, file_type")
+        .eq("listing_id", id);
+      return (data || []) as { id: string; url: string; file_name: string; file_type: string }[];
+    },
+    enabled: !!id,
+  });
+
+  const floorplanFiles = (listingFiles || []).filter(f => f.file_type === "floorplan");
+  const videoFiles = (listingFiles || []).filter(f => f.file_type === "video");
+  const floorplanImages = floorplanFiles.filter(f => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f.url));
+
   const gallery: string[] = [
     ...(listing?.photos || []),
     ...(project?.gallery_images || []),
