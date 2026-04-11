@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
@@ -11,12 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  MapPin, Bed, Bath, Maximize, Search, SlidersHorizontal,
-  Building2, ArrowRight, Lock, Filter, X
+  MapPin, Bed, Bath, Maximize, Search,
+  Building2, ArrowRight, Lock, X, Map, LayoutGrid
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
 import { AboutContactForm } from "@/components/about/AboutContactForm";
+
+const AssignmentsMap = lazy(() => import("@/components/assignments/AssignmentsMap"));
 
 interface Assignment {
   id: string;
@@ -36,8 +38,11 @@ interface Assignment {
   estimated_completion: string | null;
   exposure: string | null;
   project_id: string | null;
+  address: string | null;
   _project_featured_image?: string | null;
   _project_gallery_images?: string[] | null;
+  map_lat?: number | null;
+  map_lng?: number | null;
 }
 
 const formatPrice = (price: number) =>
@@ -68,7 +73,6 @@ function AssignmentCard({ listing, isVerified, onInquire }: {
 
   return (
     <div className="group rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
-      {/* Image */}
       <div className="relative aspect-[16/10] bg-muted overflow-hidden">
         {photo ? (
           <img
@@ -84,8 +88,6 @@ function AssignmentCard({ listing, isVerified, onInquire }: {
             <Building2 className="h-10 w-10 text-muted-foreground/30" />
           </div>
         )}
-
-        {/* Badges */}
         <div className="absolute top-3 left-3 flex gap-1.5">
           <Badge className="bg-amber-500 hover:bg-amber-500 text-white text-[10px] px-2">Assignment</Badge>
           {savings && savings > 0 && isVerified && (
@@ -94,8 +96,6 @@ function AssignmentCard({ listing, isVerified, onInquire }: {
             </Badge>
           )}
         </div>
-
-        {/* Lock overlay for non-verified */}
         {!isVerified && (
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center gap-2">
             <Lock className="h-7 w-7 text-white" />
@@ -103,8 +103,6 @@ function AssignmentCard({ listing, isVerified, onInquire }: {
           </div>
         )}
       </div>
-
-      {/* Content */}
       <div className="p-4 relative">
         {!isVerified && (
           <div className="absolute inset-0 bg-card/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-b-2xl gap-2 p-4">
@@ -114,8 +112,6 @@ function AssignmentCard({ listing, isVerified, onInquire }: {
             </Button>
           </div>
         )}
-
-        {/* Price */}
         <div className="flex items-start justify-between mb-2">
           <div>
             <p className="text-xl font-bold text-foreground">{formatPrice(listing.assignment_price)}</p>
@@ -127,15 +123,11 @@ function AssignmentCard({ listing, isVerified, onInquire }: {
             <Badge variant="outline" className="text-[10px]">Unit {listing.unit_number}</Badge>
           )}
         </div>
-
-        {/* Project + Location */}
         <p className="font-semibold text-sm text-foreground truncate mb-1">{listing.project_name}</p>
         <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
           <MapPin className="h-3 w-3 shrink-0" />
           <span className="truncate">{listing.neighborhood || listing.city}, {listing.city}</span>
         </div>
-
-        {/* Specs */}
         <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
           <span className="flex items-center gap-1"><Bed className="h-3.5 w-3.5" />{listing.beds} bed</span>
           <span className="flex items-center gap-1"><Bath className="h-3.5 w-3.5" />{listing.baths} bath</span>
@@ -143,8 +135,6 @@ function AssignmentCard({ listing, isVerified, onInquire }: {
             <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" />{listing.interior_sqft.toLocaleString()} sqft</span>
           )}
         </div>
-
-        {/* CTA */}
         {isVerified ? (
           <Link to={`/assignments/${listing.id}`}>
             <Button size="sm" className="w-full gap-1.5 h-9 text-xs font-semibold">
@@ -165,14 +155,14 @@ export default function Assignments() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [formOpen, setFormOpen] = useState(false);
   const [inquireTitle, setInquireTitle] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   const { isVerified } = useVerifiedAgent();
 
-  // Filters from URL params
   const cityFilter = searchParams.get("city") || "any";
   const bedsFilter = searchParams.get("beds") || "any";
   const priceFilter = searchParams.get("price") || "any";
+  const neighborhoodFilter = searchParams.get("neighbourhood") || "any";
   const searchQuery = searchParams.get("q") || "";
 
   const setFilter = (key: string, value: string) => {
@@ -187,32 +177,42 @@ export default function Assignments() {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("listings")
-        .select("id, title, project_name, city, neighborhood, assignment_price, original_price, beds, baths, interior_sqft, featured_image, photos, status, unit_number, estimated_completion, exposure, project_id")
+        .select("id, title, project_name, city, neighborhood, assignment_price, original_price, beds, baths, interior_sqft, featured_image, photos, status, unit_number, estimated_completion, exposure, project_id, address")
         .eq("status", "published")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      
-      // Fetch project images for fallback
+
       const projectIds = [...new Set((data || []).map((l: any) => l.project_id).filter(Boolean))];
-      let projectMap = new Map<string, { featured_image: string | null; gallery_images: string[] | null }>();
+      let projectMap = new Map<string, { featured_image: string | null; gallery_images: string[] | null; map_lat: number | null; map_lng: number | null }>();
       if (projectIds.length > 0) {
         const { data: projects } = await (supabase as any)
           .from("presale_projects")
-          .select("id, featured_image, gallery_images")
+          .select("id, featured_image, gallery_images, map_lat, map_lng")
           .in("id", projectIds);
         (projects || []).forEach((p: any) => projectMap.set(p.id, p));
       }
-      
+
       return (data || []).map((l: any) => {
         const proj = l.project_id ? projectMap.get(l.project_id) : null;
         return {
           ...l,
           _project_featured_image: proj?.featured_image || null,
           _project_gallery_images: proj?.gallery_images || null,
+          map_lat: proj?.map_lat || null,
+          map_lng: proj?.map_lng || null,
         };
       }) as Assignment[];
     },
   });
+
+  // Extract unique neighbourhoods for filter
+  const neighbourhoods = useMemo(() => {
+    const set = new Set<string>();
+    listings.forEach((l) => {
+      if (l.neighborhood) set.add(l.neighborhood);
+    });
+    return Array.from(set).sort();
+  }, [listings]);
 
   const selectedPriceRange = PRICE_RANGES.find((r) => r.label === priceFilter) || PRICE_RANGES[0];
 
@@ -220,21 +220,43 @@ export default function Assignments() {
     return listings.filter((l) => {
       if (cityFilter !== "any" && l.city !== cityFilter) return false;
       if (bedsFilter !== "any" && String(l.beds) !== bedsFilter) return false;
+      if (neighborhoodFilter !== "any" && l.neighborhood !== neighborhoodFilter) return false;
       if (selectedPriceRange.max !== Infinity || selectedPriceRange.min > 0) {
         if (l.assignment_price < selectedPriceRange.min || l.assignment_price > selectedPriceRange.max) return false;
       }
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
-        if (!l.project_name.toLowerCase().includes(q) && !l.city.toLowerCase().includes(q)) return false;
+        const searchable = [l.project_name, l.city, l.neighborhood, l.address].filter(Boolean).join(" ").toLowerCase();
+        if (!searchable.includes(q)) return false;
       }
       return true;
     });
-  }, [listings, cityFilter, bedsFilter, selectedPriceRange, searchQuery]);
+  }, [listings, cityFilter, bedsFilter, neighborhoodFilter, selectedPriceRange, searchQuery]);
+
+  // Map-ready data
+  const mapAssignments = useMemo(() =>
+    filtered.map((l) => ({
+      id: l.id,
+      title: l.title,
+      project_name: l.project_name,
+      city: l.city,
+      neighborhood: l.neighborhood,
+      assignment_price: l.assignment_price,
+      original_price: l.original_price,
+      beds: l.beds,
+      baths: l.baths,
+      interior_sqft: l.interior_sqft,
+      map_lat: l.map_lat || null,
+      map_lng: l.map_lng || null,
+    })),
+    [filtered]
+  );
 
   const activeFilterCount = [
     cityFilter !== "any",
     bedsFilter !== "any",
     priceFilter !== "any",
+    neighborhoodFilter !== "any",
     !!searchQuery,
   ].filter(Boolean).length;
 
@@ -299,7 +321,7 @@ export default function Assignments() {
             <div className="relative flex-1 min-w-[180px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search project or city..."
+                placeholder="Search project, city, address..."
                 value={searchQuery}
                 onChange={(e) => setFilter("q", e.target.value)}
                 className="pl-9 h-10 bg-background"
@@ -318,6 +340,21 @@ export default function Assignments() {
                 ))}
               </SelectContent>
             </Select>
+
+            {/* Neighbourhood */}
+            {neighbourhoods.length > 0 && (
+              <Select value={neighborhoodFilter} onValueChange={(v) => setFilter("neighbourhood", v)}>
+                <SelectTrigger className="w-[160px] h-10 bg-background">
+                  <SelectValue placeholder="Neighbourhood" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">All Neighbourhoods</SelectItem>
+                  {neighbourhoods.map((n) => (
+                    <SelectItem key={n} value={n}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
 
             {/* Beds */}
             <Select value={bedsFilter} onValueChange={(v) => setFilter("beds", v)}>
@@ -344,6 +381,30 @@ export default function Assignments() {
               </SelectContent>
             </Select>
 
+            {/* View toggle */}
+            <div className="flex rounded-lg border border-border overflow-hidden">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={cn(
+                  "h-10 w-10 flex items-center justify-center transition-colors",
+                  viewMode === "grid" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground hover:text-foreground"
+                )}
+                title="Grid view"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("map")}
+                className={cn(
+                  "h-10 w-10 flex items-center justify-center transition-colors",
+                  viewMode === "map" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground hover:text-foreground"
+                )}
+                title="Map view"
+              >
+                <Map className="h-4 w-4" />
+              </button>
+            </div>
+
             {/* Clear */}
             {activeFilterCount > 0 && (
               <Button variant="ghost" size="sm" onClick={clearFilters} className="h-10 gap-1.5 text-muted-foreground hover:text-foreground">
@@ -367,8 +428,21 @@ export default function Assignments() {
           )}
         </div>
 
-        {/* Grid */}
-        {isLoading ? (
+        {/* Content */}
+        {viewMode === "map" ? (
+          <div className="h-[600px] lg:h-[700px] rounded-xl overflow-hidden border border-border">
+            <Suspense fallback={
+              <div className="h-full w-full flex items-center justify-center bg-muted">
+                <MapPin className="h-12 w-12 animate-pulse text-muted-foreground" />
+              </div>
+            }>
+              <AssignmentsMap
+                assignments={mapAssignments}
+                isLoading={isLoading}
+              />
+            </Suspense>
+          </div>
+        ) : isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {Array.from({ length: 9 }).map((_, i) => (
               <div key={i} className="rounded-2xl border border-border overflow-hidden">
