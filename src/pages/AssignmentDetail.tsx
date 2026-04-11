@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Lock, MapPin, Bed, Bath, Maximize, Building2, Calendar,
+  Lock, MapPin, Bed, Bath, Maximize, Building2, Calendar, MessageCircle,
   ArrowLeft, Phone, Mail, ChevronLeft, ChevronRight, Shield,
   FileText, MessageSquare, Download, BookOpen, Compass, Car,
   Box, CheckCircle, XCircle, Home, FileDown, Loader2,
