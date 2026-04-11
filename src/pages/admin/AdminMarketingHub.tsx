@@ -199,7 +199,9 @@ export default function AdminMarketingHub() {
                 </div>
               </div>
 
-              {loading ? (
+              {activeTab === "social" ? (
+                <SocialPostGenerator />
+              ) : loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[1, 2, 3].map(i => (
                     <div key={i} className="rounded-xl border border-border bg-muted/30 animate-pulse">
