@@ -20,7 +20,13 @@ serve(async (req) => {
 
     // Handle assignment description generation
     if (type === 'generate_assignment') {
-      const assignmentPrompt = `You are a real estate marketing expert specializing in BC presale assignments. Generate a compelling, factual property description.
+      const savings = listingData.original_price && listingData.assignment_price
+        ? listingData.original_price - listingData.assignment_price
+        : null;
+      const hasSavings = savings && savings > 0;
+      const hasPremium = savings && savings < 0;
+
+      const assignmentPrompt = `You are an elite real estate marketing copywriter specializing in BC presale assignment sales. Write a persuasive, buyer-focused promotional description that makes this assignment irresistible.
 
 PROPERTY DETAILS:
 - Project: ${listingData.project_name || 'Not specified'}
@@ -36,25 +42,37 @@ PROPERTY DETAILS:
 - Exposure/Views: ${listingData.exposure || 'Not specified'}
 - Parking: ${listingData.has_parking ? (listingData.parking_count || 1) + ' stall(s)' : 'None'}
 - Storage: ${listingData.has_storage ? 'Included' : 'None'}
-- Assignment Price: ${listingData.assignment_price ? '$' + listingData.assignment_price.toLocaleString() : 'Not specified'}
-- Original Price: ${listingData.original_price ? '$' + listingData.original_price.toLocaleString() : 'Not specified'}
-- Completion: ${listingData.completion_month ? ['January','February','March','April','May','June','July','August','September','October','November','December'][listingData.completion_month - 1] : ''} ${listingData.completion_year || ''}
+
+PRICING & FINANCIALS:
+- Assignment Price: ${listingData.assignment_price ? '$' + Number(listingData.assignment_price).toLocaleString() : 'Not specified'}
+- Original Purchase Price: ${listingData.original_price ? '$' + Number(listingData.original_price).toLocaleString() : 'Not specified'}
+${hasSavings ? `- BUYER SAVINGS: $${Math.abs(savings!).toLocaleString()} below developer price — this is a KEY selling point, highlight prominently` : ''}
+${hasPremium ? `- Premium over original: $${Math.abs(savings!).toLocaleString()} — frame this positively (e.g., locked-in pricing, sold-out project, no GST on assignment portion)` : ''}
+- Deposit Already Paid by Seller: ${listingData.deposit_paid ? '$' + Number(listingData.deposit_paid).toLocaleString() : 'Not specified'}
+- Assignment Fee: ${listingData.assignment_fee ? '$' + Number(listingData.assignment_fee).toLocaleString() : 'Not specified'}
+
+TIMELINE:
+- Estimated Completion: ${listingData.completion_month ? ['January','February','March','April','May','June','July','August','September','October','November','December'][listingData.completion_month - 1] : ''} ${listingData.completion_year || ''}
 - Construction Status: ${listingData.construction_status?.replace('_', ' ') || 'Not specified'}
 
-${brochureContent ? `BROCHURE/PROJECT INFORMATION:\n${brochureContent}\n` : ''}
+${brochureContent ? `PROJECT BROCHURE/AMENITY INFORMATION:\n${brochureContent}\n` : ''}
 
-CRITICAL RULES:
-1. ONLY include facts from the property details and brochure above - DO NOT invent or assume any information
-2. If a detail is "Not specified", do NOT mention it at all
-3. Write in a professional, marketing-focused tone that highlights value
-4. Structure: Opening hook → Key features → Location benefits → Call to action
-5. Keep it between 100-200 words
-6. Highlight any assignment savings if original price is available
-7. Mention completion timeline if available
-8. Use bullet points (•) for amenities if from brochure
-9. End with a compelling reason to inquire
+WRITING GUIDELINES:
+1. ONLY use facts provided above — do NOT invent amenities, views, or features
+2. If a detail is "Not specified", skip it entirely
+3. Lead with the strongest hook: savings, location, or unique selling point
+4. Emphasize the VALUE PROPOSITION of this assignment:
+   - If there are savings, make that the headline benefit
+   - Mention the deposit already paid as a benefit (buyer steps into an existing contract)
+   - Highlight that buyer avoids years of waiting if construction is underway
+5. Structure: Compelling hook → Key unit features → Financial advantages → Location/project benefits → Urgent call to action
+6. Use bullet points (•) for amenities or feature lists from the brochure
+7. Keep it 150-250 words — punchy, scannable, and persuasive
+8. End with urgency: assignment opportunities are rare and move fast
+9. Tone: Professional but exciting — like a top-producing agent pitching to a serious buyer
 
-Write a compelling description that sells this assignment opportunity:`;
+Write the promotional description now:`;
+
 
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
