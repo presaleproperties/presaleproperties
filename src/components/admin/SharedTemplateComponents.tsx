@@ -302,9 +302,23 @@ export function TemplateQuickSendDialog({
             Quick Send: {asset ? getDisplayName(asset) : ""}
           </DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+          {/* Subject line - editable */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold text-muted-foreground">Subject Line</p>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                value={subjectLine}
+                onChange={e => setSubjectLine(e.target.value)}
+                placeholder="Email subject line…"
+                className="pl-9 h-9 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Recipients */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground">Add Recipients</p>
+            <p className="text-xs font-semibold text-muted-foreground">Recipients</p>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search leads by name or email…" className="pl-9 h-9 text-sm" />
