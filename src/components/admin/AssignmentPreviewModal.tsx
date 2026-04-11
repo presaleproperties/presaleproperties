@@ -96,6 +96,7 @@ export function AssignmentPreviewModal({
   const [photos, setPhotos] = useState<string[]>([]);
   const [files, setFiles] = useState<{ url: string; file_name: string | null; file_type: string }[]>([]);
   const [loadingPhotos, setLoadingPhotos] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(0);
 
   useEffect(() => {
     if (listing?.id && open) {
@@ -103,12 +104,16 @@ export function AssignmentPreviewModal({
     }
   }, [listing?.id, open]);
 
+  useEffect(() => {
+    setSelectedPhoto(0);
+  }, [listing?.id]);
+
   const fetchPhotosAndFiles = async () => {
     if (!listing) return;
     
     setLoadingPhotos(true);
     try {
-      const [photosRes, filesRes] = await Promise.all([
+      const [photosRes, filesRes, projectRes] = await Promise.all([
         supabase
           .from("listing_photos" as any)
           .select("url")
@@ -118,9 +123,21 @@ export function AssignmentPreviewModal({
           .from("listing_files" as any)
           .select("url, file_name, file_type")
           .eq("listing_id", listing.id),
+        listing.project_id
+          ? (supabase as any).from("presale_projects").select("featured_image, gallery_images").eq("id", listing.project_id).maybeSingle()
+          : Promise.resolve({ data: null }),
       ]);
 
-      setPhotos((photosRes.data as any[])?.map((p: any) => p.url) || []);
+      const listingPhotos = (photosRes.data as any[])?.map((p: any) => p.url) || [];
+      const listingOwnPhotos = [...(listing.photos || []), ...listingPhotos].filter(Boolean);
+      const projectPhotos = [
+        ...(projectRes.data?.gallery_images || []),
+        ...(projectRes.data?.featured_image ? [projectRes.data.featured_image] : []),
+      ].filter(Boolean);
+      const featuredImg = listing.featured_image ? [listing.featured_image] : [];
+      
+      const allPhotos = [...new Set([...listingOwnPhotos, ...featuredImg, ...projectPhotos])];
+      setPhotos(allPhotos);
       setFiles((filesRes.data as any[]) || []);
     } catch (error) {
       console.error("Error fetching photos/files:", error);
@@ -194,31 +211,45 @@ export function AssignmentPreviewModal({
                 Photos ({photos.length})
               </h3>
               {loadingPhotos ? (
-                <div className="flex items-center justify-center h-32 bg-muted rounded-lg">
+                <div className="flex items-center justify-center h-48 bg-muted rounded-lg">
                   <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
               ) : photos.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {photos.slice(0, 8).map((photo, index) => (
-                    <div key={index} className="aspect-video rounded-lg overflow-hidden bg-muted">
-                      <img
-                        src={photo}
-                        alt={`Photo ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                  {photos.length > 8 && (
-                    <div className="aspect-video rounded-lg bg-muted flex items-center justify-center">
-                      <span className="text-muted-foreground font-medium">
-                        +{photos.length - 8} more
-                      </span>
+                <div className="space-y-2">
+                  {/* Hero image */}
+                  <div className="aspect-[16/9] rounded-lg overflow-hidden bg-muted">
+                    <img
+                      src={photos[selectedPhoto]}
+                      alt={`Photo ${selectedPhoto + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  {/* Thumbnail strip */}
+                  {photos.length > 1 && (
+                    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+                      {photos.map((photo, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedPhoto(index)}
+                          className={`flex-shrink-0 w-16 h-12 rounded overflow-hidden border-2 transition-colors ${
+                            selectedPhoto === index
+                              ? "border-primary"
+                              : "border-transparent opacity-60 hover:opacity-100"
+                          }`}
+                        >
+                          <img
+                            src={photo}
+                            alt={`Thumb ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-32 bg-muted rounded-lg text-muted-foreground">
-                  No photos uploaded
+                  No photos available
                 </div>
               )}
             </div>
