@@ -134,6 +134,7 @@ interface AddListingForm {
   original_price: string;
   deposit_to_lock: string;
   buyer_agent_commission: string;
+  developer_credit: string;
   // Flags
   developer_approval_required: boolean;
   // Content
@@ -151,7 +152,7 @@ const EMPTY_FORM: AddListingForm = {
   floor_plan_url: "", floor_plan_name: "",
   brochure_url: "",
   estimated_completion: "",
-  assignment_price: "", original_price: "", deposit_to_lock: "", buyer_agent_commission: "",
+  assignment_price: "", original_price: "", deposit_to_lock: "", buyer_agent_commission: "", developer_credit: "",
   developer_approval_required: false,
   description: "", title: "",
   listing_agent_id: "",
