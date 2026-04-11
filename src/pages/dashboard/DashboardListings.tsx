@@ -42,7 +42,12 @@ import {
   BookOpen,
   Wand2,
   Globe,
+  Layers,
+  TrendingUp,
+  Clock,
+  Star,
 } from "lucide-react";
+import { AssignmentManagementHero } from "@/components/assignments/AssignmentManagementHero";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -144,6 +149,7 @@ export default function DashboardListings() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Add listing dialog state
   const [addOpen, setAddOpen] = useState(false);
@@ -455,10 +461,20 @@ export default function DashboardListings() {
   };
 
   const filteredListings = listings.filter((listing) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "active") return listing.status === "published";
-    if (activeTab === "pending") return listing.status === "pending_approval" || listing.status === "pending_payment";
-    if (activeTab === "drafts") return listing.status === "draft";
+    // Tab filter
+    if (activeTab === "active" && listing.status !== "published") return false;
+    if (activeTab === "pending" && listing.status !== "pending_approval" && listing.status !== "pending_payment") return false;
+    if (activeTab === "drafts" && listing.status !== "draft") return false;
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      if (!(
+        listing.title?.toLowerCase().includes(q) ||
+        listing.project_name?.toLowerCase().includes(q) ||
+        listing.city?.toLowerCase().includes(q) ||
+        listing.unit_number?.toLowerCase().includes(q)
+      )) return false;
+    }
     return true;
   });
 
@@ -513,25 +529,35 @@ export default function DashboardListings() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">My Assignments</h1>
-            <p className="text-muted-foreground">Manage your assignment listings</p>
-          </div>
-          <div className="flex gap-2">
-            <Link to="/dashboard/listings/new">
-              <Button variant="outline" className="gap-2">
-                <Wand2 className="h-4 w-4" />
-                Import from Brochure
+        <AssignmentManagementHero
+          title="My Assignments"
+          subtitle="Manage your assignment listings"
+          stats={[
+            { label: "Total", value: listings.length, icon: <Layers className="h-3.5 w-3.5 text-background" />, color: "bg-background/20" },
+            { label: "Active", value: listings.filter(l => l.status === "published").length, icon: <TrendingUp className="h-3.5 w-3.5 text-green-400" />, color: "bg-green-500/20" },
+            { label: "Pending", value: listings.filter(l => l.status === "pending_approval" || l.status === "pending_payment").length, icon: <Clock className="h-3.5 w-3.5 text-amber-400" />, color: "bg-amber-500/20" },
+            { label: "Drafts", value: listings.filter(l => l.status === "draft").length, icon: <Star className="h-3.5 w-3.5 text-primary" />, color: "bg-primary/20" },
+          ]}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search by title, project, city, or unit..."
+          actions={
+            <div className="flex gap-2">
+              <Link to="/dashboard/listings/new">
+                <Button variant="outline" className="gap-2 bg-background/10 border-background/20 text-background hover:bg-background/20">
+                  <Wand2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Import from Brochure</span>
+                  <span className="sm:hidden">Import</span>
+                </Button>
+              </Link>
+              <Button onClick={() => setAddOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">New Assignment</span>
+                <span className="sm:hidden">New</span>
               </Button>
-            </Link>
-            <Button onClick={() => setAddOpen(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              New Assignment
-            </Button>
-          </div>
-        </div>
+            </div>
+          }
+        />
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
