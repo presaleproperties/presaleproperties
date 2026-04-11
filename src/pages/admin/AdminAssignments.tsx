@@ -1214,8 +1214,14 @@ export default function AdminListings() {
                   <Input value={addForm.title} onChange={e => setAddForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. The Smith – Unit 1204" className="h-9" />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Description</Label>
-                  <Textarea value={addForm.description} onChange={e => setAddForm(f => ({ ...f, description: e.target.value }))} rows={3} placeholder="Optional notes about this unit or the assignment opportunity…" className="resize-none text-sm" />
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">Description</Label>
+                    <Button type="button" variant="outline" size="sm" className="h-7 gap-1.5 text-xs" disabled={generatingAddDesc || !addForm.project_id} onClick={() => handleGenerateDescription('add')}>
+                      {generatingAddDesc ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                      {generatingAddDesc ? "Generating…" : "AI Generate"}
+                    </Button>
+                  </div>
+                  <Textarea value={addForm.description} onChange={e => setAddForm(f => ({ ...f, description: e.target.value }))} rows={4} placeholder="Optional notes about this unit or the assignment opportunity…" className="resize-none text-sm" />
                 </div>
               </div>
 
@@ -1353,8 +1359,14 @@ export default function AdminListings() {
                   <Input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} className="h-9" />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Description</Label>
-                  <Textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} rows={3} className="resize-none text-sm" />
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">Description</Label>
+                    <Button type="button" variant="outline" size="sm" className="h-7 gap-1.5 text-xs" disabled={generatingEditDesc || !editForm.project_id} onClick={() => handleGenerateDescription('edit')}>
+                      {generatingEditDesc ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                      {generatingEditDesc ? "Generating…" : "AI Generate"}
+                    </Button>
+                  </div>
+                  <Textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} rows={4} className="resize-none text-sm" />
                 </div>
               </div>
             </div>
