@@ -588,10 +588,12 @@ export function REWPhotoGallery({
                   className="max-w-full max-h-full object-contain select-none"
                   loading="eager"
                   fetchPriority="high"
+                  sizes="100vw"
                   style={{
                     transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
                     transition: isDragging ? 'none' : 'transform 0.2s ease-out',
                     cursor: scale > 1 ? 'grab' : 'default',
+                    imageRendering: 'auto',
                   }}
                   draggable={false}
                   onDoubleClick={() => {
