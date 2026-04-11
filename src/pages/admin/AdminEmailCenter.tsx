@@ -300,7 +300,7 @@ function QuickSendPanel({
                         e.stopPropagation();
                         if (!confirm("Delete this template?")) return;
                         const { error } = await (supabase as any).from("campaign_templates").delete().eq("id", c.id);
-                        if (!error) { toast.success("Template deleted"); fetchAll(); } else { toast.error("Failed to delete"); }
+                        if (!error) { toast.success("Template deleted"); onRefreshCampaigns(); } else { toast.error("Failed to delete"); }
                       }}>
                         <Trash2 className="h-3 w-3" />
                       </Button>
