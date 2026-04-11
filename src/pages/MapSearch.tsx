@@ -880,6 +880,7 @@ export default function MapSearch() {
     map_lat: number | null;
     map_lng: number | null;
     featured_image: string | null;
+    floor_plan_url: string | null;
     status: string;
   };
 
@@ -888,7 +889,7 @@ export default function MapSearch() {
     queryFn: async () => {
       let query = (supabase as any)
         .from("listings")
-        .select("id, title, project_name, city, neighborhood, assignment_price, beds, baths, interior_sqft, featured_image, status, project_id")
+        .select("id, title, project_name, city, neighborhood, assignment_price, beds, baths, interior_sqft, featured_image, floor_plan_url, status, project_id")
         .eq("status", "published")
         .eq("listing_type", "assignment");
 
@@ -941,6 +942,7 @@ export default function MapSearch() {
           baths: l.baths,
           interior_sqft: l.interior_sqft,
           featured_image: l.featured_image,
+          floor_plan_url: l.floor_plan_url,
           status: l.status,
           map_lat: coords?.lat ?? null,
           map_lng: coords?.lng ?? null,
