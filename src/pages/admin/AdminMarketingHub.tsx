@@ -41,9 +41,12 @@ function getDisplayName(asset: SavedAsset): string {
   return asset.form_data?.copy?.subjectLine || asset.name;
 }
 
-function buildPreviewHtml(asset: SavedAsset): string {
+function getSavedHtml(asset: SavedAsset): string {
+  const fd = asset.form_data;
+  // Use the exact saved/rendered HTML if available
+  if (fd?.finalHtml) return fd.finalHtml;
+  // Fallback: rebuild from vars
   try {
-    const fd = asset.form_data;
     if (!fd?.vars) return "";
     const copy: AiEmailCopy = {
       headline: fd.vars?.headline || "",
@@ -172,7 +175,7 @@ function QuickSendDialog({
     if (!asset) return;
     setSending(true);
     try {
-      const html = buildPreviewHtml(asset);
+      const html = getSavedHtml(asset);
       const subject = asset.form_data?.vars?.subjectLine || asset.form_data?.copy?.subjectLine || asset.name;
       if (!html || !subject) { toast.error("Template has no content"); setSending(false); return; }
 
@@ -283,7 +286,7 @@ function QuickSendDialog({
 
 // ── Preview Dialog ──────────────────────────────────────────────
 function PreviewDialog({ asset, open, onOpenChange }: { asset: SavedAsset | null; open: boolean; onOpenChange: (v: boolean) => void }) {
-  const html = asset ? buildPreviewHtml(asset) : "";
+  const html = asset ? getSavedHtml(asset) : "";
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh]">
@@ -464,7 +467,7 @@ export default function AdminMarketingHub() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredAssets.map(asset => {
-                    const previewHtml = buildPreviewHtml(asset);
+                    const previewHtml = getSavedHtml(asset);
                     const fd = asset.form_data || {};
                     const isEmail = fd._type === "ai-email" || !fd.plans;
                     const openUrl = `/admin/email-builder?saved=${asset.id}`;
