@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { SendEmailDialog } from "@/components/admin/SendEmailDialog";
 import { syncTemplateToDealsFlow } from "@/lib/syncTemplateToDealsFlow";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -874,6 +875,7 @@ function StepSection({ step, title, icon, done, doneLabel, accent = "default", d
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function AdminEmailBuilder() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -1252,6 +1254,7 @@ export default function AdminEmailBuilder() {
           name: templateName.trim(),
           project_name: vars.projectName || "Untitled",
           form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
+          user_id: user?.id || null,
         }).eq("id", overwriteId);
         if (error) throw error;
         toast.success("Template updated!");
@@ -1260,6 +1263,7 @@ export default function AdminEmailBuilder() {
           name: templateName.trim(),
           project_name: vars.projectName || "Untitled",
           form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
+          user_id: user?.id || null,
         }]);
         if (error) throw error;
         toast.success("Template saved!");
@@ -1333,6 +1337,12 @@ export default function AdminEmailBuilder() {
                   onBlur={async () => {
                     if (overwriteId && templateName.trim()) {
                       await supabase.from("campaign_templates").update({ name: templateName.trim() } as any).eq("id", overwriteId);
+                      syncTemplateToDealsFlow({
+                        name: templateName.trim(),
+                        subject: vars.subjectLine || templateName.trim(),
+                        html: finalHtml,
+                        project: vars.projectName || undefined,
+                      });
                     }
                   }}
                   onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
