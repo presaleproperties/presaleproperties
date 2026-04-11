@@ -1337,6 +1337,12 @@ export default function AdminEmailBuilder() {
                   onBlur={async () => {
                     if (overwriteId && templateName.trim()) {
                       await supabase.from("campaign_templates").update({ name: templateName.trim() } as any).eq("id", overwriteId);
+                      syncTemplateToDealsFlow({
+                        name: templateName.trim(),
+                        subject: vars.subjectLine || templateName.trim(),
+                        html: finalHtml,
+                        project: vars.projectName || undefined,
+                      });
                     }
                   }}
                   onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
