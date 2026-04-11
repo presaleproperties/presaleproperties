@@ -205,11 +205,16 @@ export function TemplateQuickSendDialog({
   const [recipients, setRecipients] = useState<Array<{ email: string; name: string; firstName?: string }>>([]);
   const [manualEmail, setManualEmail] = useState("");
   const [sending, setSending] = useState(false);
+  const [subjectLine, setSubjectLine] = useState("");
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     if (!open) { setQuery(""); setSearchResults([]); setRecipients([]); setManualEmail(""); }
-  }, [open]);
+    if (open && asset) {
+      const fd = asset.form_data;
+      setSubjectLine(fd?.vars?.subjectLine || fd?.copy?.subjectLine || asset.name || "");
+    }
+  }, [open, asset]);
 
   useEffect(() => {
     if (!query || query.length < 2) { setSearchResults([]); return; }
