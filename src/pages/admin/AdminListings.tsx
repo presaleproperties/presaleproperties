@@ -1256,6 +1256,31 @@ export default function AdminListings() {
                 </div>
               </div>
 
+              {/* Listing Agent */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Listing Agent</p>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Select which agent appears on the public listing page</Label>
+                  <Select value={editForm.listing_agent_id} onValueChange={v => setEditForm(f => ({ ...f, listing_agent_id: v }))}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select listing agent…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {agents.map(a => (
+                        <SelectItem key={a.user_id} value={a.user_id}>
+                          {a.full_name || a.email} — {a.brokerage_name || "Real Broker"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {editForm.listing_agent_id && (
+                    <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={() => setEditForm(f => ({ ...f, listing_agent_id: "" }))}>
+                      <X className="h-3 w-3 mr-1" /> Clear agent
+                    </Button>
+                  )}
+                </div>
+              </div>
+
               {/* Title + Description */}
               <div className="space-y-3">
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Listing Info</p>
