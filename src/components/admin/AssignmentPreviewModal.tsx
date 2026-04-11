@@ -211,31 +211,45 @@ export function AssignmentPreviewModal({
                 Photos ({photos.length})
               </h3>
               {loadingPhotos ? (
-                <div className="flex items-center justify-center h-32 bg-muted rounded-lg">
+                <div className="flex items-center justify-center h-48 bg-muted rounded-lg">
                   <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
               ) : photos.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {photos.slice(0, 8).map((photo, index) => (
-                    <div key={index} className="aspect-video rounded-lg overflow-hidden bg-muted">
-                      <img
-                        src={photo}
-                        alt={`Photo ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                  {photos.length > 8 && (
-                    <div className="aspect-video rounded-lg bg-muted flex items-center justify-center">
-                      <span className="text-muted-foreground font-medium">
-                        +{photos.length - 8} more
-                      </span>
+                <div className="space-y-2">
+                  {/* Hero image */}
+                  <div className="aspect-[16/9] rounded-lg overflow-hidden bg-muted">
+                    <img
+                      src={photos[selectedPhoto]}
+                      alt={`Photo ${selectedPhoto + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  {/* Thumbnail strip */}
+                  {photos.length > 1 && (
+                    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+                      {photos.map((photo, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedPhoto(index)}
+                          className={`flex-shrink-0 w-16 h-12 rounded overflow-hidden border-2 transition-colors ${
+                            selectedPhoto === index
+                              ? "border-primary"
+                              : "border-transparent opacity-60 hover:opacity-100"
+                          }`}
+                        >
+                          <img
+                            src={photo}
+                            alt={`Thumb ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-32 bg-muted rounded-lg text-muted-foreground">
-                  No photos uploaded
+                  No photos available
                 </div>
               )}
             </div>
