@@ -10,7 +10,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { projectId, format } = await req.json();
+    const { projectId } = await req.json();
     if (!projectId) {
       return new Response(JSON.stringify({ error: "projectId is required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -24,10 +24,9 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch project
     const { data: project, error: projErr } = await supabase
       .from("presale_projects")
-      .select("name, city, neighborhood, starting_price, price_range, featured_image, gallery_images, developer_name, highlights, short_description")
+      .select("name, city, neighborhood, starting_price, price_range, developer_name, highlights, short_description, incentives, completion_year, deposit_structure, deposit_percent, status")
       .eq("id", projectId)
       .single();
 
@@ -37,20 +36,11 @@ serve(async (req) => {
       });
     }
 
-    const heroImage = project.featured_image || (project.gallery_images as string[])?.[0];
-    if (!heroImage) {
-      return new Response(JSON.stringify({ error: "Project has no images" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const price = project.price_range || (project.starting_price ? `From $${project.starting_price.toLocaleString()}` : "");
-    const formatLabel = format === "story" ? "Facebook/Instagram Story (9:16 portrait)" : "Facebook Post (landscape 16:9)";
-    const aspectRatio = format === "story" ? "9:16" : "16:9";
+    const deposit = project.deposit_structure || (project.deposit_percent ? `${project.deposit_percent}% deposit` : "");
+    const completion = project.completion_year ? `Completion ${project.completion_year}` : "";
 
-    // Step 1: Generate copy
-    console.log("Generating copy for", project.name);
-    const copyResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
@@ -61,159 +51,88 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a real estate social media copywriter. Write engaging Facebook post copy for presale condo projects. Be professional but exciting. Use emojis sparingly. Include relevant hashtags.`,
+            content: `You are a real estate social media copywriter specializing in presale condo and townhome ads in Metro Vancouver / Fraser Valley, BC Canada.
+
+Write punchy, high-converting Facebook/Instagram ad copy. 
+
+STYLE — headlines should be SHORT and BOLD like these real examples:
+- "$70,000+ OFF"
+- "5% OFF"
+- "Your Family's First Home Starts With 5% Down."
+- "Starting From $639,900"
+- "New Condos from $399,900"
+
+Focus on the strongest selling point: price, discount, deposit structure, or location value. Use emojis sparingly. Include relevant hashtags.`,
           },
           {
             role: "user",
-            content: `Write a Facebook post for this presale project:
+            content: `Write 3 different Facebook/Instagram ad copy variations for this presale project:
+
 Project: ${project.name}
 Location: ${project.neighborhood}, ${project.city}
 Developer: ${project.developer_name || "N/A"}
 Price: ${price}
+Deposit: ${deposit}
+Completion: ${completion}
+Status: ${project.status}
 Highlights: ${(project.highlights || []).join(", ")}
 Description: ${project.short_description || ""}
+${project.incentives ? `Incentives: ${project.incentives}` : ""}
 
-Return the copy text ready to paste into Facebook.`,
+For each variation, provide different angles (e.g. price-focused, lifestyle-focused, urgency-focused).`,
           },
         ],
         tools: [
           {
             type: "function",
             function: {
-              name: "return_copy",
-              description: "Return the generated social media copy",
+              name: "return_copy_variations",
+              description: "Return 3 ad copy variations",
               parameters: {
                 type: "object",
                 properties: {
-                  caption: { type: "string", description: "The full Facebook post caption text with emojis and hashtags" },
-                  headline: { type: "string", description: "A short bold headline for the graphic overlay (max 8 words)" },
-                  cta: { type: "string", description: "Call to action text (e.g. 'Register Now', 'Book Your Tour')" },
+                  variations: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        angle: { type: "string", description: "The angle/focus of this variation (e.g. 'Price', 'Lifestyle', 'Urgency')" },
+                        headline: { type: "string", description: "BIG bold text for the graphic — short, max 5 words. e.g. '$70,000+ OFF'" },
+                        subline: { type: "string", description: "Secondary line. e.g. 'New Condos from $399,900 | Completion 2028'" },
+                        caption: { type: "string", description: "Full Facebook post caption with emojis and hashtags, ready to paste" },
+                      },
+                      required: ["angle", "headline", "subline", "caption"],
+                    },
+                  },
                 },
-                required: ["caption", "headline", "cta"],
+                required: ["variations"],
               },
             },
           },
         ],
-        tool_choice: { type: "function", function: { name: "return_copy" } },
+        tool_choice: { type: "function", function: { name: "return_copy_variations" } },
       }),
     });
 
-    if (!copyResponse.ok) {
-      const errText = await copyResponse.text();
-      console.error("Copy generation error:", copyResponse.status, errText);
-      if (copyResponse.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded, try again later" }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (copyResponse.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted" }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      throw new Error("Copy generation failed");
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("AI error:", response.status, errText);
+      if (response.status === 429) return new Response(JSON.stringify({ error: "Rate limit exceeded" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (response.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      throw new Error("AI generation failed");
     }
 
-    const copyData = await copyResponse.json();
-    const copyToolCall = copyData.choices?.[0]?.message?.tool_calls?.[0];
-    const copy = copyToolCall?.function?.arguments
-      ? JSON.parse(copyToolCall.function.arguments)
-      : { caption: "", headline: project.name, cta: "Register Now" };
-
-    console.log("Copy generated, now generating graphic...");
-
-    // Step 2: Generate graphic with text overlay on real project image
-    const overlayPrompt = `Take this real estate project photo and create a bold, modern social media graphic for ${formatLabel}.
-
-Apply these edits to the image:
-- Add a dramatic dark gradient overlay from bottom (70% opacity) fading to transparent at top
-- Add large, bold white text at the bottom: "${copy.headline}"
-- Below the headline, add the price "${price}" in a slightly smaller bold font
-- Add a bright colored button/badge with "${copy.cta}" text
-- Add "${project.neighborhood}, ${project.city}" as smaller text above the headline
-- Keep the top portion of the image visible and clean
-- Make it look like a professional real estate ad
-- The text should be crisp, legible, and well-composed
-- Use a modern sans-serif font style
-- Do NOT add any watermarks`;
-
-    const imageResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3.1-flash-image-preview",
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: overlayPrompt },
-              { type: "image_url", image_url: { url: heroImage } },
-            ],
-          },
-        ],
-        modalities: ["image", "text"],
-      }),
-    });
-
-    if (!imageResponse.ok) {
-      const errText = await imageResponse.text();
-      console.error("Image generation error:", imageResponse.status, errText);
-      if (imageResponse.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded, try again later" }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (imageResponse.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted" }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      throw new Error("Image generation failed");
-    }
-
-    const imageData = await imageResponse.json();
-    const generatedImage = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
-    if (!generatedImage) {
-      console.error("No image returned from AI");
-      throw new Error("No image generated");
-    }
-
-    // Upload to storage
-    const fileName = `social-posts/${projectId}/${format}-${Date.now()}.png`;
-    
-    // Decode base64 and upload
-    const base64Data = generatedImage.replace(/^data:image\/\w+;base64,/, "");
-    const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-
-    const { error: uploadErr } = await supabase.storage
-      .from("social-posts")
-      .upload(fileName, imageBytes, { contentType: "image/png", upsert: true });
-
-    let imageUrl = generatedImage; // fallback to base64
-    if (!uploadErr) {
-      const { data: publicUrl } = supabase.storage.from("social-posts").getPublicUrl(fileName);
-      imageUrl = publicUrl.publicUrl;
-    } else {
-      console.warn("Upload failed, returning base64:", uploadErr.message);
-    }
+    const data = await response.json();
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    const result = toolCall?.function?.arguments ? JSON.parse(toolCall.function.arguments) : { variations: [] };
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        copy,
-        imageUrl,
-        format,
-        project: { name: project.name, city: project.city, neighborhood: project.neighborhood },
-      }),
+      JSON.stringify({ success: true, variations: result.variations }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
     console.error("Error in generate-social-post:", error);
-    const message = error instanceof Error ? error.message : "Failed to generate social post";
+    const message = error instanceof Error ? error.message : "Failed to generate";
     return new Response(JSON.stringify({ error: message }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
