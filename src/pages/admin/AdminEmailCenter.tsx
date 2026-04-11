@@ -199,7 +199,8 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
     const matchOpen = openFilter === "all"
       || (openFilter === "opened" && l.opened_at)
       || (openFilter === "unopened" && !l.opened_at && l.status === "sent")
-      || (openFilter === "reopened" && l.open_count >= 2);
+      || (openFilter === "reopened" && l.open_count >= 2)
+      || (openFilter === "clicked" && l.clicked_at);
     return matchSearch && matchStatus && matchOpen;
   });
 
