@@ -1,0 +1,1 @@
+ALTER TABLE public.listings DROP CONSTRAINT IF EXISTS listings_listing_agent_id_fkey;

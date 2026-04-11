@@ -1618,13 +1618,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "listings_listing_agent_id_fkey"
-            columns: ["listing_agent_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-          {
             foreignKeyName: "listings_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false

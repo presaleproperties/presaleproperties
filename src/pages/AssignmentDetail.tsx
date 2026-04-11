@@ -153,30 +153,23 @@ export default function AssignmentDetail() {
     enabled: !!id,
   });
 
-  // Fetch listing agent profile
+  // Fetch listing agent from team_members
   const { data: listingAgent } = useQuery({
     queryKey: ["listing-agent", listing?.listing_agent_id],
     queryFn: async () => {
       if (!listing?.listing_agent_id) return null;
-      // Get profile
-      const { data: profile } = await (supabase as any)
-        .from("profiles")
-        .select("full_name, email, phone, avatar_url, user_id")
-        .eq("user_id", listing.listing_agent_id)
+      const { data: member } = await (supabase as any)
+        .from("team_members")
+        .select("full_name, email, phone, photo_url, title")
+        .eq("id", listing.listing_agent_id)
         .maybeSingle();
-      if (!profile) return null;
-      // Get agent brokerage
-      const { data: agentProfile } = await (supabase as any)
-        .from("agent_profiles")
-        .select("brokerage_name")
-        .eq("user_id", listing.listing_agent_id)
-        .maybeSingle();
+      if (!member) return null;
       return {
-        full_name: profile.full_name,
-        email: profile.email,
-        phone: profile.phone,
-        avatar_url: profile.avatar_url,
-        brokerage_name: agentProfile?.brokerage_name || "Real Broker",
+        full_name: member.full_name,
+        email: member.email,
+        phone: member.phone,
+        avatar_url: member.photo_url,
+        brokerage_name: "Real Broker",
       } as ListingAgent;
     },
     enabled: !!listing?.listing_agent_id,
