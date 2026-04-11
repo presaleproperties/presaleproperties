@@ -561,6 +561,10 @@ export default function AssignmentDetail() {
                   <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
                     <h2 className="text-base font-bold text-foreground mb-3">Pricing Details</h2>
                     <div className="space-y-2.5 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Assignment Price</span>
+                        <span className="font-medium">{formatPrice(listing.assignment_price)}</span>
+                      </div>
                       {listing.original_price && (
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Original Purchase Price</span>
@@ -569,8 +573,8 @@ export default function AssignmentDetail() {
                       )}
                       {discount && discount > 0 && (
                         <div className="flex justify-between text-green-600 dark:text-green-400">
-                          <span>Savings vs. Original</span>
-                          <span className="font-semibold">{formatPrice(discount)}</span>
+                          <span>Buyer Savings</span>
+                          <span className="font-semibold">−{formatPrice(discount)}</span>
                         </div>
                       )}
                       {listing.deposit_to_lock && (
@@ -580,10 +584,18 @@ export default function AssignmentDetail() {
                         </div>
                       )}
                       {developerCredit && (
-                        <div className="flex justify-between text-green-600 dark:text-green-400">
-                          <span>Developer Credit</span>
-                          <span className="font-semibold">{formatPrice(developerCredit)}</span>
-                        </div>
+                        <>
+                          <div className="flex justify-between text-green-600 dark:text-green-400">
+                            <span>Developer Credit (at completion)</span>
+                            <span className="font-semibold">−{formatPrice(developerCredit)}</span>
+                          </div>
+                          <div className="border-t border-border pt-2 flex justify-between">
+                            <span className="font-semibold text-foreground">Net Cash on Completion</span>
+                            <span className="font-bold text-foreground">
+                              {formatPrice(listing.assignment_price - developerCredit)}
+                            </span>
+                          </div>
+                        </>
                       )}
                       {listing.buyer_agent_commission && (
                         <div className="flex justify-between">
