@@ -881,38 +881,57 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       });
     }
 
-    // Add assignments
+    // Add assignments - with coordinate offset for overlapping markers
     if (mode === "all" || mode === "assignments") {
-      validAssignments.forEach((assignment) => {
-        // Always create with non-highlighted icon - separate useEffect handles highlighting
-        const marker = L.marker([assignment.map_lat!, assignment.map_lng!], {
-          icon: createAssignmentPinIcon(assignment, false),
-        });
+      const coordGroups = new Map<string, typeof validAssignments>();
+      validAssignments.forEach(a => {
+        const key = `${a.map_lat?.toFixed(5)}-${a.map_lng?.toFixed(5)}`;
+        if (!coordGroups.has(key)) coordGroups.set(key, []);
+        coordGroups.get(key)!.push(a);
+      });
 
-        if (!disablePopupsOnMobile) {
-          marker.bindPopup(assignmentPopupHtml(assignment, isVerifiedAgent), {
-            maxWidth: 300,
-            className: "premium-popup assignment-popup",
-            closeButton: true,
-            autoPan: true,
-            autoPanPaddingTopLeft: L.point(50, 80),
-            autoPanPaddingBottomRight: L.point(50, 50),
+      coordGroups.forEach((group) => {
+        group.forEach((assignment, index) => {
+          let lat = assignment.map_lat!;
+          let lng = assignment.map_lng!;
+
+          // Apply spiral offset if multiple assignments at same location
+          if (group.length > 1 && index > 0) {
+            const angle = (index * 2 * Math.PI) / group.length;
+            const radius = 0.00015 * Math.ceil(index / 6);
+            lat += radius * Math.sin(angle);
+            lng += radius * Math.cos(angle);
+          }
+
+          const marker = L.marker([lat, lng], {
+            icon: createAssignmentPinIcon(assignment, false),
           });
-        }
 
-        marker.on("click", () => {
-          onListingSelect?.(assignment.id, "assignment");
-        });
-        marker.on("mouseover", () => {
-          onItemHover?.(assignment.id, "assignment");
-        });
-        marker.on("mouseout", () => {
-          onItemHover?.(null, null);
-        });
+          if (!disablePopupsOnMobile) {
+            marker.bindPopup(assignmentPopupHtml(assignment, isVerifiedAgent), {
+              maxWidth: 300,
+              className: "premium-popup assignment-popup",
+              closeButton: true,
+              autoPan: true,
+              autoPanPaddingTopLeft: L.point(50, 80),
+              autoPanPaddingBottomRight: L.point(50, 50),
+            });
+          }
 
-        assignmentMarkersMapRef.current.set(assignment.id, marker);
-        assignmentLayer.addLayer(marker);
-        allCoords.push([assignment.map_lat!, assignment.map_lng!]);
+          marker.on("click", () => {
+            onListingSelect?.(assignment.id, "assignment");
+          });
+          marker.on("mouseover", () => {
+            onItemHover?.(assignment.id, "assignment");
+          });
+          marker.on("mouseout", () => {
+            onItemHover?.(null, null);
+          });
+
+          assignmentMarkersMapRef.current.set(assignment.id, marker);
+          assignmentLayer.addLayer(marker);
+          allCoords.push([lat, lng]);
+        });
       });
     }
 
