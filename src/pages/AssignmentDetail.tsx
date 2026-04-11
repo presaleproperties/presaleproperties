@@ -459,12 +459,19 @@ export default function AssignmentDetail() {
                 </div>
 
                 {/* Short description — visible on all sizes */}
-                {(listing.description || project?.full_description) && (
-                  <p className="text-sm text-muted-foreground mt-4 mb-2 md:mt-2 md:mb-0 leading-relaxed line-clamp-3 lg:line-clamp-4">
-                    {listing.description ? listing.description.replace(/<[^>]*>/g, '').slice(0, 200) : project?.full_description?.replace(/<[^>]*>/g, '').slice(0, 200)}
-                    {((listing.description || project?.full_description || "").length > 200) && "…"}
-                  </p>
-                )}
+                {(listing.description || project?.full_description) && (() => {
+                  const raw = (listing.description || project?.full_description || "")
+                    .replace(/<[^>]*>/g, '')
+                    .replace(/\*\*(.*?)\*\*/g, '$1')
+                    .replace(/\*(.*?)\*/g, '$1')
+                    .trim();
+                  const preview = raw.slice(0, 200);
+                  return (
+                    <p className="text-sm text-muted-foreground mt-4 mb-2 md:mt-2 md:mb-0 leading-relaxed line-clamp-3 lg:line-clamp-4">
+                      {preview}{raw.length > 200 && "…"}
+                    </p>
+                  );
+                })()}
               </div>
             </div>
           </div>
