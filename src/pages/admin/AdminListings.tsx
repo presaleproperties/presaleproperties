@@ -557,6 +557,7 @@ export default function AdminListings() {
       developer_approval_required: !!listing.developer_approval_required,
       description: listing.description || "",
       title: listing.title || "",
+      listing_agent_id: listing.listing_agent_id || "",
     });
     setEditOpen(true);
   };
