@@ -936,7 +936,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     });
     // Note: internalHighlightId and highlightedItemId are NOT dependencies here
     // Highlighting is handled by a separate useEffect to prevent full marker rebuilds
-  }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, isVerifiedAgent, updateVisibleItems, mapReady]);
+  }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, updateVisibleItems, mapReady]);
 
   // Center on user location - only when no saved/URL state exists
   useEffect(() => {
