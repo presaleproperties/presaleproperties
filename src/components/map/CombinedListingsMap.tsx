@@ -250,6 +250,7 @@ function presalePopupHtml(project: PresaleProject): string {
 function assignmentPopupHtml(assignment: Assignment, isVerified: boolean): string {
   const price = `$${assignment.assignment_price.toLocaleString()}`;
   const specs = `${assignment.beds} bd • ${assignment.baths} ba`;
+  const photo = assignment.featured_image || null;
   
   if (!isVerified) {
     return `
@@ -260,25 +261,31 @@ function assignmentPopupHtml(assignment: Assignment, isVerified: boolean): strin
           </div>
           <div class="lock-title">Agent Access Only</div>
           <div class="lock-desc">Verify as an agent to view</div>
-          <a href="/for-agents" class="lock-btn">Become Agent</a>
+          <a href="/login" class="lock-btn">Agent Login</a>
         </div>
       </div>
     `;
   }
   
   return `
-    <a href="/assignments/${assignment.id}" class="popup-card assignment">
-      <div class="popup-img">
-        <div class="popup-placeholder assignment"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg></div>
-        <span class="popup-badge assignment">Assignment</span>
-      </div>
-      <div class="popup-content">
-        <div class="popup-price assignment">${price}</div>
-        <div class="popup-address">${assignment.project_name}</div>
-        <div class="popup-specs">${assignment.neighborhood || assignment.city}</div>
-        <div class="popup-type">${specs}</div>
-      </div>
-    </a>
+    <div class="popup-card-wrap">
+      <a href="/assignments/${assignment.id}" class="popup-card assignment">
+        <div class="popup-img">
+          ${photo 
+            ? `<img src="${photo}" alt="${assignment.project_name}" />`
+            : `<div class="popup-placeholder assignment"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg></div>`
+          }
+          <span class="popup-badge assignment">Assignment</span>
+        </div>
+        <div class="popup-content">
+          <div class="popup-price assignment">${price}</div>
+          <div class="popup-address">${assignment.project_name}</div>
+          <div class="popup-specs">${assignment.neighborhood || assignment.city}</div>
+          <div class="popup-type">${specs}</div>
+        </div>
+      </a>
+      <a href="/assignments/${assignment.id}" class="popup-cta assignment-cta">View Assignment →</a>
+    </div>
   `;
 }
 
