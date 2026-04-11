@@ -880,6 +880,7 @@ export default function MapSearch() {
     map_lat: number | null;
     map_lng: number | null;
     featured_image: string | null;
+    floor_plan_url: string | null;
     status: string;
   };
 
@@ -888,7 +889,7 @@ export default function MapSearch() {
     queryFn: async () => {
       let query = (supabase as any)
         .from("listings")
-        .select("id, title, project_name, city, neighborhood, assignment_price, beds, baths, interior_sqft, featured_image, status, project_id")
+        .select("id, title, project_name, city, neighborhood, assignment_price, beds, baths, interior_sqft, featured_image, floor_plan_url, status, project_id")
         .eq("status", "published")
         .eq("listing_type", "assignment");
 
@@ -941,6 +942,7 @@ export default function MapSearch() {
           baths: l.baths,
           interior_sqft: l.interior_sqft,
           featured_image: l.featured_image,
+          floor_plan_url: l.floor_plan_url,
           status: l.status,
           map_lat: coords?.lat ?? null,
           map_lng: coords?.lng ?? null,
@@ -1987,9 +1989,16 @@ export default function MapSearch() {
                                 </div>
                               )
                             ) : isAssignment ? (
-                              <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
-                                <Building2 className="h-6 w-6 text-amber-500" />
-                              </div>
+                            (() => {
+                              const assignImg = (data as Assignment).featured_image || (data as Assignment).floor_plan_url;
+                              return assignImg ? (
+                                <img src={assignImg} alt={(data as Assignment).project_name} className={cn("w-full h-full object-cover", !isVerifiedAgent && "blur-lg")} loading="eager" />
+                              ) : (
+                                <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
+                                  <Building2 className="h-6 w-6 text-amber-500" />
+                                </div>
+                              );
+                            })()
                             ) : (
                               getResalePhoto(data as MLSListing) ? (
                                 <img 
@@ -2475,9 +2484,16 @@ export default function MapSearch() {
                               </div>
                             )
                           ) : isAssignment ? (
-                            <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
-                              <Building2 className="h-10 w-10 text-amber-500" />
-                            </div>
+                            (() => {
+                              const assignImg = (data as Assignment).featured_image || (data as Assignment).floor_plan_url;
+                              return assignImg ? (
+                                <img src={assignImg} alt={(data as Assignment).project_name} className={cn("w-full h-full object-cover group-hover:scale-105 transition-transform duration-300", !isVerifiedAgent && "blur-lg")} loading="lazy" />
+                              ) : (
+                                <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
+                                  <Building2 className="h-10 w-10 text-amber-500" />
+                                </div>
+                              );
+                            })()
                           ) : (
                             getResalePhoto(data as MLSListing) ? (
                               <img 
