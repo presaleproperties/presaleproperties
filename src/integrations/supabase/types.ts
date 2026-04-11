@@ -1154,9 +1154,13 @@ export type Database = {
       email_logs: {
         Row: {
           campaign_id: string | null
+          click_count: number
+          clicked_at: string | null
+          clicked_url: string | null
           email_to: string
           error_message: string | null
           id: string
+          last_clicked_at: string | null
           last_opened_at: string | null
           lead_id: string | null
           open_count: number
@@ -1171,9 +1175,13 @@ export type Database = {
         }
         Insert: {
           campaign_id?: string | null
+          click_count?: number
+          clicked_at?: string | null
+          clicked_url?: string | null
           email_to: string
           error_message?: string | null
           id?: string
+          last_clicked_at?: string | null
           last_opened_at?: string | null
           lead_id?: string | null
           open_count?: number
@@ -1188,9 +1196,13 @@ export type Database = {
         }
         Update: {
           campaign_id?: string | null
+          click_count?: number
+          clicked_at?: string | null
+          clicked_url?: string | null
           email_to?: string
           error_message?: string | null
           id?: string
+          last_clicked_at?: string | null
           last_opened_at?: string | null
           lead_id?: string | null
           open_count?: number
