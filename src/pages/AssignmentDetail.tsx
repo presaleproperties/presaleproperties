@@ -621,24 +621,8 @@ export default function AssignmentDetail() {
               </Card>
             )}
 
-            {/* ── Parent Project Link ────────────────────────── */}
-            {project && (
-              <div className="rounded-xl border border-border bg-muted/30 p-3 sm:p-4 flex items-center justify-between gap-3 sm:gap-4">
-                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                  {project.featured_image && (
-                    <img src={project.featured_image} alt={project.name} className="h-10 w-14 sm:h-12 sm:w-16 rounded-lg object-cover shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">Presale Project</p>
-                    <p className="font-semibold text-sm sm:text-base truncate">{project.name}</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{project.city}{project.neighborhood ? ` · ${project.neighborhood}` : ""}</p>
-                  </div>
-                </div>
-                <Link to={`/presale/${project.slug}`}>
-                  <Button variant="outline" size="sm" className="text-xs sm:text-sm shrink-0">View Project</Button>
-                </Link>
-              </div>
-            )}
+
+
 
             {/* ── Location Map ───────────────────────────────── */}
             {project?.map_lat && project?.map_lng && (
