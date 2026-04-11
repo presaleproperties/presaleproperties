@@ -51,6 +51,8 @@ interface Listing {
   map_lat?: number | null;
   map_lng?: number | null;
   agent_id?: string | null;
+  featured_image?: string | null;
+  floor_plan_url?: string | null;
   agent_profile?: {
     full_name: string | null;
     email: string;
