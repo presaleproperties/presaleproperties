@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
   Mail, Send, Eye, Copy, Trash2, Clock, Plus, Search,
-  Loader2, User, X, ChevronRight,
+  Loader2, User, X, ChevronRight, Pencil, Check,
 } from "lucide-react";
 import type { SavedAsset } from "@/lib/emailTemplateHelpers";
 import { timeAgo, getDisplayName, getSavedHtml } from "@/lib/emailTemplateHelpers";
@@ -21,6 +21,7 @@ interface TemplateCardProps {
   onPreview: (asset: SavedAsset) => void;
   onDelete: (id: string) => void;
   onDuplicate: (asset: SavedAsset) => void;
+  onRename?: (id: string, newName: string) => void;
   deleting: string | null;
   /** If true, shows a selectable style instead of action buttons */
   selectable?: boolean;
