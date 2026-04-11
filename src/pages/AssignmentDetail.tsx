@@ -784,18 +784,8 @@ export default function AssignmentDetail() {
               </CardContent>
             </Card>
 
-            {/* Deposit / Project Info */}
-            {project?.deposit_structure && (
-              <Card>
-                <CardHeader><CardTitle className="text-base">Deposit Structure</CardTitle></CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{project.deposit_structure}</p>
-                  {project.deposit_percent && (
-                    <p className="text-sm font-medium mt-2">{project.deposit_percent}% total deposit</p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+
+
 
             {/* Key Dates */}
             <Card>
