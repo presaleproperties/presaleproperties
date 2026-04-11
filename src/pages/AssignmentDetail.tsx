@@ -367,29 +367,29 @@ export default function AssignmentDetail() {
               </div>
 
               {/* Info panel */}
-              <div className="lg:col-span-2 flex flex-col px-4 lg:px-0 pt-4 lg:pt-0">
+              <div className="lg:col-span-2 flex flex-col px-4 lg:px-0 pt-5 lg:pt-0">
                 {/* Badges */}
-                <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2 py-0.5">Assignment</Badge>
+                <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2.5 py-1">Assignment</Badge>
                   {discount && discount > 0 && (
-                    <Badge className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-0.5">
+                    <Badge className="bg-green-600 hover:bg-green-700 text-white text-xs px-2.5 py-1">
                       Save {formatPrice(discount)}
                     </Badge>
                   )}
                   {developerCredit && (
-                    <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-0.5">
+                    <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2.5 py-1">
                       {formatPrice(developerCredit)} Credit
                     </Badge>
                   )}
                 </div>
 
                 {/* Title */}
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight mb-1">
+                <h1 className="text-2xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight mb-1.5">
                   {listing.title}
                 </h1>
 
                 {/* Location */}
-                <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
+                <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-4">
                   <MapPin className="h-3.5 w-3.5 shrink-0" />
                   <span>
                     {listing.neighborhood || project?.neighborhood || ""}{(listing.neighborhood || project?.neighborhood) ? ", " : ""}{listing.city}
@@ -397,31 +397,51 @@ export default function AssignmentDetail() {
                 </div>
 
                 {/* Price block */}
-                <div className="mb-3">
+                <div className="mb-5">
                   <div className="flex items-baseline gap-3">
-                    <span className="font-bold text-primary text-[28px] sm:text-[32px] lg:text-[36px] leading-tight">
+                    <span className="font-bold text-primary text-[32px] sm:text-[36px] lg:text-[40px] leading-tight">
                       {priceFormatted}
                     </span>
                     {listing.original_price && listing.original_price > listing.assignment_price && (
                       <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price)}</span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">Assignment Price</p>
+                  <p className="text-xs text-muted-foreground mt-1">Assignment Price</p>
                 </div>
 
-                {/* Key Facts Row — single scannable line */}
-                <div className="flex flex-wrap items-center gap-x-1.5 text-sm text-foreground font-medium mb-4">
+                {/* Key Facts Row */}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-foreground font-medium mb-5">
                   {keyFacts.map((fact, i) => (
-                    <span key={i} className="flex items-center gap-1.5">
+                    <span key={i} className="flex items-center gap-2">
                       {i > 0 && <span className="text-border">·</span>}
                       {fact}
                     </span>
                   ))}
                 </div>
 
-                {/* Compact details — desktop/tablet */}
-                <div className="hidden md:block">
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4">
+                {/* Action pills */}
+                <div className="flex items-center gap-2 mb-2 lg:mb-0">
+                  {project?.map_lat && project?.map_lng && (
+                    <Link to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-muted-foreground transition-colors">
+                      <MapPin className="h-3 w-3" />
+                      Map
+                    </Link>
+                  )}
+                  {project?.map_lat && project?.map_lng && (
+                    <a href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${project.map_lat},${project.map_lng}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-muted-foreground transition-colors">
+                      <Eye className="h-3 w-3" />
+                      Street View
+                    </a>
+                  )}
+                  <button onClick={handleShare} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-muted-foreground transition-colors">
+                    <Share2 className="h-3 w-3" />
+                    Share
+                  </button>
+                </div>
+
+                {/* Desktop/Tablet details */}
+                <div className="hidden md:block mt-4">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
                     {(listing.developer_name || project?.developer_name) && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Developer</span>
@@ -454,63 +474,53 @@ export default function AssignmentDetail() {
                     )}
                   </div>
                 </div>
-
-                {/* Action pills — subtle, secondary placement */}
-                <div className="flex items-center gap-2 mt-auto pt-2">
-                  {project?.map_lat && project?.map_lng && (
-                    <Link to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-muted-foreground transition-colors">
-                      <MapPin className="h-3 w-3" />
-                      Map
-                    </Link>
-                  )}
-                  {project?.map_lat && project?.map_lng && (
-                    <a href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${project.map_lat},${project.map_lng}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-muted-foreground transition-colors">
-                      <Eye className="h-3 w-3" />
-                      Street View
-                    </a>
-                  )}
-                  <button onClick={handleShare} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-muted-foreground transition-colors">
-                    <Share2 className="h-3 w-3" />
-                    Share
-                  </button>
-                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Mobile-only: Compact details (replaces old duplicate stats grid) */}
+        {/* Mobile Quick Stats — spacious card grid, easy to skim */}
         <section className="md:hidden border-t border-border">
-          <div className="px-4 py-4">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Completion</span>
-                <span className="font-medium">{completionDisplay}</span>
+          <div className="px-4 py-5">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-muted/30 rounded-xl p-4 border border-border/30">
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Bedrooms</p>
+                <p className="font-bold text-base text-foreground">{listing.beds} Bed / {listing.baths} Bath</p>
+              </div>
+              {listing.interior_sqft && (
+                <div className="bg-muted/30 rounded-xl p-4 border border-border/30">
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Interior</p>
+                  <p className="font-bold text-base text-foreground">{listing.interior_sqft.toLocaleString()} sqft</p>
+                </div>
+              )}
+              <div className="bg-muted/30 rounded-xl p-4 border border-border/30">
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Completion</p>
+                <p className="font-bold text-base text-foreground">{completionDisplay}</p>
               </div>
               {(listing.developer_name || project?.developer_name) && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Developer</span>
-                  <span className="font-medium truncate ml-2">{listing.developer_name || project?.developer_name}</span>
+                <div className="bg-muted/30 rounded-xl p-4 border border-border/30">
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Developer</p>
+                  <p className="font-bold text-base text-foreground truncate">{listing.developer_name || project?.developer_name}</p>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Parking</span>
-                <span className="font-medium">{listing.parking || "None"}</span>
+              <div className="bg-muted/30 rounded-xl p-4 border border-border/30">
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Parking</p>
+                <p className="font-bold text-base text-foreground">{listing.parking || "None"}</p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Locker</span>
-                <span className="font-medium">{listing.has_locker ? "Yes" : "No"}</span>
+              <div className="bg-muted/30 rounded-xl p-4 border border-border/30">
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Locker</p>
+                <p className="font-bold text-base text-foreground">{listing.has_locker ? "Included" : "No"}</p>
               </div>
-              {listing.unit_type && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Type</span>
-                  <span className="font-medium">{listing.unit_type}</span>
+              {listing.exposure && (
+                <div className="bg-muted/30 rounded-xl p-4 border border-border/30">
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Exposure</p>
+                  <p className="font-bold text-base text-foreground">{listing.exposure}</p>
                 </div>
               )}
-              {listing.exterior_sqft && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Outdoor</span>
-                  <span className="font-medium">{listing.exterior_sqft} sqft</span>
+              {listing.floor_level && (
+                <div className="bg-muted/30 rounded-xl p-4 border border-border/30">
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Floor</p>
+                  <p className="font-bold text-base text-foreground">Level {listing.floor_level}</p>
                 </div>
               )}
             </div>
