@@ -286,7 +286,9 @@ export function REWPhotoGallery({
               className="w-full h-full object-cover transition-transform duration-200 will-change-transform backface-visibility-hidden"
               style={{ 
                 transform: `translateX(${swipeOffset}px) translateZ(0)`,
+                imageRendering: "auto",
               }}
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 66vw, 900px"
               loading="eager"
               decoding="sync"
               fetchPriority="high"
