@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -91,6 +92,14 @@ interface PresaleProject {
   map_lng: number | null;
 }
 
+interface AgentOption {
+  user_id: string;
+  full_name: string | null;
+  email: string;
+  phone: string | null;
+  brokerage_name: string;
+}
+
 interface AddListingForm {
   project_id: string;
   // Auto-filled from project
@@ -130,6 +139,8 @@ interface AddListingForm {
   // Content
   description: string;
   title: string;
+  // Listing agent
+  listing_agent_id: string;
 }
 
 const EMPTY_FORM: AddListingForm = {
@@ -143,6 +154,7 @@ const EMPTY_FORM: AddListingForm = {
   assignment_price: "", original_price: "", deposit_to_lock: "", buyer_agent_commission: "",
   developer_approval_required: false,
   description: "", title: "",
+  listing_agent_id: "",
 };
 
 const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -180,9 +192,13 @@ export default function AdminListings() {
   const [editForm, setEditForm] = useState<AddListingForm>(EMPTY_FORM);
   const [editSaving, setEditSaving] = useState(false);
 
+  // Agent list for listing agent selector
+  const [agents, setAgents] = useState<AgentOption[]>([]);
+
   useEffect(() => {
     fetchListings();
     fetchProjects();
+    fetchAgents();
   }, []);
 
   useEffect(() => {
@@ -196,6 +212,29 @@ export default function AdminListings() {
       .eq("is_published", true)
       .order("name");
     if (data) setProjects(data as PresaleProject[]);
+  };
+
+  const fetchAgents = async () => {
+    const { data: agentProfiles } = await (supabase as any)
+      .from("agent_profiles")
+      .select("user_id, brokerage_name, verification_status")
+      .eq("verification_status", "verified");
+    if (!agentProfiles || agentProfiles.length === 0) return;
+    const userIds = agentProfiles.map((a: any) => a.user_id);
+    const { data: profiles } = await (supabase as any)
+      .from("profiles")
+      .select("user_id, full_name, email, phone")
+      .in("user_id", userIds);
+    if (profiles) {
+      const brokerageMap = Object.fromEntries(agentProfiles.map((a: any) => [a.user_id, a.brokerage_name]));
+      setAgents(profiles.map((p: any) => ({
+        user_id: p.user_id,
+        full_name: p.full_name,
+        email: p.email,
+        phone: p.phone,
+        brokerage_name: brokerageMap[p.user_id] || "Real Broker",
+      })));
+    }
   };
 
   const fetchListings = async () => {
@@ -493,6 +532,7 @@ export default function AdminListings() {
         buyer_agent_commission: addForm.buyer_agent_commission || null,
         developer_approval_required: addForm.developer_approval_required,
         description: addForm.description || null,
+        listing_agent_id: addForm.listing_agent_id || null,
         status: "pending_approval",
       };
 
@@ -546,6 +586,7 @@ export default function AdminListings() {
       developer_approval_required: !!listing.developer_approval_required,
       description: listing.description || "",
       title: listing.title || "",
+      listing_agent_id: listing.listing_agent_id || "",
     });
     setEditOpen(true);
   };
@@ -583,6 +624,7 @@ export default function AdminListings() {
         buyer_agent_commission: editForm.buyer_agent_commission || null,
         developer_approval_required: editForm.developer_approval_required,
         description: editForm.description || null,
+        listing_agent_id: editForm.listing_agent_id || null,
       };
 
       const { error } = await (supabase as any).from("listings").update(payload).eq("id", editListingId);
@@ -1075,6 +1117,31 @@ export default function AdminListings() {
                 </div>
               </div>
 
+              {/* ── Listing Agent ── */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Listing Agent</p>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Select which agent appears on the public listing page</Label>
+                  <Select value={addForm.listing_agent_id} onValueChange={v => setAddForm(f => ({ ...f, listing_agent_id: v }))}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select listing agent…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {agents.map(a => (
+                        <SelectItem key={a.user_id} value={a.user_id}>
+                          {a.full_name || a.email} — {a.brokerage_name || "Real Broker"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {addForm.listing_agent_id && (
+                    <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={() => setAddForm(f => ({ ...f, listing_agent_id: "" }))}>
+                      <X className="h-3 w-3 mr-1" /> Clear agent
+                    </Button>
+                  )}
+                </div>
+              </div>
+
               {/* ── Listing Info ── */}
               <div className="space-y-3">
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Listing Info</p>
@@ -1186,6 +1253,31 @@ export default function AdminListings() {
                       <Input value={String(editForm[key] ?? "")} onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))} placeholder={ph} className="h-9" />
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Listing Agent */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Listing Agent</p>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Select which agent appears on the public listing page</Label>
+                  <Select value={editForm.listing_agent_id} onValueChange={v => setEditForm(f => ({ ...f, listing_agent_id: v }))}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select listing agent…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {agents.map(a => (
+                        <SelectItem key={a.user_id} value={a.user_id}>
+                          {a.full_name || a.email} — {a.brokerage_name || "Real Broker"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {editForm.listing_agent_id && (
+                    <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={() => setEditForm(f => ({ ...f, listing_agent_id: "" }))}>
+                      <X className="h-3 w-3 mr-1" /> Clear agent
+                    </Button>
+                  )}
                 </div>
               </div>
 

@@ -59,6 +59,15 @@ interface ListingRow {
   description: string | null;
   developer_approval_required: boolean;
   status: string;
+  listing_agent_id: string | null;
+}
+
+interface ListingAgent {
+  full_name: string | null;
+  email: string;
+  phone: string | null;
+  avatar_url: string | null;
+  brokerage_name: string;
 }
 
 interface ProjectRow {
@@ -141,6 +150,35 @@ export default function AssignmentDetail() {
       return (data || []) as { id: string; url: string; file_name: string; file_type: string }[];
     },
     enabled: !!id,
+  });
+
+  // Fetch listing agent profile
+  const { data: listingAgent } = useQuery({
+    queryKey: ["listing-agent", listing?.listing_agent_id],
+    queryFn: async () => {
+      if (!listing?.listing_agent_id) return null;
+      // Get profile
+      const { data: profile } = await (supabase as any)
+        .from("profiles")
+        .select("full_name, email, phone, avatar_url, user_id")
+        .eq("user_id", listing.listing_agent_id)
+        .maybeSingle();
+      if (!profile) return null;
+      // Get agent brokerage
+      const { data: agentProfile } = await (supabase as any)
+        .from("agent_profiles")
+        .select("brokerage_name")
+        .eq("user_id", listing.listing_agent_id)
+        .maybeSingle();
+      return {
+        full_name: profile.full_name,
+        email: profile.email,
+        phone: profile.phone,
+        avatar_url: profile.avatar_url,
+        brokerage_name: agentProfile?.brokerage_name || "Real Broker",
+      } as ListingAgent;
+    },
+    enabled: !!listing?.listing_agent_id,
   });
 
   const floorplanFiles = (listingFiles || []).filter(f => f.file_type === "floorplan");
@@ -663,10 +701,49 @@ export default function AssignmentDetail() {
 
                 <Separator className="my-4" />
 
-                <Button size="lg" className="w-full" onClick={() => setFormOpen(true)}>
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Inquire About This Unit
-                </Button>
+                {/* Agent CTA */}
+                {listingAgent ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                        {listingAgent.avatar_url ? (
+                          <img src={listingAgent.avatar_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-sm font-bold text-primary">
+                            {(listingAgent.full_name || "A").charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm truncate">{listingAgent.full_name || "Listing Agent"}</p>
+                        <p className="text-xs text-muted-foreground">Real Broker</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      {listingAgent.phone && (
+                        <a href={`tel:${listingAgent.phone}`} className="flex-1">
+                          <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
+                            <Phone className="h-3.5 w-3.5" />Call
+                          </Button>
+                        </a>
+                      )}
+                      <a href={`mailto:${listingAgent.email}?subject=Assignment Inquiry: ${listing.title}`} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
+                          <Mail className="h-3.5 w-3.5" />Email
+                        </Button>
+                      </a>
+                    </div>
+                    <Button size="lg" className="w-full" onClick={() => setFormOpen(true)}>
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Contact {listingAgent.full_name?.split(" ")[0] || "Agent"}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button size="lg" className="w-full" onClick={() => setFormOpen(true)}>
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Inquire About This Assignment
+                  </Button>
+                )}
               </CardContent>
             </Card>
 
@@ -775,12 +852,13 @@ export default function AssignmentDetail() {
         projectName={listing.project_name}
         price={priceFormatted}
         onInquireClick={() => setFormOpen(true)}
+        agentName={listingAgent?.full_name || undefined}
       />
 
       <AboutContactForm
         open={formOpen}
         onOpenChange={setFormOpen}
-        selectedAgentName={listing.title}
+        selectedAgentName={listingAgent?.full_name || listing.title}
       />
 
       {/* Off-screen one-pager template for html2canvas capture */}

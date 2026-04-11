@@ -1506,6 +1506,7 @@ export type Database = {
           interior_sqft: number | null
           is_active: boolean
           is_featured: boolean
+          listing_agent_id: string | null
           listing_type: string
           neighborhood: string | null
           original_completion_year: number | null
@@ -1550,6 +1551,7 @@ export type Database = {
           interior_sqft?: number | null
           is_active?: boolean
           is_featured?: boolean
+          listing_agent_id?: string | null
           listing_type?: string
           neighborhood?: string | null
           original_completion_year?: number | null
@@ -1594,6 +1596,7 @@ export type Database = {
           interior_sqft?: number | null
           is_active?: boolean
           is_featured?: boolean
+          listing_agent_id?: string | null
           listing_type?: string
           neighborhood?: string | null
           original_completion_year?: number | null
@@ -1611,6 +1614,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "listings_listing_agent_id_fkey"
+            columns: ["listing_agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "listings_project_id_fkey"
             columns: ["project_id"]
