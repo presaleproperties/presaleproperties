@@ -91,6 +91,14 @@ interface PresaleProject {
   map_lng: number | null;
 }
 
+interface AgentOption {
+  user_id: string;
+  full_name: string | null;
+  email: string;
+  phone: string | null;
+  brokerage_name: string;
+}
+
 interface AddListingForm {
   project_id: string;
   // Auto-filled from project
@@ -130,6 +138,8 @@ interface AddListingForm {
   // Content
   description: string;
   title: string;
+  // Listing agent
+  listing_agent_id: string;
 }
 
 const EMPTY_FORM: AddListingForm = {
@@ -143,6 +153,7 @@ const EMPTY_FORM: AddListingForm = {
   assignment_price: "", original_price: "", deposit_to_lock: "", buyer_agent_commission: "",
   developer_approval_required: false,
   description: "", title: "",
+  listing_agent_id: "",
 };
 
 const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
