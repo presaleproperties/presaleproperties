@@ -226,6 +226,7 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
             <SelectItem value="opened">Opened</SelectItem>
             <SelectItem value="unopened">Unopened</SelectItem>
             <SelectItem value="reopened">Re-opened</SelectItem>
+            <SelectItem value="clicked">Clicked</SelectItem>
           </SelectContent>
         </Select>
       </div>
