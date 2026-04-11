@@ -417,13 +417,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </>
             ) : (
               <>
-                <Button
-                  variant="ghost" size="sm" onClick={toggleSidebar}
-                  className="w-full justify-start h-8 text-[12px] text-muted-foreground hover:text-foreground gap-2"
-                >
-                  <PanelLeftClose className="h-3.5 w-3.5" />
-                  Collapse
-                </Button>
                 <Link to="/" target="_blank">
                   <Button variant="ghost" size="sm" className="w-full justify-start h-8 text-[12px] text-muted-foreground hover:text-foreground gap-2">
                     <ExternalLink className="h-3.5 w-3.5" />
