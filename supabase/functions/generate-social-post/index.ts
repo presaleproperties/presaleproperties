@@ -123,19 +123,28 @@ Return the copy text ready to paste into Facebook.`,
     console.log("Copy generated, now generating graphic...");
 
     // Step 2: Generate graphic with text overlay on real project image
-    const overlayPrompt = `Take this real estate project photo and create a bold, modern social media graphic for ${formatLabel}.
+    const incentive = project.highlights?.find((h: string) => /off|discount|incentive|bonus|free/i.test(h)) || "";
+    
+    const overlayPrompt = `Edit this real estate project photo to create a professional social media ad graphic (${formatLabel}).
 
-Apply these edits to the image:
-- Add a dramatic dark gradient overlay from bottom (70% opacity) fading to transparent at top
-- Add large, bold white text at the bottom: "${copy.headline}"
-- Below the headline, add the price "${price}" in a slightly smaller bold font
-- Add a bright colored button/badge with "${copy.cta}" text
-- Add "${project.neighborhood}, ${project.city}" as smaller text above the headline
-- Keep the top portion of the image visible and clean
-- Make it look like a professional real estate ad
-- The text should be crisp, legible, and well-composed
-- Use a modern sans-serif font style
-- Do NOT add any watermarks`;
+EXACT STYLE TO FOLLOW — this is a premium real estate ad:
+
+1. KEEP the original photo as the main background — do NOT regenerate or alter the building/property image. Only add overlays and text ON TOP of the existing photo.
+
+2. Add a SOLID warm orange/amber colored bar at the bottom portion of the image (roughly bottom 25-30% for post, bottom 20% for story). The bar should be opaque, not transparent.
+
+3. On the orange bar, add LARGE BOLD WHITE TEXT showing the key offer:
+   - Main headline: "${copy.headline}" — make this HUGE, bold, impactful
+   - Sub-line: "From ${price}" and completion info if available
+   - Small CTA text: "${copy.cta}" with a small download/arrow icon
+
+4. Above the orange bar, on the photo itself, add a small clean white rectangular badge with dark text showing: "${project.neighborhood}, ${project.city}"
+
+5. Keep the top portion of the photo CLEAN — no text or overlays there except optionally a small logo mark in the top-left corner
+
+6. Typography should be BOLD, condensed, modern sans-serif. The price/offer text should be the largest element.
+7. Everything must be crisp, legible, professional — like a Facebook real estate ad from a major developer
+8. Do NOT add any watermarks or AI-related text`;
 
     const imageResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
