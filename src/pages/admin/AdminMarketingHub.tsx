@@ -192,6 +192,21 @@ function QuickSendDialog({
       // Update last_sent_at
       await (supabase as any).from("campaign_templates").update({ last_sent_at: new Date().toISOString() }).eq("id", asset.id);
 
+      // Sync send activity to DealsFlow CRM (fire-and-forget)
+      const templateName = getDisplayName(asset);
+      for (const r of recipients) {
+        fetch("https://cplycyfgywxhlecazvra.supabase.co/functions/v1/lead-webhook?source=email-send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Webhook-Secret": "presale-leads-2026" },
+          body: JSON.stringify({
+            name: r.name || "",
+            email: r.email || "",
+            source: "marketing-hub",
+            project: templateName,
+          }),
+        }).catch(() => {});
+      }
+
       onSent();
       onOpenChange(false);
     } catch (e: any) {
