@@ -59,7 +59,7 @@ export default function AdminMarketingHub() {
   const [campaignAssets, setCampaignAssets] = useState<SavedAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"emails" | "flyers">("emails");
+  const [activeTab, setActiveTab] = useState<"emails" | "flyers" | "social">("emails");
   const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
   const [sendAsset, setSendAsset] = useState<SavedAsset | null>(null);
   const [previewAsset, setPreviewAsset] = useState<SavedAsset | null>(null);
