@@ -1254,6 +1254,7 @@ export default function AdminEmailBuilder() {
           name: templateName.trim(),
           project_name: vars.projectName || "Untitled",
           form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
+          user_id: user?.id || null,
         }).eq("id", overwriteId);
         if (error) throw error;
         toast.success("Template updated!");
@@ -1262,6 +1263,7 @@ export default function AdminEmailBuilder() {
           name: templateName.trim(),
           project_name: vars.projectName || "Untitled",
           form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
+          user_id: user?.id || null,
         }]);
         if (error) throw error;
         toast.success("Template saved!");
