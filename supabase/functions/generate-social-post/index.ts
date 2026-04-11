@@ -61,7 +61,15 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a real estate social media copywriter. Write engaging Facebook post copy for presale condo projects. Be professional but exciting. Use emojis sparingly. Include relevant hashtags.`,
+            content: `You are a real estate social media copywriter specializing in presale condo and townhome ads. Write punchy, high-converting Facebook ad copy.
+
+STYLE REFERENCE — headlines should be SHORT and BOLD like these real examples:
+- "$70,000+ OFF"  
+- "5% OFF"
+- "Your Family's First Home Starts With 5% Down."
+- "Starting From $639,900"
+
+Focus on the strongest selling point: price, discount, deposit structure, or location value.`,
           },
           {
             role: "user",
@@ -72,8 +80,9 @@ Developer: ${project.developer_name || "N/A"}
 Price: ${price}
 Highlights: ${(project.highlights || []).join(", ")}
 Description: ${project.short_description || ""}
+${project.incentives ? `Incentives: ${project.incentives}` : ""}
 
-Return the copy text ready to paste into Facebook.`,
+Return the copy text ready to paste into Facebook. The headline for the graphic should be the BIGGEST selling point (discount, price, deposit) — short and punchy like "$70,000+ OFF" or "From $399,900".`,
           },
         ],
         tools: [
@@ -85,9 +94,15 @@ Return the copy text ready to paste into Facebook.`,
               parameters: {
                 type: "object",
                 properties: {
-                  caption: { type: "string", description: "The full Facebook post caption text with emojis and hashtags" },
-                  headline: { type: "string", description: "A short bold headline for the graphic overlay (max 8 words)" },
-                  cta: { type: "string", description: "Call to action text (e.g. 'Register Now', 'Book Your Tour')" },
+                  caption: { type: "string", description: "The full Facebook post caption text with emojis and hashtags, ready to paste" },
+                  headline: { type: "string", description: "The BIG bold text for the graphic — short and punchy, max 5 words. Examples: '$70,000+ OFF', 'From $399,900', '5% Down'" },
+                  subline: { type: "string", description: "Secondary line below headline. Examples: 'New Condos from $399,900', 'Brand New Townhomes | Move In 2026'" },
+                  cta: { type: "string", description: "Call to action text for a button. Examples: 'Floor Plans & Pricing', 'Register Now', 'Next 10 Units'" },
+                },
+                required: ["caption", "headline", "subline", "cta"],
+              },
+            },
+          },
                 },
                 required: ["caption", "headline", "cta"],
               },
