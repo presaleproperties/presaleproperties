@@ -134,6 +134,7 @@ interface AddListingForm {
   original_price: string;
   deposit_to_lock: string;
   buyer_agent_commission: string;
+  developer_credit: string;
   // Flags
   developer_approval_required: boolean;
   // Content
@@ -151,7 +152,7 @@ const EMPTY_FORM: AddListingForm = {
   floor_plan_url: "", floor_plan_name: "",
   brochure_url: "",
   estimated_completion: "",
-  assignment_price: "", original_price: "", deposit_to_lock: "", buyer_agent_commission: "",
+  assignment_price: "", original_price: "", deposit_to_lock: "", buyer_agent_commission: "", developer_credit: "",
   developer_approval_required: false,
   description: "", title: "",
   listing_agent_id: "",
@@ -530,6 +531,7 @@ export default function AdminListings() {
         original_price: addForm.original_price ? parseFloat(String(addForm.original_price).replace(/[^0-9.]/g, "")) : null,
         deposit_to_lock: addForm.deposit_to_lock ? parseFloat(String(addForm.deposit_to_lock).replace(/[^0-9.]/g, "")) : null,
         buyer_agent_commission: addForm.buyer_agent_commission || null,
+        developer_credit: addForm.developer_credit ? parseFloat(String(addForm.developer_credit).replace(/[^0-9.]/g, "")) : null,
         developer_approval_required: addForm.developer_approval_required,
         description: addForm.description || null,
         listing_agent_id: addForm.listing_agent_id || null,
@@ -583,6 +585,7 @@ export default function AdminListings() {
       original_price: listing.original_price != null ? String(listing.original_price) : "",
       deposit_to_lock: listing.deposit_to_lock != null ? String(listing.deposit_to_lock) : "",
       buyer_agent_commission: listing.buyer_agent_commission || "",
+      developer_credit: listing.developer_credit != null ? String(listing.developer_credit) : "",
       developer_approval_required: !!listing.developer_approval_required,
       description: listing.description || "",
       title: listing.title || "",
@@ -622,6 +625,7 @@ export default function AdminListings() {
         original_price: editForm.original_price ? parseFloat(String(editForm.original_price).replace(/[^0-9.]/g, "")) : null,
         deposit_to_lock: editForm.deposit_to_lock ? parseFloat(String(editForm.deposit_to_lock).replace(/[^0-9.]/g, "")) : null,
         buyer_agent_commission: editForm.buyer_agent_commission || null,
+        developer_credit: editForm.developer_credit ? parseFloat(String(editForm.developer_credit).replace(/[^0-9.]/g, "")) : null,
         developer_approval_required: editForm.developer_approval_required,
         description: editForm.description || null,
         listing_agent_id: editForm.listing_agent_id || null,
@@ -1108,6 +1112,7 @@ export default function AdminListings() {
                     ["original_price", "Original Purchase Price", "$780,000"],
                     ["deposit_to_lock", "Deposit to Lock", "$50,000"],
                     ["buyer_agent_commission", "Buyer's Agent Commission", "3%"],
+                    ["developer_credit", "Developer Credit / Incentive", "$10,000"],
                   ] as [keyof AddListingForm, string, string][]).map(([key, label, ph]) => (
                     <div key={key} className="space-y-1">
                       <Label className="text-xs text-muted-foreground">{label}</Label>
@@ -1247,7 +1252,7 @@ export default function AdminListings() {
               <div className="space-y-3">
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">Pricing</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {([["assignment_price", "Assignment Price", "$899,000"], ["original_price", "Original Price", "$780,000"], ["deposit_to_lock", "Deposit to Lock", "$50,000"], ["buyer_agent_commission", "Buyer Agent Commission", "3%"]] as [keyof AddListingForm, string, string][]).map(([key, label, ph]) => (
+                  {([["assignment_price", "Assignment Price", "$899,000"], ["original_price", "Original Price", "$780,000"], ["deposit_to_lock", "Deposit to Lock", "$50,000"], ["buyer_agent_commission", "Buyer Agent Commission", "3%"], ["developer_credit", "Developer Credit", "$10,000"]] as [keyof AddListingForm, string, string][]).map(([key, label, ph]) => (
                     <div key={key} className="space-y-1">
                       <Label className="text-xs text-muted-foreground">{label}</Label>
                       <Input value={String(editForm[key] ?? "")} onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))} placeholder={ph} className="h-9" />

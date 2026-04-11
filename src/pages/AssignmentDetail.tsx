@@ -58,6 +58,7 @@ interface ListingRow {
   estimated_completion: string | null;
   description: string | null;
   developer_approval_required: boolean;
+  developer_credit: number | null;
   status: string;
   listing_agent_id: string | null;
 }
@@ -202,9 +203,7 @@ export default function AssignmentDetail() {
     ? listing.original_price - listing.assignment_price
     : null;
 
-  const premium = listing?.original_price && listing.assignment_price > listing.original_price
-    ? listing.assignment_price - listing.original_price
-    : null;
+  const developerCredit = listing?.developer_credit && listing.developer_credit > 0 ? listing.developer_credit : null;
 
   const handleDownloadOnePager = async () => {
     if (!onePagerRef.current || !listing) return;
@@ -340,9 +339,9 @@ export default function AssignmentDetail() {
                       Save {formatPrice(discount)}
                     </Badge>
                   )}
-                  {premium && premium > 0 && (
-                    <Badge className="bg-amber-600 hover:bg-amber-700 text-white text-[10px] sm:text-xs">
-                      +{formatPrice(premium)} premium
+                  {developerCredit && (
+                    <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs">
+                      {formatPrice(developerCredit)} Credit
                     </Badge>
                   )}
                 </div>
@@ -412,15 +411,22 @@ export default function AssignmentDetail() {
               <div className="lg:hidden mb-4">
                 <div className="flex items-baseline gap-3 mb-1">
                   <span className="text-2xl font-bold text-foreground">{priceFormatted}</span>
-                  {listing.original_price && (
+                  {listing.original_price && listing.original_price > listing.assignment_price && (
                     <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price)}</span>
                   )}
                 </div>
-                {discount && discount > 0 && (
-                  <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
-                    {formatPrice(discount)} below original
-                  </Badge>
-                )}
+                <div className="flex flex-wrap gap-1.5">
+                  {discount && discount > 0 && (
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
+                      {formatPrice(discount)} below original
+                    </Badge>
+                  )}
+                  {developerCredit && (
+                    <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs">
+                      {formatPrice(developerCredit)} developer credit
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               {/* Quick specs grid */}
@@ -664,9 +670,16 @@ export default function AssignmentDetail() {
                 <div className="text-3xl font-bold text-foreground mb-3">{priceFormatted}</div>
 
                 {discount && discount > 0 && (
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price!)}</span>
                     <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400">Save {formatPrice(discount)}</Badge>
+                  </div>
+                )}
+                {developerCredit && (
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400">
+                      {formatPrice(developerCredit)} Developer Credit
+                    </Badge>
                   </div>
                 )}
 
@@ -683,6 +696,12 @@ export default function AssignmentDetail() {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Deposit to Lock</span>
                       <span className="font-medium">{formatPrice(listing.deposit_to_lock)}</span>
+                    </div>
+                  )}
+                  {developerCredit && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Developer Credit</span>
+                      <span className="font-medium text-blue-600 dark:text-blue-400">{formatPrice(developerCredit)}</span>
                     </div>
                   )}
                   {listing.buyer_agent_commission && (
