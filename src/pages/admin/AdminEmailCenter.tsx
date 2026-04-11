@@ -689,7 +689,7 @@ export default function AdminEmailCenter() {
                   <p className="text-xs text-muted-foreground">Pick a template, add recipients, and send — all tracked automatically</p>
                 </div>
               </div>
-              <QuickSendPanel campaigns={campaigns} pitchDecks={pitchDecks} onSent={fetchAll} />
+              <QuickSendPanel campaigns={campaigns} pitchDecks={pitchDecks} onSent={fetchAll} onRefreshCampaigns={fetchAll} />
             </div>
           </TabsContent>
 
