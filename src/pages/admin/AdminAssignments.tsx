@@ -640,7 +640,7 @@ export default function AdminListings() {
       fetchListings();
     } catch (err) {
       console.error(err);
-      toast({ title: "Error updating listing", description: String(err), variant: "destructive" });
+      toast({ title: "Error updating listing", description: (err as any)?.message || String(err), variant: "destructive" });
     } finally {
       setEditSaving(false);
     }
