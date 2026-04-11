@@ -1263,6 +1263,14 @@ export default function AdminEmailBuilder() {
         if (error) throw error;
         toast.success("Template saved!");
       }
+
+      // Sync to DealsFlow CRM (fire-and-forget)
+      syncTemplateToDealsFlow({
+        name: templateName.trim(),
+        subject: vars.subjectLine || templateName.trim(),
+        html: finalHtml,
+        project: vars.projectName || undefined,
+      });
       setSaveDialogOpen(false);
       setTemplateName("");
       setOverwriteId(null);
