@@ -898,10 +898,10 @@ export default function MapSearch() {
       }
 
       // Apply price filters
-      const effectiveMin = filters.priceMin !== undefined ? filters.priceMin : (selectedPriceRanges.length > 0 ? Math.min(...selectedPriceRanges.map(r => r[0])) : undefined);
-      const effectiveMax = filters.priceMax !== undefined ? filters.priceMax : (selectedPriceRanges.length > 0 ? Math.max(...selectedPriceRanges.map(r => r[1])) : undefined);
-      if (effectiveMin !== undefined) query = query.gte("assignment_price", effectiveMin);
-      if (effectiveMax !== undefined) query = query.lte("assignment_price", effectiveMax);
+      const priceMin = filters.priceMin ? parseInt(filters.priceMin) : undefined;
+      const priceMax = filters.priceMax ? parseInt(filters.priceMax) : undefined;
+      if (priceMin) query = query.gte("assignment_price", priceMin);
+      if (priceMax) query = query.lte("assignment_price", priceMax);
 
       // Apply bed/bath filters
       if (filters.beds !== undefined) query = query.gte("beds", filters.beds);
