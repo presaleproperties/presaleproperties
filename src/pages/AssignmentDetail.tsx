@@ -179,11 +179,16 @@ export default function AssignmentDetail() {
   const videoFiles = (listingFiles || []).filter(f => f.file_type === "video");
   const floorplanImages = floorplanFiles.filter(f => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f.url));
 
+  // Build gallery: photos first, then floor plan images at the end so they're browsable
   const gallery: string[] = [
     ...(listing?.photos || []),
     ...(project?.gallery_images || []),
     ...(listing?.featured_image ? [listing.featured_image] : []),
     ...(project?.featured_image && !listing?.featured_image ? [project.featured_image] : []),
+    // Add floor plan images to gallery so agents can browse/screenshot them
+    ...floorplanImages.map(fp => fp.url),
+    // Add legacy floor_plan_url if it's an image
+    ...((listing?.floor_plan_url && /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(listing.floor_plan_url)) ? [listing.floor_plan_url] : []),
   ].filter(Boolean);
   const uniqueGallery = [...new Set(gallery)];
 
