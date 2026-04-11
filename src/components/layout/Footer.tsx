@@ -75,7 +75,7 @@ const RESOURCE_LINKS = [
   { label: "Market Updates", href: "/guides/market-updates" },
   { label: "Blog", href: "/blog" },
   { label: "Developers", href: "/developers" },
-  { label: "Agent Portal", href: "/for-agents" },
+  { label: "Agent Portal", href: "/login" },
   { label: "Contact Us", href: "/contact" },
   { label: "Presale Process", href: "/presale-process" },
   { label: "ROI Calculator", href: "/roi-calculator" },

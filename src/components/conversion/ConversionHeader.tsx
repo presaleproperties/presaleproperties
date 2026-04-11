@@ -282,7 +282,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               { to: "/faq", label: "FAQ" },
               { to: "/calculator", label: "Calculator" },
               { to: "/about", label: "About" },
-              { to: "/for-agents", label: "Agent Portal" },
+              { to: "/login", label: "Agent Portal" },
             ].map(({ to, label }) => (
               <Link
                 key={to}
@@ -520,7 +520,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                       <div className="h-px bg-border/40 my-1" />
 
                       <Link
-                        to="/for-agents"
+                        to="/login"
                         onClick={() => setOpen(false)}
                         className="flex items-center gap-3 py-4"
                       >

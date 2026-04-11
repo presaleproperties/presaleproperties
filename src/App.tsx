@@ -343,8 +343,8 @@ const App = () => (
             <Route path="/dashboard/billing" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardErrorBoundary><DashboardProfile /></DashboardErrorBoundary></ProtectedRoute>} />
             
-            {/* For Agents Marketing Page */}
-            <Route path="/for-agents" element={<ForAgents />} />
+            {/* For Agents - redirect to login */}
+            <Route path="/for-agents" element={<Navigate to="/login" replace />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
