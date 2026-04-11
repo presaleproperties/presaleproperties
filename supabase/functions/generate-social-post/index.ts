@@ -27,7 +27,7 @@ serve(async (req) => {
     // Fetch project
     const { data: project, error: projErr } = await supabase
       .from("presale_projects")
-      .select("name, city, neighborhood, starting_price, price_range, featured_image, gallery_images, developer_name, highlights, short_description")
+      .select("name, city, neighborhood, starting_price, price_range, featured_image, gallery_images, developer_name, highlights, short_description, incentives, completion_year, deposit_structure, deposit_percent")
       .eq("id", projectId)
       .single();
 
