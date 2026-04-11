@@ -766,7 +766,7 @@ export default function AssignmentDetail() {
                         </Button>
                       </a>
                     </div>
-                    <a href={`https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the assignment at "${listing.project_name}" (${listing.title}). Can you send me more details?`)}`} target="_blank" rel="noopener noreferrer">
+                    <a href={`https://wa.me/16722581100?text=${encodeURIComponent(`Hi! I'm interested in the assignment at "${listing.project_name}" (${listing.title}). Can you send me more details?`)}`} target="_blank" rel="noopener noreferrer" className="block">
                       <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#1da851] text-white">
                         <MessageCircle className="h-4 w-4 mr-2" />
                         WhatsApp {listingAgent.full_name?.split(" ")[0] || "Agent"}
