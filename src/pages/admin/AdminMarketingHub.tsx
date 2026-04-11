@@ -474,24 +474,19 @@ export default function AdminMarketingHub() {
                         key={asset.id}
                         className="group relative rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-md transition-all"
                       >
-                        {/* Live HTML Preview */}
+                        {/* Preview image */}
                         <div
-                          className="relative bg-white cursor-pointer overflow-hidden"
-                          style={{ height: 200 }}
+                          className="h-44 bg-muted/30 relative cursor-pointer overflow-hidden"
                           onClick={() => setPreviewAsset(asset)}
                         >
-                          {previewHtml ? (
-                            <iframe
-                              srcDoc={previewHtml}
-                              className="w-full h-full pointer-events-none"
-                              style={{ transform: "scale(0.32)", transformOrigin: "top left", width: "312%", height: "312%" }}
-                              sandbox="allow-same-origin"
-                              title={`Preview ${asset.name}`}
+                          {(asset.thumbnail_url || fd.heroImage) ? (
+                            <img
+                              src={asset.thumbnail_url || fd.heroImage}
+                              alt={asset.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
-                          ) : asset.thumbnail_url ? (
-                            <img src={asset.thumbnail_url} alt={asset.name} className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-muted/30">
+                            <div className="w-full h-full flex items-center justify-center">
                               <Mail className="h-10 w-10 text-muted-foreground/15" />
                             </div>
                           )}
