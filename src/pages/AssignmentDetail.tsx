@@ -468,22 +468,7 @@ export default function AssignmentDetail() {
               </CardContent>
             </Card>
 
-            {/* ── Project Highlights ─────────────────────────── */}
-            {project?.highlights && project.highlights.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">Project Highlights</CardTitle></CardHeader>
-                <CardContent>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {project.highlights.map((h, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs sm:text-sm">
-                        <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary mt-0.5 shrink-0" />
-                        <span>{h}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
+
 
             {/* ── Amenities ──────────────────────────────────── */}
             {project?.amenities && project.amenities.length > 0 && (
