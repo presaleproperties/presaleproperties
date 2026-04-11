@@ -47,6 +47,7 @@ export function MobileAssignmentsCarousel({ title, subtitle, featured = false, s
           id,
           title,
           project_name,
+          project_id,
           city,
           neighborhood,
           beds,
@@ -70,7 +71,22 @@ export function MobileAssignmentsCarousel({ title, subtitle, featured = false, s
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Listing[];
+      
+      // Fetch project images for fallback
+      const projectIds = [...new Set((data || []).map((l: any) => l.project_id).filter(Boolean))];
+      let projectMap = new Map<string, any>();
+      if (projectIds.length > 0) {
+        const { data: projects } = await (supabase as any)
+          .from("presale_projects")
+          .select("id, featured_image, gallery_images")
+          .in("id", projectIds);
+        (projects || []).forEach((p: any) => projectMap.set(p.id, p));
+      }
+      
+      return (data || []).map((l: any) => {
+        const proj = l.project_id ? projectMap.get(l.project_id) : null;
+        return { ...l, _projectFeaturedImage: proj?.featured_image, _projectGalleryImages: proj?.gallery_images };
+      }) as Listing[];
     },
   });
 
@@ -139,7 +155,7 @@ export function MobileAssignmentsCarousel({ title, subtitle, featured = false, s
       {/* Horizontal Scroll Cards */}
       <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6">
         {listings.map((listing) => {
-          const imageUrl = listing.listing_photos?.[0]?.url;
+          const imageUrl = listing.listing_photos?.[0]?.url || (listing as any)._projectGalleryImages?.[0] || (listing as any)._projectFeaturedImage;
 
           return (
             <Link
