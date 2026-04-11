@@ -47,8 +47,8 @@ export function RentalIncomeStep({ rental, updateInputs }: RentalIncomeStepProps
             <Input
               id="monthlyRent"
               type="number"
-              value={rental.monthlyRentStart}
-              onChange={(e) => updateInputs("monthlyRentStart", parseInt(e.target.value) || 0)}
+              value={rental.monthlyRentStart || ''}
+              onChange={(e) => updateInputs("monthlyRentStart", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
               className="pl-7 text-lg font-medium"
               placeholder="2400"
             />
@@ -117,8 +117,8 @@ export function RentalIncomeStep({ rental, updateInputs }: RentalIncomeStepProps
             <Input
               id="otherIncome"
               type="number"
-              value={rental.otherIncomeMonthly}
-              onChange={(e) => updateInputs("otherIncomeMonthly", parseInt(e.target.value) || 0)}
+              value={rental.otherIncomeMonthly || ''}
+              onChange={(e) => updateInputs("otherIncomeMonthly", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
               className="pl-7"
               placeholder="100"
             />
