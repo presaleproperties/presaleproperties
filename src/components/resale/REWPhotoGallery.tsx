@@ -286,7 +286,9 @@ export function REWPhotoGallery({
               className="w-full h-full object-cover transition-transform duration-200 will-change-transform backface-visibility-hidden"
               style={{ 
                 transform: `translateX(${swipeOffset}px) translateZ(0)`,
+                imageRendering: "auto",
               }}
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 66vw, 900px"
               loading="eager"
               decoding="sync"
               fetchPriority="high"
@@ -507,9 +509,11 @@ export function REWPhotoGallery({
                             loading={i < 6 ? "eager" : "lazy"}
                             decoding={i < 6 ? "sync" : "async"}
                             fetchPriority={i < 4 ? "high" : "auto"}
+                            sizes="(max-width: 768px) 100vw, 50vw"
                             style={{ 
                               transform: 'translateZ(0)',
                               contentVisibility: i >= 6 ? 'auto' : 'visible',
+                              imageRendering: 'auto',
                             }}
                           />
                         </div>
@@ -584,10 +588,12 @@ export function REWPhotoGallery({
                   className="max-w-full max-h-full object-contain select-none"
                   loading="eager"
                   fetchPriority="high"
+                  sizes="100vw"
                   style={{
                     transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
                     transition: isDragging ? 'none' : 'transform 0.2s ease-out',
                     cursor: scale > 1 ? 'grab' : 'default',
+                    imageRendering: 'auto',
                   }}
                   draggable={false}
                   onDoubleClick={() => {
