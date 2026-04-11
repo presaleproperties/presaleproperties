@@ -42,6 +42,7 @@ import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
 import { ExpertAdvisoryCard } from "@/components/listings/ExpertAdvisoryCard";
 import { AboutContactForm } from "@/components/about/AboutContactForm";
 import { AssignmentOnePager } from "@/components/assignments/AssignmentOnePager";
+import { AssignmentLocationMap } from "@/components/assignments/AssignmentLocationMap";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
 
@@ -102,6 +103,8 @@ interface ProjectRow {
   full_description: string | null;
   short_description: string | null;
   starting_price: number | null;
+  map_lat: number | null;
+  map_lng: number | null;
 }
 
 const formatPrice = (price: number) =>
@@ -139,7 +142,7 @@ export default function AssignmentDetail() {
       if (!listing?.project_id) return null;
       const { data } = await (supabase as any)
         .from("presale_projects")
-        .select("id, name, city, neighborhood, address, developer_name, featured_image, gallery_images, highlights, amenities, deposit_structure, deposit_percent, completion_year, completion_month, strata_fees, near_skytrain, rental_restrictions, slug, full_description, short_description, starting_price")
+        .select("id, name, city, neighborhood, address, developer_name, featured_image, gallery_images, highlights, amenities, deposit_structure, deposit_percent, completion_year, completion_month, strata_fees, near_skytrain, rental_restrictions, slug, full_description, short_description, starting_price, map_lat, map_lng")
         .eq("id", listing.project_id)
         .maybeSingle();
       return data as ProjectRow | null;
