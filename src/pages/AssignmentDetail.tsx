@@ -7,7 +7,6 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
 import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -283,7 +282,6 @@ export default function AssignmentDetail() {
     { label: listing.title },
   ];
 
-  // Parse description markdown to HTML
   const descriptionHtml = (listing.description || project?.full_description || '');
   const sanitizedDescription = DOMPurify.sanitize(
     descriptionHtml
@@ -293,6 +291,23 @@ export default function AssignmentDetail() {
       .replace(/\n/g, '<br/>'),
     { ALLOWED_TAGS: ['strong', 'em', 'span', 'br', 'p', 'div'], ALLOWED_ATTR: ['class'] }
   );
+
+  // Build key facts for the inline summary row
+  const keyFacts: string[] = [
+    `${listing.beds} Bed`,
+    `${listing.baths} Bath`,
+    ...(listing.interior_sqft ? [`${listing.interior_sqft.toLocaleString()} sqft`] : []),
+    ...(listing.floor_level ? [`Floor ${listing.floor_level}`] : []),
+    ...(listing.exposure ? [listing.exposure] : []),
+  ];
+
+  // Merge all downloadable files
+  const allDownloads: { label: string; url: string; icon: "floor" | "brochure" }[] = [];
+  if (listing.floor_plan_url) allDownloads.push({ label: listing.floor_plan_name || "Floor Plan", url: listing.floor_plan_url, icon: "floor" });
+  floorplanFiles.filter(f => !floorplanImages.includes(f)).forEach(fp => {
+    allDownloads.push({ label: fp.file_name || "Floor Plan PDF", url: fp.url, icon: "floor" });
+  });
+  if (listing.brochure_url) allDownloads.push({ label: "Project Brochure", url: listing.brochure_url, icon: "brochure" });
 
   return (
     <>
@@ -325,26 +340,25 @@ export default function AssignmentDetail() {
 
       <ConversionHeader hideOnMobile />
 
-      {/* Mobile/Tablet Scroll-Up Sticky Header — matches presale */}
       <PropertyStickyHeader
         price={priceFormatted}
-        specs={`${listing.beds} Bed • ${listing.neighborhood || listing.city} • ${completionDisplay}`}
+        specs={`${listing.beds} Bed · ${listing.neighborhood || listing.city} · ${completionDisplay}`}
         onShare={handleShare}
         backPath="/assignments"
       />
 
       <main className="min-h-screen bg-background pb-24 lg:pb-0">
-        {/* Breadcrumbs — edge-to-edge on mobile */}
+        {/* Breadcrumbs */}
         <div className="px-3 lg:container lg:px-4 pt-3 md:pt-4">
           <Breadcrumbs items={breadcrumbItems} />
         </div>
 
-        {/* Hero — Side-by-side on desktop, full-width gallery on mobile */}
-        <section className="bg-gradient-to-b from-muted/30 to-background">
+        {/* Hero */}
+        <section>
           <div className="lg:container px-0 lg:px-4 py-0 lg:py-6">
             <div className="grid lg:grid-cols-5 gap-0 lg:gap-8 lg:items-start">
-              {/* Gallery — edge-to-edge on mobile, 3 cols on desktop */}
-              <div className="lg:col-span-3 -mx-0 lg:mx-0">
+              {/* Gallery */}
+              <div className="lg:col-span-3">
                 <REWPhotoGallery
                   photos={allImages}
                   alt={listing.title}
@@ -352,10 +366,10 @@ export default function AssignmentDetail() {
                 />
               </div>
 
-              {/* Info panel — inline on desktop, below gallery on mobile */}
+              {/* Info panel */}
               <div className="lg:col-span-2 flex flex-col px-4 lg:px-0 pt-4 lg:pt-0">
                 {/* Badges */}
-                <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+                <div className="flex flex-wrap items-center gap-1.5 mb-2">
                   <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2 py-0.5">Assignment</Badge>
                   {discount && discount > 0 && (
                     <Badge className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-0.5">
@@ -370,255 +384,259 @@ export default function AssignmentDetail() {
                 </div>
 
                 {/* Title */}
-                <div className="flex flex-wrap items-center gap-2 mb-1.5 md:mb-2">
-                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight">{listing.title}</h1>
-                  <Badge variant="secondary" className="md:hidden text-[10px] px-1.5 py-0.5 font-medium">
-                    {listing.city}
-                  </Badge>
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight mb-1">
+                  {listing.title}
+                </h1>
+
+                {/* Location */}
+                <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  <span>
+                    {listing.neighborhood || project?.neighborhood || ""}{(listing.neighborhood || project?.neighborhood) ? ", " : ""}{listing.city}
+                  </span>
                 </div>
 
-                {/* Price */}
-                <div className="mb-2 md:mb-3">
-                  <span className="text-muted-foreground text-sm md:text-base font-medium mr-1">Assignment Price</span>
+                {/* Price block */}
+                <div className="mb-3">
                   <div className="flex items-baseline gap-3">
-                    <span className="font-bold text-primary !text-[28px] sm:!text-[32px] md:!text-[36px] lg:!text-[40px] leading-tight">
+                    <span className="font-bold text-primary text-[28px] sm:text-[32px] lg:text-[36px] leading-tight">
                       {priceFormatted}
                     </span>
                     {listing.original_price && listing.original_price > listing.assignment_price && (
                       <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price)}</span>
                     )}
                   </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">Assignment Price</p>
                 </div>
 
-                {/* Location */}
-                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1 md:mb-2">
-                  <MapPin className="h-3.5 w-3.5 shrink-0" />
-                  <span className="font-medium text-foreground">
-                    {listing.neighborhood || project?.neighborhood || ""}{listing.neighborhood || project?.neighborhood ? ", " : ""}{listing.city}
-                  </span>
+                {/* Key Facts Row — single scannable line */}
+                <div className="flex flex-wrap items-center gap-x-1.5 text-sm text-foreground font-medium mb-4">
+                  {keyFacts.map((fact, i) => (
+                    <span key={i} className="flex items-center gap-1.5">
+                      {i > 0 && <span className="text-border">·</span>}
+                      {fact}
+                    </span>
+                  ))}
                 </div>
-                {listing.address && (
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2 md:hidden">
-                    <span className="ml-5 truncate">{listing.address}</span>
+
+                {/* Compact details — desktop/tablet */}
+                <div className="hidden md:block">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4">
+                    {(listing.developer_name || project?.developer_name) && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Developer</span>
+                        <span className="font-medium text-foreground truncate ml-2">{listing.developer_name || project?.developer_name}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Completion</span>
+                      <span className="font-medium text-foreground">{completionDisplay}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Parking</span>
+                      <span className="font-medium text-foreground">{listing.parking || "Not included"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Locker</span>
+                      <span className="font-medium text-foreground">{listing.has_locker ? "Included" : "No"}</span>
+                    </div>
+                    {listing.unit_type && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Unit Type</span>
+                        <span className="font-medium text-foreground">{listing.unit_type}</span>
+                      </div>
+                    )}
+                    {listing.exterior_sqft && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Outdoor</span>
+                        <span className="font-medium text-foreground">{listing.exterior_sqft} sqft</span>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
 
-                {/* Quick Action Buttons — Map, Street View, Share */}
-                <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-3">
+                {/* Action pills — subtle, secondary placement */}
+                <div className="flex items-center gap-2 mt-auto pt-2">
                   {project?.map_lat && project?.map_lng && (
-                    <Link to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors">
-                      <MapPin className="h-3.5 w-3.5 text-primary" />
-                      <span>Map</span>
+                    <Link to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-muted-foreground transition-colors">
+                      <MapPin className="h-3 w-3" />
+                      Map
                     </Link>
                   )}
                   {project?.map_lat && project?.map_lng && (
-                    <a href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${project.map_lat},${project.map_lng}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors">
-                      <Eye className="h-3.5 w-3.5 text-primary" />
-                      <span>Street View</span>
+                    <a href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${project.map_lat},${project.map_lng}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-muted-foreground transition-colors">
+                      <Eye className="h-3 w-3" />
+                      Street View
                     </a>
                   )}
-                  <button onClick={handleShare} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors">
-                    <Share2 className="h-3.5 w-3.5 text-primary" />
-                    <span>Share</span>
+                  <button onClick={handleShare} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-muted-foreground transition-colors">
+                    <Share2 className="h-3 w-3" />
+                    Share
                   </button>
                 </div>
-
-                {/* Quick Facts — visible on tablet and desktop */}
-                <div className="hidden md:block space-y-2 mb-3">
-                  {(listing.developer_name || project?.developer_name) && (
-                    <div className="flex items-center gap-2.5 text-sm lg:text-base">
-                      <Building2 className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
-                      <span className="text-muted-foreground">Developer:</span>
-                      <span className="font-semibold truncate">{listing.developer_name || project?.developer_name}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2.5 text-sm lg:text-base">
-                    <Calendar className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
-                    <span className="text-muted-foreground">Completion:</span>
-                    <span className="font-semibold">{completionDisplay}</span>
-                  </div>
-                  <div className="flex items-center gap-2.5 text-sm lg:text-base">
-                    <Home className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
-                    <span className="text-muted-foreground">Unit:</span>
-                    <span className="font-semibold truncate">{listing.unit_type || `${listing.beds} Bed ${listing.baths} Bath`}</span>
-                  </div>
-                  {listing.interior_sqft && (
-                    <div className="flex items-center gap-2.5 text-sm lg:text-base">
-                      <Maximize className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
-                      <span className="text-muted-foreground">Interior:</span>
-                      <span className="font-semibold">{listing.interior_sqft.toLocaleString()} sqft{listing.exterior_sqft ? ` + ${listing.exterior_sqft} sqft outdoor` : ""}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Short description — tablet/desktop */}
-                {(listing.description || project?.short_description) && (
-                  <p className="text-sm text-muted-foreground mt-4 mb-2 md:mt-2 md:mb-0 leading-relaxed lg:line-clamp-4 hidden md:block">
-                    {(listing.description || project?.short_description || "").replace(/\*\*(.+?)\*\*/g, '$1').slice(0, 200)}...
-                  </p>
-                )}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Mobile-only Quick Stats — edge-to-edge */}
-        <section className="border-t md:hidden">
+        {/* Mobile-only: Compact details (replaces old duplicate stats grid) */}
+        <section className="md:hidden border-t border-border">
           <div className="px-4 py-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Bedrooms</p>
-                <p className="font-semibold text-sm text-foreground">{listing.beds} Bed{listing.beds !== 1 ? "s" : ""} / {listing.baths} Bath</p>
-              </div>
-              {listing.interior_sqft && (
-                <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Interior</p>
-                  <p className="font-semibold text-sm text-foreground">{listing.interior_sqft.toLocaleString()} sqft</p>
-                </div>
-              )}
-              <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Completion</p>
-                <p className="font-semibold text-sm text-foreground">{completionDisplay}</p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Completion</span>
+                <span className="font-medium">{completionDisplay}</span>
               </div>
               {(listing.developer_name || project?.developer_name) && (
-                <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Developer</p>
-                  <p className="font-semibold text-sm text-foreground truncate">{listing.developer_name || project?.developer_name}</p>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Developer</span>
+                  <span className="font-medium truncate ml-2">{listing.developer_name || project?.developer_name}</span>
                 </div>
               )}
-              {listing.exposure && (
-                <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Exposure</p>
-                  <p className="font-semibold text-sm text-foreground">{listing.exposure}</p>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Parking</span>
+                <span className="font-medium">{listing.parking || "None"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Locker</span>
+                <span className="font-medium">{listing.has_locker ? "Yes" : "No"}</span>
+              </div>
+              {listing.unit_type && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Type</span>
+                  <span className="font-medium">{listing.unit_type}</span>
                 </div>
               )}
-              {listing.floor_level && (
-                <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Floor</p>
-                  <p className="font-semibold text-sm text-foreground">Level {listing.floor_level}</p>
+              {listing.exterior_sqft && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Outdoor</span>
+                  <span className="font-medium">{listing.exterior_sqft} sqft</span>
                 </div>
               )}
             </div>
           </div>
         </section>
 
-        {/* Details Grid — edge-to-edge on mobile */}
-        <section className="py-2 sm:py-3 md:py-5 lg:py-8">
+        {/* Content grid */}
+        <section className="py-4 lg:py-8">
           <div className="px-4 lg:container lg:px-4">
-            <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6">
+            <div className="grid lg:grid-cols-3 gap-4 lg:gap-6">
+              {/* Main content */}
+              <div className="lg:col-span-2 space-y-4 lg:space-y-6">
 
-                {/* Unit Details — styled like presale deposit/fees section */}
-                <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6 border border-border/40">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                    <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Project</p>
-                      <p className="font-semibold text-sm sm:text-base text-foreground">{listing.project_name}</p>
+                {/* Pricing Summary — single clean card */}
+                <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
+                  <h2 className="text-base font-bold text-foreground mb-3">Pricing Summary</h2>
+                  <div className="space-y-2.5 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Assignment Price</span>
+                      <span className="font-bold text-foreground">{priceFormatted}</span>
                     </div>
-                    <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Parking</p>
-                      <p className="font-semibold text-sm sm:text-base text-foreground">{listing.parking || "Not included"}</p>
-                    </div>
-                    <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Locker</p>
-                      <p className="font-semibold text-sm sm:text-base text-foreground flex items-center gap-1">
-                        {listing.has_locker ? <><CheckCircle className="h-3.5 w-3.5 text-green-500" /> Included</> : <><XCircle className="h-3.5 w-3.5 text-muted-foreground" /> No</>}
-                      </p>
-                    </div>
-                    {listing.unit_type && (
-                      <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
-                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Unit Type</p>
-                        <p className="font-semibold text-sm sm:text-base text-foreground">{listing.unit_type}</p>
+                    {listing.original_price && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Original Purchase Price</span>
+                        <span className="font-medium">{formatPrice(listing.original_price)}</span>
+                      </div>
+                    )}
+                    {discount && discount > 0 && (
+                      <div className="flex justify-between text-green-600 dark:text-green-400">
+                        <span>Savings vs. Original</span>
+                        <span className="font-semibold">{formatPrice(discount)}</span>
+                      </div>
+                    )}
+                    {listing.deposit_to_lock && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Deposit to Lock</span>
+                        <span className="font-medium">{formatPrice(listing.deposit_to_lock)}</span>
+                      </div>
+                    )}
+                    {developerCredit && (
+                      <div className="flex justify-between text-blue-600 dark:text-blue-400">
+                        <span>Developer Credit</span>
+                        <span className="font-semibold">{formatPrice(developerCredit)}</span>
                       </div>
                     )}
                     {listing.buyer_agent_commission && (
-                      <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
-                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Buyer Agent Commission</p>
-                        <p className="font-semibold text-sm sm:text-base text-foreground">{listing.buyer_agent_commission}</p>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Buyer Agent Commission</span>
+                        <span className="font-medium">{listing.buyer_agent_commission}</span>
                       </div>
                     )}
                     {listing.developer_approval_required && (
-                      <div className="bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
-                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Dev. Approval</p>
-                        <p className="font-semibold text-sm sm:text-base text-amber-600 dark:text-amber-400">Required</p>
+                      <div className="flex justify-between text-amber-600 dark:text-amber-400">
+                        <span>Developer Approval</span>
+                        <span className="font-medium">Required</span>
                       </div>
                     )}
                   </div>
-
-                  {/* Discount / Credit highlights */}
-                  {(discount || developerCredit) && (
-                    <div className="mt-3 space-y-2">
-                      {discount && discount > 0 && (
-                        <div className="bg-green-50 dark:bg-green-950/30 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-green-200/50 dark:border-green-800/30">
-                          <div className="flex items-start gap-2">
-                            <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
-                            <div>
-                              <p className="text-[10px] sm:text-xs text-green-700 dark:text-green-400 font-semibold uppercase tracking-wide mb-0.5">Below Original Price</p>
-                              <p className="text-xs sm:text-sm text-green-800 dark:text-green-300">Save {formatPrice(discount)} — Original price was {formatPrice(listing.original_price!)}</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      {developerCredit && (
-                        <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200/50 dark:border-blue-800/30">
-                          <div className="flex items-start gap-2">
-                            <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
-                            <div>
-                              <p className="text-[10px] sm:text-xs text-blue-700 dark:text-blue-400 font-semibold uppercase tracking-wide mb-0.5">Developer Credit</p>
-                              <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-300">{formatPrice(developerCredit)} credit included with this assignment</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
 
-                {/* Amenities */}
-                {project?.amenities && project.amenities.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4">Building Amenities</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-3 md:gap-4">
-                      {project.amenities.map((a, i) => (
-                        <div key={i} className="flex items-center gap-2 sm:gap-2">
-                          <CheckCircle className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-500 shrink-0" />
-                          <span className="text-sm sm:text-sm md:text-base text-foreground">{a}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Description */}
+                {/* About + Description — merged into one section */}
                 {(listing.description || project?.full_description) && (
-                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4">About This Unit</h2>
+                  <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
+                    <h2 className="text-base font-bold text-foreground mb-3">About This Unit</h2>
                     <div
-                      className="prose prose-sm max-w-none text-muted-foreground space-y-3 sm:space-y-3"
+                      className="prose prose-sm max-w-none text-muted-foreground space-y-2"
                       dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
                     />
                   </div>
                 )}
 
-                {/* Floor Plans */}
-                {floorplanImages.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4 flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-primary" />
-                      Floor Plan{floorplanImages.length > 1 ? "s" : ""}
+                {/* Floor Plans + Downloads — merged */}
+                {(floorplanImages.length > 0 || allDownloads.length > 0) && (
+                  <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
+                    <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-primary" />
+                      Floor Plans & Documents
                     </h2>
-                    <div className={cn("grid gap-4", floorplanImages.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1")}>
-                      {floorplanImages.map((fp) => (
-                        <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" className="group block">
-                          <div className="rounded-xl overflow-hidden border border-border bg-background hover:border-primary/40 transition-colors">
-                            <img src={fp.url} alt={fp.file_name || "Floor Plan"} className="w-full h-auto object-contain max-h-[500px] p-2" />
-                            <div className="px-3 py-2 border-t border-border flex items-center justify-between">
-                              <span className="text-xs sm:text-sm text-muted-foreground truncate">{fp.file_name || "Floor Plan"}</span>
-                              <Download className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+
+                    {/* Inline floor plan images */}
+                    {floorplanImages.length > 0 && (
+                      <div className={cn("grid gap-3 mb-4", floorplanImages.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1")}>
+                        {floorplanImages.map((fp) => (
+                          <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" className="group block">
+                            <div className="rounded-lg overflow-hidden border border-border bg-muted/20 hover:border-primary/40 transition-colors">
+                              <img src={fp.url} alt={fp.file_name || "Floor Plan"} className="w-full h-auto object-contain max-h-[400px] p-2" />
+                              <div className="px-3 py-2 border-t border-border/50 flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground truncate">{fp.file_name || "Floor Plan"}</span>
+                                <Download className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                              </div>
                             </div>
-                          </div>
-                        </a>
+                          </a>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Download links */}
+                    {allDownloads.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {allDownloads.map((dl, i) => (
+                          <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" download
+                            className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/30 transition-colors">
+                            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                              {dl.icon === "brochure" ? <BookOpen className="h-4 w-4 text-primary" /> : <FileText className="h-4 w-4 text-primary" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{dl.label}</p>
+                            </div>
+                            <Download className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Amenities */}
+                {project?.amenities && project.amenities.length > 0 && (
+                  <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
+                    <h2 className="text-base font-bold text-foreground mb-3">Building Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+                      {project.amenities.map((a, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                          <span className="text-sm text-foreground">{a}</span>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -626,11 +644,11 @@ export default function AssignmentDetail() {
 
                 {/* Video */}
                 {videoFiles.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4">Video Walkthrough</h2>
-                    <div className="space-y-4">
+                  <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
+                    <h2 className="text-base font-bold text-foreground mb-3">Video Walkthrough</h2>
+                    <div className="space-y-3">
                       {videoFiles.map((vid) => (
-                        <div key={vid.id} className="rounded-xl overflow-hidden border border-border bg-black">
+                        <div key={vid.id} className="rounded-lg overflow-hidden border border-border bg-black">
                           <video controls preload="metadata" className="w-full max-h-[500px]" playsInline>
                             <source src={vid.url} type={vid.url.endsWith(".webm") ? "video/webm" : vid.url.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
                           </video>
@@ -640,62 +658,11 @@ export default function AssignmentDetail() {
                   </div>
                 )}
 
-                {/* Downloads */}
-                {(listing.floor_plan_url || listing.brochure_url || floorplanFiles.filter(f => !floorplanImages.includes(f)).length > 0) && (
-                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4 flex items-center gap-2">
-                      <Download className="h-5 w-5 text-primary" />
-                      Downloads
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {listing.floor_plan_url && (
-                        <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer" download
-                          className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-background hover:bg-primary/5 transition-colors">
-                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <FileText className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold truncate">{listing.floor_plan_name || "Floor Plan"}</p>
-                            <p className="text-xs text-muted-foreground">Tap to download</p>
-                          </div>
-                          <Download className="h-4 w-4 text-primary shrink-0" />
-                        </a>
-                      )}
-                      {floorplanFiles.filter(f => !floorplanImages.includes(f)).map((fp) => (
-                        <a key={fp.id} href={fp.url} target="_blank" rel="noopener noreferrer" download
-                          className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-background hover:bg-primary/5 transition-colors">
-                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <FileText className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold truncate">{fp.file_name || "Floor Plan PDF"}</p>
-                            <p className="text-xs text-muted-foreground">Tap to download</p>
-                          </div>
-                          <Download className="h-4 w-4 text-primary shrink-0" />
-                        </a>
-                      ))}
-                      {listing.brochure_url && (
-                        <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer" download
-                          className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary/20 bg-background hover:bg-primary/5 transition-colors">
-                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <BookOpen className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold">Project Brochure</p>
-                            <p className="text-xs text-muted-foreground">Tap to download</p>
-                          </div>
-                          <Download className="h-4 w-4 text-primary shrink-0" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                )}
-
                 {/* Location Map */}
                 {project?.map_lat && project?.map_lng && (
-                  <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4 flex items-center gap-2">
-                      <MapPin className="h-5 w-5 text-primary" />
+                  <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
+                    <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" />
                       Location
                     </h2>
                     <AssignmentLocationMap
@@ -704,7 +671,7 @@ export default function AssignmentDetail() {
                       projectName={listing.project_name}
                       address={listing.address || project.address}
                     />
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-3">
+                    <p className="text-xs text-muted-foreground mt-2">
                       {listing.address || project.address || listing.project_name}, {listing.neighborhood || project.neighborhood || ""} {listing.city}
                     </p>
                   </div>
@@ -712,73 +679,23 @@ export default function AssignmentDetail() {
               </div>
 
               {/* Sidebar — Desktop only */}
-              <aside className="hidden lg:block lg:col-span-1" aria-label="Pricing and contact">
+              <aside className="hidden lg:block lg:col-span-1" aria-label="Contact">
                 <div className="w-full lg:sticky lg:top-20 space-y-4">
-                  {/* Pricing Card */}
-                  <div className="bg-background rounded-xl sm:rounded-2xl p-5 border border-border shadow-sm relative overflow-hidden">
-                    {!isVerified && (
-                      <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-6 text-center rounded-xl">
-                        <Lock className="h-8 w-8 text-primary mb-3" />
-                        <p className="font-semibold text-foreground mb-1">Agent Access Only</p>
-                        <p className="text-sm text-muted-foreground mb-4">Verify your agent credentials to view full pricing & details.</p>
-                        <Button size="sm" className="w-full" onClick={() => setFormOpen(true)}>
-                          <Shield className="h-4 w-4 mr-2" />
-                          Request Access
-                        </Button>
-                      </div>
-                    )}
-
+                  {/* Contact Card */}
+                  <div className="bg-background rounded-xl p-5 border border-border shadow-sm">
                     <p className="text-sm text-muted-foreground mb-1">Assignment Price</p>
-                    <div className="text-3xl font-bold text-foreground mb-3">{priceFormatted}</div>
+                    <div className="text-3xl font-bold text-foreground mb-1">{priceFormatted}</div>
 
                     {discount && discount > 0 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm text-muted-foreground line-through">{formatPrice(listing.original_price!)}</span>
-                        <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400">Save {formatPrice(discount)}</Badge>
-                      </div>
+                      <p className="text-sm text-green-600 dark:text-green-400 font-medium mb-1">
+                        Save {formatPrice(discount)} vs. original
+                      </p>
                     )}
                     {developerCredit && (
-                      <div className="flex items-center gap-2 mb-4">
-                        <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400">
-                          {formatPrice(developerCredit)} Developer Credit
-                        </Badge>
-                      </div>
+                      <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-1">
+                        {formatPrice(developerCredit)} developer credit
+                      </p>
                     )}
-
-                    <Separator className="my-4" />
-
-                    <div className="space-y-3 text-sm">
-                      {listing.original_price && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Original Purchase Price</span>
-                          <span className="font-medium">{formatPrice(listing.original_price)}</span>
-                        </div>
-                      )}
-                      {listing.deposit_to_lock && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Deposit to Lock</span>
-                          <span className="font-medium">{formatPrice(listing.deposit_to_lock)}</span>
-                        </div>
-                      )}
-                      {developerCredit && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Developer Credit</span>
-                          <span className="font-medium text-blue-600 dark:text-blue-400">{formatPrice(developerCredit)}</span>
-                        </div>
-                      )}
-                      {listing.buyer_agent_commission && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Buyer Agent Commission</span>
-                          <span className="font-medium">{listing.buyer_agent_commission}</span>
-                        </div>
-                      )}
-                      {listing.developer_approval_required && (
-                        <div className="flex justify-between text-amber-600 dark:text-amber-400">
-                          <span>Developer Approval Required</span>
-                          <CheckCircle className="h-4 w-4" />
-                        </div>
-                      )}
-                    </div>
 
                     <Separator className="my-4" />
 
@@ -822,12 +739,18 @@ export default function AssignmentDetail() {
                         </a>
                       </div>
                     ) : (
-                      <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
-                        <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#1da851] text-white">
+                      <div className="space-y-3">
+                        <Button size="lg" className="w-full" onClick={() => setFormOpen(true)}>
                           <MessageCircle className="h-4 w-4 mr-2" />
-                          WhatsApp Us
+                          Inquire About This Unit
                         </Button>
-                      </a>
+                        <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
+                          <Button variant="outline" size="lg" className="w-full">
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            WhatsApp Us
+                          </Button>
+                        </a>
+                      </div>
                     )}
                   </div>
 
@@ -844,41 +767,6 @@ export default function AssignmentDetail() {
                       Share
                     </Button>
                   </div>
-
-                  {/* Downloads Sidebar */}
-                  {(listing.floor_plan_url || listing.brochure_url) && (
-                    <div className="bg-background rounded-xl p-5 border border-border shadow-sm">
-                      <h3 className="text-base font-bold mb-3 flex items-center gap-2"><Download className="h-4 w-4 text-primary" />Downloads</h3>
-                      <div className="space-y-2">
-                        {listing.floor_plan_url && (
-                          <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer" download
-                            className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
-                            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                              <FileText className="h-4 w-4 text-primary" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold truncate">{listing.floor_plan_name || "Floor Plan"}</p>
-                              <p className="text-[10px] text-muted-foreground">Tap to download</p>
-                            </div>
-                            <Download className="h-4 w-4 text-primary shrink-0" />
-                          </a>
-                        )}
-                        {listing.brochure_url && (
-                          <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer" download
-                            className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
-                            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                              <BookOpen className="h-4 w-4 text-primary" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold">Project Brochure</p>
-                              <p className="text-[10px] text-muted-foreground">Tap to download</p>
-                            </div>
-                            <Download className="h-4 w-4 text-primary shrink-0" />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  )}
 
                   {/* One-Pager Download — verified agents only */}
                   {isVerified && (
