@@ -38,7 +38,10 @@ import {
   FileText,
   BookOpen,
   Download,
+  TrendingUp,
+  Clock,
 } from "lucide-react";
+import { AssignmentManagementHero } from "@/components/assignments/AssignmentManagementHero";
 
 interface Listing {
   id: string;
@@ -646,43 +649,39 @@ export default function AdminListings() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">Assignment Management</h1>
-            <p className="text-muted-foreground">Manage, approve, and monitor all assignments</p>
-          </div>
-
-          <div className="flex items-center gap-3">
+        <AssignmentManagementHero
+          title="Assignment Management"
+          subtitle="Manage, approve, and monitor all assignments"
+          stats={[
+            { label: "Total", value: listings.length, icon: <Layers className="h-3.5 w-3.5 text-background" />, color: "bg-background/20" },
+            { label: "Published", value: publishedListings.length, icon: <TrendingUp className="h-3.5 w-3.5 text-green-400" />, color: "bg-green-500/20" },
+            { label: "Pending", value: pendingListings.length, icon: <Clock className="h-3.5 w-3.5 text-amber-400" />, color: "bg-amber-500/20" },
+            { label: "Featured", value: featuredListings.length, icon: <Star className="h-3.5 w-3.5 text-primary" />, color: "bg-primary/20" },
+          ]}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search by title, project, city, unit, or agent..."
+          alertBadges={<>
             {pendingListings.length > 0 && (
-              <Badge variant="destructive" className="px-3 py-1">
+              <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 px-3 py-1">
                 <AlertTriangle className="h-3.5 w-3.5 mr-1" />
-                {pendingListings.length} Pending Review
+                {pendingListings.length} Pending
               </Badge>
             )}
             {expiredListings.length > 0 && (
-              <Badge variant="secondary" className="px-3 py-1">
+              <Badge className="bg-background/10 text-background/60 border-background/20 px-3 py-1">
                 <FileX className="h-3.5 w-3.5 mr-1" />
                 {expiredListings.length} Expired
               </Badge>
             )}
+          </>}
+          actions={
             <Button onClick={() => setAddOpen(true)} className="gap-2">
               <Plus className="h-4 w-4" />
               Add Listing
             </Button>
-          </div>
-        </div>
-
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by title, project, city, unit, or agent..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+          }
+        />
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
