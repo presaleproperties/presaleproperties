@@ -1087,13 +1087,13 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
         .pill.pill-presale .pill-tail { border-top: 6px solid hsl(40, 45%, 16%); }
         
-        /* Assignment: warm gold bg, dark text */
+        /* Assignment: distinct teal/emerald bg to differentiate from presale gold */
         .pill.pill-assignment {
-          background: hsl(40, 65%, 55%);
-          color: hsl(40, 40%, 12%);
-          box-shadow: 0 2px 6px hsla(40, 65%, 35%, 0.3);
+          background: hsl(168, 55%, 38%);
+          color: white;
+          box-shadow: 0 2px 6px hsla(168, 55%, 25%, 0.35);
         }
-        .pill.pill-assignment .pill-tail { border-top: 6px solid hsl(40, 65%, 55%); }
+        .pill.pill-assignment .pill-tail { border-top: 6px solid hsl(168, 55%, 38%); }
         
         /* Move-in ready (resale): cream/light gold bg, dark text */
         .pill.pill-resale {
