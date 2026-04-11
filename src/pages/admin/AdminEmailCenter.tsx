@@ -401,6 +401,55 @@ function QuickSendPanel({
           </Button>
         </div>
       )}
+
+      {/* Preview Modal */}
+      {previewingCampaign && (() => {
+        let html = "";
+        try {
+          const fd = previewingCampaign.form_data;
+          if (fd?.vars) {
+            html = buildAiEmailHtml({
+              headline: fd.vars?.headline || "",
+              bodyCopy: fd.vars?.bodyCopy || "",
+              subjectLine: fd.vars?.subjectLine || "",
+              previewText: fd.vars?.previewText || "",
+              incentiveText: fd.vars?.incentiveText || "",
+              projectName: fd.vars?.projectName || previewingCampaign.project_name || "",
+              city: fd.vars?.city || "",
+              neighborhood: fd.vars?.neighborhood || "",
+              developerName: fd.vars?.developerName || "",
+              startingPrice: fd.vars?.startingPrice || "",
+              deposit: fd.vars?.deposit || "",
+              completion: fd.vars?.completion || "",
+            });
+          }
+        } catch {}
+        return (
+          <Dialog open onOpenChange={() => setPreviewingCampaign(null)}>
+            <DialogContent className="max-w-3xl max-h-[90vh]">
+              <DialogHeader>
+                <DialogTitle>{previewingCampaign.name || previewingCampaign.project_name}</DialogTitle>
+              </DialogHeader>
+              {previewingCampaign.form_data?.vars?.subjectLine && (
+                <p className="text-sm"><span className="font-medium">Subject:</span> {previewingCampaign.form_data.vars.subjectLine}</p>
+              )}
+              <iframe
+                srcDoc={html}
+                className="w-full border rounded-lg bg-white"
+                style={{ height: "60vh" }}
+                sandbox="allow-same-origin"
+                title="Template Preview"
+              />
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={() => setPreviewingCampaign(null)}>Close</Button>
+                <Button onClick={() => { setPreviewingCampaign(null); navigate(`/admin/email-builder?template=${previewingCampaign.id}`); }}>
+                  <ArrowUpRight className="h-4 w-4 mr-2" /> Edit in Builder
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
     </div>
   );
 }
