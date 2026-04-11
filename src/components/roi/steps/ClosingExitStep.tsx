@@ -284,7 +284,7 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
                 <Input
                   type="number"
                   value={exit.developerCredit || ''}
-                  onChange={(e) => updateInputs("developerCredit", parseInt(e.target.value) || 0)}
+                  onChange={(e) => updateInputs("developerCredit", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="pl-7 h-8 text-sm text-right"
                   placeholder="0"
                 />
@@ -303,8 +303,8 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
                 <Input
                   id="legalFees"
                   type="number"
-                  value={exit.legalFees}
-                  onChange={(e) => updateInputs("legalFees", parseInt(e.target.value) || 0)}
+                  value={exit.legalFees || ''}
+                  onChange={(e) => updateInputs("legalFees", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="pl-6 h-8 text-sm"
                 />
               </div>
@@ -316,8 +316,8 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
                 <Input
                   id="mortgageFees"
                   type="number"
-                  value={exit.mortgageFees}
-                  onChange={(e) => updateInputs("mortgageFees", parseInt(e.target.value) || 0)}
+                  value={exit.mortgageFees || ''}
+                  onChange={(e) => updateInputs("mortgageFees", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="pl-6 h-8 text-sm"
                 />
               </div>
