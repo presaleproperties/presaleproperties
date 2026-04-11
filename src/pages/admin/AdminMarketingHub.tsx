@@ -180,7 +180,7 @@ export default function AdminMarketingHub() {
               <div className="flex items-center justify-between mb-4">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Saved Work</p>
                 <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
-                  {(["emails", "flyers"] as const).map(tab => (
+                  {(["emails", "flyers", "social"] as const).map(tab => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
@@ -189,7 +189,11 @@ export default function AdminMarketingHub() {
                         activeTab === tab ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
                       )}
                     >
-                      {tab} ({tab === "emails" ? emailAssets.length : campaignAssets.length})
+                      {tab === "social" ? (
+                        <span className="flex items-center gap-1"><Share2 className="h-3 w-3" /> Social</span>
+                      ) : (
+                        <>{tab} ({tab === "emails" ? emailAssets.length : campaignAssets.length})</>
+                      )}
                     </button>
                   ))}
                 </div>
