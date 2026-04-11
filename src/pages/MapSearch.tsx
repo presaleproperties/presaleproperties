@@ -1989,9 +1989,16 @@ export default function MapSearch() {
                                 </div>
                               )
                             ) : isAssignment ? (
-                              <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
-                                <Building2 className="h-6 w-6 text-amber-500" />
-                              </div>
+                            (() => {
+                              const assignImg = (data as Assignment).featured_image || (data as Assignment).floor_plan_url;
+                              return assignImg ? (
+                                <img src={assignImg} alt={(data as Assignment).project_name} className={cn("w-full h-full object-cover", !isVerifiedAgent && "blur-lg")} loading="eager" />
+                              ) : (
+                                <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
+                                  <Building2 className="h-6 w-6 text-amber-500" />
+                                </div>
+                              );
+                            })()
                             ) : (
                               getResalePhoto(data as MLSListing) ? (
                                 <img 
@@ -2477,9 +2484,16 @@ export default function MapSearch() {
                               </div>
                             )
                           ) : isAssignment ? (
-                            <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
-                              <Building2 className="h-10 w-10 text-amber-500" />
-                            </div>
+                            (() => {
+                              const assignImg = (data as Assignment).featured_image || (data as Assignment).floor_plan_url;
+                              return assignImg ? (
+                                <img src={assignImg} alt={(data as Assignment).project_name} className={cn("w-full h-full object-cover group-hover:scale-105 transition-transform duration-300", !isVerifiedAgent && "blur-lg")} loading="lazy" />
+                              ) : (
+                                <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
+                                  <Building2 className="h-10 w-10 text-amber-500" />
+                                </div>
+                              );
+                            })()
                           ) : (
                             getResalePhoto(data as MLSListing) ? (
                               <img 
