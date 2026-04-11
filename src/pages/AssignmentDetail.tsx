@@ -59,6 +59,15 @@ interface ListingRow {
   description: string | null;
   developer_approval_required: boolean;
   status: string;
+  listing_agent_id: string | null;
+}
+
+interface ListingAgent {
+  full_name: string | null;
+  email: string;
+  phone: string | null;
+  avatar_url: string | null;
+  brokerage_name: string;
 }
 
 interface ProjectRow {
