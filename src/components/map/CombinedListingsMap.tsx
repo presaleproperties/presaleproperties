@@ -68,6 +68,7 @@ interface Assignment {
   map_lat: number | null;
   map_lng: number | null;
   featured_image?: string | null;
+  floor_plan_url?: string | null;
 }
 
 interface SavedMapState {
@@ -250,7 +251,7 @@ function presalePopupHtml(project: PresaleProject): string {
 function assignmentPopupHtml(assignment: Assignment, isVerified: boolean): string {
   const price = `$${assignment.assignment_price.toLocaleString()}`;
   const specs = `${assignment.beds} bd • ${assignment.baths} ba`;
-  const photo = assignment.featured_image || null;
+  const photo = assignment.featured_image || assignment.floor_plan_url || null;
   
   if (!isVerified) {
     return `
