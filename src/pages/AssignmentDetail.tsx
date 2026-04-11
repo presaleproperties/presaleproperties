@@ -852,12 +852,13 @@ export default function AssignmentDetail() {
         projectName={listing.project_name}
         price={priceFormatted}
         onInquireClick={() => setFormOpen(true)}
+        agentName={listingAgent?.full_name || undefined}
       />
 
       <AboutContactForm
         open={formOpen}
         onOpenChange={setFormOpen}
-        selectedAgentName={listing.title}
+        selectedAgentName={listingAgent?.full_name || listing.title}
       />
 
       {/* Off-screen one-pager template for html2canvas capture */}
