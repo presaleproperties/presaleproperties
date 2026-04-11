@@ -58,6 +58,7 @@ interface ListingRow {
   estimated_completion: string | null;
   description: string | null;
   developer_approval_required: boolean;
+  developer_credit: number | null;
   status: string;
   listing_agent_id: string | null;
 }
@@ -202,9 +203,7 @@ export default function AssignmentDetail() {
     ? listing.original_price - listing.assignment_price
     : null;
 
-  const premium = listing?.original_price && listing.assignment_price > listing.original_price
-    ? listing.assignment_price - listing.original_price
-    : null;
+  const developerCredit = listing?.developer_credit && listing.developer_credit > 0 ? listing.developer_credit : null;
 
   const handleDownloadOnePager = async () => {
     if (!onePagerRef.current || !listing) return;
