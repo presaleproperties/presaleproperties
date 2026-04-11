@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { SendEmailDialog } from "@/components/admin/SendEmailDialog";
+import { syncTemplateToDealsFlow } from "@/lib/syncTemplateToDealsFlow";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -1262,6 +1263,14 @@ export default function AdminEmailBuilder() {
         if (error) throw error;
         toast.success("Template saved!");
       }
+
+      // Sync to DealsFlow CRM (fire-and-forget)
+      syncTemplateToDealsFlow({
+        name: templateName.trim(),
+        subject: vars.subjectLine || templateName.trim(),
+        html: finalHtml,
+        project: vars.projectName || undefined,
+      });
       setSaveDialogOpen(false);
       setTemplateName("");
       setOverwriteId(null);
