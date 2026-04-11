@@ -701,10 +701,49 @@ export default function AssignmentDetail() {
 
                 <Separator className="my-4" />
 
-                <Button size="lg" className="w-full" onClick={() => setFormOpen(true)}>
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Inquire About This Unit
-                </Button>
+                {/* Agent CTA */}
+                {listingAgent ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                        {listingAgent.avatar_url ? (
+                          <img src={listingAgent.avatar_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-sm font-bold text-primary">
+                            {(listingAgent.full_name || "A").charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm truncate">{listingAgent.full_name || "Listing Agent"}</p>
+                        <p className="text-xs text-muted-foreground">Real Broker</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      {listingAgent.phone && (
+                        <a href={`tel:${listingAgent.phone}`} className="flex-1">
+                          <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
+                            <Phone className="h-3.5 w-3.5" />Call
+                          </Button>
+                        </a>
+                      )}
+                      <a href={`mailto:${listingAgent.email}?subject=Assignment Inquiry: ${listing.title}`} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
+                          <Mail className="h-3.5 w-3.5" />Email
+                        </Button>
+                      </a>
+                    </div>
+                    <Button size="lg" className="w-full" onClick={() => setFormOpen(true)}>
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Contact {listingAgent.full_name?.split(" ")[0] || "Agent"}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button size="lg" className="w-full" onClick={() => setFormOpen(true)}>
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Inquire About This Assignment
+                  </Button>
+                )}
               </CardContent>
             </Card>
 
