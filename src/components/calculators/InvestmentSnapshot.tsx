@@ -513,34 +513,6 @@ export function InvestmentSnapshot() {
                     </div>
                   </SectionCard>
 
-                  {/* Rent input */}
-                  {isFirstTimeBuyer ? (
-                    <SectionCard className="border-primary/25 bg-primary/3">
-                      <div className="p-4">
-                        <FieldLabel className="text-primary/80">Current Rent</FieldLabel>
-                        <Input
-                          type="text"
-                          inputMode="numeric"
-                          value={inputs.currentRent ? `$${inputs.currentRent.toLocaleString()}` : ''}
-                          onChange={(e) => updateInput('currentRent', Number(e.target.value.replace(/\D/g, '')) || 0)}
-                          className="mt-2 h-11 text-center font-bold border-primary/30 text-base"
-                          placeholder="$2,200"
-                        />
-                      </div>
-                    </SectionCard>
-                  ) : (
-                    <SectionCard className="border-green-200 bg-green-50/50">
-                      <div className="p-4">
-                        <FieldLabel className="text-green-700/80">Monthly Rent</FieldLabel>
-                        <Input
-                          type="number"
-                          value={inputs.monthlyRent}
-                          onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
-                          className="mt-2 h-11 text-center font-bold border-green-200 text-base"
-                        />
-                      </div>
-                    </SectionCard>
-                  )}
                 </div>
 
                 {/* ── Right: Results ── */}
@@ -579,6 +551,35 @@ export function InvestmentSnapshot() {
                     </div>
                     <div className="text-[13px] text-muted-foreground mt-1">per month</div>
                   </div>
+
+                  {/* Rent input */}
+                  {isFirstTimeBuyer ? (
+                    <SectionCard className="border-primary/25 bg-primary/3">
+                      <div className="p-4">
+                        <FieldLabel className="text-primary/80">Current Rent</FieldLabel>
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          value={inputs.currentRent ? `$${inputs.currentRent.toLocaleString()}` : ''}
+                          onChange={(e) => updateInput('currentRent', Number(e.target.value.replace(/\D/g, '')) || 0)}
+                          className="mt-2 h-11 text-center font-bold border-primary/30 text-base"
+                          placeholder="$2,200"
+                        />
+                      </div>
+                    </SectionCard>
+                  ) : (
+                    <SectionCard className="border-green-200 bg-green-50/50">
+                      <div className="p-4">
+                        <FieldLabel className="text-green-700/80">Monthly Rent</FieldLabel>
+                        <Input
+                          type="number"
+                          value={inputs.monthlyRent || ''}
+                          onChange={(e) => updateInput('monthlyRent', e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
+                          className="mt-2 h-11 text-center font-bold border-green-200 text-base"
+                        />
+                      </div>
+                    </SectionCard>
+                  )}
 
                   {/* Monthly Breakdown */}
                   <SectionCard>
