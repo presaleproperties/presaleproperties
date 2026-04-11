@@ -27,7 +27,7 @@ serve(async (req) => {
     // Fetch project
     const { data: project, error: projErr } = await supabase
       .from("presale_projects")
-      .select("name, city, neighborhood, starting_price, price_range, featured_image, gallery_images, developer_name, highlights, short_description")
+      .select("name, city, neighborhood, starting_price, price_range, featured_image, gallery_images, developer_name, highlights, short_description, incentives, completion_year, deposit_structure, deposit_percent")
       .eq("id", projectId)
       .single();
 
@@ -61,7 +61,15 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a real estate social media copywriter. Write engaging Facebook post copy for presale condo projects. Be professional but exciting. Use emojis sparingly. Include relevant hashtags.`,
+            content: `You are a real estate social media copywriter specializing in presale condo and townhome ads. Write punchy, high-converting Facebook ad copy.
+
+STYLE REFERENCE — headlines should be SHORT and BOLD like these real examples:
+- "$70,000+ OFF"  
+- "5% OFF"
+- "Your Family's First Home Starts With 5% Down."
+- "Starting From $639,900"
+
+Focus on the strongest selling point: price, discount, deposit structure, or location value.`,
           },
           {
             role: "user",
@@ -72,8 +80,9 @@ Developer: ${project.developer_name || "N/A"}
 Price: ${price}
 Highlights: ${(project.highlights || []).join(", ")}
 Description: ${project.short_description || ""}
+${project.incentives ? `Incentives: ${project.incentives}` : ""}
 
-Return the copy text ready to paste into Facebook.`,
+Return the copy text ready to paste into Facebook. The headline for the graphic should be the BIGGEST selling point (discount, price, deposit) — short and punchy like "$70,000+ OFF" or "From $399,900".`,
           },
         ],
         tools: [
@@ -85,11 +94,12 @@ Return the copy text ready to paste into Facebook.`,
               parameters: {
                 type: "object",
                 properties: {
-                  caption: { type: "string", description: "The full Facebook post caption text with emojis and hashtags" },
-                  headline: { type: "string", description: "A short bold headline for the graphic overlay (max 8 words)" },
-                  cta: { type: "string", description: "Call to action text (e.g. 'Register Now', 'Book Your Tour')" },
+                  caption: { type: "string", description: "The full Facebook post caption text with emojis and hashtags, ready to paste" },
+                  headline: { type: "string", description: "The BIG bold text for the graphic — short and punchy, max 5 words. Examples: '$70,000+ OFF', 'From $399,900', '5% Down'" },
+                  subline: { type: "string", description: "Secondary line below headline. Examples: 'New Condos from $399,900', 'Brand New Townhomes | Move In 2026'" },
+                  cta: { type: "string", description: "Call to action text for a button. Examples: 'Floor Plans & Pricing', 'Register Now', 'Next 10 Units'" },
                 },
-                required: ["caption", "headline", "cta"],
+                required: ["caption", "headline", "subline", "cta"],
               },
             },
           },
@@ -123,19 +133,28 @@ Return the copy text ready to paste into Facebook.`,
     console.log("Copy generated, now generating graphic...");
 
     // Step 2: Generate graphic with text overlay on real project image
-    const overlayPrompt = `Take this real estate project photo and create a bold, modern social media graphic for ${formatLabel}.
+    const incentive = project.highlights?.find((h: string) => /off|discount|incentive|bonus|free/i.test(h)) || "";
+    
+    const overlayPrompt = `Edit this real estate project photo to create a professional social media ad graphic (${formatLabel}).
 
-Apply these edits to the image:
-- Add a dramatic dark gradient overlay from bottom (70% opacity) fading to transparent at top
-- Add large, bold white text at the bottom: "${copy.headline}"
-- Below the headline, add the price "${price}" in a slightly smaller bold font
-- Add a bright colored button/badge with "${copy.cta}" text
-- Add "${project.neighborhood}, ${project.city}" as smaller text above the headline
-- Keep the top portion of the image visible and clean
-- Make it look like a professional real estate ad
-- The text should be crisp, legible, and well-composed
-- Use a modern sans-serif font style
-- Do NOT add any watermarks`;
+EXACT STYLE TO FOLLOW — this is a premium real estate ad:
+
+1. KEEP the original photo as the main background — do NOT regenerate or alter the building/property image. Only add overlays and text ON TOP of the existing photo.
+
+2. Add a SOLID warm orange/amber colored bar at the bottom portion of the image (roughly bottom 25-30% for post, bottom 20% for story). The bar should be opaque, not transparent.
+
+3. On the orange bar, add LARGE BOLD WHITE TEXT showing the key offer:
+   - Main headline: "${copy.headline}" — make this HUGE, bold, impactful (biggest text on the image)
+   - Sub-line: "${copy.subline || `From ${price}`}"
+   - Small CTA text at bottom-right: "${copy.cta}" with a small arrow icon
+
+4. Above the orange bar, on the photo itself, add a small clean white rectangular badge with dark text showing: "${project.neighborhood}, ${project.city}"
+
+5. Keep the top portion of the photo CLEAN — no text or overlays there except optionally a small logo mark in the top-left corner
+
+6. Typography should be BOLD, condensed, modern sans-serif. The price/offer text should be the largest element.
+7. Everything must be crisp, legible, professional — like a Facebook real estate ad from a major developer
+8. Do NOT add any watermarks or AI-related text`;
 
     const imageResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
