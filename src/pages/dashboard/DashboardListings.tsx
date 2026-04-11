@@ -42,7 +42,12 @@ import {
   BookOpen,
   Wand2,
   Globe,
+  Layers,
+  TrendingUp,
+  Clock,
+  Star,
 } from "lucide-react";
+import { AssignmentManagementHero } from "@/components/assignments/AssignmentManagementHero";
 import {
   DropdownMenu,
   DropdownMenuContent,
