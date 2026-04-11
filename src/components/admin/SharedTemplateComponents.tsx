@@ -205,11 +205,16 @@ export function TemplateQuickSendDialog({
   const [recipients, setRecipients] = useState<Array<{ email: string; name: string; firstName?: string }>>([]);
   const [manualEmail, setManualEmail] = useState("");
   const [sending, setSending] = useState(false);
+  const [subjectLine, setSubjectLine] = useState("");
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     if (!open) { setQuery(""); setSearchResults([]); setRecipients([]); setManualEmail(""); }
-  }, [open]);
+    if (open && asset) {
+      const fd = asset.form_data;
+      setSubjectLine(fd?.vars?.subjectLine || fd?.copy?.subjectLine || asset.name || "");
+    }
+  }, [open, asset]);
 
   useEffect(() => {
     if (!query || query.length < 2) { setSearchResults([]); return; }
@@ -254,7 +259,7 @@ export function TemplateQuickSendDialog({
     setSending(true);
     try {
       const html = getSavedHtml(asset);
-      const subject = asset.form_data?.vars?.subjectLine || asset.form_data?.copy?.subjectLine || asset.name;
+      const subject = subjectLine.trim() || asset.name;
       if (!html || !subject) { toast.error("Template has no content"); setSending(false); return; }
 
       const { data, error } = await supabase.functions.invoke("send-builder-email", {
@@ -298,8 +303,23 @@ export function TemplateQuickSendDialog({
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          {/* Subject line - editable */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold text-muted-foreground">Subject Line</p>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                value={subjectLine}
+                onChange={e => setSubjectLine(e.target.value)}
+                placeholder="Email subject line…"
+                className="pl-9 h-9 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Recipients */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground">Add Recipients</p>
+            <p className="text-xs font-semibold text-muted-foreground">Recipients</p>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search leads by name or email…" className="pl-9 h-9 text-sm" />

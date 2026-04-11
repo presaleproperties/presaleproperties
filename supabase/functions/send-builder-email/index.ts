@@ -122,8 +122,22 @@ serve(async (req) => {
 
         const trackingId = logEntry?.tracking_id;
 
-        // Inject tracking pixel into HTML before </body>
+        // Personalize HTML content
         let personalizedHtml = personalizeContent(html, personalizedFirstName);
+
+        // Rewrite links for click tracking
+        if (trackingId) {
+          personalizedHtml = personalizedHtml.replace(
+            /href="(https?:\/\/[^"]+)"/gi,
+            (_match: string, linkUrl: string) => {
+              if (linkUrl.includes("track-email-open")) return `href="${linkUrl}"`;
+              const clickUrl = `${trackingBaseUrl}?tid=${trackingId}&t=click&url=${encodeURIComponent(linkUrl)}`;
+              return `href="${clickUrl}"`;
+            }
+          );
+        }
+
+        // Inject tracking pixel into HTML before </body>
         if (trackingId) {
           const pixelUrl = `${trackingBaseUrl}?tid=${trackingId}`;
           const pixelTag = `<img src="${pixelUrl}" width="1" height="1" style="display:none;width:1px;height:1px;border:0;" alt="" />`;

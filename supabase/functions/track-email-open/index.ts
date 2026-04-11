@@ -21,16 +21,22 @@ const handler = async (req: Request): Promise<Response> => {
     },
   });
 
+  const redirectResponse = (url: string) => new Response(null, {
+    status: 302,
+    headers: { "Location": url },
+  });
+
   try {
     const url = new URL(req.url);
     const trackingId = url.searchParams.get("tid"); // email_logs tracking_id
     const alertId = url.searchParams.get("aid");
     const clientId = url.searchParams.get("cid");
     const type = url.searchParams.get("t") || "open";
+    const clickUrl = url.searchParams.get("url"); // destination URL for click tracking
 
     if (!trackingId && !alertId && !clientId) {
       console.log("No tracking ID provided");
-      return pixelResponse();
+      return clickUrl ? redirectResponse(clickUrl) : pixelResponse();
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -39,48 +45,78 @@ const handler = async (req: Request): Promise<Response> => {
 
     const now = new Date().toISOString();
 
-    // Track email_logs open via tracking_id
+    // ── Track via tracking_id (email_logs) ──
     if (trackingId) {
-      // Get current log entry
       const { data: logEntry } = await supabase
         .from("email_logs")
-        .select("id, opened_at, open_count")
+        .select("id, opened_at, open_count, clicked_at, click_count, email_to, subject")
         .eq("tracking_id", trackingId)
         .single();
 
       if (logEntry) {
-        const isFirstOpen = !logEntry.opened_at;
-        const newCount = (logEntry.open_count || 0) + 1;
+        if (type === "click") {
+          // ── Click tracking ──
+          const isFirstClick = !logEntry.clicked_at;
+          const newClickCount = (logEntry.click_count || 0) + 1;
 
-        await supabase
-          .from("email_logs")
-          .update({
-            ...(isFirstOpen ? { opened_at: now } : {}),
-            open_count: newCount,
-            last_opened_at: now,
-          })
-          .eq("id", logEntry.id);
-
-        console.log(`Tracked email open for tracking_id ${trackingId} (open #${newCount})`);
-
-        // If re-open (2nd+ open), notify admin
-        if (!isFirstOpen && newCount >= 2) {
-          const { data: emailLog } = await supabase
+          await supabase
             .from("email_logs")
-            .select("email_to, subject")
-            .eq("id", logEntry.id)
-            .single();
+            .update({
+              ...(isFirstClick ? { clicked_at: now } : {}),
+              click_count: newClickCount,
+              last_clicked_at: now,
+              clicked_url: clickUrl || null,
+              // Also count as an open if not already opened
+              ...((!logEntry.opened_at) ? { opened_at: now } : {}),
+              open_count: Math.max((logEntry.open_count || 0), 1),
+            })
+            .eq("id", logEntry.id);
 
-          if (emailLog) {
+          console.log(`Tracked click for tracking_id ${trackingId} (click #${newClickCount}, url: ${clickUrl})`);
+
+          // Notify admin on first click — high-intent signal
+          if (isFirstClick) {
+            await supabase.from("notifications_queue").insert({
+              recipient_email: "info@presaleproperties.com",
+              recipient_type: "admin",
+              notification_type: "email_clicked",
+              subject: `🔗 Email Link Clicked: ${logEntry.email_to}`,
+              body: `${logEntry.email_to} clicked a link in "${logEntry.subject}". URL: ${clickUrl || "unknown"}`,
+              metadata: {
+                email_log_id: logEntry.id,
+                email_to: logEntry.email_to,
+                clicked_url: clickUrl,
+                click_count: newClickCount,
+              },
+            });
+          }
+        } else {
+          // ── Open tracking ──
+          const isFirstOpen = !logEntry.opened_at;
+          const newCount = (logEntry.open_count || 0) + 1;
+
+          await supabase
+            .from("email_logs")
+            .update({
+              ...(isFirstOpen ? { opened_at: now } : {}),
+              open_count: newCount,
+              last_opened_at: now,
+            })
+            .eq("id", logEntry.id);
+
+          console.log(`Tracked email open for tracking_id ${trackingId} (open #${newCount})`);
+
+          // If re-open (2nd+ open), notify admin
+          if (!isFirstOpen && newCount >= 2) {
             await supabase.from("notifications_queue").insert({
               recipient_email: "info@presaleproperties.com",
               recipient_type: "admin",
               notification_type: "email_reopened",
-              subject: `🔁 Email Re-opened: ${emailLog.email_to}`,
-              body: `${emailLog.email_to} re-opened "${emailLog.subject}" (open #${newCount}).`,
+              subject: `🔁 Email Re-opened: ${logEntry.email_to}`,
+              body: `${logEntry.email_to} re-opened "${logEntry.subject}" (open #${newCount}).`,
               metadata: {
                 email_log_id: logEntry.id,
-                email_to: emailLog.email_to,
+                email_to: logEntry.email_to,
                 open_count: newCount,
               },
             });
@@ -109,15 +145,26 @@ const handler = async (req: Request): Promise<Response> => {
 
       await supabase.from("client_activity").insert({
         client_id: clientId,
-        activity_type: "email_open",
-        page_url: req.headers.get("referer") || null,
+        activity_type: type === "click" ? "email_click" : "email_open",
+        page_url: clickUrl || req.headers.get("referer") || null,
         created_at: now,
       });
+    }
+
+    // For click tracking, redirect to the destination URL
+    if (type === "click" && clickUrl) {
+      return redirectResponse(clickUrl);
     }
 
     return pixelResponse();
   } catch (error) {
     console.error("Tracking error:", error);
+    // For clicks, try to redirect even on error
+    try {
+      const url = new URL(req.url);
+      const clickUrl = url.searchParams.get("url");
+      if (clickUrl) return redirectResponse(clickUrl);
+    } catch { /* ignore */ }
     return pixelResponse();
   }
 };

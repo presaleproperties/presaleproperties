@@ -4,7 +4,8 @@ import { sendEmail } from "../_shared/gmail-smtp.ts";
 
 /**
  * Send a campaign template email to an onboarded lead.
- * Body: { leadId: string, templateId: string }
+ * Body: { leadId: string, templateId: string, htmlOverride?: string }
+ * Now injects open tracking pixel + rewrites links for click tracking.
  */
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -82,6 +83,23 @@ Deno.serve(async (req) => {
     const firstName = lead.first_name || "there";
     const copy = fd.copy || {};
     const subjectLine = copy.subjectLine || fd.projectName || template.project_name || "New Development";
+
+    // ── Create email log FIRST to get tracking_id ──
+    const { data: logEntry } = await supabase
+      .from("email_logs")
+      .insert({
+        email_to: lead.email,
+        subject: subjectLine,
+        status: "queued",
+        template_type: "campaign_template",
+        recipient_name: `${lead.first_name} ${lead.last_name}`.trim(),
+        sent_by: user.id,
+      })
+      .select("id, tracking_id")
+      .single();
+
+    const trackingId = logEntry?.tracking_id;
+    const trackingBaseUrl = `${supabaseUrl}/functions/v1/track-email-open`;
 
     // If the client passed pre-rendered HTML from the Marketing Hub builder, use it directly
     let html: string;
@@ -161,6 +179,30 @@ ${floorPlanRows ? `<tr><td style="padding:0 32px 16px;"><p style="margin:0 0 12p
 </body></html>`;
     }
 
+    // ── Rewrite links for click tracking ──
+    if (trackingId) {
+      html = html.replace(
+        /href="(https?:\/\/[^"]+)"/gi,
+        (_match, url) => {
+          // Skip tracking pixel URL and mailto links
+          if (url.includes("track-email-open")) return `href="${url}"`;
+          const clickUrl = `${trackingBaseUrl}?tid=${trackingId}&t=click&url=${encodeURIComponent(url)}`;
+          return `href="${clickUrl}"`;
+        }
+      );
+    }
+
+    // ── Inject open tracking pixel ──
+    if (trackingId) {
+      const pixelUrl = `${trackingBaseUrl}?tid=${trackingId}`;
+      const pixelTag = `<img src="${pixelUrl}" width="1" height="1" style="display:none;width:1px;height:1px;border:0;" alt="" />`;
+      if (html.includes("</body>")) {
+        html = html.replace("</body>", `${pixelTag}</body>`);
+      } else {
+        html += pixelTag;
+      }
+    }
+
     const result = await sendEmail({
       to: lead.email,
       subject: subjectLine.replace(/\{first_name\}/gi, firstName),
@@ -169,20 +211,19 @@ ${floorPlanRows ? `<tr><td style="padding:0 32px 16px;"><p style="margin:0 0 12p
     });
 
     if (!result.success) {
+      // Update log to failed
+      if (logEntry) {
+        await supabase.from("email_logs").update({ status: "failed", error_message: result.error }).eq("id", logEntry.id);
+      }
       return new Response(JSON.stringify({ error: result.error }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Log
-    await supabase.from("email_logs").insert({
-      email_to: lead.email,
-      subject: subjectLine,
-      status: "sent",
-      template_type: "campaign_template",
-      recipient_name: `${lead.first_name} ${lead.last_name}`.trim(),
-      sent_by: user.id,
-    });
+    // Update log to sent
+    if (logEntry) {
+      await supabase.from("email_logs").update({ status: "sent" }).eq("id", logEntry.id);
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },

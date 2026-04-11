@@ -41,6 +41,10 @@ interface EmailLog {
   open_count: number;
   last_opened_at: string | null;
   tracking_id: string | null;
+  clicked_at: string | null;
+  click_count: number;
+  last_clicked_at: string | null;
+  clicked_url: string | null;
 }
 
 interface AutomationWorkflow {
@@ -147,15 +151,17 @@ function DashboardStats({ logs }: { logs: EmailLog[] }) {
   const failed = logs.filter(l => l.status === "failed").length;
   const opened = logs.filter(l => l.opened_at).length;
   const openRate = sent > 0 ? Math.round((opened / sent) * 100) : 0;
+  const clicked = logs.filter(l => l.clicked_at).length;
+  const clickRate = sent > 0 ? Math.round((clicked / sent) * 100) : 0;
   const reopened = logs.filter(l => l.open_count >= 2).length;
 
   const stats = [
     { label: "Total Sent", value: sent, icon: <Send className="h-4 w-4 text-emerald-500" />, color: "text-emerald-600" },
     { label: "Opened", value: opened, icon: <MailOpen className="h-4 w-4 text-blue-500" />, color: "text-blue-600" },
     { label: "Open Rate", value: `${openRate}%`, icon: <TrendingUp className="h-4 w-4 text-violet-500" />, color: "text-violet-600" },
+    { label: "Clicked", value: `${clicked} (${clickRate}%)`, icon: <Zap className="h-4 w-4 text-orange-500" />, color: "text-orange-600" },
     { label: "Re-opened", value: reopened, icon: <RefreshCw className="h-4 w-4 text-amber-500" />, color: "text-amber-600" },
     { label: "Failed", value: failed, icon: <XCircle className="h-4 w-4 text-red-500" />, color: failed > 0 ? "text-red-600" : "text-muted-foreground" },
-    { label: "Total", value: total, icon: <BarChart3 className="h-4 w-4 text-muted-foreground" />, color: "text-foreground" },
   ];
 
   return (
@@ -193,7 +199,8 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
     const matchOpen = openFilter === "all"
       || (openFilter === "opened" && l.opened_at)
       || (openFilter === "unopened" && !l.opened_at && l.status === "sent")
-      || (openFilter === "reopened" && l.open_count >= 2);
+      || (openFilter === "reopened" && l.open_count >= 2)
+      || (openFilter === "clicked" && l.clicked_at);
     return matchSearch && matchStatus && matchOpen;
   });
 
@@ -220,6 +227,7 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
             <SelectItem value="opened">Opened</SelectItem>
             <SelectItem value="unopened">Unopened</SelectItem>
             <SelectItem value="reopened">Re-opened</SelectItem>
+            <SelectItem value="clicked">Clicked</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -230,12 +238,12 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
         <div className="text-center py-12 text-muted-foreground text-sm">No emails found</div>
       ) : (
         <div className="border border-border rounded-lg overflow-hidden">
-          <div className="grid grid-cols-[1fr_1fr_70px_80px_70px_80px_40px] gap-0 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted/30 px-4 py-2 border-b border-border">
-            <span>Recipient</span><span>Subject</span><span>Status</span><span>Opens</span><span>Last Open</span><span>Sent</span><span></span>
+          <div className="grid grid-cols-[1fr_1fr_70px_80px_60px_70px_80px_40px] gap-0 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted/30 px-4 py-2 border-b border-border">
+            <span>Recipient</span><span>Subject</span><span>Status</span><span>Opens</span><span>Clicks</span><span>Last Open</span><span>Sent</span><span></span>
           </div>
           <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
             {filtered.slice(0, 200).map(log => (
-              <div key={log.id} className="grid grid-cols-[1fr_1fr_70px_80px_70px_80px_40px] gap-0 px-4 py-2.5 hover:bg-muted/20 transition-colors items-center group">
+              <div key={log.id} className="grid grid-cols-[1fr_1fr_70px_80px_60px_70px_80px_40px] gap-0 px-4 py-2.5 hover:bg-muted/20 transition-colors items-center group">
                 <div className="min-w-0 pr-2">
                   <p className="text-sm font-medium truncate">{log.recipient_name || log.email_to.split("@")[0]}</p>
                   <p className="text-[11px] text-muted-foreground truncate">{log.email_to}</p>
@@ -251,6 +259,16 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
                   ) : log.status === "sent" ? (
                     <span className="text-[10px] text-muted-foreground">—</span>
                   ) : null}
+                </span>
+                <span className="flex items-center gap-1">
+                  {log.clicked_at ? (
+                    <>
+                      <Zap className="h-3 w-3 text-orange-500" />
+                      <span className="text-xs font-medium text-orange-600">{log.click_count}×</span>
+                    </>
+                  ) : (
+                    <span className="text-[10px] text-muted-foreground">—</span>
+                  )}
                 </span>
                 <span className="text-[10px] text-muted-foreground">
                   {log.last_opened_at ? timeAgo(log.last_opened_at) : "—"}
