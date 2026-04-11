@@ -460,10 +460,20 @@ export default function DashboardListings() {
   };
 
   const filteredListings = listings.filter((listing) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "active") return listing.status === "published";
-    if (activeTab === "pending") return listing.status === "pending_approval" || listing.status === "pending_payment";
-    if (activeTab === "drafts") return listing.status === "draft";
+    // Tab filter
+    if (activeTab === "active" && listing.status !== "published") return false;
+    if (activeTab === "pending" && listing.status !== "pending_approval" && listing.status !== "pending_payment") return false;
+    if (activeTab === "drafts" && listing.status !== "draft") return false;
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      if (!(
+        listing.title?.toLowerCase().includes(q) ||
+        listing.project_name?.toLowerCase().includes(q) ||
+        listing.city?.toLowerCase().includes(q) ||
+        listing.unit_number?.toLowerCase().includes(q)
+      )) return false;
+    }
     return true;
   });
 
