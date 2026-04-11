@@ -96,6 +96,7 @@ export function AssignmentPreviewModal({
   const [photos, setPhotos] = useState<string[]>([]);
   const [files, setFiles] = useState<{ url: string; file_name: string | null; file_type: string }[]>([]);
   const [loadingPhotos, setLoadingPhotos] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(0);
 
   useEffect(() => {
     if (listing?.id && open) {
@@ -103,12 +104,16 @@ export function AssignmentPreviewModal({
     }
   }, [listing?.id, open]);
 
+  useEffect(() => {
+    setSelectedPhoto(0);
+  }, [listing?.id]);
+
   const fetchPhotosAndFiles = async () => {
     if (!listing) return;
     
     setLoadingPhotos(true);
     try {
-      const [photosRes, filesRes] = await Promise.all([
+      const [photosRes, filesRes, projectRes] = await Promise.all([
         supabase
           .from("listing_photos" as any)
           .select("url")
@@ -118,9 +123,21 @@ export function AssignmentPreviewModal({
           .from("listing_files" as any)
           .select("url, file_name, file_type")
           .eq("listing_id", listing.id),
+        listing.project_id
+          ? (supabase as any).from("presale_projects").select("featured_image, gallery_images").eq("id", listing.project_id).maybeSingle()
+          : Promise.resolve({ data: null }),
       ]);
 
-      setPhotos((photosRes.data as any[])?.map((p: any) => p.url) || []);
+      const listingPhotos = (photosRes.data as any[])?.map((p: any) => p.url) || [];
+      const listingOwnPhotos = [...(listing.photos || []), ...listingPhotos].filter(Boolean);
+      const projectPhotos = [
+        ...(projectRes.data?.gallery_images || []),
+        ...(projectRes.data?.featured_image ? [projectRes.data.featured_image] : []),
+      ].filter(Boolean);
+      const featuredImg = listing.featured_image ? [listing.featured_image] : [];
+      
+      const allPhotos = [...new Set([...listingOwnPhotos, ...featuredImg, ...projectPhotos])];
+      setPhotos(allPhotos);
       setFiles((filesRes.data as any[]) || []);
     } catch (error) {
       console.error("Error fetching photos/files:", error);
