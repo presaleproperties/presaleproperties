@@ -1,72 +1,20 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  Mail, FileText, Plus, Clock, Trash2, Copy, Eye, Send,
-  ChevronRight, Building2, Star, Megaphone, ExternalLink,
-  Search, Loader2, User, X,
+  Mail, FileText, Plus, ChevronRight, Building2, Star, Megaphone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { buildAiEmailHtml, type AiEmailCopy } from "@/components/admin/AiEmailTemplate";
-
-interface SavedAsset {
-  id: string;
-  name: string;
-  project_name: string;
-  thumbnail_url: string | null;
-  form_data: any;
-  created_at: string;
-  updated_at: string;
-  tags: string[] | null;
-}
-
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  const hrs = Math.floor(mins / 60);
-  const days = Math.floor(hrs / 24);
-  if (days > 0) return `${days}d ago`;
-  if (hrs > 0) return `${hrs}h ago`;
-  if (mins > 0) return `${mins}m ago`;
-  return "Just now";
-}
-
-function getDisplayName(asset: SavedAsset): string {
-  return asset.form_data?.copy?.subjectLine || asset.name;
-}
-
-function getSavedHtml(asset: SavedAsset): string {
-  const fd = asset.form_data;
-  // Use the exact saved/rendered HTML if available
-  if (fd?.finalHtml) return fd.finalHtml;
-  // Fallback: rebuild from vars
-  try {
-    if (!fd?.vars) return "";
-    const copy: AiEmailCopy = {
-      headline: fd.vars?.headline || "",
-      bodyCopy: fd.vars?.bodyCopy || "",
-      subjectLine: fd.vars?.subjectLine || "",
-      previewText: fd.vars?.previewText || "",
-      incentiveText: fd.vars?.incentiveText || "",
-      projectName: fd.vars?.projectName || asset.project_name || "",
-      city: fd.vars?.city || "",
-      neighborhood: fd.vars?.neighborhood || "",
-      developerName: fd.vars?.developerName || "",
-      startingPrice: fd.vars?.startingPrice || "",
-      deposit: fd.vars?.deposit || "",
-      completion: fd.vars?.completion || "",
-    };
-    return buildAiEmailHtml(copy);
-  } catch {
-    return "";
-  }
-}
+import type { SavedAsset } from "@/lib/emailTemplateHelpers";
+import {
+  TemplateCard,
+  TemplatePreviewDialog,
+  TemplateQuickSendDialog,
+} from "@/components/admin/SharedTemplateComponents";
 
 const CREATE_OPTIONS = [
   {
@@ -101,232 +49,6 @@ const CREATE_OPTIONS = [
   },
 ];
 
-// ── Quick Send Dialog ──────────────────────────────────────────
-function QuickSendDialog({
-  asset,
-  open,
-  onOpenChange,
-  onSent,
-}: {
-  asset: SavedAsset | null;
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  onSent: () => void;
-}) {
-  const [query, setQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Array<{ id: string; name: string; firstName?: string; email: string; source: string }>>([]);
-  const [searching, setSearching] = useState(false);
-  const [recipients, setRecipients] = useState<Array<{ email: string; name: string; firstName?: string }>>([]);
-  const [manualEmail, setManualEmail] = useState("");
-  const [sending, setSending] = useState(false);
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>();
-
-  // Reset on close
-  useEffect(() => {
-    if (!open) {
-      setQuery("");
-      setSearchResults([]);
-      setRecipients([]);
-      setManualEmail("");
-    }
-  }, [open]);
-
-  // Debounced lead search
-  useEffect(() => {
-    if (!query || query.length < 2) { setSearchResults([]); return; }
-    clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(async () => {
-      setSearching(true);
-      const term = `%${query}%`;
-      const [leadsRes, clientsRes] = await Promise.all([
-        supabase.from("project_leads").select("id, name, email, phone").or(`name.ilike.${term},email.ilike.${term}`).limit(8),
-        supabase.from("clients").select("id, first_name, last_name, email").or(`first_name.ilike.${term},last_name.ilike.${term},email.ilike.${term}`).limit(8),
-      ]);
-      const mapped: typeof searchResults = [];
-      const seen = new Set<string>();
-      if (leadsRes.data) for (const l of leadsRes.data) {
-        if (!seen.has(l.email)) { seen.add(l.email); mapped.push({ id: l.id, name: l.name, firstName: l.name?.trim().split(/\s+/)[0], email: l.email, source: "lead" }); }
-      }
-      if (clientsRes.data) for (const c of clientsRes.data) {
-        if (!seen.has(c.email)) { seen.add(c.email); mapped.push({ id: c.id, name: [c.first_name, c.last_name].filter(Boolean).join(" ") || c.email, firstName: c.first_name ?? undefined, email: c.email, source: "client" }); }
-      }
-      setSearchResults(mapped);
-      setSearching(false);
-    }, 300);
-    return () => clearTimeout(searchTimer.current);
-  }, [query]);
-
-  const addRecipient = (r: typeof searchResults[0]) => {
-    if (recipients.some(rec => rec.email === r.email)) return;
-    setRecipients(prev => [...prev, { email: r.email, name: r.name, firstName: r.firstName }]);
-    setQuery(""); setSearchResults([]);
-  };
-
-  const addManual = () => {
-    const email = manualEmail.trim().toLowerCase();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
-    if (recipients.some(r => r.email === email)) return;
-    setRecipients(prev => [...prev, { email, name: email.split("@")[0], firstName: email.split("@")[0] }]);
-    setManualEmail("");
-  };
-
-  const handleSend = async () => {
-    if (!recipients.length) { toast.error("Add at least one recipient"); return; }
-    if (!asset) return;
-    setSending(true);
-    try {
-      const html = getSavedHtml(asset);
-      const subject = asset.form_data?.vars?.subjectLine || asset.form_data?.copy?.subjectLine || asset.name;
-      if (!html || !subject) { toast.error("Template has no content"); setSending(false); return; }
-
-      const { data, error } = await supabase.functions.invoke("send-builder-email", {
-        body: {
-          subject,
-          html,
-          recipients: recipients.map(r => ({ email: r.email, name: r.name, firstName: r.firstName })),
-        },
-      });
-      if (error) throw error;
-      toast.success(`✅ Sent to ${data.sent} recipient${data.sent > 1 ? "s" : ""}`);
-
-      // Update last_sent_at
-      await (supabase as any).from("campaign_templates").update({ last_sent_at: new Date().toISOString() }).eq("id", asset.id);
-
-      // Sync send activity to DealsFlow CRM (fire-and-forget)
-      const templateName = getDisplayName(asset);
-      for (const r of recipients) {
-        fetch("https://cplycyfgywxhlecazvra.supabase.co/functions/v1/lead-webhook?source=email-send", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Webhook-Secret": "presale-leads-2026" },
-          body: JSON.stringify({
-            name: r.name || "",
-            email: r.email || "",
-            source: "marketing-hub",
-            project: templateName,
-          }),
-        }).catch(() => {});
-      }
-
-      onSent();
-      onOpenChange(false);
-    } catch (e: any) {
-      toast.error(e.message || "Failed to send");
-    } finally {
-      setSending(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Send className="h-4 w-4 text-primary" />
-            Quick Send: {asset ? getDisplayName(asset) : ""}
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          {/* Search leads */}
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground">Add Recipients</p>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                placeholder="Search leads by name or email…"
-                className="pl-9 h-9 text-sm"
-              />
-              {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-muted-foreground" />}
-            </div>
-
-            {searchResults.length > 0 && (
-              <div className="border border-border rounded-lg max-h-[160px] overflow-y-auto divide-y divide-border bg-background shadow-sm">
-                {searchResults.map(r => {
-                  const added = recipients.some(rec => rec.email === r.email);
-                  return (
-                    <button key={r.id} onClick={() => addRecipient(r)} disabled={added}
-                      className={cn("w-full text-left px-3 py-2 flex items-center gap-3 text-sm transition-colors", added ? "opacity-40" : "hover:bg-muted/50")}>
-                      <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0">
-                        <User className="h-3.5 w-3.5 text-muted-foreground" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-xs truncate">{r.name}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">{r.email}</p>
-                      </div>
-                      <Badge variant="outline" className="text-[9px] shrink-0">{r.source}</Badge>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input value={manualEmail} onChange={e => setManualEmail(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && addManual()}
-                  placeholder="Or type an email…" className="pl-9 h-8 text-xs" />
-              </div>
-              <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={addManual}>
-                <Plus className="h-3 w-3" /> Add
-              </Button>
-            </div>
-
-            {recipients.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {recipients.map(r => (
-                  <Badge key={r.email} variant="secondary" className="gap-1 pr-1 text-xs font-normal">
-                    <span className="truncate max-w-[160px]">{r.name}</span>
-                    <button onClick={() => setRecipients(prev => prev.filter(p => p.email !== r.email))}
-                      className="ml-0.5 h-4 w-4 rounded-full hover:bg-destructive/20 flex items-center justify-center">
-                      <X className="h-2.5 w-2.5" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Send button */}
-          <Button className="w-full h-10 gap-2 font-semibold" onClick={handleSend} disabled={sending || recipients.length === 0}>
-            {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Sending…</> : <><Send className="h-4 w-4" />Send to {recipients.length} recipient{recipients.length !== 1 ? "s" : ""}</>}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ── Preview Dialog ──────────────────────────────────────────────
-function PreviewDialog({ asset, open, onOpenChange }: { asset: SavedAsset | null; open: boolean; onOpenChange: (v: boolean) => void }) {
-  const html = asset ? getSavedHtml(asset) : "";
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle>{asset ? getDisplayName(asset) : ""}</DialogTitle>
-        </DialogHeader>
-        {asset?.form_data?.vars?.subjectLine && (
-          <p className="text-sm"><span className="font-medium">Subject:</span> {asset.form_data.vars.subjectLine}</p>
-        )}
-        <iframe
-          srcDoc={html}
-          className="w-full border rounded-lg bg-white"
-          style={{ height: "60vh" }}
-          sandbox="allow-same-origin"
-          title="Template Preview"
-        />
-        <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ── Main Component ──────────────────────────────────────────────
 export default function AdminMarketingHub() {
   const navigate = useNavigate();
   const [emailAssets, setEmailAssets] = useState<SavedAsset[]>([]);
@@ -481,114 +203,17 @@ export default function AdminMarketingHub() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredAssets.map(asset => {
-                    const previewHtml = getSavedHtml(asset);
-                    const fd = asset.form_data || {};
-                    const isEmail = fd._type === "ai-email" || !fd.plans;
-                    const openUrl = `/admin/email-builder?saved=${asset.id}`;
-
-                    return (
-                      <div
-                        key={asset.id}
-                        className="group relative rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-md transition-all"
-                      >
-                        {/* Preview image */}
-                        <div
-                          className="h-44 bg-muted/30 relative cursor-pointer overflow-hidden"
-                          onClick={() => setPreviewAsset(asset)}
-                        >
-                          {(asset.thumbnail_url || fd.heroImage) ? (
-                            <img
-                              src={asset.thumbnail_url || fd.heroImage}
-                              alt={asset.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Mail className="h-10 w-10 text-muted-foreground/15" />
-                            </div>
-                          )}
-                          {/* Type badge */}
-                          <div className="absolute top-2 left-2">
-                            <Badge className={cn(
-                              "text-[9px] px-1.5 py-0.5 shadow-sm",
-                              isEmail
-                                ? "bg-emerald-500/90 text-white hover:bg-emerald-500/90"
-                                : "bg-violet-500/90 text-white hover:bg-violet-500/90"
-                            )}>
-                              {isEmail ? "Email" : "Flyer"}
-                            </Badge>
-                          </div>
-                          {/* Hover overlay */}
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                            <Button size="sm" variant="secondary" className="gap-1.5 shadow-lg">
-                              <Eye className="h-3.5 w-3.5" /> Preview
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Info */}
-                        <div className="p-3.5">
-                          <p className="text-sm font-semibold truncate mb-0.5">{getDisplayName(asset)}</p>
-                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60 mb-1">
-                            <Clock className="h-3 w-3" />
-                            {timeAgo(asset.updated_at)}
-                            {(fd.projectName || fd.vars?.projectName || asset.project_name) && (
-                              <>
-                                <span className="text-muted-foreground/30">·</span>
-                                <span className="truncate">{fd.projectName || fd.vars?.projectName || asset.project_name}</span>
-                              </>
-                            )}
-                          </div>
-                          {asset.tags && asset.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mb-2">
-                              {asset.tags.map(tag => (
-                                <Badge key={tag} variant="outline" className="text-[9px] px-1.5 py-0 h-4 text-muted-foreground/70">{tag}</Badge>
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Action buttons */}
-                          <div className="flex items-center gap-1.5 pt-3 border-t border-border">
-                            <Button
-                              size="sm"
-                              className="flex-1 h-8 text-xs gap-1.5"
-                              onClick={() => setSendAsset(asset)}
-                            >
-                              <Send className="h-3.5 w-3.5" /> Send
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 px-2.5 text-xs gap-1"
-                              onClick={() => navigate(openUrl)}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0"
-                              onClick={() => handleDuplicate(asset)}
-                              title="Duplicate"
-                            >
-                              <Copy className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                              disabled={deleting === asset.id}
-                              onClick={() => handleDelete(asset.id)}
-                              title="Delete"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {filteredAssets.map(asset => (
+                    <TemplateCard
+                      key={asset.id}
+                      asset={asset}
+                      onSend={setSendAsset}
+                      onPreview={setPreviewAsset}
+                      onDelete={handleDelete}
+                      onDuplicate={handleDuplicate}
+                      deleting={deleting}
+                    />
+                  ))}
                 </div>
               )}
             </section>
@@ -596,16 +221,14 @@ export default function AdminMarketingHub() {
         </div>
       </div>
 
-      {/* Quick Send Dialog */}
-      <QuickSendDialog
+      <TemplateQuickSendDialog
         asset={sendAsset}
         open={!!sendAsset}
         onOpenChange={(v) => { if (!v) setSendAsset(null); }}
         onSent={fetchAssets}
       />
 
-      {/* Preview Dialog */}
-      <PreviewDialog
+      <TemplatePreviewDialog
         asset={previewAsset}
         open={!!previewAsset}
         onOpenChange={(v) => { if (!v) setPreviewAsset(null); }}

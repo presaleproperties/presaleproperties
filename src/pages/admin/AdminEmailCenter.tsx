@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,13 +13,18 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
   Send, Mail, Clock, CheckCircle2, XCircle, Plus, Trash2,
-  RefreshCw, Loader2, Eye, Zap, BarChart3, Search, ChevronRight,
-  Workflow, ArrowUpRight, MailOpen, TrendingUp, User, X,
-  Presentation, ExternalLink,
+  RefreshCw, Loader2, Eye, Zap, BarChart3, Search,
+  Workflow, MailOpen, TrendingUp,
 } from "lucide-react";
 import { format } from "date-fns";
-import { buildAiEmailHtml, type AiEmailCopy } from "@/components/admin/AiEmailTemplate";
 import { useNavigate } from "react-router-dom";
+import type { SavedAsset } from "@/lib/emailTemplateHelpers";
+import { timeAgo } from "@/lib/emailTemplateHelpers";
+import {
+  TemplateCard,
+  TemplatePreviewDialog,
+  TemplateQuickSendDialog,
+} from "@/components/admin/SharedTemplateComponents";
 
 // ── Types ──
 interface EmailLog {
@@ -37,24 +41,6 @@ interface EmailLog {
   open_count: number;
   last_opened_at: string | null;
   tracking_id: string | null;
-}
-
-interface SavedCampaign {
-  id: string;
-  name: string;
-  project_name: string;
-  form_data: any;
-  created_at: string;
-  updated_at: string;
-  thumbnail_url: string | null;
-}
-
-interface PitchDeck {
-  id: string;
-  project_name: string;
-  slug: string;
-  hero_image_url: string | null;
-  updated_at: string;
 }
 
 interface AutomationWorkflow {
@@ -81,380 +67,76 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function timeAgo(d: string) {
-  const diff = Date.now() - new Date(d).getTime();
-  const m = Math.floor(diff / 60000);
-  const h = Math.floor(m / 60);
-  const days = Math.floor(h / 24);
-  if (days > 0) return `${days}d ago`;
-  if (h > 0) return `${h}h ago`;
-  if (m > 0) return `${m}m ago`;
-  return "Just now";
-}
-
-// ── Quick Send: Pick template → recipients → send ──
-function QuickSendPanel({
-  campaigns,
-  pitchDecks,
-  onSent,
-  onRefreshCampaigns,
+// ── Quick Send Tab (uses shared template cards) ──
+function QuickSendTab({
+  campaigns, onSent, onRefreshCampaigns,
 }: {
-  campaigns: SavedCampaign[];
-  pitchDecks: PitchDeck[];
+  campaigns: SavedAsset[];
   onSent: () => void;
   onRefreshCampaigns: () => void;
 }) {
   const navigate = useNavigate();
-  const [previewingCampaign, setPreviewingCampaign] = useState<SavedCampaign | null>(null);
-  const [selectedTemplate, setSelectedTemplate] = useState<string>("none");
-  const [subject, setSubject] = useState("");
-  const [htmlBody, setHtmlBody] = useState("");
-  const [query, setQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Array<{ id: string; name: string; firstName?: string; email: string; source: string }>>([]);
-  const [searching, setSearching] = useState(false);
-  const [recipients, setRecipients] = useState<Array<{ email: string; name: string; firstName?: string }>>([]);
-  const [manualEmail, setManualEmail] = useState("");
-  const [sending, setSending] = useState(false);
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [sendAsset, setSendAsset] = useState<SavedAsset | null>(null);
+  const [previewAsset, setPreviewAsset] = useState<SavedAsset | null>(null);
 
-  // Populate email when template selected
-  useEffect(() => {
-    if (selectedTemplate === "none") {
-      setSubject("");
-      setHtmlBody("");
-      return;
-    }
-    const c = campaigns.find(c => c.id === selectedTemplate);
-    if (c?.form_data) {
-      try {
-        const fd = c.form_data;
-        const copy: AiEmailCopy = {
-          headline: fd.vars?.headline || "",
-          bodyCopy: fd.vars?.bodyCopy || "",
-          subjectLine: fd.vars?.subjectLine || "",
-          previewText: fd.vars?.previewText || "",
-          incentiveText: fd.vars?.incentiveText || "",
-          projectName: fd.vars?.projectName || c.project_name || "",
-          city: fd.vars?.city || "",
-          neighborhood: fd.vars?.neighborhood || "",
-          developerName: fd.vars?.developerName || "",
-          startingPrice: fd.vars?.startingPrice || "",
-          deposit: fd.vars?.deposit || "",
-          completion: fd.vars?.completion || "",
-        };
-        setHtmlBody(buildAiEmailHtml(copy));
-        if (fd.vars?.subjectLine) setSubject(fd.vars.subjectLine);
-      } catch {}
-    }
-  }, [selectedTemplate, campaigns]);
-
-  // Debounced lead search
-  useEffect(() => {
-    if (!query || query.length < 2) { setSearchResults([]); return; }
-    clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(async () => {
-      setSearching(true);
-      const term = `%${query}%`;
-      const [leadsRes, clientsRes] = await Promise.all([
-        supabase.from("project_leads").select("id, name, email, phone").or(`name.ilike.${term},email.ilike.${term}`).limit(8),
-        supabase.from("clients").select("id, first_name, last_name, email").or(`first_name.ilike.${term},last_name.ilike.${term},email.ilike.${term}`).limit(8),
-      ]);
-      const mapped: typeof searchResults = [];
-      const seen = new Set<string>();
-      if (leadsRes.data) for (const l of leadsRes.data) {
-        if (!seen.has(l.email)) { seen.add(l.email); mapped.push({ id: l.id, name: l.name, firstName: l.name?.trim().split(/\s+/)[0], email: l.email, source: "lead" }); }
-      }
-      if (clientsRes.data) for (const c of clientsRes.data) {
-        if (!seen.has(c.email)) { seen.add(c.email); mapped.push({ id: c.id, name: [c.first_name, c.last_name].filter(Boolean).join(" ") || c.email, firstName: c.first_name ?? undefined, email: c.email, source: "client" }); }
-      }
-      setSearchResults(mapped);
-      setSearching(false);
-    }, 300);
-    return () => clearTimeout(searchTimer.current);
-  }, [query]);
-
-  const addRecipient = (r: typeof searchResults[0]) => {
-    if (recipients.some(rec => rec.email === r.email)) return;
-    setRecipients(prev => [...prev, { email: r.email, name: r.name, firstName: r.firstName }]);
-    setQuery(""); setSearchResults([]);
+  const handleDelete = async (id: string) => {
+    const { error } = await (supabase as any).from("campaign_templates").delete().eq("id", id);
+    if (!error) { toast.success("Template deleted"); onRefreshCampaigns(); } else { toast.error("Failed to delete"); }
   };
 
-  const addManual = () => {
-    const email = manualEmail.trim().toLowerCase();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
-    if (recipients.some(r => r.email === email)) return;
-    setRecipients(prev => [...prev, { email, name: email.split("@")[0], firstName: email.split("@")[0] }]);
-    setManualEmail("");
-  };
-
-  const handleSend = async () => {
-    if (!recipients.length) { toast.error("Add at least one recipient"); return; }
-    if (!subject || !htmlBody) { toast.error("Select a template first"); return; }
-    setSending(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("send-builder-email", {
-        body: { subject, html: htmlBody, recipients: recipients.map(r => ({ email: r.email, name: r.name, firstName: r.firstName })) },
-      });
-      if (error) throw error;
-      toast.success(`✅ Sent to ${data.sent} recipient${data.sent > 1 ? "s" : ""}`);
-      setRecipients([]); setSelectedTemplate("none"); setSubject(""); setHtmlBody("");
-      onSent();
-    } catch (e: any) {
-      toast.error(e.message || "Failed to send");
-    } finally {
-      setSending(false);
-    }
+  const handleDuplicate = async (asset: SavedAsset) => {
+    const { error } = await (supabase as any).from("campaign_templates").insert({
+      name: `${asset.name} (Copy)`, project_name: asset.project_name, form_data: asset.form_data,
+    });
+    if (!error) { toast.success("Duplicated"); onRefreshCampaigns(); } else { toast.error("Failed to duplicate"); }
   };
 
   return (
-    <div className="space-y-5">
-      {/* Step 1: Pick Template */}
-      <div className="space-y-3">
+    <>
+      <div className="space-y-5">
         <div className="flex items-center gap-2">
           <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">1</div>
-          <span className="text-sm font-semibold">Choose Email Template</span>
+          <span className="text-sm font-semibold">Choose a Template & Send</span>
         </div>
 
         {campaigns.length === 0 ? (
           <div className="border border-dashed border-border rounded-lg p-6 text-center space-y-2">
-            <Presentation className="h-8 w-8 text-muted-foreground mx-auto" />
-            <p className="text-sm text-muted-foreground">No saved templates yet. Create one from a Pitch Deck.</p>
-            <Button size="sm" variant="outline" onClick={() => navigate("/admin/pitch-decks")}>
-              <Plus className="h-3.5 w-3.5 mr-1.5" />Go to Pitch Decks
+            <Mail className="h-8 w-8 text-muted-foreground mx-auto" />
+            <p className="text-sm text-muted-foreground">No saved templates yet.</p>
+            <Button size="sm" variant="outline" onClick={() => navigate("/admin/marketing-hub")}>
+              <Plus className="h-3.5 w-3.5 mr-1.5" />Go to Marketing Hub
             </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {campaigns.map(c => {
-              const isSelected = selectedTemplate === c.id;
-              let previewHtml = "";
-              try {
-                if (c.form_data?.finalHtml) {
-                  previewHtml = c.form_data.finalHtml;
-                } else if (c.form_data?.vars) {
-                  const fd = c.form_data;
-                  previewHtml = buildAiEmailHtml({
-                    headline: fd.vars?.headline || "",
-                    bodyCopy: fd.vars?.bodyCopy || "",
-                    subjectLine: fd.vars?.subjectLine || "",
-                    previewText: fd.vars?.previewText || "",
-                    incentiveText: fd.vars?.incentiveText || "",
-                    projectName: fd.vars?.projectName || c.project_name || "",
-                    city: fd.vars?.city || "",
-                    neighborhood: fd.vars?.neighborhood || "",
-                    developerName: fd.vars?.developerName || "",
-                    startingPrice: fd.vars?.startingPrice || "",
-                    deposit: fd.vars?.deposit || "",
-                    completion: fd.vars?.completion || "",
-                  });
-                }
-              } catch {}
-              return (
-                <div
-                  key={c.id}
-                  className={cn(
-                    "relative border rounded-lg overflow-hidden transition-all hover:border-primary/40 group",
-                    isSelected
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                      : "border-border bg-card"
-                  )}
-                >
-                  {/* Preview iframe */}
-                  <div
-                    className="relative w-full bg-white cursor-pointer"
-                    style={{ height: 180 }}
-                    onClick={() => setSelectedTemplate(c.id === selectedTemplate ? "none" : c.id)}
-                  >
-                    {previewHtml ? (
-                      <iframe
-                        srcDoc={previewHtml}
-                        className="w-full h-full pointer-events-none"
-                        style={{ transform: "scale(0.35)", transformOrigin: "top left", width: "286%", height: "286%" }}
-                        sandbox="allow-same-origin"
-                        title={`Preview ${c.name}`}
-                      />
-                    ) : c.thumbnail_url ? (
-                      <img src={c.thumbnail_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-muted/30">
-                        <Mail className="h-8 w-8 text-muted-foreground/30" />
-                      </div>
-                    )}
-                    {isSelected && (
-                      <div className="absolute top-2 right-2 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-primary-foreground" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info + actions */}
-                  <div className="px-3 py-2.5 space-y-1.5">
-                    <p className="text-xs font-semibold truncate">{c.name || c.project_name}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{c.project_name}{c.form_data?.vars?.subjectLine ? ` · ${c.form_data.vars.subjectLine}` : ""}</p>
-                    <p className="text-[10px] text-muted-foreground">{timeAgo(c.updated_at)}</p>
-                    <div className="flex items-center gap-1 pt-1">
-                      <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={(e) => { e.stopPropagation(); setPreviewingCampaign(c); }}>
-                        <Eye className="h-3 w-3" /> Preview
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={(e) => { e.stopPropagation(); navigate(`/admin/email-builder?template=${c.id}`); }}>
-                        <ArrowUpRight className="h-3 w-3" /> Edit
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1 text-destructive hover:text-destructive" onClick={async (e) => {
-                        e.stopPropagation();
-                        if (!confirm("Delete this template?")) return;
-                        const { error } = await (supabase as any).from("campaign_templates").delete().eq("id", c.id);
-                        if (!error) { toast.success("Template deleted"); onRefreshCampaigns(); } else { toast.error("Failed to delete"); }
-                      }}>
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {campaigns.map(c => (
+              <TemplateCard
+                key={c.id}
+                asset={c}
+                onSend={setSendAsset}
+                onPreview={setPreviewAsset}
+                onDelete={handleDelete}
+                onDuplicate={handleDuplicate}
+                deleting={null}
+              />
+            ))}
           </div>
         )}
       </div>
 
-      {/* Step 2: Add Recipients */}
-      {selectedTemplate !== "none" && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">2</div>
-            <span className="text-sm font-semibold">Add Recipients</span>
-          </div>
+      <TemplateQuickSendDialog
+        asset={sendAsset}
+        open={!!sendAsset}
+        onOpenChange={(v) => { if (!v) setSendAsset(null); }}
+        onSent={() => { onSent(); setSendAsset(null); }}
+      />
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search leads or clients by name or email…"
-              className="pl-9 h-9 text-sm"
-            />
-            {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-muted-foreground" />}
-          </div>
-
-          {searchResults.length > 0 && (
-            <div className="border border-border rounded-lg max-h-[160px] overflow-y-auto divide-y divide-border bg-background shadow-sm">
-              {searchResults.map(r => {
-                const added = recipients.some(rec => rec.email === r.email);
-                return (
-                  <button key={r.id} onClick={() => addRecipient(r)} disabled={added}
-                    className={cn("w-full text-left px-3 py-2 flex items-center gap-3 text-sm transition-colors", added ? "opacity-40" : "hover:bg-muted/50")}>
-                    <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0">
-                      <User className="h-3.5 w-3.5 text-muted-foreground" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-xs truncate">{r.name}</p>
-                      <p className="text-[11px] text-muted-foreground truncate">{r.email}</p>
-                    </div>
-                    <Badge variant="outline" className="text-[9px] shrink-0">{r.source}</Badge>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input value={manualEmail} onChange={e => setManualEmail(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && addManual()}
-                placeholder="Or type an email address…" className="pl-9 h-8 text-xs" />
-            </div>
-            <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={addManual}>
-              <Plus className="h-3 w-3" /> Add
-            </Button>
-          </div>
-
-          {recipients.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {recipients.map(r => (
-                <Badge key={r.email} variant="secondary" className="gap-1 pr-1 text-xs font-normal">
-                  <span className="truncate max-w-[160px]">{r.name}</span>
-                  <button onClick={() => setRecipients(prev => prev.filter(p => p.email !== r.email))}
-                    className="ml-0.5 h-4 w-4 rounded-full hover:bg-destructive/20 flex items-center justify-center">
-                    <X className="h-2.5 w-2.5" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Step 3: Send */}
-      {selectedTemplate !== "none" && recipients.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">3</div>
-            <span className="text-sm font-semibold">Review & Send</span>
-          </div>
-
-          <div className="bg-muted/30 border border-border rounded-lg p-3 space-y-1.5 text-sm">
-            <p><span className="text-muted-foreground">Subject:</span> <span className="font-medium">{subject}</span></p>
-            <p><span className="text-muted-foreground">To:</span> <span className="font-medium">{recipients.length} recipient{recipients.length > 1 ? "s" : ""}</span></p>
-            <p><span className="text-muted-foreground">From:</span> Presale Properties &lt;info@presaleproperties.com&gt;</p>
-          </div>
-
-          <Button className="w-full h-10 gap-2 font-semibold" onClick={handleSend} disabled={sending}>
-            {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Sending…</> : <><Send className="h-4 w-4" />Send Email</>}
-          </Button>
-        </div>
-      )}
-
-      {/* Preview Modal */}
-      {previewingCampaign && (() => {
-        let html = "";
-        try {
-          const fd = previewingCampaign.form_data;
-          if (fd?.finalHtml) {
-            html = fd.finalHtml;
-          } else if (fd?.vars) {
-            html = buildAiEmailHtml({
-              headline: fd.vars?.headline || "",
-              bodyCopy: fd.vars?.bodyCopy || "",
-              subjectLine: fd.vars?.subjectLine || "",
-              previewText: fd.vars?.previewText || "",
-              incentiveText: fd.vars?.incentiveText || "",
-              projectName: fd.vars?.projectName || previewingCampaign.project_name || "",
-              city: fd.vars?.city || "",
-              neighborhood: fd.vars?.neighborhood || "",
-              developerName: fd.vars?.developerName || "",
-              startingPrice: fd.vars?.startingPrice || "",
-              deposit: fd.vars?.deposit || "",
-              completion: fd.vars?.completion || "",
-            });
-          }
-        } catch {}
-        return (
-          <Dialog open onOpenChange={() => setPreviewingCampaign(null)}>
-            <DialogContent className="max-w-3xl max-h-[90vh]">
-              <DialogHeader>
-                <DialogTitle>{previewingCampaign.name || previewingCampaign.project_name}</DialogTitle>
-              </DialogHeader>
-              {previewingCampaign.form_data?.vars?.subjectLine && (
-                <p className="text-sm"><span className="font-medium">Subject:</span> {previewingCampaign.form_data.vars.subjectLine}</p>
-              )}
-              <iframe
-                srcDoc={html}
-                className="w-full border rounded-lg bg-white"
-                style={{ height: "60vh" }}
-                sandbox="allow-same-origin"
-                title="Template Preview"
-              />
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setPreviewingCampaign(null)}>Close</Button>
-                <Button onClick={() => { setPreviewingCampaign(null); navigate(`/admin/email-builder?template=${previewingCampaign.id}`); }}>
-                  <ArrowUpRight className="h-4 w-4 mr-2" /> Edit in Builder
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        );
-      })()}
-    </div>
+      <TemplatePreviewDialog
+        asset={previewAsset}
+        open={!!previewAsset}
+        onOpenChange={(v) => { if (!v) setPreviewAsset(null); }}
+      />
+    </>
   );
 }
 
@@ -501,12 +183,7 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
   const handleDelete = async (id: string) => {
     setDeleting(id);
     const { error } = await supabase.from("email_logs").delete().eq("id", id);
-    if (!error) {
-      onDelete(id);
-      toast.success("Email log deleted");
-    } else {
-      toast.error("Failed to delete");
-    }
+    if (!error) { onDelete(id); toast.success("Email log deleted"); } else { toast.error("Failed to delete"); }
     setDeleting(null);
   };
 
@@ -651,8 +328,7 @@ function AutomationPanel({ workflows, loading, onRefresh }: {
 export default function AdminEmailCenter() {
   const [tab, setTab] = useState("send");
   const [logs, setLogs] = useState<EmailLog[]>([]);
-  const [campaigns, setCampaigns] = useState<SavedCampaign[]>([]);
-  const [pitchDecks, setPitchDecks] = useState<PitchDeck[]>([]);
+  const [campaigns, setCampaigns] = useState<SavedAsset[]>([]);
   const [workflows, setWorkflows] = useState<AutomationWorkflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [workflowsLoading, setWorkflowsLoading] = useState(true);
@@ -661,7 +337,7 @@ export default function AdminEmailCenter() {
     setLoading(true);
     const [logsRes, campaignsRes] = await Promise.all([
       supabase.from("email_logs").select("*").order("sent_at", { ascending: false }).limit(500),
-      (supabase as any).from("campaign_templates").select("id,name,project_name,form_data,created_at,updated_at,thumbnail_url").order("updated_at", { ascending: false }),
+      (supabase as any).from("campaign_templates").select("id,name,project_name,form_data,created_at,updated_at,thumbnail_url,tags").order("updated_at", { ascending: false }),
     ]);
     setLogs((logsRes.data || []) as EmailLog[]);
     setCampaigns(campaignsRes.data || []);
@@ -743,7 +419,7 @@ export default function AdminEmailCenter() {
                   <p className="text-xs text-muted-foreground">Pick a template, add recipients, and send — all tracked automatically</p>
                 </div>
               </div>
-              <QuickSendPanel campaigns={campaigns} pitchDecks={pitchDecks} onSent={fetchAll} onRefreshCampaigns={fetchAll} />
+              <QuickSendTab campaigns={campaigns} onSent={fetchAll} onRefreshCampaigns={fetchAll} />
             </div>
           </TabsContent>
 
