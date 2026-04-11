@@ -12,11 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   MapPin, Bed, Bath, Maximize, Search,
-  Building2, ArrowRight, Lock, X, Map, LayoutGrid
+  Building2, ArrowRight, X, Map, LayoutGrid
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
-import { AboutContactForm } from "@/components/about/AboutContactForm";
 
 const AssignmentsMap = lazy(() => import("@/components/assignments/AssignmentsMap"));
 
@@ -62,26 +60,21 @@ const PRICE_RANGES = [
   { label: "$1.5M+", min: 1500000, max: Infinity },
 ];
 
-function AssignmentCard({ listing, isVerified, onInquire }: {
+function AssignmentCard({ listing }: {
   listing: Assignment;
-  isVerified: boolean;
-  onInquire: (title: string) => void;
 }) {
   const photo = listing.photos?.[0] || listing.featured_image || listing._project_gallery_images?.[0] || listing._project_featured_image;
   const savings = listing.original_price && listing.original_price > listing.assignment_price
     ? listing.original_price - listing.assignment_price : null;
 
   return (
-    <div className="group rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
+    <Link to={`/assignments/${listing.id}`} className="group rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
       <div className="relative aspect-[16/10] bg-muted overflow-hidden">
         {photo ? (
           <img
             src={photo}
             alt={listing.title}
-            className={cn(
-              "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300",
-              !isVerified && "blur-lg"
-            )}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-muted">
@@ -90,28 +83,14 @@ function AssignmentCard({ listing, isVerified, onInquire }: {
         )}
         <div className="absolute top-3 left-3 flex gap-1.5">
           <Badge className="bg-amber-500 hover:bg-amber-500 text-white text-[10px] px-2">Assignment</Badge>
-          {savings && savings > 0 && isVerified && (
+          {savings && savings > 0 && (
             <Badge className="bg-green-600 hover:bg-green-600 text-white text-[10px] px-2">
               Save {formatPrice(savings)}
             </Badge>
           )}
         </div>
-        {!isVerified && (
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center gap-2">
-            <Lock className="h-7 w-7 text-white" />
-            <span className="text-white text-xs font-medium">Agent Access Only</span>
-          </div>
-        )}
       </div>
-      <div className="p-4 relative">
-        {!isVerified && (
-          <div className="absolute inset-0 bg-card/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-b-2xl gap-2 p-4">
-            <p className="text-sm text-center text-muted-foreground">Verify as agent to see details & pricing</p>
-            <Button size="sm" variant="outline" onClick={() => onInquire("Assignment Listing")} className="text-xs h-8">
-              Request Access
-            </Button>
-          </div>
-        )}
+      <div className="p-4">
         <div className="flex items-start justify-between mb-2">
           <div>
             <p className="text-xl font-bold text-foreground">{formatPrice(listing.assignment_price)}</p>
@@ -135,29 +114,17 @@ function AssignmentCard({ listing, isVerified, onInquire }: {
             <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" />{listing.interior_sqft.toLocaleString()} sqft</span>
           )}
         </div>
-        {isVerified ? (
-          <Link to={`/assignments/${listing.id}`}>
-            <Button size="sm" className="w-full gap-1.5 h-9 text-xs font-semibold">
-              View Full Details <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
-          </Link>
-        ) : (
-          <Button size="sm" variant="outline" className="w-full h-9 text-xs" onClick={() => onInquire("Assignment Listing")}>
-            Inquire to Access
-          </Button>
-        )}
+        <Button size="sm" className="w-full gap-1.5 h-9 text-xs font-semibold">
+          View Full Details <ArrowRight className="h-3.5 w-3.5" />
+        </Button>
       </div>
-    </div>
+    </Link>
   );
 }
 
 export default function Assignments() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [formOpen, setFormOpen] = useState(false);
-  const [inquireTitle, setInquireTitle] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
-
-  const { isVerified } = useVerifiedAgent();
 
   const cityFilter = searchParams.get("city") || "any";
   const bedsFilter = searchParams.get("beds") || "any";
@@ -260,10 +227,6 @@ export default function Assignments() {
     !!searchQuery,
   ].filter(Boolean).length;
 
-  const handleInquire = (title: string) => {
-    setInquireTitle(title);
-    setFormOpen(true);
-  };
 
   const clearFilters = () => setSearchParams({}, { replace: true });
 
@@ -420,12 +383,6 @@ export default function Assignments() {
           <p className="text-sm text-muted-foreground">
             {isLoading ? "Loading..." : `${filtered.length} assignment${filtered.length !== 1 ? "s" : ""} found`}
           </p>
-          {!isVerified && (
-            <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-full px-3 py-1.5">
-              <Lock className="h-3 w-3" />
-              <span>Verified agents see full details & pricing</span>
-            </div>
-          )}
         </div>
 
         {/* Content */}
@@ -470,35 +427,14 @@ export default function Assignments() {
               <AssignmentCard
                 key={listing.id}
                 listing={listing}
-                isVerified={isVerified}
-                onInquire={handleInquire}
               />
             ))}
-          </div>
-        )}
-
-        {/* CTA for non-agents */}
-        {!isVerified && listings.length > 0 && (
-          <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center">
-            <Lock className="h-8 w-8 text-primary mx-auto mb-3" />
-            <h2 className="text-xl font-bold mb-2">Are You a Real Estate Agent?</h2>
-            <p className="text-muted-foreground mb-5 max-w-md mx-auto text-sm">
-              Verified agents get full access to assignment pricing, unit details, floor plans, and direct contact with sellers.
-            </p>
-            <Button onClick={() => handleInquire("Agent Verification Request")} size="lg" className="gap-2">
-              <ArrowRight className="h-4 w-4" /> Apply for Agent Access
-            </Button>
           </div>
         )}
       </main>
 
       <Footer />
 
-      <AboutContactForm
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        selectedAgentName={inquireTitle || undefined}
-      />
     </div>
   );
 }

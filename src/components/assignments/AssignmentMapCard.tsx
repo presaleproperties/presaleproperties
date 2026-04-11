@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Bed, Bath, Square, Lock, Eye } from "lucide-react";
+import { MapPin, Bed, Bath, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Assignment {
@@ -23,7 +23,7 @@ interface Assignment {
 
 interface AssignmentMapCardProps {
   assignment: Assignment;
-  isVerifiedAgent: boolean;
+  isVerifiedAgent?: boolean;
   isFocused?: boolean;
   onClick?: (e: React.MouseEvent) => void;
   className?: string;
@@ -39,7 +39,6 @@ const formatPrice = (price: number) => {
 
 export function AssignmentMapCard({ 
   assignment, 
-  isVerifiedAgent, 
   isFocused,
   onClick,
   className 
@@ -51,9 +50,9 @@ export function AssignmentMapCard({
 
   return (
     <Link 
-      to={isVerifiedAgent ? `/assignments/${assignment.id}` : "#"}
+      to={`/assignments/${assignment.id}`}
       onClick={onClick}
-      className={cn("block", !isVerifiedAgent && "cursor-default")}
+      className="block"
     >
       <Card className={cn(
         "overflow-hidden transition-all duration-200 h-full",
@@ -61,16 +60,12 @@ export function AssignmentMapCard({
         className
       )}>
         <CardContent className="p-0">
-          {/* Image Section */}
           <div className="relative h-32 bg-muted">
             {photo ? (
               <img 
                 src={photo} 
                 alt={assignment.title}
-                className={cn(
-                  "w-full h-full object-cover",
-                  !isVerifiedAgent && "blur-lg"
-                )}
+                className="w-full h-full object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
@@ -78,78 +73,34 @@ export function AssignmentMapCard({
               </div>
             )}
             
-            {/* Savings Badge */}
-            {savings > 0 && isVerifiedAgent && (
-              <Badge className="absolute top-2 left-2 bg-amber-500 text-white text-[10px] px-2">
+            {savings > 0 && (
+              <Badge className="absolute top-2 left-2 bg-green-600 hover:bg-green-600 text-white text-[10px] px-2">
                 Save {formatPrice(savings)}
               </Badge>
             )}
             
-            {/* Assignment Badge */}
-            <Badge className="absolute top-2 right-2 bg-amber-500 text-white text-[10px] px-2">
+            <Badge className="absolute top-2 right-2 bg-amber-500 hover:bg-amber-500 text-white text-[10px] px-2">
               Assignment
             </Badge>
-            
-            {/* Blur overlay for non-verified */}
-            {!isVerifiedAgent && (
-              <div className="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center">
-                <div className="text-center">
-                  <Lock className="h-6 w-6 text-white mx-auto mb-1" />
-                  <p className="text-[10px] text-white font-medium">Agent Access Only</p>
-                </div>
-              </div>
-            )}
           </div>
           
-          {/* Content Section */}
-          <div className={cn(
-            "p-3 space-y-1.5",
-            !isVerifiedAgent && "relative"
-          )}>
-            {/* Blur overlay for content */}
-            {!isVerifiedAgent && (
-              <div className="absolute inset-0 bg-background/80 backdrop-blur-md flex items-center justify-center z-10">
-                <div className="text-center px-4">
-                  <Eye className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
-                  <p className="text-xs text-muted-foreground">
-                    Verify as agent to view details
-                  </p>
-                </div>
-              </div>
-            )}
-            
-            {/* Price */}
+          <div className="p-3 space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className={cn(
-                "font-bold text-base",
-                isVerifiedAgent ? "text-amber-600" : "blur-sm"
-              )}>
+              <span className="font-bold text-base text-foreground">
                 {formatPrice(assignment.assignment_price)}
               </span>
             </div>
             
-            {/* Project Name */}
-            <p className={cn(
-              "font-medium text-sm truncate",
-              !isVerifiedAgent && "blur-sm"
-            )}>
+            <p className="font-medium text-sm truncate">
               {assignment.project_name}
             </p>
             
-            {/* Location */}
-            <div className={cn(
-              "flex items-center gap-1 text-xs text-muted-foreground",
-              !isVerifiedAgent && "blur-sm"
-            )}>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <MapPin className="h-3 w-3" />
               {assignment.neighborhood || assignment.city}
             </div>
             
-            {/* Specs */}
-            <div className={cn(
-              "flex items-center gap-3 text-xs text-muted-foreground",
-              !isVerifiedAgent && "blur-sm"
-            )}>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Bed className="h-3 w-3" />
                 {assignment.beds}
