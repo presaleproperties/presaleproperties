@@ -1153,7 +1153,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .popup-card { display: flex; width: 300px; text-decoration: none; color: inherit; font-family: inherit; }
         .popup-card.resale { border: none; }
         .popup-card.presale { border: none; }
-        .popup-card.assignment { border-left: 3px solid hsl(40, 65%, 55%); }
+        .popup-card.assignment { border-left: 3px solid hsl(168, 55%, 38%); }
         .popup-card.locked { display: block; width: 240px; }
         
         /* Image section - larger for better previews */
@@ -1161,18 +1161,18 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .popup-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: hsl(30, 10%, 70%); background: linear-gradient(135deg, hsl(30, 10%, 96%) 0%, hsl(30, 10%, 93%) 100%); }
         .popup-placeholder.presale { background: linear-gradient(135deg, hsl(40, 65%, 97%) 0%, hsl(40, 65%, 92%) 100%); color: hsl(40, 65%, 45%); }
-        .popup-placeholder.assignment { background: linear-gradient(135deg, hsl(40, 40%, 96%) 0%, hsl(40, 40%, 90%) 100%); color: hsl(40, 65%, 55%); }
+        .popup-placeholder.assignment { background: linear-gradient(135deg, hsl(168, 30%, 96%) 0%, hsl(168, 30%, 90%) 100%); color: hsl(168, 55%, 38%); }
         
         /* Badges - branded */
         .popup-badge { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 600; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
         .popup-badge.resale { background: hsl(34, 65%, 40%); color: white; }
         .popup-badge.presale { background: hsl(40, 65%, 55%); color: white; }
-        .popup-badge.assignment { background: hsl(40, 60%, 48%); color: white; }
+        .popup-badge.assignment { background: hsl(168, 55%, 38%); color: white; }
         
         /* Content */
         .popup-content { flex: 1; padding: 12px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
         .popup-price { font-weight: 700; font-size: 17px; margin-bottom: 4px; letter-spacing: -0.3px; color: hsl(40, 65%, 55%); }
-        .popup-price.assignment { color: hsl(40, 65%, 45%); }
+        .popup-price.assignment { color: hsl(168, 55%, 35%); }
         .popup-address { font-weight: 600; font-size: 13px; color: hsl(220, 20%, 15%); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .popup-specs { font-size: 12px; color: hsl(220, 8%, 46%); margin-bottom: 2px; }
         .popup-type { font-size: 11px; color: hsl(220, 8%, 55%); }
@@ -1181,6 +1181,8 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         /* View Details CTA */
         .popup-cta { display: block; text-align: center; padding: 8px 12px; margin: 8px 12px 12px; background: hsl(40, 65%, 55%); color: white; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
         .popup-cta:hover { background: hsl(34, 65%, 40%); }
+        .popup-cta.assignment-cta { background: hsl(168, 55%, 38%); }
+        .popup-cta.assignment-cta:hover { background: hsl(168, 55%, 30%); }
         
         /* Locked assignment */
         .popup-lock { padding: 20px; text-align: center; }
