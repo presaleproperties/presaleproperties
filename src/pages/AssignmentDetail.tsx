@@ -824,23 +824,33 @@ export default function AssignmentDetail() {
 
             {/* Documents Sidebar */}
             {(listing.floor_plan_url || listing.brochure_url) && (
-              <Card>
+              <Card className="border-primary/20">
                 <CardHeader><CardTitle className="text-base flex items-center gap-2"><Download className="h-4 w-4 text-primary" />Downloads</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
                   {listing.floor_plan_url && (
-                    <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
-                      <FileText className="h-4 w-4 text-primary shrink-0" />
-                      <span className="flex-1 text-sm font-medium">{listing.floor_plan_name || "Floor Plan"}</span>
-                      <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                    <a href={listing.floor_plan_url} target="_blank" rel="noopener noreferrer" download
+                      className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+                      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <FileText className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{listing.floor_plan_name || "Floor Plan"}</p>
+                        <p className="text-[10px] text-muted-foreground">Tap to download</p>
+                      </div>
+                      <Download className="h-4 w-4 text-primary shrink-0" />
                     </a>
                   )}
                   {listing.brochure_url && (
-                    <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted transition-colors">
-                      <BookOpen className="h-4 w-4 text-primary shrink-0" />
-                      <span className="flex-1 text-sm font-medium">Project Brochure</span>
-                      <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                    <a href={listing.brochure_url} target="_blank" rel="noopener noreferrer" download
+                      className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+                      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <BookOpen className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold">Project Brochure</p>
+                        <p className="text-[10px] text-muted-foreground">Tap to download</p>
+                      </div>
+                      <Download className="h-4 w-4 text-primary shrink-0" />
                     </a>
                   )}
                 </CardContent>
