@@ -196,6 +196,65 @@ export default function AdminListings() {
   // Agent list for listing agent selector
   const [agents, setAgents] = useState<AgentOption[]>([]);
 
+  // AI description generation
+  const [generatingAddDesc, setGeneratingAddDesc] = useState(false);
+  const [generatingEditDesc, setGeneratingEditDesc] = useState(false);
+
+  const handleGenerateDescription = async (formType: 'add' | 'edit') => {
+    const form = formType === 'add' ? addForm : editForm;
+    const setGenerating = formType === 'add' ? setGeneratingAddDesc : setGeneratingEditDesc;
+    const setForm = formType === 'add' ? setAddForm : setEditForm;
+
+    // Find project for brochure content
+    const project = projects.find(p => p.id === form.project_id);
+
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('format-description', {
+        body: {
+          type: 'generate_assignment',
+          listingData: {
+            project_name: form.project_name,
+            developer_name: form.developer_name,
+            city: form.city,
+            neighborhood: form.neighborhood,
+            address: form.address,
+            unit_type: form.unit_type,
+            beds: form.beds ? Number(form.beds) : undefined,
+            baths: form.baths ? Number(form.baths) : undefined,
+            interior_sqft: form.interior_sqft ? Number(form.interior_sqft) : undefined,
+            exterior_sqft: form.exterior_sqft ? Number(form.exterior_sqft) : undefined,
+            floor_level: form.floor_level,
+            exposure: form.exposure,
+            has_parking: form.parking && form.parking !== 'None' && form.parking !== '',
+            parking_count: form.parking ? Number(form.parking) || 1 : 0,
+            has_storage: form.has_locker,
+            assignment_price: form.assignment_price ? parseFloat(String(form.assignment_price).replace(/[^0-9.]/g, '')) : undefined,
+            original_price: form.original_price ? parseFloat(String(form.original_price).replace(/[^0-9.]/g, '')) : undefined,
+            deposit_paid: form.deposit_to_lock ? parseFloat(String(form.deposit_to_lock).replace(/[^0-9.]/g, '')) : undefined,
+            assignment_fee: undefined,
+            completion_year: form.estimated_completion ? parseInt(form.estimated_completion.split('-')[0]) : undefined,
+            completion_month: form.estimated_completion ? parseInt(form.estimated_completion.split('-')[1]) : undefined,
+            construction_status: undefined,
+          },
+          brochureContent: project?.highlights?.join(', ') || '',
+        },
+      });
+
+      if (error) throw error;
+      if (data?.formatted) {
+        setForm((f: AddListingForm) => ({ ...f, description: data.formatted }));
+        toast({ title: "AI description generated ✓", description: "Review and edit as needed." });
+      } else {
+        throw new Error(data?.error || "No description returned");
+      }
+    } catch (err) {
+      toast({ title: "AI generation failed", description: (err as any)?.message || String(err), variant: "destructive" });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   useEffect(() => {
     fetchListings();
     fetchProjects();
