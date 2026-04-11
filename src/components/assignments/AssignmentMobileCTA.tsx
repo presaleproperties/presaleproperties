@@ -7,9 +7,10 @@ interface AssignmentMobileCTAProps {
   projectName: string;
   price: string;
   onInquireClick: () => void;
+  agentName?: string;
 }
 
-export function AssignmentMobileCTA({ projectName, price, onInquireClick }: AssignmentMobileCTAProps) {
+export function AssignmentMobileCTA({ projectName, price, onInquireClick, agentName }: AssignmentMobileCTAProps) {
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [isHidden, setIsHidden] = useState(false);
 
