@@ -371,14 +371,14 @@ export default function AssignmentDetail() {
               <div className="lg:col-span-2 flex flex-col px-4 lg:px-0 pt-4 lg:pt-0">
                 {/* Status Badge Row */}
                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
-                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2 py-0.5">Assignment</Badge>
+                  <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs px-2 py-0.5">Assignment</Badge>
                   {discount && discount > 0 && (
                     <Badge className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-0.5">
                       Save {formatPrice(discount)}
                     </Badge>
                   )}
                   {developerCredit && (
-                    <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-0.5">
+                    <Badge className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-0.5">
                       {formatPrice(developerCredit)} Credit
                     </Badge>
                   )}
