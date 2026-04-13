@@ -386,7 +386,7 @@ export default function BlogPost() {
               <img
                 src="https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769974057981-u5d1e1f.jpg"
                 alt="Uzair Muhammad"
-                className="flex-shrink-0 w-14 h-14 rounded-full object-cover"
+                className="flex-shrink-0 w-16 h-16 rounded-full object-cover object-top"
                 style={{ border: "2px solid hsl(40 65% 55% / 0.6)" }}
               />
 
