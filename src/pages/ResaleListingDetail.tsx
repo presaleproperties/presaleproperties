@@ -1130,13 +1130,13 @@ export default function ResaleListingDetail() {
                         <span className="text-sm text-muted-foreground">Brokerage</span>
                         <span className="font-semibold text-foreground">{listing.list_office_name}</span>
                       </div>}
-                    {/* Agent phone — verified agents only */}
-                    {listing.list_agent_phone && (
+                    {/* Agent phone — verified agents only, from agentData */}
+                    {agentData?.phone && (
                       isVerifiedAgent
                         ? <div className="flex justify-between items-center py-2 border-b border-border/50">
                             <span className="text-sm text-muted-foreground">Agent Phone</span>
-                            <a href={`tel:${listing.list_agent_phone}`} className="font-semibold text-primary hover:underline">
-                              {listing.list_agent_phone}
+                            <a href={`tel:${agentData.phone}`} className="font-semibold text-primary hover:underline">
+                              {agentData.phone}
                             </a>
                           </div>
                         : <div className="flex justify-between items-center py-2 border-b border-border/50">
@@ -1146,12 +1146,12 @@ export default function ResaleListingDetail() {
                             </span>
                           </div>
                     )}
-                    {/* Agent email — verified agents only */}
-                    {listing.list_agent_email && isVerifiedAgent && (
+                    {/* Agent email — verified agents only, from agentData */}
+                    {agentData?.email && isVerifiedAgent && (
                       <div className="flex justify-between items-center py-2 border-b border-border/50">
                         <span className="text-sm text-muted-foreground">Agent Email</span>
-                        <a href={`mailto:${listing.list_agent_email}`} className="font-semibold text-primary hover:underline text-sm truncate max-w-[60%]">
-                          {listing.list_agent_email}
+                        <a href={`mailto:${agentData.email}`} className="font-semibold text-primary hover:underline text-sm truncate max-w-[60%]">
+                          {agentData.email}
                         </a>
                       </div>
                     )}
@@ -1228,10 +1228,10 @@ export default function ResaleListingDetail() {
                 <ResaleAgentCard 
                   agent={agentData || {
                     full_name: listing.list_agent_name,
-                    email: listing.list_agent_email,
-                    phone: listing.list_agent_phone,
+                    email: null,
+                    phone: null,
                     office_name: listing.list_office_name,
-                  }} 
+                  }}
                 />
               )}
             </div>
@@ -1280,10 +1280,10 @@ export default function ResaleListingDetail() {
                 <ResaleAgentCard 
                   agent={agentData || {
                     full_name: listing.list_agent_name,
-                    email: listing.list_agent_email,
-                    phone: listing.list_agent_phone,
+                    email: null,
+                    phone: null,
                     office_name: listing.list_office_name,
-                  }} 
+                  }}
                 />
               )}
 
