@@ -206,8 +206,8 @@ export default function ResaleListingDetail() {
 
       return {
         full_name: agent.full_name || listing.list_agent_name,
-        email: listing.list_agent_email,
-        phone: listing.list_agent_phone,
+        email: null,
+        phone: null,
         office_name: officeName,
       };
     },
