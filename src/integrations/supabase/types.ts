@@ -3765,6 +3765,9 @@ export type Database = {
           bathrooms_half: number | null
           bathrooms_total: number | null
           bedrooms_total: number | null
+          buyer_agent_key: string | null
+          buyer_agent_name: string | null
+          buyer_office_name: string | null
           city: string | null
           close_date: string | null
           close_price: number | null
@@ -3787,8 +3790,12 @@ export type Database = {
           latitude: number | null
           lease_amount: number | null
           lease_frequency: string | null
+          list_agent_key: string | null
+          list_agent_mls_id: string | null
           list_agent_name: string | null
           list_date: string | null
+          list_office_key: string | null
+          list_office_mls_id: string | null
           list_office_name: string | null
           listing_contract_date: string | null
           listing_id: string | null
@@ -3845,6 +3852,9 @@ export type Database = {
           bathrooms_half?: number | null
           bathrooms_total?: number | null
           bedrooms_total?: number | null
+          buyer_agent_key?: string | null
+          buyer_agent_name?: string | null
+          buyer_office_name?: string | null
           city?: string | null
           close_date?: string | null
           close_price?: number | null
@@ -3867,8 +3877,12 @@ export type Database = {
           latitude?: number | null
           lease_amount?: number | null
           lease_frequency?: string | null
+          list_agent_key?: string | null
+          list_agent_mls_id?: string | null
           list_agent_name?: string | null
           list_date?: string | null
+          list_office_key?: string | null
+          list_office_mls_id?: string | null
           list_office_name?: string | null
           listing_contract_date?: string | null
           listing_id?: string | null
@@ -3925,6 +3939,9 @@ export type Database = {
           bathrooms_half?: number | null
           bathrooms_total?: number | null
           bedrooms_total?: number | null
+          buyer_agent_key?: string | null
+          buyer_agent_name?: string | null
+          buyer_office_name?: string | null
           city?: string | null
           close_date?: string | null
           close_price?: number | null
@@ -3947,8 +3964,12 @@ export type Database = {
           latitude?: number | null
           lease_amount?: number | null
           lease_frequency?: string | null
+          list_agent_key?: string | null
+          list_agent_mls_id?: string | null
           list_agent_name?: string | null
           list_date?: string | null
+          list_office_key?: string | null
+          list_office_mls_id?: string | null
           list_office_name?: string | null
           listing_contract_date?: string | null
           listing_id?: string | null
