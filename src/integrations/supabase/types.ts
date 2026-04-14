@@ -3790,16 +3790,13 @@ export type Database = {
           latitude: number | null
           lease_amount: number | null
           lease_frequency: string | null
-          list_agent_email: string | null
           list_agent_key: string | null
           list_agent_mls_id: string | null
           list_agent_name: string | null
-          list_agent_phone: string | null
           list_date: string | null
           list_office_key: string | null
           list_office_mls_id: string | null
           list_office_name: string | null
-          list_office_phone: string | null
           listing_contract_date: string | null
           listing_id: string | null
           listing_key: string | null
@@ -3880,16 +3877,13 @@ export type Database = {
           latitude?: number | null
           lease_amount?: number | null
           lease_frequency?: string | null
-          list_agent_email?: string | null
           list_agent_key?: string | null
           list_agent_mls_id?: string | null
           list_agent_name?: string | null
-          list_agent_phone?: string | null
           list_date?: string | null
           list_office_key?: string | null
           list_office_mls_id?: string | null
           list_office_name?: string | null
-          list_office_phone?: string | null
           listing_contract_date?: string | null
           listing_id?: string | null
           listing_key?: string | null
@@ -3970,16 +3964,13 @@ export type Database = {
           latitude?: number | null
           lease_amount?: number | null
           lease_frequency?: string | null
-          list_agent_email?: string | null
           list_agent_key?: string | null
           list_agent_mls_id?: string | null
           list_agent_name?: string | null
-          list_agent_phone?: string | null
           list_date?: string | null
           list_office_key?: string | null
           list_office_mls_id?: string | null
           list_office_name?: string | null
-          list_office_phone?: string | null
           listing_contract_date?: string | null
           listing_id?: string | null
           listing_key?: string | null
