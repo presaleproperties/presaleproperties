@@ -234,6 +234,14 @@ export function SignatureEditor() {
 
   const selectedAgent = TEAM_AGENTS.find(a => a.id === selectedAgentId)!;
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
