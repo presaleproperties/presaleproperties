@@ -345,7 +345,7 @@ export function SoldPostGenerator() {
           ) : (
             <select
               value={selectedProject}
-              onChange={e => { setSelectedProject(e.target.value); setCaptions([]); }}
+              onChange={e => { setSelectedProject(e.target.value); setCaptions([]); setSelectedImage(null); }}
               className="w-full h-10 rounded-lg border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="">Choose a project…</option>
