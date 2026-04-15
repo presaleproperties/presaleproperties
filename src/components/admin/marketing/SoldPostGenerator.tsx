@@ -41,7 +41,7 @@ export function SoldPostGenerator() {
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedAgent, setSelectedAgent] = useState("");
   const [unitCount, setUnitCount] = useState("1");
-  const [unitNumber, setUnitNumber] = useState("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [userInput, setUserInput] = useState("");
   const [postSize, setPostSize] = useState<PostSize>("post");
   const [loading, setLoading] = useState(true);
