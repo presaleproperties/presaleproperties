@@ -17,7 +17,6 @@ interface Project {
   neighborhood: string;
   featured_image: string | null;
   gallery_images: string[] | null;
-  developer_name: string | null;
 }
 
 interface TeamMember {
@@ -51,7 +50,7 @@ export function SoldPostGenerator() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Editable text fields
+  // Editable text
   const [headlineTop, setHeadlineTop] = useState("Just");
   const [headlineMain, setHeadlineMain] = useState("SOLD");
   const [customAgentName, setCustomAgentName] = useState("");
@@ -61,7 +60,7 @@ export function SoldPostGenerator() {
     Promise.all([
       supabase
         .from("presale_projects")
-        .select("id, name, city, neighborhood, featured_image, gallery_images, developer_name")
+        .select("id, name, city, neighborhood, featured_image, gallery_images")
         .eq("is_published", true)
         .order("name"),
       supabase
@@ -79,11 +78,9 @@ export function SoldPostGenerator() {
   const selectedProj = projects.find(p => p.id === selectedProject);
   const selectedMember = teamMembers.find(t => t.id === selectedAgent);
 
-  // Auto-fill editable fields when selections change
   useEffect(() => {
     if (selectedProj) {
       setCustomProjectName(selectedProj.name);
-      setCustomDeveloper(selectedProj.developer_name || "");
     }
   }, [selectedProject]);
 
@@ -97,7 +94,7 @@ export function SoldPostGenerator() {
     if (!selectedProj) { setPreviewUrl(null); return; }
     renderPreview();
   }, [selectedProject, selectedAgent, unitCount, unitNumber, postSize, selectedImage,
-      headlineTop, headlineMain, priceText, customAgentName, customProjectName, customDeveloper]);
+      headlineTop, headlineMain, customAgentName, customProjectName]);
 
   const renderPreview = async () => {
     const canvas = canvasRef.current;
@@ -110,11 +107,15 @@ export function SoldPostGenerator() {
     canvas.height = h;
     const ctx = canvas.getContext("2d")!;
 
-    // === DARK BACKGROUND ===
-    ctx.fillStyle = "#111111";
+    // Brand colors
+    const gold = "#c8a45e";
+    const darkBg = "#0f0f0f";
+
+    // === SOLID DARK BACKGROUND ===
+    ctx.fillStyle = darkBg;
     ctx.fillRect(0, 0, w, h);
 
-    // Load project image as subtle background (left/center, faded)
+    // Project image as subtle background
     const bgImage = selectedImage || selectedProj?.featured_image;
     if (bgImage) {
       try {
@@ -122,194 +123,187 @@ export function SoldPostGenerator() {
         const scale = Math.max(w / img.width, h / img.height);
         const sw = img.width * scale;
         const sh = img.height * scale;
-        ctx.globalAlpha = 0.15;
+        ctx.globalAlpha = 0.12;
         ctx.drawImage(img, (w - sw) / 2, (h - sh) / 2, sw, sh);
         ctx.globalAlpha = 1;
       } catch { /* fallback */ }
     }
 
-    // Subtle gradient overlay for depth
-    const grad = ctx.createLinearGradient(0, 0, w, 0);
-    grad.addColorStop(0, "rgba(17,17,17,0.7)");
-    grad.addColorStop(0.55, "rgba(17,17,17,0.4)");
-    grad.addColorStop(1, "rgba(17,17,17,0.85)");
-    ctx.fillStyle = grad;
+    // Dark overlay for consistent look
+    const overlay = ctx.createRadialGradient(w * 0.3, h * 0.4, 0, w * 0.5, h * 0.5, w);
+    overlay.addColorStop(0, "rgba(15,15,15,0.5)");
+    overlay.addColorStop(1, "rgba(15,15,15,0.85)");
+    ctx.fillStyle = overlay;
     ctx.fillRect(0, 0, w, h);
 
-    // Top gradient
-    const topGrad = ctx.createLinearGradient(0, 0, 0, h * 0.15);
-    topGrad.addColorStop(0, "rgba(0,0,0,0.5)");
-    topGrad.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = topGrad;
-    ctx.fillRect(0, 0, w, h * 0.15);
+    const leftMargin = isStory ? 80 : 70;
 
-    const leftMargin = isStory ? 70 : 60;
-
-    // === TOP: Branding ===
+    // === TOP: PRESALE PROPERTIES branding ===
+    const topY = isStory ? 75 : 55;
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = `700 ${isStory ? 32 : 26}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `600 ${isStory ? 28 : 22}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = "center";
-    ctx.fillText("PRESALE PROPERTIES", w / 2, isStory ? 80 : 60);
-    ctx.font = `300 ${isStory ? 16 : 13}px system-ui, -apple-system, sans-serif`;
-    ctx.letterSpacing = "4px";
-    ctx.fillText("P R E S A L E   R E A L   E S T A T E", w / 2, isStory ? 110 : 82);
+    ctx.fillText("PRESALE PROPERTIES", w / 2, topY);
 
-    // === "Just" in gold script ===
-    const justY = isStory ? 340 : 200;
-    ctx.fillStyle = "#c8a45e";
-    ctx.font = `italic 300 ${isStory ? 110 : 80}px "Georgia", "Times New Roman", serif`;
+    // Thin gold line below branding
+    const lineY = topY + (isStory ? 20 : 16);
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(w / 2 - 80, lineY);
+    ctx.lineTo(w / 2 + 80, lineY);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.font = `300 ${isStory ? 15 : 12}px system-ui, -apple-system, sans-serif`;
+    ctx.fillText("PRESALE REAL ESTATE", w / 2, lineY + (isStory ? 22 : 18));
+
+    // === "Just" in gold italic serif ===
+    const justY = isStory ? 360 : 220;
+    ctx.fillStyle = gold;
+    ctx.font = `italic ${isStory ? 100 : 72}px Georgia, "Times New Roman", serif`;
     ctx.textAlign = "left";
     ctx.fillText(headlineTop, leftMargin, justY);
 
     // === "SOLD" large bold ===
-    const soldY = justY + (isStory ? 150 : 110);
+    const soldY = justY + (isStory ? 140 : 100);
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = `900 ${isStory ? 180 : 140}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `800 ${isStory ? 170 : 130}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = "left";
-    ctx.fillText(headlineMain, leftMargin - 5, soldY);
+    ctx.fillText(headlineMain, leftMargin - 4, soldY);
 
-    // === Project name ===
-    const infoY = soldY + (isStory ? 100 : 70);
-    ctx.fillStyle = "#e0e0e0";
-    ctx.font = `300 ${isStory ? 42 : 32}px system-ui, -apple-system, sans-serif`;
+    // === Thin gold separator ===
+    const sepY = soldY + (isStory ? 30 : 20);
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(leftMargin, sepY);
+    ctx.lineTo(leftMargin + (isStory ? 200 : 160), sepY);
+    ctx.stroke();
+
+    // === Project name + location ===
+    const projY = sepY + (isStory ? 60 : 45);
+    const displayProject = customProjectName || selectedProj?.name || "";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = `600 ${isStory ? 40 : 30}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = "left";
-    const displayProject = customProjectName || selectedProj?.name || "Project Name";
-    ctx.fillText(displayProject, leftMargin, infoY);
+    ctx.fillText(displayProject, leftMargin, projY);
 
-    // === Developer ===
-    const devName = customDeveloper;
-    if (devName) {
-      const devY = infoY + (isStory ? 55 : 42);
-      ctx.fillStyle = "#b0b0b0";
-      ctx.font = `300 ${isStory ? 34 : 26}px system-ui, -apple-system, sans-serif`;
-      const byText = "By ";
-      const byWidth = ctx.measureText(byText).width;
-      ctx.fillText(byText, leftMargin, devY);
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = `700 ${isStory ? 34 : 26}px system-ui, -apple-system, sans-serif`;
-      ctx.fillText(devName, leftMargin + byWidth, devY);
-    }
-
-    // === Price ===
-    if (priceText) {
-      const priceY = infoY + (devName ? (isStory ? 150 : 110) : (isStory ? 90 : 70));
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = `900 italic ${isStory ? 80 : 60}px system-ui, -apple-system, sans-serif`;
-      ctx.textAlign = "left";
-      ctx.fillText(priceText, leftMargin, priceY);
+    const loc = [selectedProj?.neighborhood, selectedProj?.city].filter(Boolean).join(", ");
+    if (loc) {
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.font = `400 ${isStory ? 28 : 22}px system-ui, -apple-system, sans-serif`;
+      ctx.fillText(loc, leftMargin, projY + (isStory ? 45 : 34));
     }
 
     // === Units badge ===
     const units = parseInt(unitCount) || 1;
     if (units > 1) {
-      const priceOffset = priceText ? (isStory ? 100 : 75) : (isStory ? 60 : 45);
-      const devOffset = devName ? (isStory ? 150 : 110) : (isStory ? 90 : 70);
-      const badgeY = infoY + devOffset + (priceText ? priceOffset : 0);
+      const badgeY = projY + (loc ? (isStory ? 90 : 70) : (isStory ? 55 : 42));
       const badgeText = `${units} UNITS SOLD`;
-      ctx.font = `600 ${isStory ? 28 : 22}px system-ui, -apple-system, sans-serif`;
-      const bw = ctx.measureText(badgeText).width + 40;
-      const bh = isStory ? 48 : 38;
+      ctx.font = `600 ${isStory ? 24 : 20}px system-ui, -apple-system, sans-serif`;
+      const tw = ctx.measureText(badgeText).width;
+      const bw = tw + 36;
+      const bh = isStory ? 44 : 36;
 
-      ctx.fillStyle = "rgba(200,164,94,0.2)";
-      roundRect(ctx, leftMargin, badgeY, bw, bh, 6);
+      ctx.fillStyle = "rgba(200,164,94,0.15)";
+      roundRect(ctx, leftMargin, badgeY, bw, bh, 4);
       ctx.fill();
-      ctx.strokeStyle = "#c8a45e";
+      ctx.strokeStyle = gold;
       ctx.lineWidth = 1.5;
-      roundRect(ctx, leftMargin, badgeY, bw, bh, 6);
+      roundRect(ctx, leftMargin, badgeY, bw, bh, 4);
       ctx.stroke();
 
-      ctx.fillStyle = "#c8a45e";
+      ctx.fillStyle = gold;
       ctx.textAlign = "left";
-      ctx.fillText(badgeText, leftMargin + 20, badgeY + bh * 0.68);
+      ctx.fillText(badgeText, leftMargin + 18, badgeY + bh * 0.68);
     }
 
-    // === Agent name at bottom left ===
+    // === AGENT SECTION — bottom ===
     const agentName = customAgentName || selectedMember?.full_name || "";
-    if (agentName) {
-      const nameY = h - (isStory ? 160 : 100);
-      // Gold line above name
-      ctx.strokeStyle = "#c8a45e";
-      ctx.lineWidth = 2;
-      const nameWidth = (() => {
-        ctx.font = `700 ${isStory ? 36 : 28}px system-ui, -apple-system, sans-serif`;
-        return ctx.measureText(agentName).width;
-      })();
-      ctx.beginPath();
-      ctx.moveTo(leftMargin, nameY - (isStory ? 20 : 15));
-      ctx.lineTo(leftMargin + nameWidth, nameY - (isStory ? 20 : 15));
-      ctx.stroke();
+    const agentTitle = selectedMember?.title || "";
+    const agentPhone = selectedMember?.phone || "";
+
+    // Bottom bar background
+    const barH = isStory ? 200 : 160;
+    const barY = h - barH;
+
+    // Gradient fade into bar
+    const barGrad = ctx.createLinearGradient(0, barY - 60, 0, barY);
+    barGrad.addColorStop(0, "rgba(15,15,15,0)");
+    barGrad.addColorStop(1, "rgba(10,10,10,0.95)");
+    ctx.fillStyle = barGrad;
+    ctx.fillRect(0, barY - 60, w, 60);
+
+    ctx.fillStyle = "rgba(10,10,10,0.95)";
+    ctx.fillRect(0, barY, w, barH);
+
+    // Gold top line on bar
+    ctx.fillStyle = gold;
+    ctx.fillRect(0, barY, w, 3);
+
+    if (selectedMember) {
+      const circleSize = isStory ? 110 : 90;
+      const circleX = leftMargin + circleSize / 2;
+      const circleY = barY + barH / 2;
+
+      // Agent headshot in circle
+      if (selectedMember.photo_url) {
+        try {
+          const img = await loadImage(selectedMember.photo_url);
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(circleX, circleY, circleSize / 2, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+          // Center-crop the image into circle
+          const imgMin = Math.min(img.width, img.height);
+          const sx = (img.width - imgMin) / 2;
+          const sy = (img.height - imgMin) / 2;
+          ctx.drawImage(img, sx, sy, imgMin, imgMin, circleX - circleSize / 2, circleY - circleSize / 2, circleSize, circleSize);
+          ctx.restore();
+
+          // Gold ring
+          ctx.strokeStyle = gold;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(circleX, circleY, circleSize / 2 + 2, 0, Math.PI * 2);
+          ctx.stroke();
+        } catch { /* skip */ }
+      }
+
+      // Agent text — to the right of circle
+      const textX = circleX + circleSize / 2 + (isStory ? 30 : 24);
+      const textCenterY = circleY;
 
       ctx.fillStyle = "#FFFFFF";
-      ctx.font = `700 ${isStory ? 36 : 28}px system-ui, -apple-system, sans-serif`;
+      ctx.font = `700 ${isStory ? 32 : 26}px system-ui, -apple-system, sans-serif`;
       ctx.textAlign = "left";
-      ctx.fillText(agentName, leftMargin, nameY);
+      ctx.fillText(agentName, textX, textCenterY - (isStory ? 14 : 10));
 
-      // Title below
-      if (selectedMember?.title) {
-        ctx.fillStyle = "#999";
-        ctx.font = `400 ${isStory ? 24 : 18}px system-ui, -apple-system, sans-serif`;
-        ctx.fillText(selectedMember.title, leftMargin, nameY + (isStory ? 38 : 28));
+      const subParts = [agentTitle, agentPhone].filter(Boolean).join("  ·  ");
+      if (subParts) {
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.font = `400 ${isStory ? 22 : 18}px system-ui, -apple-system, sans-serif`;
+        ctx.fillText(subParts, textX, textCenterY + (isStory ? 22 : 18));
       }
     }
 
-    // === Agent headshot — large, right side ===
-    if (selectedMember?.photo_url) {
-      try {
-        const img = await loadImage(selectedMember.photo_url);
-        // Large headshot on right side
-        const headW = isStory ? 520 : 420;
-        const headH = isStory ? 700 : 500;
-        const headX = w - headW + (isStory ? 30 : 20);
-        const headY = h - headH - (isStory ? 40 : 20);
+    // Real Broker badge — bottom right
+    const realW = isStory ? 90 : 70;
+    const realH = isStory ? 36 : 28;
+    const realX = w - leftMargin - realW;
+    const realY = barY + (barH - realH) / 2;
+    ctx.strokeStyle = "rgba(255,255,255,0.4)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(realX, realY, realW, realH);
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.font = `400 ${isStory ? 20 : 16}px system-ui, -apple-system, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText("real", realX + realW / 2, realY + realH * 0.72);
 
-        // Fade mask from left
-        ctx.save();
-        const fadeGrad = ctx.createLinearGradient(headX, 0, headX + headW * 0.35, 0);
-        fadeGrad.addColorStop(0, "rgba(0,0,0,0)");
-        fadeGrad.addColorStop(1, "rgba(0,0,0,1)");
-
-        // Draw agent with fade
-        const tempCanvas = document.createElement("canvas");
-        tempCanvas.width = w;
-        tempCanvas.height = h;
-        const tempCtx = tempCanvas.getContext("2d")!;
-
-        // Scale and position the headshot
-        const imgAspect = img.width / img.height;
-        const targetAspect = headW / headH;
-        let sx = 0, sy = 0, sW = img.width, sH = img.height;
-        if (imgAspect > targetAspect) {
-          sW = img.height * targetAspect;
-          sx = (img.width - sW) / 2;
-        } else {
-          sH = img.width / targetAspect;
-          sy = 0;
-        }
-        tempCtx.drawImage(img, sx, sy, sW, sH, headX, headY, headW, headH);
-
-        // Apply fade gradient as mask
-        tempCtx.globalCompositeOperation = "destination-in";
-        const mask = tempCtx.createLinearGradient(headX, 0, headX + headW * 0.3, 0);
-        mask.addColorStop(0, "rgba(0,0,0,0)");
-        mask.addColorStop(1, "rgba(0,0,0,1)");
-        tempCtx.fillStyle = mask;
-        tempCtx.fillRect(headX, headY, headW, headH);
-
-        // Also fade from bottom
-        tempCtx.globalCompositeOperation = "destination-in";
-        const bottomMask = tempCtx.createLinearGradient(0, headY + headH - 60, 0, headY + headH);
-        bottomMask.addColorStop(0, "rgba(0,0,0,1)");
-        bottomMask.addColorStop(1, "rgba(0,0,0,0.3)");
-        tempCtx.fillStyle = bottomMask;
-        tempCtx.fillRect(headX, headY, headW, headH);
-
-        ctx.drawImage(tempCanvas, 0, 0);
-        ctx.restore();
-      } catch { /* skip */ }
-    }
-
-    // === Bottom gold accent line ===
-    ctx.fillStyle = "#c8a45e";
+    // Bottom gold accent
+    ctx.fillStyle = gold;
     ctx.fillRect(0, h - 4, w, 4);
 
     setPreviewUrl(canvas.toDataURL("image/png"));
@@ -380,7 +374,7 @@ export function SoldPostGenerator() {
     <div className="space-y-6">
       <canvas ref={canvasRef} className="hidden" />
 
-      {/* Row 1: Project & Agent selectors */}
+      {/* Selectors */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
           <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5 block">
@@ -434,32 +428,24 @@ export function SoldPostGenerator() {
         </div>
       </div>
 
-      {/* Row 2: Editable text fields */}
+      {/* Customize Text */}
       <div className="rounded-xl border border-border bg-card/50 p-4 space-y-3">
         <div className="flex items-center gap-2 mb-1">
           <Type className="h-3.5 w-3.5 text-primary" />
           <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Customize Text</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
             <label className="text-[10px] text-muted-foreground mb-1 block">Top Line</label>
             <Input value={headlineTop} onChange={e => setHeadlineTop(e.target.value)} placeholder="Just" className="h-8 text-xs" />
           </div>
           <div>
-            <label className="text-[10px] text-muted-foreground mb-1 block">Main Headline</label>
+            <label className="text-[10px] text-muted-foreground mb-1 block">Headline</label>
             <Input value={headlineMain} onChange={e => setHeadlineMain(e.target.value)} placeholder="SOLD" className="h-8 text-xs" />
           </div>
           <div>
             <label className="text-[10px] text-muted-foreground mb-1 block">Project Name</label>
             <Input value={customProjectName} onChange={e => setCustomProjectName(e.target.value)} placeholder="Project" className="h-8 text-xs" />
-          </div>
-          <div>
-            <label className="text-[10px] text-muted-foreground mb-1 block">Developer</label>
-            <Input value={customDeveloper} onChange={e => setCustomDeveloper(e.target.value)} placeholder="Developer" className="h-8 text-xs" />
-          </div>
-          <div>
-            <label className="text-[10px] text-muted-foreground mb-1 block">Price</label>
-            <Input value={priceText} onChange={e => setPriceText(e.target.value)} placeholder="$549,900" className="h-8 text-xs" />
           </div>
           <div>
             <label className="text-[10px] text-muted-foreground mb-1 block">Agent Name</label>
@@ -468,7 +454,7 @@ export function SoldPostGenerator() {
         </div>
       </div>
 
-      {/* Row 3: Size toggle + Photo picker */}
+      {/* Size + Photos */}
       <div className="flex flex-col sm:flex-row gap-4 items-start">
         <div>
           <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5 block">Size</label>
@@ -535,9 +521,7 @@ export function SoldPostGenerator() {
         </div>
 
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 block">
-            AI Caption Generator
-          </span>
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 block">AI Caption Generator</span>
           <div className="space-y-3">
             <Textarea
               value={userInput}
