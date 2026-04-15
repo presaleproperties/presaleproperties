@@ -24,15 +24,16 @@ interface Project {
   name: string;
   city: string;
   neighborhood: string | null;
-  developer: string | null;
+  developer_name: string | null;
   status: string;
   starting_price: number | null;
-  estimated_completion: string | null;
-  description: string | null;
+  completion_year: number | null;
+  completion_month: number | null;
+  full_description: string | null;
   featured_image: string | null;
   gallery_images: string[] | null;
-  bedrooms_range: string | null;
-  square_footage_range: string | null;
+  unit_mix: any;
+  price_range: string | null;
 }
 
 interface FlyerData {
@@ -153,7 +154,7 @@ export function PrintFlyerBuilder() {
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from("presale_projects")
-        .select("id, name, city, neighborhood, developer, status, starting_price, estimated_completion, description, featured_image, gallery_images, bedrooms_range, square_footage_range")
+        .select("id, name, city, neighborhood, developer_name, status, starting_price, completion_year, completion_month, full_description, featured_image, gallery_images, unit_mix, price_range")
         .eq("is_published", true)
         .order("name");
       setProjects((data as any) || []);
@@ -166,15 +167,19 @@ export function PrintFlyerBuilder() {
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
 
+    const completionStr = project.completion_year
+      ? `${project.completion_month ? `${project.completion_month}/` : ""}${project.completion_year}`
+      : "TBD";
+
     setFlyerData(prev => ({
       ...prev,
       projectName: project.name,
       location: [project.neighborhood, project.city].filter(Boolean).join(", "),
-      developer: project.developer || "",
+      developer: project.developer_name || "",
       startingPrice: project.starting_price ? `$${project.starting_price.toLocaleString()}` : "Contact Us",
-      completion: project.estimated_completion || "TBD",
-      bedrooms: project.bedrooms_range || "1-3 Bed",
-      sqft: project.square_footage_range || "450-1,200 sqft",
+      completion: completionStr,
+      bedrooms: project.price_range || "Contact Us",
+      sqft: "",
       featuredImage: project.featured_image || "",
     }));
   };
