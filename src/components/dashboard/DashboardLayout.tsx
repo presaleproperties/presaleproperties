@@ -67,16 +67,10 @@ const navSections: NavSection[] = [
         description: "Build & send campaigns"
       },
       { 
-        label: "Templates", 
+        label: "Marketing Hub", 
         href: "/dashboard/marketing-hub", 
         icon: Megaphone,
-        description: "Saved campaigns & assets"
-      },
-      { 
-        label: "Pitch Decks", 
-        href: "/dashboard/decks", 
-        icon: Presentation,
-        description: "Share project presentations"
+        description: "Templates, decks & social"
       },
       { 
         label: "Email Tracking", 
@@ -116,7 +110,7 @@ const navSections: NavSection[] = [
 const mobileBottomTabs = [
   { label: "Home", href: "/dashboard", icon: LayoutDashboard, exact: true },
   { label: "Leads", href: "/dashboard/leads", icon: Users, exact: false },
-  { label: "Decks", href: "/dashboard/decks", icon: Presentation, exact: false },
+  { label: "Marketing", href: "/dashboard/marketing-hub", icon: Megaphone, exact: false },
   { label: "Email", href: "/dashboard/email-builder", icon: PenTool, exact: false },
   { label: "Profile", href: "/dashboard/profile", icon: User, exact: false },
 ];
