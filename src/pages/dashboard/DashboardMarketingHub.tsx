@@ -24,7 +24,7 @@ import {
   Mail, Plus, Clock, Trash2, Copy, Tag,
   ChevronRight, Building2, Star, Megaphone, ExternalLink,
   Search, LayoutGrid, List, Send, Loader2, Users,
-  Presentation, Share2, PenTool,
+  Presentation, Share2, PenTool, Image, BarChart3, FileText, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,10 @@ import { personalizeTemplateHtml, buildAiTemplateHtmlFromFormData, isAiEmailTemp
 import { PitchDecksList } from "@/components/dashboard/PitchDecksList";
 import { SocialPostGenerator } from "@/components/admin/marketing/SocialPostGenerator";
 import { SignatureEditor } from "@/components/dashboard/SignatureEditor";
+import { BrandAssetLibrary } from "@/components/dashboard/BrandAssetLibrary";
+import { MarketingAnalytics } from "@/components/dashboard/MarketingAnalytics";
+import { PrintFlyerBuilder } from "@/components/dashboard/PrintFlyerBuilder";
+import { AiCopyAssistant } from "@/components/dashboard/AiCopyAssistant";
 
 interface SavedAsset {
   id: string;
@@ -555,6 +559,22 @@ export default function DashboardMarketingHub() {
                   <PenTool className="h-3.5 w-3.5" />
                   <span>Signature</span>
                 </TabsTrigger>
+                <TabsTrigger value="assets" className="gap-1.5 data-[state=active]:shadow-sm">
+                  <Image className="h-3.5 w-3.5" />
+                  <span>Assets</span>
+                </TabsTrigger>
+                <TabsTrigger value="flyers" className="gap-1.5 data-[state=active]:shadow-sm">
+                  <FileText className="h-3.5 w-3.5" />
+                  <span>Flyers</span>
+                </TabsTrigger>
+                <TabsTrigger value="ai-copy" className="gap-1.5 data-[state=active]:shadow-sm">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>AI Copy</span>
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="gap-1.5 data-[state=active]:shadow-sm">
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  <span>Analytics</span>
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="emails">
@@ -571,6 +591,22 @@ export default function DashboardMarketingHub() {
 
               <TabsContent value="signature">
                 <SignatureEditor />
+              </TabsContent>
+
+              <TabsContent value="assets">
+                <BrandAssetLibrary />
+              </TabsContent>
+
+              <TabsContent value="flyers">
+                <PrintFlyerBuilder />
+              </TabsContent>
+
+              <TabsContent value="ai-copy">
+                <AiCopyAssistant />
+              </TabsContent>
+
+              <TabsContent value="analytics">
+                <MarketingAnalytics />
               </TabsContent>
             </Tabs>
           </div>
