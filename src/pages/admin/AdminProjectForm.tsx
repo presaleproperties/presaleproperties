@@ -193,7 +193,10 @@ export default function AdminProjectForm() {
         body: { address: searchQuery, action: 'geocode' },
       });
       
-      if (error) throw new Error('Geocoding failed');
+      if (error || !data?.lat || !data?.lng) {
+        console.error('Geocoding failed:', error || data?.error);
+        return null;
+      }
       
       return { lat: data.lat.toString(), lng: data.lng.toString() };
     } catch (error) {
@@ -217,12 +220,19 @@ export default function AdminProjectForm() {
       
       if (!error && data) {
         setAddressSuggestions(data.predictions || []);
-        setShowAddressSuggestions(true);
+        setShowAddressSuggestions((data.predictions || []).length > 0);
+        if (data.error) {
+          console.warn('Address suggestions fallback:', data.error);
+        }
       } else {
         console.error('Address suggestions error:', error);
+        setAddressSuggestions([]);
+        setShowAddressSuggestions(false);
       }
     } catch (error) {
       console.error('Address suggestions error:', error);
+      setAddressSuggestions([]);
+      setShowAddressSuggestions(false);
     } finally {
       setIsLoadingSuggestions(false);
     }
