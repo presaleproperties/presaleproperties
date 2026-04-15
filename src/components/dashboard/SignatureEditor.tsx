@@ -157,6 +157,7 @@ function agentToFields(a: AgentInfo): EditableFields {
     photoUrl: a.photoUrl,
     instagram: a.instagram,
     headshotLink: "",
+    headshotShape: "rounded" as HeadshotShape,
   };
 }
 
