@@ -162,7 +162,25 @@ export function AIProjectUploadWizard() {
     setShowAddressSuggestions(false);
     setAddressSuggestions([]);
     
-    // Use placeDetails for accurate coordinates
+    if (!suggestion.placeId) {
+      setIsGeocoding(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('geocode-address', {
+          body: { address: suggestion.description, action: 'geocode' },
+        });
+
+        if (!error && data?.lat && data?.lng) {
+          setMapLat(data.lat.toString());
+          setMapLng(data.lng.toString());
+          if (data.city) updateFormField("city", data.city);
+          if (data.neighborhood) updateFormField("neighborhood", data.neighborhood);
+        }
+      } finally {
+        setIsGeocoding(false);
+      }
+      return;
+    }
+    
     setIsGeocoding(true);
     try {
       const { data, error } = await supabase.functions.invoke('geocode-address', {
