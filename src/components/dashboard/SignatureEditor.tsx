@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Copy, Eye, Pencil, Loader2, Save } from "lucide-react";
+import { Copy, Eye, Pencil, Loader2, Save, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -75,56 +75,83 @@ interface EditableFields {
   brokerage: string;
   photoUrl: string;
   instagram: string;
+  headshotLink: string;
 }
 
-// ── Horizontal layout: headshot on the left ──────────────────────────
+// ── Premium Horizontal: headshot left with gold accent ───────────────
 function buildHorizontalHtml(d: EditableFields): string {
   const initials = d.fullName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
-  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.4; max-width: 480px;">
+  const headshotImg = d.photoUrl
+    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="100" height="100" style="border-radius: 50%; object-fit: cover; display: block; border: 3px solid #c8a45e; box-shadow: 0 4px 12px rgba(200,164,94,0.25);" />`
+    : `<div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#c8a45e,#a8843e);color:#fff;font-size:32px;font-weight:700;text-align:center;line-height:100px;box-shadow:0 4px 12px rgba(200,164,94,0.25);">${initials}</div>`;
+  const headshot = d.headshotLink ? `<a href="${d.headshotLink}" target="_blank" style="text-decoration:none;">${headshotImg}</a>` : headshotImg;
+
+  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 520px;">
   <tr>
-    <td style="padding-right: 18px; vertical-align: top;">
-      ${d.photoUrl
-        ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="96" height="96" style="border-radius: 50%; object-fit: cover; display: block; border: 3px solid #c8a45e;" />`
-        : `<div style="width:96px;height:96px;border-radius:50%;background:#c8a45e;color:#fff;font-size:28px;font-weight:700;text-align:center;line-height:96px;">${initials}</div>`}
+    <td style="padding-right: 20px; vertical-align: middle;">
+      ${headshot}
     </td>
-    <td style="vertical-align: top; border-left: 3px solid #c8a45e; padding-left: 18px;">
-      <p style="margin: 0 0 2px; font-size: 18px; font-weight: 700; color: #1a1a1a;">${d.fullName}</p>
-      <p style="margin: 0 0 10px; font-size: 13px; color: #c8a45e; font-weight: 600;">${d.title}</p>
-      <p style="margin: 0 0 4px; font-size: 12px; color: #555;">${d.brokerage}</p>
-      <table cellpadding="0" cellspacing="0" border="0" style="font-size: 13px; margin-top: 6px;">
-        <tr><td style="padding: 2px 8px 2px 0; color: #999; font-size: 11px; font-weight: 600;">P</td><td style="padding: 2px 0;"><a href="tel:${d.phone}" style="color: #1a1a1a; text-decoration: none;">${d.phone}</a></td></tr>
-        <tr><td style="padding: 2px 8px 2px 0; color: #999; font-size: 11px; font-weight: 600;">E</td><td style="padding: 2px 0;"><a href="mailto:${d.email}" style="color: #1a1a1a; text-decoration: none;">${d.email}</a></td></tr>
-        <tr><td style="padding: 2px 8px 2px 0; color: #999; font-size: 11px; font-weight: 600;">W</td><td style="padding: 2px 0;"><a href="${d.website}" style="color: #c8a45e; text-decoration: none;">${d.website.replace(/^https?:\/\//, "")}</a></td></tr>
-      </table>
+    <td style="vertical-align: middle; border-left: 3px solid #c8a45e; padding-left: 20px;">
+      <p style="margin: 0 0 1px; font-size: 19px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.3px;">${d.fullName}</p>
+      <p style="margin: 0 0 12px; font-size: 12px; color: #c8a45e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;">${d.title}</p>
+      <p style="margin: 0 0 8px; font-size: 12px; color: #666; font-weight: 500;">${d.brokerage}</p>
+      <table cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
+        <tr>
+          <td style="padding: 3px 0;">
+            <a href="tel:${d.phone}" style="color: #333; text-decoration: none; font-weight: 500;">${d.phone}</a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 3px 0;">
+            <a href="mailto:${d.email}" style="color: #333; text-decoration: none; font-weight: 500;">${d.email}</a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 3px 0;">
+            <a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a>
+          </td>
+        </tr>
+      </table>${d.instagram ? `
+      <table cellpadding="0" cellspacing="0" border="0" style="margin-top: 10px;">
+        <tr>
+          <td>
+            <a href="${d.instagram}" target="_blank" style="display: inline-block; padding: 4px 10px; background: linear-gradient(135deg, #833AB4, #E1306C, #F77737); color: #fff; font-size: 11px; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.3px;">Instagram</a>
+          </td>
+        </tr>
+      </table>` : ""}
     </td>
   </tr>
 </table>`;
 }
 
-// ── Stacked layout: headshot on top ──────────────────────────────────
+// ── Premium Stacked: headshot on top, centered ───────────────────────
 function buildStackedHtml(d: EditableFields): string {
   const initials = d.fullName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
-  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.4; max-width: 320px;">
+  const headshotImg = d.photoUrl
+    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="110" height="110" style="border-radius: 50%; object-fit: cover; display: inline-block; border: 3px solid #c8a45e; box-shadow: 0 6px 20px rgba(200,164,94,0.3);" />`
+    : `<div style="width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#c8a45e,#a8843e);color:#fff;font-size:34px;font-weight:700;text-align:center;line-height:110px;display:inline-block;box-shadow:0 6px 20px rgba(200,164,94,0.3);">${initials}</div>`;
+  const headshot = d.headshotLink ? `<a href="${d.headshotLink}" target="_blank" style="text-decoration:none;">${headshotImg}</a>` : headshotImg;
+
+  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 340px;">
   <tr>
-    <td style="text-align: center; padding-bottom: 14px;">
-      ${d.photoUrl
-        ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="100" height="100" style="border-radius: 50%; object-fit: cover; display: inline-block; border: 3px solid #c8a45e;" />`
-        : `<div style="width:100px;height:100px;border-radius:50%;background:#c8a45e;color:#fff;font-size:30px;font-weight:700;text-align:center;line-height:100px;display:inline-block;">${initials}</div>`}
+    <td style="text-align: center; padding-bottom: 16px;">
+      ${headshot}
     </td>
   </tr>
   <tr>
-    <td style="text-align: center; padding-bottom: 10px;">
-      <p style="margin: 0 0 2px; font-size: 18px; font-weight: 700; color: #1a1a1a;">${d.fullName}</p>
-      <p style="margin: 0; font-size: 13px; color: #c8a45e; font-weight: 600;">${d.title}</p>
+    <td style="text-align: center; padding-bottom: 14px;">
+      <p style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.3px;">${d.fullName}</p>
+      <p style="margin: 0; font-size: 12px; color: #c8a45e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;">${d.title}</p>
     </td>
   </tr>
   <tr>
     <td style="text-align: center;">
-      <div style="width: 50px; height: 2px; background: #c8a45e; margin: 0 auto 12px;"></div>
-      <p style="margin: 0 0 4px; font-size: 12px; color: #555;">${d.brokerage}</p>
-      <p style="margin: 0 0 2px; font-size: 13px;"><a href="tel:${d.phone}" style="color: #1a1a1a; text-decoration: none;">${d.phone}</a></p>
-      <p style="margin: 0 0 2px; font-size: 13px;"><a href="mailto:${d.email}" style="color: #1a1a1a; text-decoration: none;">${d.email}</a></p>
-      <p style="margin: 0; font-size: 13px;"><a href="${d.website}" style="color: #c8a45e; text-decoration: none;">${d.website.replace(/^https?:\/\//, "")}</a></p>
+      <div style="width: 40px; height: 2px; background: linear-gradient(90deg, #c8a45e, #e8d4a0); margin: 0 auto 14px; border-radius: 1px;"></div>
+      <p style="margin: 0 0 6px; font-size: 12px; color: #666; font-weight: 500;">${d.brokerage}</p>
+      <p style="margin: 0 0 3px; font-size: 13px;"><a href="tel:${d.phone}" style="color: #333; text-decoration: none; font-weight: 500;">${d.phone}</a></p>
+      <p style="margin: 0 0 3px; font-size: 13px;"><a href="mailto:${d.email}" style="color: #333; text-decoration: none; font-weight: 500;">${d.email}</a></p>
+      <p style="margin: 0 0 ${d.instagram ? "10" : "0"}px; font-size: 13px;"><a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a></p>${d.instagram ? `
+      <a href="${d.instagram}" target="_blank" style="display: inline-block; padding: 4px 12px; background: linear-gradient(135deg, #833AB4, #E1306C, #F77737); color: #fff; font-size: 11px; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.3px;">Instagram</a>` : ""}
     </td>
   </tr>
 </table>`;
@@ -140,6 +167,7 @@ function agentToFields(a: AgentInfo): EditableFields {
     brokerage: a.brokerage,
     photoUrl: a.photoUrl,
     instagram: a.instagram,
+    headshotLink: "",
   };
 }
 
@@ -154,7 +182,6 @@ export function SignatureEditor() {
   const iframeHRef = useRef<HTMLIFrameElement>(null);
   const iframeVRef = useRef<HTMLIFrameElement>(null);
 
-  // Load saved overrides from app_settings on mount
   useEffect(() => {
     (async () => {
       const { data } = await (supabase as any)
@@ -165,7 +192,6 @@ export function SignatureEditor() {
       if (data?.value) {
         const overrides = data.value as Record<string, EditableFields>;
         setSavedOverrides(overrides);
-        // If current agent has saved overrides, apply them
         if (overrides[TEAM_AGENTS[0].id]) {
           setFields(overrides[TEAM_AGENTS[0].id]);
         }
@@ -174,7 +200,6 @@ export function SignatureEditor() {
     })();
   }, []);
 
-  // When agent changes, load saved overrides or defaults
   const handleAgentChange = (agentId: string) => {
     setSelectedAgentId(agentId);
     if (savedOverrides[agentId]) {
@@ -208,7 +233,6 @@ export function SignatureEditor() {
   const stackedHtml = buildStackedHtml(fields);
   const activeHtml = layout === "horizontal" ? horizontalHtml : stackedHtml;
 
-  // Update both iframe previews
   useEffect(() => {
     [
       { ref: iframeHRef, html: horizontalHtml },
@@ -218,7 +242,7 @@ export function SignatureEditor() {
       const doc = ref.current.contentDocument;
       if (!doc) return;
       doc.open();
-      doc.write(`<!DOCTYPE html><html><head><style>body{margin:16px;font-family:Arial,sans-serif;background:#fff;}</style></head><body>${html}</body></html>`);
+      doc.write(`<!DOCTYPE html><html><head><style>body{margin:20px;font-family:'Helvetica Neue',Arial,sans-serif;background:#fff;}</style></head><body>${html}</body></html>`);
       doc.close();
     });
   }, [horizontalHtml, stackedHtml]);
@@ -248,12 +272,11 @@ export function SignatureEditor() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Email Signature</p>
-          <p className="text-xs text-muted-foreground/60 mt-0.5">Generate professional signatures for the team</p>
+          <p className="text-xs text-muted-foreground/60 mt-0.5">Generate premium signatures for the team</p>
         </div>
         <div className="flex items-center gap-2">
-          {/* Agent selector */}
           <Select value={selectedAgentId} onValueChange={handleAgentChange}>
-            <SelectTrigger className="h-9 w-[200px] text-xs">
+            <SelectTrigger className="h-9 w-[210px] text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -267,7 +290,6 @@ export function SignatureEditor() {
               ))}
             </SelectContent>
           </Select>
-          {/* Mode toggle */}
           <div className="flex items-center border border-border rounded-lg overflow-hidden h-8">
             <button
               onClick={() => setMode("form")}
@@ -289,70 +311,84 @@ export function SignatureEditor() {
         {/* Left: Editor / HTML */}
         <div className="space-y-4">
           {mode === "form" ? (
-            <div className="space-y-3 rounded-xl border border-border bg-card p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <img src={fields.photoUrl || selectedAgent.photoUrl} alt="" className="h-12 w-12 rounded-full object-cover ring-2 ring-primary/20" />
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
+              {/* Agent preview header */}
+              <div className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border-border p-4 flex items-center gap-3">
+                <img src={fields.photoUrl || selectedAgent.photoUrl} alt="" className="h-14 w-14 rounded-full object-cover ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-md" />
                 <div>
-                  <p className="text-sm font-semibold">{fields.fullName}</p>
-                  <p className="text-[11px] text-muted-foreground">{fields.title}</p>
+                  <p className="text-sm font-bold">{fields.fullName}</p>
+                  <p className="text-[11px] text-primary font-semibold uppercase tracking-wide">{fields.title}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{fields.brokerage}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <Label className="text-xs">Full Name</Label>
-                  <Input value={fields.fullName} onChange={e => update("fullName", e.target.value)} className="h-8 text-sm mt-1" />
-                </div>
-                <div>
-                  <Label className="text-xs">Title</Label>
-                  <Input value={fields.title} onChange={e => update("title", e.target.value)} className="h-8 text-sm mt-1" />
-                </div>
-                <div>
-                  <Label className="text-xs">Phone</Label>
-                  <Input value={fields.phone} onChange={e => update("phone", e.target.value)} className="h-8 text-sm mt-1" />
-                </div>
-                <div>
-                  <Label className="text-xs">Email</Label>
-                  <Input value={fields.email} onChange={e => update("email", e.target.value)} className="h-8 text-sm mt-1" />
-                </div>
-                <div>
-                  <Label className="text-xs">Website</Label>
-                  <Input value={fields.website} onChange={e => update("website", e.target.value)} className="h-8 text-sm mt-1" />
-                </div>
-                <div>
-                  <Label className="text-xs">Brokerage</Label>
-                  <Input value={fields.brokerage} onChange={e => update("brokerage", e.target.value)} className="h-8 text-sm mt-1" />
-                </div>
-                <div>
-                  <Label className="text-xs">Instagram</Label>
-                  <Input value={fields.instagram} onChange={e => update("instagram", e.target.value)} className="h-8 text-sm mt-1" placeholder="https://instagram.com/..." />
-                </div>
-                <div className="col-span-2">
-                  <Label className="text-xs">Headshot URL</Label>
-                  <Input value={fields.photoUrl} onChange={e => update("photoUrl", e.target.value)} className="h-8 text-sm mt-1" />
+              {/* Fields */}
+              <div className="p-5 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Full Name</Label>
+                    <Input value={fields.fullName} onChange={e => update("fullName", e.target.value)} className="h-8 text-sm mt-1" />
+                  </div>
+                  <div>
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Title</Label>
+                    <Input value={fields.title} onChange={e => update("title", e.target.value)} className="h-8 text-sm mt-1" />
+                  </div>
+                  <div>
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Phone</Label>
+                    <Input value={fields.phone} onChange={e => update("phone", e.target.value)} className="h-8 text-sm mt-1" />
+                  </div>
+                  <div>
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Email</Label>
+                    <Input value={fields.email} onChange={e => update("email", e.target.value)} className="h-8 text-sm mt-1" />
+                  </div>
+                  <div>
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Website</Label>
+                    <Input value={fields.website} onChange={e => update("website", e.target.value)} className="h-8 text-sm mt-1" />
+                  </div>
+                  <div>
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Brokerage</Label>
+                    <Input value={fields.brokerage} onChange={e => update("brokerage", e.target.value)} className="h-8 text-sm mt-1" />
+                  </div>
+                  <div>
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Instagram</Label>
+                    <Input value={fields.instagram} onChange={e => update("instagram", e.target.value)} className="h-8 text-sm mt-1" placeholder="https://instagram.com/..." />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Headshot URL</Label>
+                    <Input value={fields.photoUrl} onChange={e => update("photoUrl", e.target.value)} className="h-8 text-sm mt-1" />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                      <ExternalLink className="h-3 w-3" /> Headshot Link URL
+                    </Label>
+                    <Input value={fields.headshotLink} onChange={e => update("headshotLink", e.target.value)} className="h-8 text-sm mt-1" placeholder="https://... (clicking headshot opens this link)" />
+                    <p className="text-[10px] text-muted-foreground/50 mt-1">When set, the headshot image becomes clickable and links to this URL</p>
+                  </div>
                 </div>
               </div>
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Horizontal HTML */}
-              <div className="rounded-xl border border-border bg-card p-4">
-                <div className="flex items-center justify-between mb-2">
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
+                <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                   <p className="text-xs font-semibold text-muted-foreground">Variation 1 — Headshot Left</p>
                   <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5" onClick={() => handleCopyHtml(horizontalHtml)}>
                     <Copy className="h-3 w-3" /> Copy
                   </Button>
                 </div>
-                <Textarea value={horizontalHtml} readOnly className="font-mono text-[10px] min-h-[200px] bg-muted/30" />
+                <div className="p-3">
+                  <Textarea value={horizontalHtml} readOnly className="font-mono text-[10px] min-h-[180px] bg-muted/20 border-0" />
+                </div>
               </div>
-              {/* Stacked HTML */}
-              <div className="rounded-xl border border-border bg-card p-4">
-                <div className="flex items-center justify-between mb-2">
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
+                <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                   <p className="text-xs font-semibold text-muted-foreground">Variation 2 — Headshot Top</p>
                   <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5" onClick={() => handleCopyHtml(stackedHtml)}>
                     <Copy className="h-3 w-3" /> Copy
                   </Button>
                 </div>
-                <Textarea value={stackedHtml} readOnly className="font-mono text-[10px] min-h-[200px] bg-muted/30" />
+                <div className="p-3">
+                  <Textarea value={stackedHtml} readOnly className="font-mono text-[10px] min-h-[180px] bg-muted/20 border-0" />
+                </div>
               </div>
             </div>
           )}
@@ -367,57 +403,63 @@ export function SignatureEditor() {
         {/* Right: Both Previews */}
         <div className="space-y-4">
           {/* Variation 1: Horizontal */}
-          <div className={cn("rounded-xl border bg-card overflow-hidden transition-all", layout === "horizontal" ? "border-primary ring-2 ring-primary/20" : "border-border")}>
-            <div className="px-4 py-2.5 border-b border-border bg-muted/30 flex items-center justify-between">
-              <button onClick={() => setLayout("horizontal")} className="flex items-center gap-2 text-left">
-                <div className={cn("h-3 w-3 rounded-full border-2 transition-colors", layout === "horizontal" ? "border-primary bg-primary" : "border-muted-foreground/40")} />
-                <p className="text-xs font-semibold text-muted-foreground">Headshot Left</p>
-              </button>
-              <div className="flex items-center gap-1.5">
-                {layout === "horizontal" && <Badge className="text-[9px] bg-primary/10 text-primary border-0">Selected</Badge>}
-                <Button size="sm" variant="ghost" className="h-6 text-[10px] gap-1 px-2" onClick={() => handleCopyHtml(horizontalHtml)}>
-                  <Copy className="h-2.5 w-2.5" /> Copy
-                </Button>
+          <div className={cn(
+            "rounded-xl border bg-card overflow-hidden transition-all cursor-pointer",
+            layout === "horizontal" ? "border-primary ring-2 ring-primary/15 shadow-md" : "border-border hover:border-primary/20"
+          )} onClick={() => setLayout("horizontal")}>
+            <div className="px-4 py-2.5 border-b border-border bg-muted/20 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className={cn("h-3.5 w-3.5 rounded-full border-2 transition-colors flex items-center justify-center", layout === "horizontal" ? "border-primary bg-primary" : "border-muted-foreground/30")}>
+                  {layout === "horizontal" && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+                </div>
+                <p className="text-xs font-semibold">Headshot Left</p>
+                {layout === "horizontal" && <Badge className="text-[9px] bg-primary/10 text-primary border-0 h-4 px-1.5">Active</Badge>}
               </div>
+              <Button size="sm" variant="ghost" className="h-6 text-[10px] gap-1 px-2" onClick={(e) => { e.stopPropagation(); handleCopyHtml(horizontalHtml); }}>
+                <Copy className="h-2.5 w-2.5" /> Copy
+              </Button>
             </div>
             <div className="bg-white">
               <iframe
                 ref={iframeHRef}
                 title="Horizontal Signature"
-                className="w-full border-0"
-                style={{ minHeight: 160 }}
+                className="w-full border-0 pointer-events-none"
+                style={{ minHeight: 170 }}
                 sandbox="allow-same-origin"
               />
             </div>
           </div>
 
           {/* Variation 2: Stacked */}
-          <div className={cn("rounded-xl border bg-card overflow-hidden transition-all", layout === "stacked" ? "border-primary ring-2 ring-primary/20" : "border-border")}>
-            <div className="px-4 py-2.5 border-b border-border bg-muted/30 flex items-center justify-between">
-              <button onClick={() => setLayout("stacked")} className="flex items-center gap-2 text-left">
-                <div className={cn("h-3 w-3 rounded-full border-2 transition-colors", layout === "stacked" ? "border-primary bg-primary" : "border-muted-foreground/40")} />
-                <p className="text-xs font-semibold text-muted-foreground">Headshot Top</p>
-              </button>
-              <div className="flex items-center gap-1.5">
-                {layout === "stacked" && <Badge className="text-[9px] bg-primary/10 text-primary border-0">Selected</Badge>}
-                <Button size="sm" variant="ghost" className="h-6 text-[10px] gap-1 px-2" onClick={() => handleCopyHtml(stackedHtml)}>
-                  <Copy className="h-2.5 w-2.5" /> Copy
-                </Button>
+          <div className={cn(
+            "rounded-xl border bg-card overflow-hidden transition-all cursor-pointer",
+            layout === "stacked" ? "border-primary ring-2 ring-primary/15 shadow-md" : "border-border hover:border-primary/20"
+          )} onClick={() => setLayout("stacked")}>
+            <div className="px-4 py-2.5 border-b border-border bg-muted/20 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className={cn("h-3.5 w-3.5 rounded-full border-2 transition-colors flex items-center justify-center", layout === "stacked" ? "border-primary bg-primary" : "border-muted-foreground/30")}>
+                  {layout === "stacked" && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+                </div>
+                <p className="text-xs font-semibold">Headshot Top</p>
+                {layout === "stacked" && <Badge className="text-[9px] bg-primary/10 text-primary border-0 h-4 px-1.5">Active</Badge>}
               </div>
+              <Button size="sm" variant="ghost" className="h-6 text-[10px] gap-1 px-2" onClick={(e) => { e.stopPropagation(); handleCopyHtml(stackedHtml); }}>
+                <Copy className="h-2.5 w-2.5" /> Copy
+              </Button>
             </div>
             <div className="bg-white">
               <iframe
                 ref={iframeVRef}
                 title="Stacked Signature"
-                className="w-full border-0"
-                style={{ minHeight: 220 }}
+                className="w-full border-0 pointer-events-none"
+                style={{ minHeight: 240 }}
                 sandbox="allow-same-origin"
               />
             </div>
           </div>
 
           <p className="text-[10px] text-muted-foreground/50 text-center">
-            Select a variation, then copy the HTML into your email client's signature settings
+            Click a variation to select it · Copy the HTML into your email client's signature settings
           </p>
         </div>
       </div>
