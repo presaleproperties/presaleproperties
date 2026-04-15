@@ -853,7 +853,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
     showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
-  ]);
+    dbDraftLoading,
+  ]); // eslint-disable-line
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
   const currentCopy = useCallback((): AiEmailCopy => ({
