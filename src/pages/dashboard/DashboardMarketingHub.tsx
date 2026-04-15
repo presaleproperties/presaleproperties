@@ -24,7 +24,7 @@ import {
   Mail, Plus, Clock, Trash2, Copy, Tag,
   ChevronRight, Building2, Star, Megaphone, ExternalLink,
   Search, LayoutGrid, List, Send, Loader2, Users,
-  Presentation, Share2, PenTool,
+  Presentation, Share2, PenTool, Image, BarChart3, FileText, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,10 @@ import { personalizeTemplateHtml, buildAiTemplateHtmlFromFormData, isAiEmailTemp
 import { PitchDecksList } from "@/components/dashboard/PitchDecksList";
 import { SocialPostGenerator } from "@/components/admin/marketing/SocialPostGenerator";
 import { SignatureEditor } from "@/components/dashboard/SignatureEditor";
+import { BrandAssetLibrary } from "@/components/dashboard/BrandAssetLibrary";
+import { MarketingAnalytics } from "@/components/dashboard/MarketingAnalytics";
+import { PrintFlyerBuilder } from "@/components/dashboard/PrintFlyerBuilder";
+import { AiCopyAssistant } from "@/components/dashboard/AiCopyAssistant";
 
 interface SavedAsset {
   id: string;
