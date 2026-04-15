@@ -430,6 +430,38 @@ export function SoldPostGenerator() {
         </div>
       </div>
 
+      {/* Photo picker */}
+      {selectedProj && (() => {
+        const allPhotos = [
+          selectedProj.featured_image,
+          ...(selectedProj.gallery_images || []),
+        ].filter(Boolean) as string[];
+        if (allPhotos.length <= 1) return null;
+        return (
+          <div>
+            <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2 block">
+              Select Photo
+            </label>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {allPhotos.map((url, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedImage(url === selectedProj.featured_image && !selectedImage ? null : url)}
+                  className={cn(
+                    "shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all hover:opacity-90",
+                    (selectedImage === url || (!selectedImage && url === selectedProj.featured_image))
+                      ? "border-primary ring-2 ring-primary/30"
+                      : "border-border opacity-70"
+                  )}
+                >
+                  <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Preview + Caption side by side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Graphic preview */}
