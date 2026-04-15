@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { personalizeTemplateHtml, buildAiTemplateHtmlFromFormData, isAiEmailTemplate } from "@/lib/ai-email-html";
 import { PitchDecksList } from "@/components/dashboard/PitchDecksList";
 import { SocialPostGenerator } from "@/components/admin/marketing/SocialPostGenerator";
+import { SoldPostGenerator } from "@/components/admin/marketing/SoldPostGenerator";
 import { SignatureEditor } from "@/components/dashboard/SignatureEditor";
 import { BrandAssetLibrary } from "@/components/dashboard/BrandAssetLibrary";
 import { MarketingAnalytics } from "@/components/dashboard/MarketingAnalytics";
@@ -586,7 +587,22 @@ export default function DashboardMarketingHub() {
               </TabsContent>
 
               <TabsContent value="social">
-                <SocialPostGenerator />
+                <Tabs defaultValue="ads" className="w-full">
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="ads" className="gap-1.5 text-xs">
+                      <Megaphone className="h-3 w-3" /> Ad Graphics
+                    </TabsTrigger>
+                    <TabsTrigger value="sold" className="gap-1.5 text-xs">
+                      🔑 Sold Posts
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="ads">
+                    <SocialPostGenerator />
+                  </TabsContent>
+                  <TabsContent value="sold">
+                    <SoldPostGenerator />
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
 
               <TabsContent value="signature">
