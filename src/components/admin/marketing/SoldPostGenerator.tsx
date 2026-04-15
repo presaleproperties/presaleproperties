@@ -76,7 +76,7 @@ export function SoldPostGenerator() {
   useEffect(() => {
     if (!selectedProj) { setPreviewUrl(null); return; }
     renderPreview();
-  }, [selectedProject, selectedAgent, unitCount, unitNumber, postSize]);
+  }, [selectedProject, selectedAgent, unitCount, unitNumber, postSize, selectedImage]);
 
   const renderPreview = async () => {
     const canvas = canvasRef.current;
