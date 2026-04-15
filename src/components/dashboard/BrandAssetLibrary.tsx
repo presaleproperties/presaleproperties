@@ -23,13 +23,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface StorageFile {
-  name: string;
-  id: string;
-  created_at: string;
-  updated_at: string;
-  metadata: { size: number; mimetype: string } | null;
-}
 
 interface AssetItem {
   name: string;
