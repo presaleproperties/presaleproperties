@@ -193,7 +193,10 @@ export default function AdminProjectForm() {
         body: { address: searchQuery, action: 'geocode' },
       });
       
-      if (error) throw new Error('Geocoding failed');
+      if (error || !data?.lat || !data?.lng) {
+        console.error('Geocoding failed:', error || data?.error);
+        return null;
+      }
       
       return { lat: data.lat.toString(), lng: data.lng.toString() };
     } catch (error) {
