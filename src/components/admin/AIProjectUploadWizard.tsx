@@ -141,17 +141,11 @@ export function AIProjectUploadWizard() {
     
     setIsLoadingSuggestions(true);
     try {
-      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
-      const supabaseUrl = publicUrl.split('/storage/')[0];
-      
-      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: input, action: 'autocomplete' }),
+      const { data, error } = await supabase.functions.invoke('geocode-address', {
+        body: { address: input, action: 'autocomplete' },
       });
       
-      if (response.ok) {
-        const data = await response.json();
+      if (!error && data) {
         setAddressSuggestions(data.predictions || []);
         setShowAddressSuggestions(true);
       }
@@ -168,23 +162,16 @@ export function AIProjectUploadWizard() {
     setShowAddressSuggestions(false);
     setAddressSuggestions([]);
     
-    // Auto-geocode the selected address
+    // Use placeDetails for accurate coordinates
     setIsGeocoding(true);
     try {
-      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
-      const supabaseUrl = publicUrl.split('/storage/')[0];
-      
-      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: suggestion.description, action: 'geocode' }),
+      const { data, error } = await supabase.functions.invoke('geocode-address', {
+        body: { address: suggestion.description, action: 'placeDetails', placeId: suggestion.placeId },
       });
       
-      if (response.ok) {
-        const data = await response.json();
+      if (!error && data && data.lat && data.lng) {
         setMapLat(data.lat.toString());
         setMapLng(data.lng.toString());
-        // Auto-fill city and neighborhood if available
         if (data.city) updateFormField("city", data.city);
         if (data.neighborhood) updateFormField("neighborhood", data.neighborhood);
         

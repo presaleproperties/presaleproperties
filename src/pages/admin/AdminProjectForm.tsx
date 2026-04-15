@@ -189,21 +189,12 @@ export default function AdminProjectForm() {
       const searchParts = [address, neighborhood, city, "BC", "Canada"].filter(Boolean);
       const searchQuery = searchParts.join(", ");
       
-      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
-      const supabaseUrl = publicUrl.split('/storage/')[0];
-      
-      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: searchQuery, action: 'geocode' }),
+      const { data, error } = await supabase.functions.invoke('geocode-address', {
+        body: { address: searchQuery, action: 'geocode' },
       });
       
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Geocoding failed');
-      }
+      if (error) throw new Error('Geocoding failed');
       
-      const data = await response.json();
       return { lat: data.lat.toString(), lng: data.lng.toString() };
     } catch (error) {
       console.error('Geocoding error:', error);
@@ -220,19 +211,15 @@ export default function AdminProjectForm() {
     
     setIsLoadingSuggestions(true);
     try {
-      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
-      const supabaseUrl = publicUrl.split('/storage/')[0];
-      
-      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: input, action: 'autocomplete' }),
+      const { data, error } = await supabase.functions.invoke('geocode-address', {
+        body: { address: input, action: 'autocomplete' },
       });
       
-      if (response.ok) {
-        const data = await response.json();
+      if (!error && data) {
         setAddressSuggestions(data.predictions || []);
         setShowAddressSuggestions(true);
+      } else {
+        console.error('Address suggestions error:', error);
       }
     } catch (error) {
       console.error('Address suggestions error:', error);
@@ -247,23 +234,17 @@ export default function AdminProjectForm() {
     setShowAddressSuggestions(false);
     setAddressSuggestions([]);
     
-    // Auto-geocode the selected address
+    // Use placeDetails for accurate coordinates from the selected place
     setIsGeocoding(true);
     try {
-      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
-      const supabaseUrl = publicUrl.split('/storage/')[0];
-      
-      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: suggestion.description, action: 'geocode' }),
+      const { data, error } = await supabase.functions.invoke('geocode-address', {
+        body: { address: suggestion.description, action: 'placeDetails', placeId: suggestion.placeId },
       });
       
-      if (response.ok) {
-        const data = await response.json();
+      if (!error && data && data.lat && data.lng) {
         setFormData(prev => ({
           ...prev,
-          address: suggestion.description,
+          address: data.formattedAddress || suggestion.description,
           map_lat: data.lat.toString(),
           map_lng: data.lng.toString(),
           city: data.city || prev.city,
@@ -272,6 +253,13 @@ export default function AdminProjectForm() {
         toast({
           title: "Address Found",
           description: `Coordinates: ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}`,
+        });
+      } else {
+        console.error('Place details error:', error);
+        toast({
+          title: "Could not get coordinates",
+          description: "Try entering the address manually.",
+          variant: "destructive",
         });
       }
     } catch (error) {

@@ -1,11 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://presaleproperties.com",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -32,7 +30,6 @@ serve(async (req) => {
 
     if (action === "autocomplete") {
       // Google Places API (New) - Autocomplete
-      // Max 5 types allowed - use geocode for addresses + establishment for businesses
       const response = await fetch(
         "https://places.googleapis.com/v1/places:autocomplete",
         {
@@ -43,7 +40,6 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             input: address,
-            // Limited to 5 types max - these cover addresses and business names
             includedPrimaryTypes: [
               "street_address",
               "premise",
@@ -83,7 +79,7 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } else if (action === "geocode") {
-      // Use Geocoding API (still supported as separate API)
+      // Use Geocoding API
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAPS_API_KEY}`
       );
@@ -112,7 +108,6 @@ serve(async (req) => {
         );
       }
 
-      // Extract address components
       const addressComponents = result.address_components || [];
       const getComponent = (type: string) => 
         addressComponents.find((c: any) => c.types.includes(type))?.long_name || "";
@@ -190,7 +185,7 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : "Internal server error";
     return new Response(
       JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
   }
 });
