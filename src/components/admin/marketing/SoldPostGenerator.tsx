@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import {
   Sparkles, Copy, Loader2, RectangleVertical, Square, User, Hash, Building2, Download, MapPin, Type,
 } from "lucide-react";
+import logoImg from "@/assets/logo-new.png";
 
 interface Project {
   id: string;
