@@ -567,6 +567,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (!dbDraft || stateHydratedRef.current) return;
     stateHydratedRef.current = true;
     const d = dbDraft;
+    if (d.selProjectId && d.selProjectId !== "none") setSelProjectId(d.selProjectId);
     setProjectName(d.projectName ?? "");
     setDevName(d.developerName ?? "");
     setShowProjectName(d.showProjectName ?? true);
@@ -825,7 +826,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       setDraftSavedAt(new Date());
 
       // Auto-save to DB if editing a saved template
-      if (savedTemplateId) {
+      if (savedTemplateId && !dbDraftLoading && stateHydratedRef.current) {
         if (dbAutoSaveRef.current) clearTimeout(dbAutoSaveRef.current);
         dbAutoSaveRef.current = setTimeout(async () => {
           setDbSaving(true);
@@ -852,7 +853,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
     showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
-  ]);
+    dbDraftLoading,
+  ]); // eslint-disable-line
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
   const currentCopy = useCallback((): AiEmailCopy => ({
@@ -1400,6 +1402,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
       brochureUrl, floorplanUrl, bookShowingUrl,
       showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
+      selProjectId,
+      pricingUrl,
       ...savedDeckMeta,
       finalHtml,
     };
