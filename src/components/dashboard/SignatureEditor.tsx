@@ -65,6 +65,7 @@ const TEAM_AGENTS: AgentInfo[] = [
 ];
 
 type LayoutVariant = "horizontal" | "stacked";
+type HeadshotShape = "circle" | "rounded";
 
 interface EditableFields {
   fullName: string;
@@ -76,46 +77,49 @@ interface EditableFields {
   photoUrl: string;
   instagram: string;
   headshotLink: string;
+  headshotShape: HeadshotShape;
 }
 
-// ── Horizontal layout: rounded-square headshot on the left ───────────
-function buildHorizontalHtml(d: EditableFields): string {
+// ── Helper: build headshot img tag based on shape ────────────────────
+function buildHeadshotTag(d: EditableFields, size: number): string {
   const initials = d.fullName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
-  const headshotImg = d.photoUrl
-    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="100" height="100" style="border-radius: 14px; object-fit: cover; display: block; box-shadow: 0 4px 16px rgba(0,0,0,0.12);" />`
-    : `<div style="width:100px;height:100px;border-radius:14px;background:linear-gradient(135deg,#c8a45e,#a8843e);color:#fff;font-size:32px;font-weight:700;text-align:center;line-height:100px;box-shadow:0 4px 16px rgba(0,0,0,0.12);">${initials}</div>`;
-  const headshot = d.headshotLink ? `<a href="${d.headshotLink}" target="_blank" style="text-decoration:none;">${headshotImg}</a>` : headshotImg;
+  const radius = d.headshotShape === "circle" ? "50%" : "14px";
+  const img = d.photoUrl
+    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="${size}" height="${size}" style="border-radius: ${radius}; object-fit: cover; display: block; border: 3px solid #c8a45e; box-shadow: 0 4px 16px rgba(200,164,94,0.2);" />`
+    : `<div style="width:${size}px;height:${size}px;border-radius:${radius};background:linear-gradient(135deg,#c8a45e,#a8843e);color:#fff;font-size:${Math.round(size * 0.32)}px;font-weight:700;text-align:center;line-height:${size}px;box-shadow:0 4px 16px rgba(200,164,94,0.2);border:3px solid #c8a45e;">${initials}</div>`;
+  return d.headshotLink ? `<a href="${d.headshotLink}" target="_blank" style="text-decoration:none;">${img}</a>` : img;
+}
 
-  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 500px;">
+// ── Horizontal layout: headshot on the left with gold divider ────────
+function buildHorizontalHtml(d: EditableFields): string {
+  const headshot = buildHeadshotTag(d, 100);
+
+  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 520px;">
   <tr>
-    <td style="padding-right: 20px; vertical-align: top;">
+    <td style="padding-right: 18px; vertical-align: middle;">
       ${headshot}
     </td>
-    <td style="vertical-align: top;">
+    <td style="border-left: 3px solid #c8a45e; padding-left: 18px; vertical-align: middle;">
       <p style="margin: 0 0 1px; font-size: 19px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.3px;">${d.fullName}</p>
       <p style="margin: 0 0 10px; font-size: 11px; color: #c8a45e; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">${d.title} · ${d.brokerage}</p>
       <p style="margin: 0; font-size: 13px; color: #333;">
         <a href="tel:${d.phone}" style="color: #333; text-decoration: none;">${d.phone}</a>
-        <span style="color: #ccc; padding: 0 6px;">|</span>
+        <span style="color: #ddd; padding: 0 6px;">|</span>
         <a href="mailto:${d.email}" style="color: #333; text-decoration: none;">${d.email}</a>
       </p>
       <p style="margin: 4px 0 0; font-size: 13px;">
         <a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a>${d.instagram ? `
-        <span style="color: #ccc; padding: 0 6px;">|</span>
-        <a href="${d.instagram}" target="_blank" style="color: #E1306C; text-decoration: none; font-weight: 600; font-size: 12px;">Instagram</a>` : ""}
+        <span style="color: #ddd; padding: 0 6px;">|</span>
+        <a href="${d.instagram}" target="_blank" style="color: #c8a45e; text-decoration: none; font-weight: 600; font-size: 12px;">Instagram</a>` : ""}
       </p>
     </td>
   </tr>
 </table>`;
 }
 
-// ── Stacked layout: rounded-square headshot on top, centered ─────────
+// ── Stacked layout: headshot on top, centered ────────────────────────
 function buildStackedHtml(d: EditableFields): string {
-  const initials = d.fullName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
-  const headshotImg = d.photoUrl
-    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="110" height="110" style="border-radius: 16px; object-fit: cover; display: inline-block; box-shadow: 0 6px 24px rgba(0,0,0,0.12);" />`
-    : `<div style="width:110px;height:110px;border-radius:16px;background:linear-gradient(135deg,#c8a45e,#a8843e);color:#fff;font-size:34px;font-weight:700;text-align:center;line-height:110px;display:inline-block;box-shadow:0 6px 24px rgba(0,0,0,0.12);">${initials}</div>`;
-  const headshot = d.headshotLink ? `<a href="${d.headshotLink}" target="_blank" style="text-decoration:none;">${headshotImg}</a>` : headshotImg;
+  const headshot = buildHeadshotTag(d, 110);
 
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 340px;">
   <tr>
@@ -127,15 +131,16 @@ function buildStackedHtml(d: EditableFields): string {
     <td style="text-align: center;">
       <p style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.3px;">${d.fullName}</p>
       <p style="margin: 0 0 12px; font-size: 11px; color: #c8a45e; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">${d.title} · ${d.brokerage}</p>
+      <div style="width: 40px; height: 2px; background: #c8a45e; margin: 0 auto 12px; border-radius: 1px;"></div>
       <p style="margin: 0 0 3px; font-size: 13px;">
         <a href="tel:${d.phone}" style="color: #333; text-decoration: none;">${d.phone}</a>
-        <span style="color: #ccc; padding: 0 6px;">|</span>
+        <span style="color: #ddd; padding: 0 6px;">|</span>
         <a href="mailto:${d.email}" style="color: #333; text-decoration: none;">${d.email}</a>
       </p>
       <p style="margin: 0; font-size: 13px;">
         <a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a>${d.instagram ? `
-        <span style="color: #ccc; padding: 0 6px;">|</span>
-        <a href="${d.instagram}" target="_blank" style="color: #E1306C; text-decoration: none; font-weight: 600; font-size: 12px;">Instagram</a>` : ""}
+        <span style="color: #ddd; padding: 0 6px;">|</span>
+        <a href="${d.instagram}" target="_blank" style="color: #c8a45e; text-decoration: none; font-weight: 600; font-size: 12px;">Instagram</a>` : ""}
       </p>
     </td>
   </tr>
@@ -153,6 +158,7 @@ function agentToFields(a: AgentInfo): EditableFields {
     photoUrl: a.photoUrl,
     instagram: a.instagram,
     headshotLink: "",
+    headshotShape: "rounded" as HeadshotShape,
   };
 }
 
@@ -347,6 +353,25 @@ export function SignatureEditor() {
                     </Label>
                     <Input value={fields.headshotLink} onChange={e => update("headshotLink", e.target.value)} className="h-8 text-sm mt-1" placeholder="https://... (clicking headshot opens this link)" />
                     <p className="text-[10px] text-muted-foreground/50 mt-1">When set, the headshot image becomes clickable and links to this URL</p>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Headshot Shape</Label>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <button
+                        onClick={() => setFields(prev => ({ ...prev, headshotShape: "circle" }))}
+                        className={cn("flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all", fields.headshotShape === "circle" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/30")}
+                      >
+                        <div className="h-5 w-5 rounded-full border-2 border-current" />
+                        Circle
+                      </button>
+                      <button
+                        onClick={() => setFields(prev => ({ ...prev, headshotShape: "rounded" }))}
+                        className={cn("flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all", fields.headshotShape === "rounded" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/30")}
+                      >
+                        <div className="h-5 w-5 rounded-[4px] border-2 border-current" />
+                        Rounded
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
