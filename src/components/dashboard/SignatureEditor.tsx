@@ -354,6 +354,25 @@ export function SignatureEditor() {
                     <Input value={fields.headshotLink} onChange={e => update("headshotLink", e.target.value)} className="h-8 text-sm mt-1" placeholder="https://... (clicking headshot opens this link)" />
                     <p className="text-[10px] text-muted-foreground/50 mt-1">When set, the headshot image becomes clickable and links to this URL</p>
                   </div>
+                  <div className="col-span-2">
+                    <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Headshot Shape</Label>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <button
+                        onClick={() => setFields(prev => ({ ...prev, headshotShape: "circle" }))}
+                        className={cn("flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all", fields.headshotShape === "circle" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/30")}
+                      >
+                        <div className="h-5 w-5 rounded-full border-2 border-current" />
+                        Circle
+                      </button>
+                      <button
+                        onClick={() => setFields(prev => ({ ...prev, headshotShape: "rounded" }))}
+                        className={cn("flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all", fields.headshotShape === "rounded" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/30")}
+                      >
+                        <div className="h-5 w-5 rounded-[4px] border-2 border-current" />
+                        Rounded
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
