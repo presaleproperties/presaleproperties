@@ -559,6 +559,22 @@ export default function DashboardMarketingHub() {
                   <PenTool className="h-3.5 w-3.5" />
                   <span>Signature</span>
                 </TabsTrigger>
+                <TabsTrigger value="assets" className="gap-1.5 data-[state=active]:shadow-sm">
+                  <Image className="h-3.5 w-3.5" />
+                  <span>Assets</span>
+                </TabsTrigger>
+                <TabsTrigger value="flyers" className="gap-1.5 data-[state=active]:shadow-sm">
+                  <FileText className="h-3.5 w-3.5" />
+                  <span>Flyers</span>
+                </TabsTrigger>
+                <TabsTrigger value="ai-copy" className="gap-1.5 data-[state=active]:shadow-sm">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>AI Copy</span>
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="gap-1.5 data-[state=active]:shadow-sm">
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  <span>Analytics</span>
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="emails">
@@ -575,6 +591,22 @@ export default function DashboardMarketingHub() {
 
               <TabsContent value="signature">
                 <SignatureEditor />
+              </TabsContent>
+
+              <TabsContent value="assets">
+                <BrandAssetLibrary />
+              </TabsContent>
+
+              <TabsContent value="flyers">
+                <PrintFlyerBuilder />
+              </TabsContent>
+
+              <TabsContent value="ai-copy">
+                <AiCopyAssistant />
+              </TabsContent>
+
+              <TabsContent value="analytics">
+                <MarketingAnalytics />
               </TabsContent>
             </Tabs>
           </div>
