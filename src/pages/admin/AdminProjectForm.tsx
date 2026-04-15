@@ -189,21 +189,12 @@ export default function AdminProjectForm() {
       const searchParts = [address, neighborhood, city, "BC", "Canada"].filter(Boolean);
       const searchQuery = searchParts.join(", ");
       
-      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
-      const supabaseUrl = publicUrl.split('/storage/')[0];
-      
-      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: searchQuery, action: 'geocode' }),
+      const { data, error } = await supabase.functions.invoke('geocode-address', {
+        body: { address: searchQuery, action: 'geocode' },
       });
       
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Geocoding failed');
-      }
+      if (error) throw new Error('Geocoding failed');
       
-      const data = await response.json();
       return { lat: data.lat.toString(), lng: data.lng.toString() };
     } catch (error) {
       console.error('Geocoding error:', error);
