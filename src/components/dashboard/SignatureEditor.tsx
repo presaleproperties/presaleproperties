@@ -91,8 +91,14 @@ function buildHeadshotTag(d: EditableFields, size: number): string {
 }
 
 // ── Horizontal layout: headshot on the left with gold divider ────────
+function buildInstagramButton(d: EditableFields): string {
+  if (!d.instagram) return "";
+  return `<a href="${d.instagram}" target="_blank" style="display: inline-block; padding: 4px 12px; border: 1.5px solid #c8a45e; border-radius: 6px; color: #c8a45e; text-decoration: none; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; line-height: 18px; vertical-align: middle;">Instagram</a>`;
+}
+
 function buildHorizontalHtml(d: EditableFields): string {
   const headshot = buildHeadshotTag(d, 100);
+  const igBtn = buildInstagramButton(d);
 
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 520px;">
   <tr>
@@ -107,10 +113,9 @@ function buildHorizontalHtml(d: EditableFields): string {
         <span style="color: #ddd; padding: 0 6px;">|</span>
         <a href="mailto:${d.email}" style="color: #333; text-decoration: none;">${d.email}</a>
       </p>
-      <p style="margin: 4px 0 0; font-size: 13px;">
-        <a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a>${d.instagram ? `
-        <span style="color: #ddd; padding: 0 6px;">|</span>
-        <a href="${d.instagram}" target="_blank" style="color: #c8a45e; text-decoration: none; font-weight: 600; font-size: 12px;">Instagram</a>` : ""}
+      <p style="margin: 6px 0 0; font-size: 13px;">
+        <a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a>${igBtn ? `
+        <span style="padding: 0 8px;"></span>${igBtn}` : ""}
       </p>
     </td>
   </tr>
@@ -120,15 +125,16 @@ function buildHorizontalHtml(d: EditableFields): string {
 // ── Stacked layout: headshot on top, centered ────────────────────────
 function buildStackedHtml(d: EditableFields): string {
   const headshot = buildHeadshotTag(d, 110);
+  const igBtn = buildInstagramButton(d);
 
-  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 340px;">
+  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 340px; margin: 0 auto;">
   <tr>
-    <td style="text-align: center; padding-bottom: 14px;">
+    <td align="center" style="padding-bottom: 14px;">
       ${headshot}
     </td>
   </tr>
   <tr>
-    <td style="text-align: center;">
+    <td align="center" style="text-align: center;">
       <p style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.3px;">${d.fullName}</p>
       <p style="margin: 0 0 12px; font-size: 11px; color: #c8a45e; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">${d.title} · ${d.brokerage}</p>
       <div style="width: 40px; height: 2px; background: #c8a45e; margin: 0 auto 12px; border-radius: 1px;"></div>
@@ -137,11 +143,10 @@ function buildStackedHtml(d: EditableFields): string {
         <span style="color: #ddd; padding: 0 6px;">|</span>
         <a href="mailto:${d.email}" style="color: #333; text-decoration: none;">${d.email}</a>
       </p>
-      <p style="margin: 0; font-size: 13px;">
-        <a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a>${d.instagram ? `
-        <span style="color: #ddd; padding: 0 6px;">|</span>
-        <a href="${d.instagram}" target="_blank" style="color: #c8a45e; text-decoration: none; font-weight: 600; font-size: 12px;">Instagram</a>` : ""}
-      </p>
+      <p style="margin: 0 0 8px; font-size: 13px;">
+        <a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a>
+      </p>${igBtn ? `
+      <p style="margin: 0;">${igBtn}</p>` : ""}
     </td>
   </tr>
 </table>`;
