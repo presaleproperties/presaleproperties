@@ -55,7 +55,7 @@ export function SoldPostGenerator() {
     Promise.all([
       supabase
         .from("presale_projects")
-        .select("id, name, city, neighborhood, featured_image")
+        .select("id, name, city, neighborhood, featured_image, gallery_images")
         .eq("is_published", true)
         .order("name"),
       supabase
