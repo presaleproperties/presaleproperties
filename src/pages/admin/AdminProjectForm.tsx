@@ -234,7 +234,19 @@ export default function AdminProjectForm() {
     setShowAddressSuggestions(false);
     setAddressSuggestions([]);
     
-    // Use placeDetails for accurate coordinates from the selected place
+    if (!suggestion.placeId) {
+      const coords = await geocodeAddressAsync(suggestion.description, "", "");
+      if (coords) {
+        setFormData(prev => ({
+          ...prev,
+          address: suggestion.description,
+          map_lat: coords.lat,
+          map_lng: coords.lng,
+        }));
+      }
+      return;
+    }
+    
     setIsGeocoding(true);
     try {
       const { data, error } = await supabase.functions.invoke('geocode-address', {

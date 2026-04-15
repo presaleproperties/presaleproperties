@@ -4,14 +4,13 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
 
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY");
-    
+
     if (!GOOGLE_MAPS_API_KEY) {
       return new Response(
         JSON.stringify({ error: "Google Maps API key not configured" }),
@@ -29,34 +28,24 @@ serve(async (req) => {
     }
 
     if (action === "autocomplete") {
-      // Google Places API (New) - Autocomplete
-      const response = await fetch(
-        "https://places.googleapis.com/v1/places:autocomplete",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
-          },
-          body: JSON.stringify({
-            input: address,
-            includedPrimaryTypes: [
-              "street_address",
-              "premise",
-              "establishment",
-              "point_of_interest",
-              "geocode",
-            ],
-            includedRegionCodes: ["ca"],
-            locationBias: {
-              rectangle: {
-                low: { latitude: 48.3, longitude: -139.1 },
-                high: { latitude: 60.0, longitude: -114.0 },
-              },
+      const response = await fetch("https://places.googleapis.com/v1/places:autocomplete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+        },
+        body: JSON.stringify({
+          input: address,
+          includedRegionCodes: ["ca"],
+          includeQueryPredictions: true,
+          locationBias: {
+            rectangle: {
+              low: { latitude: 48.3, longitude: -139.1 },
+              high: { latitude: 60.0, longitude: -114.0 },
             },
-          }),
-        }
-      );
+          },
+        }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -68,18 +57,36 @@ serve(async (req) => {
       }
 
       const data = await response.json();
+      const predictions = (data.suggestions || [])
+        .map((suggestion: any) => {
+          const placePrediction = suggestion.placePrediction;
+          const queryPrediction = suggestion.queryPrediction;
 
-      const predictions = data.suggestions?.map((s: any) => ({
-        description: s.placePrediction?.text?.text || "",
-        placeId: s.placePrediction?.placeId || "",
-      })).filter((p: any) => p.description && p.placeId) || [];
+          if (placePrediction?.text?.text && placePrediction?.placeId) {
+            return {
+              description: placePrediction.text.text,
+              placeId: placePrediction.placeId,
+            };
+          }
 
-      return new Response(
-        JSON.stringify({ predictions }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    } else if (action === "geocode") {
-      // Use Geocoding API
+          if (queryPrediction?.text?.text) {
+            return {
+              description: queryPrediction.text.text,
+              placeId: "",
+            };
+          }
+
+          return null;
+        })
+        .filter((prediction: any) => prediction?.description)
+        .slice(0, 8);
+
+      return new Response(JSON.stringify({ predictions }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "geocode") {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAPS_API_KEY}`
       );
@@ -109,7 +116,7 @@ serve(async (req) => {
       }
 
       const addressComponents = result.address_components || [];
-      const getComponent = (type: string) => 
+      const getComponent = (type: string) =>
         addressComponents.find((c: any) => c.types.includes(type))?.long_name || "";
 
       return new Response(
@@ -124,8 +131,9 @@ serve(async (req) => {
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
-    } else if (action === "placeDetails") {
-      // Google Places API (New) - Place Details
+    }
+
+    if (action === "placeDetails") {
       if (!placeId) {
         return new Response(
           JSON.stringify({ error: "Place ID is required for placeDetails" }),
@@ -133,17 +141,14 @@ serve(async (req) => {
         );
       }
 
-      const response = await fetch(
-        `https://places.googleapis.com/v1/places/${placeId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
-            "X-Goog-FieldMask": "location,formattedAddress,addressComponents",
-          },
-        }
-      );
+      const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+          "X-Goog-FieldMask": "location,formattedAddress,addressComponents",
+        },
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -157,7 +162,7 @@ serve(async (req) => {
       const data = await response.json();
       const location = data.location;
       const addressComponents = data.addressComponents || [];
-      
+
       const getComponent = (type: string) => {
         const component = addressComponents.find((c: any) => c.types?.includes(type));
         return component?.longText || "";
@@ -179,13 +184,12 @@ serve(async (req) => {
       JSON.stringify({ error: "Invalid action. Use 'autocomplete', 'geocode', or 'placeDetails'" }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
   } catch (error: unknown) {
     console.error("Error in geocode-address function:", error);
     const errorMessage = error instanceof Error ? error.message : "Internal server error";
     return new Response(
       JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
