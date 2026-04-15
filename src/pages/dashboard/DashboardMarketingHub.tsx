@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { personalizeTemplateHtml, buildAiTemplateHtmlFromFormData, isAiEmailTemplate } from "@/lib/ai-email-html";
 import { PitchDecksList } from "@/components/dashboard/PitchDecksList";
 import { SocialPostGenerator } from "@/components/admin/marketing/SocialPostGenerator";
+import { SoldPostGenerator } from "@/components/admin/marketing/SoldPostGenerator";
 import { SignatureEditor } from "@/components/dashboard/SignatureEditor";
 import { BrandAssetLibrary } from "@/components/dashboard/BrandAssetLibrary";
 import { MarketingAnalytics } from "@/components/dashboard/MarketingAnalytics";
