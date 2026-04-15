@@ -85,7 +85,7 @@ function buildHeadshotTag(d: EditableFields, size: number): string {
   const initials = d.fullName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
   const radius = d.headshotShape === "circle" ? "50%" : "14px";
   const img = d.photoUrl
-    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="${size}" height="${size}" style="border-radius: ${radius}; object-fit: cover; display: block; border: 3px solid #c8a45e; box-shadow: 0 4px 16px rgba(200,164,94,0.2);" />`
+    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="${size}" height="${size}" style="border-radius: ${radius}; object-fit: cover; object-position: center center; display: block; margin: 0 auto; border: 3px solid #c8a45e; box-shadow: 0 4px 16px rgba(200,164,94,0.2);" />`
     : `<div style="width:${size}px;height:${size}px;border-radius:${radius};background:linear-gradient(135deg,#c8a45e,#a8843e);color:#fff;font-size:${Math.round(size * 0.32)}px;font-weight:700;text-align:center;line-height:${size}px;box-shadow:0 4px 16px rgba(200,164,94,0.2);border:3px solid #c8a45e;">${initials}</div>`;
   return d.headshotLink ? `<a href="${d.headshotLink}" target="_blank" style="text-decoration:none;">${img}</a>` : img;
 }
