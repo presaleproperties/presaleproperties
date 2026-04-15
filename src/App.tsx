@@ -330,7 +330,7 @@ const App = () => (
             <Route path="/dashboard/listings" element={<ProtectedRoute><DashboardErrorBoundary><DashboardListings /></DashboardErrorBoundary></ProtectedRoute>} />
             <Route path="/dashboard/listings/new" element={<ProtectedRoute><DashboardErrorBoundary><ListingForm /></DashboardErrorBoundary></ProtectedRoute>} />
             <Route path="/dashboard/listings/:id/edit" element={<ProtectedRoute><DashboardErrorBoundary><ListingForm /></DashboardErrorBoundary></ProtectedRoute>} />
-            <Route path="/dashboard/decks" element={<ProtectedRoute><DashboardErrorBoundary><DashboardDecks /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/decks" element={<Navigate to="/dashboard/marketing-hub?tab=decks" replace />} />
             <Route path="/dashboard/decks/new" element={<ProtectedRoute><DashboardErrorBoundary><DashboardDeckBuilder /></DashboardErrorBoundary></ProtectedRoute>} />
             <Route path="/dashboard/decks/:id/edit" element={<ProtectedRoute><DashboardErrorBoundary><DashboardDeckBuilder /></DashboardErrorBoundary></ProtectedRoute>} />
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardErrorBoundary><DashboardLeads /></DashboardErrorBoundary></ProtectedRoute>} />
