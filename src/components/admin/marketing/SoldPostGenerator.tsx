@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
-  Sparkles, Copy, Loader2, RectangleVertical, Square, User, Hash, Building2, Download,
+  Sparkles, Copy, Loader2, RectangleVertical, Square, User, Hash, Building2, Download, MapPin,
 } from "lucide-react";
 
 interface Project {
@@ -16,6 +16,7 @@ interface Project {
   city: string;
   neighborhood: string;
   featured_image: string | null;
+  address?: string | null;
 }
 
 interface TeamMember {
@@ -23,6 +24,7 @@ interface TeamMember {
   full_name: string;
   title: string;
   photo_url: string | null;
+  phone: string | null;
 }
 
 interface CaptionVariation {
@@ -38,6 +40,7 @@ export function SoldPostGenerator() {
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedAgent, setSelectedAgent] = useState("");
   const [unitCount, setUnitCount] = useState("1");
+  const [unitNumber, setUnitNumber] = useState("");
   const [userInput, setUserInput] = useState("");
   const [postSize, setPostSize] = useState<PostSize>("post");
   const [loading, setLoading] = useState(true);
@@ -53,7 +56,11 @@ export function SoldPostGenerator() {
         .select("id, name, city, neighborhood, featured_image")
         .eq("is_published", true)
         .order("name"),
-      supabase.rpc("get_public_team_members"),
+      supabase
+        .from("team_members")
+        .select("id, full_name, title, photo_url, phone")
+        .eq("is_active", true)
+        .order("sort_order"),
     ]).then(([projRes, teamRes]) => {
       setProjects((projRes.data as Project[]) || []);
       setTeamMembers((teamRes.data as TeamMember[]) || []);
@@ -64,138 +71,196 @@ export function SoldPostGenerator() {
   const selectedProj = projects.find(p => p.id === selectedProject);
   const selectedMember = teamMembers.find(t => t.id === selectedAgent);
 
-  // Generate canvas preview
   useEffect(() => {
     if (!selectedProj) { setPreviewUrl(null); return; }
     renderPreview();
-  }, [selectedProject, selectedAgent, unitCount, postSize]);
+  }, [selectedProject, selectedAgent, unitCount, unitNumber, postSize]);
 
   const renderPreview = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const isStory = postSize === "story";
-    const w = isStory ? 1080 : 1080;
+    const w = 1080;
     const h = isStory ? 1920 : 1080;
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext("2d")!;
 
-    // Background
-    ctx.fillStyle = "#111827";
+    // Solid dark background fallback
+    ctx.fillStyle = "#0a0a0a";
     ctx.fillRect(0, 0, w, h);
 
-    // Load project image as background
+    // Load project image — fill the entire canvas
     if (selectedProj?.featured_image) {
       try {
         const img = await loadImage(selectedProj.featured_image);
         const scale = Math.max(w / img.width, h / img.height);
         const sw = img.width * scale;
         const sh = img.height * scale;
-        ctx.globalAlpha = 0.35;
         ctx.drawImage(img, (w - sw) / 2, (h - sh) / 2, sw, sh);
-        ctx.globalAlpha = 1;
-      } catch { /* fallback solid bg */ }
+      } catch { /* solid bg fallback */ }
     }
 
-    // Dark gradient overlay from bottom
-    const grad = ctx.createLinearGradient(0, h * 0.3, 0, h);
-    grad.addColorStop(0, "rgba(17,24,39,0.3)");
-    grad.addColorStop(0.5, "rgba(17,24,39,0.85)");
-    grad.addColorStop(1, "rgba(17,24,39,0.98)");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, w, h);
+    // Subtle dark vignette overlay for text readability
+    const vignetteTop = ctx.createLinearGradient(0, 0, 0, h * 0.18);
+    vignetteTop.addColorStop(0, "rgba(0,0,0,0.65)");
+    vignetteTop.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = vignetteTop;
+    ctx.fillRect(0, 0, w, h * 0.18);
 
-    // "SOLD" banner
-    const bannerY = isStory ? 320 : 180;
-    ctx.fillStyle = "#c8a45e";
-    const bannerH = isStory ? 140 : 120;
-    ctx.fillRect(0, bannerY, w, bannerH);
+    // Bottom area overlay for bars
+    const bottomBarHeight = isStory ? 320 : 220;
+    const vignetteBot = ctx.createLinearGradient(0, h - bottomBarHeight - 80, 0, h - bottomBarHeight);
+    vignetteBot.addColorStop(0, "rgba(0,0,0,0)");
+    vignetteBot.addColorStop(1, "rgba(0,0,0,0.9)");
+    ctx.fillStyle = vignetteBot;
+    ctx.fillRect(0, h - bottomBarHeight - 80, w, 80);
+
+    // === TOP BAR: Project name + unit/address ===
+    const topBarH = isStory ? 80 : 65;
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    ctx.fillRect(0, 0, w, topBarH);
 
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = `bold ${isStory ? 90 : 80}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `500 ${isStory ? 30 : 26}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = "center";
-    ctx.fillText("JUST SOLD", w / 2, bannerY + bannerH * 0.72);
+    const topText = [
+      selectedProj?.name?.toUpperCase() || "",
+      unitNumber ? `#${unitNumber}` : "",
+      selectedProj?.neighborhood ? `${selectedProj.neighborhood}, ${selectedProj.city}` : selectedProj?.city || "",
+    ].filter(Boolean).join("   |   ");
+    ctx.fillText(topText, w / 2, topBarH * 0.65);
 
-    // Project name
-    const nameY = bannerY + bannerH + (isStory ? 100 : 80);
+    // === CENTER: Large "SOLD" text ===
+    const soldY = isStory ? h * 0.32 : h * 0.42;
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.5)";
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 8;
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = `bold ${isStory ? 56 : 48}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `bold italic ${isStory ? 260 : 220}px "Georgia", "Times New Roman", serif`;
     ctx.textAlign = "center";
-    const projName = selectedProj?.name || "Project Name";
-    ctx.fillText(projName, w / 2, nameY);
+    ctx.fillText("SOLD", w / 2, soldY);
+    ctx.restore();
 
-    // Location
-    ctx.fillStyle = "#9CA3AF";
-    ctx.font = `${isStory ? 36 : 30}px system-ui, -apple-system, sans-serif`;
-    ctx.fillText(
-      `${selectedProj?.neighborhood || ""}, ${selectedProj?.city || ""}`,
-      w / 2, nameY + (isStory ? 55 : 45)
-    );
-
-    // Unit count badge
+    // Units badge below SOLD (if more than 1)
     const units = parseInt(unitCount) || 1;
-    if (units > 0) {
-      const badgeY = nameY + (isStory ? 120 : 100);
-      const badgeText = units === 1 ? "1 Unit Sold" : `${units} Units Sold`;
-      ctx.font = `bold ${isStory ? 34 : 28}px system-ui, -apple-system, sans-serif`;
+    if (units > 1) {
+      const badgeY = soldY + (isStory ? 60 : 40);
+      const badgeText = `${units} UNITS`;
+      ctx.font = `600 ${isStory ? 32 : 26}px system-ui, -apple-system, sans-serif`;
       const metrics = ctx.measureText(badgeText);
-      const badgeW = metrics.width + 60;
-      const badgeH = isStory ? 60 : 50;
+      const bw = metrics.width + 50;
+      const bh = isStory ? 52 : 42;
 
-      ctx.fillStyle = "rgba(200, 164, 94, 0.2)";
-      roundRect(ctx, w / 2 - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH, 12);
+      ctx.fillStyle = "rgba(200, 164, 94, 0.85)";
+      roundRect(ctx, w / 2 - bw / 2, badgeY - bh / 2, bw, bh, 6);
       ctx.fill();
 
-      ctx.strokeStyle = "#c8a45e";
-      ctx.lineWidth = 2;
-      roundRect(ctx, w / 2 - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH, 12);
-      ctx.stroke();
-
-      ctx.fillStyle = "#c8a45e";
-      ctx.fillText(badgeText, w / 2, badgeY + (isStory ? 12 : 10));
+      ctx.fillStyle = "#FFFFFF";
+      ctx.textAlign = "center";
+      ctx.fillText(badgeText, w / 2, badgeY + (isStory ? 11 : 9));
     }
 
-    // Agent headshot + name at bottom
-    if (selectedMember) {
-      const bottomY = h - (isStory ? 200 : 140);
-      const headshotSize = isStory ? 100 : 80;
+    // === BOTTOM: Branding bar ===
+    const brandBarH = isStory ? 130 : 100;
+    const agentBarH = isStory ? 90 : 70;
+    const totalBottom = brandBarH + agentBarH;
+    
+    // Brand bar (dark)
+    ctx.fillStyle = "#111111";
+    ctx.fillRect(0, h - totalBottom, w, brandBarH);
 
+    // "Presale Properties" branding text (left side)
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = `600 ${isStory ? 36 : 30}px system-ui, -apple-system, sans-serif`;
+    ctx.textAlign = "left";
+    ctx.fillText("PRESALE PROPERTIES", 50, h - totalBottom + brandBarH * 0.58);
+
+    // "Real Broker" text (right side)
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = `500 ${isStory ? 28 : 22}px system-ui, -apple-system, sans-serif`;
+    ctx.textAlign = "right";
+
+    // Draw a subtle border box for "real" branding
+    const realText = "real";
+    const realW = isStory ? 110 : 85;
+    const realH = isStory ? 46 : 36;
+    const realX = w - 50 - realW;
+    const realY = h - totalBottom + (brandBarH - realH) / 2;
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(realX, realY, realW, realH);
+    ctx.font = `400 ${isStory ? 28 : 22}px system-ui, -apple-system, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText(realText, realX + realW / 2, realY + realH * 0.72);
+
+    // === BOTTOM: Agent bar ===
+    const agentBarY = h - agentBarH;
+    // Gold/dark gradient bar
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillRect(0, agentBarY, w, agentBarH);
+
+    // Thin gold accent line
+    ctx.fillStyle = "#c8a45e";
+    ctx.fillRect(0, agentBarY, w, 2);
+
+    if (selectedMember) {
+      const headSize = isStory ? 60 : 48;
+      const headX = 50 + headSize / 2;
+      const headY = agentBarY + agentBarH / 2;
+
+      // Agent headshot circle
       if (selectedMember.photo_url) {
         try {
           const img = await loadImage(selectedMember.photo_url);
           ctx.save();
           ctx.beginPath();
-          ctx.arc(w / 2, bottomY, headshotSize / 2, 0, Math.PI * 2);
+          ctx.arc(headX, headY, headSize / 2, 0, Math.PI * 2);
           ctx.closePath();
           ctx.clip();
-          ctx.drawImage(img, w / 2 - headshotSize / 2, bottomY - headshotSize / 2, headshotSize, headshotSize);
+          ctx.drawImage(img, headX - headSize / 2, headY - headSize / 2, headSize, headSize);
           ctx.restore();
 
-          // Border
+          // Gold border
           ctx.strokeStyle = "#c8a45e";
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.arc(w / 2, bottomY, headshotSize / 2 + 2, 0, Math.PI * 2);
+          ctx.arc(headX, headY, headSize / 2 + 1, 0, Math.PI * 2);
           ctx.stroke();
-        } catch { /* skip headshot */ }
+        } catch { /* skip */ }
+      } else {
+        // Placeholder circle
+        ctx.fillStyle = "#333";
+        ctx.beginPath();
+        ctx.arc(headX, headY, headSize / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#999";
+        ctx.font = `${isStory ? 24 : 18}px system-ui`;
+        ctx.textAlign = "center";
+        ctx.fillText("👤", headX, headY + 6);
       }
 
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = `bold ${isStory ? 30 : 24}px system-ui, -apple-system, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.fillText(selectedMember.full_name, w / 2, bottomY + headshotSize / 2 + (isStory ? 40 : 32));
+      // Agent info text
+      const textX = headX + headSize / 2 + 25;
+      const agentParts = [
+        selectedMember.full_name.toUpperCase(),
+        selectedMember.title.toUpperCase(),
+        selectedMember.phone || "",
+      ].filter(Boolean);
 
-      ctx.fillStyle = "#9CA3AF";
-      ctx.font = `${isStory ? 22 : 18}px system-ui, -apple-system, sans-serif`;
-      ctx.fillText(selectedMember.title, w / 2, bottomY + headshotSize / 2 + (isStory ? 70 : 56));
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = `500 ${isStory ? 24 : 19}px system-ui, -apple-system, sans-serif`;
+      ctx.textAlign = "left";
+      ctx.fillText(agentParts.join("   |   "), textX, headY + (isStory ? 8 : 6));
     }
 
-    // Branding
-    ctx.fillStyle = "rgba(255,255,255,0.4)";
-    ctx.font = `${isStory ? 20 : 16}px system-ui, -apple-system, sans-serif`;
-    ctx.textAlign = "center";
-    ctx.fillText("presaleproperties.com", w / 2, h - (isStory ? 60 : 40));
+    // Presale Properties icon/watermark bottom right of agent bar
+    ctx.fillStyle = "rgba(200,164,94,0.6)";
+    ctx.font = `${isStory ? 22 : 18}px system-ui`;
+    ctx.textAlign = "right";
+    ctx.fillText("✦", w - 30, agentBarY + agentBarH * 0.65);
 
     setPreviewUrl(canvas.toDataURL("image/png"));
   };
@@ -266,7 +331,7 @@ export function SoldPostGenerator() {
       <canvas ref={canvasRef} className="hidden" />
 
       {/* Controls */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Project selector */}
         <div>
           <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5 block">
@@ -305,7 +370,21 @@ export function SoldPostGenerator() {
           </select>
         </div>
 
-        {/* Units */}
+        {/* Unit number */}
+        <div>
+          <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5 block">
+            <MapPin className="h-3 w-3 inline mr-1" />Unit # (optional)
+          </label>
+          <Input
+            type="text"
+            placeholder="e.g. 906"
+            value={unitNumber}
+            onChange={e => setUnitNumber(e.target.value)}
+            className="h-10"
+          />
+        </div>
+
+        {/* Units sold */}
         <div>
           <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5 block">
             <Hash className="h-3 w-3 inline mr-1" />Units Sold
@@ -321,7 +400,7 @@ export function SoldPostGenerator() {
         </div>
 
         {/* Size toggle */}
-        <div>
+        <div className="sm:col-span-2 lg:col-span-2">
           <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5 block">
             Post Size
           </label>
@@ -365,8 +444,8 @@ export function SoldPostGenerator() {
 
           {previewUrl ? (
             <div className={cn(
-              "rounded-xl overflow-hidden border border-border bg-muted/20",
-              postSize === "story" ? "max-w-[280px]" : "max-w-[400px]"
+              "rounded-xl overflow-hidden border border-border bg-muted/20 shadow-lg",
+              postSize === "story" ? "max-w-[280px]" : "max-w-[440px]"
             )}>
               <img src={previewUrl} alt="Sold post preview" className="w-full h-auto" />
             </div>
