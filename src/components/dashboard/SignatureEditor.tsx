@@ -356,6 +356,12 @@ export function SignatureEditor() {
               </div>
             </div>
           )}
+
+          {/* Save button */}
+          <Button className="gap-1.5" onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            Save Changes
+          </Button>
         </div>
 
         {/* Right: Both Previews */}
