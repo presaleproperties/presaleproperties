@@ -220,12 +220,19 @@ export default function AdminProjectForm() {
       
       if (!error && data) {
         setAddressSuggestions(data.predictions || []);
-        setShowAddressSuggestions(true);
+        setShowAddressSuggestions((data.predictions || []).length > 0);
+        if (data.error) {
+          console.warn('Address suggestions fallback:', data.error);
+        }
       } else {
         console.error('Address suggestions error:', error);
+        setAddressSuggestions([]);
+        setShowAddressSuggestions(false);
       }
     } catch (error) {
       console.error('Address suggestions error:', error);
+      setAddressSuggestions([]);
+      setShowAddressSuggestions(false);
     } finally {
       setIsLoadingSuggestions(false);
     }
