@@ -587,7 +587,22 @@ export default function DashboardMarketingHub() {
               </TabsContent>
 
               <TabsContent value="social">
-                <SocialPostGenerator />
+                <Tabs defaultValue="ads" className="w-full">
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="ads" className="gap-1.5 text-xs">
+                      <Megaphone className="h-3 w-3" /> Ad Graphics
+                    </TabsTrigger>
+                    <TabsTrigger value="sold" className="gap-1.5 text-xs">
+                      🔑 Sold Posts
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="ads">
+                    <SocialPostGenerator />
+                  </TabsContent>
+                  <TabsContent value="sold">
+                    <SoldPostGenerator />
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
 
               <TabsContent value="signature">
