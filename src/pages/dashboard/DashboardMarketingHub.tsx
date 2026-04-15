@@ -24,13 +24,14 @@ import {
   Mail, Plus, Clock, Trash2, Copy, Tag,
   ChevronRight, Building2, Star, Megaphone, ExternalLink,
   Search, LayoutGrid, List, Send, Loader2, Users,
-  Presentation, Share2,
+  Presentation, Share2, PenTool,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { personalizeTemplateHtml, buildAiTemplateHtmlFromFormData, isAiEmailTemplate } from "@/lib/ai-email-html";
 import { PitchDecksList } from "@/components/dashboard/PitchDecksList";
 import { SocialPostGenerator } from "@/components/admin/marketing/SocialPostGenerator";
+import { SignatureEditor } from "@/components/dashboard/SignatureEditor";
 
 interface SavedAsset {
   id: string;
@@ -550,6 +551,10 @@ export default function DashboardMarketingHub() {
                   <Share2 className="h-3.5 w-3.5" />
                   <span>Social Posts</span>
                 </TabsTrigger>
+                <TabsTrigger value="signature" className="gap-1.5 data-[state=active]:shadow-sm">
+                  <PenTool className="h-3.5 w-3.5" />
+                  <span>Signature</span>
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="emails">
@@ -562,6 +567,10 @@ export default function DashboardMarketingHub() {
 
               <TabsContent value="social">
                 <SocialPostGenerator />
+              </TabsContent>
+
+              <TabsContent value="signature">
+                <SignatureEditor />
               </TabsContent>
             </Tabs>
           </div>
