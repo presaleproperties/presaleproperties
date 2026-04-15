@@ -94,9 +94,10 @@ export function SoldPostGenerator() {
     ctx.fillRect(0, 0, w, h);
 
     // Load project image — fill the entire canvas
-    if (selectedProj?.featured_image) {
+    const bgImage = selectedImage || selectedProj?.featured_image;
+    if (bgImage) {
       try {
-        const img = await loadImage(selectedProj.featured_image);
+        const img = await loadImage(bgImage);
         const scale = Math.max(w / img.width, h / img.height);
         const sw = img.width * scale;
         const sh = img.height * scale;
