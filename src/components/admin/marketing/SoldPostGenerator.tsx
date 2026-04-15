@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import {
   Sparkles, Copy, Loader2, RectangleVertical, Square, User, Hash, Building2, Download, MapPin, Type,
 } from "lucide-react";
+import logoImg from "@/assets/logo-new.png";
 
 interface Project {
   id: string;
@@ -107,15 +108,14 @@ export function SoldPostGenerator() {
     canvas.height = h;
     const ctx = canvas.getContext("2d")!;
 
-    // Brand colors
     const gold = "#c8a45e";
-    const darkBg = "#0f0f0f";
+    const darkBg = "#111111";
 
-    // === SOLID DARK BACKGROUND ===
+    // === DARK BASE ===
     ctx.fillStyle = darkBg;
     ctx.fillRect(0, 0, w, h);
 
-    // Project image as subtle background
+    // === PROJECT IMAGE — visible and prominent ===
     const bgImage = selectedImage || selectedProj?.featured_image;
     if (bgImage) {
       try {
@@ -123,43 +123,51 @@ export function SoldPostGenerator() {
         const scale = Math.max(w / img.width, h / img.height);
         const sw = img.width * scale;
         const sh = img.height * scale;
-        ctx.globalAlpha = 0.12;
+        // Draw image at good visibility
+        ctx.globalAlpha = 0.45;
         ctx.drawImage(img, (w - sw) / 2, (h - sh) / 2, sw, sh);
         ctx.globalAlpha = 1;
       } catch { /* fallback */ }
     }
 
-    // Dark overlay for consistent look
-    const overlay = ctx.createRadialGradient(w * 0.3, h * 0.4, 0, w * 0.5, h * 0.5, w);
-    overlay.addColorStop(0, "rgba(15,15,15,0.5)");
-    overlay.addColorStop(1, "rgba(15,15,15,0.85)");
+    // === Subtle gradient overlay — keeps text readable without killing image ===
+    const overlay = ctx.createLinearGradient(0, 0, 0, h);
+    overlay.addColorStop(0, "rgba(17,17,17,0.55)");
+    overlay.addColorStop(0.35, "rgba(17,17,17,0.3)");
+    overlay.addColorStop(0.65, "rgba(17,17,17,0.3)");
+    overlay.addColorStop(1, "rgba(17,17,17,0.75)");
     ctx.fillStyle = overlay;
     ctx.fillRect(0, 0, w, h);
 
     const leftMargin = isStory ? 80 : 70;
 
-    // === TOP: PRESALE PROPERTIES branding ===
-    const topY = isStory ? 75 : 55;
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = `600 ${isStory ? 28 : 22}px system-ui, -apple-system, sans-serif`;
-    ctx.textAlign = "center";
-    ctx.fillText("PRESALE PROPERTIES", w / 2, topY);
+    // === TOP: LOGO ===
+    const logoTopPad = isStory ? 50 : 30;
+    const logoMaxH = isStory ? 80 : 60;
+    try {
+      const logo = await loadImage(logoImg);
+      const logoScale = logoMaxH / logo.height;
+      const logoW = logo.width * logoScale;
+      const logoX = (w - logoW) / 2;
+      ctx.drawImage(logo, logoX, logoTopPad, logoW, logoMaxH);
+    } catch { /* fallback text */
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = `600 ${isStory ? 28 : 22}px system-ui, -apple-system, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.fillText("PRESALE PROPERTIES", w / 2, logoTopPad + logoMaxH * 0.7);
+    }
 
-    // Thin gold line below branding
-    const lineY = topY + (isStory ? 20 : 16);
+    // Thin gold line below logo
+    const lineY = logoTopPad + logoMaxH + (isStory ? 18 : 14);
     ctx.strokeStyle = gold;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(w / 2 - 80, lineY);
-    ctx.lineTo(w / 2 + 80, lineY);
+    ctx.moveTo(w / 2 - 90, lineY);
+    ctx.lineTo(w / 2 + 90, lineY);
     ctx.stroke();
 
-    ctx.fillStyle = "rgba(255,255,255,0.5)";
-    ctx.font = `300 ${isStory ? 15 : 12}px system-ui, -apple-system, sans-serif`;
-    ctx.fillText("PRESALE REAL ESTATE", w / 2, lineY + (isStory ? 22 : 18));
-
     // === "Just" in gold italic serif ===
-    const justY = isStory ? 360 : 220;
+    const justY = isStory ? 380 : 240;
     ctx.fillStyle = gold;
     ctx.font = `italic ${isStory ? 100 : 72}px Georgia, "Times New Roman", serif`;
     ctx.textAlign = "left";
@@ -191,7 +199,7 @@ export function SoldPostGenerator() {
 
     const loc = [selectedProj?.neighborhood, selectedProj?.city].filter(Boolean).join(", ");
     if (loc) {
-      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.fillStyle = "rgba(255,255,255,0.65)";
       ctx.font = `400 ${isStory ? 28 : 22}px system-ui, -apple-system, sans-serif`;
       ctx.fillText(loc, leftMargin, projY + (isStory ? 45 : 34));
     }
@@ -224,18 +232,17 @@ export function SoldPostGenerator() {
     const agentTitle = selectedMember?.title || "";
     const agentPhone = selectedMember?.phone || "";
 
-    // Bottom bar background
     const barH = isStory ? 200 : 160;
     const barY = h - barH;
 
     // Gradient fade into bar
-    const barGrad = ctx.createLinearGradient(0, barY - 60, 0, barY);
-    barGrad.addColorStop(0, "rgba(15,15,15,0)");
-    barGrad.addColorStop(1, "rgba(10,10,10,0.95)");
+    const barGrad = ctx.createLinearGradient(0, barY - 80, 0, barY);
+    barGrad.addColorStop(0, "rgba(17,17,17,0)");
+    barGrad.addColorStop(1, "rgba(12,12,12,0.95)");
     ctx.fillStyle = barGrad;
-    ctx.fillRect(0, barY - 60, w, 60);
+    ctx.fillRect(0, barY - 80, w, 80);
 
-    ctx.fillStyle = "rgba(10,10,10,0.95)";
+    ctx.fillStyle = "rgba(12,12,12,0.95)";
     ctx.fillRect(0, barY, w, barH);
 
     // Gold top line on bar
@@ -247,7 +254,6 @@ export function SoldPostGenerator() {
       const circleX = leftMargin + circleSize / 2;
       const circleY = barY + barH / 2;
 
-      // Agent headshot in circle
       if (selectedMember.photo_url) {
         try {
           const img = await loadImage(selectedMember.photo_url);
@@ -256,7 +262,6 @@ export function SoldPostGenerator() {
           ctx.arc(circleX, circleY, circleSize / 2, 0, Math.PI * 2);
           ctx.closePath();
           ctx.clip();
-          // Center-crop the image into circle
           const imgMin = Math.min(img.width, img.height);
           const sx = (img.width - imgMin) / 2;
           const sy = (img.height - imgMin) / 2;
@@ -272,7 +277,6 @@ export function SoldPostGenerator() {
         } catch { /* skip */ }
       }
 
-      // Agent text — to the right of circle
       const textX = circleX + circleSize / 2 + (isStory ? 30 : 24);
       const textCenterY = circleY;
 
@@ -306,7 +310,7 @@ export function SoldPostGenerator() {
     ctx.fillStyle = gold;
     ctx.fillRect(0, h - 4, w, 4);
 
-    setPreviewUrl(canvas.toDataURL("image/png"));
+    setPreviewUrl(canvas.toDataURL("image/png", 1.0));
   };
 
   const loadImage = (src: string): Promise<HTMLImageElement> =>
