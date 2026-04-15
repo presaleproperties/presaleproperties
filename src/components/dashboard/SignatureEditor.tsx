@@ -145,6 +145,7 @@ function buildStackedHtml(d: EditableFields): string {
     </td>
   </tr>
 </table>`;
+}
 
 function agentToFields(a: AgentInfo): EditableFields {
   return {
