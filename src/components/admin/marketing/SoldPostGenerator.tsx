@@ -16,6 +16,7 @@ interface Project {
   city: string;
   neighborhood: string;
   featured_image: string | null;
+  gallery_images: string[] | null;
   address?: string | null;
 }
 
