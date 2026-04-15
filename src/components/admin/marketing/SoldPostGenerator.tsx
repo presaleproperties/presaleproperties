@@ -54,10 +54,8 @@ export function SoldPostGenerator() {
   // Editable text fields
   const [headlineTop, setHeadlineTop] = useState("Just");
   const [headlineMain, setHeadlineMain] = useState("SOLD");
-  const [priceText, setPriceText] = useState("");
   const [customAgentName, setCustomAgentName] = useState("");
   const [customProjectName, setCustomProjectName] = useState("");
-  const [customDeveloper, setCustomDeveloper] = useState("");
 
   useEffect(() => {
     Promise.all([
