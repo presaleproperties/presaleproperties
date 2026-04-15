@@ -17,7 +17,6 @@ import {
   Sparkles,
   Mail,
   FolderOpen,
-  Presentation,
   Megaphone,
   FileText,
   PenTool,
