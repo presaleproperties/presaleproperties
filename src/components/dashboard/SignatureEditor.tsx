@@ -78,80 +78,65 @@ interface EditableFields {
   headshotLink: string;
 }
 
-// ── Premium Horizontal: headshot left with gold accent ───────────────
+// ── Horizontal layout: rounded-square headshot on the left ───────────
 function buildHorizontalHtml(d: EditableFields): string {
   const initials = d.fullName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
   const headshotImg = d.photoUrl
-    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="100" height="100" style="border-radius: 50%; object-fit: cover; display: block; border: 3px solid #c8a45e; box-shadow: 0 4px 12px rgba(200,164,94,0.25);" />`
-    : `<div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#c8a45e,#a8843e);color:#fff;font-size:32px;font-weight:700;text-align:center;line-height:100px;box-shadow:0 4px 12px rgba(200,164,94,0.25);">${initials}</div>`;
+    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="100" height="100" style="border-radius: 14px; object-fit: cover; display: block; box-shadow: 0 4px 16px rgba(0,0,0,0.12);" />`
+    : `<div style="width:100px;height:100px;border-radius:14px;background:linear-gradient(135deg,#c8a45e,#a8843e);color:#fff;font-size:32px;font-weight:700;text-align:center;line-height:100px;box-shadow:0 4px 16px rgba(0,0,0,0.12);">${initials}</div>`;
   const headshot = d.headshotLink ? `<a href="${d.headshotLink}" target="_blank" style="text-decoration:none;">${headshotImg}</a>` : headshotImg;
 
-  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 520px;">
+  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 500px;">
   <tr>
-    <td style="padding-right: 20px; vertical-align: middle;">
+    <td style="padding-right: 20px; vertical-align: top;">
       ${headshot}
     </td>
-    <td style="vertical-align: middle; border-left: 3px solid #c8a45e; padding-left: 20px;">
+    <td style="vertical-align: top;">
       <p style="margin: 0 0 1px; font-size: 19px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.3px;">${d.fullName}</p>
-      <p style="margin: 0 0 12px; font-size: 12px; color: #c8a45e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;">${d.title}</p>
-      <p style="margin: 0 0 8px; font-size: 12px; color: #666; font-weight: 500;">${d.brokerage}</p>
-      <table cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
-        <tr>
-          <td style="padding: 3px 0;">
-            <a href="tel:${d.phone}" style="color: #333; text-decoration: none; font-weight: 500;">${d.phone}</a>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 3px 0;">
-            <a href="mailto:${d.email}" style="color: #333; text-decoration: none; font-weight: 500;">${d.email}</a>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 3px 0;">
-            <a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a>
-          </td>
-        </tr>
-      </table>${d.instagram ? `
-      <table cellpadding="0" cellspacing="0" border="0" style="margin-top: 10px;">
-        <tr>
-          <td>
-            <a href="${d.instagram}" target="_blank" style="display: inline-block; padding: 4px 10px; background: linear-gradient(135deg, #833AB4, #E1306C, #F77737); color: #fff; font-size: 11px; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.3px;">Instagram</a>
-          </td>
-        </tr>
-      </table>` : ""}
+      <p style="margin: 0 0 10px; font-size: 11px; color: #c8a45e; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">${d.title} · ${d.brokerage}</p>
+      <p style="margin: 0; font-size: 13px; color: #333;">
+        <a href="tel:${d.phone}" style="color: #333; text-decoration: none;">${d.phone}</a>
+        <span style="color: #ccc; padding: 0 6px;">|</span>
+        <a href="mailto:${d.email}" style="color: #333; text-decoration: none;">${d.email}</a>
+      </p>
+      <p style="margin: 4px 0 0; font-size: 13px;">
+        <a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a>${d.instagram ? `
+        <span style="color: #ccc; padding: 0 6px;">|</span>
+        <a href="${d.instagram}" target="_blank" style="color: #E1306C; text-decoration: none; font-weight: 600; font-size: 12px;">Instagram</a>` : ""}
+      </p>
     </td>
   </tr>
 </table>`;
 }
 
-// ── Premium Stacked: headshot on top, centered ───────────────────────
+// ── Stacked layout: rounded-square headshot on top, centered ─────────
 function buildStackedHtml(d: EditableFields): string {
   const initials = d.fullName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
   const headshotImg = d.photoUrl
-    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="110" height="110" style="border-radius: 50%; object-fit: cover; display: inline-block; border: 3px solid #c8a45e; box-shadow: 0 6px 20px rgba(200,164,94,0.3);" />`
-    : `<div style="width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#c8a45e,#a8843e);color:#fff;font-size:34px;font-weight:700;text-align:center;line-height:110px;display:inline-block;box-shadow:0 6px 20px rgba(200,164,94,0.3);">${initials}</div>`;
+    ? `<img src="${d.photoUrl}" alt="${d.fullName}" width="110" height="110" style="border-radius: 16px; object-fit: cover; display: inline-block; box-shadow: 0 6px 24px rgba(0,0,0,0.12);" />`
+    : `<div style="width:110px;height:110px;border-radius:16px;background:linear-gradient(135deg,#c8a45e,#a8843e);color:#fff;font-size:34px;font-weight:700;text-align:center;line-height:110px;display:inline-block;box-shadow:0 6px 24px rgba(0,0,0,0.12);">${initials}</div>`;
   const headshot = d.headshotLink ? `<a href="${d.headshotLink}" target="_blank" style="text-decoration:none;">${headshotImg}</a>` : headshotImg;
 
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; font-size: 14px; line-height: 1.5; max-width: 340px;">
   <tr>
-    <td style="text-align: center; padding-bottom: 16px;">
+    <td style="text-align: center; padding-bottom: 14px;">
       ${headshot}
     </td>
   </tr>
   <tr>
-    <td style="text-align: center; padding-bottom: 14px;">
-      <p style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.3px;">${d.fullName}</p>
-      <p style="margin: 0; font-size: 12px; color: #c8a45e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;">${d.title}</p>
-    </td>
-  </tr>
-  <tr>
     <td style="text-align: center;">
-      <div style="width: 40px; height: 2px; background: linear-gradient(90deg, #c8a45e, #e8d4a0); margin: 0 auto 14px; border-radius: 1px;"></div>
-      <p style="margin: 0 0 6px; font-size: 12px; color: #666; font-weight: 500;">${d.brokerage}</p>
-      <p style="margin: 0 0 3px; font-size: 13px;"><a href="tel:${d.phone}" style="color: #333; text-decoration: none; font-weight: 500;">${d.phone}</a></p>
-      <p style="margin: 0 0 3px; font-size: 13px;"><a href="mailto:${d.email}" style="color: #333; text-decoration: none; font-weight: 500;">${d.email}</a></p>
-      <p style="margin: 0 0 ${d.instagram ? "10" : "0"}px; font-size: 13px;"><a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a></p>${d.instagram ? `
-      <a href="${d.instagram}" target="_blank" style="display: inline-block; padding: 4px 12px; background: linear-gradient(135deg, #833AB4, #E1306C, #F77737); color: #fff; font-size: 11px; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.3px;">Instagram</a>` : ""}
+      <p style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.3px;">${d.fullName}</p>
+      <p style="margin: 0 0 12px; font-size: 11px; color: #c8a45e; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">${d.title} · ${d.brokerage}</p>
+      <p style="margin: 0 0 3px; font-size: 13px;">
+        <a href="tel:${d.phone}" style="color: #333; text-decoration: none;">${d.phone}</a>
+        <span style="color: #ccc; padding: 0 6px;">|</span>
+        <a href="mailto:${d.email}" style="color: #333; text-decoration: none;">${d.email}</a>
+      </p>
+      <p style="margin: 0; font-size: 13px;">
+        <a href="${d.website}" style="color: #c8a45e; text-decoration: none; font-weight: 600;">${d.website.replace(/^https?:\/\//, "")}</a>${d.instagram ? `
+        <span style="color: #ccc; padding: 0 6px;">|</span>
+        <a href="${d.instagram}" target="_blank" style="color: #E1306C; text-decoration: none; font-weight: 600; font-size: 12px;">Instagram</a>` : ""}
+      </p>
     </td>
   </tr>
 </table>`;
