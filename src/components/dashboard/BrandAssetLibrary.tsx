@@ -73,8 +73,8 @@ export function BrandAssetLibrary() {
     }
 
     const items: AssetItem[] = (data || [])
-      .filter((f: StorageFile) => f.name && !f.name.startsWith("."))
-      .map((f: StorageFile) => {
+      .filter((f: any) => f.name && !f.name.startsWith("."))
+      .map((f: any) => {
         const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(f.name);
         return {
           name: f.name,
