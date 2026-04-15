@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Copy, Eye, Pencil, Loader2 } from "lucide-react";
+import { Copy, Eye, Pencil, Loader2, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -129,32 +130,74 @@ function buildStackedHtml(d: EditableFields): string {
 </table>`;
 }
 
+function agentToFields(a: AgentInfo): EditableFields {
+  return {
+    fullName: a.fullName,
+    title: a.title,
+    phone: a.phone,
+    email: a.email,
+    website: a.website,
+    brokerage: a.brokerage,
+    photoUrl: a.photoUrl,
+    instagram: a.instagram,
+  };
+}
+
 export function SignatureEditor() {
   const [selectedAgentId, setSelectedAgentId] = useState(TEAM_AGENTS[0].id);
   const [layout, setLayout] = useState<LayoutVariant>("horizontal");
   const [mode, setMode] = useState<"form" | "html">("form");
   const [fields, setFields] = useState<EditableFields>(() => agentToFields(TEAM_AGENTS[0]));
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [savedOverrides, setSavedOverrides] = useState<Record<string, EditableFields>>({});
   const iframeHRef = useRef<HTMLIFrameElement>(null);
   const iframeVRef = useRef<HTMLIFrameElement>(null);
 
-  function agentToFields(a: AgentInfo): EditableFields {
-    return {
-      fullName: a.fullName,
-      title: a.title,
-      phone: a.phone,
-      email: a.email,
-      website: a.website,
-      brokerage: a.brokerage,
-      photoUrl: a.photoUrl,
-      instagram: a.instagram,
-    };
-  }
+  // Load saved overrides from app_settings on mount
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("app_settings")
+        .select("value")
+        .eq("key", "team_signature_overrides")
+        .maybeSingle();
+      if (data?.value) {
+        const overrides = data.value as Record<string, EditableFields>;
+        setSavedOverrides(overrides);
+        // If current agent has saved overrides, apply them
+        if (overrides[TEAM_AGENTS[0].id]) {
+          setFields(overrides[TEAM_AGENTS[0].id]);
+        }
+      }
+      setLoading(false);
+    })();
+  }, []);
 
-  // When agent changes, reset fields
+  // When agent changes, load saved overrides or defaults
   const handleAgentChange = (agentId: string) => {
     setSelectedAgentId(agentId);
-    const agent = TEAM_AGENTS.find(a => a.id === agentId);
-    if (agent) setFields(agentToFields(agent));
+    if (savedOverrides[agentId]) {
+      setFields(savedOverrides[agentId]);
+    } else {
+      const agent = TEAM_AGENTS.find(a => a.id === agentId);
+      if (agent) setFields(agentToFields(agent));
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    const updated = { ...savedOverrides, [selectedAgentId]: fields };
+    const { error } = await (supabase as any).from("app_settings").upsert(
+      { key: "team_signature_overrides", value: updated },
+      { onConflict: "key" }
+    );
+    if (error) toast.error("Failed to save");
+    else {
+      setSavedOverrides(updated);
+      toast.success("Signature saved");
+    }
+    setSaving(false);
   };
 
   const update = (field: keyof EditableFields, value: string) => {
@@ -190,6 +233,14 @@ export function SignatureEditor() {
   };
 
   const selectedAgent = TEAM_AGENTS.find(a => a.id === selectedAgentId)!;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -305,6 +356,12 @@ export function SignatureEditor() {
               </div>
             </div>
           )}
+
+          {/* Save button */}
+          <Button className="gap-1.5" onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            Save Changes
+          </Button>
         </div>
 
         {/* Right: Both Previews */}
