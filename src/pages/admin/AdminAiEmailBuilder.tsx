@@ -1439,11 +1439,18 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     const formData = buildFormData();
     const trimmedName = saveTemplateName.trim();
 
-    // Check if a template with the same name already exists
-    const { data: existing } = await supabase.from("campaign_templates" as any)
+    // Check if a template with the same name already exists for THIS user
+    // (scoped to avoid silent RLS failures when names collide across users)
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    const ownerId = agentMode && agentUserId ? agentUserId : currentUser?.id;
+    let existingQuery = supabase.from("campaign_templates" as any)
       .select("id")
       .eq("name", trimmedName)
       .limit(1);
+    existingQuery = ownerId
+      ? existingQuery.eq("user_id", ownerId)
+      : existingQuery.is("user_id", null);
+    const { data: existing } = await existingQuery;
 
     if (existing && (existing as any[]).length > 0) {
       // Override existing template
