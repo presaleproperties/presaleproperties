@@ -138,7 +138,7 @@ export default function DashboardLeads() {
     if (!user) return;
     setLoading(true);
     try {
-      const [listingLeads, onboarded, templates] = await Promise.all([
+      const [listingLeads, onboarded, templates, decks] = await Promise.all([
         (supabase as any)
           .from("leads")
           .select("id, name, email, phone, message, created_at, listing:listings(id, title, project_name)")
@@ -153,6 +153,10 @@ export default function DashboardLeads() {
           .from("campaign_templates")
           .select("project_name")
           .or(`user_id.eq.${user.id},user_id.is.null`),
+        (supabase as any)
+          .from("pitch_decks")
+          .select("project_name")
+          .eq("user_id", user.id),
       ]);
       if (listingLeads.data) {
         setLeads(listingLeads.data.map((item: any) => ({ ...item, listing: item.listing as Lead["listing"] })));
@@ -160,16 +164,16 @@ export default function DashboardLeads() {
       if (onboarded.data) {
         setOnboardedLeads(onboarded.data as unknown as OnboardedLead[]);
       }
-      if (templates.data) {
-        const names = Array.from(
-          new Set(
-            (templates.data as any[])
-              .map((t) => (t.project_name || "").trim())
-              .filter((n) => n && n.toLowerCase() !== "untitled")
-          )
-        ).sort();
-        setTemplateProjects(names);
-      }
+      const projectNames = new Set<string>();
+      ((templates?.data as any[]) || []).forEach((t) => {
+        const n = (t.project_name || "").trim();
+        if (n && n.toLowerCase() !== "untitled") projectNames.add(n);
+      });
+      ((decks?.data as any[]) || []).forEach((d) => {
+        const n = (d.project_name || "").trim();
+        if (n && n.toLowerCase() !== "untitled") projectNames.add(n);
+      });
+      setTemplateProjects(Array.from(projectNames).sort());
     } catch (error) {
       console.error("Error fetching leads:", error);
     } finally {
