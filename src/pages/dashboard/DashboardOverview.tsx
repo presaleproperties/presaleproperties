@@ -53,65 +53,9 @@ class HubErrorBoundary extends Component<
 }
 
 export default function DashboardOverview() {
-  const { user } = useAuth();
-  const [agentName, setAgentName] = useState("");
-
-  useEffect(() => {
-    if (!user) return;
-    Promise.resolve(
-      supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle()
-    ).then(({ data }) => {
-      if (data?.full_name) setAgentName(data.full_name);
-    }).catch((err) => console.error("[DashboardOverview] profile fetch error:", err));
-  }, [user]);
-
-  const greeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  };
-
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
-
-  const firstName = agentName ? agentName.split(" ")[0] : "";
-
   return (
     <DashboardLayout>
       <div className="space-y-6 md:space-y-10 max-w-6xl mx-auto">
-        {/* Premium Hero Header */}
-        <section className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-border/60 bg-gradient-to-br from-card via-card to-muted/30 p-5 sm:p-8 md:p-10">
-          {/* Decorative gold glows */}
-          <div className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-primary/8 blur-3xl" />
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-
-          <div className="relative flex flex-col gap-2">
-            <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-              <Sparkles className="h-3 w-3" />
-              <span>{today}</span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-tight">
-              {greeting()}
-              {firstName && (
-                <>
-                  ,{" "}
-                  <span className="bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent">
-                    {firstName}
-                  </span>
-                </>
-              )}
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-xl">
-              Here's what's happening with your pipeline today. Stay focused on what moves the needle.
-            </p>
-          </div>
-        </section>
-
         {/* Lead Onboard Hub — primary view */}
         <section id="lead-onboard-section">
           <HubErrorBoundary>
