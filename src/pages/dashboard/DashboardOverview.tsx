@@ -53,23 +53,17 @@ class HubErrorBoundary extends Component<
 export default function DashboardOverview() {
   return (
     <DashboardLayout>
-      <div className="space-y-6 md:space-y-10 max-w-6xl mx-auto">
+      <div className="space-y-6 md:space-y-8 max-w-6xl mx-auto">
+        {/* Quick Actions — minimal, top */}
+        <section>
+          <QuickActions />
+        </section>
+
         {/* Lead Onboard Hub — primary view */}
         <section id="lead-onboard-section">
           <HubErrorBoundary>
             <LeadOnboardHub />
           </HubErrorBoundary>
-        </section>
-
-        {/* Quick Actions */}
-        <section>
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 className="text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-[0.16em]">
-              Quick Actions
-            </h2>
-            <div className="h-px flex-1 ml-4 bg-gradient-to-r from-border to-transparent" />
-          </div>
-          <QuickActions />
         </section>
       </div>
     </DashboardLayout>
