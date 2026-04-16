@@ -121,12 +121,8 @@ export default function DashboardLeads() {
   const [newTagValue, setNewTagValue] = useState("");
   const tagInputRef = useRef<HTMLInputElement>(null);
 
-  // Collect all unique tags across leads for dropdown
-  const allExistingTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    onboardedLeads.forEach((l) => l.tags?.forEach((t) => tagSet.add(t)));
-    return Array.from(tagSet).sort();
-  }, [onboardedLeads]);
+  // Project tags come from agent's saved email templates (campaign_templates.project_name)
+  const [templateProjects, setTemplateProjects] = useState<string[]>([]);
   const [showAddLead, setShowAddLead] = useState(false);
 
   // Inline editing state
@@ -142,7 +138,7 @@ export default function DashboardLeads() {
     if (!user) return;
     setLoading(true);
     try {
-      const [listingLeads, onboarded] = await Promise.all([
+      const [listingLeads, onboarded, templates] = await Promise.all([
         (supabase as any)
           .from("leads")
           .select("id, name, email, phone, message, created_at, listing:listings(id, title, project_name)")
@@ -153,12 +149,26 @@ export default function DashboardLeads() {
           .select("id, first_name, last_name, email, phone, source, notes, deck_url, zapier_synced, temperature, tags, created_at, pitch_decks(project_name, slug)")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
+        (supabase as any)
+          .from("campaign_templates")
+          .select("project_name")
+          .or(`user_id.eq.${user.id},user_id.is.null`),
       ]);
       if (listingLeads.data) {
         setLeads(listingLeads.data.map((item: any) => ({ ...item, listing: item.listing as Lead["listing"] })));
       }
       if (onboarded.data) {
         setOnboardedLeads(onboarded.data as unknown as OnboardedLead[]);
+      }
+      if (templates.data) {
+        const names = Array.from(
+          new Set(
+            (templates.data as any[])
+              .map((t) => (t.project_name || "").trim())
+              .filter((n) => n && n.toLowerCase() !== "untitled")
+          )
+        ).sort();
+        setTemplateProjects(names);
       }
     } catch (error) {
       console.error("Error fetching leads:", error);
@@ -652,27 +662,24 @@ export default function DashboardLeads() {
                                           <Plus className="h-3 w-3" />
                                         </button>
                                       </DropdownMenuTrigger>
-                                      <DropdownMenuContent align="start" className="min-w-[140px]">
-                                        {allExistingTags
-                                          .filter((t) => !lead.tags?.includes(t))
-                                          .map((t) => (
-                                            <DropdownMenuItem key={t} onClick={() => handleAddTag(lead.id, t)}>
-                                              <Tag className="h-3 w-3 mr-2" />
-                                              {t}
+                                      <DropdownMenuContent align="start" className="min-w-[180px]">
+                                        <DropdownMenuItem className="text-[10px] uppercase tracking-wider text-muted-foreground" disabled>
+                                          Tag with project
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        {templateProjects
+                                          .filter((p) => !lead.tags?.includes(p) && p !== projectTag)
+                                          .map((p) => (
+                                            <DropdownMenuItem key={p} onClick={() => handleAddTag(lead.id, p)}>
+                                              <Presentation className="h-3 w-3 mr-2 text-primary" />
+                                              {p}
                                             </DropdownMenuItem>
                                           ))}
-                                        {allExistingTags.filter((t) => !lead.tags?.includes(t)).length > 0 && (
-                                          <DropdownMenuSeparator />
+                                        {templateProjects.filter((p) => !lead.tags?.includes(p) && p !== projectTag).length === 0 && (
+                                          <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                                            No more projects
+                                          </DropdownMenuItem>
                                         )}
-                                        <DropdownMenuItem
-                                          onClick={() => {
-                                            const tag = prompt("New tag name:");
-                                            if (tag?.trim()) handleAddTag(lead.id, tag.trim());
-                                          }}
-                                        >
-                                          <Plus className="h-3 w-3 mr-2" />
-                                          Create new tag
-                                        </DropdownMenuItem>
                                       </DropdownMenuContent>
                                     </DropdownMenu>
                                   </div>
@@ -886,27 +893,24 @@ export default function DashboardLeads() {
                                         <Plus className="h-3 w-3" />
                                       </button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="start" className="min-w-[140px]">
-                                      {allExistingTags
-                                        .filter((t) => !lead.tags?.includes(t))
-                                        .map((t) => (
-                                          <DropdownMenuItem key={t} onClick={() => handleAddTag(lead.id, t)}>
-                                            <Tag className="h-3 w-3 mr-2" />
-                                            {t}
+                                    <DropdownMenuContent align="start" className="min-w-[180px]">
+                                      <DropdownMenuItem className="text-[10px] uppercase tracking-wider text-muted-foreground" disabled>
+                                        Tag with project
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator />
+                                      {templateProjects
+                                        .filter((p) => !lead.tags?.includes(p) && p !== projectTag)
+                                        .map((p) => (
+                                          <DropdownMenuItem key={p} onClick={() => handleAddTag(lead.id, p)}>
+                                            <Presentation className="h-3 w-3 mr-2 text-primary" />
+                                            {p}
                                           </DropdownMenuItem>
                                         ))}
-                                      {allExistingTags.filter((t) => !lead.tags?.includes(t)).length > 0 && (
-                                        <DropdownMenuSeparator />
+                                      {templateProjects.filter((p) => !lead.tags?.includes(p) && p !== projectTag).length === 0 && (
+                                        <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                                          No more projects
+                                        </DropdownMenuItem>
                                       )}
-                                      <DropdownMenuItem
-                                        onClick={() => {
-                                          const tag = prompt("New tag name:");
-                                          if (tag?.trim()) handleAddTag(lead.id, tag.trim());
-                                        }}
-                                      >
-                                        <Plus className="h-3 w-3 mr-2" />
-                                        Create new tag
-                                      </DropdownMenuItem>
                                     </DropdownMenuContent>
                                   </DropdownMenu>
                                 </div>
