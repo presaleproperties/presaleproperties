@@ -14,14 +14,6 @@ type QuickAction = {
 
 const actions: QuickAction[] = [
   {
-    label: "Capture Lead",
-    description: "Onboard a new client",
-    icon: UserPlus,
-    accent: "from-primary/90 to-primary",
-    ring: "ring-primary/20",
-    action: "scroll",
-  },
-  {
     label: "Send Email",
     description: "Build a new campaign",
     icon: PenTool,
@@ -58,7 +50,7 @@ export function QuickActions() {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+    <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
       {actions.map((action) => (
         <button
           key={action.label}
