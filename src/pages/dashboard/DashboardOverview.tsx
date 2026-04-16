@@ -1,10 +1,8 @@
-import { useEffect, useState, Component, type ReactNode, type ErrorInfo } from "react";
+import { Component, type ReactNode, type ErrorInfo } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { LeadOnboardHub } from "@/components/leads/LeadOnboardHub";
 import { QuickActions } from "@/components/dashboard/QuickActions";
-import { AlertTriangle, RefreshCw, Sparkles } from "lucide-react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /** Inline error boundary to isolate LeadOnboardHub crashes */
