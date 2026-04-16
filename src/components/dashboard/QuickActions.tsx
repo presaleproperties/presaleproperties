@@ -14,14 +14,6 @@ type QuickAction = {
 
 const actions: QuickAction[] = [
   {
-    label: "Capture Lead",
-    description: "Onboard a new client",
-    icon: UserPlus,
-    accent: "from-primary/90 to-primary",
-    ring: "ring-primary/20",
-    action: "scroll",
-  },
-  {
     label: "Send Email",
     description: "Build a new campaign",
     icon: PenTool,
