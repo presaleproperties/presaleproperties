@@ -33,25 +33,38 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { leadId, templateId, htmlOverride } = await req.json();
-    if (!leadId || !templateId) {
-      return new Response(JSON.stringify({ error: "leadId and templateId are required" }), {
+    const { leadId, templateId, htmlOverride, recipient } = await req.json();
+    if (!templateId || (!leadId && !recipient?.email)) {
+      return new Response(JSON.stringify({ error: "templateId and either leadId or recipient.email are required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Fetch lead
-    const { data: lead, error: leadErr } = await supabase
-      .from("onboarded_leads")
-      .select("*")
-      .eq("id", leadId)
-      .eq("user_id", user.id)
-      .single();
+    // Resolve recipient: either from onboarded_leads or from inline payload
+    let lead: { email: string; first_name: string; last_name: string } | null = null;
 
-    if (leadErr || !lead) {
-      return new Response(JSON.stringify({ error: "Lead not found" }), {
-        status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (leadId) {
+      const { data, error: leadErr } = await supabase
+        .from("onboarded_leads")
+        .select("email, first_name, last_name")
+        .eq("id", leadId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (leadErr || !data) {
+        return new Response(JSON.stringify({ error: "Lead not found" }), {
+          status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      lead = data;
+    } else {
+      // Inline recipient (e.g. client or manual email entry)
+      const fn = (recipient.firstName || recipient.name || recipient.email.split("@")[0] || "").trim();
+      lead = {
+        email: recipient.email,
+        first_name: fn,
+        last_name: recipient.lastName || "",
+      };
     }
 
     // Fetch template
