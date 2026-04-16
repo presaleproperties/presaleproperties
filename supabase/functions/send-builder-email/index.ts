@@ -153,6 +153,8 @@ serve(async (req) => {
           subject: personalizeContent(subject, personalizedFirstName),
           html: personalizedHtml,
           fromName: fromName || "Presale Properties",
+          cc: user.email ? [user.email] : undefined,
+          replyTo: user.email || undefined,
         });
 
         if (result.success) {
