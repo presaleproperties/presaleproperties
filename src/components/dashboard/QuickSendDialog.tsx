@@ -264,7 +264,15 @@ export function QuickSendDialog({ open, onOpenChange }: QuickSendDialogProps) {
             );
           }
         } else {
-          if (!cancelled) setPreviewHtml("<p>No preview available.</p>");
+          // Fallback: try common html fields stored on the template
+          const raw = fd?.html || fd?.htmlContent || fd?.html_content || fd?.body || "";
+          if (!cancelled) {
+            setPreviewHtml(
+              raw
+                ? personalizeTemplateHtml(raw, firstName)
+                : "<div style='padding:32px;font-family:sans-serif;color:#666;text-align:center;'>This template has no rendered HTML yet. Open it in the Email Builder to generate a preview.</div>"
+            );
+          }
         }
       } catch (err) {
         console.error("[QuickSend] preview error:", err);
