@@ -1,10 +1,8 @@
-import { useEffect, useState, Component, type ReactNode, type ErrorInfo } from "react";
+import { Component, type ReactNode, type ErrorInfo } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { LeadOnboardHub } from "@/components/leads/LeadOnboardHub";
 import { QuickActions } from "@/components/dashboard/QuickActions";
-import { AlertTriangle, RefreshCw, Sparkles } from "lucide-react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /** Inline error boundary to isolate LeadOnboardHub crashes */
@@ -53,46 +51,25 @@ class HubErrorBoundary extends Component<
 }
 
 export default function DashboardOverview() {
-  const { user } = useAuth();
-  const [agentName, setAgentName] = useState("");
-
-  useEffect(() => {
-    if (!user) return;
-    Promise.resolve(
-      supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle()
-    ).then(({ data }) => {
-      if (data?.full_name) setAgentName(data.full_name);
-    }).catch((err) => console.error("[DashboardOverview] profile fetch error:", err));
-  }, [user]);
-
-  const greeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  };
-
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
-
-  const firstName = agentName ? agentName.split(" ")[0] : "";
-
   return (
     <DashboardLayout>
-      <div className="space-y-6 md:space-y-8 max-w-6xl mx-auto">
-        {/* Quick Actions — minimal, top of page */}
-        <section>
-          <QuickActions />
-        </section>
-
+      <div className="space-y-6 md:space-y-10 max-w-6xl mx-auto">
         {/* Lead Onboard Hub — primary view */}
         <section id="lead-onboard-section">
           <HubErrorBoundary>
             <LeadOnboardHub />
           </HubErrorBoundary>
+        </section>
+
+        {/* Quick Actions */}
+        <section>
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h2 className="text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-[0.16em]">
+              Quick Actions
+            </h2>
+            <div className="h-px flex-1 ml-4 bg-gradient-to-r from-border to-transparent" />
+          </div>
+          <QuickActions />
         </section>
       </div>
     </DashboardLayout>

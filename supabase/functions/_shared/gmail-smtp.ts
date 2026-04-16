@@ -15,8 +15,6 @@ interface EmailOptions {
   html: string;
   replyTo?: string;
   fromName?: string;
-  cc?: string | string[];
-  bcc?: string | string[];
 }
 
 interface EmailResult {
@@ -85,18 +83,9 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         return ch;
       });
     
-    const ccList = options.cc
-      ? (Array.isArray(options.cc) ? options.cc : [options.cc]).filter((e) => e && e.trim())
-      : undefined;
-    const bccList = options.bcc
-      ? (Array.isArray(options.bcc) ? options.bcc : [options.bcc]).filter((e) => e && e.trim())
-      : undefined;
-
     await client.send({
       from: `${senderName} <${smtpUser}>`,
       to: recipients,
-      ...(ccList && ccList.length ? { cc: ccList } : {}),
-      ...(bccList && bccList.length ? { bcc: bccList } : {}),
       subject: safeSubject,
       html: minifiedHtml,
       replyTo: options.replyTo || DEFAULT_REPLY_TO,
@@ -104,7 +93,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     
     await client.close();
 
-    console.log(`Email sent successfully to ${recipients.join(", ")}${ccList?.length ? ` (cc: ${ccList.join(", ")})` : ""}`);
+    console.log(`Email sent successfully to ${recipients.join(", ")}`);
     
     return {
       success: true,

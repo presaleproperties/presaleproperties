@@ -208,8 +208,6 @@ ${floorPlanRows ? `<tr><td style="padding:0 32px 16px;"><p style="margin:0 0 12p
       subject: subjectLine.replace(/\{first_name\}/gi, firstName),
       html,
       fromName: senderName,
-      cc: user.email ? [user.email] : undefined,
-      replyTo: user.email || undefined,
     });
 
     if (!result.success) {
