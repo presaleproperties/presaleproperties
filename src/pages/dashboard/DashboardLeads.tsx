@@ -153,7 +153,10 @@ export default function DashboardLeads() {
           .from("campaign_templates")
           .select("project_name")
           .or(`user_id.eq.${user.id},user_id.is.null`),
-      ]);
+        (supabase as any)
+          .from("pitch_decks")
+          .select("project_name")
+          .eq("user_id", user.id),
       if (listingLeads.data) {
         setLeads(listingLeads.data.map((item: any) => ({ ...item, listing: item.listing as Lead["listing"] })));
       }
