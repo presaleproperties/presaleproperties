@@ -91,8 +91,13 @@ export function SendEmailDialog({
     try {
       const term = `%${q}%`;
 
-      // Search project_leads and clients in parallel
-      const [leadsRes, clientsRes] = await Promise.all([
+      // Search onboarded_leads (agent's CRM), project_leads and clients in parallel
+      const [onboardedRes, leadsRes, clientsRes] = await Promise.all([
+        supabase
+          .from("onboarded_leads")
+          .select("id, first_name, last_name, email, phone")
+          .or(`first_name.ilike.${term},last_name.ilike.${term},email.ilike.${term}`)
+          .limit(10),
         supabase
           .from("project_leads")
           .select("id, name, email, phone")
@@ -108,6 +113,16 @@ export function SendEmailDialog({
       const mapped: LeadResult[] = [];
       const seen = new Set<string>();
 
+      // Prioritize onboarded_leads (agent's own pipeline)
+      if (onboardedRes.data) {
+        for (const o of onboardedRes.data as any[]) {
+          if (o.email && !seen.has(o.email)) {
+            seen.add(o.email);
+            const name = [o.first_name, o.last_name].filter(Boolean).join(" ") || o.email;
+            mapped.push({ id: o.id, name, firstName: o.first_name ?? undefined, email: o.email, source: "lead", phone: o.phone ?? undefined });
+          }
+        }
+      }
       if (leadsRes.data) {
         for (const l of leadsRes.data) {
           if (!seen.has(l.email)) {
