@@ -2,14 +2,24 @@ import { useNavigate } from "react-router-dom";
 import { UserPlus, PenTool, Presentation, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const actions = [
+type QuickAction = {
+  label: string;
+  description: string;
+  icon: typeof UserPlus;
+  accent: string;
+  ring: string;
+  action?: "scroll";
+  href?: string;
+};
+
+const actions: QuickAction[] = [
   {
     label: "Capture Lead",
     description: "Onboard a new client",
     icon: UserPlus,
     accent: "from-primary/90 to-primary",
     ring: "ring-primary/20",
-    action: "scroll" as const,
+    action: "scroll",
   },
   {
     label: "Send Email",
