@@ -121,12 +121,8 @@ export default function DashboardLeads() {
   const [newTagValue, setNewTagValue] = useState("");
   const tagInputRef = useRef<HTMLInputElement>(null);
 
-  // Collect all unique tags across leads for dropdown
-  const allExistingTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    onboardedLeads.forEach((l) => l.tags?.forEach((t) => tagSet.add(t)));
-    return Array.from(tagSet).sort();
-  }, [onboardedLeads]);
+  // Project tags come from agent's saved email templates (campaign_templates.project_name)
+  const [templateProjects, setTemplateProjects] = useState<string[]>([]);
   const [showAddLead, setShowAddLead] = useState(false);
 
   // Inline editing state
