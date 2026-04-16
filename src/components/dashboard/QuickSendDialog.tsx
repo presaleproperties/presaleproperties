@@ -54,6 +54,31 @@ interface TemplateRow {
 
 type Step = "recipients" | "template" | "preview" | "done";
 
+function getTemplateCardPreviewImage(template: TemplateRow): string | null {
+  const fd = template.form_data || {};
+  return (
+    template.thumbnail_url ||
+    fd.heroImage ||
+    fd.copy?.heroImage ||
+    fd.imageCards?.find?.((card: any) => card?.url)?.url ||
+    null
+  );
+}
+
+function getTemplateCardPreviewHtml(template: TemplateRow): string {
+  const fd = template.form_data || {};
+
+  if (fd.finalHtml) {
+    return personalizeTemplateHtml(fd.finalHtml, "there");
+  }
+
+  if (isAiEmailTemplate(fd)) {
+    return personalizeTemplateHtml(buildAiTemplateHtmlFromFormData(fd), "there");
+  }
+
+  return fd.html || fd.htmlContent || fd.html_content || fd.body || "";
+}
+
 export function QuickSendDialog({ open, onOpenChange }: QuickSendDialogProps) {
   const [step, setStep] = useState<Step>("recipients");
 
@@ -505,24 +530,34 @@ export function QuickSendDialog({ open, onOpenChange }: QuickSendDialogProps) {
               <div className="grid grid-cols-2 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
                 {filteredTemplates.map((t) => {
                   const selected = selectedTplId === t.id;
+                  const previewImage = getTemplateCardPreviewImage(t);
+                  const previewHtml = getTemplateCardPreviewHtml(t);
                   return (
                     <button
                       key={t.id}
                       onClick={() => setSelectedTplId(t.id)}
                       className={cn(
-                        "group relative text-left rounded-xl border overflow-hidden transition-all",
+                        "group relative text-left rounded-xl border overflow-hidden transition-all bg-card",
                         selected
                           ? "border-primary ring-2 ring-primary/30 shadow-md"
                           : "border-border hover:border-primary/40"
                       )}
                     >
                       <div className="aspect-[4/3] bg-muted overflow-hidden">
-                        {t.thumbnail_url ? (
+                        {previewImage ? (
                           <img
-                            src={t.thumbnail_url}
+                            src={previewImage}
                             alt={t.name}
                             className="w-full h-full object-cover"
                             loading="lazy"
+                          />
+                        ) : previewHtml ? (
+                          <iframe
+                            title={`${t.name} preview`}
+                            srcDoc={previewHtml}
+                            className="w-full h-full border-0 bg-white pointer-events-none scale-[0.34] origin-top-left"
+                            style={{ width: "294%", height: "294%" }}
+                            sandbox="allow-same-origin"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
