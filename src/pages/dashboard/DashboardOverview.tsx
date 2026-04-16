@@ -112,15 +112,11 @@ export default function DashboardOverview() {
           </div>
         </section>
 
-        {/* Daily Stats */}
-        <section>
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 className="text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-[0.16em]">
-              Today at a Glance
-            </h2>
-            <div className="h-px flex-1 ml-4 bg-gradient-to-r from-border to-transparent" />
-          </div>
-          <DailySummaryWidget />
+        {/* Lead Onboard Hub — primary view */}
+        <section id="lead-onboard-section">
+          <HubErrorBoundary>
+            <LeadOnboardHub />
+          </HubErrorBoundary>
         </section>
 
         {/* Quick Actions */}
@@ -132,19 +128,6 @@ export default function DashboardOverview() {
             <div className="h-px flex-1 ml-4 bg-gradient-to-r from-border to-transparent" />
           </div>
           <QuickActions />
-        </section>
-
-        {/* Lead Onboard Hub — isolated with error boundary */}
-        <section id="lead-onboard-section">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 className="text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-[0.16em]">
-              Onboard a Lead
-            </h2>
-            <div className="h-px flex-1 ml-4 bg-gradient-to-r from-border to-transparent" />
-          </div>
-          <HubErrorBoundary>
-            <LeadOnboardHub />
-          </HubErrorBoundary>
         </section>
       </div>
     </DashboardLayout>
