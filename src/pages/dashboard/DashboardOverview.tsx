@@ -3,7 +3,6 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { LeadOnboardHub } from "@/components/leads/LeadOnboardHub";
-import { DailySummaryWidget } from "@/components/dashboard/DailySummaryWidget";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { AlertTriangle, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
