@@ -138,7 +138,7 @@ export default function DashboardLeads() {
     if (!user) return;
     setLoading(true);
     try {
-      const [listingLeads, onboarded] = await Promise.all([
+      const [listingLeads, onboarded, templates] = await Promise.all([
         (supabase as any)
           .from("leads")
           .select("id, name, email, phone, message, created_at, listing:listings(id, title, project_name)")
@@ -149,12 +149,26 @@ export default function DashboardLeads() {
           .select("id, first_name, last_name, email, phone, source, notes, deck_url, zapier_synced, temperature, tags, created_at, pitch_decks(project_name, slug)")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
+        (supabase as any)
+          .from("campaign_templates")
+          .select("project_name")
+          .or(`user_id.eq.${user.id},user_id.is.null`),
       ]);
       if (listingLeads.data) {
         setLeads(listingLeads.data.map((item: any) => ({ ...item, listing: item.listing as Lead["listing"] })));
       }
       if (onboarded.data) {
         setOnboardedLeads(onboarded.data as unknown as OnboardedLead[]);
+      }
+      if (templates.data) {
+        const names = Array.from(
+          new Set(
+            (templates.data as any[])
+              .map((t) => (t.project_name || "").trim())
+              .filter((n) => n && n.toLowerCase() !== "untitled")
+          )
+        ).sort();
+        setTemplateProjects(names);
       }
     } catch (error) {
       console.error("Error fetching leads:", error);
