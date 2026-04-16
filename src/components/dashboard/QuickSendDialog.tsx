@@ -54,6 +54,31 @@ interface TemplateRow {
 
 type Step = "recipients" | "template" | "preview" | "done";
 
+function getTemplateCardPreviewImage(template: TemplateRow): string | null {
+  const fd = template.form_data || {};
+  return (
+    template.thumbnail_url ||
+    fd.heroImage ||
+    fd.copy?.heroImage ||
+    fd.imageCards?.find?.((card: any) => card?.url)?.url ||
+    null
+  );
+}
+
+function getTemplateCardPreviewHtml(template: TemplateRow): string {
+  const fd = template.form_data || {};
+
+  if (fd.finalHtml) {
+    return personalizeTemplateHtml(fd.finalHtml, "there");
+  }
+
+  if (isAiEmailTemplate(fd)) {
+    return personalizeTemplateHtml(buildAiTemplateHtmlFromFormData(fd), "there");
+  }
+
+  return fd.html || fd.htmlContent || fd.html_content || fd.body || "";
+}
+
 export function QuickSendDialog({ open, onOpenChange }: QuickSendDialogProps) {
   const [step, setStep] = useState<Step>("recipients");
 
