@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 interface AssignmentFaqHeroProps {
   eyebrow?: string;
@@ -23,37 +24,52 @@ export function AssignmentFaqHero({
 }: AssignmentFaqHeroProps) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-foreground via-foreground to-foreground/95 text-background">
+      {/* Subtle dot grid */}
       <div className="absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle_at_1px_1px,_hsl(var(--background))_1px,_transparent_0)] [background-size:24px_24px]" />
-      <div className="container relative px-4 py-16 lg:py-24">
-        <div className="flex items-center gap-2 text-xs text-background/60 mb-4">
-          <Link to="/" className="hover:text-background">Home</Link>
-          <span>/</span>
-          <Link to="/assignments" className="hover:text-background">Assignments</Link>
-          <span>/</span>
-          <span className="text-background/80">{eyebrow}</span>
-        </div>
+      {/* Soft primary glow */}
+      <div className="pointer-events-none absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-primary/20 blur-[120px]" />
+      <div className="pointer-events-none absolute -bottom-40 -left-24 h-[360px] w-[360px] rounded-full bg-primary/10 blur-[120px]" />
+
+      <div className="container relative px-4 py-14 sm:py-20 lg:py-28">
+        {/* Breadcrumbs */}
+        <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs text-background/60 mb-6">
+          <Link to="/" className="hover:text-background transition-colors">Home</Link>
+          <span aria-hidden>/</span>
+          <Link to="/assignments" className="hover:text-background transition-colors">Assignments</Link>
+          <span aria-hidden>/</span>
+          <span className="text-background/85">{eyebrow}</span>
+        </nav>
 
         <div className="max-w-3xl">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-4">
+          <span className="inline-flex items-center gap-2 rounded-full border border-background/15 bg-background/[0.04] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.22em] text-primary mb-5 backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             {eyebrow}
-          </p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] mb-5">
+          </span>
+          <h1 className="text-[2.25rem] sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] mb-5 text-balance">
             {title}
           </h1>
-          <p className="text-lg sm:text-xl text-background/75 leading-relaxed mb-6 max-w-2xl">
+          <p className="text-base sm:text-xl text-background/75 leading-relaxed mb-6 max-w-2xl text-pretty">
             {subhead}
           </p>
           {credibility && (
-            <p className="text-sm text-primary font-semibold mb-8 tracking-wide">
+            <p className="text-xs sm:text-sm text-primary font-semibold mb-8 tracking-wide max-w-2xl">
               {credibility}
             </p>
           )}
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button asChild size="lg" className="font-semibold">
-              <a href={primaryCta.href}>{primaryCta.label}</a>
+            <Button asChild size="lg" className="font-semibold gap-2 w-full sm:w-auto shadow-lg shadow-primary/20">
+              <a href={primaryCta.href}>
+                {primaryCta.label}
+                <ArrowRight className="h-4 w-4" />
+              </a>
             </Button>
             {secondaryCta && (
-              <Button asChild size="lg" variant="outline" className="bg-transparent border-background/30 text-background hover:bg-background hover:text-foreground font-semibold">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="bg-transparent border-background/30 text-background hover:bg-background hover:text-foreground font-semibold w-full sm:w-auto"
+              >
                 <a href={secondaryCta.href}>{secondaryCta.label}</a>
               </Button>
             )}
@@ -61,6 +77,9 @@ export function AssignmentFaqHero({
           {children}
         </div>
       </div>
+
+      {/* Soft bottom fade into next section */}
+      <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-b from-transparent to-background/[0.02] pointer-events-none" />
     </section>
   );
 }
