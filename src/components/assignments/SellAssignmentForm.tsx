@@ -118,12 +118,12 @@ export function SellAssignmentForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-8 sm:p-12 text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-5">
-          <CheckCircle2 className="h-7 w-7 text-primary" />
+      <div className="rounded-2xl border border-border bg-card p-8 sm:p-12 text-center shadow-sm">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 ring-8 ring-primary/5 mb-5">
+          <CheckCircle2 className="h-8 w-8 text-primary" />
         </div>
-        <h3 className="text-2xl font-bold text-foreground mb-3">Got it.</h3>
-        <p className="text-muted-foreground max-w-md mx-auto">
+        <h3 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 tracking-tight">Got it.</h3>
+        <p className="text-muted-foreground max-w-md mx-auto text-base sm:text-lg leading-relaxed">
           Uzair will call you within 24 hours. Check your phone.
         </p>
       </div>
@@ -133,22 +133,23 @@ export function SellAssignmentForm() {
   return (
     <form
       onSubmit={form.handleSubmit(onSubmit)}
-      className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm space-y-5"
+      className="rounded-2xl border border-border bg-card p-6 sm:p-8 lg:p-10 shadow-sm space-y-6"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
         <div className="sm:col-span-2 space-y-2">
-          <Label htmlFor="fullName">Full name</Label>
-          <Input id="fullName" {...form.register("fullName")} placeholder="Jane Smith" />
+          <Label htmlFor="fullName" className="text-foreground">Full name</Label>
+          <Input id="fullName" {...form.register("fullName")} placeholder="Jane Smith" className="h-11" />
           {form.formState.errors.fullName && <p className="text-xs text-destructive">{form.formState.errors.fullName.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone number</Label>
+          <Label htmlFor="phone" className="text-foreground">Phone number</Label>
           <Input
             id="phone"
             type="tel"
             inputMode="tel"
             placeholder="(604) 555-1234"
+            className="h-11"
             value={form.watch("phone") || ""}
             onChange={(e) => form.setValue("phone", formatPhone(e.target.value), { shouldValidate: true })}
           />
@@ -156,21 +157,21 @@ export function SellAssignmentForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" {...form.register("email")} placeholder="you@email.com" />
+          <Label htmlFor="email" className="text-foreground">Email</Label>
+          <Input id="email" type="email" {...form.register("email")} placeholder="you@email.com" className="h-11" />
           {form.formState.errors.email && <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="projectName">Project / building name</Label>
-          <Input id="projectName" {...form.register("projectName")} placeholder="e.g. Rail District, Eden" />
+          <Label htmlFor="projectName" className="text-foreground">Project / building name</Label>
+          <Input id="projectName" {...form.register("projectName")} placeholder="e.g. Rail District, Eden" className="h-11" />
           {form.formState.errors.projectName && <p className="text-xs text-destructive">{form.formState.errors.projectName.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="unitType">Unit type</Label>
+          <Label htmlFor="unitType" className="text-foreground">Unit type</Label>
           <Select onValueChange={(v) => form.setValue("unitType", v as any, { shouldValidate: true })} value={form.watch("unitType")}>
-            <SelectTrigger id="unitType"><SelectValue placeholder="Choose unit type" /></SelectTrigger>
+            <SelectTrigger id="unitType" className="h-11"><SelectValue placeholder="Choose unit type" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="Condo">Condo</SelectItem>
               <SelectItem value="Townhouse">Townhouse</SelectItem>
@@ -181,7 +182,7 @@ export function SellAssignmentForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="contractPrice">Contract purchase price (CAD)</Label>
+          <Label htmlFor="contractPrice" className="text-foreground">Contract purchase price (CAD)</Label>
           <Input
             id="contractPrice"
             type="number"
@@ -190,34 +191,48 @@ export function SellAssignmentForm() {
             step={1000}
             {...form.register("contractPrice", { valueAsNumber: true })}
             placeholder="650000"
+            className="h-11"
           />
           {form.formState.errors.contractPrice && <p className="text-xs text-destructive">{form.formState.errors.contractPrice.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="completionDate">Expected completion (month / year)</Label>
-          <Input id="completionDate" type="month" {...form.register("completionDate")} />
+          <Label htmlFor="completionDate" className="text-foreground">Expected completion (month / year)</Label>
+          <Input id="completionDate" type="month" {...form.register("completionDate")} className="h-11" />
           {form.formState.errors.completionDate && <p className="text-xs text-destructive">{form.formState.errors.completionDate.message}</p>}
         </div>
 
         <div className="sm:col-span-2 space-y-2">
-          <Label htmlFor="reason">Why are you selling? <span className="text-muted-foreground font-normal">(optional)</span></Label>
+          <Label htmlFor="reason" className="text-foreground">
+            Why are you selling? <span className="text-muted-foreground font-normal">(optional)</span>
+          </Label>
           <Textarea id="reason" rows={3} {...form.register("reason")} placeholder="A short note helps us prepare." />
         </div>
 
-        <div className="sm:col-span-2 space-y-2">
-          <Label>Best way to reach you?</Label>
+        <div className="sm:col-span-2 space-y-3">
+          <Label className="text-foreground">Best way to reach you?</Label>
           <RadioGroup
             value={form.watch("contactMethod")}
             onValueChange={(v) => form.setValue("contactMethod", v as any, { shouldValidate: true })}
-            className="flex flex-wrap gap-4"
+            className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3"
           >
-            {(["Call", "Text", "WhatsApp", "Email"] as const).map((opt) => (
-              <div key={opt} className="flex items-center gap-2">
-                <RadioGroupItem id={`cm-${opt}`} value={opt} />
-                <Label htmlFor={`cm-${opt}`} className="font-normal cursor-pointer">{opt}</Label>
-              </div>
-            ))}
+            {(["Call", "Text", "WhatsApp", "Email"] as const).map((opt) => {
+              const selected = form.watch("contactMethod") === opt;
+              return (
+                <Label
+                  key={opt}
+                  htmlFor={`cm-${opt}`}
+                  className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 cursor-pointer transition-all font-normal ${
+                    selected
+                      ? "border-primary bg-primary/5 text-foreground"
+                      : "border-border bg-background hover:border-primary/40 text-muted-foreground"
+                  }`}
+                >
+                  <RadioGroupItem id={`cm-${opt}`} value={opt} />
+                  <span>{opt}</span>
+                </Label>
+              );
+            })}
           </RadioGroup>
           {form.formState.errors.contactMethod && <p className="text-xs text-destructive">{form.formState.errors.contactMethod.message}</p>}
         </div>
@@ -237,12 +252,19 @@ export function SellAssignmentForm() {
         </p>
       )}
 
-      <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto font-semibold">
-        {isSubmitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sending…</> : "Send — Get My Free Valuation"}
-      </Button>
-      <p className="text-xs text-muted-foreground">
-        By submitting, you agree to be contacted about your assignment. No spam — single point of contact.
-      </p>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2 border-t border-border">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={isSubmitting}
+          className="w-full sm:w-auto font-semibold shadow-md shadow-primary/20"
+        >
+          {isSubmitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sending…</> : "Send — Get My Free Valuation"}
+        </Button>
+        <p className="text-xs text-muted-foreground sm:flex-1">
+          By submitting, you agree to be contacted about your assignment. No spam — single point of contact.
+        </p>
+      </div>
     </form>
   );
 }
