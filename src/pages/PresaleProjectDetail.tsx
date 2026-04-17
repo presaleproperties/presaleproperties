@@ -815,17 +815,7 @@ export default function PresaleProjectDetail() {
                   />
                 )}
 
-                {/* Tablet-only inline lead form — shown between md and lg */}
-                <div className="hidden md:block lg:hidden mt-6">
-                  <ProjectLeadForm
-                    projectId={project.id}
-                    projectName={project.name}
-                    status={project.status}
-                    brochureUrl={project.brochure_files?.[0] || null}
-                    floorplanUrl={project.floorplan_files?.[0] || null}
-                    pricingUrl={project.pricing_sheets?.[0] || null}
-                  />
-                </div>
+                {/* Tablet uses the bottom-sheet CTA (ProjectMobileCTA) instead of an inline form */}
               </div>
             </div>
           </div>
