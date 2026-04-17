@@ -89,6 +89,11 @@ export default function SellYourAssignment() {
           credibility="400+ presale clients. Only 2 defaults. Buyer-first always."
           primaryCta={{ label: "Sell My Assignment", href: "#sell-my-assignment" }}
           secondaryCta={{ label: "Book a 15-min call with Uzair", href: "/contact" }}
+          stats={[
+            { value: "400+", label: "Clients served" },
+            { value: "2", label: "Defaults — ever" },
+            { value: "24h", label: "Response time" },
+          ]}
         />
 
         {/* Intro */}
