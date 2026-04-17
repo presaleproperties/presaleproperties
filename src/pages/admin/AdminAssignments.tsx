@@ -826,7 +826,8 @@ export default function AdminListings() {
                       onPreview={() => setPreviewListing(l)}
                       onApprove={() => handleAction(l, "approve")}
                       onReject={() => handleAction(l, "reject")}
-                      onEdit={() => openEdit(l)} />
+                      onEdit={() => openEdit(l)}
+                      onDuplicated={(id) => fetchListings(id)} />
                   ))}</div>}
               </TabsContent>
 
@@ -838,7 +839,8 @@ export default function AdminListings() {
                       onPreview={() => setPreviewListing(l)}
                       onToggleFeatured={() => toggleFeatured(l)}
                       isUpdatingFeatured={updatingFeatured === l.id}
-                      onEdit={() => openEdit(l)} />
+                      onEdit={() => openEdit(l)}
+                      onDuplicated={(id) => fetchListings(id)} />
                   ))}</div>}
               </TabsContent>
 
@@ -850,7 +852,8 @@ export default function AdminListings() {
                       onPreview={() => setPreviewListing(l)}
                       onToggleFeatured={() => toggleFeatured(l)}
                       isUpdatingFeatured={updatingFeatured === l.id}
-                      onEdit={() => openEdit(l)} />
+                      onEdit={() => openEdit(l)}
+                      onDuplicated={(id) => fetchListings(id)} />
                   ))}</div>}
               </TabsContent>
 
@@ -858,7 +861,7 @@ export default function AdminListings() {
                 {filteredListings.length === 0
                   ? renderEmptyState(<Pause className="h-12 w-12 text-muted-foreground" />, "No paused assignments")
                   : <div className="space-y-4">{filteredListings.map(l => (
-                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings} onPreview={() => setPreviewListing(l)} onEdit={() => openEdit(l)} />
+                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings} onPreview={() => setPreviewListing(l)} onEdit={() => openEdit(l)} onDuplicated={(id) => fetchListings(id)} />
                   ))}</div>}
               </TabsContent>
 
@@ -866,7 +869,7 @@ export default function AdminListings() {
                 {filteredListings.length === 0
                   ? renderEmptyState(<FileX className="h-12 w-12 text-muted-foreground" />, "No expired assignments")
                   : <div className="space-y-4">{filteredListings.map(l => (
-                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings} onPreview={() => setPreviewListing(l)} onEdit={() => openEdit(l)} />
+                    <AdminAssignmentCard key={l.id} listing={l} onRefresh={fetchListings} onPreview={() => setPreviewListing(l)} onEdit={() => openEdit(l)} onDuplicated={(id) => fetchListings(id)} />
                   ))}</div>}
               </TabsContent>
 
@@ -882,7 +885,8 @@ export default function AdminListings() {
                       onReject={() => handleAction(l, "reject")}
                       onToggleFeatured={l.status === "published" ? () => toggleFeatured(l) : undefined}
                       isUpdatingFeatured={updatingFeatured === l.id}
-                      onEdit={() => openEdit(l)} />
+                      onEdit={() => openEdit(l)}
+                      onDuplicated={(id) => fetchListings(id)} />
                   ))}</div>}
               </TabsContent>
             </>
