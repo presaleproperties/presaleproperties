@@ -338,15 +338,6 @@ export default function Assignments() {
     });
   }, [listings, cityFilter, bedsFilter, neighborhoodFilter, selectedPriceRange, searchQuery]);
 
-  const mapAssignments = useMemo(() =>
-    filtered.map((l) => ({
-      id: l.id, title: l.title, project_name: l.project_name, city: l.city,
-      neighborhood: l.neighborhood, assignment_price: l.assignment_price,
-      original_price: l.original_price, beds: l.beds, baths: l.baths,
-      interior_sqft: l.interior_sqft, map_lat: l.map_lat || null, map_lng: l.map_lng || null,
-    })),
-    [filtered]
-  );
 
   const activeFilterCount = [
     cityFilter !== "any", bedsFilter !== "any", priceFilter !== "any",
