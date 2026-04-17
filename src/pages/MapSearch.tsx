@@ -818,6 +818,8 @@ export default function MapSearch() {
     gcTime: 20 * 60 * 1000,
     refetchOnWindowFocus: false,
     placeholderData: (prev) => prev,
+    // Skip heavy resale fetch when embedded as assignments-only map
+    enabled: !(isEmbed && mapMode === "assignments"),
   });
 
   // Fetch presale projects
