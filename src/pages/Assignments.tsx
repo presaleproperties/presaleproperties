@@ -272,9 +272,17 @@ export default function Assignments() {
           <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
             Assignment Sales
           </h1>
-          <p className="text-muted-foreground max-w-xl">
+          <p className="text-muted-foreground max-w-xl mb-5">
             Exclusive presale assignment listings in Metro Vancouver & Fraser Valley — often below original developer pricing.
           </p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button asChild className="font-semibold">
+              <Link to="/assignments/sell-your-assignment">Sell Your Assignment</Link>
+            </Button>
+            <Button asChild variant="outline" className="font-semibold">
+              <Link to="/assignments/buying-an-assignment">Buying an Assignment — Guide</Link>
+            </Button>
+          </div>
         </div>
 
         {/* Filter Bar */}

@@ -126,6 +126,8 @@ Deno.serve(async (req) => {
       { url: "/presale-projects", priority: "1.0", changefreq: "daily", lastmod: now },
       { url: "/properties", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/assignments", priority: "0.85", changefreq: "daily", lastmod: now },
+      { url: "/assignments/sell-your-assignment", priority: "0.8", changefreq: "monthly", lastmod: now },
+      { url: "/assignments/buying-an-assignment", priority: "0.8", changefreq: "monthly", lastmod: now },
       { url: "/for-agents", priority: "0.8", changefreq: "weekly", lastmod: now },
       { url: "/buyers-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
       { url: "/presale-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
