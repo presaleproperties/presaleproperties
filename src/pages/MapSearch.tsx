@@ -380,6 +380,9 @@ export default function MapSearch() {
   // Read mode from URL param, sync state when URL changes
   const urlMode = (searchParams.get("mode") as MapMode) || "all";
   const [mapMode, setMapMode] = useState<MapMode>(urlMode);
+
+  // Embed mode: hide site header + mode toggle (used by /assignments page iframe)
+  const isEmbed = searchParams.get("embed") === "1";
   
   // Sync mapMode when URL changes (e.g., navigating from another page)
   useEffect(() => {
@@ -1568,10 +1571,12 @@ export default function MapSearch() {
         {/* Main container - edge-to-edge on mobile/tablet with safe area support */}
         {/* Uses map-page-root class for mobile/tablet full-bleed, lg:relative for desktop standard layout */}
         <div className="map-page-root lg:relative lg:h-[100dvh] lg:bg-background flex flex-col overflow-hidden">
-        {/* Desktop only header */}
-        <div className="hidden lg:block">
-          <ConversionHeader alwaysVisible stickyOnMobile />
-        </div>
+        {/* Desktop only header — hidden in embed mode */}
+        {!isEmbed && (
+          <div className="hidden lg:block">
+            <ConversionHeader alwaysVisible stickyOnMobile />
+          </div>
+        )}
 
         {/* Mobile/Tablet: Floating Search Bar with Autocomplete */}
         <div 
@@ -1721,36 +1726,40 @@ export default function MapSearch() {
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section - Always full width, panel floats on top */}
           <div className="relative h-full w-full">
-            {/* Unified Mode Toggle - Floating on map */}
-            {/* Mobile/Tablet: Always sit below the search bar (avoid overlap on tablet browser UI) */}
-            <div 
-              className="absolute z-[1000] lg:hidden left-1/2 -translate-x-1/2"
-              style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px + 72px)' }}
-            >
-              <UnifiedMapToggle
-                mode={mapMode}
-                onModeChange={handleModeChange}
-                presaleCount={filteredPresaleProjects?.length || 0}
-                resaleCount={filteredResaleListings?.length || 0}
-              />
-            </div>
-            
-            {/* Desktop: Centered at top of map - shifts left when panel is open */}
-            <div 
-              className="hidden lg:block absolute top-4 z-[1000] transition-all duration-300"
-              style={{ 
-                left: showList ? 'calc(50% - 210px)' : '50%',
-                transform: 'translateX(-50%)'
-              }}
-            >
-              <UnifiedMapToggle
-                mode={mapMode}
-                onModeChange={handleModeChange}
-                presaleCount={filteredPresaleProjects?.length || 0}
-                resaleCount={filteredResaleListings?.length || 0}
-              />
-            </div>
-            
+            {/* Unified Mode Toggle - Floating on map (hidden in embed mode) */}
+            {!isEmbed && (
+              <>
+                {/* Mobile/Tablet: Always sit below the search bar */}
+                <div
+                  className="absolute z-[1000] lg:hidden left-1/2 -translate-x-1/2"
+                  style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px + 72px)' }}
+                >
+                  <UnifiedMapToggle
+                    mode={mapMode}
+                    onModeChange={handleModeChange}
+                    presaleCount={filteredPresaleProjects?.length || 0}
+                    resaleCount={filteredResaleListings?.length || 0}
+                  />
+                </div>
+
+                {/* Desktop: Centered at top of map - shifts left when panel is open */}
+                <div
+                  className="hidden lg:block absolute top-4 z-[1000] transition-all duration-300"
+                  style={{
+                    left: showList ? 'calc(50% - 210px)' : '50%',
+                    transform: 'translateX(-50%)'
+                  }}
+                >
+                  <UnifiedMapToggle
+                    mode={mapMode}
+                    onModeChange={handleModeChange}
+                    presaleCount={filteredPresaleProjects?.length || 0}
+                    resaleCount={filteredResaleListings?.length || 0}
+                  />
+                </div>
+              </>
+            )}
+
             {/* Desktop: Show Panel Button - appears when panel is hidden, shifts when panel opens */}
             <button
               onClick={() => setShowList(true)}
