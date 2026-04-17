@@ -1066,7 +1066,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         if (img && !gallerySlides.includes(img) && gallerySlides.length < 6) gallerySlides.push(img);
       }
     }
-    if (gallerySlides.length > 0) setLoopSlides(gallerySlides);
+    // ALWAYS overwrite slides with the new project's gallery (per project-change rule)
+    setLoopSlides(gallerySlides);
 
     // ── Auto-set document URLs from project ──────────────────────────────────
     const projBrochure = p.brochure_files?.find(f => f) || "";
