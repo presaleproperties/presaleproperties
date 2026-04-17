@@ -172,65 +172,19 @@ export default function ROICalculator() {
             <Breadcrumbs items={[{ label: "ROI Calculator" }]} />
           </div>
         </div>
-        {/* Hero Section - Light theme matching site design */}
-        <section className="bg-gradient-to-b from-muted/50 to-background border-b py-6 md:py-12">
-          <div className="container px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              {/* Badge - desktop only */}
-              <div className="hidden md:inline-flex items-center gap-2 bg-primary/10 text-foreground px-4 py-1.5 rounded-full text-sm font-medium mb-4 border border-primary/20">
-                <Calculator className="h-4 w-4 text-primary" />
-                Free Investment Tool
-              </div>
-              
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4 tracking-tight text-foreground">
-                Presale <span className="text-primary">ROI</span> Calculator
-              </h1>
-              
-              <p className="text-muted-foreground text-sm md:text-lg max-w-xl mx-auto mb-4 md:mb-6">
-                Model 5-year investment returns for Vancouver & Fraser Valley presales
+        {/* Hero — minimal */}
+        <section className="border-b">
+          <div className="container px-4 py-10 md:py-16">
+            <div className="max-w-2xl">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary mb-3">
+                Investment Tool
               </p>
-
-              {/* Trust indicators - desktop only */}
-              <div className="hidden md:flex flex-wrap justify-center gap-3 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <span>100% Free</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <span>No Sign-up Required</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <span>BC-Specific Calculations</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Strip - Desktop only */}
-        <section className="hidden md:block border-b bg-muted/30">
-          <div className="container px-4">
-            <div className="max-w-4xl mx-auto py-4">
-              <div className="grid grid-cols-4 gap-4 text-center">
-                <div className="flex flex-col items-center gap-1.5 p-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  <span className="text-xs font-medium">5-Year Proforma</span>
-                </div>
-                <div className="flex flex-col items-center gap-1.5 p-2">
-                  <BarChart3 className="h-5 w-5 text-primary" />
-                  <span className="text-xs font-medium">Amortization Schedule</span>
-                </div>
-                <div className="flex flex-col items-center gap-1.5 p-2">
-                  <PiggyBank className="h-5 w-5 text-primary" />
-                  <span className="text-xs font-medium">Cashflow Projections</span>
-                </div>
-                <div className="flex flex-col items-center gap-1.5 p-2">
-                  <Shield className="h-5 w-5 text-primary" />
-                  <span className="text-xs font-medium">Scenario Analysis</span>
-                </div>
-              </div>
+              <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-3">
+                Presale ROI Calculator
+              </h1>
+              <p className="text-muted-foreground text-base md:text-lg">
+                Model 5-year returns for Vancouver & Fraser Valley presales — free, no sign-up.
+              </p>
             </div>
           </div>
         </section>
