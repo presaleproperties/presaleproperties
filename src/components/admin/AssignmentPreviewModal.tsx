@@ -220,6 +220,14 @@ export function AssignmentPreviewModal({
                 </div>
               )}
 
+              {/* Floor plan name badge */}
+              {listing.floor_plan_name && (
+                <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                  <Layers className="h-3 w-3" />
+                  {listing.floor_plan_name}
+                </div>
+              )}
+
               {/* Hero overlay info */}
               <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
                 <div className="flex items-center gap-2 mb-2">
