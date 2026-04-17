@@ -291,7 +291,7 @@ export default function AdminListings() {
     }
   };
 
-  const fetchListings = async () => {
+  const fetchListings = async (openEditForId?: string) => {
     try {
       const { data, error } = await (supabase as any)
         .from("listings")
@@ -317,6 +317,14 @@ export default function AdminListings() {
       }));
 
       setListings(listingsWithAgents);
+
+      if (openEditForId) {
+        const target = listingsWithAgents.find((l: Listing) => l.id === openEditForId);
+        if (target) {
+          setActiveTab("draft");
+          openEdit(target);
+        }
+      }
     } catch (error) {
       console.error("Error fetching listings:", error);
       toast({
