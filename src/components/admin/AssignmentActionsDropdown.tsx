@@ -233,6 +233,10 @@ export function AssignmentActionsDropdown({
             <Eye className="h-4 w-4 mr-2" />
             Preview
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleDuplicate} disabled={processing}>
+            <Copy className="h-4 w-4 mr-2" />
+            Duplicate
+          </DropdownMenuItem>
 
           {showApprovalActions && onApprove && onReject && (
             <>
