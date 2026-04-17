@@ -124,6 +124,8 @@ const ResaleListings = lazy(() => import("./pages/ResaleListings"));
 const ResaleListingDetail = lazy(() => import("./pages/ResaleListingDetail"));
 const CityResalePage = lazy(() => import("./pages/CityResalePage"));
 const AssignmentDetail = lazy(() => import("./pages/AssignmentDetail"));
+const SellYourAssignment = lazy(() => import("./pages/SellYourAssignment"));
+const BuyingAnAssignment = lazy(() => import("./pages/BuyingAnAssignment"));
 const Developers = lazy(() => import("./pages/Developers"));
 const DeveloperProfile = lazy(() => import("./pages/DeveloperProfile"));
 const InvestmentSnapshotPage = lazy(() => import("./pages/InvestmentSnapshotPage"));
@@ -211,6 +213,8 @@ const App = () => (
             
             {/* Assignment browse + detail */}
             <Route path="/assignments" element={<Assignments />} />
+            <Route path="/assignments/sell-your-assignment" element={<SellYourAssignment />} />
+            <Route path="/assignments/buying-an-assignment" element={<BuyingAnAssignment />} />
             <Route path="/assignments/:id" element={<AssignmentDetail />} />
             
             <Route path="/properties" element={<ResaleListings />} />

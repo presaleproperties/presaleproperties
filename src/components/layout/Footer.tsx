@@ -31,6 +31,8 @@ const TOWNHOME_CITY_LINKS = [
   { label: "Maple Ridge Townhomes", href: "/presale-projects/maple-ridge/townhomes" },
   { label: "Port Coquitlam Townhomes", href: "/presale-projects/port-coquitlam/townhomes" },
   { label: "Assignments", href: "/assignments" },
+  { label: "Sell Your Assignment", href: "/assignments/sell-your-assignment" },
+  { label: "Buying an Assignment Guide", href: "/assignments/buying-an-assignment" },
   { label: "Map Search", href: "/map-search" },
 ];
 
