@@ -3,7 +3,7 @@ import { formatPhoneNumber } from "@/lib/formatPhone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,8 +22,8 @@ const formSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required").max(100),
   email: z.string().trim().email("Please enter a valid email").max(255),
   phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Please enter a valid phone number"),
-  workingWithAgent: z.boolean().default(false),
-  isRealtor: z.boolean().default(false),
+  workingWithAgent: z.enum(["yes", "no"], { required_error: "Please select an option" }),
+  isRealtor: z.enum(["yes", "no"], { required_error: "Please select an option" }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -68,7 +68,7 @@ export function ProjectMobileCTA({
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: false, isRealtor: false },
+    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: undefined, isRealtor: undefined },
   });
 
   useEffect(() => {
@@ -109,7 +109,9 @@ export function ProjectMobileCTA({
       const intentScore = getIntentScore();
       const cityInterest = getCityInterests();
       const projectInterest = getTopViewedProjects().map((p) => p.project_id);
-      const actualPersona = data.isRealtor ? "realtor" : "buyer";
+      const workingWithAgent = data.workingWithAgent === "yes";
+      const isRealtor = data.isRealtor === "yes";
+      const actualPersona = isRealtor ? "realtor" : "buyer";
 
       const { error } = await supabase.from("project_leads").insert({
         id: leadId,
@@ -119,10 +121,10 @@ export function ProjectMobileCTA({
         phone: data.phone,
         persona: actualPersona,
         form_type: "mobile_cta",
-        agent_status: data.workingWithAgent ? "working_with_agent" : data.isRealtor ? "i_am_realtor" : "no",
+        agent_status: workingWithAgent ? "working_with_agent" : isRealtor ? "i_am_realtor" : "no",
         message: [
-          data.workingWithAgent ? "Working with agent" : null,
-          data.isRealtor ? "Is a Realtor" : null,
+          workingWithAgent ? "Working with agent" : null,
+          isRealtor ? "Is a Realtor" : null,
         ].filter(Boolean).join(", ") || null,
         drip_sequence: "buyer",
         last_drip_sent: 0,
@@ -154,8 +156,8 @@ export function ProjectMobileCTA({
         projectName,
         projectUrl: window.location.href,
         message: [
-          data.workingWithAgent ? "Working with agent" : null,
-          data.isRealtor ? "Is a Realtor" : null,
+          workingWithAgent ? "Working with agent" : null,
+          isRealtor ? "Is a Realtor" : null,
         ].filter(Boolean).join(", ") || undefined,
       });
 
@@ -279,16 +281,50 @@ export function ProjectMobileCTA({
                       {form.formState.errors.phone && <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>}
                     </div>
 
-                    <div className="space-y-2.5 pt-1">
-                      <div className="flex items-center gap-3">
-                        <Checkbox id="mcta-agent" checked={form.watch("workingWithAgent")} onCheckedChange={(v) => form.setValue("workingWithAgent", v === true)}
-                          className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                        <Label htmlFor="mcta-agent" className="text-sm text-foreground/70 cursor-pointer select-none">I'm working with a real estate agent</Label>
+                    <div className="space-y-3 pt-1">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-foreground/80">
+                          Are you working with a real estate agent? <span className="text-destructive">*</span>
+                        </Label>
+                        <RadioGroup
+                          value={form.watch("workingWithAgent")}
+                          onValueChange={(v) => form.setValue("workingWithAgent", v as "yes" | "no", { shouldValidate: form.formState.isSubmitted })}
+                          className="flex gap-2"
+                        >
+                          <Label htmlFor="mcta-agent-yes" className="flex-1 flex items-center justify-center h-11 rounded-lg border border-border/80 cursor-pointer hover:border-primary/50 transition-colors text-sm" data-state={form.watch("workingWithAgent") === "yes" ? "checked" : "unchecked"} style={form.watch("workingWithAgent") === "yes" ? { borderColor: "hsl(var(--primary))", background: "hsl(var(--primary) / 0.05)" } : undefined}>
+                            <RadioGroupItem value="yes" id="mcta-agent-yes" className="sr-only" />
+                            Yes
+                          </Label>
+                          <Label htmlFor="mcta-agent-no" className="flex-1 flex items-center justify-center h-11 rounded-lg border border-border/80 cursor-pointer hover:border-primary/50 transition-colors text-sm" data-state={form.watch("workingWithAgent") === "no" ? "checked" : "unchecked"} style={form.watch("workingWithAgent") === "no" ? { borderColor: "hsl(var(--primary))", background: "hsl(var(--primary) / 0.05)" } : undefined}>
+                            <RadioGroupItem value="no" id="mcta-agent-no" className="sr-only" />
+                            No
+                          </Label>
+                        </RadioGroup>
+                        {form.formState.errors.workingWithAgent && (
+                          <p className="text-xs text-destructive">{form.formState.errors.workingWithAgent.message}</p>
+                        )}
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Checkbox id="mcta-realtor" checked={form.watch("isRealtor")} onCheckedChange={(v) => form.setValue("isRealtor", v === true)}
-                          className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                        <Label htmlFor="mcta-realtor" className="text-sm text-foreground/70 cursor-pointer select-none">I am a Realtor</Label>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-foreground/80">
+                          Are you a licensed Realtor? <span className="text-destructive">*</span>
+                        </Label>
+                        <RadioGroup
+                          value={form.watch("isRealtor")}
+                          onValueChange={(v) => form.setValue("isRealtor", v as "yes" | "no", { shouldValidate: form.formState.isSubmitted })}
+                          className="flex gap-2"
+                        >
+                          <Label htmlFor="mcta-realtor-yes" className="flex-1 flex items-center justify-center h-11 rounded-lg border border-border/80 cursor-pointer hover:border-primary/50 transition-colors text-sm" style={form.watch("isRealtor") === "yes" ? { borderColor: "hsl(var(--primary))", background: "hsl(var(--primary) / 0.05)" } : undefined}>
+                            <RadioGroupItem value="yes" id="mcta-realtor-yes" className="sr-only" />
+                            Yes
+                          </Label>
+                          <Label htmlFor="mcta-realtor-no" className="flex-1 flex items-center justify-center h-11 rounded-lg border border-border/80 cursor-pointer hover:border-primary/50 transition-colors text-sm" style={form.watch("isRealtor") === "no" ? { borderColor: "hsl(var(--primary))", background: "hsl(var(--primary) / 0.05)" } : undefined}>
+                            <RadioGroupItem value="no" id="mcta-realtor-no" className="sr-only" />
+                            No
+                          </Label>
+                        </RadioGroup>
+                        {form.formState.errors.isRealtor && (
+                          <p className="text-xs text-destructive">{form.formState.errors.isRealtor.message}</p>
+                        )}
                       </div>
                     </div>
 
