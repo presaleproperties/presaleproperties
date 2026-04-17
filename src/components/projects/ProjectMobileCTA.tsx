@@ -68,7 +68,7 @@ export function ProjectMobileCTA({
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: false, isRealtor: false },
+    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: undefined, isRealtor: undefined },
   });
 
   useEffect(() => {
