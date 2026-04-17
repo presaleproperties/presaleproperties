@@ -4,6 +4,8 @@ import { CampaignBundleSelector, type CampaignBundle } from "@/components/admin/
 import { CampaignWeekNavigator } from "@/components/admin/campaign/CampaignWeekNavigator";
 import { CAMPAIGN_WEEKS } from "@/components/admin/campaign/CampaignWeekConfig";
 import { buildMultiProjectEmailHtml, type MultiProjectData } from "@/components/admin/campaign/buildMultiProjectEmailHtml";
+import { buildCatalogueEmailHtml, type CatalogueProject } from "@/components/admin/campaign/buildCatalogueEmailHtml";
+import { CatalogueProjectsPanel } from "@/components/admin/campaign/CatalogueProjectsPanel";
 import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
 import {
   fetchCampaignEnrichmentData,
@@ -510,8 +512,12 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // Layout version
-  const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial");
+  const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial" | "catalogue">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial" | "catalogue");
   const [layoutSectionOpen, setLayoutSectionOpen] = useState(true);
+
+  // ── CATALOGUE MODE state ──────────────────────────────────────────────────
+  // Multi-project "catalogue" emails: pick 1-5 projects, each with its own CTA toggles
+  const [catalogueProjects, setCatalogueProjects] = useState<CatalogueProject[]>(savedDraft?.catalogueProjects ?? []);
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
