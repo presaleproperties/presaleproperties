@@ -29,6 +29,7 @@ import {
   XCircle,
   CheckCircle,
   Loader2,
+  Copy,
 } from "lucide-react";
 interface Listing {
   id: string;
@@ -46,6 +47,7 @@ interface AssignmentActionsDropdownProps {
   showApprovalActions?: boolean;
   onApprove?: () => void;
   onReject?: () => void;
+  onDuplicated?: (newId: string) => void;
 }
 
 export function AssignmentActionsDropdown({
@@ -55,6 +57,7 @@ export function AssignmentActionsDropdown({
   showApprovalActions = false,
   onApprove,
   onReject,
+  onDuplicated,
 }: AssignmentActionsDropdownProps) {
   const { toast } = useToast();
   const [processing, setProcessing] = useState(false);
@@ -126,6 +129,56 @@ export function AssignmentActionsDropdown({
     }
   };
 
+  const handleDuplicate = async () => {
+    setProcessing(true);
+    try {
+      // Fetch full row
+      const { data: full, error: fetchErr } = await (supabase
+        .from("listings" as any)
+        .select("*")
+        .eq("id", listing.id)
+        .single() as any);
+      if (fetchErr) throw fetchErr;
+
+      // Strip identity & status fields, reset to draft
+      const {
+        id, created_at, updated_at, published_at, expires_at,
+        rejection_reason, ...rest
+      } = full;
+
+      const insertPayload = {
+        ...rest,
+        status: "draft",
+        is_featured: false,
+        title: `${full.title || full.project_name || "Assignment"} (Copy)`,
+        unit_number: full.unit_number ? `${full.unit_number}-COPY` : full.unit_number,
+      };
+
+      const { data: inserted, error: insertErr } = await (supabase
+        .from("listings" as any)
+        .insert(insertPayload)
+        .select("id")
+        .single() as any);
+      if (insertErr) throw insertErr;
+
+      toast({
+        title: "Assignment Duplicated",
+        description: "Opening the copy for editing…",
+      });
+      onRefresh();
+      if (inserted?.id && onDuplicated) onDuplicated(inserted.id);
+    } catch (error: any) {
+      console.error("Error duplicating listing:", error);
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to duplicate assignment",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const getConfirmActionDetails = () => {
     switch (confirmAction) {
       case "unpublish":
@@ -179,6 +232,10 @@ export function AssignmentActionsDropdown({
           <DropdownMenuItem onClick={onPreview}>
             <Eye className="h-4 w-4 mr-2" />
             Preview
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleDuplicate} disabled={processing}>
+            <Copy className="h-4 w-4 mr-2" />
+            Duplicate
           </DropdownMenuItem>
 
           {showApprovalActions && onApprove && onReject && (
