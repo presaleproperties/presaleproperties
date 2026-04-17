@@ -385,70 +385,38 @@ export default function Assignments() {
       <ConversionHeader />
 
       <main>
-        {/* HERO with quick-action tiles */}
+        {/* HERO — simplified, action-first */}
         <section className="relative overflow-hidden bg-gradient-to-br from-foreground via-foreground to-foreground/95 text-background">
           <div className="absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle_at_1px_1px,_hsl(var(--background))_1px,_transparent_0)] [background-size:24px_24px]" />
           <div className="pointer-events-none absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-primary/20 blur-[120px]" />
           <div className="pointer-events-none absolute -bottom-40 -left-24 h-[360px] w-[360px] rounded-full bg-primary/10 blur-[120px]" />
 
-          <div className="container relative px-4 py-12 sm:py-16 lg:py-20">
-            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs text-background/60 mb-6">
+          <div className="container relative px-4 py-10 sm:py-14 lg:py-16">
+            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs text-background/60 mb-5">
               <Link to="/" className="hover:text-background transition-colors">Home</Link>
               <span aria-hidden>/</span>
               <span className="text-background/85">Assignments</span>
             </nav>
 
-            <div className="max-w-3xl mb-10 sm:mb-12">
-              <span className="inline-flex items-center gap-2 rounded-full border border-background/15 bg-background/[0.04] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.22em] text-primary mb-5 backdrop-blur-sm">
+            <div className="max-w-3xl">
+              <span className="inline-flex items-center gap-2 rounded-full border border-background/15 bg-background/[0.04] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.22em] text-primary mb-4 backdrop-blur-sm">
                 <Sparkles className="h-3 w-3" />
-                Assignment Hub
+                Live Assignment Inventory
               </span>
-              <h1 className="text-[2.25rem] sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] mb-5 text-balance">
+              <h1 className="text-[2rem] sm:text-5xl lg:text-[3.5rem] font-bold tracking-tight leading-[1.05] mb-4 text-balance">
                 Presale Assignments in BC
               </h1>
-              <p className="text-base sm:text-xl text-background/75 leading-relaxed max-w-2xl text-pretty">
-                Live inventory, the buying playbook, the selling process, and honest answers — all in one place.
+              <p className="text-base sm:text-lg text-background/75 leading-relaxed max-w-2xl text-pretty mb-6">
+                Below-market new construction. Move in sooner. Browse the live map, filter by city or budget, and connect directly.
               </p>
-            </div>
-
-            {/* Quick action tiles */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              {QUICK_ACTIONS.map((a) => {
-                const isExternal = a.href.startsWith("/");
-                const isAnchor = a.href.startsWith("#");
-                const Wrapper: any = isAnchor ? "a" : Link;
-                const wrapperProps = isAnchor ? { href: a.href } : { to: a.href };
-                return (
-                  <Wrapper
-                    key={a.title}
-                    {...wrapperProps}
-                    className={cn(
-                      "group relative rounded-2xl p-5 sm:p-6 backdrop-blur-sm transition-all border",
-                      a.accent === "primary"
-                        ? "bg-background/[0.06] border-background/15 hover:bg-background/[0.10] hover:border-primary/40"
-                        : "bg-background/[0.03] border-background/10 hover:bg-background/[0.07] hover:border-background/25"
-                    )}
-                  >
-                    <div className={cn(
-                      "w-11 h-11 rounded-xl flex items-center justify-center mb-4 ring-1 transition-all",
-                      a.accent === "primary"
-                        ? "bg-primary/15 ring-primary/30 group-hover:bg-primary/25"
-                        : "bg-background/[0.08] ring-background/15"
-                    )}>
-                      <a.icon className={cn("h-5 w-5", a.accent === "primary" ? "text-primary" : "text-background/80")} />
-                    </div>
-                    <h3 className="text-base sm:text-lg font-bold text-background mb-1.5 leading-snug">{a.title}</h3>
-                    <p className="text-xs sm:text-sm text-background/65 leading-relaxed mb-4 text-pretty">{a.body}</p>
-                    <span className={cn(
-                      "inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider",
-                      a.accent === "primary" ? "text-primary" : "text-background/80"
-                    )}>
-                      {a.cta}
-                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
-                  </Wrapper>
-                );
-              })}
+              <div className="flex flex-wrap gap-3">
+                <Button asChild size="lg" className="font-semibold gap-2 shadow-lg shadow-primary/20">
+                  <a href="#listings">Browse inventory <ArrowRight className="h-4 w-4" /></a>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="bg-transparent border-background/30 text-background hover:bg-background hover:text-foreground font-semibold">
+                  <Link to="/assignments/sell-your-assignment">Sell my assignment</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
@@ -456,50 +424,26 @@ export default function Assignments() {
         {/* Sticky in-page nav */}
         <StickySubNav />
 
-        {/* LISTINGS */}
-        <section id="listings" className="container px-4 py-12 lg:py-16 scroll-mt-32">
-          <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+        {/* LISTINGS — search + map first */}
+        <section id="listings" className="container px-4 py-10 lg:py-14 scroll-mt-32">
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-2">Live Inventory</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-2">Find Your Assignment</p>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
-                Available assignments
+                Search the live map
               </h2>
+              <p className="text-sm text-muted-foreground mt-1.5 hidden sm:block">
+                Filter, then zoom into pins or scroll the grid below.
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {isLoading ? "Loading…" : `${filtered.length} ${filtered.length === 1 ? "assignment" : "assignments"} available`}
+            <p className="text-sm font-semibold text-foreground">
+              {isLoading ? "Loading…" : `${filtered.length} ${filtered.length === 1 ? "assignment" : "assignments"}`}
             </p>
           </div>
 
-          {/* Map — same as main map, locked to assignments mode (with built-in side panel + filters) */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Map className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-foreground">Map view</span>
-                <span className="hidden sm:inline">— pan, zoom & use the side panel for full filters</span>
-              </div>
-              <Link
-                to="/map-search?mode=assignments"
-                target="_blank"
-                rel="noopener"
-                className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
-              >
-                Open full map <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
-            <div className="h-[520px] sm:h-[620px] lg:h-[720px] rounded-2xl overflow-hidden border border-border shadow-sm bg-muted">
-              <iframe
-                src={MAP_EMBED_URL}
-                title="Assignments map"
-                className="w-full h-full border-0"
-                loading="lazy"
-              />
-            </div>
-          </div>
-
-          {/* Filter Bar — below the map, filters the grid */}
-          <div className="bg-card border border-border rounded-2xl p-4 mb-8 shadow-sm">
-            <div className="flex flex-wrap gap-3 items-center">
+          {/* Filter Bar — moved ABOVE the map for instant findability */}
+          <div className="bg-card border border-border rounded-2xl p-3 sm:p-4 mb-4 shadow-sm">
+            <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
               <div className="relative flex-1 min-w-[180px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -511,7 +455,7 @@ export default function Assignments() {
               </div>
 
               <Select value={cityFilter} onValueChange={(v) => setFilter("city", v)}>
-                <SelectTrigger className="w-[140px] h-10 bg-background"><SelectValue placeholder="City" /></SelectTrigger>
+                <SelectTrigger className="w-[130px] h-10 bg-background"><SelectValue placeholder="City" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="any">All Cities</SelectItem>
                   {CITY_OPTIONS.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
@@ -520,7 +464,7 @@ export default function Assignments() {
 
               {neighbourhoods.length > 0 && (
                 <Select value={neighborhoodFilter} onValueChange={(v) => setFilter("neighbourhood", v)}>
-                  <SelectTrigger className="w-[160px] h-10 bg-background"><SelectValue placeholder="Neighbourhood" /></SelectTrigger>
+                  <SelectTrigger className="w-[150px] h-10 bg-background"><SelectValue placeholder="Neighbourhood" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="any">All Neighbourhoods</SelectItem>
                     {neighbourhoods.map((n) => (<SelectItem key={n} value={n}>{n}</SelectItem>))}
@@ -550,6 +494,32 @@ export default function Assignments() {
                 </Button>
               )}
             </div>
+          </div>
+
+          {/* Map — primary discovery surface */}
+          <div className="mb-2 flex items-center justify-end">
+            <Link
+              to="/map-search?mode=assignments"
+              target="_blank"
+              rel="noopener"
+              className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+            >
+              Open full map <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="mb-10 h-[560px] sm:h-[660px] lg:h-[760px] rounded-2xl overflow-hidden border border-border shadow-sm bg-muted">
+            <iframe
+              src={MAP_EMBED_URL}
+              title="Assignments map"
+              className="w-full h-full border-0"
+              loading="lazy"
+            />
+          </div>
+
+          {/* Grid heading */}
+          <div className="flex items-end justify-between gap-4 mb-5">
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">All listings</h3>
+            <p className="text-xs text-muted-foreground hidden sm:block">Tap any card for full details</p>
           </div>
 
           {/* Grid */}
