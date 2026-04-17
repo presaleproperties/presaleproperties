@@ -47,6 +47,7 @@ interface AssignmentActionsDropdownProps {
   showApprovalActions?: boolean;
   onApprove?: () => void;
   onReject?: () => void;
+  onDuplicated?: (newId: string) => void;
 }
 
 export function AssignmentActionsDropdown({
@@ -56,6 +57,7 @@ export function AssignmentActionsDropdown({
   showApprovalActions = false,
   onApprove,
   onReject,
+  onDuplicated,
 }: AssignmentActionsDropdownProps) {
   const { toast } = useToast();
   const [processing, setProcessing] = useState(false);
