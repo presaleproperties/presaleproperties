@@ -4,6 +4,8 @@ import { CampaignBundleSelector, type CampaignBundle } from "@/components/admin/
 import { CampaignWeekNavigator } from "@/components/admin/campaign/CampaignWeekNavigator";
 import { CAMPAIGN_WEEKS } from "@/components/admin/campaign/CampaignWeekConfig";
 import { buildMultiProjectEmailHtml, type MultiProjectData } from "@/components/admin/campaign/buildMultiProjectEmailHtml";
+import { buildCatalogueEmailHtml, type CatalogueProject } from "@/components/admin/campaign/buildCatalogueEmailHtml";
+import { CatalogueProjectsPanel } from "@/components/admin/campaign/CatalogueProjectsPanel";
 import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
 import {
   fetchCampaignEnrichmentData,
@@ -105,7 +107,7 @@ function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
-  layoutVersion?: "modern" | "modern-v2" | "editorial",
+  layoutVersion?: "modern" | "modern-v2" | "editorial" | "catalogue",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
   brochureUrl?: string,
@@ -113,7 +115,21 @@ function buildFinalHtml(
   pricingUrl?: string,
   ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showPricingCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean },
   bookShowingUrl?: string,
+  catalogueProjects?: CatalogueProject[],
 ): string {
+  // ── CATALOGUE template (multi-project picker) ─────────────────────────────
+  if (layoutVersion === "catalogue") {
+    return buildCatalogueEmailHtml({
+      subjectLine: fields.subjectLine || "Curated Presale Projects For You",
+      previewText: fields.previewText || "Hand-picked presale opportunities just for you.",
+      headline: fields.headline || "A few projects I think you'll love",
+      bodyCopy: fields.bodyCopy || "",
+      projects: catalogueProjects || [],
+      agent,
+      city: catalogueProjects?.[0]?.city,
+    });
+  }
+
   // ── EDITORIAL template ────────────────────────────────────────────────────
   if (layoutVersion === "editorial") {
     const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
@@ -510,8 +526,12 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // Layout version
-  const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial");
+  const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial" | "catalogue">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial" | "catalogue");
   const [layoutSectionOpen, setLayoutSectionOpen] = useState(true);
+
+  // ── CATALOGUE MODE state ──────────────────────────────────────────────────
+  // Multi-project "catalogue" emails: pick 1-5 projects, each with its own CTA toggles
+  const [catalogueProjects, setCatalogueProjects] = useState<CatalogueProject[]>(savedDraft?.catalogueProjects ?? []);
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
@@ -821,6 +841,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
         showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
+        catalogueProjects,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -853,7 +874,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
     showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
-    dbDraftLoading,
+    dbDraftLoading, catalogueProjects,
   ]); // eslint-disable-line
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
@@ -874,7 +895,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -882,14 +903,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (campaignHtmlOverride) return;
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, pricingUrl, showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl, campaignHtmlOverride]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, pricingUrl, showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl, campaignHtmlOverride, catalogueProjects]);
 
   // finalHtml used only for copy/save — always reflects latest state
   // When campaignHtmlOverride is set (multi-project weeks), use it instead
-  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined);
+  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects);
   const finalHtml = campaignHtmlOverride || baseFinalHtml;
 
   // Also update multi-project preview when body copy changes (live editing)
@@ -2104,7 +2125,38 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
                         {layoutVersion === "modern-v2" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-violet-500" />}
                       </button>
+                      <button
+                        onClick={() => setLayoutVersion("catalogue")}
+                        className={cn(
+                          "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                          layoutVersion === "catalogue"
+                            ? "border-amber-500 bg-amber-500/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-amber-400/50"
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
+                          Catalogue
+                          <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-amber-500/15 text-amber-600 uppercase tracking-wide">New</span>
+                        </div>
+                        <div className="text-[9px] text-muted-foreground leading-tight">Multi-project · 1–5 picks</div>
+                        {layoutVersion === "catalogue" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-amber-500" />}
+                      </button>
                     </div>
+                    {layoutVersion === "catalogue" && (
+                      <div className="mt-3 pt-3 border-t border-border space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Package className="h-3 w-3 text-amber-500" />
+                          <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Catalogue Projects</Label>
+                        </div>
+                        <p className="text-[9px] text-muted-foreground leading-relaxed">
+                          Pick 1–5 presale projects. Each card auto-pulls price, completion, hero & description. The first project becomes the "Featured Pick".
+                        </p>
+                        <CatalogueProjectsPanel
+                          projects={catalogueProjects}
+                          onChange={setCatalogueProjects}
+                        />
+                      </div>
+                    )}
                     {layoutVersion === "editorial" && (
                       <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
                     )}
