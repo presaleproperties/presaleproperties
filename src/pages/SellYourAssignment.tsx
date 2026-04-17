@@ -7,7 +7,7 @@ import { AssignmentFaqAccordion, FaqItem } from "@/components/assignments/Assign
 import { SellAssignmentForm } from "@/components/assignments/SellAssignmentForm";
 import { useAppSetting } from "@/hooks/useAppSetting";
 import { Link } from "react-router-dom";
-import { MessageCircle, Phone } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 
 const STEPS: { title: string; body: string }[] = [
   { title: "Free valuation call", body: "15 minutes. We pull comps, check the current developer price list, and tell you what your contract is worth in today’s market." },
@@ -92,31 +92,37 @@ export default function SellYourAssignment() {
         />
 
         {/* Intro */}
-        <section className="bg-background py-16 lg:py-20">
-          <div className="container px-4 max-w-3xl space-y-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            <p>
-              Life changes. Maybe you bought a presale 3 years ago and your situation has shifted.
-              Maybe you want to free up capital for a bigger opportunity. Maybe the project is
-              12 months from completion and you’d rather take the uplift now.
-            </p>
-            <p>
-              Whatever the reason, selling a presale assignment in BC is <strong className="text-foreground">not</strong> the same as selling a resale condo.
-              The rules are specific, the tax treatment is different, and most general realtors don’t specialize in this.
-              We do. We’ve closed hundreds of presale contracts and we know every developer’s assignment policy
-              in the Fraser Valley inside out.
-            </p>
+        <section className="relative bg-background py-14 sm:py-20 lg:py-24">
+          <div className="container px-4 max-w-3xl">
+            <div className="space-y-5 text-base sm:text-lg text-muted-foreground leading-relaxed text-pretty">
+              <p>
+                Life changes. Maybe you bought a presale 3 years ago and your situation has shifted.
+                Maybe you want to free up capital for a bigger opportunity. Maybe the project is
+                12 months from completion and you’d rather take the uplift now.
+              </p>
+              <p>
+                Whatever the reason, selling a presale assignment in BC is{" "}
+                <strong className="text-foreground font-semibold">not</strong> the same as selling a resale condo.
+                The rules are specific, the tax treatment is different, and most general realtors don’t specialize in this.
+                We do. We’ve closed hundreds of presale contracts and we know every developer’s assignment policy
+                in the Fraser Valley inside out.
+              </p>
+            </div>
           </div>
         </section>
 
-        {/* Form — moved up directly under intro */}
-        <section id="sell-my-assignment" className="bg-background py-16 lg:py-20 scroll-mt-20">
+        {/* Form — premium card on muted band */}
+        <section
+          id="sell-my-assignment"
+          className="relative bg-gradient-to-b from-muted/40 via-muted/30 to-background border-y border-border py-16 sm:py-20 lg:py-28 scroll-mt-24"
+        >
           <div className="container px-4 max-w-3xl">
-            <div className="mb-8">
+            <div className="mb-8 sm:mb-10 text-center sm:text-left">
               <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-3">Free Valuation</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight mb-3">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground tracking-tight mb-3 text-balance">
                 Sell My Assignment — Free Valuation
               </h2>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed sm:text-lg max-w-2xl sm:mx-0 mx-auto text-pretty">
                 Fill this out and Uzair will personally call you within 24 hours with a valuation
                 and game plan. No cost, no obligation.
               </p>
@@ -126,27 +132,32 @@ export default function SellYourAssignment() {
         </section>
 
         {/* 7-step process */}
-        <section className="bg-muted/30 border-y border-border py-16 lg:py-24">
+        <section className="bg-background py-16 sm:py-20 lg:py-28">
           <div className="container px-4">
-            <div className="max-w-3xl mb-10">
+            <div className="max-w-3xl mb-10 sm:mb-14">
               <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-3">Process</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight mb-3">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground tracking-tight mb-3 text-balance">
                 The 7-step process to sell your assignment
               </h2>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed sm:text-lg text-pretty">
                 Predictable, transparent, and fully managed end-to-end.
               </p>
             </div>
 
-            <ol className="max-w-4xl space-y-4">
+            <ol className="max-w-4xl space-y-3 sm:space-y-4">
               {STEPS.map((step, i) => (
-                <li key={i} className="flex gap-5 rounded-xl border border-border bg-card p-5 sm:p-6">
-                  <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center text-base sm:text-lg">
-                    {i + 1}
+                <li
+                  key={i}
+                  className="group relative flex gap-4 sm:gap-6 rounded-2xl border border-border bg-card p-5 sm:p-6 hover:border-primary/40 hover:shadow-md transition-all"
+                >
+                  <div className="shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold flex items-center justify-center text-base shadow-md shadow-primary/20 ring-4 ring-background">
+                      {i + 1}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1.5">{step.title}</h3>
-                    <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{step.body}</p>
+                  <div className="min-w-0 pt-1">
+                    <h3 className="text-base sm:text-xl font-bold text-foreground mb-1.5 leading-snug">{step.title}</h3>
+                    <p className="text-sm sm:text-base text-muted-foreground leading-relaxed text-pretty">{step.body}</p>
                   </div>
                 </li>
               ))}
@@ -160,16 +171,23 @@ export default function SellYourAssignment() {
           faqs={FAQS}
         />
 
-        {/* Final WhatsApp strip */}
-        <section className="bg-foreground text-background py-12">
-          <div className="container px-4 flex flex-col sm:flex-row items-center justify-between gap-5">
-            <div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-1">Not ready to fill a form?</h3>
+        {/* Final WhatsApp strip — premium dark band */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-foreground via-foreground to-foreground/95 text-background py-14 sm:py-16">
+          <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-primary/15 blur-[100px]" />
+          <div className="container relative px-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div className="max-w-xl">
+              <h3 className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight">Not ready to fill a form?</h3>
               <p className="text-background/70 text-sm sm:text-base">
-                Text Uzair directly: <a href={`tel:+1${whatsappNumber.replace(/\D/g, "").slice(-10)}`} className="font-semibold underline">{phoneDisplay}</a>
+                Text Uzair directly:{" "}
+                <a
+                  href={`tel:+1${whatsappNumber.replace(/\D/g, "").slice(-10)}`}
+                  className="font-semibold text-background underline-offset-4 hover:underline"
+                >
+                  {phoneDisplay}
+                </a>
               </p>
             </div>
-            <Button asChild size="lg" className="font-semibold gap-2">
+            <Button asChild size="lg" className="font-semibold gap-2 w-full sm:w-auto shadow-lg shadow-primary/20">
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-4 w-4" /> Message on WhatsApp
               </a>
@@ -178,11 +196,14 @@ export default function SellYourAssignment() {
         </section>
 
         {/* Cross-link */}
-        <section className="bg-background py-10 border-t border-border">
-          <div className="container px-4 text-center text-sm text-muted-foreground">
+        <section className="bg-background py-10 sm:py-12 border-t border-border">
+          <div className="container px-4 text-center text-sm sm:text-base text-muted-foreground">
             Buying instead?{" "}
-            <Link to="/assignments/buying-an-assignment" className="text-primary font-semibold hover:underline">
-              Read our guide to buying an assignment →
+            <Link
+              to="/assignments/buying-an-assignment"
+              className="text-primary font-semibold hover:underline underline-offset-4 inline-flex items-center gap-1"
+            >
+              Read our guide to buying an assignment <span aria-hidden>→</span>
             </Link>
           </div>
         </section>
