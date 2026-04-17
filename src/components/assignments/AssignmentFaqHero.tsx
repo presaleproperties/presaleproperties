@@ -3,6 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
+export interface HeroStat {
+  value: string;
+  label: string;
+}
+
 interface AssignmentFaqHeroProps {
   eyebrow?: string;
   title: string;
@@ -10,6 +15,7 @@ interface AssignmentFaqHeroProps {
   credibility?: string;
   primaryCta: { label: string; href: string };
   secondaryCta?: { label: string; href: string };
+  stats?: HeroStat[];
   children?: ReactNode;
 }
 
@@ -20,6 +26,7 @@ export function AssignmentFaqHero({
   credibility,
   primaryCta,
   secondaryCta,
+  stats,
   children,
 }: AssignmentFaqHeroProps) {
   return (
@@ -75,6 +82,17 @@ export function AssignmentFaqHero({
             )}
           </div>
           {children}
+
+          {stats && stats.length > 0 && (
+            <dl className="mt-10 sm:mt-12 grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl border-t border-background/10 pt-6 sm:pt-8">
+              {stats.map((s) => (
+                <div key={s.label} className="min-w-0">
+                  <dt className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-background/55 mb-1.5 leading-tight">{s.label}</dt>
+                  <dd className="text-2xl sm:text-3xl lg:text-4xl font-bold text-background tracking-tight tabular-nums">{s.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
         </div>
       </div>
 

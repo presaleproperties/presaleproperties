@@ -105,6 +105,11 @@ export default function BuyingAnAssignment() {
           credibility="Assignments are one of the smartest ways to buy new construction in BC — if you know what you’re looking at."
           primaryCta={{ label: "See Available Assignments", href: "/assignments" }}
           secondaryCta={{ label: "Talk to Uzair", href: "/contact" }}
+          stats={[
+            { value: "3–10%", label: "Below new pricing" },
+            { value: "6–18mo", label: "Avg. to completion" },
+            { value: "200+", label: "Active buyers" },
+          ]}
         />
 
         {/* Intro */}

@@ -89,6 +89,11 @@ export default function SellYourAssignment() {
           credibility="400+ presale clients. Only 2 defaults. Buyer-first always."
           primaryCta={{ label: "Sell My Assignment", href: "#sell-my-assignment" }}
           secondaryCta={{ label: "Book a 15-min call with Uzair", href: "/contact" }}
+          stats={[
+            { value: "400+", label: "Clients served" },
+            { value: "2", label: "Defaults — ever" },
+            { value: "24h", label: "Response time" },
+          ]}
         />
 
         {/* Intro */}
@@ -144,15 +149,17 @@ export default function SellYourAssignment() {
               </p>
             </div>
 
-            <ol className="max-w-4xl space-y-3 sm:space-y-4">
+            <ol className="relative max-w-4xl space-y-3 sm:space-y-4">
+              {/* Connecting timeline line — desktop */}
+              <div aria-hidden className="hidden sm:block absolute left-[2.25rem] top-6 bottom-6 w-px bg-gradient-to-b from-primary/30 via-border to-border" />
               {STEPS.map((step, i) => (
                 <li
                   key={i}
-                  className="group relative flex gap-4 sm:gap-6 rounded-2xl border border-border bg-card p-5 sm:p-6 hover:border-primary/40 hover:shadow-md transition-all"
+                  className="group relative flex gap-4 sm:gap-6 rounded-2xl border border-border bg-card p-5 sm:p-6 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 transition-all"
                 >
-                  <div className="shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold flex items-center justify-center text-base shadow-md shadow-primary/20 ring-4 ring-background">
-                      {i + 1}
+                  <div className="shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold flex items-center justify-center text-base shadow-md shadow-primary/30 ring-4 ring-background tabular-nums">
+                      {String(i + 1).padStart(2, "0")}
                     </div>
                   </div>
                   <div className="min-w-0 pt-1">
