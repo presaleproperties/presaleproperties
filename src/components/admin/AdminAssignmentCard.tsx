@@ -81,6 +81,7 @@ interface AdminAssignmentCardProps {
   onToggleFeatured?: () => void;
   isUpdatingFeatured?: boolean;
   onEdit?: () => void;
+  onDuplicated?: (newId: string) => void;
 }
 
 export function AdminAssignmentCard({
@@ -93,6 +94,7 @@ export function AdminAssignmentCard({
   onToggleFeatured,
   isUpdatingFeatured = false,
   onEdit,
+  onDuplicated,
 }: AdminAssignmentCardProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-CA", {
