@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, lazy, Suspense } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const AssignmentsMap = lazy(() => import("@/components/assignments/AssignmentsMap"));
+const MAP_EMBED_URL = "/map-search?mode=assignments&embed=1";
 
 interface Assignment {
   id: string;
@@ -470,7 +470,34 @@ export default function Assignments() {
             </p>
           </div>
 
-          {/* Filter Bar */}
+          {/* Map — same as main map, locked to assignments mode (with built-in side panel + filters) */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Map className="h-4 w-4 text-primary" />
+                <span className="font-semibold text-foreground">Map view</span>
+                <span className="hidden sm:inline">— pan, zoom & use the side panel for full filters</span>
+              </div>
+              <Link
+                to="/map-search?mode=assignments"
+                target="_blank"
+                rel="noopener"
+                className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+              >
+                Open full map <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+            <div className="h-[520px] sm:h-[620px] lg:h-[720px] rounded-2xl overflow-hidden border border-border shadow-sm bg-muted">
+              <iframe
+                src={MAP_EMBED_URL}
+                title="Assignments map"
+                className="w-full h-full border-0"
+                loading="lazy"
+              />
+            </div>
+          </div>
+
+          {/* Filter Bar — below the map, filters the grid */}
           <div className="bg-card border border-border rounded-2xl p-4 mb-8 shadow-sm">
             <div className="flex flex-wrap gap-3 items-center">
               <div className="relative flex-1 min-w-[180px]">
@@ -522,29 +549,6 @@ export default function Assignments() {
                   <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{activeFilterCount}</Badge>
                 </Button>
               )}
-            </div>
-          </div>
-
-          {/* Map — always visible above the grid */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Map className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-foreground">Map view</span>
-                <span className="hidden sm:inline">— click any pin for details</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {mapAssignments.filter(m => m.map_lat && m.map_lng).length} mapped
-              </p>
-            </div>
-            <div className="h-[420px] sm:h-[500px] lg:h-[560px] rounded-2xl overflow-hidden border border-border shadow-sm bg-muted">
-              <Suspense fallback={
-                <div className="h-full w-full flex items-center justify-center bg-muted">
-                  <MapPin className="h-12 w-12 animate-pulse text-muted-foreground" />
-                </div>
-              }>
-                <AssignmentsMap assignments={mapAssignments} isLoading={isLoading} />
-              </Suspense>
             </div>
           </div>
 
