@@ -615,6 +615,63 @@
   .custom-cluster-marker:hover .cluster-icon {
     transform: scale(1.1);
   }
+
+  /* ===== Assignments map: pins + clusters ===== */
+  .assign-pin {
+    background: transparent !important;
+    border: none !important;
+  }
+  .assign-pin .assign-marker {
+    width: 24px;
+    height: 30px;
+    background: hsl(168, 76%, 36%);
+    border: 2px solid #fff;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 3px 10px hsla(0, 0%, 0%, 0.35);
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .assign-pin .assign-marker::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .assign-pin:hover .assign-marker {
+    transform: rotate(-45deg) scale(1.1);
+  }
+
+  /* Assignment cluster markers */
+  .mc {
+    background: transparent !important;
+    border: none !important;
+  }
+  .mc .cl {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 3px 10px hsla(0, 0%, 0%, 0.3);
+    border: 3px solid #fff;
+    transition: transform 0.15s ease;
+    cursor: pointer;
+    background: linear-gradient(135deg, hsl(168, 76%, 36%), hsl(168, 76%, 28%));
+  }
+  .mc:hover .cl {
+    transform: scale(1.1);
+  }
+  .mc .cl.sm { width: 36px; height: 36px; font-size: 12px; }
+  .mc .cl.md { width: 40px; height: 40px; font-size: 13px; }
+  .mc .cl.lg { width: 44px; height: 44px; font-size: 14px; }
   
   .cluster-small {
     background: linear-gradient(135deg, hsl(40, 65%, 55%), hsl(37, 60%, 48%));

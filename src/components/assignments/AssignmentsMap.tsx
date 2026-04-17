@@ -173,24 +173,31 @@ export function AssignmentsMap({
     mapRef.current = map;
     setTimeout(() => map.invalidateSize(), 0);
 
-    // Auto-locate user
+    // Auto-locate user (wait for map to be ready to avoid setView race)
     if (navigator.geolocation) {
       setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const { latitude, longitude } = pos.coords;
-          
+          if (!mapRef.current) { setIsLocating(false); return; }
+
           if (latitude > 48 && latitude < 51 && longitude > -125 && longitude < -120) {
-            map.setView([latitude, longitude], 12, { animate: true });
-            
-            if (userCircleRef.current) userCircleRef.current.remove();
-            userCircleRef.current = L.circle([latitude, longitude], {
-              radius: 500,
-              color: "hsl(40 65% 55%)",
-              fillColor: "hsl(40 65% 55%)",
-              fillOpacity: 0.15,
-              weight: 2,
-            }).addTo(map);
+            mapRef.current.whenReady(() => {
+              if (!mapRef.current) return;
+              try {
+                mapRef.current.setView([latitude, longitude], 12, { animate: false });
+              } catch (e) {
+                // map was torn down between checks — ignore
+              }
+              if (userCircleRef.current) userCircleRef.current.remove();
+              userCircleRef.current = L.circle([latitude, longitude], {
+                radius: 500,
+                color: "hsl(40 65% 55%)",
+                fillColor: "hsl(40 65% 55%)",
+                fillOpacity: 0.15,
+                weight: 2,
+              }).addTo(mapRef.current);
+            });
           }
           setIsLocating(false);
         },
