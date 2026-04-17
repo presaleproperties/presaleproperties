@@ -1726,36 +1726,40 @@ export default function MapSearch() {
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section - Always full width, panel floats on top */}
           <div className="relative h-full w-full">
-            {/* Unified Mode Toggle - Floating on map */}
-            {/* Mobile/Tablet: Always sit below the search bar (avoid overlap on tablet browser UI) */}
-            <div 
-              className="absolute z-[1000] lg:hidden left-1/2 -translate-x-1/2"
-              style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px + 72px)' }}
-            >
-              <UnifiedMapToggle
-                mode={mapMode}
-                onModeChange={handleModeChange}
-                presaleCount={filteredPresaleProjects?.length || 0}
-                resaleCount={filteredResaleListings?.length || 0}
-              />
-            </div>
-            
-            {/* Desktop: Centered at top of map - shifts left when panel is open */}
-            <div 
-              className="hidden lg:block absolute top-4 z-[1000] transition-all duration-300"
-              style={{ 
-                left: showList ? 'calc(50% - 210px)' : '50%',
-                transform: 'translateX(-50%)'
-              }}
-            >
-              <UnifiedMapToggle
-                mode={mapMode}
-                onModeChange={handleModeChange}
-                presaleCount={filteredPresaleProjects?.length || 0}
-                resaleCount={filteredResaleListings?.length || 0}
-              />
-            </div>
-            
+            {/* Unified Mode Toggle - Floating on map (hidden in embed mode) */}
+            {!isEmbed && (
+              <>
+                {/* Mobile/Tablet: Always sit below the search bar */}
+                <div
+                  className="absolute z-[1000] lg:hidden left-1/2 -translate-x-1/2"
+                  style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px + 72px)' }}
+                >
+                  <UnifiedMapToggle
+                    mode={mapMode}
+                    onModeChange={handleModeChange}
+                    presaleCount={filteredPresaleProjects?.length || 0}
+                    resaleCount={filteredResaleListings?.length || 0}
+                  />
+                </div>
+
+                {/* Desktop: Centered at top of map - shifts left when panel is open */}
+                <div
+                  className="hidden lg:block absolute top-4 z-[1000] transition-all duration-300"
+                  style={{
+                    left: showList ? 'calc(50% - 210px)' : '50%',
+                    transform: 'translateX(-50%)'
+                  }}
+                >
+                  <UnifiedMapToggle
+                    mode={mapMode}
+                    onModeChange={handleModeChange}
+                    presaleCount={filteredPresaleProjects?.length || 0}
+                    resaleCount={filteredResaleListings?.length || 0}
+                  />
+                </div>
+              </>
+            )}
+
             {/* Desktop: Show Panel Button - appears when panel is hidden, shifts when panel opens */}
             <button
               onClick={() => setShowList(true)}
