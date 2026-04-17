@@ -29,6 +29,7 @@ import {
   XCircle,
   CheckCircle,
   Loader2,
+  Copy,
 } from "lucide-react";
 interface Listing {
   id: string;
