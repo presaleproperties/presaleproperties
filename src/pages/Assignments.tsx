@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const MAP_EMBED_URL = "/map-search?mode=assignments&embed=1";
+
 
 interface Assignment {
   id: string;
@@ -338,15 +338,6 @@ export default function Assignments() {
     });
   }, [listings, cityFilter, bedsFilter, neighborhoodFilter, selectedPriceRange, searchQuery]);
 
-  const mapAssignments = useMemo(() =>
-    filtered.map((l) => ({
-      id: l.id, title: l.title, project_name: l.project_name, city: l.city,
-      neighborhood: l.neighborhood, assignment_price: l.assignment_price,
-      original_price: l.original_price, beds: l.beds, baths: l.baths,
-      interior_sqft: l.interior_sqft, map_lat: l.map_lat || null, map_lng: l.map_lng || null,
-    })),
-    [filtered]
-  );
 
   const activeFilterCount = [
     cityFilter !== "any", bedsFilter !== "any", priceFilter !== "any",
@@ -424,16 +415,16 @@ export default function Assignments() {
         {/* Sticky in-page nav */}
         <StickySubNav />
 
-        {/* LISTINGS — search + map first */}
+        {/* LISTINGS — grid first, map as a side option */}
         <section id="listings" className="container px-4 py-10 lg:py-14 scroll-mt-32">
           <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-2">Find Your Assignment</p>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
-                Search the live map
+                Browse the live inventory
               </h2>
               <p className="text-sm text-muted-foreground mt-1.5 hidden sm:block">
-                Filter, then zoom into pins or scroll the grid below.
+                Filter by city, beds, or budget — or open the full map to explore by location.
               </p>
             </div>
             <p className="text-sm font-semibold text-foreground">
@@ -441,7 +432,7 @@ export default function Assignments() {
             </p>
           </div>
 
-          {/* Filter Bar — moved ABOVE the map for instant findability */}
+          {/* Filter Bar */}
           <div className="bg-card border border-border rounded-2xl p-3 sm:p-4 mb-4 shadow-sm">
             <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
               <div className="relative flex-1 min-w-[180px]">
@@ -493,33 +484,13 @@ export default function Assignments() {
                   <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{activeFilterCount}</Badge>
                 </Button>
               )}
+
+              <Button asChild variant="outline" size="sm" className="h-10 gap-1.5 ml-auto font-semibold">
+                <Link to="/map-search?mode=assignments">
+                  <Map className="h-3.5 w-3.5" /> Open map view
+                </Link>
+              </Button>
             </div>
-          </div>
-
-          {/* Map — primary discovery surface */}
-          <div className="mb-2 flex items-center justify-end">
-            <Link
-              to="/map-search?mode=assignments"
-              target="_blank"
-              rel="noopener"
-              className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
-            >
-              Open full map <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="mb-10 h-[560px] sm:h-[660px] lg:h-[760px] rounded-2xl overflow-hidden border border-border shadow-sm bg-muted">
-            <iframe
-              src={MAP_EMBED_URL}
-              title="Assignments map"
-              className="w-full h-full border-0"
-              loading="lazy"
-            />
-          </div>
-
-          {/* Grid heading */}
-          <div className="flex items-end justify-between gap-4 mb-5">
-            <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">All listings</h3>
-            <p className="text-xs text-muted-foreground hidden sm:block">Tap any card for full details</p>
           </div>
 
           {/* Grid */}
@@ -546,9 +517,34 @@ export default function Assignments() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((listing) => (<AssignmentCard key={listing.id} listing={listing} />))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filtered.map((listing) => (<AssignmentCard key={listing.id} listing={listing} />))}
+              </div>
+
+              {/* Map CTA — explore by location */}
+              <Link
+                to="/map-search?mode=assignments"
+                className="group mt-10 block rounded-2xl border border-border bg-gradient-to-br from-primary/5 via-card to-card hover:border-primary/40 hover:shadow-md transition-all p-6 sm:p-8"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                  <div className="shrink-0 w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                    <Map className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">
+                      Prefer to explore by location?
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Open the full interactive map to see every assignment plotted by neighbourhood, with pricing, beds, and instant filters.
+                    </p>
+                  </div>
+                  <Button size="lg" className="shrink-0 font-semibold gap-2 w-full sm:w-auto">
+                    Open full map <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                  </Button>
+                </div>
+              </Link>
+            </>
           )}
         </section>
 
