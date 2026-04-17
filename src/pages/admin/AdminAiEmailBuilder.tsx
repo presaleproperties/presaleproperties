@@ -841,6 +841,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
         showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
+        catalogueProjects,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -873,7 +874,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
     showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
-    dbDraftLoading,
+    dbDraftLoading, catalogueProjects,
   ]); // eslint-disable-line
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
