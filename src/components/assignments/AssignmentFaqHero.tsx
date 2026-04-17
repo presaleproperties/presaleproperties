@@ -26,6 +26,7 @@ export function AssignmentFaqHero({
   credibility,
   primaryCta,
   secondaryCta,
+  stats,
   children,
 }: AssignmentFaqHeroProps) {
   return (
