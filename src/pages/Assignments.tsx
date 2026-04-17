@@ -29,6 +29,7 @@ interface Assignment {
   neighborhood: string | null;
   assignment_price: number;
   original_price: number | null;
+  developer_credit: number | null;
   beds: number;
   baths: number;
   interior_sqft: number | null;
@@ -149,6 +150,7 @@ function AssignmentCard({ listing }: { listing: Assignment }) {
   const photo = listing.photos?.[0] || listing.featured_image || listing._project_gallery_images?.[0] || listing._project_featured_image;
   const savings = listing.original_price && listing.original_price > listing.assignment_price
     ? listing.original_price - listing.assignment_price : null;
+  const credit = listing.developer_credit && listing.developer_credit > 0 ? listing.developer_credit : null;
 
   return (
     <Link to={`/assignments/${listing.id}`} className="group rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-200">
@@ -165,11 +167,17 @@ function AssignmentCard({ listing }: { listing: Assignment }) {
             <Building2 className="h-10 w-10 text-muted-foreground/30" />
           </div>
         )}
-        <div className="absolute top-3 left-3 flex gap-1.5">
+        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[calc(100%-1.5rem)]">
           <Badge className="bg-amber-500 hover:bg-amber-500 text-white text-[10px] px-2">Assignment</Badge>
           {savings && savings > 0 && (
             <Badge className="bg-green-600 hover:bg-green-600 text-white text-[10px] px-2">
               Save {formatPrice(savings)}
+            </Badge>
+          )}
+          {credit && (
+            <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white text-[10px] px-2 gap-1">
+              <Sparkles className="h-2.5 w-2.5" />
+              {formatPrice(credit)} Credit
             </Badge>
           )}
         </div>
@@ -278,7 +286,7 @@ export default function Assignments() {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("listings")
-        .select("id, title, project_name, city, neighborhood, assignment_price, original_price, beds, baths, interior_sqft, featured_image, photos, status, unit_number, estimated_completion, exposure, project_id, address")
+        .select("id, title, project_name, city, neighborhood, assignment_price, original_price, developer_credit, beds, baths, interior_sqft, featured_image, photos, status, unit_number, estimated_completion, exposure, project_id, address")
         .eq("status", "published")
         .order("created_at", { ascending: false });
       if (error) throw error;
