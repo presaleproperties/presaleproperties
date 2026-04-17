@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const AssignmentsMap = lazy(() => import("@/components/assignments/AssignmentsMap"));
+const MAP_EMBED_URL = "/map-search?mode=assignments&embed=1";
 
 interface Assignment {
   id: string;
