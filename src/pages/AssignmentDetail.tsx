@@ -454,7 +454,7 @@ export default function AssignmentDetail() {
                   <div className="flex items-center gap-2.5 text-sm lg:text-base">
                     <Home className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
                     <span className="text-muted-foreground">Unit:</span>
-                    <span className="font-semibold">{listing.beds} Bedroom / {listing.baths} Bath{listing.interior_sqft ? ` · ${listing.interior_sqft.toLocaleString()} sqft` : ""}</span>
+                    <span className="font-semibold">{listing.unit_type || `${listing.beds} Bedroom`} / {listing.baths} Bath{listing.interior_sqft ? ` · ${listing.interior_sqft.toLocaleString()} sqft` : ""}</span>
                   </div>
                 </div>
 
