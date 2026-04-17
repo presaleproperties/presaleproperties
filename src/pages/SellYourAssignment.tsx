@@ -108,6 +108,23 @@ export default function SellYourAssignment() {
           </div>
         </section>
 
+        {/* Form — moved up directly under intro */}
+        <section id="sell-my-assignment" className="bg-background py-16 lg:py-20 scroll-mt-20">
+          <div className="container px-4 max-w-3xl">
+            <div className="mb-8">
+              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-3">Free Valuation</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight mb-3">
+                Sell My Assignment — Free Valuation
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Fill this out and Uzair will personally call you within 24 hours with a valuation
+                and game plan. No cost, no obligation.
+              </p>
+            </div>
+            <SellAssignmentForm />
+          </div>
+        </section>
+
         {/* 7-step process */}
         <section className="bg-muted/30 border-y border-border py-16 lg:py-24">
           <div className="container px-4">
@@ -142,23 +159,6 @@ export default function SellYourAssignment() {
           subtitle="Everything BC presale sellers ask, answered honestly."
           faqs={FAQS}
         />
-
-        {/* Form */}
-        <section id="sell-my-assignment" className="bg-muted/30 border-y border-border py-16 lg:py-24 scroll-mt-20">
-          <div className="container px-4 max-w-3xl">
-            <div className="mb-8">
-              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-3">Free Valuation</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight mb-3">
-                Sell My Assignment — Free Valuation
-              </h2>
-              <p className="text-muted-foreground leading-relaxed">
-                Fill this out and Uzair will personally call you within 24 hours with a valuation
-                and game plan. No cost, no obligation.
-              </p>
-            </div>
-            <SellAssignmentForm />
-          </div>
-        </section>
 
         {/* Final WhatsApp strip */}
         <section className="bg-foreground text-background py-12">
