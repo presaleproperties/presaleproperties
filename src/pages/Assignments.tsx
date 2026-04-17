@@ -266,7 +266,6 @@ function StickySubNav() {
 
 export default function Assignments() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   const cityFilter = searchParams.get("city") || "any";
   const bedsFilter = searchParams.get("beds") || "any";
@@ -517,29 +516,6 @@ export default function Assignments() {
                 </SelectContent>
               </Select>
 
-              <div className="flex rounded-lg border border-border overflow-hidden">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={cn(
-                    "h-10 w-10 flex items-center justify-center transition-colors",
-                    viewMode === "grid" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground hover:text-foreground"
-                  )}
-                  title="Grid view"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode("map")}
-                  className={cn(
-                    "h-10 w-10 flex items-center justify-center transition-colors",
-                    viewMode === "map" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground hover:text-foreground"
-                  )}
-                  title="Map view"
-                >
-                  <Map className="h-4 w-4" />
-                </button>
-              </div>
-
               {activeFilterCount > 0 && (
                 <Button variant="ghost" size="sm" onClick={clearFilters} className="h-10 gap-1.5 text-muted-foreground hover:text-foreground">
                   <X className="h-3.5 w-3.5" /> Clear
@@ -549,8 +525,19 @@ export default function Assignments() {
             </div>
           </div>
 
-          {viewMode === "map" ? (
-            <div className="h-[600px] lg:h-[700px] rounded-xl overflow-hidden border border-border">
+          {/* Map — always visible above the grid */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Map className="h-4 w-4 text-primary" />
+                <span className="font-semibold text-foreground">Map view</span>
+                <span className="hidden sm:inline">— click any pin for details</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {mapAssignments.filter(m => m.map_lat && m.map_lng).length} mapped
+              </p>
+            </div>
+            <div className="h-[420px] sm:h-[500px] lg:h-[560px] rounded-2xl overflow-hidden border border-border shadow-sm bg-muted">
               <Suspense fallback={
                 <div className="h-full w-full flex items-center justify-center bg-muted">
                   <MapPin className="h-12 w-12 animate-pulse text-muted-foreground" />
@@ -559,7 +546,10 @@ export default function Assignments() {
                 <AssignmentsMap assignments={mapAssignments} isLoading={isLoading} />
               </Suspense>
             </div>
-          ) : isLoading ? (
+          </div>
+
+          {/* Grid */}
+          {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="rounded-2xl border border-border overflow-hidden">
