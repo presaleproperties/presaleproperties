@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Users } from "lucide-react";
+import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Users, Tag } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -278,6 +278,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
             {/* Plain text links — no icons, refined weight */}
             {[
+              { to: "/assignments", label: "Assignments" },
               { to: "/blog", label: "Guides" },
               { to: "/faq", label: "FAQ" },
               { to: "/calculator", label: "Calculator" },
@@ -463,6 +464,20 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                           </div>
                         </CollapsibleContent>
                       </Collapsible>
+
+                      <div className="h-px bg-border/40 my-1" />
+
+                      {/* Assignments */}
+                      <Link
+                        to="/assignments"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 py-4"
+                      >
+                        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Tag className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-lg font-semibold text-foreground">Assignments</span>
+                      </Link>
 
                       <div className="h-px bg-border/40 my-1" />
 
