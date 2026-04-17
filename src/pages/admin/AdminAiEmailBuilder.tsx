@@ -810,10 +810,12 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       });
   }, []);
 
-  // ── Auto-save draft to localStorage + DB (if editing a saved template) ─────
+  // ── Auto-save draft to localStorage ONLY (DB writes happen on Save click) ──
+  // Editing a loaded template does NOT auto-save to DB — user must hit Save.
+  // Local draft still autosaves so refresh doesn't lose work.
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const dbAutoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [dbSaving, setDbSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
@@ -846,24 +848,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
 
-      // Auto-save to DB if editing a saved template
+      // Mark dirty if this is an existing template being edited (after hydration)
       if (savedTemplateId && !dbDraftLoading && stateHydratedRef.current) {
-        if (dbAutoSaveRef.current) clearTimeout(dbAutoSaveRef.current);
-        dbAutoSaveRef.current = setTimeout(async () => {
-          setDbSaving(true);
-          const pn = showProjectName ? projectName : (customHeader || "");
-          const dn = showDeveloperName ? developerName : "";
-          const formData = buildFormData();
-          await supabase.from("campaign_templates" as any)
-            .update({ form_data: formData, updated_at: new Date().toISOString() })
-            .eq("id", savedTemplateId);
-          setDbSaving(false);
-        }, 500);
+        setHasUnsavedChanges(true);
       }
     }, 1500);
     return () => {
       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
-      if (dbAutoSaveRef.current) clearTimeout(dbAutoSaveRef.current);
     };
   }, [
     prompt, templateType, selProjectId, activeVersion, aiResult,
@@ -876,6 +867,17 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
     dbDraftLoading, catalogueProjects,
   ]); // eslint-disable-line
+
+  // Warn before leaving with unsaved changes (existing template only)
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hasUnsavedChanges]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
   const currentCopy = useCallback((): AiEmailCopy => ({
@@ -1028,11 +1030,15 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     const p = projects.find(proj => proj.id === id);
     if (!p) return;
 
-    // If editing a saved template and switching to a different project, detach so next save prompts for a new name
+    // If editing a saved template and switching to a different project, fully fork:
+    // detach from saved row, clear unsaved-changes flag, and treat as a new template.
+    // Gallery/hero/docs are overwritten below from the new project's data.
     if (savedTemplateId && savedProjectNameRef.current && p.name !== savedProjectNameRef.current) {
       searchParams.delete("saved");
       navigate(`?${searchParams.toString()}`, { replace: true });
-      toast.info("Project changed — next save will create a new template");
+      savedProjectNameRef.current = "";
+      setHasUnsavedChanges(false);
+      toast.success(`Started new template from ${p.name} — gallery refreshed`);
     }
 
     // ── Populate all fields from project data ──────────────────────────────────
@@ -1060,7 +1066,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         if (img && !gallerySlides.includes(img) && gallerySlides.length < 6) gallerySlides.push(img);
       }
     }
-    if (gallerySlides.length > 0) setLoopSlides(gallerySlides);
+    // ALWAYS overwrite slides with the new project's gallery (per project-change rule)
+    setLoopSlides(gallerySlides);
 
     // ── Auto-set document URLs from project ──────────────────────────────────
     const projBrochure = p.brochure_files?.find(f => f) || "";
@@ -1444,6 +1451,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         toast.error("Failed to save");
       } else {
         toast.success("Template saved!");
+        setHasUnsavedChanges(false);
+        savedProjectNameRef.current = projectName || savedProjectNameRef.current;
       }
       setSaving(false);
     } else {
@@ -1723,14 +1732,16 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             </p>
           </div>
 
-          {/* Auto-save indicator */}
+          {/* Save status indicator (existing template) */}
           {savedTemplateId && (
-            <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0 hidden sm:flex">
+            <div className="flex items-center gap-1 text-[10px] shrink-0 hidden sm:flex">
               {dbSaving ? (
-                <><Loader2 className="h-3 w-3 animate-spin text-primary" /><span className="hidden md:inline">Saving…</span></>
-              ) : draftSavedAt ? (
-                <><CheckCircle2 className="h-3 w-3 text-emerald-500" /><span className="hidden md:inline">Auto-saved</span></>
-              ) : null}
+                <><Loader2 className="h-3 w-3 animate-spin text-primary" /><span className="hidden md:inline text-muted-foreground">Saving…</span></>
+              ) : hasUnsavedChanges ? (
+                <><span className="h-1.5 w-1.5 rounded-full bg-amber-500" /><span className="hidden md:inline text-amber-600 font-medium">Unsaved changes</span></>
+              ) : (
+                <><CheckCircle2 className="h-3 w-3 text-emerald-500" /><span className="hidden md:inline text-muted-foreground">Saved</span></>
+              )}
             </div>
           )}
           {!savedTemplateId && draftSavedAt && (
