@@ -517,29 +517,6 @@ export default function Assignments() {
                 </SelectContent>
               </Select>
 
-              <div className="flex rounded-lg border border-border overflow-hidden">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={cn(
-                    "h-10 w-10 flex items-center justify-center transition-colors",
-                    viewMode === "grid" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground hover:text-foreground"
-                  )}
-                  title="Grid view"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode("map")}
-                  className={cn(
-                    "h-10 w-10 flex items-center justify-center transition-colors",
-                    viewMode === "map" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground hover:text-foreground"
-                  )}
-                  title="Map view"
-                >
-                  <Map className="h-4 w-4" />
-                </button>
-              </div>
-
               {activeFilterCount > 0 && (
                 <Button variant="ghost" size="sm" onClick={clearFilters} className="h-10 gap-1.5 text-muted-foreground hover:text-foreground">
                   <X className="h-3.5 w-3.5" /> Clear
