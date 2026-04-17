@@ -1571,10 +1571,12 @@ export default function MapSearch() {
         {/* Main container - edge-to-edge on mobile/tablet with safe area support */}
         {/* Uses map-page-root class for mobile/tablet full-bleed, lg:relative for desktop standard layout */}
         <div className="map-page-root lg:relative lg:h-[100dvh] lg:bg-background flex flex-col overflow-hidden">
-        {/* Desktop only header */}
-        <div className="hidden lg:block">
-          <ConversionHeader alwaysVisible stickyOnMobile />
-        </div>
+        {/* Desktop only header — hidden in embed mode */}
+        {!isEmbed && (
+          <div className="hidden lg:block">
+            <ConversionHeader alwaysVisible stickyOnMobile />
+          </div>
+        )}
 
         {/* Mobile/Tablet: Floating Search Bar with Autocomplete */}
         <div 
