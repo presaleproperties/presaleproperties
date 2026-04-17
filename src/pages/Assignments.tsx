@@ -424,50 +424,26 @@ export default function Assignments() {
         {/* Sticky in-page nav */}
         <StickySubNav />
 
-        {/* LISTINGS */}
-        <section id="listings" className="container px-4 py-12 lg:py-16 scroll-mt-32">
-          <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+        {/* LISTINGS — search + map first */}
+        <section id="listings" className="container px-4 py-10 lg:py-14 scroll-mt-32">
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-2">Live Inventory</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-2">Find Your Assignment</p>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
-                Available assignments
+                Search the live map
               </h2>
+              <p className="text-sm text-muted-foreground mt-1.5 hidden sm:block">
+                Filter, then zoom into pins or scroll the grid below.
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {isLoading ? "Loading…" : `${filtered.length} ${filtered.length === 1 ? "assignment" : "assignments"} available`}
+            <p className="text-sm font-semibold text-foreground">
+              {isLoading ? "Loading…" : `${filtered.length} ${filtered.length === 1 ? "assignment" : "assignments"}`}
             </p>
           </div>
 
-          {/* Map — same as main map, locked to assignments mode (with built-in side panel + filters) */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Map className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-foreground">Map view</span>
-                <span className="hidden sm:inline">— pan, zoom & use the side panel for full filters</span>
-              </div>
-              <Link
-                to="/map-search?mode=assignments"
-                target="_blank"
-                rel="noopener"
-                className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
-              >
-                Open full map <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
-            <div className="h-[520px] sm:h-[620px] lg:h-[720px] rounded-2xl overflow-hidden border border-border shadow-sm bg-muted">
-              <iframe
-                src={MAP_EMBED_URL}
-                title="Assignments map"
-                className="w-full h-full border-0"
-                loading="lazy"
-              />
-            </div>
-          </div>
-
-          {/* Filter Bar — below the map, filters the grid */}
-          <div className="bg-card border border-border rounded-2xl p-4 mb-8 shadow-sm">
-            <div className="flex flex-wrap gap-3 items-center">
+          {/* Filter Bar — moved ABOVE the map for instant findability */}
+          <div className="bg-card border border-border rounded-2xl p-3 sm:p-4 mb-4 shadow-sm">
+            <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
               <div className="relative flex-1 min-w-[180px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -479,7 +455,7 @@ export default function Assignments() {
               </div>
 
               <Select value={cityFilter} onValueChange={(v) => setFilter("city", v)}>
-                <SelectTrigger className="w-[140px] h-10 bg-background"><SelectValue placeholder="City" /></SelectTrigger>
+                <SelectTrigger className="w-[130px] h-10 bg-background"><SelectValue placeholder="City" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="any">All Cities</SelectItem>
                   {CITY_OPTIONS.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
@@ -488,7 +464,7 @@ export default function Assignments() {
 
               {neighbourhoods.length > 0 && (
                 <Select value={neighborhoodFilter} onValueChange={(v) => setFilter("neighbourhood", v)}>
-                  <SelectTrigger className="w-[160px] h-10 bg-background"><SelectValue placeholder="Neighbourhood" /></SelectTrigger>
+                  <SelectTrigger className="w-[150px] h-10 bg-background"><SelectValue placeholder="Neighbourhood" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="any">All Neighbourhoods</SelectItem>
                     {neighbourhoods.map((n) => (<SelectItem key={n} value={n}>{n}</SelectItem>))}
@@ -518,6 +494,32 @@ export default function Assignments() {
                 </Button>
               )}
             </div>
+          </div>
+
+          {/* Map — primary discovery surface */}
+          <div className="mb-2 flex items-center justify-end">
+            <Link
+              to="/map-search?mode=assignments"
+              target="_blank"
+              rel="noopener"
+              className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+            >
+              Open full map <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="mb-10 h-[560px] sm:h-[660px] lg:h-[760px] rounded-2xl overflow-hidden border border-border shadow-sm bg-muted">
+            <iframe
+              src={MAP_EMBED_URL}
+              title="Assignments map"
+              className="w-full h-full border-0"
+              loading="lazy"
+            />
+          </div>
+
+          {/* Grid heading */}
+          <div className="flex items-end justify-between gap-4 mb-5">
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">All listings</h3>
+            <p className="text-xs text-muted-foreground hidden sm:block">Tap any card for full details</p>
           </div>
 
           {/* Grid */}
