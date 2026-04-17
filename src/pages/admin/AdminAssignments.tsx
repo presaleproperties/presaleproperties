@@ -311,10 +311,58 @@ export default function AdminListings() {
         profileMap = Object.fromEntries((profiles || []).map((p: any) => [p.user_id, p]));
       }
 
-      const listingsWithAgents = (data || []).map((listing: any) => ({
-        ...listing,
-        agent_profile: profileMap[listing.agent_id] || undefined,
-      }));
+      // Batch-fetch linked presale projects so cards reflect LIVE project data
+      // (photos, name, address, developer, completion, brochure, highlights).
+      const projectIds = [...new Set((data || []).map((l: any) => l.project_id).filter(Boolean))];
+      let projectMap: Record<string, any> = {};
+      if (projectIds.length > 0) {
+        const { data: projects } = await (supabase as any)
+          .from("presale_projects")
+          .select(
+            "id, name, address, city, neighborhood, developer_name, featured_image, gallery_images, brochure_files, highlights, completion_year, completion_month, starting_price, slug, project_type"
+          )
+          .in("id", projectIds);
+        projectMap = Object.fromEntries((projects || []).map((p: any) => [p.id, p]));
+      }
+
+      const listingsWithAgents = (data || []).map((listing: any) => {
+        const proj = listing.project_id ? projectMap[listing.project_id] : null;
+        // Prefer listing-specific values; fall back to live project values.
+        const liveProjectFields = proj
+          ? {
+              project_name: listing.project_name || proj.name,
+              address: listing.address || proj.address,
+              city: listing.city || proj.city,
+              neighborhood: listing.neighborhood || proj.neighborhood,
+              developer_name: listing.developer_name || proj.developer_name,
+              featured_image:
+                listing.featured_image ||
+                proj.featured_image ||
+                proj.gallery_images?.[0] ||
+                null,
+              highlights:
+                listing.highlights && listing.highlights.length > 0
+                  ? listing.highlights
+                  : proj.highlights || null,
+              brochure_url:
+                listing.brochure_url || proj.brochure_files?.[0] || null,
+              estimated_completion:
+                listing.estimated_completion ||
+                (proj.completion_year
+                  ? `${proj.completion_month ? proj.completion_month + "/" : ""}${proj.completion_year}`
+                  : null),
+              project_slug: proj.slug,
+              project_type: proj.project_type,
+              project_gallery: proj.gallery_images || [],
+            }
+          : {};
+        return {
+          ...listing,
+          ...liveProjectFields,
+          agent_profile: profileMap[listing.agent_id] || undefined,
+          _live_project: proj || null,
+        };
+      });
 
       setListings(listingsWithAgents);
 
