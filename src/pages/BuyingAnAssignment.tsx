@@ -108,8 +108,8 @@ export default function BuyingAnAssignment() {
         />
 
         {/* Intro */}
-        <section className="bg-background py-16 lg:py-20">
-          <div className="container px-4 max-w-3xl space-y-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
+        <section className="bg-background py-14 sm:py-20 lg:py-24">
+          <div className="container px-4 max-w-3xl space-y-5 text-base sm:text-lg text-muted-foreground leading-relaxed text-pretty">
             <p>
               The developer’s price list goes up every quarter. Brand-new units sell in VIP rounds before
               the public ever sees them. And by the time a building is 12 months from completion, the
@@ -125,22 +125,25 @@ export default function BuyingAnAssignment() {
         </section>
 
         {/* Benefits */}
-        <section className="bg-muted/30 border-y border-border py-16 lg:py-24">
+        <section className="bg-gradient-to-b from-muted/40 to-background border-y border-border py-16 sm:py-20 lg:py-28">
           <div className="container px-4">
-            <div className="max-w-3xl mb-10">
+            <div className="max-w-3xl mb-10 sm:mb-14">
               <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-3">Why Buy</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground tracking-tight text-balance">
                 Why buy an assignment?
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
               {BENEFITS.map(({ icon: Icon, title, body }) => (
-                <div key={title} className="rounded-2xl border border-border bg-card p-6 sm:p-7">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <div
+                  key={title}
+                  className="group relative rounded-2xl border border-border bg-card p-6 sm:p-7 hover:border-primary/40 hover:shadow-md transition-all"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center mb-5 ring-1 ring-primary/10 group-hover:ring-primary/30 transition-all">
                     <Icon className="h-5 w-5 text-primary" />
                   </div>
-                  <h3 className="text-lg font-bold text-foreground mb-2 leading-tight">{title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
+                  <h3 className="text-lg font-bold text-foreground mb-2 leading-snug text-balance">{title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{body}</p>
                 </div>
               ))}
             </div>
@@ -153,20 +156,27 @@ export default function BuyingAnAssignment() {
           faqs={FAQS}
         />
 
-        {/* CTA strip */}
-        <section className="bg-foreground text-background py-16 lg:py-20">
-          <div className="container px-4 max-w-3xl text-center">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
+        {/* CTA strip — premium */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-foreground via-foreground to-foreground/95 text-background py-16 sm:py-20 lg:py-24">
+          <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-[420px] w-[420px] rounded-full bg-primary/15 blur-[120px]" />
+          <div className="container relative px-4 max-w-3xl text-center">
+            <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-4">Available Now</p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4 text-balance">
               See our current assignment inventory
             </h2>
-            <p className="text-background/70 mb-8 text-base sm:text-lg leading-relaxed">
+            <p className="text-background/70 mb-8 sm:mb-10 text-base sm:text-lg leading-relaxed max-w-xl mx-auto text-pretty">
               3 active assignments right now — all pre-vetted, priced below current developer pricing.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild size="lg" className="font-semibold gap-2">
+              <Button asChild size="lg" className="font-semibold gap-2 w-full sm:w-auto shadow-lg shadow-primary/20">
                 <Link to="/assignments">View Available Assignments <ArrowRight className="h-4 w-4" /></Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="bg-transparent border-background/30 text-background hover:bg-background hover:text-foreground font-semibold">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="bg-transparent border-background/30 text-background hover:bg-background hover:text-foreground font-semibold w-full sm:w-auto"
+              >
                 <Link to="/contact">Book a call with Uzair</Link>
               </Button>
             </div>
@@ -174,11 +184,14 @@ export default function BuyingAnAssignment() {
         </section>
 
         {/* Cross-link */}
-        <section className="bg-background py-10 border-t border-border">
-          <div className="container px-4 text-center text-sm text-muted-foreground">
+        <section className="bg-background py-10 sm:py-12 border-t border-border">
+          <div className="container px-4 text-center text-sm sm:text-base text-muted-foreground">
             Selling instead?{" "}
-            <Link to="/assignments/sell-your-assignment" className="text-primary font-semibold hover:underline">
-              Read our guide to selling your assignment →
+            <Link
+              to="/assignments/sell-your-assignment"
+              className="text-primary font-semibold hover:underline underline-offset-4 inline-flex items-center gap-1"
+            >
+              Read our guide to selling your assignment <span aria-hidden>→</span>
             </Link>
           </div>
         </section>

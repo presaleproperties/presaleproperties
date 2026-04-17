@@ -34,38 +34,53 @@ export function AssignmentFaqAccordion({ title, subtitle, faqs, jsonLd = true }:
   };
 
   return (
-    <section className="bg-background py-16 lg:py-24">
+    <section className="bg-background py-16 sm:py-20 lg:py-28">
       {jsonLd && (
         <Helmet>
           <script type="application/ld+json">{JSON.stringify(schema)}</script>
         </Helmet>
       )}
       <div className="container px-4">
-        <div className="max-w-3xl mb-10">
+        <div className="max-w-3xl mb-10 sm:mb-14">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-3">
             FAQ
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight mb-3">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground tracking-tight mb-3 text-balance">
             {title}
           </h2>
           {subtitle && (
-            <p className="text-muted-foreground leading-relaxed">{subtitle}</p>
+            <p className="text-muted-foreground leading-relaxed sm:text-lg text-pretty">{subtitle}</p>
           )}
         </div>
 
         <div className="max-w-4xl">
-          <Accordion type="single" collapsible className="w-full divide-y divide-border border-y border-border">
+          <Accordion type="single" collapsible className="w-full space-y-3">
             {faqs.map((f, i) => (
-              <AccordionItem key={i} value={`faq-${i}`} className="border-0">
-                <AccordionTrigger className="text-left text-base sm:text-lg font-semibold text-foreground hover:no-underline py-5">
-                  <span className="flex gap-3">
-                    <span className="text-primary text-sm font-bold pt-1 shrink-0">{String(i + 1).padStart(2, "0")}</span>
-                    <span>{f.q}</span>
+              <AccordionItem
+                key={i}
+                value={`faq-${i}`}
+                className="group border border-border rounded-xl bg-card data-[state=open]:border-primary/40 data-[state=open]:shadow-sm transition-colors"
+              >
+                <AccordionTrigger className="text-left text-base sm:text-lg font-semibold text-foreground hover:no-underline py-5 px-5 sm:px-6">
+                  <span className="flex items-start gap-3 sm:gap-4 pr-3">
+                    <span className="text-[10px] sm:text-xs font-bold text-primary bg-primary/10 rounded-md px-2 py-1 shrink-0 tabular-nums leading-none mt-0.5">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="leading-snug">{f.q}</span>
                   </span>
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed pb-6 pl-9 space-y-3">
+                <AccordionContent className="text-muted-foreground leading-relaxed pb-6 px-5 sm:px-6 pl-12 sm:pl-[3.75rem] space-y-3 text-sm sm:text-base">
                   {Array.isArray(f.a)
-                    ? f.a.map((para, idx) => <p key={idx}>{para}</p>)
+                    ? (
+                      <ul className="space-y-2">
+                        {f.a.map((para, idx) => (
+                          <li key={idx} className="flex gap-2.5">
+                            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary/60 shrink-0" />
+                            <span>{para}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )
                     : <p>{f.a}</p>}
                 </AccordionContent>
               </AccordionItem>
