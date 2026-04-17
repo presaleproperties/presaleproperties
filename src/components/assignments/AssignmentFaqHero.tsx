@@ -3,6 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
+export interface HeroStat {
+  value: string;
+  label: string;
+}
+
 interface AssignmentFaqHeroProps {
   eyebrow?: string;
   title: string;
@@ -10,6 +15,7 @@ interface AssignmentFaqHeroProps {
   credibility?: string;
   primaryCta: { label: string; href: string };
   secondaryCta?: { label: string; href: string };
+  stats?: HeroStat[];
   children?: ReactNode;
 }
 
