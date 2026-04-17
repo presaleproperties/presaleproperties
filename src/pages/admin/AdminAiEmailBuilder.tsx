@@ -1451,6 +1451,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         toast.error("Failed to save");
       } else {
         toast.success("Template saved!");
+        setHasUnsavedChanges(false);
+        savedProjectNameRef.current = projectName || savedProjectNameRef.current;
       }
       setSaving(false);
     } else {
@@ -1730,14 +1732,16 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             </p>
           </div>
 
-          {/* Auto-save indicator */}
+          {/* Save status indicator (existing template) */}
           {savedTemplateId && (
-            <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0 hidden sm:flex">
+            <div className="flex items-center gap-1 text-[10px] shrink-0 hidden sm:flex">
               {dbSaving ? (
-                <><Loader2 className="h-3 w-3 animate-spin text-primary" /><span className="hidden md:inline">Saving…</span></>
-              ) : draftSavedAt ? (
-                <><CheckCircle2 className="h-3 w-3 text-emerald-500" /><span className="hidden md:inline">Auto-saved</span></>
-              ) : null}
+                <><Loader2 className="h-3 w-3 animate-spin text-primary" /><span className="hidden md:inline text-muted-foreground">Saving…</span></>
+              ) : hasUnsavedChanges ? (
+                <><span className="h-1.5 w-1.5 rounded-full bg-amber-500" /><span className="hidden md:inline text-amber-600 font-medium">Unsaved changes</span></>
+              ) : (
+                <><CheckCircle2 className="h-3 w-3 text-emerald-500" /><span className="hidden md:inline text-muted-foreground">Saved</span></>
+              )}
             </div>
           )}
           {!savedTemplateId && draftSavedAt && (
