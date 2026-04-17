@@ -1030,11 +1030,15 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     const p = projects.find(proj => proj.id === id);
     if (!p) return;
 
-    // If editing a saved template and switching to a different project, detach so next save prompts for a new name
+    // If editing a saved template and switching to a different project, fully fork:
+    // detach from saved row, clear unsaved-changes flag, and treat as a new template.
+    // Gallery/hero/docs are overwritten below from the new project's data.
     if (savedTemplateId && savedProjectNameRef.current && p.name !== savedProjectNameRef.current) {
       searchParams.delete("saved");
       navigate(`?${searchParams.toString()}`, { replace: true });
-      toast.info("Project changed — next save will create a new template");
+      savedProjectNameRef.current = "";
+      setHasUnsavedChanges(false);
+      toast.success(`Started new template from ${p.name} — gallery refreshed`);
     }
 
     // ── Populate all fields from project data ──────────────────────────────────
