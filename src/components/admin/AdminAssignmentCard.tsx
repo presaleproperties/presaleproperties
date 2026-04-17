@@ -184,6 +184,7 @@ export function AdminAssignmentCard({
                 showApprovalActions={showApprovalActions}
                 onApprove={onApprove}
                 onReject={onReject}
+                onDuplicated={onDuplicated}
               />
             </div>
 
