@@ -107,7 +107,7 @@ function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
-  layoutVersion?: "modern" | "modern-v2" | "editorial",
+  layoutVersion?: "modern" | "modern-v2" | "editorial" | "catalogue",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
   brochureUrl?: string,
@@ -115,7 +115,21 @@ function buildFinalHtml(
   pricingUrl?: string,
   ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showPricingCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean },
   bookShowingUrl?: string,
+  catalogueProjects?: CatalogueProject[],
 ): string {
+  // ── CATALOGUE template (multi-project picker) ─────────────────────────────
+  if (layoutVersion === "catalogue") {
+    return buildCatalogueEmailHtml({
+      subjectLine: fields.subjectLine || "Curated Presale Projects For You",
+      previewText: fields.previewText || "Hand-picked presale opportunities just for you.",
+      headline: fields.headline || "A few projects I think you'll love",
+      bodyCopy: fields.bodyCopy || "",
+      projects: catalogueProjects || [],
+      agent,
+      city: catalogueProjects?.[0]?.city,
+    });
+  }
+
   // ── EDITORIAL template ────────────────────────────────────────────────────
   if (layoutVersion === "editorial") {
     const saved = (() => { try { return JSON.parse(localStorage.getItem("ai-email-builder-draft") || "null"); } catch { return null; } })();
