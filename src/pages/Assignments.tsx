@@ -194,7 +194,7 @@ function AssignmentCard({ listing }: { listing: Assignment }) {
             <Badge variant="outline" className="text-[10px]">Unit {listing.unit_number}</Badge>
           )}
         </div>
-        <p className="font-semibold text-sm text-foreground truncate mb-1">{listing.project_name}</p>
+        <p className="font-semibold text-sm text-foreground truncate mb-1">{listing.title || listing.project_name}</p>
         <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
           <MapPin className="h-3 w-3 shrink-0" />
           <span className="truncate">{listing.neighborhood || listing.city}, {listing.city}</span>
