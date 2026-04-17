@@ -380,6 +380,9 @@ export default function MapSearch() {
   // Read mode from URL param, sync state when URL changes
   const urlMode = (searchParams.get("mode") as MapMode) || "all";
   const [mapMode, setMapMode] = useState<MapMode>(urlMode);
+
+  // Embed mode: hide site header + mode toggle (used by /assignments page iframe)
+  const isEmbed = searchParams.get("embed") === "1";
   
   // Sync mapMode when URL changes (e.g., navigating from another page)
   useEffect(() => {
