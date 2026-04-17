@@ -310,36 +310,26 @@ function FAQAccordionItem({
    ──────────────────────────────────────────── */
 
 export default function FAQ() {
-  const [activeCategory, setActiveCategory] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [openItems, setOpenItems] = useState<Record<string, number | null>>({});
 
-  const toggle = (sectionIdx: number, itemIdx: number) => {
-    setOpenItems((prev) => ({
-      ...prev,
-      [sectionIdx]: prev[sectionIdx] === itemIdx ? null : itemIdx,
-    }));
-  };
-
-  // Filter FAQs by search
   const filteredSections = useMemo(() => {
-    if (!searchQuery.trim()) return null;
+    if (!searchQuery.trim()) return FAQ_SECTIONS;
     const q = searchQuery.toLowerCase();
-    const results: { sectionIdx: number; item: FAQItem; itemIdx: number }[] = [];
-    FAQ_SECTIONS.forEach((section, sIdx) => {
-      section.items.forEach((item, iIdx) => {
-        const answerText = typeof item.a === "string" ? item.a : extractText(item.a);
-        if (item.q.toLowerCase().includes(q) || answerText.toLowerCase().includes(q)) {
-          results.push({ sectionIdx: sIdx, item, itemIdx: iIdx });
-        }
-      });
-    });
-    return results;
+    return FAQ_SECTIONS
+      .map((section) => ({
+        ...section,
+        items: section.items.filter((item) => {
+          const answerText = typeof item.a === "string" ? item.a : extractText(item.a);
+          return item.q.toLowerCase().includes(q) || answerText.toLowerCase().includes(q);
+        }),
+      }))
+      .filter((section) => section.items.length > 0);
   }, [searchQuery]);
 
   const isSearching = searchQuery.trim().length > 0;
   const allFaqs = getAllFAQsPlainText();
   const totalQuestions = allFaqs.length;
+  const matchCount = filteredSections.reduce((sum, s) => sum + s.items.length, 0);
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -347,10 +337,7 @@ export default function FAQ() {
     mainEntity: allFaqs.map((faq) => ({
       "@type": "Question",
       name: faq.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: faq.answer,
-      },
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
     })),
   };
 
@@ -384,7 +371,7 @@ export default function FAQ() {
 
       <main className="pt-20">
         {/* Breadcrumb */}
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 pt-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-6">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
             <ChevronRight className="h-3.5 w-3.5" />
@@ -393,17 +380,17 @@ export default function FAQ() {
         </div>
 
         {/* Hero + Search */}
-        <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-6 pb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight leading-tight">
+        <section className="max-w-6xl mx-auto px-4 sm:px-8 pt-6 pb-8">
+          <div className="max-w-3xl">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground tracking-tight leading-tight">
               Presale Condo FAQ
             </h1>
-            <p className="mt-2 text-muted-foreground leading-relaxed">
-              {totalQuestions} answers to the questions BC buyers ask most — from deposits to closing costs.
+            <p className="mt-3 text-muted-foreground leading-relaxed text-base sm:text-lg">
+              {totalQuestions} answers to the questions BC buyers ask most — from deposits to closing costs. Scroll, skim, or search.
             </p>
           </div>
 
-          <div className="mt-4 relative">
+          <div className="mt-6 relative max-w-2xl">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground pointer-events-none" />
             <input
               type="text"
@@ -421,59 +408,43 @@ export default function FAQ() {
               </button>
             )}
           </div>
+
+          {isSearching && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              {matchCount} result{matchCount !== 1 ? "s" : ""} for "{searchQuery}"
+            </p>
+          )}
         </section>
 
-        {/* Category Pills + Content */}
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 pb-16">
-          {/* Horizontal category tabs */}
-          {!isSearching && (
-            <div className="flex flex-wrap gap-1.5 mb-6">
-              {FAQ_SECTIONS.map((section, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    setActiveCategory(idx);
-                    setOpenItems({});
-                  }}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200",
-                    activeCategory === idx
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
-                  )}
-                >
-                  {section.icon}
-                  <span>{section.title}</span>
-                </button>
-              ))}
-            </div>
-          )}
+        {/* Two-col layout: sticky nav + content */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 pb-16">
+          <div className="grid lg:grid-cols-[220px_1fr] gap-10">
+            {/* Sticky sidebar nav */}
+            <aside className="hidden lg:block">
+              <nav className="sticky top-24 space-y-1">
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-3 px-3">
+                  Categories
+                </p>
+                {FAQ_SECTIONS.map((section) => (
+                  <a
+                    key={section.slug}
+                    href={`#${section.slug}`}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                  >
+                    <span className="text-muted-foreground/70">{section.icon}</span>
+                    <span>{section.title}</span>
+                    <span className="ml-auto text-[11px] text-muted-foreground/60 tabular-nums">
+                      {section.items.length}
+                    </span>
+                  </a>
+                ))}
+              </nav>
+            </aside>
 
-          {isSearching ? (
-            /* Search Results */
+            {/* Content */}
             <div>
-              <p className="text-sm text-muted-foreground mb-3">
-                {filteredSections?.length || 0} result{(filteredSections?.length || 0) !== 1 ? "s" : ""} for "{searchQuery}"
-              </p>
-              {filteredSections && filteredSections.length > 0 ? (
-                <div className="space-y-1.5">
-                  {filteredSections.map(({ sectionIdx, item, itemIdx }) => (
-                    <FAQAccordionItem
-                      key={`${sectionIdx}-${itemIdx}`}
-                      q={item.q}
-                      a={item.a}
-                      isOpen={openItems[`s-${sectionIdx}`] === itemIdx}
-                      onToggle={() =>
-                        setOpenItems((prev) => ({
-                          ...prev,
-                          [`s-${sectionIdx}`]: prev[`s-${sectionIdx}`] === itemIdx ? null : itemIdx,
-                        }))
-                      }
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-10">
+              {filteredSections.length === 0 ? (
+                <div className="text-center py-16 border border-dashed border-border rounded-2xl">
                   <p className="text-muted-foreground">No matching questions found.</p>
                   <button
                     onClick={() => setSearchQuery("")}
@@ -482,38 +453,43 @@ export default function FAQ() {
                     Browse all categories
                   </button>
                 </div>
-              )}
-            </div>
-          ) : (
-            /* Active category */
-            <div>
-              <div className="space-y-1.5">
-                {FAQ_SECTIONS[activeCategory].items.map((item, iIdx) => (
-                  <FAQAccordionItem
-                    key={iIdx}
-                    q={item.q}
-                    a={item.a}
-                    isOpen={openItems[activeCategory] === iIdx}
-                    onToggle={() => toggle(activeCategory, iIdx)}
-                  />
-                ))}
-              </div>
+              ) : (
+                <div className="space-y-14">
+                  {filteredSections.map((section) => (
+                    <section key={section.slug} id={section.slug} className="scroll-mt-24">
+                      <div className="flex items-center gap-2.5 mb-6 pb-3 border-b border-border/60">
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+                          {section.icon}
+                        </span>
+                        <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                          {section.title}
+                        </h2>
+                      </div>
 
-              {/* Next category link */}
-              {activeCategory < FAQ_SECTIONS.length - 1 && (
-                <button
-                  onClick={() => {
-                    setActiveCategory(activeCategory + 1);
-                    setOpenItems({});
-                  }}
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline group"
-                >
-                  Next: {FAQ_SECTIONS[activeCategory + 1].title}
-                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </button>
+                      <div className="divide-y divide-border/50">
+                        {section.items.map((item, iIdx) => (
+                          <article key={iIdx} className="py-6 first:pt-0">
+                            <h3 className="text-base sm:text-lg font-semibold text-foreground leading-snug mb-2">
+                              {item.q}
+                            </h3>
+                            <div className="text-[15px] text-muted-foreground leading-relaxed">
+                              {typeof item.a === "string" ? (
+                                item.a.split("\n\n").map((para, i) => (
+                                  <p key={i} className={cn(i > 0 && "mt-3")}>{para}</p>
+                                ))
+                              ) : (
+                                <p>{item.a}</p>
+                              )}
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </div>
               )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* CTA Section */}
