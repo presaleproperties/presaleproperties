@@ -385,70 +385,38 @@ export default function Assignments() {
       <ConversionHeader />
 
       <main>
-        {/* HERO with quick-action tiles */}
+        {/* HERO — simplified, action-first */}
         <section className="relative overflow-hidden bg-gradient-to-br from-foreground via-foreground to-foreground/95 text-background">
           <div className="absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle_at_1px_1px,_hsl(var(--background))_1px,_transparent_0)] [background-size:24px_24px]" />
           <div className="pointer-events-none absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-primary/20 blur-[120px]" />
           <div className="pointer-events-none absolute -bottom-40 -left-24 h-[360px] w-[360px] rounded-full bg-primary/10 blur-[120px]" />
 
-          <div className="container relative px-4 py-12 sm:py-16 lg:py-20">
-            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs text-background/60 mb-6">
+          <div className="container relative px-4 py-10 sm:py-14 lg:py-16">
+            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs text-background/60 mb-5">
               <Link to="/" className="hover:text-background transition-colors">Home</Link>
               <span aria-hidden>/</span>
               <span className="text-background/85">Assignments</span>
             </nav>
 
-            <div className="max-w-3xl mb-10 sm:mb-12">
-              <span className="inline-flex items-center gap-2 rounded-full border border-background/15 bg-background/[0.04] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.22em] text-primary mb-5 backdrop-blur-sm">
+            <div className="max-w-3xl">
+              <span className="inline-flex items-center gap-2 rounded-full border border-background/15 bg-background/[0.04] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.22em] text-primary mb-4 backdrop-blur-sm">
                 <Sparkles className="h-3 w-3" />
-                Assignment Hub
+                Live Assignment Inventory
               </span>
-              <h1 className="text-[2.25rem] sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] mb-5 text-balance">
+              <h1 className="text-[2rem] sm:text-5xl lg:text-[3.5rem] font-bold tracking-tight leading-[1.05] mb-4 text-balance">
                 Presale Assignments in BC
               </h1>
-              <p className="text-base sm:text-xl text-background/75 leading-relaxed max-w-2xl text-pretty">
-                Live inventory, the buying playbook, the selling process, and honest answers — all in one place.
+              <p className="text-base sm:text-lg text-background/75 leading-relaxed max-w-2xl text-pretty mb-6">
+                Below-market new construction. Move in sooner. Browse the live map, filter by city or budget, and connect directly.
               </p>
-            </div>
-
-            {/* Quick action tiles */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              {QUICK_ACTIONS.map((a) => {
-                const isExternal = a.href.startsWith("/");
-                const isAnchor = a.href.startsWith("#");
-                const Wrapper: any = isAnchor ? "a" : Link;
-                const wrapperProps = isAnchor ? { href: a.href } : { to: a.href };
-                return (
-                  <Wrapper
-                    key={a.title}
-                    {...wrapperProps}
-                    className={cn(
-                      "group relative rounded-2xl p-5 sm:p-6 backdrop-blur-sm transition-all border",
-                      a.accent === "primary"
-                        ? "bg-background/[0.06] border-background/15 hover:bg-background/[0.10] hover:border-primary/40"
-                        : "bg-background/[0.03] border-background/10 hover:bg-background/[0.07] hover:border-background/25"
-                    )}
-                  >
-                    <div className={cn(
-                      "w-11 h-11 rounded-xl flex items-center justify-center mb-4 ring-1 transition-all",
-                      a.accent === "primary"
-                        ? "bg-primary/15 ring-primary/30 group-hover:bg-primary/25"
-                        : "bg-background/[0.08] ring-background/15"
-                    )}>
-                      <a.icon className={cn("h-5 w-5", a.accent === "primary" ? "text-primary" : "text-background/80")} />
-                    </div>
-                    <h3 className="text-base sm:text-lg font-bold text-background mb-1.5 leading-snug">{a.title}</h3>
-                    <p className="text-xs sm:text-sm text-background/65 leading-relaxed mb-4 text-pretty">{a.body}</p>
-                    <span className={cn(
-                      "inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider",
-                      a.accent === "primary" ? "text-primary" : "text-background/80"
-                    )}>
-                      {a.cta}
-                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
-                  </Wrapper>
-                );
-              })}
+              <div className="flex flex-wrap gap-3">
+                <Button asChild size="lg" className="font-semibold gap-2 shadow-lg shadow-primary/20">
+                  <a href="#listings">Browse inventory <ArrowRight className="h-4 w-4" /></a>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="bg-transparent border-background/30 text-background hover:bg-background hover:text-foreground font-semibold">
+                  <Link to="/assignments/sell-your-assignment">Sell my assignment</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
