@@ -44,7 +44,7 @@ export function AssignmentsHubFaq({ faqs }: AssignmentsHubFaqProps) {
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
       </Helmet>
       <div className="container px-4">
-        <div className="max-w-3xl mb-8 sm:mb-12">
+        <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-12">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary mb-3">FAQ</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground tracking-tight mb-3 text-balance">
             Everything you need to know about assignments
@@ -55,42 +55,44 @@ export function AssignmentsHubFaq({ faqs }: AssignmentsHubFaqProps) {
         </div>
 
         {/* Topic tabs */}
-        <div
-          role="tablist"
-          aria-label="FAQ topics"
-          className="inline-flex flex-wrap gap-1.5 p-1 rounded-xl border border-border bg-muted/40 mb-8"
-        >
-          {TABS.map((t) => {
-            const active = tab === t.id;
-            const count = t.id === "all" ? faqs.length : faqs.filter((f) => f.topic === t.id).length;
-            return (
-              <button
-                key={t.id}
-                role="tab"
-                aria-selected={active}
-                onClick={() => setTab(t.id)}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-semibold transition-all",
-                  active
-                    ? "bg-card text-foreground shadow-sm border border-border"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {t.label}
-                <span
+        <div className="flex justify-center mb-8">
+          <div
+            role="tablist"
+            aria-label="FAQ topics"
+            className="inline-flex flex-wrap gap-1.5 p-1 rounded-xl border border-border bg-muted/40"
+          >
+            {TABS.map((t) => {
+              const active = tab === t.id;
+              const count = t.id === "all" ? faqs.length : faqs.filter((f) => f.topic === t.id).length;
+              return (
+                <button
+                  key={t.id}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setTab(t.id)}
                   className={cn(
-                    "ml-2 text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded",
-                    active ? "bg-primary/10 text-primary" : "bg-background text-muted-foreground"
+                    "px-4 py-2 rounded-lg text-sm font-semibold transition-all",
+                    active
+                      ? "bg-card text-foreground shadow-sm border border-border"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+                  {t.label}
+                  <span
+                    className={cn(
+                      "ml-2 text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded",
+                      active ? "bg-primary/10 text-primary" : "bg-background text-muted-foreground"
+                    )}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="max-w-4xl">
+        <div className="max-w-3xl mx-auto">
           <Accordion type="single" collapsible className="w-full space-y-3">
             {visible.map((f, i) => (
               <AccordionItem
