@@ -266,7 +266,6 @@ function StickySubNav() {
 
 export default function Assignments() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   const cityFilter = searchParams.get("city") || "any";
   const bedsFilter = searchParams.get("beds") || "any";
