@@ -810,10 +810,12 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       });
   }, []);
 
-  // ── Auto-save draft to localStorage + DB (if editing a saved template) ─────
+  // ── Auto-save draft to localStorage ONLY (DB writes happen on Save click) ──
+  // Editing a loaded template does NOT auto-save to DB — user must hit Save.
+  // Local draft still autosaves so refresh doesn't lose work.
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const dbAutoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [dbSaving, setDbSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
@@ -846,24 +848,13 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
 
-      // Auto-save to DB if editing a saved template
+      // Mark dirty if this is an existing template being edited (after hydration)
       if (savedTemplateId && !dbDraftLoading && stateHydratedRef.current) {
-        if (dbAutoSaveRef.current) clearTimeout(dbAutoSaveRef.current);
-        dbAutoSaveRef.current = setTimeout(async () => {
-          setDbSaving(true);
-          const pn = showProjectName ? projectName : (customHeader || "");
-          const dn = showDeveloperName ? developerName : "";
-          const formData = buildFormData();
-          await supabase.from("campaign_templates" as any)
-            .update({ form_data: formData, updated_at: new Date().toISOString() })
-            .eq("id", savedTemplateId);
-          setDbSaving(false);
-        }, 500);
+        setHasUnsavedChanges(true);
       }
     }, 1500);
     return () => {
       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
-      if (dbAutoSaveRef.current) clearTimeout(dbAutoSaveRef.current);
     };
   }, [
     prompt, templateType, selProjectId, activeVersion, aiResult,
@@ -876,6 +867,17 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
     dbDraftLoading, catalogueProjects,
   ]); // eslint-disable-line
+
+  // Warn before leaving with unsaved changes (existing template only)
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hasUnsavedChanges]);
 
   // ── Derived HTML ─────────────────────────────────────────────────────────────
   const currentCopy = useCallback((): AiEmailCopy => ({
