@@ -179,7 +179,7 @@ export function AssignmentActionsDropdown({
     }
   };
 
-
+  const getConfirmActionDetails = () => {
     switch (confirmAction) {
       case "unpublish":
         return {
