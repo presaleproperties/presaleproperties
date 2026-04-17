@@ -2124,7 +2124,38 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
                         {layoutVersion === "modern-v2" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-violet-500" />}
                       </button>
+                      <button
+                        onClick={() => setLayoutVersion("catalogue")}
+                        className={cn(
+                          "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                          layoutVersion === "catalogue"
+                            ? "border-amber-500 bg-amber-500/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-amber-400/50"
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
+                          Catalogue
+                          <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-amber-500/15 text-amber-600 uppercase tracking-wide">New</span>
+                        </div>
+                        <div className="text-[9px] text-muted-foreground leading-tight">Multi-project · 1–5 picks</div>
+                        {layoutVersion === "catalogue" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-amber-500" />}
+                      </button>
                     </div>
+                    {layoutVersion === "catalogue" && (
+                      <div className="mt-3 pt-3 border-t border-border space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Package className="h-3 w-3 text-amber-500" />
+                          <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Catalogue Projects</Label>
+                        </div>
+                        <p className="text-[9px] text-muted-foreground leading-relaxed">
+                          Pick 1–5 presale projects. Each card auto-pulls price, completion, hero & description. The first project becomes the "Featured Pick".
+                        </p>
+                        <CatalogueProjectsPanel
+                          projects={catalogueProjects}
+                          onChange={setCatalogueProjects}
+                        />
+                      </div>
+                    )}
                     {layoutVersion === "editorial" && (
                       <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
                     )}
