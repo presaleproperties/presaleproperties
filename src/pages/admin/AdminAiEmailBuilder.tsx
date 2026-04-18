@@ -513,7 +513,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [showViewMorePlansCta, setShowViewMorePlansCta] = useState<boolean>(savedDraft?.showViewMorePlansCta ?? true);
   const [showCallNowCta,       setShowCallNowCta]       = useState<boolean>(savedDraft?.showCallNowCta ?? true);
   const [showBookShowingCta,   setShowBookShowingCta]   = useState<boolean>(savedDraft?.showBookShowingCta ?? false);
-  const ctaToggles = { showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta };
+  const [showInterestedCta,    setShowInterestedCta]    = useState<boolean>(savedDraft?.showInterestedCta ?? true);
+  const [interestedWhatsapp,   setInterestedWhatsapp]   = useState<string>(savedDraft?.interestedWhatsapp ?? "16722581100");
+  const ctaToggles = { showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta };
 
   // Campaign assets
   const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
@@ -628,6 +630,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (d.showBookShowingCta !== undefined) setShowBookShowingCta(d.showBookShowingCta);
     if (d.showViewMorePlansCta !== undefined) setShowViewMorePlansCta(d.showViewMorePlansCta);
     if (d.showCallNowCta !== undefined) setShowCallNowCta(d.showCallNowCta);
+    if (d.showInterestedCta !== undefined) setShowInterestedCta(d.showInterestedCta);
+    if (d.interestedWhatsapp !== undefined) setInterestedWhatsapp(d.interestedWhatsapp);
     if (d.selAgent) setSelAgent(d.selAgent);
     if (d.fontId) setSelectedFontId(d.fontId);
     if (d.layoutVersion) setLayoutVersion(d.layoutVersion);
