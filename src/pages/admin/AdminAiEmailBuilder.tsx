@@ -1188,7 +1188,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     try {
       const uploaded: FloorPlanEntry[] = [];
       for (const file of files.slice(0, 2)) {
-        const url = await uploadImage(file, "email-assets", `email-floorplans/${Date.now()}-${file.name}`);
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-");
+        const url = await uploadImage(file, "email-assets", `email-floorplans/${Date.now()}-${safeName}`);
         uploaded.push({ id: crypto.randomUUID(), url, label: "", sqft: "" });
       }
       setFloorPlans(prev => [...prev, ...uploaded].slice(0, 2));
@@ -1281,7 +1282,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     const file = e.target.files?.[0]; if (!file) return;
     setFloorplanUploading(true);
     try {
-      const path = `email-floorplans/${Date.now()}-${file.name}`;
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-");
+      const path = `email-floorplans/${Date.now()}-${safeName}`;
       const { error } = await supabase.storage.from("listing-files").upload(path, file, { upsert: true, contentType: file.type });
       if (error) throw error;
       setFloorplanUrl(supabase.storage.from("listing-files").getPublicUrl(path).data.publicUrl);
@@ -1294,7 +1296,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     const file = e.target.files?.[0]; if (!file) return;
     setBrochureUploading(true);
     try {
-      const path = `email-brochures/${Date.now()}-${file.name}`;
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-");
+      const path = `email-brochures/${Date.now()}-${safeName}`;
       const { error } = await supabase.storage.from("listing-files").upload(path, file, { upsert: true, contentType: file.type });
       if (error) throw error;
       setBrochureUrl(supabase.storage.from("listing-files").getPublicUrl(path).data.publicUrl);
