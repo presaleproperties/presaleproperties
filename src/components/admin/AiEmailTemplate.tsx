@@ -848,6 +848,9 @@ export interface PitchDeckEmailData {
   showCallNowCta?: boolean;
   showBookShowingCta?: boolean;
   bookShowingUrl?: string;
+  /** "I'M INTERESTED" WhatsApp CTA — opens WhatsApp with a pre-filled conversation starter */
+  showInterestedCta?: boolean;
+  interestedWhatsapp?: string;
 }
 
 export function buildPitchDeckEmailHtml(
@@ -1871,6 +1874,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "pill" })}
+
   ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
@@ -2149,6 +2154,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: OLIVE, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "outline" })}
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
+
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "outline" })}
 
   ${data.showCallNowCta !== false ? `
   <!-- ── CTA: CALL NOW ── -->
@@ -2905,6 +2912,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#faf8f4;max-
   </tr>
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "pill" })}
 
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
