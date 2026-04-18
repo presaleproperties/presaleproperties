@@ -399,10 +399,10 @@ function interestedCta(opts: {
   // Identifier priority: explicit project name → headline → generic fallback.
   // Respects the "hide project name" toggle (which clears projectName before we reach here).
   const identifier = opts.projectName?.trim() || opts.headline?.trim() || "the offer in your email";
-  const greeting = opts.agentFirstName?.trim() ? `Hey ${opts.agentFirstName.trim()}!` : "Hey there!";
-  const subjectLine = opts.emailSubject?.trim() ? `\n\n📧 Re: "${opts.emailSubject.trim()}"` : "";
-  const priceLine = opts.startingPrice?.trim() ? `\n💰 Starting at ${opts.startingPrice.trim()}` : "";
-  const message = `${greeting} I just got your email about ${identifier} — can you tell me more about this exclusive offer?${subjectLine}${priceLine}`;
+  const greeting = opts.agentFirstName?.trim() ? `Hey ${opts.agentFirstName.trim()}` : "Hey there";
+  const priceSuffix = opts.startingPrice?.trim() ? ` (from ${opts.startingPrice.trim()})` : "";
+  // Plain ASCII only — no emoji or smart punctuation that could render as ? boxes in WhatsApp.
+  const message = `${greeting}, I'm interested in ${identifier}${priceSuffix} - can you send more details?`;
   const waUrl = `https://wa.me/${rawNum}?text=${encodeURIComponent(message)}`;
   const F = opts.font;
   const GREEN = "#25D366";
