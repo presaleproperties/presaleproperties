@@ -2355,8 +2355,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                           <Input value={fp.price ?? ""} onChange={e => updateFp(fp.id, "price", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="579,900" />
                         </div>
                         <div className="col-span-2">
-                          <Label className="text-[9px]">Monthly Payment <span className="text-muted-foreground/70">(optional override — auto-calculated from price + deposit %)</span></Label>
-                          <Input value={fp.monthly_payment ?? ""} onChange={e => updateFp(fp.id, "monthly_payment", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="Leave blank for auto-calc (5.5%/30yr)" />
+                          <Label className="text-[9px]">Monthly Payment <span className="text-muted-foreground/70">(optional override — auto-calculated at 3.79% / 30-yr, no GST/PTT/strata)</span></Label>
+                          <Input value={fp.monthly_payment ?? ""} onChange={e => updateFp(fp.id, "monthly_payment", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="Leave blank for auto-calc (3.79% / 30-yr)" />
                         </div>
                       </div>
                     </div>
