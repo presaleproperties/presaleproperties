@@ -1995,7 +1995,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
-  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, agentFirstName: agent.full_name?.split(" ")[0], emailSubject: data.subjectLine, startingPrice: data.startingPrice, font: F, style: "pill" })}
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, headline: data.headline, agentFirstName: agent.full_name?.split(" ")[0], emailSubject: data.subjectLine, startingPrice: data.startingPrice, font: F, style: "pill" })}
 
   ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
