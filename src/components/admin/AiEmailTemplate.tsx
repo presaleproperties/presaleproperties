@@ -383,6 +383,8 @@ function interestedCta(opts: {
   showInterestedCta?: boolean;
   interestedWhatsapp?: string;
   projectName?: string;
+  /** Email headline — used as fallback identifier when projectName is hidden/empty (so we never reveal a project we chose to hide) */
+  headline?: string;
   agentFirstName?: string;
   /** Email subject line — included in the WhatsApp message so the agent knows which email the lead is replying to */
   emailSubject?: string;
@@ -394,11 +396,13 @@ function interestedCta(opts: {
   if (opts.showInterestedCta === false) return "";
   const rawNum = (opts.interestedWhatsapp || "16722581100").replace(/\D/g, "");
   if (!rawNum) return "";
-  const project = opts.projectName?.trim() || "this project";
+  // Identifier priority: explicit project name → headline → generic fallback.
+  // Respects the "hide project name" toggle (which clears projectName before we reach here).
+  const identifier = opts.projectName?.trim() || opts.headline?.trim() || "the offer in your email";
   const greeting = opts.agentFirstName?.trim() ? `Hey ${opts.agentFirstName.trim()}!` : "Hey there!";
   const subjectLine = opts.emailSubject?.trim() ? `\n\n📧 Re: "${opts.emailSubject.trim()}"` : "";
   const priceLine = opts.startingPrice?.trim() ? `\n💰 Starting at ${opts.startingPrice.trim()}` : "";
-  const message = `${greeting} I just got your email about ${project} — can you tell me more about this exclusive offer?${subjectLine}${priceLine}`;
+  const message = `${greeting} I just got your email about ${identifier} — can you tell me more about this exclusive offer?${subjectLine}${priceLine}`;
   const waUrl = `https://wa.me/${rawNum}?text=${encodeURIComponent(message)}`;
   const F = opts.font;
   const GREEN = "#25D366";
