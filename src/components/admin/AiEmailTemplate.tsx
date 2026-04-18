@@ -2272,7 +2272,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
 
-  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, agentFirstName: agent.full_name?.split(" ")[0], font: F, style: "outline" })}
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, agentFirstName: agent.full_name?.split(" ")[0], emailSubject: data.subjectLine, startingPrice: data.startingPrice, font: F, style: "outline" })}
 
   ${data.showCallNowCta !== false ? `
   <!-- ── CTA: CALL NOW ── -->
