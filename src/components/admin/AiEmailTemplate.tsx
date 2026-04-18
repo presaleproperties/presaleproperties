@@ -1223,7 +1223,7 @@ export function buildPitchDeckEmailHtml(
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: BODY_FONT, accent: ACCENT, dark: DARK, style: "gold-fill" })}
 
-  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, agentFirstName: agent.full_name?.split(" ")[0], font: BODY_FONT, style: "gold-fill" })}
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, agentFirstName: agent.full_name?.split(" ")[0], emailSubject: data.subjectLine, startingPrice: data.startingPrice, font: BODY_FONT, style: "gold-fill" })}
 
   <!-- CALL NOW CTA — full-width button for mobile -->
   <tr>
