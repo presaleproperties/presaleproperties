@@ -127,10 +127,14 @@ function formatDollars(n: number): string {
 
 /**
  * Compute down-payment + estimated monthly mortgage lines for a floor plan card.
- * - Down payment = price × deposit%
- * - Monthly = standard amortizing mortgage on (price − downPayment) at 5.5% / 30 yr
+/**
+ * Compute down-payment + estimated monthly mortgage lines for a floor plan card.
+ * Mirrors the site's Investment Snapshot calculator defaults:
+ *   - Interest rate: 3.79% (calculator default)
+ *   - Amortization: 30 years
+ *   - Principal = floor plan price × (1 − deposit%)  (no GST, no PTT, no strata, no CMHC)
+ * Down payment = price × deposit %.
  * If monthlyOverride is provided (user-typed), it replaces the calculated monthly line.
- * Returns null/empty strings when inputs aren't sufficient.
  */
 function calcPaymentLines(opts: {
   price?: string;
@@ -147,9 +151,9 @@ function calcPaymentLines(opts: {
     downLine = `${pct}% Down: ${formatDollars(down)}`;
     if (!opts.monthlyOverride) {
       const principal = priceNum - down;
-      const annualRate = 0.055;
+      const annualRate = 0.0379; // matches Investment Snapshot calculator default
       const r = annualRate / 12;
-      const n = 30 * 12;
+      const n = 30 * 12;          // 30-year amortization
       const monthly = principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
       if (isFinite(monthly) && monthly > 0) {
         monthlyLine = `Est. ${formatDollars(monthly)}/mo`;
