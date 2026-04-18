@@ -1211,6 +1211,15 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const removeFp = (id: string) => setFloorPlans(prev => prev.filter(fp => fp.id !== id));
   const updateFp = (id: string, field: keyof FloorPlanEntry, val: string) =>
     setFloorPlans(prev => prev.map(fp => fp.id === id ? { ...fp, [field]: val } : fp));
+  const moveFp = (id: string, direction: -1 | 1) =>
+    setFloorPlans(prev => {
+      const idx = prev.findIndex(fp => fp.id === id);
+      const newIdx = idx + direction;
+      if (idx < 0 || newIdx < 0 || newIdx >= prev.length) return prev;
+      const next = [...prev];
+      [next[idx], next[newIdx]] = [next[newIdx], next[idx]];
+      return next;
+    });
 
   const handleImgCardUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []); if (!files.length) return;
