@@ -111,13 +111,24 @@ function parseIncentives(text: string): string[] {
     .filter(Boolean);
 }
 
+/** Auto-highlight dollar amounts ($X, $X.XX, $X,XXX, $X,XXX.XX) in body copy.
+ *  Wraps matches in a bold gold accent span. Apply BEFORE bold/HTML substitutions
+ *  so it operates on raw user text only. */
+export function highlightPrices(text: string, accent: string = "#C9A55A"): string {
+  if (!text) return "";
+  // Match $ followed by digits with optional commas/decimals. Avoid trailing punctuation capture.
+  return text.replace(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?|\$\d+(?:\.\d+)?/g,
+    (m) => `<span style="font-weight:700;color:${accent};">${m}</span>`);
+}
+
 /** Convert \n-separated body copy paragraphs into HTML, rendering **bold** markers */
 function bodyToHtml(text: string): string {
   if (!text) return "";
   const paras = text.split("\n").filter(Boolean);
   return paras
     .map(p => {
-      const withBold = p.replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:600;color:#222222;">$1</strong>');
+      const withPrices = highlightPrices(p);
+      const withBold = withPrices.replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:600;color:#222222;">$1</strong>');
       return `<p style="margin:0 0 14px 0;font-family:'DM Sans',Arial,sans-serif;font-size:14px;color:#444444;line-height:1.75;">${withBold}</p>`;
     })
     .join("");
