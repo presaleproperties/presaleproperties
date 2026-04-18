@@ -303,6 +303,64 @@ function docCtaButtons(opts: {
   return buttons.join("\n  ");
 }
 
+/** Generate "I'M INTERESTED" WhatsApp CTA — green button that opens WhatsApp with a pre-filled message */
+function interestedCta(opts: {
+  showInterestedCta?: boolean;
+  interestedWhatsapp?: string;
+  projectName?: string;
+  font: string;
+  style?: "gold-fill" | "pill" | "outline";
+}): string {
+  if (opts.showInterestedCta === false) return "";
+  const rawNum = (opts.interestedWhatsapp || "16722581100").replace(/\D/g, "");
+  if (!rawNum) return "";
+  const project = opts.projectName?.trim() || "this project";
+  const message = `Hey there! I just got your email about ${project} — can you tell me more about this exclusive offer?`;
+  const waUrl = `https://wa.me/${rawNum}?text=${encodeURIComponent(message)}`;
+  const F = opts.font;
+  const GREEN = "#25D366";
+  const GREEN_DARK = "#128C7E";
+  const style = opts.style || "gold-fill";
+
+  if (style === "pill") {
+    return `<!-- ── CTA: I'M INTERESTED (WhatsApp) ── -->
+  <tr>
+    <td class="content-pad" style="padding:14px 40px 14px;background:#ffffff;">
+      <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+        <td class="cta-td" align="center" style="background:${GREEN};border-radius:50px;padding:18px 32px;text-align:center;">
+          <a href="${waUrl}" target="_blank" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;white-space:nowrap;">&#128172;&nbsp; I'M INTERESTED</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`;
+  }
+
+  if (style === "outline") {
+    return `<!-- ── CTA: I'M INTERESTED (WhatsApp) ── -->
+  <tr>
+    <td class="content-pad" style="padding:14px 40px 8px;background:#ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:2px solid ${GREEN};border-radius:6px;overflow:hidden;"><tr>
+        <td align="center" style="padding:16px 24px;background:#ffffff;">
+          <a href="${waUrl}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${GREEN_DARK};text-decoration:none;display:block;line-height:1;">&#128172;&nbsp; I'M INTERESTED &nbsp;→</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`;
+  }
+
+  // gold-fill (default — used by Modern layout on tan background)
+  return `<!-- ── CTA: I'M INTERESTED (WhatsApp) ── -->
+  <tr>
+    <td class="mobile-pad" style="background:#f7f5f1;padding:0 36px 14px;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+        <td align="center" style="background:${GREEN};padding:18px 24px;text-align:center;width:100%;">
+          <a href="${waUrl}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;line-height:1;white-space:nowrap;">&#128172;&nbsp; I'M INTERESTED &nbsp;→</a>
+        </td>
+      </tr></table>
+    </td>
+  </tr>`;
+}
+
 /** Generate "BOOK A SHOWING" CTA button — only renders when URL is provided and toggle is on */
 function bookShowingCta(opts: {
   bookShowingUrl?: string; showBookShowingCta?: boolean;
@@ -790,6 +848,9 @@ export interface PitchDeckEmailData {
   showCallNowCta?: boolean;
   showBookShowingCta?: boolean;
   bookShowingUrl?: string;
+  /** "I'M INTERESTED" WhatsApp CTA — opens WhatsApp with a pre-filled conversation starter */
+  showInterestedCta?: boolean;
+  interestedWhatsapp?: string;
 }
 
 export function buildPitchDeckEmailHtml(
@@ -1066,6 +1127,8 @@ export function buildPitchDeckEmailHtml(
   ` : ""}
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: BODY_FONT, accent: ACCENT, dark: DARK, style: "gold-fill" })}
+
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: BODY_FONT, style: "gold-fill" })}
 
   <!-- CALL NOW CTA — full-width button for mobile -->
   <tr>
@@ -1481,6 +1544,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "pill" })}
+
   ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
@@ -1809,6 +1874,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "pill" })}
+
   ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
@@ -2087,6 +2154,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: OLIVE, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "outline" })}
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
+
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "outline" })}
 
   ${data.showCallNowCta !== false ? `
   <!-- ── CTA: CALL NOW ── -->
@@ -2843,6 +2912,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#faf8f4;max-
   </tr>
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "pill" })}
 
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>

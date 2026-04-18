@@ -113,9 +113,10 @@ function buildFinalHtml(
   brochureUrl?: string,
   floorplanUrl?: string,
   pricingUrl?: string,
-  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showPricingCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean },
+  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showPricingCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean; showInterestedCta?: boolean },
   bookShowingUrl?: string,
   catalogueProjects?: CatalogueProject[],
+  interestedWhatsapp?: string,
 ): string {
   // ── CATALOGUE template (multi-project picker) ─────────────────────────────
   if (layoutVersion === "catalogue") {
@@ -157,6 +158,7 @@ function buildFinalHtml(
       pricingUrl,
       loopSlides:     slides,
       bookShowingUrl,
+      interestedWhatsapp,
       ...ctaToggles,
     }, agent);
   }
@@ -190,6 +192,7 @@ function buildFinalHtml(
       fpHeading,
       fpSubheading,
       bookShowingUrl,
+      interestedWhatsapp,
       ...ctaToggles,
     }, agent);
   }
@@ -227,6 +230,7 @@ function buildFinalHtml(
       fpSubheading,
       loopSlides: slides,
       bookShowingUrl,
+      interestedWhatsapp,
       ...ctaToggles,
     }, agent);
   }
@@ -509,7 +513,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [showViewMorePlansCta, setShowViewMorePlansCta] = useState<boolean>(savedDraft?.showViewMorePlansCta ?? true);
   const [showCallNowCta,       setShowCallNowCta]       = useState<boolean>(savedDraft?.showCallNowCta ?? true);
   const [showBookShowingCta,   setShowBookShowingCta]   = useState<boolean>(savedDraft?.showBookShowingCta ?? false);
-  const ctaToggles = { showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta };
+  const [showInterestedCta,    setShowInterestedCta]    = useState<boolean>(savedDraft?.showInterestedCta ?? true);
+  const [interestedWhatsapp,   setInterestedWhatsapp]   = useState<string>(savedDraft?.interestedWhatsapp ?? "16722581100");
+  const ctaToggles = { showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta };
 
   // Campaign assets
   const [campaignAssets,   setCampaignAssets]   = useState<CampaignAsset[]>([]);
@@ -624,6 +630,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (d.showBookShowingCta !== undefined) setShowBookShowingCta(d.showBookShowingCta);
     if (d.showViewMorePlansCta !== undefined) setShowViewMorePlansCta(d.showViewMorePlansCta);
     if (d.showCallNowCta !== undefined) setShowCallNowCta(d.showCallNowCta);
+    if (d.showInterestedCta !== undefined) setShowInterestedCta(d.showInterestedCta);
+    if (d.interestedWhatsapp !== undefined) setInterestedWhatsapp(d.interestedWhatsapp);
     if (d.selAgent) setSelAgent(d.selAgent);
     if (d.fontId) setSelectedFontId(d.fontId);
     if (d.layoutVersion) setLayoutVersion(d.layoutVersion);
@@ -842,7 +850,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
-        showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
+        showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
         catalogueProjects,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
@@ -864,7 +872,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
-    showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
+    showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
     dbDraftLoading, catalogueProjects,
   ]); // eslint-disable-line
 
@@ -897,7 +905,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -905,14 +913,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (campaignHtmlOverride) return;
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, pricingUrl, showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, bookShowingUrl, campaignHtmlOverride, catalogueProjects]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, pricingUrl, showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp, bookShowingUrl, campaignHtmlOverride, catalogueProjects]);
 
   // finalHtml used only for copy/save — always reflects latest state
   // When campaignHtmlOverride is set (multi-project weeks), use it instead
-  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects);
+  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined);
   const finalHtml = campaignHtmlOverride || baseFinalHtml;
 
   // Also update multi-project preview when body copy changes (live editing)
@@ -1432,7 +1440,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
       brochureUrl, floorplanUrl, bookShowingUrl,
-      showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta,
+      showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
       selProjectId,
       pricingUrl,
       ...savedDeckMeta,
@@ -2721,6 +2729,22 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     </div>
                     {showBookShowingCta && (
                       <Input value={bookShowingUrl} onChange={e => setBookShowingUrl(e.target.value)} className="h-7 text-[10px]" placeholder="Calendly or booking URL" />
+                    )}
+                  </div>
+
+                  {/* I'm Interested (WhatsApp) */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[11px] font-medium">I'm Interested (WhatsApp)</Label>
+                      <Switch checked={showInterestedCta} onCheckedChange={setShowInterestedCta} />
+                    </div>
+                    {showInterestedCta && (
+                      <Input
+                        value={interestedWhatsapp}
+                        onChange={e => setInterestedWhatsapp(e.target.value)}
+                        className="h-7 text-[10px]"
+                        placeholder="WhatsApp number e.g. 16722581100"
+                      />
                     )}
                   </div>
                 </div>

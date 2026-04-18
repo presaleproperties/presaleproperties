@@ -111,6 +111,8 @@ function buildAiFinalHtml({
   showBrochureCta,
   showViewMorePlansCta,
   showCallNowCta,
+  showInterestedCta,
+  interestedWhatsapp,
 }: {
   fields: AiEmailCopy;
   agent: AgentInfo;
@@ -132,6 +134,8 @@ function buildAiFinalHtml({
   showBrochureCta?: boolean;
   showViewMorePlansCta?: boolean;
   showCallNowCta?: boolean;
+  showInterestedCta?: boolean;
+  interestedWhatsapp?: string;
 }): string {
   if (layoutVersion === "editorial") {
     const slides = (loopSlides && loopSlides.length > 0)
@@ -157,6 +161,7 @@ function buildAiFinalHtml({
       floorplanUrl,
       loopSlides: slides,
       showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
+      showInterestedCta, interestedWhatsapp,
     }, agent);
   }
 
@@ -189,6 +194,7 @@ function buildAiFinalHtml({
       fpHeading,
       fpSubheading,
       showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
+      showInterestedCta, interestedWhatsapp,
     }, agent);
   }
 
@@ -283,6 +289,8 @@ export function buildAiTemplateHtmlFromFormData(formData: any, agentOverride?: P
     showBrochureCta: formData?.showBrochureCta,
     showViewMorePlansCta: formData?.showViewMorePlansCta,
     showCallNowCta: formData?.showCallNowCta,
+    showInterestedCta: formData?.showInterestedCta,
+    interestedWhatsapp: formData?.interestedWhatsapp,
   });
 }
 
