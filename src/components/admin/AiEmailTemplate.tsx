@@ -2010,7 +2010,7 @@ export function buildEditorialEmailHtml(
       return true;
     })
     .map(p => {
-      const html = highlightPrices(p, ACCENT)
+      const html = highlightPrices(p, BROWN)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:700;color:${DARK};">$1</strong>`)
         .replace(/\*/g, "");
