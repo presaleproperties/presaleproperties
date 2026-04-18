@@ -162,6 +162,10 @@ function buildAiFinalHtml({
       loopSlides: slides,
       showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
       showInterestedCta, interestedWhatsapp,
+    }, agent);
+  }
+
+  if (layoutVersion === "modern") {
     return buildLululemonEmailHtml({
       projectName: fields.projectName || "",
       city: fields.city,
@@ -191,6 +195,10 @@ function buildAiFinalHtml({
       fpSubheading,
       showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
       showInterestedCta, interestedWhatsapp,
+    }, agent);
+  }
+
+  const base = buildAiEmailHtml(fields, agent, ctaUrl, font, false);
   const ACCENT = "#C9A55A";
   const DARK = "#0d1f18";
   const bodyFont = font?.body || "'DM Sans', Helvetica, Arial, sans-serif";
