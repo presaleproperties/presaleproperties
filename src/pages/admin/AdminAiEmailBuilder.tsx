@@ -113,9 +113,10 @@ function buildFinalHtml(
   brochureUrl?: string,
   floorplanUrl?: string,
   pricingUrl?: string,
-  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showPricingCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean },
+  ctaToggles?: { showFloorPlansCta?: boolean; showBrochureCta?: boolean; showPricingCta?: boolean; showViewMorePlansCta?: boolean; showCallNowCta?: boolean; showBookShowingCta?: boolean; showInterestedCta?: boolean },
   bookShowingUrl?: string,
   catalogueProjects?: CatalogueProject[],
+  interestedWhatsapp?: string,
 ): string {
   // ── CATALOGUE template (multi-project picker) ─────────────────────────────
   if (layoutVersion === "catalogue") {
