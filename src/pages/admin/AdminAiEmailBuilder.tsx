@@ -158,6 +158,7 @@ function buildFinalHtml(
       pricingUrl,
       loopSlides:     slides,
       bookShowingUrl,
+      interestedWhatsapp,
       ...ctaToggles,
     }, agent);
   }
@@ -191,6 +192,7 @@ function buildFinalHtml(
       fpHeading,
       fpSubheading,
       bookShowingUrl,
+      interestedWhatsapp,
       ...ctaToggles,
     }, agent);
   }
@@ -228,6 +230,7 @@ function buildFinalHtml(
       fpSubheading,
       loopSlides: slides,
       bookShowingUrl,
+      interestedWhatsapp,
       ...ctaToggles,
     }, agent);
   }
