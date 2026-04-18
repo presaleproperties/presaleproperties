@@ -319,6 +319,7 @@ function interestedCta(opts: {
   showInterestedCta?: boolean;
   interestedWhatsapp?: string;
   projectName?: string;
+  agentFirstName?: string;
   font: string;
   style?: "gold-fill" | "pill" | "outline";
 }): string {
@@ -326,7 +327,8 @@ function interestedCta(opts: {
   const rawNum = (opts.interestedWhatsapp || "16722581100").replace(/\D/g, "");
   if (!rawNum) return "";
   const project = opts.projectName?.trim() || "this project";
-  const message = `Hey there! I just got your email about ${project} — can you tell me more about this exclusive offer?`;
+  const greeting = opts.agentFirstName?.trim() ? `Hey ${opts.agentFirstName.trim()}!` : "Hey there!";
+  const message = `${greeting} I just got your email about ${project} — can you tell me more about this exclusive offer?`;
   const waUrl = `https://wa.me/${rawNum}?text=${encodeURIComponent(message)}`;
   const F = opts.font;
   const GREEN = "#25D366";
@@ -1141,7 +1143,7 @@ export function buildPitchDeckEmailHtml(
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: BODY_FONT, accent: ACCENT, dark: DARK, style: "gold-fill" })}
 
-  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: BODY_FONT, style: "gold-fill" })}
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, agentFirstName: agent.full_name?.split(" ")[0], font: BODY_FONT, style: "gold-fill" })}
 
   <!-- CALL NOW CTA — full-width button for mobile -->
   <tr>
@@ -1558,7 +1560,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
-  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "pill" })}
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, agentFirstName: agent.full_name?.split(" ")[0], font: F, style: "pill" })}
 
   ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
@@ -1889,7 +1891,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
-  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "pill" })}
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, agentFirstName: agent.full_name?.split(" ")[0], font: F, style: "pill" })}
 
   ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
@@ -2170,7 +2172,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: OLIVE, dark: DARK, style: "outline" })}
 
-  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "outline" })}
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, agentFirstName: agent.full_name?.split(" ")[0], font: F, style: "outline" })}
 
   ${data.showCallNowCta !== false ? `
   <!-- ── CTA: CALL NOW ── -->
@@ -2930,7 +2932,7 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#faf8f4;max-
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
 
-  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "pill" })}
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, agentFirstName: agent.full_name?.split(" ")[0], font: F, style: "pill" })}
 
   <!-- ── SECONDARY CTA: CALL NOW ── -->
   <tr>
