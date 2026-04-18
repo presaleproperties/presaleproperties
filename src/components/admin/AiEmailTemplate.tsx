@@ -102,6 +102,65 @@ function creditBadgeHtml(creditStr?: string, bodyFont?: string): string {
   return `<p style="margin:6px 0 0 0;font-family:${font};font-size:12px;font-weight:700;color:#22c55e;line-height:1.3;">✦ Exclusive Credit: ${display}</p>`;
 }
 
+/** Parse a deposit string like "5%", "10% / 10%", "20% over 12 months" → first percentage as number (5, 10, 20) or null */
+function parseDepositPercent(deposit?: string): number | null {
+  if (!deposit) return null;
+  const m = deposit.match(/(\d+(?:\.\d+)?)\s*%/);
+  if (!m) return null;
+  const n = parseFloat(m[1]);
+  return isFinite(n) && n > 0 && n < 100 ? n : null;
+}
+
+/** Parse a price string like "$549,900" or "549900" → number or null */
+function parsePriceNumber(price?: string): number | null {
+  if (!price) return null;
+  const cleaned = price.replace(/[^0-9.]/g, "");
+  if (!cleaned) return null;
+  const n = parseFloat(cleaned);
+  return isFinite(n) && n > 0 ? n : null;
+}
+
+/** Format integer dollar amount with commas, e.g. 30000 → "$30,000" */
+function formatDollars(n: number): string {
+  return "$" + Math.round(n).toLocaleString("en-US");
+}
+
+/**
+ * Compute down-payment + estimated monthly mortgage lines for a floor plan card.
+ * - Down payment = price × deposit%
+ * - Monthly = standard amortizing mortgage on (price − downPayment) at 5.5% / 30 yr
+ * If monthlyOverride is provided (user-typed), it replaces the calculated monthly line.
+ * Returns null/empty strings when inputs aren't sufficient.
+ */
+function calcPaymentLines(opts: {
+  price?: string;
+  deposit?: string;
+  monthlyOverride?: string;
+}): { downLine: string; monthlyLine: string } {
+  const priceNum = parsePriceNumber(opts.price);
+  const pct = parseDepositPercent(opts.deposit);
+  let downLine = "";
+  let monthlyLine = "";
+
+  if (priceNum && pct) {
+    const down = priceNum * (pct / 100);
+    downLine = `${pct}% Down: ${formatDollars(down)}`;
+    if (!opts.monthlyOverride) {
+      const principal = priceNum - down;
+      const annualRate = 0.055;
+      const r = annualRate / 12;
+      const n = 30 * 12;
+      const monthly = principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      if (isFinite(monthly) && monthly > 0) {
+        monthlyLine = `Est. ${formatDollars(monthly)}/mo`;
+      }
+    }
+  }
+  if (opts.monthlyOverride && opts.monthlyOverride.trim()) {
+    monthlyLine = opts.monthlyOverride.trim();
+  }
+  return { downLine, monthlyLine };
+
 /** Build bullet items from incentiveText (lines starting with ✦ or -) */
 function parseIncentives(text: string): string[] {
   if (!text) return [];
