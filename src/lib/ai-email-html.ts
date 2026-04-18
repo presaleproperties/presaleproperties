@@ -25,6 +25,7 @@ type StoredFloorPlan = {
   sqft?: string;
   price?: string;
   exclusive_credit?: string;
+  monthly_payment?: string;
 };
 
 type StoredImageCard = {
@@ -190,6 +191,7 @@ function buildAiFinalHtml({
         sqft: fp.sqft || "",
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
         exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
+        monthly_payment: fp.monthly_payment && fp.monthly_payment.trim() !== "" ? fp.monthly_payment.trim() : undefined,
       })),
       fpHeading,
       fpSubheading,

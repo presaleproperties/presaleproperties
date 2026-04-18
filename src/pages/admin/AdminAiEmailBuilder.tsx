@@ -50,7 +50,7 @@ const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
 };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface FloorPlanEntry { id: string; url: string; label: string; sqft: string; price?: string; exclusive_credit?: string }
+interface FloorPlanEntry { id: string; url: string; label: string; sqft: string; price?: string; exclusive_credit?: string; monthly_payment?: string }
 interface ImageCardEntry { id: string; url: string; caption: string }
 interface CampaignAsset {
   id: string; name: string; project_name: string;
@@ -188,6 +188,7 @@ function buildFinalHtml(
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
         exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
+        monthly_payment: fp.monthly_payment && fp.monthly_payment.trim() !== "" ? fp.monthly_payment.trim() : undefined,
       })),
       fpHeading,
       fpSubheading,
@@ -225,6 +226,7 @@ function buildFinalHtml(
         id: fp.id, url: fp.url, label: fp.label, sqft: fp.sqft,
         price: fp.price && fp.price.trim() !== "" ? fp.price.trim() : undefined,
         exclusive_credit: fp.exclusive_credit && fp.exclusive_credit.trim() !== "" ? fp.exclusive_credit.trim() : undefined,
+        monthly_payment: fp.monthly_payment && fp.monthly_payment.trim() !== "" ? fp.monthly_payment.trim() : undefined,
       })),
       fpHeading,
       fpSubheading,
@@ -2320,6 +2322,10 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         <div className="col-span-2">
                           <Label className="text-[9px]">Price</Label>
                           <Input value={fp.price ?? ""} onChange={e => updateFp(fp.id, "price", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="579,900" />
+                        </div>
+                        <div className="col-span-2">
+                          <Label className="text-[9px]">Monthly Payment <span className="text-muted-foreground/70">(optional, e.g. "$1,500/mo at 5% down")</span></Label>
+                          <Input value={fp.monthly_payment ?? ""} onChange={e => updateFp(fp.id, "monthly_payment", e.target.value)} className="h-6 text-[11px] mt-0.5" placeholder="$1,500/mo at 5% down" />
                         </div>
                       </div>
                     </div>
