@@ -319,6 +319,7 @@ function interestedCta(opts: {
   showInterestedCta?: boolean;
   interestedWhatsapp?: string;
   projectName?: string;
+  agentFirstName?: string;
   font: string;
   style?: "gold-fill" | "pill" | "outline";
 }): string {
@@ -326,7 +327,8 @@ function interestedCta(opts: {
   const rawNum = (opts.interestedWhatsapp || "16722581100").replace(/\D/g, "");
   if (!rawNum) return "";
   const project = opts.projectName?.trim() || "this project";
-  const message = `Hey there! I just got your email about ${project} — can you tell me more about this exclusive offer?`;
+  const greeting = opts.agentFirstName?.trim() ? `Hey ${opts.agentFirstName.trim()}!` : "Hey there!";
+  const message = `${greeting} I just got your email about ${project} — can you tell me more about this exclusive offer?`;
   const waUrl = `https://wa.me/${rawNum}?text=${encodeURIComponent(message)}`;
   const F = opts.font;
   const GREEN = "#25D366";
