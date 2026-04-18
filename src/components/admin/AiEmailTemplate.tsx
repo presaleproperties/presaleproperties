@@ -961,8 +961,18 @@ export function buildPitchDeckEmailHtml(
           <div style="padding:14px 18px 18px;text-align:left;">
             ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${BODY_FONT};font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
             ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${BODY_FONT};font-size:12px;color:#8aaa96;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
-            ${fp.price ? `<p style="margin:0;font-family:${DISPLAY_FONT};font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
-            ${fp.monthly_payment ? `<p style="margin:6px 0 0 0;font-family:${BODY_FONT};font-size:12px;font-weight:600;color:#8aaa96;">${fp.monthly_payment}</p>` : ""}
+            ${(() => {
+              const { downLine, monthlyLine } = calcPaymentLines({ price: fp.price, deposit: data.deposit, monthlyOverride: fp.monthly_payment });
+              const hasPayments = !!(downLine || monthlyLine);
+              if (!fp.price && !hasPayments) return "";
+              const priceCell = fp.price ? `<p style="margin:0;font-family:${DISPLAY_FONT};font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : "";
+              if (!hasPayments) return priceCell;
+              const paymentsCell = `${downLine ? `<p style="margin:0;font-family:${BODY_FONT};font-size:12px;font-weight:700;color:${ACCENT};line-height:1.4;">${downLine}</p>` : ""}${monthlyLine ? `<p style="margin:2px 0 0 0;font-family:${BODY_FONT};font-size:12px;font-weight:600;color:#8aaa96;line-height:1.4;">${monthlyLine}</p>` : ""}`;
+              return `<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+                <td valign="bottom" align="left" style="vertical-align:bottom;">${priceCell}</td>
+                <td valign="bottom" align="right" style="vertical-align:bottom;text-align:right;">${paymentsCell}</td>
+              </tr></table>`;
+            })()}
             ${creditBadgeHtml(fp.exclusive_credit, BODY_FONT)}
             ${deckLink ? `<p style="margin:8px 0 0 0;font-family:${BODY_FONT};font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${ACCENT};"><a href="${deckLink}" target="_blank" style="color:${ACCENT};text-decoration:none;">View Full Details →</a></p>` : ""}
           </div>
@@ -1387,8 +1397,18 @@ export function buildLululemonEmailHtml(
             <td style="padding:16px 20px 20px;border-top:1px solid #e8e2d6;">
               ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
               ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#8a7e6b;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
-              ${fp.price ? `<p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
-              ${fp.monthly_payment ? `<p style="margin:6px 0 0 0;font-family:${F};font-size:13px;font-weight:600;color:#8a7e6b;">${fp.monthly_payment}</p>` : ""}
+              ${(() => {
+                const { downLine, monthlyLine } = calcPaymentLines({ price: fp.price, deposit: data.deposit, monthlyOverride: fp.monthly_payment });
+                const hasPayments = !!(downLine || monthlyLine);
+                if (!fp.price && !hasPayments) return "";
+                const priceCell = fp.price ? `<p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : "";
+                if (!hasPayments) return priceCell;
+                const paymentsCell = `${downLine ? `<p style="margin:0;font-family:${F};font-size:12px;font-weight:700;color:${ACCENT};line-height:1.4;">${downLine}</p>` : ""}${monthlyLine ? `<p style="margin:2px 0 0 0;font-family:${F};font-size:12px;font-weight:600;color:#8a7e6b;line-height:1.4;">${monthlyLine}</p>` : ""}`;
+                return `<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+                  <td valign="bottom" align="left" style="vertical-align:bottom;">${priceCell}</td>
+                  <td valign="bottom" align="right" style="vertical-align:bottom;text-align:right;">${paymentsCell}</td>
+                </tr></table>`;
+              })()}
               ${creditBadgeHtml(fp.exclusive_credit, F)}
             </td>
           </tr>` : ""}
@@ -1790,8 +1810,18 @@ export function buildModernV2EmailHtml(
             <td style="padding:16px 20px 20px;border-top:1px solid #e8e2d6;">
               ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
               ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#8a7e6b;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
-              ${fp.price ? `<p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
-              ${fp.monthly_payment ? `<p style="margin:6px 0 0 0;font-family:${F};font-size:13px;font-weight:600;color:#8a7e6b;">${fp.monthly_payment}</p>` : ""}
+              ${(() => {
+                const { downLine, monthlyLine } = calcPaymentLines({ price: fp.price, deposit: data.deposit, monthlyOverride: fp.monthly_payment });
+                const hasPayments = !!(downLine || monthlyLine);
+                if (!fp.price && !hasPayments) return "";
+                const priceCell = fp.price ? `<p style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : "";
+                if (!hasPayments) return priceCell;
+                const paymentsCell = `${downLine ? `<p style="margin:0;font-family:${F};font-size:12px;font-weight:700;color:${ACCENT};line-height:1.4;">${downLine}</p>` : ""}${monthlyLine ? `<p style="margin:2px 0 0 0;font-family:${F};font-size:12px;font-weight:600;color:#8a7e6b;line-height:1.4;">${monthlyLine}</p>` : ""}`;
+                return `<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+                  <td valign="bottom" align="left" style="vertical-align:bottom;">${priceCell}</td>
+                  <td valign="bottom" align="right" style="vertical-align:bottom;text-align:right;">${paymentsCell}</td>
+                </tr></table>`;
+              })()}
               ${creditBadgeHtml(fp.exclusive_credit, F)}
             </td>
           </tr>` : ""}
@@ -2448,8 +2478,18 @@ export function buildPitchDeckEmailHtmlLofty(
             <td style="padding:14px 18px 18px;">
               ${fp.label ? `<p style="margin:0 0 4px 0;${F}font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
               ${fp.sqft  ? `<p style="margin:0 0 8px 0;${F}font-size:12px;color:#8aaa96;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
-              ${fp.price ? `<p style="margin:0 0 6px 0;${F}font-size:22px;font-weight:700;color:#ffffff;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
-              ${fp.monthly_payment ? `<p style="margin:0 0 10px 0;${F}font-size:12px;font-weight:600;color:#8aaa96;">${fp.monthly_payment}</p>` : ""}
+              ${(() => {
+                const { downLine, monthlyLine } = calcPaymentLines({ price: fp.price, deposit: data.deposit, monthlyOverride: fp.monthly_payment });
+                const hasPayments = !!(downLine || monthlyLine);
+                if (!fp.price && !hasPayments) return "";
+                const priceCell = fp.price ? `<p style="margin:0;${F}font-size:22px;font-weight:700;color:#ffffff;">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : "";
+                if (!hasPayments) return `${priceCell}<div style="height:10px;line-height:10px;font-size:0;">&nbsp;</div>`;
+                const paymentsCell = `${downLine ? `<p style="margin:0;${F}font-size:12px;font-weight:700;color:${ACCENT};line-height:1.4;">${downLine}</p>` : ""}${monthlyLine ? `<p style="margin:2px 0 0 0;${F}font-size:12px;font-weight:600;color:#8aaa96;line-height:1.4;">${monthlyLine}</p>` : ""}`;
+                return `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:10px;"><tr>
+                  <td valign="bottom" align="left" style="vertical-align:bottom;">${priceCell}</td>
+                  <td valign="bottom" align="right" style="vertical-align:bottom;text-align:right;">${paymentsCell}</td>
+                </tr></table>`;
+              })()}
               ${creditBadgeHtml(fp.exclusive_credit, F.replace(/font-family:/,"").replace(/;$/,""))}
               ${deckLink ? `<table cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:0;">
                 <a href="${deckLink}" target="_blank"
@@ -2759,8 +2799,18 @@ export function buildMailerLiteEmailHtml(
             <td style="padding:16px 20px 20px;border-top:1px solid #e8e2d6;">
               ${fp.label ? `<p style="margin:0 0 4px 0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${ACCENT};">${fp.label}</p>` : ""}
               ${fp.sqft  ? `<p style="margin:0 0 8px 0;font-family:${F};font-size:14px;color:#8a7e6b;">${fp.sqft}${(() => { const psf = calcPsf(fp.price, fp.sqft, fp.exclusive_credit); return psf ? ` · ${psf}/sqft` : ""; })()}</p>` : ""}
-              ${fp.price ? `<p class="fp-price" style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : ""}
-              ${fp.monthly_payment ? `<p style="margin:6px 0 0 0;font-family:${F};font-size:13px;font-weight:600;color:#8a7e6b;">${fp.monthly_payment}</p>` : ""}
+              ${(() => {
+                const { downLine, monthlyLine } = calcPaymentLines({ price: fp.price, deposit: data.deposit, monthlyOverride: fp.monthly_payment });
+                const hasPayments = !!(downLine || monthlyLine);
+                if (!fp.price && !hasPayments) return "";
+                const priceCell = fp.price ? `<p class="fp-price" style="margin:0;font-family:${F};font-size:26px;font-weight:800;color:${DARK};">${fp.price.startsWith("$") ? fp.price : "$" + fp.price}</p>` : "";
+                if (!hasPayments) return priceCell;
+                const paymentsCell = `${downLine ? `<p style="margin:0;font-family:${F};font-size:12px;font-weight:700;color:${ACCENT};line-height:1.4;">${downLine}</p>` : ""}${monthlyLine ? `<p style="margin:2px 0 0 0;font-family:${F};font-size:12px;font-weight:600;color:#8a7e6b;line-height:1.4;">${monthlyLine}</p>` : ""}`;
+                return `<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+                  <td valign="bottom" align="left" style="vertical-align:bottom;">${priceCell}</td>
+                  <td valign="bottom" align="right" style="vertical-align:bottom;text-align:right;">${paymentsCell}</td>
+                </tr></table>`;
+              })()}
               ${creditBadgeHtml(fp.exclusive_credit, F)}
             </td>
           </tr>` : ""}
