@@ -160,6 +160,7 @@ function calcPaymentLines(opts: {
     monthlyLine = opts.monthlyOverride.trim();
   }
   return { downLine, monthlyLine };
+}
 
 /** Build bullet items from incentiveText (lines starting with ✦ or -) */
 function parseIncentives(text: string): string[] {
