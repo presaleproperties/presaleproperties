@@ -111,13 +111,24 @@ function parseIncentives(text: string): string[] {
     .filter(Boolean);
 }
 
+/** Auto-highlight dollar amounts ($X, $X.XX, $X,XXX, $X,XXX.XX) in body copy.
+ *  Wraps matches in a bold gold accent span. Apply BEFORE bold/HTML substitutions
+ *  so it operates on raw user text only. */
+export function highlightPrices(text: string, accent: string = "#C9A55A"): string {
+  if (!text) return "";
+  // Match $ followed by digits with optional commas/decimals. Avoid trailing punctuation capture.
+  return text.replace(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?|\$\d+(?:\.\d+)?/g,
+    (m) => `<span style="font-weight:700;color:${accent};">${m}</span>`);
+}
+
 /** Convert \n-separated body copy paragraphs into HTML, rendering **bold** markers */
 function bodyToHtml(text: string): string {
   if (!text) return "";
   const paras = text.split("\n").filter(Boolean);
   return paras
     .map(p => {
-      const withBold = p.replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:600;color:#222222;">$1</strong>');
+      const withPrices = highlightPrices(p);
+      const withBold = withPrices.replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:600;color:#222222;">$1</strong>');
       return `<p style="margin:0 0 14px 0;font-family:'DM Sans',Arial,sans-serif;font-size:14px;color:#444444;line-height:1.75;">${withBold}</p>`;
     })
     .join("");
@@ -919,7 +930,7 @@ export function buildPitchDeckEmailHtml(
   // All rows go into a single wrapper table (no div wrappers that break in email clients).
   const bodyRows = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
     const isList = /^[✦•\-–]/.test(p.trim());
-    const content = p
+    const content = highlightPrices(p)
       .replace(/^[✦•\-–]\s*/, "")
       .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:600;color:#222222;">$1</strong>`)
       .replace(/\*/g, "");
@@ -1338,7 +1349,7 @@ export function buildLululemonEmailHtml(
     })
     .map(p => {
       const isList = /^[✦•\-–]/.test(p);
-      const html = p
+      const html = highlightPrices(p, ACCENT)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="font-family:${F};font-weight:700;color:${DARK};">$1</strong>`)
         .replace(/\*/g, "");
@@ -1741,7 +1752,7 @@ export function buildModernV2EmailHtml(
     })
     .map(p => {
       const isList = /^[✦•\-–]/.test(p);
-      const html = p
+      const html = highlightPrices(p, ACCENT)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="font-family:${F};font-weight:700;color:${DARK};">$1</strong>`)
         .replace(/\*/g, "");
@@ -1999,7 +2010,7 @@ export function buildEditorialEmailHtml(
       return true;
     })
     .map(p => {
-      const html = p
+      const html = highlightPrices(p, BROWN)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:700;color:${DARK};">$1</strong>`)
         .replace(/\*/g, "");
@@ -2286,7 +2297,7 @@ export function buildPitchDeckEmailHtmlLofty(
     })
     .map(p => {
       const isList = /^[✦•\-–]/.test(p);
-      const html = p
+      const html = highlightPrices(p, ACCENT)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="${F}font-weight:600;color:#222222;">$1</strong>`)
         .replace(/\*/g, "");
@@ -2710,7 +2721,7 @@ export function buildMailerLiteEmailHtml(
     })
     .map(p => {
       const isList = /^[✦•\-–]/.test(p);
-      const html = p
+      const html = highlightPrices(p, ACCENT)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="font-family:${F};font-weight:700;color:${DARK};">$1</strong>`)
         .replace(/\*/g, "");
