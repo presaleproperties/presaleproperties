@@ -384,6 +384,10 @@ function interestedCta(opts: {
   interestedWhatsapp?: string;
   projectName?: string;
   agentFirstName?: string;
+  /** Email subject line — included in the WhatsApp message so the agent knows which email the lead is replying to */
+  emailSubject?: string;
+  /** Starting price (e.g. "$369,900") — included so the agent sees what offer caught the lead's eye */
+  startingPrice?: string;
   font: string;
   style?: "gold-fill" | "pill" | "outline";
 }): string {
@@ -392,7 +396,9 @@ function interestedCta(opts: {
   if (!rawNum) return "";
   const project = opts.projectName?.trim() || "this project";
   const greeting = opts.agentFirstName?.trim() ? `Hey ${opts.agentFirstName.trim()}!` : "Hey there!";
-  const message = `${greeting} I just got your email about ${project} — can you tell me more about this exclusive offer?`;
+  const subjectLine = opts.emailSubject?.trim() ? `\n\n📧 Re: "${opts.emailSubject.trim()}"` : "";
+  const priceLine = opts.startingPrice?.trim() ? `\n💰 Starting at ${opts.startingPrice.trim()}` : "";
+  const message = `${greeting} I just got your email about ${project} — can you tell me more about this exclusive offer?${subjectLine}${priceLine}`;
   const waUrl = `https://wa.me/${rawNum}?text=${encodeURIComponent(message)}`;
   const F = opts.font;
   const GREEN = "#25D366";
