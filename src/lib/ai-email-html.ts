@@ -111,6 +111,8 @@ function buildAiFinalHtml({
   showBrochureCta,
   showViewMorePlansCta,
   showCallNowCta,
+  showInterestedCta,
+  interestedWhatsapp,
 }: {
   fields: AiEmailCopy;
   agent: AgentInfo;
@@ -132,6 +134,8 @@ function buildAiFinalHtml({
   showBrochureCta?: boolean;
   showViewMorePlansCta?: boolean;
   showCallNowCta?: boolean;
+  showInterestedCta?: boolean;
+  interestedWhatsapp?: string;
 }): string {
   if (layoutVersion === "editorial") {
     const slides = (loopSlides && loopSlides.length > 0)
@@ -157,10 +161,7 @@ function buildAiFinalHtml({
       floorplanUrl,
       loopSlides: slides,
       showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
-    }, agent);
-  }
-
-  if (layoutVersion === "modern") {
+      showInterestedCta, interestedWhatsapp,
     return buildLululemonEmailHtml({
       projectName: fields.projectName || "",
       city: fields.city,
@@ -189,10 +190,7 @@ function buildAiFinalHtml({
       fpHeading,
       fpSubheading,
       showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
-    }, agent);
-  }
-
-  const base = buildAiEmailHtml(fields, agent, ctaUrl, font, false);
+      showInterestedCta, interestedWhatsapp,
   const ACCENT = "#C9A55A";
   const DARK = "#0d1f18";
   const bodyFont = font?.body || "'DM Sans', Helvetica, Arial, sans-serif";
@@ -283,6 +281,8 @@ export function buildAiTemplateHtmlFromFormData(formData: any, agentOverride?: P
     showBrochureCta: formData?.showBrochureCta,
     showViewMorePlansCta: formData?.showViewMorePlansCta,
     showCallNowCta: formData?.showCallNowCta,
+    showInterestedCta: formData?.showInterestedCta,
+    interestedWhatsapp: formData?.interestedWhatsapp,
   });
 }
 
