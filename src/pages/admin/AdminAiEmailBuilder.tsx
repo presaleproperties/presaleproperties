@@ -1211,6 +1211,15 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const removeFp = (id: string) => setFloorPlans(prev => prev.filter(fp => fp.id !== id));
   const updateFp = (id: string, field: keyof FloorPlanEntry, val: string) =>
     setFloorPlans(prev => prev.map(fp => fp.id === id ? { ...fp, [field]: val } : fp));
+  const moveFp = (id: string, direction: -1 | 1) =>
+    setFloorPlans(prev => {
+      const idx = prev.findIndex(fp => fp.id === id);
+      const newIdx = idx + direction;
+      if (idx < 0 || newIdx < 0 || newIdx >= prev.length) return prev;
+      const next = [...prev];
+      [next[idx], next[newIdx]] = [next[newIdx], next[idx]];
+      return next;
+    });
 
   const handleImgCardUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []); if (!files.length) return;
@@ -2302,13 +2311,35 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                       {fpUploading ? "Uploading…" : `Upload floor plan${floorPlans.length === 1 ? " (1 more)" : "s"}`}
                     </button>
                   )}
-                  {floorPlans.map(fp => (
+                  {floorPlans.map((fp, fpIdx) => (
                     <div key={fp.id} className="mt-1.5 border border-border rounded-lg overflow-hidden bg-muted/20">
                       <div className="relative">
                         <img src={fp.url} alt="Floor plan" className="w-full h-24 object-contain bg-white" />
-                        <button onClick={() => removeFp(fp.id)} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
-                          <X className="h-3 w-3 text-white" />
-                        </button>
+                        <div className="absolute top-1 right-1 flex items-center gap-1">
+                          {floorPlans.length > 1 && (
+                            <>
+                              <button
+                                onClick={() => moveFp(fp.id, -1)}
+                                disabled={fpIdx === 0}
+                                title="Move up"
+                                className="h-5 w-5 bg-background/90 border border-border rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <ChevronUp className="h-3 w-3" />
+                              </button>
+                              <button
+                                onClick={() => moveFp(fp.id, 1)}
+                                disabled={fpIdx === floorPlans.length - 1}
+                                title="Move down"
+                                className="h-5 w-5 bg-background/90 border border-border rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <ChevronDown className="h-3 w-3" />
+                              </button>
+                            </>
+                          )}
+                          <button onClick={() => removeFp(fp.id)} title="Remove" className="h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
+                            <X className="h-3 w-3 text-white" />
+                          </button>
+                        </div>
                       </div>
                       <div className="p-2 grid grid-cols-2 gap-1.5">
                         <div>
