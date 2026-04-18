@@ -930,7 +930,7 @@ export function buildPitchDeckEmailHtml(
   // All rows go into a single wrapper table (no div wrappers that break in email clients).
   const bodyRows = (data.bodyCopy || "").split("\n").filter(Boolean).map(p => {
     const isList = /^[✦•\-–]/.test(p.trim());
-    const content = p
+    const content = highlightPrices(p)
       .replace(/^[✦•\-–]\s*/, "")
       .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:600;color:#222222;">$1</strong>`)
       .replace(/\*/g, "");
@@ -1349,7 +1349,7 @@ export function buildLululemonEmailHtml(
     })
     .map(p => {
       const isList = /^[✦•\-–]/.test(p);
-      const html = p
+      const html = highlightPrices(p, ACCENT)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="font-family:${F};font-weight:700;color:${DARK};">$1</strong>`)
         .replace(/\*/g, "");
@@ -1752,7 +1752,7 @@ export function buildModernV2EmailHtml(
     })
     .map(p => {
       const isList = /^[✦•\-–]/.test(p);
-      const html = p
+      const html = highlightPrices(p, ACCENT)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="font-family:${F};font-weight:700;color:${DARK};">$1</strong>`)
         .replace(/\*/g, "");
@@ -2010,7 +2010,7 @@ export function buildEditorialEmailHtml(
       return true;
     })
     .map(p => {
-      const html = p
+      const html = highlightPrices(p, ACCENT)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="font-weight:700;color:${DARK};">$1</strong>`)
         .replace(/\*/g, "");
@@ -2297,7 +2297,7 @@ export function buildPitchDeckEmailHtmlLofty(
     })
     .map(p => {
       const isList = /^[✦•\-–]/.test(p);
-      const html = p
+      const html = highlightPrices(p, ACCENT)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="${F}font-weight:600;color:#222222;">$1</strong>`)
         .replace(/\*/g, "");
@@ -2721,7 +2721,7 @@ export function buildMailerLiteEmailHtml(
     })
     .map(p => {
       const isList = /^[✦•\-–]/.test(p);
-      const html = p
+      const html = highlightPrices(p, ACCENT)
         .replace(/^[✦•\-–]\s*/, "")
         .replace(/\*\*(.+?)\*\*/g, `<strong style="font-family:${F};font-weight:700;color:${DARK};">$1</strong>`)
         .replace(/\*/g, "");
