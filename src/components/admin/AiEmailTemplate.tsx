@@ -1125,6 +1125,8 @@ export function buildPitchDeckEmailHtml(
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: BODY_FONT, accent: ACCENT, dark: DARK, style: "gold-fill" })}
 
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: BODY_FONT, style: "gold-fill" })}
+
   <!-- CALL NOW CTA — full-width button for mobile -->
   <tr>
     <td class="mobile-pad" style="background:#f7f5f1;padding:28px 36px 28px;">
@@ -1538,6 +1540,8 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
   ${projectDetailsCta({ projectUrl: data.projectUrl, projectName: data.projectName, developerName: data.developerName, font: F, accent: ACCENT, dark: DARK, showViewMorePlansCta: data.showViewMorePlansCta, style: "pill" })}
 
   ${bookShowingCta({ bookShowingUrl: data.bookShowingUrl, showBookShowingCta: data.showBookShowingCta, font: F, accent: ACCENT, dark: DARK, style: "pill" })}
+
+  ${interestedCta({ showInterestedCta: data.showInterestedCta, interestedWhatsapp: data.interestedWhatsapp, projectName: data.projectName, font: F, style: "pill" })}
 
   ${data.showCallNowCta !== false ? `
   <!-- ── SECONDARY CTA: CALL NOW ── -->
