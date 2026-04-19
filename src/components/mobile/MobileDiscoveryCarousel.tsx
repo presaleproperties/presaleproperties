@@ -118,7 +118,11 @@ export function MobileDiscoveryCarousel({
     if (type === "condos") return "/presale-projects?type=condo";
     if (type === "townhomes") return "/presale-projects?type=townhome";
     if (type === "single_family") return "/presale-projects?type=single_family";
-    if (cityFromType) return `/presale-projects?city=${encodeURIComponent(cityFromType)}`;
+    if (cityFromType) {
+      // Canonical SEO-friendly path instead of ?city= query string
+      const citySlug = cityFromType.toLowerCase().replace(/\s+/g, "-");
+      return `/presale-projects/${citySlug}/condos`;
+    }
     return "/presale-projects";
   };
   const seeAllLink = getSeeAllLink();

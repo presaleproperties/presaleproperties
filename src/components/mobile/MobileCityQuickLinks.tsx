@@ -106,7 +106,8 @@ export function MobileCityQuickLinks({ mode = "presale" }: MobileCityQuickLinksP
     if (mode === "presale") {
       navigate(`/presale-condos/${slug}`);
     } else {
-      navigate(`/resale?city=${city}`);
+      // Use canonical path-based URL instead of /resale?city= (avoids un-slugified query strings)
+      navigate(`/properties/${slug}`);
     }
   };
 
