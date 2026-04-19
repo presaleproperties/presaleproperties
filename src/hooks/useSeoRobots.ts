@@ -247,7 +247,8 @@ export function useSeoRobots(): SeoRobotsResult {
 export function getCityPresaleCanonical(city: string, type: "condos" | "townhomes" = "condos"): string {
   const normalized = city.toLowerCase().replace(/\s+/g, "-");
   const canonicalMap = type === "townhomes" ? CITY_TOWNHOME_CANONICAL_MAP : CITY_CANONICAL_MAP;
-  return canonicalMap[normalized] || `/presale-projects?city=${encodeURIComponent(city)}`;
+  // Always return a slugified path-based URL — never an un-encoded ?city= query string.
+  return canonicalMap[normalized] || `/presale-projects/${normalized}/${type}`;
 }
 
 /**

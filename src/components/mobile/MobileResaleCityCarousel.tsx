@@ -93,8 +93,8 @@ export function MobileResaleCityCarousel({ city, title }: MobileResaleCityCarous
         <h3 className="text-xl font-bold text-foreground">
           {title || city}
         </h3>
-        <Link 
-          to={`/resale?city=${encodeURIComponent(city)}`}
+        <Link
+          to={`/properties/${city.toLowerCase().replace(/\s+/g, "-")}`}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted transition-colors shrink-0"
         >
           View All

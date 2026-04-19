@@ -548,7 +548,7 @@ export default function ResaleListingDetail() {
             </li>
             <li><ChevronRight className="h-3.5 w-3.5 shrink-0" /></li>
             <li>
-              <Link to={`/resale?city=${listing.city}`} className="hover:text-foreground transition-colors shrink-0">
+              <Link to={`/properties/${listing.city.toLowerCase().replace(/\s+/g, "-")}`} className="hover:text-foreground transition-colors shrink-0">
                 {listing.city}
               </Link>
             </li>
@@ -609,7 +609,7 @@ export default function ResaleListingDetail() {
 
                 {/* City & Neighborhood - Inline */}
                 <p className="text-sm">
-                  <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
+                  <Link to={`/properties/${listing.city.toLowerCase().replace(/\s+/g, "-")}`} className="text-primary hover:underline font-medium">
                     {listing.city}
                   </Link>
                   {listing.neighborhood && <span className="text-muted-foreground">, {listing.neighborhood}</span>}
@@ -852,7 +852,7 @@ export default function ResaleListingDetail() {
               
               {/* City, Province, Postal • Neighborhood */}
               <div className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
-                <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
+                <Link to={`/properties/${listing.city.toLowerCase().replace(/\s+/g, "-")}`} className="text-primary hover:underline font-medium">
                   {listing.city}
                 </Link>
                 <span>, BC</span>

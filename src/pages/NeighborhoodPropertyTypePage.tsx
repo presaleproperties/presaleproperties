@@ -64,7 +64,10 @@ export default function NeighborhoodPropertyTypePage() {
 
   const city = formatCityName(citySlug || "");
   const neighborhood = formatNeighborhoodName(neighborhoodSlug || "");
-  const typeConfig = PROPERTY_TYPE_CONFIG[propertyType || "condos"] || PROPERTY_TYPE_CONFIG.condos;
+  // Default to "condos" everywhere so we never produce a literal "undefined"
+  // segment in canonicals or internal links (a Soft 404 source for Google).
+  const safePropertyType = propertyType || "condos";
+  const typeConfig = PROPERTY_TYPE_CONFIG[safePropertyType] || PROPERTY_TYPE_CONFIG.condos;
 
   // Fetch listings
   const { data: listings, isLoading } = useQuery({
@@ -92,13 +95,13 @@ export default function NeighborhoodPropertyTypePage() {
   // Page metadata
   const pageTitle = `New ${typeConfig.plural} in ${neighborhood}, ${city} | 2024-2026 Built`;
   const pageDescription = `Browse ${listings?.length || 0}+ brand new ${typeConfig.plural.toLowerCase()} for sale in ${neighborhood}, ${city}. All ${typeConfig.description} built 2024 or later. View prices, photos & floor plans.`;
-  const canonicalUrl = `https://presaleproperties.com/properties/${citySlug}/${neighborhoodSlug}/${propertyType}`;
+  const canonicalUrl = `https://presaleproperties.com/properties/${citySlug}/${neighborhoodSlug}/${safePropertyType}`;
 
   const breadcrumbs = [
     { label: "Home", href: "/" },
     { label: "New Construction", href: "/properties" },
     { label: city, href: `/properties/${citySlug}` },
-    { label: `New ${typeConfig.plural}`, href: `/properties/${citySlug}/${propertyType}` },
+    { label: `New ${typeConfig.plural}`, href: `/properties/${citySlug}/${safePropertyType}` },
     { label: neighborhood },
   ];
 
@@ -209,7 +212,7 @@ export default function NeighborhoodPropertyTypePage() {
               Try expanding your search to all of {city}.
             </p>
             <Link
-              to={`/resale/${citySlug}/${propertyType}`}
+              to={`/resale/${citySlug}/${safePropertyType}`}
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
             >
               View All {typeConfig.plural} in {city}
@@ -224,7 +227,7 @@ export default function NeighborhoodPropertyTypePage() {
           </h2>
           <div className="flex flex-wrap gap-2">
             <Link
-              to={`/resale/${citySlug}/${propertyType}`}
+              to={`/resale/${citySlug}/${safePropertyType}`}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
             >
               All {city}
@@ -232,7 +235,7 @@ export default function NeighborhoodPropertyTypePage() {
             {["Downtown", "City Centre", "Uptown", "West End", "East Side"].map((area) => (
               <Link
                 key={area}
-                to={`/resale/${citySlug}/${area.toLowerCase().replace(/\s+/g, "-")}/${propertyType}`}
+                to={`/resale/${citySlug}/${area.toLowerCase().replace(/\s+/g, "-")}/${safePropertyType}`}
                 className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-sm text-foreground transition-colors"
               >
                 {area}

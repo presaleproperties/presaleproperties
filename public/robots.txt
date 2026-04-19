@@ -115,3 +115,23 @@ Disallow: /assignments?*filter=
 
 # Sitemap
 Sitemap: https://presaleproperties.com/sitemap.xml
+
+# ============================================
+# LEGACY URLS (being redirected — block to save crawl budget)
+# ============================================
+Disallow: /areas/
+Disallow: /areas/*
+Disallow: /category/
+Disallow: /category/*
+# Legacy "{city}-{hood}-presale" / "{city}-presale-condos" patterns
+Disallow: /*-presale$
+Disallow: /presale-condos/
+Disallow: /presale-townhomes-*
+
+# Block any URL containing literal "undefined" (defensive — bug fix shipped)
+Disallow: /*/undefined
+Disallow: /*undefined*
+
+# Block un-slugified query strings with spaces (defensive)
+Disallow: /*?*city=*%20*
+Disallow: /*?*city=*+*
