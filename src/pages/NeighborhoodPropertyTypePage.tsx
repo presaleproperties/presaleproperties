@@ -212,7 +212,7 @@ export default function NeighborhoodPropertyTypePage() {
               Try expanding your search to all of {city}.
             </p>
             <Link
-              to={`/resale/${citySlug}/${propertyType}`}
+              to={`/resale/${citySlug}/${safePropertyType}`}
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
             >
               View All {typeConfig.plural} in {city}
@@ -227,7 +227,7 @@ export default function NeighborhoodPropertyTypePage() {
           </h2>
           <div className="flex flex-wrap gap-2">
             <Link
-              to={`/resale/${citySlug}/${propertyType}`}
+              to={`/resale/${citySlug}/${safePropertyType}`}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
             >
               All {city}
@@ -235,7 +235,7 @@ export default function NeighborhoodPropertyTypePage() {
             {["Downtown", "City Centre", "Uptown", "West End", "East Side"].map((area) => (
               <Link
                 key={area}
-                to={`/resale/${citySlug}/${area.toLowerCase().replace(/\s+/g, "-")}/${propertyType}`}
+                to={`/resale/${citySlug}/${area.toLowerCase().replace(/\s+/g, "-")}/${safePropertyType}`}
                 className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-sm text-foreground transition-colors"
               >
                 {area}
