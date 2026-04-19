@@ -64,7 +64,10 @@ export default function NeighborhoodPropertyTypePage() {
 
   const city = formatCityName(citySlug || "");
   const neighborhood = formatNeighborhoodName(neighborhoodSlug || "");
-  const typeConfig = PROPERTY_TYPE_CONFIG[propertyType || "condos"] || PROPERTY_TYPE_CONFIG.condos;
+  // Default to "condos" everywhere so we never produce a literal "undefined"
+  // segment in canonicals or internal links (a Soft 404 source for Google).
+  const safePropertyType = propertyType || "condos";
+  const typeConfig = PROPERTY_TYPE_CONFIG[safePropertyType] || PROPERTY_TYPE_CONFIG.condos;
 
   // Fetch listings
   const { data: listings, isLoading } = useQuery({

@@ -14,9 +14,12 @@
 const DOMAIN = "https://presaleproperties.com";
 
 /**
- * Slugify a string for URL use
+ * Slugify a string for URL use.
+ * Returns an empty string for null/undefined/non-string inputs to prevent
+ * "undefined" or "null" tokens leaking into URLs (a major SEO/crawl issue).
  */
-export const slugify = (text: string): string => {
+export const slugify = (text: string | null | undefined): string => {
+  if (typeof text !== 'string' || !text.trim()) return '';
   return text
     .toLowerCase()
     .replace(/['']/g, '') // Remove apostrophes
@@ -93,11 +96,20 @@ export const getCityPropertyTypeCanonicalUrl = (city: string, propertyType: stri
  * @example /properties/vancouver/downtown/condos
  */
 export const getNeighborhoodPropertyTypeUrl = (
-  city: string, 
-  neighborhood: string, 
+  city: string,
+  neighborhood: string,
   propertyType: string
 ): string => {
-  return `/properties/${slugify(city)}/${slugify(neighborhood)}/${slugify(propertyType)}`;
+  // Defensive: never emit a path segment of "undefined"/"null"/"" — collapse
+  // gracefully to the most-specific valid URL we can build.
+  const c = slugify(city);
+  const n = slugify(neighborhood);
+  const t = slugify(propertyType);
+  if (!c) return "/properties";
+  if (!n && !t) return `/properties/${c}`;
+  if (!n) return `/properties/${c}/${t}`;
+  if (!t) return `/properties/${c}/${n}`;
+  return `/properties/${c}/${n}/${t}`;
 };
 
 /**
