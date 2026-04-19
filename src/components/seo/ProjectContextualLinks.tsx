@@ -68,7 +68,7 @@ export function ProjectContextualLinks({
               </li>
               <li>
                 <Link 
-                  to={`/presale-projects?city=${encodeURIComponent(city)}`}
+                  to={`/presale-projects/${city.toLowerCase().replace(/\s+/g, "-")}/condos`}
                   className="text-foreground hover:text-primary transition-colors flex items-center gap-1.5 group"
                 >
                   <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
