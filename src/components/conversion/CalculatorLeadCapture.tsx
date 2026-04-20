@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,6 +70,7 @@ export function CalculatorLeadCapture({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [honeypot, setHoneypot] = useState("");
   const { submitLead } = useLeadSubmission();
+  const navigate = useNavigate();
   const config = CALCULATOR_CONFIG[calculatorData.calculatorType];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -161,6 +163,7 @@ export function CalculatorLeadCapture({
       setIsSubmitted(true);
       onSubmitSuccess?.();
       toast.success("Your report is on its way! Check your email.");
+      navigate("/thank-you?type=calculator");
     } catch (error) {
       console.error("Error submitting lead:", error);
       toast.error("Something went wrong. Please try again.");
