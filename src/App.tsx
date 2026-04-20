@@ -103,6 +103,7 @@ const AdminAiEmailBuilder = lazy(() => import("./pages/admin/AdminAiEmailBuilder
 const AdminMarketingHub = lazy(() => import("./pages/admin/AdminMarketingHub"));
 const AdminEmailCenter = lazy(() => import("./pages/admin/AdminEmailCenter"));
 const AdminEmailFlows = lazy(() => import("./pages/admin/AdminEmailFlows"));
+const AdminSystemEmails = lazy(() => import("./pages/admin/AdminSystemEmails"));
 
 const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -378,6 +379,7 @@ const App = () => (
             <Route path="/admin/email-workflows" element={<AdminProtectedRoute><AdminEmailWorkflows /></AdminProtectedRoute>} />
             <Route path="/admin/email-center" element={<AdminProtectedRoute><AdminEmailCenter /></AdminProtectedRoute>} />
             <Route path="/admin/email-flows" element={<AdminProtectedRoute><AdminEmailFlows /></AdminProtectedRoute>} />
+            <Route path="/admin/system-emails" element={<AdminProtectedRoute><AdminSystemEmails /></AdminProtectedRoute>} />
             {/* Unified Marketing Hub — replaces old email-builder-hub & campaign-hub */}
             <Route path="/admin/marketing-hub" element={<AdminProtectedRoute><AdminMarketingHub /></AdminProtectedRoute>} />
             <Route path="/admin/email-builder" element={<AdminProtectedRoute><AdminAiEmailBuilderKeyed /></AdminProtectedRoute>} />
