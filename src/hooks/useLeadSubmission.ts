@@ -23,6 +23,14 @@ export interface LeadSubmissionPayload {
   agentStatus?: string;
   /** If provided, also patches this project_leads row with tracking + score data */
   leadId?: string;
+  /** Tracking signals captured at submit time — used for Meta CAPI dedup
+   *  with the browser pixel and stored on project_leads for attribution. */
+  eventId?: string;
+  fbp?: string;
+  fbc?: string;
+  userAgent?: string;
+  /** Monetary value for ad bidding (CAD). */
+  value?: number;
 }
 
 export interface LeadSubmissionResult {
@@ -114,6 +122,12 @@ export function useLeadSubmission(): LeadSubmissionResult {
           session_count: tracking.sessionCount,
           used_calculator: tracking.usedCalculator,
           device_type: tracking.deviceType,
+          // Ad-attribution fields for Meta CAPI / Lofty
+          event_id: payload.eventId ?? null,
+          fbp: payload.fbp ?? null,
+          fbc: payload.fbc ?? null,
+          user_agent: payload.userAgent ?? null,
+          value: payload.value ?? null,
           tracking_data: JSON.parse(JSON.stringify({
             pagesVisited: tracking.pagesVisited,
             firstVisitDate: tracking.firstVisitDate,
@@ -126,7 +140,7 @@ export function useLeadSubmission(): LeadSubmissionResult {
             utmTerm: tracking.utmTerm,
             utmContent: tracking.utmContent,
           })),
-        }).eq("id", payload.leadId).then(({ error: patchErr }) => {
+        } as any).eq("id", payload.leadId).then(({ error: patchErr }) => {
           if (patchErr) console.warn("[useLeadSubmission] DB patch failed:", patchErr);
           else {
             console.log("[useLeadSubmission] DB row patched with tracking data");

@@ -105,6 +105,10 @@ export interface PushLeadInput {
   phone?: string;
   /** Override the default value mapping if needed. */
   value?: number;
+  /** Pre-generated event ID (UUID v4). When supplied, this exact ID is used
+   *  in the dataLayer push so the caller can pass the same ID to Meta CAPI
+   *  for browser/server event deduplication. */
+  eventID?: string;
 }
 
 /**
@@ -113,7 +117,7 @@ export interface PushLeadInput {
  */
 export async function pushLeadEvent(input: PushLeadInput): Promise<string> {
   const dl = ensureDataLayer();
-  const eventID = uuidv4();
+  const eventID = input.eventID ?? uuidv4();
 
   const emailNorm = normalizeEmail(input.email);
   const phoneNorm = normalizePhoneE164(input.phone);

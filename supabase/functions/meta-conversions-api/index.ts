@@ -84,6 +84,7 @@ const handler = async (req: Request): Promise<Response> => {
     const {
       event_name = "Lead",
       event_id,
+      lead_id,
       email,
       phone,
       first_name,
@@ -95,12 +96,16 @@ const handler = async (req: Request): Promise<Response> => {
       fbc,
       fbp,
       client_user_agent,
+      client_ip_address,
+      value,
+      currency,
     } = body;
 
     // Build hashed user data
     const userData: ConversionEvent["user_data"] = {
       client_user_agent: client_user_agent || req.headers.get("user-agent") || undefined,
       client_ip_address:
+        client_ip_address ||
         req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
         req.headers.get("cf-connecting-ip") ||
         undefined,
@@ -122,16 +127,18 @@ const handler = async (req: Request): Promise<Response> => {
       user_data: userData,
     };
 
-    // Merge legacy content_name/content_category with custom_data
+    // Merge legacy content_name/content_category + value/currency with custom_data
     const merged: Record<string, unknown> = { ...(custom_data || {}) };
     if (content_name && !merged.content_name) merged.content_name = content_name;
     if (content_category && !merged.content_category) merged.content_category = content_category;
+    if (value !== undefined && merged.value === undefined) merged.value = value;
+    if (currency && !merged.currency) merged.currency = currency;
     if (Object.keys(merged).length > 0) event.custom_data = merged;
 
     const payload: Record<string, unknown> = { data: [event] };
     if (testEventCode) payload.test_event_code = testEventCode;
 
-    console.log("Meta CAPI →", event_name, { event_id, fbc: !!fbc, fbp: !!fbp });
+    console.log("Meta CAPI →", event_name, { event_id, lead_id, fbc: !!fbc, fbp: !!fbp });
 
     const response = await fetch(
       `https://graph.facebook.com/v18.0/${pixelId}/events?access_token=${accessToken}`,
@@ -143,6 +150,18 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     const result = await response.json();
+
+    // Log every CAPI call to lead_sync_log for debugging (non-blocking)
+    supabase.from("lead_sync_log").insert({
+      lead_id: lead_id || null,
+      destination: "meta_capi",
+      status: response.ok ? "success" : "error",
+      status_code: response.status,
+      response: result,
+      error_message: response.ok ? null : (result?.error?.message ?? "Meta API error"),
+    }).then(({ error: logErr }) => {
+      if (logErr) console.warn("lead_sync_log insert failed:", logErr.message);
+    });
 
     if (!response.ok) {
       console.error("Meta CAPI error:", result);
