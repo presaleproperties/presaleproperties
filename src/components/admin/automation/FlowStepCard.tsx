@@ -4,10 +4,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { GripVertical, Trash2, Clock, Mail, MessageCircle, Phone, GitBranch, ChevronDown, ChevronRight } from "lucide-react";
+import { GripVertical, Trash2, Clock, Mail, MessageCircle, Phone, GitBranch, ChevronDown, ChevronRight, ExternalLink, Sparkles, FileText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import type { AutomationStep, StepType } from "@/hooks/useAutomationFlows";
 import { cn } from "@/lib/utils";
 import { EmailTemplatePicker } from "./EmailTemplatePicker";
+
+/** Build a destination URL to view/edit the template behind an email step. */
+function getTemplateEditHref(kind?: string, value?: string): string {
+  if (!value) return "/admin/email-builder-hub";
+  if (kind === "db" || value.startsWith("db:")) {
+    const id = value.replace(/^db:/, "");
+    return `/admin/email-templates?id=${id}`;
+  }
+  if (kind === "campaign" || value.startsWith("campaign:")) {
+    const id = value.replace(/^campaign:/, "");
+    return `/admin/email-builder-hub?template=${id}`;
+  }
+  // system templates live in edge functions — point to the system reference page
+  return `/admin/email-flows?system=${encodeURIComponent(value.replace(/^system:/, ""))}`;
+}
+
+function getTemplateIcon(kind?: string, value?: string) {
+  const k = kind || (value?.startsWith("campaign:") ? "campaign" : value?.startsWith("db:") ? "db" : "system");
+  if (k === "campaign") return { Icon: FileText, color: "text-amber-600" };
+  if (k === "db") return { Icon: Mail, color: "text-emerald-600" };
+  return { Icon: Sparkles, color: "text-blue-600" };
+}
+
+function getTemplateBadgeLabel(kind?: string, value?: string) {
+  const k = kind || (value?.startsWith("campaign:") ? "campaign" : value?.startsWith("db:") ? "db" : "system");
+  if (k === "campaign") return "Project";
+  if (k === "db") return "Saved";
+  return "Auto";
+}
 
 const STEP_META: Record<StepType, { icon: any; color: string; bg: string }> = {
   delay: { icon: Clock, color: "text-amber-600", bg: "bg-amber-50 border-amber-200" },
