@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { GripVertical, Trash2, Clock, Mail, MessageCircle, Phone, GitBranch, ChevronDown, ChevronRight } from "lucide-react";
 import type { AutomationStep, StepType } from "@/hooks/useAutomationFlows";
 import { cn } from "@/lib/utils";
+import { EmailTemplatePicker } from "./EmailTemplatePicker";
 
 const STEP_META: Record<StepType, { icon: any; color: string; bg: string }> = {
   delay: { icon: Clock, color: "text-amber-600", bg: "bg-amber-50 border-amber-200" },
@@ -156,20 +157,23 @@ export function FlowStepCard({
                 <div className="space-y-2">
                   <div>
                     <label className="text-xs font-medium text-muted-foreground mb-1 block">Template</label>
-                    <Select
-                      value={step.config?.template || "auto_response"}
-                      onValueChange={(v) => onUpdate(step.id, { config: { ...step.config, template: v } })}
-                    >
-                      <SelectTrigger className="h-9 text-sm bg-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="auto_response">Auto-Response (Template A/B)</SelectItem>
-                        <SelectItem value="follow_up_1">Follow-Up #1</SelectItem>
-                        <SelectItem value="follow_up_2">Follow-Up #2</SelectItem>
-                        <SelectItem value="custom">Custom Template</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <EmailTemplatePicker
+                      value={step.config?.template || "system:auto_response_a"}
+                      onChange={(v, opt) =>
+                        onUpdate(step.id, {
+                          config: {
+                            ...step.config,
+                            template: v,
+                            template_kind: opt.group, // 'system' | 'db' | 'campaign'
+                            template_name: opt.label,
+                            label: step.config?.label || opt.label,
+                          },
+                        })
+                      }
+                    />
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Choose from system auto-emails or any saved project template.
+                    </p>
                   </div>
                   <div>
                     <label className="text-xs font-medium text-muted-foreground mb-1 block">Label</label>
