@@ -56,6 +56,133 @@ const DEFAULT_AGENT: AgentData = {
   email: "info@presaleproperties.com",
 };
 
+// Internal-copy agent (Zara). Internal notifications to info@ are signed by Zara
+// so the team can quickly forward to the right outside agent for follow-up.
+const ZARA_AGENT: AgentData = {
+  full_name: "Zara Malik",
+  title: "Operations & Partnerships Manager",
+  photo_url: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/zara-malik-headshot.png",
+  phone: "(672) 258-1100",
+  email: "info@presaleproperties.com",
+};
+
+const INTERNAL_RECIPIENT = "info@presaleproperties.com";
+
+interface LeadInfo {
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  lead_source?: string | null;
+  persona?: string | null;
+  agent_status?: string | null;
+}
+
+function internalLeadBanner(lead: LeadInfo, projectName?: string): string {
+  const rows: { label: string; value: string }[] = [];
+  if (lead.name) rows.push({ label: "Name", value: lead.name });
+  if (lead.email) rows.push({ label: "Email", value: lead.email });
+  if (lead.phone) rows.push({ label: "Phone", value: lead.phone });
+  if (lead.lead_source) rows.push({ label: "Source", value: lead.lead_source.replace(/_/g, " ") });
+  if (lead.persona) rows.push({ label: "Persona", value: lead.persona });
+  if (lead.agent_status) rows.push({ label: "Agent Status", value: lead.agent_status.replace(/_/g, " ") });
+  if (projectName) rows.push({ label: "Project", value: projectName });
+
+  return `<tr><td style="padding:0;background:#fff8e6;border-bottom:2px solid ${ACCENT};">
+<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td class="content-pad" style="padding:20px 40px;">
+<p style="margin:0 0 10px 0;font-family:${F};font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${ACCENT};">🔔 INTERNAL — NEW LEAD · FORWARD TO AGENT</p>
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-family:${F};font-size:13px;color:${DARK};">
+${rows.map(r => `<tr><td style="padding:3px 0;width:110px;color:#777;font-weight:600;">${r.label}:</td><td style="padding:3px 0;font-weight:600;">${r.value}</td></tr>`).join("")}
+</table>
+</td></tr></table>
+</td></tr>`;
+}
+
+/**
+ * Build an internal copy of an outbound email by prepending a lead-context banner
+ * and re-rendering the agent card as Zara. Returns the same HTML shell with
+ * a banner at the top and Zara's signature replacing the customer-facing agent.
+ */
+function buildInternalCopy(originalHtml: string, lead: LeadInfo, projectName: string | undefined, customerAgent: AgentData): string {
+  // Inject the banner immediately after the opening container table row.
+  const banner = internalLeadBanner(lead, projectName);
+  let html = originalHtml.replace(
+    /(<table[^>]*class="email-container"[^>]*>)/,
+    `$1${banner}`
+  );
+
+  // Swap the customer-facing agent block for Zara's by replacing the agent card.
+  // We rebuild it cleanly using the same agentCard() helper.
+  // Strategy: find the gold accent strip + agent card section and replace with Zara's card.
+  // Identify via the unique agent name string.
+  if (customerAgent.full_name && html.includes(customerAgent.full_name)) {
+    html = html.split(customerAgent.full_name).join(ZARA_AGENT.full_name);
+  }
+  if (customerAgent.title && html.includes(customerAgent.title)) {
+    html = html.split(customerAgent.title).join(ZARA_AGENT.title);
+  }
+  if (customerAgent.phone && html.includes(customerAgent.phone)) {
+    html = html.split(customerAgent.phone).join(ZARA_AGENT.phone);
+  }
+  if (customerAgent.photo_url && html.includes(customerAgent.photo_url)) {
+    html = html.split(customerAgent.photo_url).join(ZARA_AGENT.photo_url || "");
+  }
+  // Replace the "Talk soon, Uzair" sign-off if present
+  html = html.replace(/<strong style="font-weight:700;color:#111111;">Uzair<\/strong>/g, `<strong style="font-weight:700;color:${DARK};">Zara</strong>`);
+
+  return html;
+}
+
+async function sendInternalCopy(params: {
+  supabase: any;
+  supabaseUrl: string;
+  originalHtml: string;
+  originalSubject: string;
+  lead: LeadInfo & { id: string };
+  projectName?: string;
+  customerAgent: AgentData;
+  templateType: string;
+}): Promise<void> {
+  try {
+    const internalHtml = buildInternalCopy(params.originalHtml, params.lead, params.projectName, params.customerAgent);
+    const internalSubject = `[Lead] ${params.lead.name || "New lead"} — ${params.projectName || params.originalSubject}`;
+
+    const trackingId = crypto.randomUUID();
+    const trackingPixelUrl = `${params.supabaseUrl}/functions/v1/track-email-open?tid=${trackingId}`;
+    const htmlWithPixel = internalHtml.replace(
+      "</body>",
+      `<img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;width:1px;height:1px;border:0;" /></body>`,
+    );
+
+    const result = await sendEmail({
+      to: INTERNAL_RECIPIENT,
+      subject: internalSubject,
+      html: htmlWithPixel,
+      fromName: "Zara Malik | Presale Properties",
+      replyTo: params.lead.email || undefined,
+      skipAdminBcc: true,
+    });
+
+    await params.supabase.from("email_logs").insert({
+      email_to: INTERNAL_RECIPIENT,
+      recipient_name: "Zara Malik (Internal)",
+      subject: internalSubject,
+      status: result.success ? "sent" : "failed",
+      error_message: result.success ? null : result.error,
+      template_type: `internal_${params.templateType}`,
+      lead_id: params.lead.id,
+      tracking_id: trackingId,
+    });
+
+    if (!result.success) {
+      console.error("[send-lead-autoresponse] Internal copy failed:", result.error);
+    } else {
+      console.log(`[send-lead-autoresponse] Internal Zara copy sent to ${INTERNAL_RECIPIENT}`);
+    }
+  } catch (e) {
+    console.error("[send-lead-autoresponse] Internal copy error:", e);
+  }
+}
+
 function emailShell(content: string, previewText?: string, subjectLine?: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -397,6 +524,19 @@ Deno.serve(async (req) => {
       }
 
       console.log(`[send-lead-autoresponse] Sent lead-magnet guide to ${lead.email}`);
+
+      // Internal copy to info@ from Zara — for forwarding to the right agent.
+      await sendInternalCopy({
+        supabase,
+        supabaseUrl,
+        originalHtml: html,
+        originalSubject: subjectLine,
+        lead: { ...lead, id: lead.id },
+        projectName: "7 Costly Mistakes Guide",
+        customerAgent: DEFAULT_AGENT,
+        templateType: "lead_magnet_guide",
+      });
+
       return new Response(
         JSON.stringify({ success: true, template: "lead_magnet_guide", recipient: lead.email }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -513,6 +653,18 @@ Deno.serve(async (req) => {
     });
 
     console.log(`[send-lead-autoresponse] Sent ${templateType} email to ${lead.email} for ${project.name}`);
+
+    // Internal copy to info@ from Zara — for forwarding to the right agent.
+    await sendInternalCopy({
+      supabase,
+      supabaseUrl,
+      originalHtml: html,
+      originalSubject: subjectLine,
+      lead: { ...lead, id: lead.id },
+      projectName: project.name,
+      customerAgent: agent,
+      templateType,
+    });
 
     return new Response(
       JSON.stringify({ success: true, template: templateType, recipient: lead.email }),
