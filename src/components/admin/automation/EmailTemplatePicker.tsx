@@ -16,15 +16,26 @@ export interface TemplateOption {
   badge?: string;
 }
 
-/** Built-in auto-email templates fired by edge functions (send-lead-autoresponse etc.) */
+/**
+ * Built-in auto-email templates fired by edge functions.
+ * Keys map to actual templateType values used inside send-lead-autoresponse,
+ * send-booking-notification, send-buyer-welcome, etc.
+ */
 const SYSTEM_TEMPLATES: TemplateOption[] = [
-  { value: "system:auto_response_a", label: "Auto-Response · Template A (Has Agent)", description: "Sent to leads who already have a buyer's agent", group: "system", badge: "Auto" },
-  { value: "system:auto_response_b", label: "Auto-Response · Template B (No Agent)", description: "Sent to leads without an agent — pitches our team", group: "system", badge: "Auto" },
-  { value: "system:follow_up_1", label: "Follow-Up #1 · Day 2", description: "Soft check-in two days after initial inquiry", group: "system", badge: "Auto" },
-  { value: "system:follow_up_2", label: "Follow-Up #2 · Day 5", description: "Value-add follow-up with additional resources", group: "system", badge: "Auto" },
-  { value: "system:follow_up_3", label: "Follow-Up #3 · Day 10", description: "Final nudge before marking as cold", group: "system", badge: "Auto" },
-  { value: "system:pitch_deck_unlock", label: "Pitch Deck Unlock", description: "Sent when a lead unlocks a pitch deck", group: "system", badge: "Auto" },
-  { value: "system:booking_confirmation", label: "Booking Confirmation", description: "Sent after a consultation is booked", group: "system", badge: "Auto" },
+  // send-lead-autoresponse — branching by lead persona
+  { value: "system:auto_response_a", label: "Project Inquiry · Has Agent (Template A)", description: "Lead already has a buyer's agent — sends floor plans & details", group: "system", badge: "Auto" },
+  { value: "system:auto_response_b", label: "Project Inquiry · No Agent (Template B)", description: "Lead has no agent — pitches our team, 'we'll be in touch shortly'", group: "system", badge: "Auto" },
+  // Lead magnet
+  { value: "system:lead_magnet_guide", label: "7 Costly Mistakes Guide Delivery", description: "Sent on exit-intent popup, 7 Mistakes form, or newsletter signup w/o project", group: "system", badge: "Lead Magnet" },
+  // Other transactional triggers (DB-backed but invoked automatically)
+  { value: "system:booking_confirmation", label: "Booking Confirmation", description: "Sent after a consultation/showing is booked", group: "system", badge: "Auto" },
+  { value: "system:buyer_welcome", label: "Buyer Welcome Email", description: "Sent when a new buyer account is created", group: "system", badge: "Auto" },
+  { value: "system:buyer_welcome_premium", label: "Premium Buyer Welcome", description: "Welcome email for VIP / premium buyers", group: "system", badge: "Auto" },
+  { value: "system:project_welcome", label: "Project Welcome Email", description: "Generic project signup welcome", group: "system", badge: "Auto" },
+  { value: "system:project_info_package", label: "Project Info Package", description: "Delivers the requested project information package", group: "system", badge: "Auto" },
+  { value: "system:buyer_recommendations", label: "Property Recommendations", description: "Tailored property matches based on buyer preferences", group: "system", badge: "Auto" },
+  { value: "system:agent_welcome", label: "Agent Welcome Email", description: "Sent when a new agent account is approved", group: "system", badge: "Auto" },
+  { value: "system:agent_request_received", label: "Agent Request Received", description: "Confirmation of a new agent inquiry/request", group: "system", badge: "Auto" },
 ];
 
 interface EmailTemplatePickerProps {
