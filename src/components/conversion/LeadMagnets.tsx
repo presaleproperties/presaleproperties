@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { trackFormStart, trackFormSubmit, getVisitorId } from "@/lib/tracking";
+import { trackFormStart, trackFormSubmit, getVisitorId, pushLeadEvent } from "@/lib/tracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { upsertProjectLead } from "@/lib/upsertProjectLead";
 import { useLeadSubmission } from "@/hooks/useLeadSubmission";
@@ -166,6 +166,14 @@ export function VIPNotifyButton({ projectName }: LeadMagnetProps) {
 
       trackFormSubmit({ form_name: "vip_notify", form_location: "project_detail", email, project_name: projectName });
       MetaEvents.lead({ content_name: projectName, content_category: "vip_notify" });
+
+      // GTM dataLayer — standardized lead event for GA4/Meta/Ads/TikTok via GTM
+      pushLeadEvent({
+        lead_type: "vip_signup",
+        project_name: projectName,
+        lead_source: "vip_notify",
+        email,
+      }).catch(console.error);
 
       setOpen(false);
       toast({ title: "You're on the VIP list!", description: "We'll notify you before public sales." });

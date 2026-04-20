@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 import { trackCTAClick } from "@/hooks/useLoftyTracking";
-import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId } from "@/lib/tracking";
+import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId, pushLeadEvent } from "@/lib/tracking";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useLeadSubmission } from "@/hooks/useLeadSubmission";
@@ -164,6 +164,18 @@ export function ProjectLeadForm({
       (window as any).fbq?.("track", "Lead", { content_name: projectName, content_category: actualPersona });
 
       MetaEvents.lead({ content_name: projectName, content_category: actualPersona });
+
+      // GTM dataLayer — standardized lead event for GA4/Meta/Ads/TikTok via GTM
+      pushLeadEvent({
+        lead_type: "project_inquiry",
+        project_name: projectName,
+        project_slug: typeof window !== "undefined" ? window.location.pathname.replace(/^\//, "") : undefined,
+        persona: isRealtor ? "realtor" : undefined,
+        cities: cityInterest && cityInterest.length ? (cityInterest as string[]) : undefined,
+        lead_source: leadSource,
+        email: data.email,
+        phone: data.phone,
+      }).catch(console.error);
 
       setSubmitted(true);
     } catch (err: any) {
