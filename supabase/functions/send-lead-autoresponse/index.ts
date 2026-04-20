@@ -177,6 +177,53 @@ ${docs.map(d => `<table cellpadding="0" cellspacing="0" border="0" width="100%" 
 </td></tr>`;
 }
 
+function buildLeadMagnetEmail(firstName: string, pdfUrl: string, agent: AgentData): string {
+  const subjectLine = "Your Free Guide: 7 Costly Mistakes Presale Buyers Make";
+  const safePdfUrl = pdfUrl || "https://presaleproperties.com/resources/7-mistakes-guide";
+  const ctaLabel = pdfUrl ? "DOWNLOAD YOUR GUIDE (PDF)" : "READ YOUR GUIDE";
+
+  const body = `
+<tr><td class="content-pad" style="padding:48px 40px 24px;background:#ffffff;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr><td style="padding:0 0 8px 0;">
+      <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">YOUR FREE GUIDE</p>
+    </td></tr>
+    <tr><td style="padding:0 0 24px 0;">
+      <p style="margin:0;font-family:${F};font-size:30px;font-weight:800;color:${DARK};line-height:1.15;letter-spacing:-0.8px;">7 Costly Mistakes Presale Buyers Make</p>
+    </td></tr>
+    <tr><td style="padding:0 0 18px 0;">
+      <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Hi ${firstName},</p>
+    </td></tr>
+    <tr><td style="padding:0 0 18px 0;">
+      <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Thanks for grabbing the guide. I put this together because I see the same mistakes <strong style="font-weight:700;color:${DARK};">cost buyers tens of thousands of dollars</strong> on presale purchases in Metro Vancouver every year &mdash; mistakes that are completely avoidable when you know what to look for.</p>
+    </td></tr>
+    <tr><td style="padding:0 0 28px 0;">
+      <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Inside you'll learn how to <strong style="font-weight:700;color:${DARK};">read assignment clauses</strong>, what really happens between deposit and completion, and the questions every buyer should ask <strong style="font-weight:700;color:${DARK};">before</strong> signing.</p>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td class="content-pad" style="padding:0 40px 32px;background:#ffffff;">
+  <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+    <td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
+      <a href="${safePdfUrl}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">${ctaLabel}</a>
+    </td>
+  </tr></table>
+</td></tr>
+<tr><td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr><td style="padding:0 0 14px 0;border-top:1px solid #e8e2d6;padding-top:28px;">
+      <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Once you've had a read, I'd love to hear what stood out. If you have a project in mind &mdash; or you're not sure where to start &mdash; just reply to this email or text me directly. I'll point you in the right direction with no pressure.</p>
+    </td></tr>
+    <tr><td style="padding:0;">
+      <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Talk soon,<br/><strong style="font-weight:700;color:${DARK};">Uzair</strong></p>
+    </td></tr>
+  </table>
+</td></tr>
+${agentCard(agent, undefined)}`;
+
+  return emailShell(body, "Your Free Guide: 7 Costly Mistakes Presale Buyers Make", subjectLine);
+}
+
 function buildTemplateA(project: ProjectData, firstName: string, agent: AgentData): string {
   const subjectLine = `${project.name} — Your Requested Floor Plans & Details`;
 
@@ -286,6 +333,74 @@ Deno.serve(async (req) => {
 
     // Determine project ID
     const pid = projectId || lead.project_id;
+
+    // ── LEAD-MAGNET BRANCH ─────────────────────────────────────────────────
+    // No project linked? If this lead came from a lead-magnet form (exit intent,
+    // 7 mistakes guide, newsletter, etc.), send the guide-delivery email.
+    const LEAD_MAGNET_SOURCES = new Set([
+      "exit_intent_guide",
+      "exit_intent",
+      "7_mistakes_guide",
+      "mistakes_guide",
+      "lead_magnet",
+      "newsletter",
+    ]);
+    const isLeadMagnet = !pid && lead.lead_source && LEAD_MAGNET_SOURCES.has(lead.lead_source.toLowerCase());
+
+    if (isLeadMagnet) {
+      // Look up the PDF URL from app_settings
+      const { data: pdfSetting } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "exit_intent_pdf_url")
+        .maybeSingle();
+      const rawPdf = pdfSetting?.value;
+      const pdfUrl = typeof rawPdf === "string" ? rawPdf.replace(/^"|"$/g, "") : "";
+
+      const firstNameLM = lead.name?.split(" ")[0] || "there";
+      const subjectLine = "Your Free Guide: 7 Costly Mistakes Presale Buyers Make";
+      const html = buildLeadMagnetEmail(firstNameLM, pdfUrl, DEFAULT_AGENT);
+
+      const trackingId = crypto.randomUUID();
+      const trackingPixelUrl = `${supabaseUrl}/functions/v1/track-email-open?tid=${trackingId}`;
+      const htmlWithPixel = html.replace(
+        "</body>",
+        `<img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;width:1px;height:1px;border:0;" /></body>`,
+      );
+
+      const result = await sendEmail({
+        to: lead.email,
+        subject: subjectLine,
+        html: htmlWithPixel,
+        fromName: "Uzair Muhammad | Presale Properties",
+      });
+
+      await supabase.from("email_logs").insert({
+        email_to: lead.email,
+        recipient_name: lead.name,
+        subject: subjectLine,
+        status: result.success ? "sent" : "failed",
+        error_message: result.success ? null : result.error,
+        template_type: "auto_lead_magnet_guide",
+        lead_id: lead.id,
+        tracking_id: trackingId,
+      });
+
+      if (!result.success) {
+        console.error("[send-lead-autoresponse] Lead magnet email failed:", result.error);
+        return new Response(JSON.stringify({ error: result.error }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      console.log(`[send-lead-autoresponse] Sent lead-magnet guide to ${lead.email}`);
+      return new Response(
+        JSON.stringify({ success: true, template: "lead_magnet_guide", recipient: lead.email }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     if (!pid) {
       console.log("[send-lead-autoresponse] No project_id, skipping");
       return new Response(JSON.stringify({ success: true, skipped: true, reason: "no_project" }), {
