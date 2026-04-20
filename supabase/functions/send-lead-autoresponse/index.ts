@@ -654,6 +654,18 @@ Deno.serve(async (req) => {
 
     console.log(`[send-lead-autoresponse] Sent ${templateType} email to ${lead.email} for ${project.name}`);
 
+    // Internal copy to info@ from Zara — for forwarding to the right agent.
+    await sendInternalCopy({
+      supabase,
+      supabaseUrl,
+      originalHtml: html,
+      originalSubject: subjectLine,
+      lead: { ...lead, id: lead.id },
+      projectName: project.name,
+      customerAgent: agent,
+      templateType,
+    });
+
     return new Response(
       JSON.stringify({ success: true, template: templateType, recipient: lead.email }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
