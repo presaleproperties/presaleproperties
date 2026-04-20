@@ -159,7 +159,8 @@ async function sendInternalCopy(params: {
       html: htmlWithPixel,
       fromName: "Zara Malik | Presale Properties",
       replyTo: params.lead.email || undefined,
-    } as any);
+      skipAdminBcc: true,
+    });
 
     await params.supabase.from("email_logs").insert({
       email_to: INTERNAL_RECIPIENT,
