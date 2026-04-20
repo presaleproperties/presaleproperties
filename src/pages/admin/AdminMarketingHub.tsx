@@ -180,7 +180,7 @@ export default function AdminMarketingHub() {
             {/* Saved work */}
             <section>
               <div className="flex items-center justify-between mb-4">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Saved Work</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Email Templates</p>
                 <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
                   {(["emails", "flyers", "social"] as const).map(tab => (
                     <button
