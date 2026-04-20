@@ -1535,6 +1535,7 @@ export function buildLululemonEmailHtml(
     u+#body .email-container{width:100%!important;min-width:100%!important;}
     u+#body{min-width:100vw!important;}
     div[style*="margin: 16px 0"]{margin:0!important;}
+    ${slideshowCss}
     @media only screen and (max-width:620px){
       /* True edge-to-edge on iPhone */
       .email-container{width:100%!important;max-width:100%!important;min-width:100%!important;border:none!important;border-radius:0!important;}
