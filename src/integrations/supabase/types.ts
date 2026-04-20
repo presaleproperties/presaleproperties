@@ -1477,6 +1477,39 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_sync_log: {
+        Row: {
+          created_at: string
+          destination: string
+          error_message: string | null
+          id: string
+          lead_id: string | null
+          response: Json | null
+          status: string
+          status_code: number | null
+        }
+        Insert: {
+          created_at?: string
+          destination: string
+          error_message?: string | null
+          id?: string
+          lead_id?: string | null
+          response?: Json | null
+          status: string
+          status_code?: number | null
+        }
+        Update: {
+          created_at?: string
+          destination?: string
+          error_message?: string | null
+          id?: string
+          lead_id?: string | null
+          response?: Json | null
+          status?: string
+          status_code?: number | null
+        }
+        Relationships: []
+      }
       listings: {
         Row: {
           address: string | null
@@ -3077,10 +3110,14 @@ export type Database = {
           device_type: string | null
           drip_sequence: string | null
           email: string
+          event_id: string | null
+          fbc: string | null
+          fbp: string | null
           form_type: string | null
           home_size: string | null
           id: string
           intent_score: number | null
+          ip_address: string | null
           landing_page: string | null
           last_drip_sent: number | null
           lead_score: number | null
@@ -3105,11 +3142,13 @@ export type Database = {
           timeline: string | null
           tracking_data: Json | null
           used_calculator: boolean | null
+          user_agent: string | null
           utm_campaign: string | null
           utm_content: string | null
           utm_medium: string | null
           utm_source: string | null
           utm_term: string | null
+          value: number | null
           visitor_id: string | null
         }
         Insert: {
@@ -3123,10 +3162,14 @@ export type Database = {
           device_type?: string | null
           drip_sequence?: string | null
           email: string
+          event_id?: string | null
+          fbc?: string | null
+          fbp?: string | null
           form_type?: string | null
           home_size?: string | null
           id?: string
           intent_score?: number | null
+          ip_address?: string | null
           landing_page?: string | null
           last_drip_sent?: number | null
           lead_score?: number | null
@@ -3151,11 +3194,13 @@ export type Database = {
           timeline?: string | null
           tracking_data?: Json | null
           used_calculator?: boolean | null
+          user_agent?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
           utm_source?: string | null
           utm_term?: string | null
+          value?: number | null
           visitor_id?: string | null
         }
         Update: {
@@ -3169,10 +3214,14 @@ export type Database = {
           device_type?: string | null
           drip_sequence?: string | null
           email?: string
+          event_id?: string | null
+          fbc?: string | null
+          fbp?: string | null
           form_type?: string | null
           home_size?: string | null
           id?: string
           intent_score?: number | null
+          ip_address?: string | null
           landing_page?: string | null
           last_drip_sent?: number | null
           lead_score?: number | null
@@ -3197,11 +3246,13 @@ export type Database = {
           timeline?: string | null
           tracking_data?: Json | null
           used_calculator?: boolean | null
+          user_agent?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
           utm_source?: string | null
           utm_term?: string | null
+          value?: number | null
           visitor_id?: string | null
         }
         Relationships: [
