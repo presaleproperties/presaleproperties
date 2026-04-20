@@ -216,7 +216,7 @@ export function PresaleExpertsSection() {
                 <span className="text-sm text-background/60 font-medium">5.0 Google Rating</span>
               </div>
 
-              <Button asChild variant="outline" className="border-background/30 text-background hover:bg-background/10 hover:text-background mt-1">
+              <Button asChild variant="outline" className="border-background/30 bg-transparent text-background hover:bg-background/10 hover:text-background hover:border-background/50 mt-1">
                 <Link to="/about" className="flex items-center gap-2">
                   Meet The Team <ArrowRight className="h-4 w-4" />
                 </Link>
