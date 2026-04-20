@@ -104,6 +104,8 @@ const navSections = [
     label: "Insights",
     items: [
       { href: "/admin/paid-ads",         label: "Paid Ads & Tracking", icon: Target,     badgeKey: null },
+      { href: "/admin/campaign-roi",     label: "Campaign ROI",  icon: Target,     badgeKey: null },
+      { href: "/admin/alerts",           label: "Alerts",        icon: Activity,   badgeKey: null },
       { href: "/admin/leads/analytics",  label: "Lead Insights", icon: BarChart3,  badgeKey: null },
       { href: "/admin/market-dashboard", label: "Market Data",   icon: TrendingUp, badgeKey: null },
       { href: "/admin/live-activity",    label: "Live Monitor",  icon: Activity,   badgeKey: null },
