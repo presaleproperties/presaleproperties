@@ -177,6 +177,53 @@ ${docs.map(d => `<table cellpadding="0" cellspacing="0" border="0" width="100%" 
 </td></tr>`;
 }
 
+function buildLeadMagnetEmail(firstName: string, pdfUrl: string, agent: AgentData): string {
+  const subjectLine = "Your Free Guide: 7 Costly Mistakes Presale Buyers Make";
+  const safePdfUrl = pdfUrl || "https://presaleproperties.com/resources/7-mistakes-guide";
+  const ctaLabel = pdfUrl ? "DOWNLOAD YOUR GUIDE (PDF)" : "READ YOUR GUIDE";
+
+  const body = `
+<tr><td class="content-pad" style="padding:48px 40px 24px;background:#ffffff;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr><td style="padding:0 0 8px 0;">
+      <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">YOUR FREE GUIDE</p>
+    </td></tr>
+    <tr><td style="padding:0 0 24px 0;">
+      <p style="margin:0;font-family:${F};font-size:30px;font-weight:800;color:${DARK};line-height:1.15;letter-spacing:-0.8px;">7 Costly Mistakes Presale Buyers Make</p>
+    </td></tr>
+    <tr><td style="padding:0 0 18px 0;">
+      <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Hi ${firstName},</p>
+    </td></tr>
+    <tr><td style="padding:0 0 18px 0;">
+      <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Thanks for grabbing the guide. I put this together because I see the same mistakes <strong style="font-weight:700;color:${DARK};">cost buyers tens of thousands of dollars</strong> on presale purchases in Metro Vancouver every year &mdash; mistakes that are completely avoidable when you know what to look for.</p>
+    </td></tr>
+    <tr><td style="padding:0 0 28px 0;">
+      <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Inside you'll learn how to <strong style="font-weight:700;color:${DARK};">read assignment clauses</strong>, what really happens between deposit and completion, and the questions every buyer should ask <strong style="font-weight:700;color:${DARK};">before</strong> signing.</p>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td class="content-pad" style="padding:0 40px 32px;background:#ffffff;">
+  <table class="cta-table" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+    <td class="cta-td" align="center" style="background:${DARK};border-radius:50px;padding:18px 32px;text-align:center;">
+      <a href="${safePdfUrl}" style="font-family:${F};font-size:14px;font-weight:700;letter-spacing:1.5px;color:#ffffff;text-decoration:none;display:block;">${ctaLabel}</a>
+    </td>
+  </tr></table>
+</td></tr>
+<tr><td class="content-pad" style="padding:0 40px 44px;background:#ffffff;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr><td style="padding:0 0 14px 0;border-top:1px solid #e8e2d6;padding-top:28px;">
+      <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Once you've had a read, I'd love to hear what stood out. If you have a project in mind &mdash; or you're not sure where to start &mdash; just reply to this email or text me directly. I'll point you in the right direction with no pressure.</p>
+    </td></tr>
+    <tr><td style="padding:0;">
+      <p style="margin:0;font-family:${F};font-size:16px;color:#444444;line-height:1.75;">Talk soon,<br/><strong style="font-weight:700;color:${DARK};">Uzair</strong></p>
+    </td></tr>
+  </table>
+</td></tr>
+${agentCard(agent, undefined)}`;
+
+  return emailShell(body, "Your Free Guide: 7 Costly Mistakes Presale Buyers Make", subjectLine);
+}
+
 function buildTemplateA(project: ProjectData, firstName: string, agent: AgentData): string {
   const subjectLine = `${project.name} — Your Requested Floor Plans & Details`;
 
