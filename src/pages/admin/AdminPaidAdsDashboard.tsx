@@ -80,8 +80,8 @@ function useDashboardData(days: Range) {
       ]);
 
       if (leadsRes.error) throw leadsRes.error;
-      const leads = leadsRes.data ?? [];
-      const syncLog = syncLogRes.data ?? [];
+      const leads = (leadsRes.data ?? []) as any[];
+      const syncLog = (syncLogRes.data ?? []) as any[];
 
       // ─ Pipeline health ─
       const total = leads.length;
