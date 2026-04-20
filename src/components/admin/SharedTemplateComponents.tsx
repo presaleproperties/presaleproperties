@@ -130,12 +130,10 @@ export function TemplateCard({
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60 mb-1">
           <Clock className="h-3 w-3" />
           {timeAgo(asset.updated_at)}
-          {(fd.projectName || fd.vars?.projectName || asset.project_name) && (
-            <>
-              <span className="text-muted-foreground/30">·</span>
-              <span className="truncate">{fd.projectName || fd.vars?.projectName || asset.project_name}</span>
-            </>
-          )}
+          <span className="text-muted-foreground/30">·</span>
+          <span className="truncate">
+            {fd.projectName || fd.vars?.projectName || asset.project_name || "No project"}
+          </span>
         </div>
         {asset.tags && asset.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-2">
