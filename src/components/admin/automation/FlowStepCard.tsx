@@ -4,10 +4,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { GripVertical, Trash2, Clock, Mail, MessageCircle, Phone, GitBranch, ChevronDown, ChevronRight } from "lucide-react";
+import { GripVertical, Trash2, Clock, Mail, MessageCircle, Phone, GitBranch, ChevronDown, ChevronRight, ExternalLink, Sparkles, FileText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import type { AutomationStep, StepType } from "@/hooks/useAutomationFlows";
 import { cn } from "@/lib/utils";
 import { EmailTemplatePicker } from "./EmailTemplatePicker";
+
+/** Build a destination URL to view/edit the template behind an email step. */
+function getTemplateEditHref(kind?: string, value?: string): string {
+  if (!value) return "/admin/email-builder-hub";
+  if (kind === "db" || value.startsWith("db:")) {
+    const id = value.replace(/^db:/, "");
+    return `/admin/email-templates?id=${id}`;
+  }
+  if (kind === "campaign" || value.startsWith("campaign:")) {
+    const id = value.replace(/^campaign:/, "");
+    return `/admin/email-builder-hub?template=${id}`;
+  }
+  // system templates live in edge functions — point to the system reference page
+  return `/admin/email-flows?system=${encodeURIComponent(value.replace(/^system:/, ""))}`;
+}
+
+function getTemplateIcon(kind?: string, value?: string) {
+  const k = kind || (value?.startsWith("campaign:") ? "campaign" : value?.startsWith("db:") ? "db" : "system");
+  if (k === "campaign") return { Icon: FileText, color: "text-amber-600" };
+  if (k === "db") return { Icon: Mail, color: "text-emerald-600" };
+  return { Icon: Sparkles, color: "text-blue-600" };
+}
+
+function getTemplateBadgeLabel(kind?: string, value?: string) {
+  const k = kind || (value?.startsWith("campaign:") ? "campaign" : value?.startsWith("db:") ? "db" : "system");
+  if (k === "campaign") return "Project";
+  if (k === "db") return "Saved";
+  return "Auto";
+}
 
 const STEP_META: Record<StepType, { icon: any; color: string; bg: string }> = {
   delay: { icon: Clock, color: "text-amber-600", bg: "bg-amber-50 border-amber-200" },
@@ -108,7 +138,19 @@ export function FlowStepCard({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{getStepLabel()}</p>
-              <p className="text-xs text-muted-foreground capitalize">{step.step_type.replace("_", " ")}</p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <p className="text-xs text-muted-foreground capitalize">{step.step_type.replace("_", " ")}</p>
+                {step.step_type === "send_email" && step.config?.template && (() => {
+                  const { Icon: TIcon, color } = getTemplateIcon(step.config?.template_kind, step.config?.template);
+                  const tplName = step.config?.template_name || step.config?.template;
+                  return (
+                    <Badge variant="secondary" className="h-4 px-1.5 text-[10px] font-normal gap-1 max-w-[260px]">
+                      <TIcon className={cn("h-2.5 w-2.5 shrink-0", color)} />
+                      <span className="truncate">{tplName}</span>
+                    </Badge>
+                  );
+                })()}
+              </div>
             </div>
             <Switch
               checked={effectiveActive}
@@ -156,7 +198,22 @@ export function FlowStepCard({
               {step.step_type === "send_email" && (
                 <div className="space-y-2">
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Template</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-muted-foreground">Template</label>
+                      {step.config?.template && (
+                        <a
+                          href={getTemplateEditHref(step.config?.template_kind, step.config?.template)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] font-medium text-primary hover:underline inline-flex items-center gap-1"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          {(step.config?.template_kind === "system" || step.config?.template?.startsWith("system:"))
+                            ? "View system template"
+                            : "Edit template"}
+                        </a>
+                      )}
+                    </div>
                     <EmailTemplatePicker
                       value={step.config?.template || "system:auto_response_a"}
                       onChange={(v, opt) =>
@@ -164,16 +221,30 @@ export function FlowStepCard({
                           config: {
                             ...step.config,
                             template: v,
-                            template_kind: opt.group, // 'system' | 'db' | 'campaign'
+                            template_kind: opt.group,
                             template_name: opt.label,
                             label: step.config?.label || opt.label,
                           },
                         })
                       }
                     />
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                      Choose from system auto-emails or any saved project template.
-                    </p>
+                    {step.config?.template_name ? (
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground flex-wrap">
+                        <span>This step sends:</span>
+                        <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal gap-1 bg-white">
+                          {(() => {
+                            const { Icon: TIcon, color } = getTemplateIcon(step.config?.template_kind, step.config?.template);
+                            return <TIcon className={cn("h-2.5 w-2.5", color)} />;
+                          })()}
+                          <span className="truncate max-w-[220px]">{step.config?.template_name}</span>
+                          <span className="ml-0.5 opacity-60">· {getTemplateBadgeLabel(step.config?.template_kind, step.config?.template)}</span>
+                        </Badge>
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        Choose from system auto-emails or any saved project template.
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs font-medium text-muted-foreground mb-1 block">Label</label>
