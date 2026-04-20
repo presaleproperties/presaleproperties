@@ -124,6 +124,16 @@ export interface PropertyViewData {
 
 export function trackPropertyView(data: PropertyViewData): void {
   sendEvent("property_view", data);
+  // Mirror to Meta as ViewContent (dual-send: Pixel + CAPI)
+  import("./metaPixel").then(({ Meta }) => {
+    Meta.viewContent({
+      content_name: data.project_name,
+      content_ids: [data.project_id],
+      value: data.price_from ?? undefined,
+      city: data.city,
+      content_category: "presale_project",
+    }).catch(() => {});
+  });
 }
 
 /**
@@ -142,6 +152,14 @@ export interface SearchData {
 
 export function trackSearch(data: SearchData): void {
   sendEvent("search", data);
+  import("./metaPixel").then(({ Meta }) => {
+    const parts = [data.city, data.property_type, data.keywords].filter(Boolean);
+    Meta.search({
+      search_string: parts.join(" ") || "browse",
+      city: data.city,
+      num_items: data.results_count,
+    }).catch(() => {});
+  });
 }
 
 /**
@@ -237,6 +255,31 @@ export interface FormSubmitData {
 
 export function trackFormSubmit(data: FormSubmitData): void {
   sendEvent("form_submit", data);
+  // Estimated lead value by persona — drives FB ad bid optimization
+  const personaValue: Record<string, number> = {
+    investor: 200,
+    buyer: 100,
+    realtor: 50,
+  };
+  const value = personaValue[String(data.user_type ?? "").toLowerCase()] ?? 75;
+  import("./metaPixel").then(async ({ Meta }) => {
+    const { getIntentScore } = await import("./intentScoring");
+    Meta.lead(
+      {
+        email: data.email,
+        phone: data.phone,
+        first_name: data.first_name,
+        last_name: data.last_name,
+      },
+      {
+        content_name: data.form_name,
+        content_category: data.form_location,
+        value,
+        persona: data.user_type ? String(data.user_type) : undefined,
+        intent_score: getIntentScore(),
+      }
+    ).catch(() => {});
+  });
 }
 
 /**
