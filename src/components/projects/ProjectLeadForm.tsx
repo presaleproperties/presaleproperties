@@ -135,7 +135,7 @@ export function ProjectLeadForm({
           workingWithAgent ? "Working with agent" : null,
           isRealtor ? "Is a Realtor" : null,
         ].filter(Boolean).join(", ") || null,
-        status: leadStatus,
+        lead_status: leadStatus ?? "new",
         drip_sequence: dripSequence,
         last_drip_sent: 0,
         next_drip_at: isRealtor ? null : new Date().toISOString(),
