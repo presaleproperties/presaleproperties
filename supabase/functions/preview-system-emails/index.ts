@@ -23,19 +23,21 @@ const SAMPLE_AGENT = {
   email: "info@presaleproperties.com",
 };
 
+// Sample uses a real published project so the preview reflects what
+// recipients actually see in production auto-response emails.
 const SAMPLE_PROJECT = {
-  name: "The Belmont Residences",
+  name: "The Loop",
   city: "Surrey",
-  neighborhood: "Morgan Crossing",
-  developer_name: "Marcon",
-  featured_image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=600&fit=crop&q=80",
-  price_range: "From $589,900",
-  starting_price: 589900,
-  deposit_structure: "5% + 5% + 10%",
-  deposit_percent: 20,
-  completion_year: 2027,
+  neighborhood: "Morgan Heights",
+  developer_name: "Gramercy",
+  featured_image: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/listing-photos/projects/1771617110701-vin9g.jpg",
+  price_range: "From $789,900",
+  starting_price: 789900,
+  deposit_structure: "5% of the purchase price due within 7 days of the rescission period",
+  deposit_percent: 5,
+  completion_year: 2026,
   completion_month: 9,
-  slug: "belmont-residences",
+  slug: "the-loop",
   brochure_files: ["https://example.com/brochure.pdf"],
   floorplan_files: ["https://example.com/floorplans.pdf"],
   pricing_sheets: ["https://example.com/pricing.pdf"],
