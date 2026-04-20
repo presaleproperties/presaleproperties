@@ -26,6 +26,8 @@ import { MetaPixel } from "@/components/tracking/MetaPixel";
 import { GA4Tracker } from "@/components/tracking/GA4Tracker";
 import { TrackingScripts } from "@/components/tracking/TrackingScripts";
 import { ContactClickTracker } from "@/components/tracking/ContactClickTracker";
+import { AttributionTracker } from "@/components/tracking/AttributionTracker";
+import { PixelHealthCheck } from "@/components/tracking/PixelHealthCheck";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { PropertiesSlugDispatcher } from "@/components/routing/PropertiesSlugDispatcher";
@@ -81,6 +83,8 @@ const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminLeads = lazy(() => import("./pages/admin/AdminLeads"));
 const AdminLeadAnalytics = lazy(() => import("./pages/admin/AdminLeadAnalytics"));
 const AdminPaidAdsDashboard = lazy(() => import("./pages/admin/AdminPaidAdsDashboard"));
+const AdminCampaignROI = lazy(() => import("./pages/admin/AdminCampaignROI"));
+const AdminAlertsConfig = lazy(() => import("./pages/admin/AdminAlertsConfig"));
 const AdminLeadOnboard = lazy(() => import("./pages/admin/AdminLeadOnboard"));
 
 const AdminAIAnalytics = lazy(() => import("./pages/admin/AdminAIAnalytics"));
@@ -196,6 +200,8 @@ const App = () => (
             <GA4Tracker />
             <TrackingScripts />
             <ContactClickTracker />
+            <AttributionTracker />
+            <PixelHealthCheck />
             
             {/* <ExitIntentPopup /> - Temporarily hidden */}
             <ExitIntentPopup />
@@ -376,6 +382,8 @@ const App = () => (
             <Route path="/admin/leads" element={<AdminProtectedRoute><AdminLeads /></AdminProtectedRoute>} />
             <Route path="/admin/leads/analytics" element={<AdminProtectedRoute><AdminLeadAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/paid-ads" element={<AdminProtectedRoute><AdminPaidAdsDashboard /></AdminProtectedRoute>} />
+            <Route path="/admin/campaign-roi" element={<AdminProtectedRoute><AdminCampaignROI /></AdminProtectedRoute>} />
+            <Route path="/admin/alerts" element={<AdminProtectedRoute><AdminAlertsConfig /></AdminProtectedRoute>} />
             <Route path="/admin/lead-onboard" element={<AdminProtectedRoute><AdminLeadOnboard /></AdminProtectedRoute>} />
             
             <Route path="/admin/payments" element={<AdminProtectedRoute><AdminPayments /></AdminProtectedRoute>} />
