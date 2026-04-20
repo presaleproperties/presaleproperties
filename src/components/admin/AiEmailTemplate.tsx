@@ -1381,7 +1381,7 @@ export function buildPitchDeckEmailHtml(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function buildLululemonEmailHtml(
-  data: PitchDeckEmailData,
+  data: PitchDeckEmailData & { loopSlides?: string[] },
   agent: AgentInfo = DEFAULT_AGENT,
 ): string {
   const ACCENT     = "#C9A55A";
@@ -1392,6 +1392,46 @@ export function buildLululemonEmailHtml(
   const phone    = data.ctaPhone    || agent.phone    || DEFAULT_AGENT.phone;
   const whatsapp = data.ctaWhatsApp || "16722581100";
   const deckLink = (data.projectName || data.developerName) ? (data.deckUrl || "") : "";
+
+  // ── Collect hero images for rotation (GIF carousel) ──────────────────────
+  const heroSlides: string[] = [];
+  if (data.loopSlides && data.loopSlides.length > 0) {
+    heroSlides.push(...data.loopSlides.filter(Boolean));
+  }
+  if (heroSlides.length === 0 && data.heroImage) {
+    heroSlides.push(data.heroImage);
+  }
+  const slideCount = heroSlides.length;
+  const slideDuration = 5; // seconds per slide
+  const totalDuration = slideCount * slideDuration;
+  let slideshowCss = "";
+  if (slideCount > 1) {
+    const keyframes = heroSlides.map((_, i) => {
+      const start = (i / slideCount) * 100;
+      const hold = ((i + 0.85) / slideCount) * 100;
+      const end = ((i + 1) / slideCount) * 100;
+      return `${start.toFixed(1)}%{opacity:1} ${hold.toFixed(1)}%{opacity:1} ${end.toFixed(1)}%{opacity:0}`;
+    }).join(" ");
+    slideshowCss = `@keyframes lulu-fade{${keyframes} 100%{opacity:1}}`;
+  }
+  const heroHtml = heroSlides.length > 0 ? (() => {
+    const altText = data.projectName || "New Presale";
+    if (slideCount === 1) {
+      const img = `<img src="${heroSlides[0]}" alt="${altText}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />`;
+      return deckLink
+        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;">${img}</a>`
+        : img;
+    }
+    const layers = heroSlides.map((src, i) => {
+      const delay = i * slideDuration;
+      return `<div style="position:${i === 0 ? "relative" : "absolute"};top:0;left:0;width:100%;${i > 0 ? "opacity:0;" : ""}animation:lulu-fade ${totalDuration}s infinite;animation-delay:${delay}s;">
+        ${deckLink ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;">` : ""}
+        <img src="${src}" alt="${altText}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />
+        ${deckLink ? "</a>" : ""}
+      </div>`;
+    }).join("");
+    return `<div style="position:relative;overflow:hidden;line-height:0;font-size:0;">${layers}</div>`;
+  })() : "";
 
   // ── Floor plans ──────────────────────────────────────────────────────────
   const fps = (data.floorPlans || []).filter(fp => fp.url);
@@ -1495,6 +1535,7 @@ export function buildLululemonEmailHtml(
     u+#body .email-container{width:100%!important;min-width:100%!important;}
     u+#body{min-width:100vw!important;}
     div[style*="margin: 16px 0"]{margin:0!important;}
+    ${slideshowCss}
     @media only screen and (max-width:620px){
       /* True edge-to-edge on iPhone */
       .email-container{width:100%!important;max-width:100%!important;min-width:100%!important;border:none!important;border-radius:0!important;}
@@ -1525,14 +1566,11 @@ ${data.previewText ? `<span style="display:none;font-size:1px;color:#fff;max-hei
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%" class="email-container"
        style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e8e2d6;border-radius:8px;overflow:hidden;">
 
-  <!-- ── HERO IMAGE: full-bleed, zero padding ── -->
-  ${data.heroImage ? `
+  <!-- ── HERO IMAGE: full-bleed, zero padding (rotates if multiple) ── -->
+  ${heroHtml ? `
   <tr>
     <td style="padding:0;margin:0;line-height:0;font-size:0;">
-      ${deckLink
-        ? `<a href="${deckLink}" target="_blank" style="display:block;line-height:0;font-size:0;"><img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" /></a>`
-        : `<img src="${data.heroImage}" alt="${data.projectName || "New Presale"}" width="600" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />`
-      }
+      ${heroHtml}
     </td>
   </tr>` : `
   <!-- No hero: branded header strip -->
