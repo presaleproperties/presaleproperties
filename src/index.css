@@ -24,7 +24,7 @@
 
     /* Primary - Rich Warm Gold */
     --primary: 40 65% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 220 25% 10%;
     
     /* Gold variations for gradients */
     --primary-glow: 37 60% 48%;
@@ -100,7 +100,7 @@
     --popover-foreground: 0 0% 98%;
 
     --primary: 40 65% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 220 25% 10%;
     
     --primary-glow: 37 60% 48%;
     --primary-deep: 34 65% 40%;
