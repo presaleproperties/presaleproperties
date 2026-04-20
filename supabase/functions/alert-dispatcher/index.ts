@@ -47,10 +47,10 @@ Deno.serve(async (req) => {
       if (!lead || (lead.lead_score ?? 0) < cfg.hot_lead_threshold) {
         return new Response(JSON.stringify({ skipped: "below_threshold" }), { headers: corsHeaders });
       }
-      subject = `🔥 Hot lead: ${lead.first_name || ""} ${lead.last_name || ""} (${lead.lead_score})`;
+      subject = `🔥 Hot lead: ${lead.name || ""} (${lead.lead_score})`;
       html = `
         <h2>🔥 Hot lead just submitted</h2>
-        <p><strong>${lead.first_name || ""} ${lead.last_name || ""}</strong> — score ${lead.lead_score}/${100}</p>
+        <p><strong>${lead.name || ""}</strong> — score ${lead.lead_score}/${100}</p>
         <ul>
           <li>Email: ${lead.email}</li>
           <li>Phone: ${lead.phone || "—"}</li>
@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
       const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       const [{ count: leadCount }, { data: hot }, { count: failCount }] = await Promise.all([
         admin.from("project_leads").select("*", { count: "exact", head: true }).gte("created_at", since),
-        admin.from("project_leads").select("first_name,email,lead_score").gte("created_at", since).eq("lead_temperature", "hot").limit(10),
+        admin.from("project_leads").select("name,email,lead_score").gte("created_at", since).eq("lead_temperature", "hot").limit(10),
         admin.from("lead_sync_log").select("*", { count: "exact", head: true }).gte("created_at", since).neq("status", "success"),
       ]);
       subject = `📊 Daily lead digest — ${leadCount ?? 0} leads`;
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
         <h2>Last 24h</h2>
         <p>Leads: <strong>${leadCount ?? 0}</strong> · Hot: <strong>${hot?.length ?? 0}</strong> · Sync failures: <strong>${failCount ?? 0}</strong></p>
         <h3>Hot leads</h3>
-        <ul>${(hot || []).map((h) => `<li>${h.first_name || ""} (${h.email}) — score ${h.lead_score}</li>`).join("") || "<li>None</li>"}</ul>
+        <ul>${(hot || []).map((h: any) => `<li>${h.name || ""} (${h.email}) — score ${h.lead_score}</li>`).join("") || "<li>None</li>"}</ul>
       `;
     } else {
       return new Response(JSON.stringify({ error: "Unknown type" }), { status: 400, headers: corsHeaders });

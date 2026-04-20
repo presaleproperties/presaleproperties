@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
 
   const { data: leads, error } = await admin
     .from("project_leads")
-    .select("email, phone, first_name, last_name")
+    .select("email, phone, name")
     .eq("lead_temperature", "hot")
     .gte("created_at", since)
     .not("email", "is", null);
@@ -35,13 +35,12 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
   }
 
-  const rows = ["email,phone,fn,ln"];
+  const rows = ["email,phone,fn"];
   for (const l of leads || []) {
     const e = await sha256(l.email || "");
     const p = l.phone ? await sha256(l.phone.replace(/\D/g, "")) : "";
-    const fn = l.first_name ? await sha256(l.first_name) : "";
-    const ln = l.last_name ? await sha256(l.last_name) : "";
-    rows.push(`${e},${p},${fn},${ln}`);
+    const fn = l.name ? await sha256(l.name.split(" ")[0]) : "";
+    rows.push(`${e},${p},${fn}`);
   }
 
   return new Response(rows.join("\n"), {

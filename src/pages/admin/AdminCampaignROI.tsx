@@ -45,7 +45,7 @@ function useROI(days: Range) {
       const [leadsRes, spendRes, activityRes] = await Promise.all([
         supabase
           .from("project_leads")
-          .select("utm_source, utm_campaign, lead_temperature, created_at, ip_address, form_type, project_city")
+          .select("utm_source, utm_campaign, lead_temperature, created_at, ip_address, form_type, city_interest")
           .gte("created_at", since),
         supabase
           .from("ad_spend")
@@ -104,8 +104,8 @@ function useROI(days: Range) {
       // ── Geo (city of lead — uses project_city as proxy) ─────────────
       const geo = new Map<string, number>();
       leads.forEach(l => {
-        const c = l.project_city || "Unknown";
-        geo.set(c, (geo.get(c) || 0) + 1);
+        const c = (Array.isArray(l.city_interest) ? l.city_interest[0] : l.city_interest) || "Unknown";
+        geo.set(String(c), (geo.get(String(c)) || 0) + 1);
       });
       const geoRows = Array.from(geo.entries())
         .map(([city, count]) => ({ city, count }))
