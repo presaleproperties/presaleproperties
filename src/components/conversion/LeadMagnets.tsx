@@ -137,6 +137,7 @@ export function VIPNotifyButton({ projectName }: LeadMagnetProps) {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return;
@@ -177,6 +178,7 @@ export function VIPNotifyButton({ projectName }: LeadMagnetProps) {
 
       setOpen(false);
       toast({ title: "You're on the VIP list!", description: "We'll notify you before public sales." });
+      navigate(`/thank-you?type=vip${projectName ? `&project=${encodeURIComponent(projectName)}` : ""}`);
     } catch (error) {
       console.error(error);
     } finally {

@@ -36,6 +36,7 @@ import Index from "./pages/Index";
 
 // --- Lazy-loaded pages (code-split) ---
 const Contact = lazy(() => import("./pages/Contact"));
+const ThankYou = lazy(() => import("./pages/ThankYou"));
 const About = lazy(() => import("./pages/About"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -200,6 +201,7 @@ const App = () => (
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
+            <Route path="/thank-you" element={<ThankYou />} />
             <Route path="/presale-projects" element={<PresaleProjects />} />
             {/* NEW SEO URL Structure: /presale-projects/{city}/{type}/{price} */}
             <Route path="/presale-projects/:citySlug/:typePriceSlug" element={<PresaleCityTypePricePage />} />

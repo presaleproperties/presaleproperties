@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -62,6 +63,7 @@ export function ProjectLeadForm({
   const [submitted, setSubmitted] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("16722581100");
   const { submitLead } = useLeadSubmission();
+  const navigate = useNavigate();
 
   const hasBrochure = hasValidUrl(brochureUrl);
   const hasFloorplan = hasValidUrl(floorplanUrl);
@@ -178,6 +180,8 @@ export function ProjectLeadForm({
       }).catch(console.error);
 
       setSubmitted(true);
+      const slug = typeof window !== "undefined" ? window.location.pathname.replace(/^\//, "") : "";
+      navigate(`/thank-you?type=project${slug ? `&project=${encodeURIComponent(slug)}` : ""}`);
     } catch (err: any) {
       console.error("Lead form error:", err);
       form.setError("root", { message: "Something went wrong. Please try again." });
