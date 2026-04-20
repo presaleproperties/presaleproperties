@@ -17,7 +17,11 @@ export * from "./tracking/index";
 // IMPORTANT: only call AFTER a successful Supabase insert.
 // ============================================================
 
-export type LeadType = "vip_signup" | "project_inquiry" | "calculator_report";
+export type LeadType =
+  | "vip_signup"
+  | "project_inquiry"
+  | "project_inquiry_lp" // paid landing-page (/lp/:slug) variant — split for ad performance
+  | "calculator_report";
 export type Persona = "first_time_buyer" | "investor" | "upsizer" | "realtor";
 export type BudgetRange = "<500k" | "500_750k" | "750k_1m" | "1m+";
 
@@ -48,6 +52,7 @@ export interface ClickEvent {
 const VALUE_BY_TYPE: Record<LeadType, number> = {
   vip_signup: 25,
   project_inquiry: 100,
+  project_inquiry_lp: 100, // same intrinsic value as organic project inquiries
   calculator_report: 50,
 };
 
