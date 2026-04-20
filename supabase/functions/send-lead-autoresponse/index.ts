@@ -26,6 +26,8 @@ interface ProjectData {
   neighborhood?: string;
   developer_name?: string;
   featured_image?: string;
+  gallery_images?: string[];
+  og_image?: string;
   price_range?: string;
   starting_price?: number;
   deposit_structure?: string;
