@@ -98,6 +98,11 @@ export function CalculatorLeadCapture({
       const referrer = sessionStorage.getItem("referrer") || document.referrer || null;
       const landingPage = sessionStorage.getItem("landing_page") || window.location.href;
 
+      // Shared event_id for Meta CAPI <> Meta Pixel deduplication
+      const eventId = crypto.randomUUID();
+      const tracking = (await import("@/lib/tracking/cookies")).getClientTrackingSnapshot();
+      const leadValue = 50; // CAD — calculator-report leads
+
       const leadId = await upsertProjectLead({
         name: formData.name.trim(),
         email: formData.email.trim(),
@@ -116,7 +121,7 @@ export function CalculatorLeadCapture({
         utm_campaign: utmCampaign,
       });
 
-      // Lead scoring & tracking enrichment
+      // Lead scoring & tracking enrichment (also persists event_id/fbp/fbc/user_agent/value)
       submitLead({
         leadId,
         firstName: formData.name.trim().split(" ")[0],
@@ -126,15 +131,22 @@ export function CalculatorLeadCapture({
         formType: calculatorData.calculatorType === "roi" ? "calculator_roi" : "calculator_mortgage",
         projectUrl: window.location.href,
         message: `${calculatorData.calculatorType === "roi" ? "ROI" : "Mortgage"} Calculator Analysis`,
+        eventId,
+        fbp: tracking.fbp,
+        fbc: tracking.fbc,
+        userAgent: tracking.user_agent,
+        value: leadValue,
       });
 
       // Auto-response email
       supabase.functions.invoke("send-lead-autoresponse", { body: { leadId } }).catch(console.error);
 
-      // Meta CAPI
+      // Meta CAPI — pass shared event_id + lead_id for dedup and sync log
       supabase.functions.invoke("meta-conversions-api", {
         body: {
           event_name: "Lead",
+          event_id: eventId,
+          lead_id: leadId,
           email: formData.email.trim(),
           phone: formData.phone.trim(),
           first_name: formData.name.trim().split(" ")[0],
@@ -142,20 +154,24 @@ export function CalculatorLeadCapture({
           event_source_url: window.location.href,
           content_name: `${calculatorData.calculatorType} Calculator`,
           content_category: "calculator",
-          client_user_agent: navigator.userAgent,
-          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
-          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+          client_user_agent: tracking.user_agent,
+          fbc: tracking.fbc,
+          fbp: tracking.fbp,
+          value: leadValue,
+          currency: "CAD",
         },
       }).catch(console.error);
 
       MetaEvents.lead({ content_name: `${calculatorData.calculatorType} Calculator`, content_category: "calculator" });
 
-      // GTM dataLayer — standardized lead event for GA4/Meta/Ads/TikTok via GTM
+      // GTM dataLayer — reuse the same eventID for downstream dedup
       pushLeadEvent({
         lead_type: "calculator_report",
         lead_source: config.leadSource,
         email: formData.email.trim(),
         phone: formData.phone.trim(),
+        eventID: eventId,
+        value: leadValue,
       }).catch(console.error);
 
       onTrackEvent?.(config.eventName);

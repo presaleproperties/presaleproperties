@@ -197,11 +197,34 @@ serve(async (req: Request): Promise<Response> => {
         }).eq("id", supabaseLeadId);
       }
 
+      // Log success to lead_sync_log (non-blocking)
+      supabase.from("lead_sync_log").insert({
+        lead_id: supabaseLeadId || null,
+        destination: "lofty",
+        status: "success",
+        status_code: createRes.status,
+        response: { loftyId, action: "created" },
+      }).then(({ error: logErr }) => {
+        if (logErr) console.warn("lead_sync_log insert failed:", logErr.message);
+      });
+
       return new Response(
         JSON.stringify({ success: true, loftyId, action: "created" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Log failure to lead_sync_log (non-blocking)
+    supabase.from("lead_sync_log").insert({
+      lead_id: supabaseLeadId || null,
+      destination: "lofty",
+      status: "error",
+      status_code: createRes.status,
+      response: { body: createBody.substring(0, 1000) },
+      error_message: `Lofty API ${createRes.status}`,
+    }).then(({ error: logErr }) => {
+      if (logErr) console.warn("lead_sync_log insert failed:", logErr.message);
+    });
 
     return new Response(
       JSON.stringify({ success: false, error: "Lofty API error", status: createRes.status, details: createBody }),
@@ -210,6 +233,23 @@ serve(async (req: Request): Promise<Response> => {
 
   } catch (error: any) {
     console.error("sync-lead-to-lofty error:", error);
+
+    // Best-effort log of unexpected errors (only if we have supabase client)
+    try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      );
+      await supabase.from("lead_sync_log").insert({
+        lead_id: null,
+        destination: "lofty",
+        status: "error",
+        error_message: error.message,
+      });
+    } catch (_e) {
+      // ignore — logging is best-effort
+    }
+
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

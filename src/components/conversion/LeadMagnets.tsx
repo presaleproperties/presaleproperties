@@ -144,6 +144,11 @@ export function VIPNotifyButton({ projectName }: LeadMagnetProps) {
     setIsSubmitting(true);
 
     try {
+      // Shared event_id for Meta CAPI <> Meta Pixel dedup
+      const eventId = crypto.randomUUID();
+      const tracking = (await import("@/lib/tracking/cookies")).getClientTrackingSnapshot();
+      const leadValue = 25; // CAD — VIP signups
+
       // Save to newsletter_subscribers (for email drip)
       await supabase.from("newsletter_subscribers").insert({
         email: email.trim(),
@@ -162,18 +167,44 @@ export function VIPNotifyButton({ projectName }: LeadMagnetProps) {
         lead_source: "vip_notify",
         message: `VIP early access request${projectName ? ` for ${projectName}` : ""}`,
         visitor_id: getVisitorId(),
-      });
+        // Ad-attribution fields
+        event_id: eventId,
+        fbp: tracking.fbp ?? null,
+        fbc: tracking.fbc ?? null,
+        user_agent: tracking.user_agent ?? null,
+        value: leadValue,
+      } as any);
       await supabase.functions.invoke("send-project-lead", { body: { leadId } });
+
+      // Server-side Meta CAPI with shared event_id for dedup
+      supabase.functions.invoke("meta-conversions-api", {
+        body: {
+          event_name: "Lead",
+          event_id: eventId,
+          lead_id: leadId,
+          email: email.trim(),
+          event_source_url: window.location.href,
+          content_name: projectName || "VIP Notify",
+          content_category: "vip_notify",
+          client_user_agent: tracking.user_agent,
+          fbc: tracking.fbc,
+          fbp: tracking.fbp,
+          value: leadValue,
+          currency: "CAD",
+        },
+      }).catch(console.error);
 
       trackFormSubmit({ form_name: "vip_notify", form_location: "project_detail", email, project_name: projectName });
       MetaEvents.lead({ content_name: projectName, content_category: "vip_notify" });
 
-      // GTM dataLayer — standardized lead event for GA4/Meta/Ads/TikTok via GTM
+      // GTM dataLayer — standardized lead event reusing the same eventID
       pushLeadEvent({
         lead_type: "vip_signup",
         project_name: projectName,
         lead_source: "vip_notify",
         email,
+        eventID: eventId,
+        value: leadValue,
       }).catch(console.error);
 
       setOpen(false);

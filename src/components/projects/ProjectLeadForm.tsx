@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 import { trackCTAClick } from "@/hooks/useLoftyTracking";
 import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId, pushLeadEvent } from "@/lib/tracking";
+import { getClientTrackingSnapshot } from "@/lib/tracking/cookies";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useLeadSubmission } from "@/hooks/useLeadSubmission";
@@ -103,6 +104,10 @@ export function ProjectLeadForm({
     }
     try {
       const leadId = crypto.randomUUID();
+      // Single event ID shared between Meta CAPI (server) and Meta Pixel (browser)
+      // for deduplication. Also stored on project_leads for debugging.
+      const eventId = crypto.randomUUID();
+      const tracking = getClientTrackingSnapshot();
       const utmData = getUtmDataForSubmission();
       const visitorId = getVisitorId();
       const sessionId = getSessionId();
@@ -119,6 +124,7 @@ export function ProjectLeadForm({
           ? "working_with_other_agent"
           : undefined;
       const dripSequence = isRealtor ? null : "buyer";
+      const leadValue = 100; // CAD — project inquiries are highest-value
 
       trackFormStart({ form_name: "floor_plan_request", form_location: "project_lead_form" });
 
@@ -152,7 +158,13 @@ export function ProjectLeadForm({
         intent_score: intentScore,
         city_interest: cityInterest,
         project_interest: projectInterest,
-      });
+        // Ad-attribution fields for Meta CAPI dedup + Lofty enrichment
+        event_id: eventId,
+        fbp: tracking.fbp ?? null,
+        fbc: tracking.fbc ?? null,
+        user_agent: tracking.user_agent ?? null,
+        value: leadValue,
+      } as any);
 
       if (error) throw error;
 
@@ -170,6 +182,11 @@ export function ProjectLeadForm({
           workingWithAgent ? "Working with agent" : null,
           isRealtor ? "Is a Realtor" : null,
         ].filter(Boolean).join(", ") || undefined,
+        eventId,
+        fbp: tracking.fbp,
+        fbc: tracking.fbc,
+        userAgent: tracking.user_agent,
+        value: leadValue,
       });
 
       trackCTAClick({ cta_type: "lead_form_submit", cta_label: "Get Instant Access", cta_location: "project_lead_form", project_id: projectId, project_name: projectName });
@@ -178,18 +195,38 @@ export function ProjectLeadForm({
       supabase.functions.invoke("trigger-workflow", { body: { event: "project_inquiry", data: { email: data.email, first_name: data.fullName, last_name: "", project_name: projectName, project_id: projectId }, meta: { lead_id: leadId, source: leadSource } } }).catch(console.error);
       supabase.functions.invoke("send-lead-autoresponse", { body: { leadId, projectId } }).catch(console.error);
       // send-project-lead is called inside useLeadSubmission → submitLead()
-      supabase.functions.invoke("meta-conversions-api", { body: { event_name: "Lead", email: data.email, phone: data.phone, first_name: data.fullName, last_name: "", event_source_url: window.location.href, content_name: projectName, content_category: actualPersona, client_user_agent: navigator.userAgent, fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1], fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] } }).catch(console.error);
+      // Pass shared event_id so server CAPI dedupes with browser pixel; include lead_id for sync log.
+      supabase.functions.invoke("meta-conversions-api", {
+        body: {
+          event_name: "Lead",
+          event_id: eventId,
+          lead_id: leadId,
+          email: data.email,
+          phone: data.phone,
+          first_name: data.fullName,
+          last_name: "",
+          event_source_url: window.location.href,
+          content_name: projectName,
+          content_category: actualPersona,
+          client_user_agent: tracking.user_agent,
+          fbc: tracking.fbc,
+          fbp: tracking.fbp,
+          value: leadValue,
+          currency: "CAD",
+        },
+      }).catch(console.error);
 
       localStorage.setItem("presale_persona", actualPersona);
       localStorage.setItem("pp_form_submitted", "true");
       localStorage.setItem("presale_lead_converted", "true");
 
       (window as any).gtag?.("event", "submit_access_pack", { page_path: window.location.pathname, project_name: projectName, persona: actualPersona, source: "project_lead_form" });
-      (window as any).fbq?.("track", "Lead", { content_name: projectName, content_category: actualPersona });
+      (window as any).fbq?.("track", "Lead", { content_name: projectName, content_category: actualPersona, eventID: eventId });
 
       MetaEvents.lead({ content_name: projectName, content_category: actualPersona });
 
       // GTM dataLayer — standardized lead event for GA4/Meta/Ads/TikTok via GTM
+      // Reuse the same eventID so downstream tags can dedupe across channels.
       pushLeadEvent({
         lead_type: "project_inquiry",
         project_name: projectName,
@@ -199,6 +236,8 @@ export function ProjectLeadForm({
         lead_source: leadSource,
         email: data.email,
         phone: data.phone,
+        eventID: eventId,
+        value: leadValue,
       }).catch(console.error);
 
       setSubmitted(true);
