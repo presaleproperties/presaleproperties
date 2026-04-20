@@ -40,6 +40,7 @@ export default function ThankYou() {
   const rawType = (params.get("type") || "").toLowerCase();
   const type: LeadType = (["vip", "project", "calculator"].includes(rawType) ? rawType : "project") as LeadType;
   const projectSlug = params.get("project");
+  const variant = (params.get("variant") || "").toLowerCase(); // "has_agent" | "realtor" | ""
 
   useHelmet({
     title: "Thank you — Presale Properties",
@@ -74,7 +75,11 @@ export default function ThankYou() {
             Check your email — it's on the way.
           </h1>
           <p className="text-base md:text-lg text-muted-foreground">
-            In the meantime, a few things you might find useful.
+            {variant === "has_agent"
+              ? "Sounds like you're in good hands. We'll still send the info package."
+              : variant === "realtor"
+                ? "Thanks — we'll send the info package over for your client."
+                : "In the meantime, a few things you might find useful."}
           </p>
         </section>
 
