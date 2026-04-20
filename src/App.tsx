@@ -24,6 +24,7 @@ import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
 import { MetaPixel } from "@/components/tracking/MetaPixel";
 import { GA4Tracker } from "@/components/tracking/GA4Tracker";
+import { TrackingScripts } from "@/components/tracking/TrackingScripts";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { PropertiesSlugDispatcher } from "@/components/routing/PropertiesSlugDispatcher";
@@ -189,6 +190,7 @@ const App = () => (
             <BehaviorTracker />
             <MetaPixel />
             <GA4Tracker />
+            <TrackingScripts />
             
             {/* <ExitIntentPopup /> - Temporarily hidden */}
             <ExitIntentPopup />
