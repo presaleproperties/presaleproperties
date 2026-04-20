@@ -190,6 +190,7 @@ const App = () => (
             <BehaviorTracker />
             <MetaPixel />
             <GA4Tracker />
+            <TrackingScripts />
             
             {/* <ExitIntentPopup /> - Temporarily hidden */}
             <ExitIntentPopup />
