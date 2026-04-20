@@ -26,6 +26,8 @@ interface ProjectData {
   neighborhood?: string;
   developer_name?: string;
   featured_image?: string;
+  gallery_images?: string[];
+  og_image?: string;
   price_range?: string;
   starting_price?: number;
   deposit_structure?: string;
@@ -411,7 +413,7 @@ Deno.serve(async (req) => {
     // Fetch project details
     const { data: project, error: projErr } = await supabase
       .from("presale_projects")
-      .select("name, city, neighborhood, developer_name, featured_image, price_range, starting_price, deposit_structure, deposit_percent, completion_year, completion_month, slug, brochure_files, floorplan_files, pricing_sheets")
+      .select("name, city, neighborhood, developer_name, featured_image, gallery_images, og_image, price_range, starting_price, deposit_structure, deposit_percent, completion_year, completion_month, slug, brochure_files, floorplan_files, pricing_sheets")
       .eq("id", pid)
       .single();
 
@@ -421,6 +423,17 @@ Deno.serve(async (req) => {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Ensure a hero image is present in the email — fall back through the chain
+    // so the recipient always recognizes the project they signed up for.
+    const projectAny = project as any;
+    if (!projectAny.featured_image) {
+      const fallback =
+        (Array.isArray(projectAny.gallery_images) && projectAny.gallery_images[0]) ||
+        projectAny.og_image ||
+        null;
+      if (fallback) projectAny.featured_image = fallback;
     }
 
     // Hard rule: realtors or leads working with an agent ALWAYS get Template B
