@@ -28,7 +28,7 @@ const SAMPLE_PROJECT = {
   city: "Surrey",
   neighborhood: "Morgan Crossing",
   developer_name: "Marcon",
-  featured_image: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/project-images/sample-hero.jpg",
+  featured_image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=600&fit=crop&q=80",
   price_range: "From $589,900",
   starting_price: 589900,
   deposit_structure: "5% + 5% + 10%",
