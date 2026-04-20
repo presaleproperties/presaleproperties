@@ -198,7 +198,22 @@ export function FlowStepCard({
               {step.step_type === "send_email" && (
                 <div className="space-y-2">
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Template</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-muted-foreground">Template</label>
+                      {step.config?.template && (
+                        <a
+                          href={getTemplateEditHref(step.config?.template_kind, step.config?.template)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] font-medium text-primary hover:underline inline-flex items-center gap-1"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          {(step.config?.template_kind === "system" || step.config?.template?.startsWith("system:"))
+                            ? "View system template"
+                            : "Edit template"}
+                        </a>
+                      )}
+                    </div>
                     <EmailTemplatePicker
                       value={step.config?.template || "system:auto_response_a"}
                       onChange={(v, opt) =>
@@ -206,16 +221,30 @@ export function FlowStepCard({
                           config: {
                             ...step.config,
                             template: v,
-                            template_kind: opt.group, // 'system' | 'db' | 'campaign'
+                            template_kind: opt.group,
                             template_name: opt.label,
                             label: step.config?.label || opt.label,
                           },
                         })
                       }
                     />
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                      Choose from system auto-emails or any saved project template.
-                    </p>
+                    {step.config?.template_name ? (
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground flex-wrap">
+                        <span>This step sends:</span>
+                        <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal gap-1 bg-white">
+                          {(() => {
+                            const { Icon: TIcon, color } = getTemplateIcon(step.config?.template_kind, step.config?.template);
+                            return <TIcon className={cn("h-2.5 w-2.5", color)} />;
+                          })()}
+                          <span className="truncate max-w-[220px]">{step.config?.template_name}</span>
+                          <span className="ml-0.5 opacity-60">· {getTemplateBadgeLabel(step.config?.template_kind, step.config?.template)}</span>
+                        </Badge>
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        Choose from system auto-emails or any saved project template.
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs font-medium text-muted-foreground mb-1 block">Label</label>
