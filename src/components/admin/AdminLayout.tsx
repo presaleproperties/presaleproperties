@@ -56,6 +56,8 @@ interface PendingCounts {
 }
 
 // ── Navigation definition ─────────────────────────────────────────
+// Cleaned IA: 6 primary sections + Portals + Operations pushed lower.
+// Marketing split: Hub (build assets) · Flows (automations) · Activity (sends/logs).
 const navSections = [
   {
     id: "overview",
@@ -64,34 +66,13 @@ const navSections = [
     ],
   },
   {
-    id: "portals",
-    label: "Portals",
+    id: "inventory",
+    label: "Inventory",
     items: [
-      { href: "/developer",  label: "Developer Portal", icon: Presentation, badgeKey: null },
-      { href: "/dashboard",  label: "Agent Portal",     icon: UserCheck,    badgeKey: null },
-    ],
-  },
-  {
-    id: "properties",
-    label: "Properties",
-    items: [
-      { href: "/admin/projects",   label: "Projects",    icon: Building2, badgeKey: null },
-      { href: "/admin/assignments",   label: "Assignments", icon: FileStack, badgeKey: "assignments" as const },
-      { href: "/admin/developers", label: "Developers",  icon: Landmark,  badgeKey: null },
-    ],
-  },
-  {
-    id: "marketing",
-    label: "Marketing",
-    items: [
-      { href: "/admin/email-builder",  label: "Email Builder", icon: PenTool,      badgeKey: null },
-      { href: "/admin/email-center",   label: "Email",         icon: Mail,         badgeKey: null },
-      { href: "/admin/email-flows",    label: "Email Flows",   icon: Zap,          badgeKey: null },
-      { href: "/admin/system-emails",  label: "Auto Emails",   icon: Mail,         badgeKey: null },
-      { href: "/admin/marketing-hub",  label: "Campaigns",     icon: Megaphone,    badgeKey: null },
-      { href: "/dashboard/decks",      label: "Pitch Decks",   icon: Presentation, badgeKey: null },
-      { href: "/admin/blogs",          label: "Blog",          icon: BookOpen,     badgeKey: null },
-      { href: "/admin/google-reviews", label: "Reviews",       icon: Star,         badgeKey: null },
+      { href: "/admin/projects",    label: "Projects",    icon: Building2, badgeKey: null },
+      { href: "/admin/assignments", label: "Assignments", icon: FileStack, badgeKey: "assignments" as const },
+      { href: "/admin/developers",  label: "Developers",  icon: Landmark,  badgeKey: null },
+      { href: "/admin/mls-sync",    label: "MLS Sync",    icon: RefreshCw, badgeKey: null },
     ],
   },
   {
@@ -105,8 +86,21 @@ const navSections = [
     ],
   },
   {
-    id: "data",
-    label: "Analytics",
+    id: "marketing",
+    label: "Marketing",
+    items: [
+      { href: "/admin/marketing-hub", label: "Marketing Hub", icon: Megaphone,    badgeKey: null },
+      { href: "/admin/email-builder", label: "Email Builder", icon: PenTool,      badgeKey: null },
+      { href: "/admin/email-flows",   label: "Email Flows",   icon: Zap,          badgeKey: null },
+      { href: "/admin/email-center",  label: "Email Activity", icon: Mail,        badgeKey: null },
+      { href: "/dashboard/decks",     label: "Pitch Decks",   icon: Presentation, badgeKey: null },
+      { href: "/admin/blogs",         label: "Blog",          icon: BookOpen,     badgeKey: null },
+      { href: "/admin/google-reviews",label: "Reviews",       icon: Star,         badgeKey: null },
+    ],
+  },
+  {
+    id: "insights",
+    label: "Insights",
     items: [
       { href: "/admin/leads/analytics",  label: "Lead Insights", icon: BarChart3,  badgeKey: null },
       { href: "/admin/market-dashboard", label: "Market Data",   icon: TrendingUp, badgeKey: null },
@@ -115,23 +109,31 @@ const navSections = [
     ],
   },
   {
+    id: "portals",
+    label: "Portals",
+    items: [
+      { href: "/developer", label: "Developer Portal", icon: Presentation, badgeKey: null },
+      { href: "/dashboard", label: "Agent Portal",     icon: UserCheck,    badgeKey: null },
+    ],
+  },
+  {
     id: "ops",
     label: "Operations",
     items: [
-      { href: "/admin/tasks",              label: "Tasks",       icon: ClipboardList, badgeKey: null },
-      { href: "/admin/email-workflows",    label: "Automations", icon: Workflow,      badgeKey: null },
-      { href: "/admin/mls-sync",           label: "MLS Sync",    icon: RefreshCw,     badgeKey: null },
-      { href: "/admin/scheduler-settings", label: "Scheduler",   icon: CalendarCog,   badgeKey: null },
+      { href: "/admin/tasks",              label: "Tasks",            icon: ClipboardList, badgeKey: null },
+      { href: "/admin/scheduler-settings", label: "Scheduler",        icon: CalendarCog,   badgeKey: null },
+      { href: "/admin/email-workflows",    label: "Legacy Workflows", icon: Workflow,      badgeKey: null },
     ],
   },
   {
     id: "settings",
     label: "Settings",
     items: [
-      { href: "/admin/settings",        label: "General",   icon: Settings,   badgeKey: null },
-      { href: "/admin/theme",           label: "Branding",  icon: Palette,    badgeKey: null },
-      { href: "/admin/email-templates", label: "Templates", icon: Mail,       badgeKey: null },
-      { href: "/admin/payments",        label: "Payments",  icon: DollarSign, badgeKey: null },
+      { href: "/admin/settings",        label: "General",          icon: Settings,   badgeKey: null },
+      { href: "/admin/theme",           label: "Branding",         icon: Palette,    badgeKey: null },
+      { href: "/admin/system-emails",   label: "System Emails",    icon: Mail,       badgeKey: null },
+      { href: "/admin/email-templates", label: "External Templates", icon: Mail,     badgeKey: null },
+      { href: "/admin/payments",        label: "Payments",         icon: DollarSign, badgeKey: null },
     ],
   },
 ];
