@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { formatPhoneNumber } from "@/lib/formatPhone";
+import { formatPhoneNumber, stripPhoneFormatting } from "@/lib/formatPhone";
+import { isValidPhoneNumber } from "libphonenumber-js";
 import {
   CheckCircle, Download, MessageCircle, X, ExternalLink,
   FileText, Lock, Clock, Loader2,
@@ -21,14 +22,21 @@ import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tr
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 
-const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
-
 const formSchema = z.object({
-  fullName: z.string().trim().min(1, "Full name is required").max(100),
-  email: z.string().trim().email("Please enter a valid email").max(255),
-  phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Please enter a valid phone number"),
-  workingWithAgent: z.enum(["yes", "no"], { required_error: "Please select an option" }),
-  isRealtor: z.enum(["yes", "no"], { required_error: "Please select an option" }),
+  fullName: z.string().trim().min(2, "Please enter your full name (at least 2 characters)").max(100),
+  email: z.string().trim().email("Please enter a valid email address").max(255),
+  phone: z
+    .string()
+    .trim()
+    .min(1, "Phone number is required")
+    .refine((val) => {
+      const digits = stripPhoneFormatting(val);
+      if (digits.length !== 10) return false;
+      return isValidPhoneNumber(`+1${digits}`, "CA");
+    }, "Please enter a valid Canadian phone number"),
+  workingWithAgent: z.enum(["yes", "no"], { required_error: "Please let us know if you're working with an agent" }),
+  isRealtor: z.enum(["yes", "no"], { required_error: "Please let us know if you're a licensed Realtor" }),
+  website_url: z.string().max(0).optional().or(z.literal("")),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -83,10 +91,16 @@ export function ProjectLeadForm({
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: undefined, isRealtor: undefined },
+    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: undefined, isRealtor: undefined, website_url: "" },
   });
 
   const onSubmit = async (data: FormData) => {
+    // Honeypot — silently fake-success on bot submissions
+    if (data.website_url && data.website_url.length > 0) {
+      setSubmitted(true);
+      navigate(`/thank-you?type=project`);
+      return;
+    }
     try {
       const leadId = crypto.randomUUID();
       const utmData = getUtmDataForSubmission();
@@ -98,6 +112,13 @@ export function ProjectLeadForm({
       const workingWithAgent = data.workingWithAgent === "yes";
       const isRealtor = data.isRealtor === "yes";
       const actualPersona = isRealtor ? "realtor" : "buyer";
+      // Status tag: realtor inquiries skip drip; buyers already with another agent are flagged
+      const leadStatus: string | undefined = isRealtor
+        ? "realtor_inquiry"
+        : workingWithAgent
+          ? "working_with_other_agent"
+          : undefined;
+      const dripSequence = isRealtor ? null : "buyer";
 
       trackFormStart({ form_name: "floor_plan_request", form_location: "project_lead_form" });
 
@@ -114,9 +135,10 @@ export function ProjectLeadForm({
           workingWithAgent ? "Working with agent" : null,
           isRealtor ? "Is a Realtor" : null,
         ].filter(Boolean).join(", ") || null,
-        drip_sequence: "buyer",
+        lead_status: leadStatus ?? "new",
+        drip_sequence: dripSequence,
         last_drip_sent: 0,
-        next_drip_at: new Date().toISOString(),
+        next_drip_at: isRealtor ? null : new Date().toISOString(),
         lead_source: leadSource,
         utm_source: utmData.utm_source,
         utm_medium: utmData.utm_medium,
@@ -181,7 +203,8 @@ export function ProjectLeadForm({
 
       setSubmitted(true);
       const slug = typeof window !== "undefined" ? window.location.pathname.replace(/^\//, "") : "";
-      navigate(`/thank-you?type=project${slug ? `&project=${encodeURIComponent(slug)}` : ""}`);
+      const variant = isRealtor ? "&variant=realtor" : workingWithAgent ? "&variant=has_agent" : "";
+      navigate(`/thank-you?type=project${slug ? `&project=${encodeURIComponent(slug)}` : ""}${variant}`);
     } catch (err: any) {
       console.error("Lead form error:", err);
       form.setError("root", { message: "Something went wrong. Please try again." });
@@ -270,7 +293,21 @@ export function ProjectLeadForm({
       </div>
 
       <div className="p-5">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5" noValidate>
+          {/* Honeypot — hidden from real users, catches bots */}
+          <div
+            aria-hidden="true"
+            style={{ position: "absolute", left: "-9999px", top: "-9999px", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
+          >
+            <label htmlFor="lf-website-url">Website (leave blank)</label>
+            <input
+              id="lf-website-url"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              {...form.register("website_url")}
+            />
+          </div>
           <div className="space-y-1">
             <Label htmlFor="lf-name" className="text-xs font-semibold text-foreground/80">Full Name</Label>
             <Input
@@ -378,9 +415,9 @@ export function ProjectLeadForm({
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting…</>
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sending…</>
             ) : (
-              <><Download className="h-4 w-4 mr-2" /> Download Info Package</>
+              <><Download className="h-4 w-4 mr-2" /> Send Me the Floor Plans</>
             )}
           </Button>
 
