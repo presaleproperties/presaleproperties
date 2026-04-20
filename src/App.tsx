@@ -201,6 +201,7 @@ const App = () => (
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
+            <Route path="/thank-you" element={<ThankYou />} />
             <Route path="/presale-projects" element={<PresaleProjects />} />
             {/* NEW SEO URL Structure: /presale-projects/{city}/{type}/{price} */}
             <Route path="/presale-projects/:citySlug/:typePriceSlug" element={<PresaleCityTypePricePage />} />
