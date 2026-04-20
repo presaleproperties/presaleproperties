@@ -138,7 +138,19 @@ export function FlowStepCard({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{getStepLabel()}</p>
-              <p className="text-xs text-muted-foreground capitalize">{step.step_type.replace("_", " ")}</p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <p className="text-xs text-muted-foreground capitalize">{step.step_type.replace("_", " ")}</p>
+                {step.step_type === "send_email" && step.config?.template && (() => {
+                  const { Icon: TIcon, color } = getTemplateIcon(step.config?.template_kind, step.config?.template);
+                  const tplName = step.config?.template_name || step.config?.template;
+                  return (
+                    <Badge variant="secondary" className="h-4 px-1.5 text-[10px] font-normal gap-1 max-w-[260px]">
+                      <TIcon className={cn("h-2.5 w-2.5 shrink-0", color)} />
+                      <span className="truncate">{tplName}</span>
+                    </Badge>
+                  );
+                })()}
+              </div>
             </div>
             <Switch
               checked={effectiveActive}
