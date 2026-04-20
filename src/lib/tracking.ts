@@ -1,14 +1,21 @@
 /**
- * GTM dataLayer helper — standardized lead/click events.
+ * Tracking module entry — combines the existing behavioral tracking
+ * exports (from ./tracking/) with the GTM dataLayer helpers below.
  *
- * Pushes a typed `lead_submit` event (or click events) to window.dataLayer
- * so GTM can fan out to GA4, Meta Pixel, Google Ads, and TikTok Pixel.
- *
- * Important: only call AFTER a successful Supabase insert.
- *
- * Re-exported alongside the existing `src/lib/tracking/` folder via
- * separate paths — this file is the GTM-specific helper.
+ * Existing imports like `@/lib/tracking` keep working unchanged.
  */
+
+// Re-export everything from the existing tracking folder so consumers
+// importing from "@/lib/tracking" continue to receive identifiers,
+// attribution, events, and intent-scoring APIs.
+export * from "./tracking/index";
+
+// ============================================================
+// GTM dataLayer helper — standardized lead/click events.
+// Pushes typed events to window.dataLayer so GTM can fan out to
+// GA4, Meta Pixel, Google Ads, and TikTok Pixel.
+// IMPORTANT: only call AFTER a successful Supabase insert.
+// ============================================================
 
 export type LeadType = "vip_signup" | "project_inquiry" | "calculator_report";
 export type Persona = "first_time_buyer" | "investor" | "upsizer" | "realtor";
@@ -44,9 +51,9 @@ const VALUE_BY_TYPE: Record<LeadType, number> = {
   calculator_report: 50,
 };
 
-function ensureDataLayer(): any[] | null {
+function ensureDataLayer(): unknown[] | null {
   if (typeof window === "undefined") return null;
-  const w = window as unknown as { dataLayer?: any[] };
+  const w = window as unknown as { dataLayer?: unknown[] };
   w.dataLayer = w.dataLayer || [];
   return w.dataLayer;
 }
@@ -55,7 +62,6 @@ function uuidv4(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
-  // Fallback (should not be needed in modern browsers)
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
     const v = c === "x" ? r : (r & 0x3) | 0x8;
@@ -82,7 +88,6 @@ function normalizePhoneE164(phone?: string | null): string | null {
   if (!phone) return null;
   const digits = phone.replace(/\D/g, "");
   if (!digits) return null;
-  // North American default — prepend +1 for 10-digit numbers
   if (digits.length === 10) return `+1${digits}`;
   if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
   return `+${digits}`;
@@ -98,21 +103,24 @@ export interface PushLeadInput {
   lead_source?: string;
   email?: string;
   phone?: string;
-  /** Override default value mapping if provided. */
+  /** Override the default value mapping if needed. */
   value?: number;
 }
 
 /**
  * Push a standardized lead_submit event to dataLayer.
- * Hashes PII via Web Crypto. Returns the eventID used (for CAPI dedup).
+ * Hashes PII via Web Crypto. Returns the eventID (for Meta CAPI dedup).
  */
 export async function pushLeadEvent(input: PushLeadInput): Promise<string> {
   const dl = ensureDataLayer();
   const eventID = uuidv4();
 
+  const emailNorm = normalizeEmail(input.email);
+  const phoneNorm = normalizePhoneE164(input.phone);
+
   const [email_hash, phone_hash] = await Promise.all([
-    normalizeEmail(input.email) ? sha256Hex(normalizeEmail(input.email)!) : Promise.resolve(undefined),
-    normalizePhoneE164(input.phone) ? sha256Hex(normalizePhoneE164(input.phone)!) : Promise.resolve(undefined),
+    emailNorm ? sha256Hex(emailNorm) : Promise.resolve(undefined),
+    phoneNorm ? sha256Hex(phoneNorm) : Promise.resolve(undefined),
   ]);
 
   const payload: LeadEvent = {
@@ -131,20 +139,19 @@ export async function pushLeadEvent(input: PushLeadInput): Promise<string> {
     phone_hash,
   };
 
-  // Strip undefined keys for cleaner GTM debugging
-  Object.keys(payload).forEach((k) => {
-    if ((payload as Record<string, unknown>)[k] === undefined) {
-      delete (payload as Record<string, unknown>)[k];
-    }
+  // Strip undefined keys for cleaner GTM debug view
+  const clean = payload as unknown as Record<string, unknown>;
+  Object.keys(clean).forEach((k) => {
+    if (clean[k] === undefined) delete clean[k];
   });
 
-  dl?.push(payload);
+  dl?.push(clean);
   return eventID;
 }
 
 /**
  * Push a phone_click or whatsapp_click event. Used by the global
- * click-delegation listener in <ContactClickTracker />.
+ * <ContactClickTracker /> delegation listener.
  */
 export function pushClickEvent(
   type: "phone_click" | "whatsapp_click",
@@ -160,5 +167,5 @@ export function pushClickEvent(
     page_path: typeof window !== "undefined" ? window.location.pathname : "",
     eventID: uuidv4(),
   };
-  dl.push(payload);
+  dl.push(payload as unknown as Record<string, unknown>);
 }
