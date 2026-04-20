@@ -88,8 +88,6 @@ export function LpLeadForm({
     trackFormStart({
       form_name: "lp_floor_plan_request",
       form_location: `lp_${formPosition}`,
-      project_id: projectId,
-      project_name: projectName,
     });
   };
 

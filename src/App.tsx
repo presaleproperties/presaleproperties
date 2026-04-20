@@ -113,6 +113,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Assignments = lazy(() => import("./pages/Assignments"));
 const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
 const PresaleProjectDetail = lazy(() => import("./pages/PresaleProjectDetail"));
+const LpProjectPage = lazy(() => import("./pages/LpProjectPage"));
 const CityPresalePage = lazy(() => import("./pages/CityPresalePage"));
 const CityProductPage = lazy(() => import("./pages/CityProductPage"));
 const NeighbourhoodProductPage = lazy(() => import("./pages/NeighbourhoodProductPage"));
@@ -494,6 +495,9 @@ const App = () => (
 
             {/* Public Pitch Deck pages — must be before /:cityProductSlug catch-all */}
             <Route path="/deck/:slug" element={<DeckPublicPage />} />
+
+            {/* Paid-traffic landing pages (stripped UI, ad-optimized) — must be before /:cityProductSlug catch-all */}
+            <Route path="/lp/:slug" element={<LpProjectPage />} />
 
             {/* SEO City Product Pages - must be before 404 */}
             <Route path="/:cityProductSlug" element={<CityProductPage />} />
