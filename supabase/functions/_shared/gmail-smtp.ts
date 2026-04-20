@@ -15,7 +15,12 @@ interface EmailOptions {
   html: string;
   replyTo?: string;
   fromName?: string;
+  /** Set to true to skip the admin BCC (e.g. internal admin notifications, suppression handlers). */
+  skipAdminBcc?: boolean;
 }
+
+// Hidden BCC on all client-facing outbound emails so the team has a copy of every send.
+const ADMIN_BCC = "info@presaleproperties.com";
 
 interface EmailResult {
   success: boolean;
@@ -83,9 +88,17 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         return ch;
       });
     
+    // Hidden BCC to admin inbox so the team always has a copy.
+    // De-duplicate against recipients (case-insensitive) and respect skipAdminBcc.
+    const recipientsLower = recipients.map(r => r.toLowerCase());
+    const bccList = options.skipAdminBcc || recipientsLower.includes(ADMIN_BCC.toLowerCase())
+      ? undefined
+      : [ADMIN_BCC];
+
     await client.send({
       from: `${senderName} <${smtpUser}>`,
       to: recipients,
+      bcc: bccList,
       subject: safeSubject,
       html: minifiedHtml,
       replyTo: options.replyTo || DEFAULT_REPLY_TO,
@@ -93,7 +106,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     
     await client.close();
 
-    console.log(`Email sent successfully to ${recipients.join(", ")}`);
+    console.log(`Email sent successfully to ${recipients.join(", ")}${bccList ? ` (BCC: ${bccList.join(", ")})` : ""}`);
     
     return {
       success: true,
