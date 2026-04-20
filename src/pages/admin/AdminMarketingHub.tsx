@@ -101,17 +101,30 @@ export default function AdminMarketingHub() {
   };
 
   const handleRename = async (id: string, newName: string) => {
-    const { error } = await (supabase as any).from("campaign_templates").update({ name: newName }).eq("id", id);
+    const asset = [...emailAssets, ...campaignAssets].find(a => a.id === id);
+    // Also update subjectLine inside form_data so the displayed name (which prefers subjectLine) reflects the rename
+    const updatedFormData = asset?.form_data
+      ? {
+          ...asset.form_data,
+          vars: { ...(asset.form_data.vars || {}), subjectLine: newName },
+          copy: asset.form_data.copy ? { ...asset.form_data.copy, subjectLine: newName } : asset.form_data.copy,
+        }
+      : undefined;
+
+    const { error } = await (supabase as any)
+      .from("campaign_templates")
+      .update(updatedFormData ? { name: newName, form_data: updatedFormData } : { name: newName })
+      .eq("id", id);
+
     if (error) toast.error("Failed to rename");
     else {
       toast.success("Renamed");
-      // Re-sync renamed template to DealsFlow
-      const asset = [...emailAssets, ...campaignAssets].find(a => a.id === id);
       if (asset) {
-        const html = (await import("@/lib/emailTemplateHelpers")).getSavedHtml(asset);
+        const merged = { ...asset, name: newName, form_data: updatedFormData ?? asset.form_data };
+        const html = (await import("@/lib/emailTemplateHelpers")).getSavedHtml(merged);
         syncTemplateToDealsFlow({
           name: newName,
-          subject: asset.form_data?.vars?.subjectLine || newName,
+          subject: newName,
           html,
           project: asset.form_data?.vars?.projectName || asset.project_name || undefined,
         });
