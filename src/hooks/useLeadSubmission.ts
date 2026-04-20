@@ -151,6 +151,11 @@ export function useLeadSubmission(): LeadSubmissionResult {
                 else console.log("[useLeadSubmission] Zapier webhook fired successfully");
               })
               .catch((e) => console.warn("[useLeadSubmission] send-project-lead error:", e));
+
+            // Fire hot-lead alert (dispatcher checks threshold + enabled flag)
+            supabase.functions.invoke("alert-dispatcher", {
+              body: { type: "hot_lead", lead_id: payload.leadId },
+            }).catch((e) => console.warn("[useLeadSubmission] alert-dispatcher error:", e));
           }
         });
       }
