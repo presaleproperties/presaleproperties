@@ -14,6 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_test_assignments: {
+        Row: {
+          assigned_at: string
+          converted: boolean
+          id: string
+          test_key: string
+          variant_key: string
+          visitor_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          converted?: boolean
+          id?: string
+          test_key: string
+          variant_key: string
+          visitor_id: string
+        }
+        Update: {
+          assigned_at?: string
+          converted?: boolean
+          id?: string
+          test_key?: string
+          variant_key?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
+      ab_test_variants: {
+        Row: {
+          config: Json | null
+          created_at: string
+          id: string
+          is_active: boolean
+          test_key: string
+          variant_key: string
+          variant_name: string
+          weight: number
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          test_key: string
+          variant_key: string
+          variant_name: string
+          weight?: number
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          test_key?: string
+          variant_key?: string
+          variant_name?: string
+          weight?: number
+        }
+        Relationships: []
+      }
+      ad_spend: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          notes: string | null
+          spend_date: string
+          updated_at: string
+          utm_campaign: string | null
+          utm_source: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          spend_date: string
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_source: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          spend_date?: string
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_source?: string
+        }
+        Relationships: []
+      }
       admin_tasks: {
         Row: {
           category: string
@@ -125,6 +224,84 @@ export type Database = {
         }
         Relationships: []
       }
+      alert_config: {
+        Row: {
+          created_at: string
+          daily_digest_enabled: boolean
+          digest_hour_utc: number
+          hot_lead_enabled: boolean
+          hot_lead_threshold: number
+          id: string
+          meta_test_event_code: string | null
+          meta_test_mode: boolean
+          recipient_email: string
+          sync_failure_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          daily_digest_enabled?: boolean
+          digest_hour_utc?: number
+          hot_lead_enabled?: boolean
+          hot_lead_threshold?: number
+          id?: string
+          meta_test_event_code?: string | null
+          meta_test_mode?: boolean
+          recipient_email: string
+          sync_failure_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          daily_digest_enabled?: boolean
+          digest_hour_utc?: number
+          hot_lead_enabled?: boolean
+          hot_lead_threshold?: number
+          id?: string
+          meta_test_event_code?: string | null
+          meta_test_mode?: boolean
+          recipient_email?: string
+          sync_failure_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      alert_log: {
+        Row: {
+          alert_type: string
+          error_message: string | null
+          id: string
+          payload: Json | null
+          recipient_email: string
+          related_id: string | null
+          sent_at: string
+          status: string
+          subject: string | null
+        }
+        Insert: {
+          alert_type: string
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          recipient_email: string
+          related_id?: string | null
+          sent_at?: string
+          status?: string
+          subject?: string | null
+        }
+        Update: {
+          alert_type?: string
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          recipient_email?: string
+          related_id?: string | null
+          sent_at?: string
+          status?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           id: string
@@ -143,6 +320,51 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      attribution_touches: {
+        Row: {
+          id: string
+          is_first_touch: boolean
+          landing_url: string | null
+          page_url: string | null
+          referrer: string | null
+          touch_at: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          visitor_id: string
+        }
+        Insert: {
+          id?: string
+          is_first_touch?: boolean
+          landing_url?: string | null
+          page_url?: string | null
+          referrer?: string | null
+          touch_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          visitor_id: string
+        }
+        Update: {
+          id?: string
+          is_first_touch?: boolean
+          landing_url?: string | null
+          page_url?: string | null
+          referrer?: string | null
+          touch_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          visitor_id?: string
         }
         Relationships: []
       }
@@ -2895,6 +3117,39 @@ export type Database = {
         }
         Relationships: []
       }
+      pixel_health_log: {
+        Row: {
+          checked_at: string
+          error_message: string | null
+          fbp_set: boolean
+          ga_loaded: boolean
+          id: string
+          page_type: string | null
+          page_url: string
+          pixel_loaded: boolean
+        }
+        Insert: {
+          checked_at?: string
+          error_message?: string | null
+          fbp_set?: boolean
+          ga_loaded?: boolean
+          id?: string
+          page_type?: string | null
+          page_url: string
+          pixel_loaded?: boolean
+        }
+        Update: {
+          checked_at?: string
+          error_message?: string | null
+          fbp_set?: boolean
+          ga_loaded?: boolean
+          id?: string
+          page_type?: string | null
+          page_url?: string
+          pixel_loaded?: boolean
+        }
+        Relationships: []
+      }
       presale_projects: {
         Row: {
           address: string | null
@@ -3100,6 +3355,7 @@ export type Database = {
       }
       project_leads: {
         Row: {
+          ab_variant: string | null
           admin_notes: string | null
           agent_status: string | null
           budget: string | null
@@ -3113,6 +3369,10 @@ export type Database = {
           event_id: string | null
           fbc: string | null
           fbp: string | null
+          first_touch_at: string | null
+          first_touch_utm_campaign: string | null
+          first_touch_utm_medium: string | null
+          first_touch_utm_source: string | null
           form_type: string | null
           home_size: string | null
           id: string
@@ -3128,6 +3388,7 @@ export type Database = {
           lofty_id: string | null
           lofty_synced_at: string | null
           message: string | null
+          meta_test_event_code: string | null
           name: string
           next_drip_at: string | null
           pages_viewed: number | null
@@ -3136,6 +3397,7 @@ export type Database = {
           project_id: string | null
           project_interest: Json | null
           referrer: string | null
+          responded_at: string | null
           session_count: number | null
           session_id: string | null
           time_on_site: number | null
@@ -3152,6 +3414,7 @@ export type Database = {
           visitor_id: string | null
         }
         Insert: {
+          ab_variant?: string | null
           admin_notes?: string | null
           agent_status?: string | null
           budget?: string | null
@@ -3165,6 +3428,10 @@ export type Database = {
           event_id?: string | null
           fbc?: string | null
           fbp?: string | null
+          first_touch_at?: string | null
+          first_touch_utm_campaign?: string | null
+          first_touch_utm_medium?: string | null
+          first_touch_utm_source?: string | null
           form_type?: string | null
           home_size?: string | null
           id?: string
@@ -3180,6 +3447,7 @@ export type Database = {
           lofty_id?: string | null
           lofty_synced_at?: string | null
           message?: string | null
+          meta_test_event_code?: string | null
           name: string
           next_drip_at?: string | null
           pages_viewed?: number | null
@@ -3188,6 +3456,7 @@ export type Database = {
           project_id?: string | null
           project_interest?: Json | null
           referrer?: string | null
+          responded_at?: string | null
           session_count?: number | null
           session_id?: string | null
           time_on_site?: number | null
@@ -3204,6 +3473,7 @@ export type Database = {
           visitor_id?: string | null
         }
         Update: {
+          ab_variant?: string | null
           admin_notes?: string | null
           agent_status?: string | null
           budget?: string | null
@@ -3217,6 +3487,10 @@ export type Database = {
           event_id?: string | null
           fbc?: string | null
           fbp?: string | null
+          first_touch_at?: string | null
+          first_touch_utm_campaign?: string | null
+          first_touch_utm_medium?: string | null
+          first_touch_utm_source?: string | null
           form_type?: string | null
           home_size?: string | null
           id?: string
@@ -3232,6 +3506,7 @@ export type Database = {
           lofty_id?: string | null
           lofty_synced_at?: string | null
           message?: string | null
+          meta_test_event_code?: string | null
           name?: string
           next_drip_at?: string | null
           pages_viewed?: number | null
@@ -3240,6 +3515,7 @@ export type Database = {
           project_id?: string | null
           project_interest?: Json | null
           referrer?: string | null
+          responded_at?: string | null
           session_count?: number | null
           session_id?: string | null
           time_on_site?: number | null
@@ -4147,6 +4423,8 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_lead_score_v2: { Args: { p_lead_id: string }; Returns: number }
+      cleanup_old_sync_logs: { Args: never; Returns: undefined }
       cleanup_rate_limit_log: { Args: never; Returns: undefined }
       get_engagement_funnel: {
         Args: { days_back?: number }
