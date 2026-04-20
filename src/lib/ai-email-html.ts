@@ -167,6 +167,9 @@ function buildAiFinalHtml({
   }
 
   if (layoutVersion === "modern") {
+    const slides = (loopSlides && loopSlides.length > 0)
+      ? loopSlides.filter(Boolean)
+      : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
     return buildLululemonEmailHtml({
       projectName: fields.projectName || "",
       city: fields.city,
@@ -195,6 +198,7 @@ function buildAiFinalHtml({
       })),
       fpHeading,
       fpSubheading,
+      loopSlides: slides,
       showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta,
       showInterestedCta, interestedWhatsapp,
     }, agent);
