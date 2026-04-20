@@ -425,6 +425,17 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Ensure a hero image is present in the email — fall back through the chain
+    // so the recipient always recognizes the project they signed up for.
+    const projectAny = project as any;
+    if (!projectAny.featured_image) {
+      const fallback =
+        (Array.isArray(projectAny.gallery_images) && projectAny.gallery_images[0]) ||
+        projectAny.og_image ||
+        null;
+      if (fallback) projectAny.featured_image = fallback;
+    }
+
     // Hard rule: realtors or leads working with an agent ALWAYS get Template B
     const isRealtorOrHasAgent = 
       lead.persona === "realtor" || 
