@@ -15,6 +15,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { captureFbClickId } from "@/lib/tracking/metaPixel";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FbqFunction = (...args: any[]) => void;
@@ -29,6 +30,9 @@ export function MetaPixel() {
 
   // Initialize pixel on mount
   useEffect(() => {
+    // Capture fbclid → _fbc cookie on first load (required for CAPI attribution)
+    captureFbClickId();
+
     const initPixel = async () => {
       if (initializedRef.current) return;
 
@@ -39,7 +43,9 @@ export function MetaPixel() {
         .eq("key", "meta_pixel_id")
         .maybeSingle();
 
-      const pixelId = typeof data?.value === "string" ? data.value : null;
+      // Pixel ID may be stored as string OR number in JSON column
+      const raw = data?.value;
+      const pixelId = raw != null ? String(raw) : null;
 
       if (!pixelId) {
         if (DEBUG_MODE) {
