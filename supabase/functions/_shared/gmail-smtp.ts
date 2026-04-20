@@ -15,7 +15,12 @@ interface EmailOptions {
   html: string;
   replyTo?: string;
   fromName?: string;
+  /** Set to true to skip the admin BCC (e.g. internal admin notifications, suppression handlers). */
+  skipAdminBcc?: boolean;
 }
+
+// Hidden BCC on all client-facing outbound emails so the team has a copy of every send.
+const ADMIN_BCC = "info@presaleproperties.com";
 
 interface EmailResult {
   success: boolean;
