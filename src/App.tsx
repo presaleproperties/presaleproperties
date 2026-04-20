@@ -80,6 +80,7 @@ const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminLeads = lazy(() => import("./pages/admin/AdminLeads"));
 const AdminLeadAnalytics = lazy(() => import("./pages/admin/AdminLeadAnalytics"));
+const AdminPaidAdsDashboard = lazy(() => import("./pages/admin/AdminPaidAdsDashboard"));
 const AdminLeadOnboard = lazy(() => import("./pages/admin/AdminLeadOnboard"));
 
 const AdminAIAnalytics = lazy(() => import("./pages/admin/AdminAIAnalytics"));
@@ -374,6 +375,7 @@ const App = () => (
             <Route path="/admin/agents" element={<AdminProtectedRoute><AdminAgents /></AdminProtectedRoute>} />
             <Route path="/admin/leads" element={<AdminProtectedRoute><AdminLeads /></AdminProtectedRoute>} />
             <Route path="/admin/leads/analytics" element={<AdminProtectedRoute><AdminLeadAnalytics /></AdminProtectedRoute>} />
+            <Route path="/admin/paid-ads" element={<AdminProtectedRoute><AdminPaidAdsDashboard /></AdminProtectedRoute>} />
             <Route path="/admin/lead-onboard" element={<AdminProtectedRoute><AdminLeadOnboard /></AdminProtectedRoute>} />
             
             <Route path="/admin/payments" element={<AdminProtectedRoute><AdminPayments /></AdminProtectedRoute>} />
