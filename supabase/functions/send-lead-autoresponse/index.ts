@@ -286,6 +286,74 @@ Deno.serve(async (req) => {
 
     // Determine project ID
     const pid = projectId || lead.project_id;
+
+    // ── LEAD-MAGNET BRANCH ─────────────────────────────────────────────────
+    // No project linked? If this lead came from a lead-magnet form (exit intent,
+    // 7 mistakes guide, newsletter, etc.), send the guide-delivery email.
+    const LEAD_MAGNET_SOURCES = new Set([
+      "exit_intent_guide",
+      "exit_intent",
+      "7_mistakes_guide",
+      "mistakes_guide",
+      "lead_magnet",
+      "newsletter",
+    ]);
+    const isLeadMagnet = !pid && lead.lead_source && LEAD_MAGNET_SOURCES.has(lead.lead_source.toLowerCase());
+
+    if (isLeadMagnet) {
+      // Look up the PDF URL from app_settings
+      const { data: pdfSetting } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "exit_intent_pdf_url")
+        .maybeSingle();
+      const rawPdf = pdfSetting?.value;
+      const pdfUrl = typeof rawPdf === "string" ? rawPdf.replace(/^"|"$/g, "") : "";
+
+      const firstNameLM = lead.name?.split(" ")[0] || "there";
+      const subjectLine = "Your Free Guide: 7 Costly Mistakes Presale Buyers Make";
+      const html = buildLeadMagnetEmail(firstNameLM, pdfUrl, DEFAULT_AGENT);
+
+      const trackingId = crypto.randomUUID();
+      const trackingPixelUrl = `${supabaseUrl}/functions/v1/track-email-open?tid=${trackingId}`;
+      const htmlWithPixel = html.replace(
+        "</body>",
+        `<img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;width:1px;height:1px;border:0;" /></body>`,
+      );
+
+      const result = await sendEmail({
+        to: lead.email,
+        subject: subjectLine,
+        html: htmlWithPixel,
+        fromName: "Uzair Muhammad | Presale Properties",
+      });
+
+      await supabase.from("email_logs").insert({
+        email_to: lead.email,
+        recipient_name: lead.name,
+        subject: subjectLine,
+        status: result.success ? "sent" : "failed",
+        error_message: result.success ? null : result.error,
+        template_type: "auto_lead_magnet_guide",
+        lead_id: lead.id,
+        tracking_id: trackingId,
+      });
+
+      if (!result.success) {
+        console.error("[send-lead-autoresponse] Lead magnet email failed:", result.error);
+        return new Response(JSON.stringify({ error: result.error }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      console.log(`[send-lead-autoresponse] Sent lead-magnet guide to ${lead.email}`);
+      return new Response(
+        JSON.stringify({ success: true, template: "lead_magnet_guide", recipient: lead.email }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     if (!pid) {
       console.log("[send-lead-autoresponse] No project_id, skipping");
       return new Response(JSON.stringify({ success: true, skipped: true, reason: "no_project" }), {
