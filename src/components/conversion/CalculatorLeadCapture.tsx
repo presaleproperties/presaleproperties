@@ -10,6 +10,7 @@ import { useLeadSubmission } from "@/hooks/useLeadSubmission";
 import { toast } from "sonner";
 import { z } from "zod";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { pushLeadEvent } from "@/lib/tracking";
 
 const leadSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -146,6 +147,14 @@ export function CalculatorLeadCapture({
       }).catch(console.error);
 
       MetaEvents.lead({ content_name: `${calculatorData.calculatorType} Calculator`, content_category: "calculator" });
+
+      // GTM dataLayer — standardized lead event for GA4/Meta/Ads/TikTok via GTM
+      pushLeadEvent({
+        lead_type: "calculator_report",
+        lead_source: config.leadSource,
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+      }).catch(console.error);
 
       onTrackEvent?.(config.eventName);
       localStorage.setItem("pp_form_submitted", "true");

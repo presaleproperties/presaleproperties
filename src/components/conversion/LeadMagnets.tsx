@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { trackFormStart, trackFormSubmit, getVisitorId } from "@/lib/tracking";
+import { trackFormStart, trackFormSubmit, getVisitorId, pushLeadEvent } from "@/lib/tracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { upsertProjectLead } from "@/lib/upsertProjectLead";
 import { useLeadSubmission } from "@/hooks/useLeadSubmission";
