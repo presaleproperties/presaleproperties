@@ -39,6 +39,7 @@ import {
   Zap,
   CalendarCog,
   PenTool,
+  Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -102,6 +103,7 @@ const navSections = [
     id: "insights",
     label: "Insights",
     items: [
+      { href: "/admin/paid-ads",         label: "Paid Ads & Tracking", icon: Target,     badgeKey: null },
       { href: "/admin/leads/analytics",  label: "Lead Insights", icon: BarChart3,  badgeKey: null },
       { href: "/admin/market-dashboard", label: "Market Data",   icon: TrendingUp, badgeKey: null },
       { href: "/admin/live-activity",    label: "Live Monitor",  icon: Activity,   badgeKey: null },
