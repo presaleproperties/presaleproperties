@@ -784,6 +784,51 @@ function EmptyMsg({ icon: Icon, children }: { icon: typeof Eye; children: React.
   );
 }
 
+type TimelineEvent = {
+  id: string;
+  activity_type: string;
+  project_name: string | null;
+  city: string | null;
+  page_url: string | null;
+  page_title: string | null;
+  duration_seconds: number | null;
+  created_at: string;
+};
+
+type TimelineRow =
+  | { kind: "submit" }
+  | { kind: "day"; label: string; count: number }
+  | { kind: "event"; event: TimelineEvent };
+
+function buildRows(events: TimelineEvent[], submitMarker: boolean): TimelineRow[] {
+  const rows: TimelineRow[] = [];
+  if (submitMarker) rows.push({ kind: "submit" });
+
+  // Group by calendar day, preserving the existing order (newest-first).
+  let currentDay = "";
+  let dayCount = 0;
+  let dayIdx = -1;
+  events.forEach((e) => {
+    const day = format(new Date(e.created_at), "EEEE, MMM d, yyyy");
+    if (day !== currentDay) {
+      currentDay = day;
+      dayCount = 0;
+      rows.push({ kind: "day", label: day, count: 0 });
+      dayIdx = rows.length - 1;
+    }
+    dayCount += 1;
+    (rows[dayIdx] as { kind: "day"; label: string; count: number }).count = dayCount;
+    rows.push({ kind: "event", event: e });
+  });
+  return rows;
+}
+
+function rowKey(row: TimelineRow, i: number): string {
+  if (row.kind === "event") return row.event.id;
+  if (row.kind === "day") return `day-${row.label}-${i}`;
+  return `submit-${i}`;
+}
+
 function TimelineGroup({
   title,
   subtitle,
@@ -793,75 +838,156 @@ function TimelineGroup({
 }: {
   title: string;
   subtitle: string;
-  events: Array<{
-    id: string;
-    activity_type: string;
-    project_name: string | null;
-    city: string | null;
-    page_url: string | null;
-    page_title: string | null;
-    duration_seconds: number | null;
-    created_at: string;
-  }>;
-  accent: "emerald" | "muted";
+  events: TimelineEvent[];
+  accent: "success" | "muted";
   submitMarker?: boolean;
 }) {
+  const rows = useMemo(() => buildRows(events, submitMarker), [events, submitMarker]);
+
   if (events.length === 0 && !submitMarker) return null;
+
+  // Virtualize only when the list is large enough to matter for scroll perf.
+  const VIRTUALIZE_THRESHOLD = 60;
+  const shouldVirtualize = rows.length > VIRTUALIZE_THRESHOLD;
 
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between">
-        <h4 className={cn(
-          "text-[11px] font-semibold uppercase tracking-wider",
-          accent === "emerald" ? "text-emerald-700" : "text-muted-foreground"
-        )}>
+        <h4
+          className={cn(
+            "text-[11px] font-semibold uppercase tracking-wider",
+            accent === "success" ? "text-success" : "text-muted-foreground",
+          )}
+        >
           {title}
         </h4>
         <span className="text-[10px] text-muted-foreground">{subtitle}</span>
       </div>
 
-      <ol className="relative border-l-2 border-border ml-2 space-y-2 pl-4">
-        {submitMarker && (
-          <li className="relative">
-            <span className="absolute -left-[22px] top-1 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-background" />
-            <div className="text-xs font-medium text-emerald-700 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 px-2.5 py-1.5 rounded-md inline-block">
-              ✓ Form submitted
-            </div>
-          </li>
+      <div className="relative ml-2 pl-4 border-l-2 border-border">
+        {shouldVirtualize ? (
+          <VirtualTimeline rows={rows} accent={accent} />
+        ) : (
+          <ol className="space-y-2">
+            {rows.map((row, i) => (
+              <li key={rowKey(row, i)}>
+                <TimelineRowItem row={row} accent={accent} />
+              </li>
+            ))}
+          </ol>
         )}
-        {events.map((e) => {
-          const meta = eventLabels[e.activity_type] || { label: e.activity_type, icon: Activity, color: "text-muted-foreground" };
-          const Icon = meta.icon;
-          return (
-            <li key={e.id} className="relative">
-              <span className={cn(
-                "absolute -left-[20px] top-1.5 h-2 w-2 rounded-full ring-2 ring-background",
-                accent === "emerald" ? "bg-emerald-400" : "bg-muted-foreground/40"
-              )} />
-              <div className="flex items-start gap-2 text-xs">
-                <Icon className={cn("h-3.5 w-3.5 mt-0.5 shrink-0", meta.color)} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-medium">{meta.label}</span>
-                    <span className="text-[10px] text-muted-foreground shrink-0 whitespace-nowrap">
-                      {formatDistanceToNow(new Date(e.created_at), { addSuffix: true })}
-                    </span>
-                  </div>
-                  {(e.project_name || e.page_title || e.page_url) && (
-                    <p className="text-[11px] text-muted-foreground truncate">
-                      {e.project_name || e.page_title || e.page_url}
-                      {e.city && e.project_name ? ` · ${e.city}` : ""}
-                    </p>
-                  )}
-                  {e.duration_seconds ? (
-                    <p className="text-[10px] text-muted-foreground/70">{formatSeconds(e.duration_seconds)} on page</p>
-                  ) : null}
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
+      </div>
+    </div>
+  );
+}
+
+function VirtualTimeline({
+  rows,
+  accent,
+}: {
+  rows: TimelineRow[];
+  accent: "success" | "muted";
+}) {
+  // Uniform row height keeps scroll math trivial and is visually fine —
+  // shorter rows (day headers, submit marker) just get a little extra padding.
+  const itemSize = 64;
+  const height = Math.min(560, Math.max(itemSize, rows.length * itemSize));
+
+  return (
+    <FixedSizeList
+      height={height}
+      width="100%"
+      itemCount={rows.length}
+      itemSize={itemSize}
+      overscanCount={8}
+    >
+      {({ index, style }) => (
+        <div style={style}>
+          <TimelineRowItem row={rows[index]} accent={accent} />
+        </div>
+      )}
+    </FixedSizeList>
+  );
+}
+
+function TimelineRowItem({
+  row,
+  accent,
+}: {
+  row: TimelineRow;
+  accent: "success" | "muted";
+}) {
+  if (row.kind === "submit") {
+    return (
+      <div className="relative py-1">
+        <span className="absolute -left-[22px] top-2.5 h-3 w-3 rounded-full bg-success ring-2 ring-background" />
+        <div className="text-xs font-medium text-success bg-success/10 border border-success/20 px-2.5 py-1.5 rounded-md inline-block">
+          ✓ Form submitted
+        </div>
+      </div>
+    );
+  }
+
+  if (row.kind === "day") {
+    return (
+      <div className="flex items-center justify-between pt-1.5 pb-0.5">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {row.label}
+        </span>
+        <span className="text-[10px] text-muted-foreground/70">
+          {row.count} {row.count === 1 ? "event" : "events"}
+        </span>
+      </div>
+    );
+  }
+
+  const e = row.event;
+  const meta =
+    eventLabels[e.activity_type] || {
+      label: e.activity_type,
+      icon: Activity,
+      color: "text-muted-foreground",
+    };
+  const Icon = meta.icon;
+  const eventDate = new Date(e.created_at);
+
+  return (
+    <div className="relative py-1">
+      <span
+        className={cn(
+          "absolute -left-[20px] top-2.5 h-2 w-2 rounded-full ring-2 ring-background",
+          accent === "success" ? "bg-success/70" : "bg-muted-foreground/40",
+        )}
+      />
+      <div className="flex items-start gap-2 text-xs">
+        <Icon className={cn("h-3.5 w-3.5 mt-0.5 shrink-0", meta.color)} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="font-medium truncate">{meta.label}</span>
+            <span
+              className="text-[10px] text-muted-foreground shrink-0 whitespace-nowrap tabular-nums"
+              title={format(eventDate, "PPpp")}
+            >
+              {format(eventDate, "h:mm a")}
+              <span className="text-muted-foreground/60">
+                {" · "}
+                {formatDistanceToNow(eventDate, { addSuffix: true })}
+              </span>
+            </span>
+          </div>
+          {(e.project_name || e.page_title || e.page_url) && (
+            <p className="text-[11px] text-muted-foreground truncate">
+              {e.project_name || e.page_title || e.page_url}
+              {e.city && e.project_name ? ` · ${e.city}` : ""}
+            </p>
+          )}
+          {e.duration_seconds ? (
+            <p className="text-[10px] text-muted-foreground/70">
+              {formatSeconds(e.duration_seconds)} on page
+            </p>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
