@@ -39,6 +39,7 @@ import {
   MailOpen,
   ChevronRight,
   BadgeCheck,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -718,7 +719,9 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                     {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
                   </div>
                 ) : !emailLogs || emailLogs.length === 0 ? (
-                  <EmptyMsg icon={Mail}>No emails sent to this lead yet.</EmptyMsg>
+                  <EmptyMsg icon={Mail}>
+                    No emails sent to this lead yet — try the <strong>Hub</strong> tab to send a template.
+                  </EmptyMsg>
                 ) : (
                   <ul className="space-y-2">
                     {emailLogs.map((e: any) => (
@@ -748,6 +751,21 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                       </li>
                     ))}
                   </ul>
+                )}
+              </TabsContent>
+
+              {/* ───── HUB (Marketing + Email Hub integration) ───── */}
+              <TabsContent value="hub" className="m-0">
+                {isProjectLead ? (
+                  <LeadHubPanel
+                    leadId={projectLead.id}
+                    leadEmail={lead.email}
+                    leadName={lead.name}
+                  />
+                ) : (
+                  <EmptyMsg icon={Sparkles}>
+                    Hub actions are available for project leads only.
+                  </EmptyMsg>
                 )}
               </TabsContent>
             </div>
