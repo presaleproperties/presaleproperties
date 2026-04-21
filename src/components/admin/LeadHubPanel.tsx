@@ -147,19 +147,45 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
     },
   };
 
-  const sendTemplate = async (tpl: CampaignTemplate) => {
+  /**
+   * Send a template now, or queue it for a future time via `email_jobs`.
+   * - `scheduledAt = null` → invoke edge function immediately.
+   * - `scheduledAt = Date` → insert queued row (dispatcher picks it up).
+   */
+  const sendTemplate = async (tpl: CampaignTemplate, scheduledAt: Date | null) => {
     setBusyId(`tpl-${tpl.id}`);
     try {
-      const { error } = await supabase.functions.invoke("send-template-email", {
-        body: {
-          templateId: tpl.id,
-          recipient: { email: leadEmail, firstName, name: leadName },
-          utm: outgoingUtm,
-          meta: { ...attributionMeta, template_id: tpl.id, template_name: tpl.name },
-        },
-      });
-      if (error) throw error;
-      toast.success(`Sent "${tpl.name}" to ${leadEmail}`);
+      if (!scheduledAt) {
+        const { error } = await supabase.functions.invoke("send-template-email", {
+          body: {
+            templateId: tpl.id,
+            recipient: { email: leadEmail, firstName, name: leadName },
+            utm: outgoingUtm,
+            meta: { ...attributionMeta, template_id: tpl.id, template_name: tpl.name },
+          },
+        });
+        if (error) throw error;
+        toast.success(`Sent "${tpl.name}" to ${leadEmail}`);
+      } else {
+        const { error: jobErr } = await (supabase as any).from("email_jobs").insert({
+          to_email: leadEmail,
+          to_name: leadName,
+          template_id: tpl.id,
+          scheduled_at: scheduledAt.toISOString(),
+          status: "queued",
+          variables: { firstName, name: leadName, ...outgoingUtm },
+          meta: {
+            ...attributionMeta,
+            template_id: tpl.id,
+            template_name: tpl.name,
+            scheduled_via: "lead_hub_panel",
+          },
+        });
+        if (jobErr) throw jobErr;
+        toast.success(
+          `Scheduled "${tpl.name}" for ${format(scheduledAt, "MMM d, h:mm a")} (in ${formatDistanceToNow(scheduledAt)})`,
+        );
+      }
     } catch (err: any) {
       toast.error(err?.message || "Failed to send template");
     } finally {
