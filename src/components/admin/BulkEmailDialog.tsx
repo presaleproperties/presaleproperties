@@ -289,6 +289,7 @@ export function BulkEmailDialog({ open, onOpenChange, recipients, campaignName }
             )}
           </div>
 
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               size="sm"
