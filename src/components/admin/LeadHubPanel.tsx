@@ -246,6 +246,14 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
           ? `Enrolled in "${wf.name}" — first email in ${step.delay_minutes}m`
           : `Enrolled in "${wf.name}" — first email queued now`,
       );
+
+      supabase.functions.invoke("send-lead-engagement-event", {
+        body: {
+          email: leadEmail,
+          eventType: "workflow_enrolled",
+          eventData: { workflow_id: wf.id, workflow_name: wf.name, first_send_at: scheduledAt.toISOString() },
+        },
+      }).catch(() => {});
     } catch (err: any) {
       toast.error(err?.message || "Failed to enroll");
     } finally {
