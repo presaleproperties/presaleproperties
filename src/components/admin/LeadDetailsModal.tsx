@@ -327,6 +327,8 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
       ? "bg-amber-500/10 text-amber-700 border-amber-200"
       : "bg-sky-500/10 text-sky-700 border-sky-200";
 
+  if (!lead) return null;
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl p-0 flex flex-col">
