@@ -22,6 +22,8 @@ import {
   Clock,
   Tag,
   PlayCircle,
+  Target,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,13 +52,28 @@ interface EmailWorkflow {
   workflow_key: string;
 }
 
+export interface LeadAttribution {
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
+  first_touch_utm_source?: string | null;
+  first_touch_utm_medium?: string | null;
+  first_touch_utm_campaign?: string | null;
+  referrer?: string | null;
+  landing_page?: string | null;
+  lead_source?: string | null;
+}
+
 interface LeadHubPanelProps {
   leadId: string;
   leadEmail: string;
   leadName: string;
+  attribution?: LeadAttribution;
 }
 
-export function LeadHubPanel({ leadId, leadEmail, leadName }: LeadHubPanelProps) {
+export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadHubPanelProps) {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   // ── Templates (Marketing Hub) ────────────────────────────────────────────
