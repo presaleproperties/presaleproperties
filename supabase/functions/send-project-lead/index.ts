@@ -440,6 +440,39 @@ serve(async (req: Request): Promise<Response> => {
         utm_content: lead.utm_content || "",
         utm_term: lead.utm_term || "",
         referrer: lead.referrer || "",
+
+        // ── ENGAGEMENT METRICS (NEW) ───────────────────────────────────────
+        total_emails_sent: totalEmailsSent,
+        total_emails_opened: totalEmailsOpened,
+        total_emails_clicked: totalEmailsClicked,
+        last_email_opened_at: client?.last_email_opened_at || null,
+        total_property_views: client?.total_property_views ?? 0,
+        total_site_visits: client?.total_site_visits ?? 0,
+        last_seen_at: client?.last_seen_at || null,
+        pitch_deck_visits: deckVisits.length,
+        last_deck_viewed: deckVisits[0]?.project_name || null,
+        last_deck_viewed_at: deckVisits[0]?.created_at || null,
+
+        // ── INTENT (NEW) ───────────────────────────────────────────────────
+        intent_tier: intentTier,
+        lead_temperature: intentTier.toLowerCase(),
+        is_hot_lead: intentScoreResolved >= 70 ? "Yes" : "No",
+
+        // ── WORKFLOW STATE (NEW) ───────────────────────────────────────────
+        enrolled_workflows: enrolledWorkflows,
+        next_scheduled_email_at: queuedJob?.scheduled_at || null,
+
+        // ── ATTRIBUTION DEPTH (NEW) ────────────────────────────────────────
+        first_touch_source: firstTouch?.utm_source || lead.utm_source || "",
+        first_touch_medium: firstTouch?.utm_medium || lead.utm_medium || "",
+        first_touch_campaign: firstTouch?.utm_campaign || lead.utm_campaign || "",
+        first_touch_landing_page: firstTouch?.landing_url || lead.landing_page || "",
+        first_touch_at: firstTouch?.touch_at || lead.created_at,
+        last_touch_source: lastTouch?.utm_source || lead.utm_source || "",
+        last_touch_medium: lastTouch?.utm_medium || lead.utm_medium || "",
+        last_touch_campaign: lastTouch?.utm_campaign || lead.utm_campaign || "",
+        touch_count: touches.length,
+        days_since_first_touch: daysSinceFirstTouch,
       };
 
       console.log("Webhook payload:", JSON.stringify(webhookPayload));
