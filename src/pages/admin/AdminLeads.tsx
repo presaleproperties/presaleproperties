@@ -704,6 +704,7 @@ export default function AdminLeads() {
     setIntentFilter("all");
     setStatusFilter("all");
     setPersonaFilter("all");
+    setActivePresetId(null);
   };
 
   // ── Filter Presets ────────────────────────────────────────────────────────
