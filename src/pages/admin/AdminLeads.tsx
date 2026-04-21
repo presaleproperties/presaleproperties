@@ -335,6 +335,25 @@ export default function AdminLeads() {
   const [selectedListingIds, setSelectedListingIds] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
+  // ── Pagination ────────────────────────────────────────────────────────────
+  const [pageSize, setPageSize] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem("admin_leads_page_size");
+      if (saved) return parseInt(saved, 10) || 25;
+    } catch {}
+    return 25;
+  });
+  const [projectPage, setProjectPage] = useState(1);
+  const [listingPage, setListingPage] = useState(1);
+  const updatePageSize = (n: number) => {
+    setPageSize(n);
+    setProjectPage(1);
+    setListingPage(1);
+    try {
+      localStorage.setItem("admin_leads_page_size", String(n));
+    } catch {}
+  };
+
   // ── Column visibility (persisted) ─────────────────────────────────────────
   type ColumnDef = { key: string; label: string; required?: boolean };
   const PROJECT_COLUMNS: ColumnDef[] = [
