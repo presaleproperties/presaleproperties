@@ -544,7 +544,7 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                       <TimelineGroup
                         title="After form submission"
                         subtitle={`${postSubmit.length} event(s) since they submitted`}
-                        accent="emerald"
+                        accent="success"
                         events={postSubmit}
                       />
                     )}
