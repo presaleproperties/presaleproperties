@@ -499,6 +499,25 @@ export default function PresaleProjects() {
         <meta property="og:description" content={getSeoDescription()} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        {/* BreadcrumbList JSON-LD — matches the visible breadcrumb in the page header */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://presaleproperties.com" },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Presale Projects",
+                item: "https://presaleproperties.com/presale-projects",
+              },
+              ...(filters.city !== "any"
+                ? [{ "@type": "ListItem", position: 3, name: filters.city }]
+                : []),
+            ],
+          })}
+        </script>
       </Helmet>
 
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
