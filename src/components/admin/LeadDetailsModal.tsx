@@ -330,34 +330,58 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
 
   if (!lead) return null;
 
+  const initials = lead.name
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl p-0 flex flex-col">
-        <SheetHeader className="px-6 pt-6 pb-4 border-b border-border space-y-3">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <SheetTitle className="flex items-center gap-2 text-lg">
-                <User className="h-5 w-5 text-primary" />
-                {lead.name}
-              </SheetTitle>
-              <SheetDescription className="text-xs mt-1">
+        <SheetHeader className="px-6 pt-6 pb-4 border-b border-border bg-gradient-to-b from-muted/40 to-transparent space-y-4">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <SheetTitle className="text-lg leading-tight truncate">{lead.name}</SheetTitle>
+              <SheetDescription className="text-xs mt-0.5">
                 Submitted {formatDistanceToNow(new Date(submittedAt), { addSuffix: true })}
                 {" · "}
                 {format(new Date(submittedAt), "MMM d, yyyy 'at' h:mm a")}
               </SheetDescription>
-            </div>
-            {isProjectLead && (
-              <div className="flex flex-col items-end gap-1 shrink-0">
-                {projectLead.lead_temperature && (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {isProjectLead && projectLead.lead_temperature && (
                   <Badge variant="outline" className={cn("gap-1 text-[10px]", tempColor)}>
                     {projectLead.lead_temperature === "hot" ? <Flame className="h-3 w-3" /> : <Snowflake className="h-3 w-3" />}
                     {projectLead.lead_temperature.toUpperCase()}
                   </Badge>
                 )}
-                {(score > 0 || intent > 0) && (
-                  <div className="text-[10px] text-muted-foreground flex items-center gap-2">
-                    {score > 0 && <span>Score: <strong className="text-foreground">{score}</strong></span>}
-                    {intent > 0 && <span>Intent: <strong className="text-foreground">{intent}</strong></span>}
+                {isProjectLead && projectLead.lead_status && (
+                  <Badge variant="secondary" className="text-[10px] capitalize">
+                    {projectLead.lead_status}
+                  </Badge>
+                )}
+                {isProjectLead && projectLead.persona && (
+                  <Badge variant="outline" className="text-[10px]">
+                    {personaLabel(projectLead.persona)}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            {isProjectLead && (intent > 0 || score > 0) && (
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                {intent > 0 && (
+                  <div className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-center">
+                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Intent</div>
+                    <div className="text-base font-bold tabular-nums text-foreground">{intent}<span className="text-[10px] font-normal text-muted-foreground">/10</span></div>
+                  </div>
+                )}
+                {score > 0 && (
+                  <div className="text-[10px] text-muted-foreground">
+                    Score <strong className="text-foreground tabular-nums">{score}</strong>
                   </div>
                 )}
               </div>
