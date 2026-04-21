@@ -377,20 +377,10 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
                         ))}
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 shrink-0 gap-1 px-2 text-[11px]"
-                      disabled={busy}
-                      onClick={() => sendTemplate(tpl)}
-                    >
-                      {busy ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Send className="h-3 w-3" />
-                      )}
-                      Send
-                    </Button>
+                    <SchedulePopover
+                      busy={busy}
+                      onConfirm={(when) => sendTemplate(tpl, when)}
+                    />
                   </li>
                 );
               })}
