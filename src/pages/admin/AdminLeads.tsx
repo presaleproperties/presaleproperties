@@ -977,12 +977,18 @@ export default function AdminLeads() {
                             />
                           </th>
                           <SortHeader label="Name" field="name" sort={sort} onSort={onSort} />
-                          <SortHeader label="Contact" sort={sort} onSort={onSort} />
-                          <SortHeader label="Project" field="project" sort={sort} onSort={onSort} />
-                          <SortHeader label="Intent" field="intent_score" sort={sort} onSort={onSort} />
-                          <SortHeader label="Source" sort={sort} onSort={onSort} />
-                          <SortHeader label="Status" sort={sort} onSort={onSort} />
-                          <SortHeader label="Last activity" field="created_at" sort={sort} onSort={onSort} />
+                          {projectColumns.contact && <SortHeader label="Contact" sort={sort} onSort={onSort} />}
+                          {projectColumns.project && (
+                            <SortHeader label="Project" field="project" sort={sort} onSort={onSort} />
+                          )}
+                          {projectColumns.intent && (
+                            <SortHeader label="Intent" field="intent_score" sort={sort} onSort={onSort} />
+                          )}
+                          {projectColumns.source && <SortHeader label="Source" sort={sort} onSort={onSort} />}
+                          {projectColumns.status && <SortHeader label="Status" sort={sort} onSort={onSort} />}
+                          {projectColumns.activity && (
+                            <SortHeader label="Last activity" field="created_at" sort={sort} onSort={onSort} />
+                          )}
                           <th className="w-10 px-3 py-2.5" />
                         </tr>
                       </thead>
