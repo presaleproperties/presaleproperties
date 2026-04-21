@@ -106,6 +106,39 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
 
   const firstName = (leadName || "").split(" ")[0] || leadName;
 
+  // ── Outgoing attribution preview ────────────────────────────────────────
+  // What we'll stamp on the email/job so downstream analytics can attribute
+  // re-engagement back to the originating campaign.
+  const outgoingUtm = {
+    utm_source: attribution?.first_touch_utm_source || attribution?.utm_source || "lead_hub",
+    utm_medium: attribution?.first_touch_utm_medium || attribution?.utm_medium || "email",
+    utm_campaign:
+      attribution?.first_touch_utm_campaign || attribution?.utm_campaign || "lead_followup",
+    utm_content: attribution?.utm_content || "hub_panel",
+    utm_term: attribution?.utm_term || null,
+  };
+
+  const attributionMeta = {
+    source: "lead_hub_panel" as const,
+    lead_id: leadId,
+    outgoing_utm: outgoingUtm,
+    original_attribution: {
+      first_touch: {
+        source: attribution?.first_touch_utm_source ?? null,
+        medium: attribution?.first_touch_utm_medium ?? null,
+        campaign: attribution?.first_touch_utm_campaign ?? null,
+      },
+      last_touch: {
+        source: attribution?.utm_source ?? null,
+        medium: attribution?.utm_medium ?? null,
+        campaign: attribution?.utm_campaign ?? null,
+      },
+      referrer: attribution?.referrer ?? null,
+      landing_page: attribution?.landing_page ?? null,
+      lead_source: attribution?.lead_source ?? null,
+    },
+  };
+
   const sendTemplate = async (tpl: CampaignTemplate) => {
     setBusyId(`tpl-${tpl.id}`);
     try {
@@ -113,6 +146,8 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
         body: {
           templateId: tpl.id,
           recipient: { email: leadEmail, firstName, name: leadName },
+          utm: outgoingUtm,
+          meta: { ...attributionMeta, template_id: tpl.id, template_name: tpl.name },
         },
       });
       if (error) throw error;
@@ -151,8 +186,8 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
         workflow_id: wf.id,
         scheduled_at: scheduledAt.toISOString(),
         status: "queued",
-        variables: { firstName, name: leadName },
-        meta: { source: "lead_hub_panel", lead_id: leadId, step_id: step.id },
+        variables: { firstName, name: leadName, ...outgoingUtm },
+        meta: { ...attributionMeta, step_id: step.id, workflow_name: wf.name },
       });
       if (jobErr) throw jobErr;
 
