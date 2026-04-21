@@ -1728,7 +1728,7 @@ export default function AdminLeads() {
 
                 {/* Mobile cards */}
                 <div className="space-y-2 md:hidden">
-                  {filteredListingLeads.map((lead) => (
+                  {paginatedListingLeads.map((lead) => (
                     <div
                       key={lead.id}
                       onClick={() => {
