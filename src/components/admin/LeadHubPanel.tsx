@@ -40,6 +40,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { LeadComposeEmail } from "./LeadComposeEmail";
 
 interface CampaignTemplate {
   id: string;
@@ -337,6 +338,9 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
           </div>
         </div>
       </section>
+
+      {/* ── Compose & send (write / use / save template) ───────────────────── */}
+      <LeadComposeEmail leadEmail={leadEmail} leadName={leadName} firstName={firstName} />
 
       {/* ── Templates ──────────────────────────────────────────────────────── */}
       <section className="space-y-2.5">
