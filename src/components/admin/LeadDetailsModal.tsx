@@ -57,7 +57,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { generateProjectUrl } from "@/lib/seoUrls";
 import { cn } from "@/lib/utils";
-import { FixedSizeList } from "react-window";
+import { List as VirtualList, type RowComponentProps } from "react-window";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
