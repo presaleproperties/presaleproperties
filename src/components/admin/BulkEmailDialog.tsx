@@ -6,8 +6,9 @@
  * edge function (which already loops + logs to email_logs). Replaces the
  * previous `mailto:` workflow that opened the OS mail client.
  */
-import { useMemo, useState } from "react";
-import { Loader2, Send, Eye, Code2, Sparkles, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, Send, Eye, Code2, Sparkles, Users, UserCircle2, CheckCircle2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +21,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { appendSignatureToHtml, type SignatureAgent } from "@/lib/emailSignature";
+
+interface AgentOption {
+  id: string;
+  full_name: string;
+  title: string | null;
+  photo_url: string | null;
+  phone: string | null;
+  email: string | null;
+}
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
