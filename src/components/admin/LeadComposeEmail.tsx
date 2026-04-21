@@ -20,6 +20,8 @@ import {
   Code2,
   Sparkles,
   Wand2,
+  UserCircle2,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +35,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getSavedHtml, type SavedAsset } from "@/lib/emailTemplateHelpers";
+import { appendSignatureToHtml, type SignatureAgent } from "@/lib/emailSignature";
 
 interface Props {
   leadEmail: string;
@@ -47,7 +50,16 @@ interface TemplateOption {
   form_data: any;
 }
 
-const PLAIN_HTML_WRAPPER = (body: string, firstName: string) => `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0F172A;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px;"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#FFFFFF;border-radius:14px;border:1px solid #E2E8F0;"><tr><td style="padding:36px 36px 12px;font-size:15px;line-height:1.65;color:#0F172A;">Hi ${firstName || "there"},</td></tr><tr><td style="padding:8px 36px 28px;font-size:15px;line-height:1.65;color:#0F172A;white-space:pre-wrap;">${body}</td></tr><tr><td style="padding:0 36px 36px;border-top:1px solid #E2E8F0;padding-top:20px;font-size:13px;color:#475569;">Best,<br/><strong style="color:#0F172A;">Uzair Muhammad</strong><br/><span style="color:#64748B;">Presale Properties · presaleproperties.com</span></td></tr></table></td></tr></table></body></html>`;
+interface AgentOption {
+  id: string;
+  full_name: string;
+  title: string | null;
+  photo_url: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
+const PLAIN_HTML_WRAPPER = (body: string, firstName: string) => `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0F172A;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px;"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#FFFFFF;border-radius:14px;border:1px solid #E2E8F0;"><tr><td style="padding:36px 36px 12px;font-size:15px;line-height:1.65;color:#0F172A;">Hi ${firstName || "there"},</td></tr><tr><td style="padding:8px 36px 28px;font-size:15px;line-height:1.65;color:#0F172A;white-space:pre-wrap;">${body}</td></tr></table></td></tr></table></body></html>`;
 
 function substituteVars(src: string, r: { email: string; firstName: string; name: string }): string {
   return src
