@@ -2797,6 +2797,13 @@ export type Database = {
             referencedRelation: "developers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "off_market_listings_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       off_market_units: {
@@ -2908,6 +2915,13 @@ export type Database = {
             columns: ["developer_id"]
             isOneToOne: false
             referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "off_market_units_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers_public"
             referencedColumns: ["id"]
           },
           {
@@ -3316,6 +3330,13 @@ export type Database = {
             columns: ["developer_id"]
             isOneToOne: false
             referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "presale_projects_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers_public"
             referencedColumns: ["id"]
           },
         ]
@@ -4058,6 +4079,60 @@ export type Database = {
       }
     }
     Views: {
+      developers_public: {
+        Row: {
+          cities_active: string[] | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          focus: string[] | null
+          founded_year: number | null
+          id: string | null
+          is_active: boolean | null
+          logo_url: string | null
+          name: string | null
+          project_count: number | null
+          slug: string | null
+          updated_at: string | null
+          verification_status: string | null
+          website_url: string | null
+        }
+        Insert: {
+          cities_active?: string[] | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          focus?: string[] | null
+          founded_year?: number | null
+          id?: string | null
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string | null
+          project_count?: number | null
+          slug?: string | null
+          updated_at?: string | null
+          verification_status?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          cities_active?: string[] | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          focus?: string[] | null
+          founded_year?: number | null
+          id?: string | null
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string | null
+          project_count?: number | null
+          slug?: string | null
+          updated_at?: string | null
+          verification_status?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       mls_agents_public: {
         Row: {
           agent_key: string | null
