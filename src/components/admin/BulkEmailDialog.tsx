@@ -230,7 +230,65 @@ export function BulkEmailDialog({ open, onOpenChange, recipients, campaignName }
             </p>
           </div>
 
-          <DialogFooter className="gap-2">
+          {/* Signature picker — same agent block as our email templates */}
+          <div className="space-y-1.5 rounded-md border border-border bg-muted/20 p-2.5">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <UserCircle2 className="h-3 w-3" />
+                Signature
+              </Label>
+              <button
+                type="button"
+                onClick={() => setIncludeSignature((v) => !v)}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] transition-colors",
+                  includeSignature
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {includeSignature ? <CheckCircle2 className="h-2.5 w-2.5" /> : null}
+                {includeSignature ? "Signature on" : "Signature off"}
+              </button>
+            </div>
+            {includeSignature && (
+              <div className="flex flex-wrap gap-1.5">
+                {(agents || []).map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => setSelectedAgentId(a.id)}
+                    className={cn(
+                      "flex flex-1 min-w-[120px] items-center gap-2 rounded-lg border px-2 py-1.5 text-left transition-all",
+                      selectedAgentId === a.id
+                        ? "border-primary bg-primary/8 shadow-sm"
+                        : "border-border bg-card hover:border-primary/40",
+                    )}
+                  >
+                    {a.photo_url ? (
+                      <img
+                        src={a.photo_url}
+                        alt={a.full_name}
+                        className="h-7 w-7 shrink-0 rounded-full border border-border object-cover object-top"
+                      />
+                    ) : (
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                        {a.full_name.charAt(0)}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-[11px] font-semibold">{a.full_name}</div>
+                      <div className="truncate text-[9px] text-muted-foreground">{a.title}</div>
+                    </div>
+                    {selectedAgentId === a.id && (
+                      <CheckCircle2 className="h-3 w-3 shrink-0 text-primary" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
             <Button
               variant="outline"
               size="sm"
