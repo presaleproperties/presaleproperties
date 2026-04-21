@@ -673,3 +673,206 @@ function SchedulePopover({
     </Popover>
   );
 }
+
+/* ───────────────────────── Workflow preview dialog ──────────────────────────
+ * Fetches the FIRST active step of a workflow + its template, renders the
+ * subject and HTML body with merge tags substituted for the lead, and shows
+ * the configured delay before allowing the user to confirm enrollment.
+ * ──────────────────────────────────────────────────────────────────────── */
+interface FirstStepData {
+  id: string;
+  template_id: string;
+  delay_minutes: number | null;
+  subject: string;
+  html_content: string;
+  template_name: string;
+  total_steps: number;
+}
+
+function WorkflowPreviewDialog({
+  workflow,
+  onClose,
+  onConfirm,
+  busy,
+  recipient,
+}: {
+  workflow: EmailWorkflow | null;
+  onClose: () => void;
+  onConfirm: (step: { id: string; template_id: string; delay_minutes: number | null }) => void;
+  busy: boolean;
+  recipient: { email: string; firstName: string; name: string };
+}) {
+  const open = !!workflow;
+
+  const { data, isLoading, error } = useQuery({
+    enabled: open,
+    queryKey: ["workflow-first-step", workflow?.id],
+    queryFn: async (): Promise<FirstStepData | null> => {
+      if (!workflow) return null;
+      const { data: steps, error: stepsErr } = await supabase
+        .from("email_workflow_steps")
+        .select("id, template_id, delay_minutes, step_order")
+        .eq("workflow_id", workflow.id)
+        .eq("is_active", true)
+        .order("step_order", { ascending: true });
+      if (stepsErr) throw stepsErr;
+      if (!steps || steps.length === 0) return null;
+      const first = steps[0];
+      const { data: tpl, error: tplErr } = await supabase
+        .from("email_templates")
+        .select("name, subject, html_content")
+        .eq("id", first.template_id)
+        .maybeSingle();
+      if (tplErr) throw tplErr;
+      return {
+        id: first.id,
+        template_id: first.template_id,
+        delay_minutes: first.delay_minutes,
+        subject: tpl?.subject || "(no subject)",
+        html_content: tpl?.html_content || "<p>(empty template)</p>",
+        template_name: tpl?.name || "Untitled template",
+        total_steps: steps.length,
+      };
+    },
+  });
+
+  const renderedSubject = data ? substituteVars(data.subject, recipient) : "";
+  const renderedBody = data ? substituteVars(data.html_content, recipient) : "";
+  const scheduledFor = data
+    ? new Date(Date.now() + (data.delay_minutes ?? 0) * 60 * 1000)
+    : null;
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Workflow className="h-4 w-4 text-primary" />
+            {workflow?.name || "Workflow preview"}
+          </DialogTitle>
+          <DialogDescription>
+            Preview the first email this lead will receive before enrolling.
+          </DialogDescription>
+        </DialogHeader>
+
+        {isLoading ? (
+          <div className="space-y-3 py-2">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+        ) : error ? (
+          <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">
+            Failed to load preview: {(error as Error).message}
+          </div>
+        ) : !data ? (
+          <div className="rounded-md border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
+            This workflow has no active steps yet.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* Meta strip */}
+            <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-[11px]">
+              <span className="inline-flex items-center gap-1 font-medium text-foreground">
+                <Mail className="h-3 w-3" />
+                {data.template_name}
+              </span>
+              <span className="text-muted-foreground">·</span>
+              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                {data.delay_minutes && data.delay_minutes > 0
+                  ? `Sends in ${formatDelay(data.delay_minutes)}`
+                  : "Sends immediately"}
+              </span>
+              {scheduledFor && (data.delay_minutes ?? 0) > 0 && (
+                <>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="text-muted-foreground">
+                    {format(scheduledFor, "EEE MMM d, h:mm a")}
+                  </span>
+                </>
+              )}
+              <span className="text-muted-foreground">·</span>
+              <Badge variant="outline" className="h-4 px-1.5 text-[9px]">
+                Step 1 of {data.total_steps}
+              </Badge>
+            </div>
+
+            {/* Subject */}
+            <div>
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                Subject
+              </Label>
+              <div className="mt-1 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium">
+                {renderedSubject}
+              </div>
+            </div>
+
+            {/* Body preview (sandboxed iframe) */}
+            <div>
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                Body preview · sent to {recipient.email}
+              </Label>
+              <div className="mt-1 overflow-hidden rounded-md border border-border bg-background">
+                <iframe
+                  title="Email preview"
+                  sandbox=""
+                  srcDoc={renderedBody}
+                  className="h-[360px] w-full border-0 bg-white"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            className="gap-1"
+            disabled={!data || busy}
+            onClick={() =>
+              data &&
+              onConfirm({
+                id: data.id,
+                template_id: data.template_id,
+                delay_minutes: data.delay_minutes,
+              })
+            }
+          >
+            {busy ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-3 w-3" />
+            )}
+            Confirm enroll
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** Substitute the common merge tags so the preview matches what's actually sent. */
+function substituteVars(
+  src: string,
+  r: { email: string; firstName: string; name: string },
+): string {
+  return src
+    .replace(/\{\$?name\}/gi, r.name)
+    .replace(/\{\$?firstName\}/gi, r.firstName)
+    .replace(/\{\$?first_name\}/gi, r.firstName)
+    .replace(/\{\$?email\}/gi, r.email);
+}
+
+function formatDelay(minutes: number): string {
+  if (minutes < 60) return `${minutes}m`;
+  if (minutes < 60 * 24) {
+    const h = Math.round((minutes / 60) * 10) / 10;
+    return `${h}h`;
+  }
+  const d = Math.round((minutes / (60 * 24)) * 10) / 10;
+  return `${d}d`;
+}
