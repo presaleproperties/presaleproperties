@@ -1219,7 +1219,7 @@ export default function AdminLeads() {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredProjectLeads.map((lead) => {
+                        {paginatedProjectLeads.map((lead) => {
                           const sources =
                             lead.lead_sources && lead.lead_sources.length > 0
                               ? lead.lead_sources
