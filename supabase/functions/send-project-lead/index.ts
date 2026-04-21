@@ -105,6 +105,33 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log("Lead details fetched successfully:", { leadId: lead.id, projectId: lead.project_id });
 
+    // ── Engagement enrichment (parallel fetches) ────────────────────────────
+    const [emailLogsRes, deckVisitsRes, jobsRes, attributionRes, clientRes] = await Promise.all([
+      supabase.from("email_logs").select("opened_at, clicked_at, sent_at").eq("email_to", lead.email),
+      supabase.from("deck_visits").select("created_at, project_name").eq("lead_email", lead.email).order("created_at", { ascending: false }),
+      supabase.from("email_jobs").select("workflow_id, scheduled_at, status, template_id").eq("to_email", lead.email).order("scheduled_at", { ascending: false }).limit(10),
+      lead.visitor_id
+        ? supabase.from("attribution_touches").select("*").eq("visitor_id", lead.visitor_id).order("touch_at", { ascending: true })
+        : Promise.resolve({ data: [] as any[] }),
+      supabase.from("clients").select("intent_score, total_property_views, total_site_visits, last_seen_at, last_email_opened_at").eq("email", lead.email).maybeSingle(),
+    ]);
+
+    const emailLogs = emailLogsRes.data ?? [];
+    const totalEmailsSent = emailLogs.length;
+    const totalEmailsOpened = emailLogs.filter((l: any) => l.opened_at).length;
+    const totalEmailsClicked = emailLogs.filter((l: any) => l.clicked_at).length;
+    const deckVisits = deckVisitsRes.data ?? [];
+    const enrolledWorkflows = Array.from(new Set((jobsRes.data ?? []).filter((j: any) => j.workflow_id && j.status !== "cancelled").map((j: any) => j.workflow_id as string)));
+    const queuedJob = (jobsRes.data ?? []).find((j: any) => j.status === "queued");
+    const touches = (attributionRes as any).data ?? [];
+    const firstTouch = touches[0];
+    const lastTouch = touches[touches.length - 1];
+    const daysSinceFirstTouch = firstTouch ? Math.floor((Date.now() - new Date(firstTouch.touch_at).getTime()) / 86400000) : null;
+    const client = clientRes.data;
+
+    const intentScoreResolved = lead.intent_score ?? client?.intent_score ?? 0;
+    const intentTier = intentScoreResolved >= 70 ? "Hot" : intentScoreResolved >= 40 ? "Warm" : "Cold";
+
     // Get webhook URL from app_settings (fallback to env var for backwards compatibility)
     let zapierWebhookUrl = Deno.env.get("ZAPIER_PROJECT_LEADS_WEBHOOK");
     
@@ -190,7 +217,10 @@ serve(async (req: Request): Promise<Response> => {
         
         // Source tag
         tags.push("PresaleProperties.com");
-        
+
+        // Intent tier tag
+        tags.push(`Intent: ${intentTier}`);
+        if (intentScoreResolved >= 70) tags.push("Hot Lead");
         // Form type tag
         const formType = getFormType(lead.lead_source, lead.message);
         if (formType) tags.push(formType);
@@ -413,6 +443,39 @@ serve(async (req: Request): Promise<Response> => {
         utm_content: lead.utm_content || "",
         utm_term: lead.utm_term || "",
         referrer: lead.referrer || "",
+
+        // ── ENGAGEMENT METRICS (NEW) ───────────────────────────────────────
+        total_emails_sent: totalEmailsSent,
+        total_emails_opened: totalEmailsOpened,
+        total_emails_clicked: totalEmailsClicked,
+        last_email_opened_at: client?.last_email_opened_at || null,
+        total_property_views: client?.total_property_views ?? 0,
+        total_site_visits: client?.total_site_visits ?? 0,
+        last_seen_at: client?.last_seen_at || null,
+        pitch_deck_visits: deckVisits.length,
+        last_deck_viewed: deckVisits[0]?.project_name || null,
+        last_deck_viewed_at: deckVisits[0]?.created_at || null,
+
+        // ── INTENT (NEW) ───────────────────────────────────────────────────
+        intent_tier: intentTier,
+        lead_temperature: intentTier.toLowerCase(),
+        is_hot_lead: intentScoreResolved >= 70 ? "Yes" : "No",
+
+        // ── WORKFLOW STATE (NEW) ───────────────────────────────────────────
+        enrolled_workflows: enrolledWorkflows,
+        next_scheduled_email_at: queuedJob?.scheduled_at || null,
+
+        // ── ATTRIBUTION DEPTH (NEW) ────────────────────────────────────────
+        first_touch_source: firstTouch?.utm_source || lead.utm_source || "",
+        first_touch_medium: firstTouch?.utm_medium || lead.utm_medium || "",
+        first_touch_campaign: firstTouch?.utm_campaign || lead.utm_campaign || "",
+        first_touch_landing_page: firstTouch?.landing_url || lead.landing_page || "",
+        first_touch_at: firstTouch?.touch_at || lead.created_at,
+        last_touch_source: lastTouch?.utm_source || lead.utm_source || "",
+        last_touch_medium: lastTouch?.utm_medium || lead.utm_medium || "",
+        last_touch_campaign: lastTouch?.utm_campaign || lead.utm_campaign || "",
+        touch_count: touches.length,
+        days_since_first_touch: daysSinceFirstTouch,
       };
 
       console.log("Webhook payload:", JSON.stringify(webhookPayload));

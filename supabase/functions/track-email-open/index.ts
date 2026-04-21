@@ -74,6 +74,15 @@ const handler = async (req: Request): Promise<Response> => {
 
           console.log(`Tracked click for tracking_id ${trackingId} (click #${newClickCount}, url: ${clickUrl})`);
 
+          // Fire engagement event → Zapier/Lofty (fire-and-forget)
+          supabase.functions.invoke("send-lead-engagement-event", {
+            body: {
+              email: logEntry.email_to,
+              eventType: "email_clicked",
+              eventData: { subject: logEntry.subject, clicked_url: clickUrl, click_count: newClickCount },
+            },
+          }).catch((e) => console.error("[engagement] email_clicked invoke failed:", e));
+
           // Notify admin on first click — high-intent signal
           if (isFirstClick) {
             await supabase.from("notifications_queue").insert({
@@ -105,6 +114,17 @@ const handler = async (req: Request): Promise<Response> => {
             .eq("id", logEntry.id);
 
           console.log(`Tracked email open for tracking_id ${trackingId} (open #${newCount})`);
+
+          // Fire engagement event → Zapier/Lofty (only on first open to reduce noise)
+          if (isFirstOpen) {
+            supabase.functions.invoke("send-lead-engagement-event", {
+              body: {
+                email: logEntry.email_to,
+                eventType: "email_opened",
+                eventData: { subject: logEntry.subject, open_count: newCount },
+              },
+            }).catch((e) => console.error("[engagement] email_opened invoke failed:", e));
+          }
 
           // If re-open (2nd+ open), notify admin
           if (!isFirstOpen && newCount >= 2) {
