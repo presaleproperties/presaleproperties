@@ -457,3 +457,45 @@ function EmptyMsg({
     </div>
   );
 }
+
+function UtmRow({
+  label,
+  value,
+  wide,
+}: {
+  label: string;
+  value: string | null | undefined;
+  wide?: boolean;
+}) {
+  const present = !!value;
+  return (
+    <div
+      className={cn(
+        "flex items-baseline gap-1.5 overflow-hidden",
+        wide && "col-span-2",
+      )}
+    >
+      <span className="shrink-0 font-mono text-[10px] uppercase text-muted-foreground">
+        {label}
+      </span>
+      <span
+        className={cn(
+          "truncate font-mono text-[11px]",
+          present ? "text-foreground" : "text-muted-foreground/60 italic",
+        )}
+        title={value || "(none)"}
+      >
+        {value || "—"}
+      </span>
+    </div>
+  );
+}
+
+function fmtTouch(
+  source?: string | null,
+  medium?: string | null,
+  campaign?: string | null,
+): string {
+  const parts = [source, medium, campaign].filter(Boolean);
+  return parts.length ? parts.join(" / ") : "(direct)";
+}
