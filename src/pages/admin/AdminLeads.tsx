@@ -1271,54 +1271,73 @@ export default function AdminLeads() {
                             <td className="whitespace-nowrap px-3 py-3 text-xs text-muted-foreground">
                               {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
                             </td>
+                            {/* Quick Actions */}
                             <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                              <DropdownMenu modal={false}>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-7 w-7">
-                                    <MoreVertical className="h-3.5 w-3.5" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-44">
-                                  <DropdownMenuItem
-                                    onClick={() => {
-                                      setSelectedLead(lead);
-                                      setModalOpen(true);
-                                    }}
+                              <div className="flex items-center justify-end gap-1">
+                                {lead.phone && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700"
+                                    asChild
+                                    title="Call"
                                   >
-                                    <MessageSquare className="mr-2 h-3.5 w-3.5" /> View Details
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem asChild>
-                                    <a href={`mailto:${lead.email}`}>
-                                      <Mail className="mr-2 h-3.5 w-3.5" /> Email
+                                    <a href={`tel:${lead.phone}`}>
+                                      <Phone className="h-4 w-4" />
                                     </a>
-                                  </DropdownMenuItem>
-                                  {lead.phone && (
-                                    <DropdownMenuItem asChild>
-                                      <a href={`tel:${lead.phone}`}>
-                                        <Phone className="mr-2 h-3.5 w-3.5" /> Call
-                                      </a>
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-primary hover:bg-primary/10"
+                                  asChild
+                                  title="Email"
+                                >
+                                  <a href={`mailto:${lead.email}`}>
+                                    <Mail className="h-4 w-4" />
+                                  </a>
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => {
+                                    setSelectedLead(lead);
+                                    setModalOpen(true);
+                                  }}
+                                  title="View Details"
+                                >
+                                  <MessageSquare className="h-4 w-4" />
+                                </Button>
+                                <DropdownMenu modal={false}>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-44">
+                                    {lead.listings && (
+                                      <DropdownMenuItem asChild>
+                                        <a
+                                          href={`/assignments/${lead.listing_id}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          <ExternalLink className="mr-2 h-3.5 w-3.5" /> View Listing
+                                        </a>
+                                      </DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      onClick={() => deleteListingLeadMutation.mutate(lead.id)}
+                                      className="text-destructive focus:text-destructive"
+                                    >
+                                      <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
                                     </DropdownMenuItem>
-                                  )}
-                                  {lead.listings && (
-                                    <DropdownMenuItem asChild>
-                                      <a
-                                        href={`/assignments/${lead.listing_id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                      >
-                                        <ExternalLink className="mr-2 h-3.5 w-3.5" /> View Listing
-                                      </a>
-                                    </DropdownMenuItem>
-                                  )}
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => deleteListingLeadMutation.mutate(lead.id)}
-                                    className="text-destructive focus:text-destructive"
-                                  >
-                                    <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
                             </td>
                           </tr>
                         ))}
