@@ -8,7 +8,7 @@
  *  - Attribution: first/last UTM, referrer, landing page, device, IP
  *  - Email: sent/opened/clicked emails + deck visits (post-submission engagement)
  */
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, formatDistanceToNow } from "date-fns";
 import {
@@ -39,6 +39,7 @@ import {
   MailOpen,
   ChevronRight,
   BadgeCheck,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -58,6 +59,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { generateProjectUrl } from "@/lib/seoUrls";
 import { cn } from "@/lib/utils";
 import { List as VirtualList, type RowComponentProps } from "react-window";
+import { LeadHubPanel } from "./LeadHubPanel";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -136,6 +138,7 @@ interface LeadDetailsModalProps {
   type: "project" | "listing";
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialTab?: "overview" | "activity" | "engagement" | "attribution" | "email" | "hub";
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -202,8 +205,13 @@ const eventLabels: Record<string, { label: string; icon: LucideIcon; color: stri
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetailsModalProps) {
-  const [tab, setTab] = useState("overview");
+export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = "overview" }: LeadDetailsModalProps) {
+  const [tab, setTab] = useState<string>(initialTab);
+
+  // Reset tab whenever the drawer opens with a different initialTab.
+  useEffect(() => {
+    if (open) setTab(initialTab);
+  }, [open, initialTab]);
 
   const isProjectLead = type === "project";
   const projectLead = (lead ?? {}) as ProjectLead;
@@ -406,7 +414,7 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
         </SheetHeader>
 
         <Tabs value={tab} onValueChange={setTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="mx-6 mt-4 grid grid-cols-5 h-9">
+          <TabsList className="mx-6 mt-4 grid grid-cols-6 h-9">
             <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
             <TabsTrigger value="activity" className="text-xs">
               Timeline
@@ -414,13 +422,17 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                 <span className="ml-1 text-[10px] text-muted-foreground">({activity.length})</span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="engagement" className="text-xs">Engagement</TabsTrigger>
+            <TabsTrigger value="engagement" className="text-xs">Engage</TabsTrigger>
             <TabsTrigger value="attribution" className="text-xs">Source</TabsTrigger>
             <TabsTrigger value="email" className="text-xs">
               Email
               {emailLogs && emailLogs.length > 0 && (
                 <span className="ml-1 text-[10px] text-muted-foreground">({emailLogs.length})</span>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="hub" className="text-xs gap-1">
+              <Sparkles className="h-3 w-3" />
+              Hub
             </TabsTrigger>
           </TabsList>
 
@@ -545,6 +557,50 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                           {format(new Date(projectLead.converted_at), "MMM d, yyyy")}
                         </Stat>
                       )}
+                    </div>
+                  </Section>
+                )}
+
+                {isProjectLead && (intent > 0 || (projectLead.pages_viewed ?? 0) > 0 || (projectLead.session_count ?? 0) > 1) && (
+                  <Section title="Intent score breakdown" icon={TrendingUp}>
+                    <div className="rounded-lg border border-border bg-card p-3 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Composite intent</span>
+                        <span className="font-bold tabular-nums text-foreground">{intent}/10</span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all",
+                            intent >= 7 ? "bg-destructive" : intent >= 4 ? "bg-amber-500" : "bg-sky-500",
+                          )}
+                          style={{ width: `${Math.min(100, intent * 10)}%` }}
+                        />
+                      </div>
+                      <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground pt-1">
+                        <li className="flex items-center justify-between">
+                          <span>Pages viewed</span>
+                          <span className="font-medium tabular-nums text-foreground">{projectLead.pages_viewed ?? 0}</span>
+                        </li>
+                        <li className="flex items-center justify-between">
+                          <span>Sessions</span>
+                          <span className="font-medium tabular-nums text-foreground">{projectLead.session_count ?? 1}</span>
+                        </li>
+                        <li className="flex items-center justify-between">
+                          <span>Time on site</span>
+                          <span className="font-medium tabular-nums text-foreground">{formatSeconds(projectLead.time_on_site)}</span>
+                        </li>
+                        <li className="flex items-center justify-between">
+                          <span>Calculator</span>
+                          <span className="font-medium text-foreground">{projectLead.used_calculator ? "Yes" : "No"}</span>
+                        </li>
+                        {deckVisits && deckVisits.length > 0 && (
+                          <li className="flex items-center justify-between col-span-2">
+                            <span>Pitch deck visits</span>
+                            <span className="font-medium tabular-nums text-foreground">{deckVisits.length}</span>
+                          </li>
+                        )}
+                      </ul>
                     </div>
                   </Section>
                 )}
@@ -713,7 +769,9 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                     {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
                   </div>
                 ) : !emailLogs || emailLogs.length === 0 ? (
-                  <EmptyMsg icon={Mail}>No emails sent to this lead yet.</EmptyMsg>
+                  <EmptyMsg icon={Mail}>
+                    No emails sent to this lead yet — try the <strong>Hub</strong> tab to send a template.
+                  </EmptyMsg>
                 ) : (
                   <ul className="space-y-2">
                     {emailLogs.map((e: any) => (
@@ -743,6 +801,21 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                       </li>
                     ))}
                   </ul>
+                )}
+              </TabsContent>
+
+              {/* ───── HUB (Marketing + Email Hub integration) ───── */}
+              <TabsContent value="hub" className="m-0">
+                {isProjectLead ? (
+                  <LeadHubPanel
+                    leadId={projectLead.id}
+                    leadEmail={lead.email}
+                    leadName={lead.name}
+                  />
+                ) : (
+                  <EmptyMsg icon={Sparkles}>
+                    Hub actions are available for project leads only.
+                  </EmptyMsg>
                 )}
               </TabsContent>
             </div>
