@@ -439,14 +439,14 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
                     variant="outline"
                     className="h-7 shrink-0 gap-1 px-2 text-[11px]"
                     disabled={busy}
-                    onClick={() => enrollWorkflow(wf)}
+                    onClick={() => setPreviewWf(wf)}
                   >
                     {busy ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
                     ) : (
-                      <CheckCircle2 className="h-3 w-3" />
+                      <Eye className="h-3 w-3" />
                     )}
-                    Enroll
+                    Preview & enroll
                   </Button>
                 </li>
               );
