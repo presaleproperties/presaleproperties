@@ -205,6 +205,81 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
 
   return (
     <div className="space-y-6">
+      {/* ── Attribution preview ────────────────────────────────────────────── */}
+      <section className="space-y-2">
+        <header className="flex items-center justify-between">
+          <h4 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Target className="h-3 w-3" />
+            Attribution preview
+          </h4>
+          <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+            <Info className="h-2.5 w-2.5" />
+            Tagged on every send below
+          </span>
+        </header>
+
+        <div className="rounded-lg border border-border bg-muted/30 p-2.5">
+          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Outgoing UTM
+          </p>
+          <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+            <UtmRow label="source" value={outgoingUtm.utm_source} />
+            <UtmRow label="medium" value={outgoingUtm.utm_medium} />
+            <UtmRow label="campaign" value={outgoingUtm.utm_campaign} wide />
+            <UtmRow label="content" value={outgoingUtm.utm_content} />
+            <UtmRow label="term" value={outgoingUtm.utm_term} />
+          </dl>
+
+          <div className="mt-2 border-t border-border pt-2">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Original lead attribution
+            </p>
+            <ul className="space-y-0.5 text-[10.5px] text-muted-foreground">
+              <li className="flex gap-1.5">
+                <span className="w-20 shrink-0 text-foreground/70">First touch</span>
+                <span className="truncate">
+                  {fmtTouch(
+                    attribution?.first_touch_utm_source,
+                    attribution?.first_touch_utm_medium,
+                    attribution?.first_touch_utm_campaign,
+                  )}
+                </span>
+              </li>
+              <li className="flex gap-1.5">
+                <span className="w-20 shrink-0 text-foreground/70">Last touch</span>
+                <span className="truncate">
+                  {fmtTouch(
+                    attribution?.utm_source,
+                    attribution?.utm_medium,
+                    attribution?.utm_campaign,
+                  )}
+                </span>
+              </li>
+              {attribution?.referrer && (
+                <li className="flex gap-1.5">
+                  <span className="w-20 shrink-0 text-foreground/70">Referrer</span>
+                  <span className="truncate">{attribution.referrer}</span>
+                </li>
+              )}
+              {attribution?.landing_page && (
+                <li className="flex gap-1.5">
+                  <span className="w-20 shrink-0 text-foreground/70">Landing</span>
+                  <span className="truncate">{attribution.landing_page}</span>
+                </li>
+              )}
+              {attribution?.lead_source && (
+                <li className="flex gap-1.5">
+                  <span className="w-20 shrink-0 text-foreground/70">Lead source</span>
+                  <Badge variant="outline" className="h-4 px-1 text-[9px]">
+                    {attribution.lead_source}
+                  </Badge>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* ── Templates ──────────────────────────────────────────────────────── */}
       <section className="space-y-2.5">
         <header className="flex items-center justify-between">
