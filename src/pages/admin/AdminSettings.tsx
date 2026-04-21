@@ -40,6 +40,7 @@ interface AppSettings {
   lofty_tracking_webhook: string;
   zapier_behavior_webhook: string;
   zapier_daily_digest_webhook: string;
+  zapier_engagement_webhook: string;
   meta_pixel_id: string;
   ga4_measurement_id: string;
   email_sender: string;
@@ -63,6 +64,7 @@ export default function AdminSettings() {
     lofty_tracking_webhook: "",
     zapier_behavior_webhook: "",
     zapier_daily_digest_webhook: "",
+    zapier_engagement_webhook: "",
     meta_pixel_id: "",
     ga4_measurement_id: "",
     email_sender: DEFAULT_SENDER,
