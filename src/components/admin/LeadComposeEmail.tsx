@@ -317,18 +317,37 @@ export function LeadComposeEmail({ leadEmail, leadName, firstName }: Props) {
             <Label htmlFor="compose-body" className="text-[10px] uppercase tracking-wider text-muted-foreground">
               Message
             </Label>
-            <button
-              type="button"
-              onClick={() => setBodyIsHtml((v) => !v)}
-              className={cn(
-                "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] transition-colors",
-                bodyIsHtml ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
-              )}
-              title="Toggle raw HTML mode"
-            >
-              <Code2 className="h-2.5 w-2.5" />
-              {bodyIsHtml ? "HTML mode" : "Plain text"}
-            </button>
+            {/* Format toggle — Plain text vs HTML */}
+            <div className="inline-flex items-center rounded-md border border-border bg-muted/30 p-0.5">
+              <button
+                type="button"
+                onClick={() => setBodyIsHtml(false)}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors",
+                  !bodyIsHtml
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+                title="Write a plain-text message (line breaks become paragraphs)"
+              >
+                <Pencil className="h-2.5 w-2.5" />
+                Plain text
+              </button>
+              <button
+                type="button"
+                onClick={() => setBodyIsHtml(true)}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors",
+                  bodyIsHtml
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+                title="Paste raw HTML"
+              >
+                <Code2 className="h-2.5 w-2.5" />
+                HTML
+              </button>
+            </div>
           </div>
           <Textarea
             id="compose-body"
