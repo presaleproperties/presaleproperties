@@ -204,13 +204,11 @@ const eventLabels: Record<string, { label: string; icon: LucideIcon; color: stri
 export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetailsModalProps) {
   const [tab, setTab] = useState("overview");
 
-  if (!lead) return null;
-
   const isProjectLead = type === "project";
-  const projectLead = lead as ProjectLead;
-  const listingLead = lead as ListingLead;
-  const visitorId = isProjectLead ? projectLead.visitor_id : null;
-  const submittedAt = lead.created_at;
+  const projectLead = (lead ?? {}) as ProjectLead;
+  const listingLead = (lead ?? {}) as ListingLead;
+  const visitorId = isProjectLead ? projectLead.visitor_id ?? null : null;
+  const submittedAt = lead?.created_at ?? new Date().toISOString();
 
   // Pull all activity for this visitor (pre & post submission)
   const { data: activity, isLoading: activityLoading } = useQuery({
