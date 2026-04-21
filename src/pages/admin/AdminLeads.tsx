@@ -30,6 +30,7 @@ import {
   Sparkles,
   Target,
   Activity,
+  Columns3,
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
@@ -51,6 +52,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
@@ -328,6 +331,73 @@ export default function AdminLeads() {
   const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
   const [selectedListingIds, setSelectedListingIds] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  // ── Column visibility (persisted) ─────────────────────────────────────────
+  type ColumnDef = { key: string; label: string; required?: boolean };
+  const PROJECT_COLUMNS: ColumnDef[] = [
+    { key: "name", label: "Name", required: true },
+    { key: "contact", label: "Contact" },
+    { key: "project", label: "Project" },
+    { key: "intent", label: "Intent" },
+    { key: "source", label: "Source" },
+    { key: "status", label: "Status" },
+    { key: "activity", label: "Last Activity" },
+  ];
+  const LISTING_COLUMNS: ColumnDef[] = [
+    { key: "name", label: "Name", required: true },
+    { key: "contact", label: "Contact" },
+    { key: "listing", label: "Listing" },
+    { key: "message", label: "Message" },
+    { key: "submitted", label: "Submitted" },
+  ];
+
+  const [projectColumns, setProjectColumns] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem("admin_leads_project_cols");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return Object.fromEntries(PROJECT_COLUMNS.map((c) => [c.key, true]));
+  });
+  const [listingColumns, setListingColumns] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem("admin_leads_listing_cols");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return Object.fromEntries(LISTING_COLUMNS.map((c) => [c.key, true]));
+  });
+
+  const toggleProjectColumn = (key: string) => {
+    setProjectColumns((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem("admin_leads_project_cols", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+  const toggleListingColumn = (key: string) => {
+    setListingColumns((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem("admin_leads_listing_cols", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+  const resetProjectColumns = () => {
+    const all = Object.fromEntries(PROJECT_COLUMNS.map((c) => [c.key, true]));
+    setProjectColumns(all);
+    try {
+      localStorage.setItem("admin_leads_project_cols", JSON.stringify(all));
+    } catch {}
+  };
+  const resetListingColumns = () => {
+    const all = Object.fromEntries(LISTING_COLUMNS.map((c) => [c.key, true]));
+    setListingColumns(all);
+    try {
+      localStorage.setItem("admin_leads_listing_cols", JSON.stringify(all));
+    } catch {}
+  };
 
   const selectedIds = activeTab === "project" ? selectedProjectIds : selectedListingIds;
   const setSelectedIds = activeTab === "project" ? setSelectedProjectIds : setSelectedListingIds;
@@ -722,11 +792,67 @@ export default function AdminLeads() {
                 )}
               </TabsTrigger>
             </TabsList>
-            {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2 text-xs">
-                <X className="mr-1 h-3 w-3" /> Clear filters
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2 text-xs">
+                  <X className="mr-1 h-3 w-3" /> Clear filters
+                </Button>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 gap-1.5 px-2.5 text-xs">
+                    <Columns3 className="h-3.5 w-3.5" />
+                    Columns
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Visible Columns
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {activeTab === "project"
+                    ? PROJECT_COLUMNS.map((col) => (
+                        <DropdownMenuCheckboxItem
+                          key={col.key}
+                          checked={col.required ? true : !!projectColumns[col.key]}
+                          disabled={col.required}
+                          onCheckedChange={() => !col.required && toggleProjectColumn(col.key)}
+                          onSelect={(e) => e.preventDefault()}
+                          className="text-xs"
+                        >
+                          {col.label}
+                          {col.required && (
+                            <span className="ml-auto text-[9px] uppercase text-muted-foreground">Pinned</span>
+                          )}
+                        </DropdownMenuCheckboxItem>
+                      ))
+                    : LISTING_COLUMNS.map((col) => (
+                        <DropdownMenuCheckboxItem
+                          key={col.key}
+                          checked={col.required ? true : !!listingColumns[col.key]}
+                          disabled={col.required}
+                          onCheckedChange={() => !col.required && toggleListingColumn(col.key)}
+                          onSelect={(e) => e.preventDefault()}
+                          className="text-xs"
+                        >
+                          {col.label}
+                          {col.required && (
+                            <span className="ml-auto text-[9px] uppercase text-muted-foreground">Pinned</span>
+                          )}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-xs"
+                    onClick={() =>
+                      activeTab === "project" ? resetProjectColumns() : resetListingColumns()
+                    }
+                  >
+                    Reset to default
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
           {/* ── Filter bar ─────────────────────────────────────── */}
@@ -851,12 +977,18 @@ export default function AdminLeads() {
                             />
                           </th>
                           <SortHeader label="Name" field="name" sort={sort} onSort={onSort} />
-                          <SortHeader label="Contact" sort={sort} onSort={onSort} />
-                          <SortHeader label="Project" field="project" sort={sort} onSort={onSort} />
-                          <SortHeader label="Intent" field="intent_score" sort={sort} onSort={onSort} />
-                          <SortHeader label="Source" sort={sort} onSort={onSort} />
-                          <SortHeader label="Status" sort={sort} onSort={onSort} />
-                          <SortHeader label="Last activity" field="created_at" sort={sort} onSort={onSort} />
+                          {projectColumns.contact && <SortHeader label="Contact" sort={sort} onSort={onSort} />}
+                          {projectColumns.project && (
+                            <SortHeader label="Project" field="project" sort={sort} onSort={onSort} />
+                          )}
+                          {projectColumns.intent && (
+                            <SortHeader label="Intent" field="intent_score" sort={sort} onSort={onSort} />
+                          )}
+                          {projectColumns.source && <SortHeader label="Source" sort={sort} onSort={onSort} />}
+                          {projectColumns.status && <SortHeader label="Status" sort={sort} onSort={onSort} />}
+                          {projectColumns.activity && (
+                            <SortHeader label="Last activity" field="created_at" sort={sort} onSort={onSort} />
+                          )}
                           <th className="w-10 px-3 py-2.5" />
                         </tr>
                       </thead>
@@ -917,72 +1049,84 @@ export default function AdminLeads() {
                                 </div>
                               </td>
                               {/* Contact */}
-                              <td className="px-3 py-3">
-                                <div className="flex flex-col gap-0.5">
-                                  <a
-                                    href={`mailto:${lead.email}`}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="block max-w-[180px] truncate text-xs text-muted-foreground transition-colors hover:text-primary"
-                                  >
-                                    {lead.email}
-                                  </a>
-                                  {lead.phone ? (
+                              {projectColumns.contact && (
+                                <td className="px-3 py-3">
+                                  <div className="flex flex-col gap-0.5">
                                     <a
-                                      href={`tel:${lead.phone}`}
+                                      href={`mailto:${lead.email}`}
                                       onClick={(e) => e.stopPropagation()}
-                                      className="text-xs text-muted-foreground transition-colors hover:text-primary"
+                                      className="block max-w-[180px] truncate text-xs text-muted-foreground transition-colors hover:text-primary"
                                     >
-                                      {lead.phone}
+                                      {lead.email}
                                     </a>
-                                  ) : (
-                                    <span className="text-[10px] text-muted-foreground/40">no phone</span>
-                                  )}
-                                </div>
-                              </td>
-                              {/* Project */}
-                              <td className="px-3 py-3">
-                                {lead.presale_projects ? (
-                                  <div className="min-w-0">
-                                    <p
-                                      className="max-w-[160px] truncate text-xs font-medium"
-                                      title={lead.presale_projects.name}
-                                    >
-                                      {lead.presale_projects.name}
-                                    </p>
-                                    <p className="text-[10px] text-muted-foreground">
-                                      {lead.presale_projects.city}
-                                    </p>
+                                    {lead.phone ? (
+                                      <a
+                                        href={`tel:${lead.phone}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="text-xs text-muted-foreground transition-colors hover:text-primary"
+                                      >
+                                        {lead.phone}
+                                      </a>
+                                    ) : (
+                                      <span className="text-[10px] text-muted-foreground/40">no phone</span>
+                                    )}
                                   </div>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground/40">—</span>
-                                )}
-                              </td>
-                              {/* Intent */}
-                              <td className="px-3 py-3">
-                                <IntentBadge score={lead.intent_score} />
-                              </td>
-                              {/* Source */}
-                              <td className="px-3 py-3">
-                                <span className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px]">
-                                  {primarySource}
-                                  {extraCount > 0 && (
-                                    <span className="font-semibold text-primary">+{extraCount}</span>
+                                </td>
+                              )}
+                              {/* Project */}
+                              {projectColumns.project && (
+                                <td className="px-3 py-3">
+                                  {lead.presale_projects ? (
+                                    <div className="min-w-0">
+                                      <p
+                                        className="max-w-[160px] truncate text-xs font-medium"
+                                        title={lead.presale_projects.name}
+                                      >
+                                        {lead.presale_projects.name}
+                                      </p>
+                                      <p className="text-[10px] text-muted-foreground">
+                                        {lead.presale_projects.city}
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground/40">—</span>
                                   )}
-                                </span>
-                              </td>
-                              {/* Status */}
-                              <td className="px-3 py-3">
-                                <StatusPill status={lead.lead_status} />
-                              </td>
-                              {/* Last activity */}
-                              <td className="whitespace-nowrap px-3 py-3 text-xs text-muted-foreground">
-                                <div className="flex flex-col">
-                                  <span>{formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}</span>
-                                  <span className="text-[10px] text-muted-foreground/60">
-                                    {format(new Date(lead.created_at), "MMM d, h:mm a")}
+                                </td>
+                              )}
+                              {/* Intent */}
+                              {projectColumns.intent && (
+                                <td className="px-3 py-3">
+                                  <IntentBadge score={lead.intent_score} />
+                                </td>
+                              )}
+                              {/* Source */}
+                              {projectColumns.source && (
+                                <td className="px-3 py-3">
+                                  <span className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px]">
+                                    {primarySource}
+                                    {extraCount > 0 && (
+                                      <span className="font-semibold text-primary">+{extraCount}</span>
+                                    )}
                                   </span>
-                                </div>
-                              </td>
+                                </td>
+                              )}
+                              {/* Status */}
+                              {projectColumns.status && (
+                                <td className="px-3 py-3">
+                                  <StatusPill status={lead.lead_status} />
+                                </td>
+                              )}
+                              {/* Last activity */}
+                              {projectColumns.activity && (
+                                <td className="whitespace-nowrap px-3 py-3 text-xs text-muted-foreground">
+                                  <div className="flex flex-col">
+                                    <span>{formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}</span>
+                                    <span className="text-[10px] text-muted-foreground/60">
+                                      {format(new Date(lead.created_at), "MMM d, h:mm a")}
+                                    </span>
+                                  </div>
+                                </td>
+                              )}
                               {/* Quick Actions */}
                               <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center justify-end gap-1">
@@ -1195,10 +1339,12 @@ export default function AdminLeads() {
                             />
                           </th>
                           <SortHeader label="Name" field="name" sort={sort} onSort={onSort} />
-                          <SortHeader label="Contact" sort={sort} onSort={onSort} />
-                          <SortHeader label="Listing" sort={sort} onSort={onSort} />
-                          <SortHeader label="Message" sort={sort} onSort={onSort} />
-                          <SortHeader label="Submitted" field="created_at" sort={sort} onSort={onSort} />
+                          {listingColumns.contact && <SortHeader label="Contact" sort={sort} onSort={onSort} />}
+                          {listingColumns.listing && <SortHeader label="Listing" sort={sort} onSort={onSort} />}
+                          {listingColumns.message && <SortHeader label="Message" sort={sort} onSort={onSort} />}
+                          {listingColumns.submitted && (
+                            <SortHeader label="Submitted" field="created_at" sort={sort} onSort={onSort} />
+                          )}
                           <th className="w-10 px-3 py-2.5" />
                         </tr>
                       </thead>
@@ -1224,53 +1370,61 @@ export default function AdminLeads() {
                             <td className="px-3 py-3">
                               <p className="max-w-[180px] truncate font-medium">{lead.name}</p>
                             </td>
-                            <td className="px-3 py-3">
-                              <div className="flex flex-col gap-0.5">
-                                <a
-                                  href={`mailto:${lead.email}`}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="block max-w-[180px] truncate text-xs text-muted-foreground hover:text-primary"
-                                >
-                                  {lead.email}
-                                </a>
-                                {lead.phone && (
+                            {listingColumns.contact && (
+                              <td className="px-3 py-3">
+                                <div className="flex flex-col gap-0.5">
                                   <a
-                                    href={`tel:${lead.phone}`}
+                                    href={`mailto:${lead.email}`}
                                     onClick={(e) => e.stopPropagation()}
-                                    className="text-xs text-muted-foreground hover:text-primary"
+                                    className="block max-w-[180px] truncate text-xs text-muted-foreground hover:text-primary"
                                   >
-                                    {lead.phone}
+                                    {lead.email}
                                   </a>
+                                  {lead.phone && (
+                                    <a
+                                      href={`tel:${lead.phone}`}
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="text-xs text-muted-foreground hover:text-primary"
+                                    >
+                                      {lead.phone}
+                                    </a>
+                                  )}
+                                </div>
+                              </td>
+                            )}
+                            {listingColumns.listing && (
+                              <td className="px-3 py-3">
+                                {lead.listings ? (
+                                  <span
+                                    className="block max-w-[160px] truncate text-xs"
+                                    title={lead.listings.title}
+                                  >
+                                    {lead.listings.title}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground/40">—</span>
                                 )}
-                              </div>
-                            </td>
-                            <td className="px-3 py-3">
-                              {lead.listings ? (
-                                <span
-                                  className="block max-w-[160px] truncate text-xs"
-                                  title={lead.listings.title}
-                                >
-                                  {lead.listings.title}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-muted-foreground/40">—</span>
-                              )}
-                            </td>
-                            <td className="px-3 py-3">
-                              {lead.message ? (
-                                <span
-                                  className="block max-w-[200px] truncate text-xs text-muted-foreground"
-                                  title={lead.message}
-                                >
-                                  {lead.message}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-muted-foreground/40">—</span>
-                              )}
-                            </td>
-                            <td className="whitespace-nowrap px-3 py-3 text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
-                            </td>
+                              </td>
+                            )}
+                            {listingColumns.message && (
+                              <td className="px-3 py-3">
+                                {lead.message ? (
+                                  <span
+                                    className="block max-w-[200px] truncate text-xs text-muted-foreground"
+                                    title={lead.message}
+                                  >
+                                    {lead.message}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground/40">—</span>
+                                )}
+                              </td>
+                            )}
+                            {listingColumns.submitted && (
+                              <td className="whitespace-nowrap px-3 py-3 text-xs text-muted-foreground">
+                                {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
+                              </td>
+                            )}
                             {/* Quick Actions */}
                             <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center justify-end gap-1">
