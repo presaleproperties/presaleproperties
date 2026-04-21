@@ -22,6 +22,8 @@ import {
   Clock,
   Tag,
   PlayCircle,
+  Target,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,13 +52,28 @@ interface EmailWorkflow {
   workflow_key: string;
 }
 
+export interface LeadAttribution {
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
+  first_touch_utm_source?: string | null;
+  first_touch_utm_medium?: string | null;
+  first_touch_utm_campaign?: string | null;
+  referrer?: string | null;
+  landing_page?: string | null;
+  lead_source?: string | null;
+}
+
 interface LeadHubPanelProps {
   leadId: string;
   leadEmail: string;
   leadName: string;
+  attribution?: LeadAttribution;
 }
 
-export function LeadHubPanel({ leadId, leadEmail, leadName }: LeadHubPanelProps) {
+export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadHubPanelProps) {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   // ── Templates (Marketing Hub) ────────────────────────────────────────────
@@ -89,6 +106,39 @@ export function LeadHubPanel({ leadId, leadEmail, leadName }: LeadHubPanelProps)
 
   const firstName = (leadName || "").split(" ")[0] || leadName;
 
+  // ── Outgoing attribution preview ────────────────────────────────────────
+  // What we'll stamp on the email/job so downstream analytics can attribute
+  // re-engagement back to the originating campaign.
+  const outgoingUtm = {
+    utm_source: attribution?.first_touch_utm_source || attribution?.utm_source || "lead_hub",
+    utm_medium: attribution?.first_touch_utm_medium || attribution?.utm_medium || "email",
+    utm_campaign:
+      attribution?.first_touch_utm_campaign || attribution?.utm_campaign || "lead_followup",
+    utm_content: attribution?.utm_content || "hub_panel",
+    utm_term: attribution?.utm_term || null,
+  };
+
+  const attributionMeta = {
+    source: "lead_hub_panel" as const,
+    lead_id: leadId,
+    outgoing_utm: outgoingUtm,
+    original_attribution: {
+      first_touch: {
+        source: attribution?.first_touch_utm_source ?? null,
+        medium: attribution?.first_touch_utm_medium ?? null,
+        campaign: attribution?.first_touch_utm_campaign ?? null,
+      },
+      last_touch: {
+        source: attribution?.utm_source ?? null,
+        medium: attribution?.utm_medium ?? null,
+        campaign: attribution?.utm_campaign ?? null,
+      },
+      referrer: attribution?.referrer ?? null,
+      landing_page: attribution?.landing_page ?? null,
+      lead_source: attribution?.lead_source ?? null,
+    },
+  };
+
   const sendTemplate = async (tpl: CampaignTemplate) => {
     setBusyId(`tpl-${tpl.id}`);
     try {
@@ -96,6 +146,8 @@ export function LeadHubPanel({ leadId, leadEmail, leadName }: LeadHubPanelProps)
         body: {
           templateId: tpl.id,
           recipient: { email: leadEmail, firstName, name: leadName },
+          utm: outgoingUtm,
+          meta: { ...attributionMeta, template_id: tpl.id, template_name: tpl.name },
         },
       });
       if (error) throw error;
@@ -134,8 +186,8 @@ export function LeadHubPanel({ leadId, leadEmail, leadName }: LeadHubPanelProps)
         workflow_id: wf.id,
         scheduled_at: scheduledAt.toISOString(),
         status: "queued",
-        variables: { firstName, name: leadName },
-        meta: { source: "lead_hub_panel", lead_id: leadId, step_id: step.id },
+        variables: { firstName, name: leadName, ...outgoingUtm },
+        meta: { ...attributionMeta, step_id: step.id, workflow_name: wf.name },
       });
       if (jobErr) throw jobErr;
 
@@ -153,6 +205,81 @@ export function LeadHubPanel({ leadId, leadEmail, leadName }: LeadHubPanelProps)
 
   return (
     <div className="space-y-6">
+      {/* ── Attribution preview ────────────────────────────────────────────── */}
+      <section className="space-y-2">
+        <header className="flex items-center justify-between">
+          <h4 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Target className="h-3 w-3" />
+            Attribution preview
+          </h4>
+          <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+            <Info className="h-2.5 w-2.5" />
+            Tagged on every send below
+          </span>
+        </header>
+
+        <div className="rounded-lg border border-border bg-muted/30 p-2.5">
+          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Outgoing UTM
+          </p>
+          <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+            <UtmRow label="source" value={outgoingUtm.utm_source} />
+            <UtmRow label="medium" value={outgoingUtm.utm_medium} />
+            <UtmRow label="campaign" value={outgoingUtm.utm_campaign} wide />
+            <UtmRow label="content" value={outgoingUtm.utm_content} />
+            <UtmRow label="term" value={outgoingUtm.utm_term} />
+          </dl>
+
+          <div className="mt-2 border-t border-border pt-2">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Original lead attribution
+            </p>
+            <ul className="space-y-0.5 text-[10.5px] text-muted-foreground">
+              <li className="flex gap-1.5">
+                <span className="w-20 shrink-0 text-foreground/70">First touch</span>
+                <span className="truncate">
+                  {fmtTouch(
+                    attribution?.first_touch_utm_source,
+                    attribution?.first_touch_utm_medium,
+                    attribution?.first_touch_utm_campaign,
+                  )}
+                </span>
+              </li>
+              <li className="flex gap-1.5">
+                <span className="w-20 shrink-0 text-foreground/70">Last touch</span>
+                <span className="truncate">
+                  {fmtTouch(
+                    attribution?.utm_source,
+                    attribution?.utm_medium,
+                    attribution?.utm_campaign,
+                  )}
+                </span>
+              </li>
+              {attribution?.referrer && (
+                <li className="flex gap-1.5">
+                  <span className="w-20 shrink-0 text-foreground/70">Referrer</span>
+                  <span className="truncate">{attribution.referrer}</span>
+                </li>
+              )}
+              {attribution?.landing_page && (
+                <li className="flex gap-1.5">
+                  <span className="w-20 shrink-0 text-foreground/70">Landing</span>
+                  <span className="truncate">{attribution.landing_page}</span>
+                </li>
+              )}
+              {attribution?.lead_source && (
+                <li className="flex gap-1.5">
+                  <span className="w-20 shrink-0 text-foreground/70">Lead source</span>
+                  <Badge variant="outline" className="h-4 px-1 text-[9px]">
+                    {attribution.lead_source}
+                  </Badge>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* ── Templates ──────────────────────────────────────────────────────── */}
       <section className="space-y-2.5">
         <header className="flex items-center justify-between">
@@ -329,4 +456,46 @@ function EmptyMsg({
       <p className="max-w-[280px] text-[11px]">{children}</p>
     </div>
   );
+}
+
+function UtmRow({
+  label,
+  value,
+  wide,
+}: {
+  label: string;
+  value: string | null | undefined;
+  wide?: boolean;
+}) {
+  const present = !!value;
+  return (
+    <div
+      className={cn(
+        "flex items-baseline gap-1.5 overflow-hidden",
+        wide && "col-span-2",
+      )}
+    >
+      <span className="shrink-0 font-mono text-[10px] uppercase text-muted-foreground">
+        {label}
+      </span>
+      <span
+        className={cn(
+          "truncate font-mono text-[11px]",
+          present ? "text-foreground" : "text-muted-foreground/60 italic",
+        )}
+        title={value || "(none)"}
+      >
+        {value || "—"}
+      </span>
+    </div>
+  );
+}
+
+function fmtTouch(
+  source?: string | null,
+  medium?: string | null,
+  campaign?: string | null,
+): string {
+  const parts = [source, medium, campaign].filter(Boolean);
+  return parts.length ? parts.join(" / ") : "(direct)";
 }

@@ -811,6 +811,19 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
                     leadId={projectLead.id}
                     leadEmail={lead.email}
                     leadName={lead.name}
+                    attribution={{
+                      utm_source: projectLead.utm_source ?? null,
+                      utm_medium: projectLead.utm_medium ?? null,
+                      utm_campaign: projectLead.utm_campaign ?? null,
+                      utm_content: projectLead.utm_content ?? null,
+                      utm_term: projectLead.utm_term ?? null,
+                      first_touch_utm_source: projectLead.first_touch_utm_source ?? null,
+                      first_touch_utm_medium: projectLead.first_touch_utm_medium ?? null,
+                      first_touch_utm_campaign: projectLead.first_touch_utm_campaign ?? null,
+                      referrer: projectLead.referrer ?? null,
+                      landing_page: projectLead.landing_page ?? null,
+                      lead_source: projectLead.lead_source ?? null,
+                    }}
                   />
                 ) : (
                   <EmptyMsg icon={Sparkles}>
