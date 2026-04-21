@@ -193,25 +193,15 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
     }
   };
 
-  const enrollWorkflow = async (wf: EmailWorkflow) => {
+  // ── Workflow enrollment (with preview modal) ─────────────────────────────
+  const [previewWf, setPreviewWf] = useState<EmailWorkflow | null>(null);
+
+  const performEnroll = async (
+    wf: EmailWorkflow,
+    step: { id: string; template_id: string; delay_minutes: number | null },
+  ) => {
     setBusyId(`wf-${wf.id}`);
     try {
-      // Look up the first step
-      const { data: step, error: stepErr } = await supabase
-        .from("email_workflow_steps")
-        .select("id, template_id, delay_minutes")
-        .eq("workflow_id", wf.id)
-        .eq("is_active", true)
-        .order("step_order", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-
-      if (stepErr) throw stepErr;
-      if (!step) {
-        toast.error(`"${wf.name}" has no active steps yet`);
-        return;
-      }
-
       const scheduledAt = new Date(Date.now() + (step.delay_minutes ?? 0) * 60 * 1000);
       const { error: jobErr } = await (supabase as any).from("email_jobs").insert({
         to_email: leadEmail,
@@ -230,6 +220,7 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
           ? `Enrolled in "${wf.name}" — first email in ${step.delay_minutes}m`
           : `Enrolled in "${wf.name}" — first email queued now`,
       );
+      setPreviewWf(null);
     } catch (err: any) {
       toast.error(err?.message || "Failed to enroll");
     } finally {
