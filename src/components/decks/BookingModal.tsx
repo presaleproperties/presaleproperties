@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { z } from "zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,13 @@ interface BookingModalProps {
   agentEmail?: string;
 }
 
+const bookingSchema = z.object({
+  name: z.string().trim().min(2, "Please enter your full name").max(120),
+  email: z.string().trim().toLowerCase().email("Please enter a valid email").max(255),
+  phone: z.string().trim().min(7, "Please enter a valid phone number").max(40),
+  message: z.string().trim().max(1000).optional(),
+});
+
 export function BookingModal({ open, onClose, projectName, agentEmail }: BookingModalProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -26,16 +34,21 @@ export function BookingModal({ open, onClose, projectName, agentEmail }: Booking
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !phone || !email) return;
+    const parsed = bookingSchema.safeParse({ name, email, phone, message });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
+      return;
+    }
     setLoading(true);
     try {
       await upsertProjectLead({
-        name,
-        phone,
-        email,
-        message,
+        name: parsed.data.name,
+        phone: parsed.data.phone,
+        email: parsed.data.email,
+        message: parsed.data.message || `Private showing request for ${projectName}`,
         form_type: "deck_booking",
         lead_source: "pitch_deck_booking",
+        project_name: projectName,
         landing_page: window.location.href,
       });
       setDone(true);
