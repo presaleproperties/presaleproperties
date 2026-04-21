@@ -1628,6 +1628,14 @@ export default function AdminLeads() {
                     );
                   })}
                 </div>
+                <PaginationFooter
+                  page={safeProjectPage}
+                  totalPages={projectTotalPages}
+                  totalItems={filteredProjectLeads.length}
+                  pageSize={pageSize}
+                  onPageChange={setProjectPage}
+                  onPageSizeChange={updatePageSize}
+                />
               </div>
             )}
           </TabsContent>
