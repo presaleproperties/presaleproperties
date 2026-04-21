@@ -895,19 +895,27 @@ function VirtualTimeline({
   const height = Math.min(560, Math.max(itemSize, rows.length * itemSize));
 
   return (
-    <FixedSizeList
-      height={height}
-      width="100%"
-      itemCount={rows.length}
-      itemSize={itemSize}
+    <VirtualList
+      style={{ height, width: "100%" }}
+      rowCount={rows.length}
+      rowHeight={itemSize}
       overscanCount={8}
-    >
-      {({ index, style }) => (
-        <div style={style}>
-          <TimelineRowItem row={rows[index]} accent={accent} />
-        </div>
-      )}
-    </FixedSizeList>
+      rowProps={{ rows, accent }}
+      rowComponent={TimelineVirtualRow}
+    />
+  );
+}
+
+function TimelineVirtualRow({
+  index,
+  style,
+  rows,
+  accent,
+}: RowComponentProps<{ rows: TimelineRow[]; accent: "success" | "muted" }>) {
+  return (
+    <div style={style}>
+      <TimelineRowItem row={rows[index]} accent={accent} />
+    </div>
   );
 }
 
