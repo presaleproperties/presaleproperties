@@ -30,6 +30,7 @@ import {
   Sparkles,
   Target,
   Activity,
+  Columns3,
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
