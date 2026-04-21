@@ -332,6 +332,72 @@ export default function AdminLeads() {
   const [selectedListingIds, setSelectedListingIds] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
+  // ── Column visibility (persisted) ─────────────────────────────────────────
+  const PROJECT_COLUMNS = [
+    { key: "name", label: "Name", required: true },
+    { key: "contact", label: "Contact" },
+    { key: "project", label: "Project" },
+    { key: "intent", label: "Intent" },
+    { key: "source", label: "Source" },
+    { key: "status", label: "Status" },
+    { key: "activity", label: "Last Activity" },
+  ] as const;
+  const LISTING_COLUMNS = [
+    { key: "name", label: "Name", required: true },
+    { key: "contact", label: "Contact" },
+    { key: "listing", label: "Listing" },
+    { key: "message", label: "Message" },
+    { key: "submitted", label: "Submitted" },
+  ] as const;
+
+  const [projectColumns, setProjectColumns] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem("admin_leads_project_cols");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return Object.fromEntries(PROJECT_COLUMNS.map((c) => [c.key, true]));
+  });
+  const [listingColumns, setListingColumns] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem("admin_leads_listing_cols");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return Object.fromEntries(LISTING_COLUMNS.map((c) => [c.key, true]));
+  });
+
+  const toggleProjectColumn = (key: string) => {
+    setProjectColumns((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem("admin_leads_project_cols", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+  const toggleListingColumn = (key: string) => {
+    setListingColumns((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem("admin_leads_listing_cols", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+  const resetProjectColumns = () => {
+    const all = Object.fromEntries(PROJECT_COLUMNS.map((c) => [c.key, true]));
+    setProjectColumns(all);
+    try {
+      localStorage.setItem("admin_leads_project_cols", JSON.stringify(all));
+    } catch {}
+  };
+  const resetListingColumns = () => {
+    const all = Object.fromEntries(LISTING_COLUMNS.map((c) => [c.key, true]));
+    setListingColumns(all);
+    try {
+      localStorage.setItem("admin_leads_listing_cols", JSON.stringify(all));
+    } catch {}
+  };
+
   const selectedIds = activeTab === "project" ? selectedProjectIds : selectedListingIds;
   const setSelectedIds = activeTab === "project" ? setSelectedProjectIds : setSelectedListingIds;
 
