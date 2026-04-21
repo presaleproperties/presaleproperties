@@ -706,6 +706,127 @@ export default function AdminLeads() {
     setPersonaFilter("all");
   };
 
+  // ── Filter Presets ────────────────────────────────────────────────────────
+  type FilterState = {
+    search: string;
+    source: string;
+    date: string;
+    intent: string;
+    status: string;
+    persona: string;
+  };
+  type FilterPreset = { id: string; name: string; icon?: string; filters: FilterState; builtIn?: boolean };
+
+  const BUILT_IN_PRESETS: FilterPreset[] = [
+    {
+      id: "hot-new",
+      name: "Hot · New",
+      icon: "flame",
+      builtIn: true,
+      filters: { search: "", source: "all", date: "all", intent: "hot", status: "new", persona: "all" },
+    },
+    {
+      id: "warm-contacted",
+      name: "Warm · Contacted",
+      icon: "activity",
+      builtIn: true,
+      filters: { search: "", source: "all", date: "all", intent: "warm", status: "contacted", persona: "all" },
+    },
+    {
+      id: "this-week",
+      name: "This Week",
+      icon: "clock",
+      builtIn: true,
+      filters: { search: "", source: "all", date: "7", intent: "all", status: "all", persona: "all" },
+    },
+    {
+      id: "investors",
+      name: "Investors",
+      icon: "target",
+      builtIn: true,
+      filters: { search: "", source: "all", date: "all", intent: "all", status: "all", persona: "investor" },
+    },
+    {
+      id: "today-hot",
+      name: "Today · Hot",
+      icon: "sparkles",
+      builtIn: true,
+      filters: { search: "", source: "all", date: "today", intent: "hot", status: "all", persona: "all" },
+    },
+  ];
+
+  const [customPresets, setCustomPresets] = useState<FilterPreset[]>(() => {
+    try {
+      const saved = localStorage.getItem("admin_leads_filter_presets");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [];
+  });
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
+
+  const persistPresets = (presets: FilterPreset[]) => {
+    try {
+      localStorage.setItem("admin_leads_filter_presets", JSON.stringify(presets));
+    } catch {}
+  };
+
+  const applyPreset = (preset: FilterPreset) => {
+    setSearchQuery(preset.filters.search);
+    setSourceFilter(preset.filters.source);
+    setDateFilter(preset.filters.date);
+    setIntentFilter(preset.filters.intent);
+    setStatusFilter(preset.filters.status);
+    setPersonaFilter(preset.filters.persona);
+    setActivePresetId(preset.id);
+  };
+
+  const saveCurrentAsPreset = () => {
+    const name = window.prompt("Name this preset (e.g. 'VIPs Last 30 Days')");
+    if (!name?.trim()) return;
+    const preset: FilterPreset = {
+      id: `custom-${Date.now()}`,
+      name: name.trim(),
+      filters: {
+        search: searchQuery,
+        source: sourceFilter,
+        date: dateFilter,
+        intent: intentFilter,
+        status: statusFilter,
+        persona: personaFilter,
+      },
+    };
+    const next = [...customPresets, preset];
+    setCustomPresets(next);
+    persistPresets(next);
+    setActivePresetId(preset.id);
+    toast.success(`Preset "${preset.name}" saved`);
+  };
+
+  const deletePreset = (id: string) => {
+    const next = customPresets.filter((p) => p.id !== id);
+    setCustomPresets(next);
+    persistPresets(next);
+    if (activePresetId === id) setActivePresetId(null);
+    toast.success("Preset removed");
+  };
+
+  const presetIcon = (icon?: string) => {
+    switch (icon) {
+      case "flame":
+        return <Flame className="h-3 w-3" />;
+      case "activity":
+        return <Activity className="h-3 w-3" />;
+      case "clock":
+        return <Clock className="h-3 w-3" />;
+      case "target":
+        return <Target className="h-3 w-3" />;
+      case "sparkles":
+        return <Sparkles className="h-3 w-3" />;
+      default:
+        return <Bookmark className="h-3 w-3" />;
+    }
+  };
+
   return (
     <AdminLayout>
       <Helmet>
