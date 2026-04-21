@@ -333,7 +333,8 @@ export default function AdminLeads() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
   // ── Column visibility (persisted) ─────────────────────────────────────────
-  const PROJECT_COLUMNS = [
+  type ColumnDef = { key: string; label: string; required?: boolean };
+  const PROJECT_COLUMNS: ColumnDef[] = [
     { key: "name", label: "Name", required: true },
     { key: "contact", label: "Contact" },
     { key: "project", label: "Project" },
@@ -341,14 +342,14 @@ export default function AdminLeads() {
     { key: "source", label: "Source" },
     { key: "status", label: "Status" },
     { key: "activity", label: "Last Activity" },
-  ] as const;
-  const LISTING_COLUMNS = [
+  ];
+  const LISTING_COLUMNS: ColumnDef[] = [
     { key: "name", label: "Name", required: true },
     { key: "contact", label: "Contact" },
     { key: "listing", label: "Listing" },
     { key: "message", label: "Message" },
     { key: "submitted", label: "Submitted" },
-  ] as const;
+  ];
 
   const [projectColumns, setProjectColumns] = useState<Record<string, boolean>>(() => {
     try {
