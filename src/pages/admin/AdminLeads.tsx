@@ -1575,7 +1575,7 @@ export default function AdminLeads() {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredListingLeads.map((lead) => (
+                        {paginatedListingLeads.map((lead) => (
                           <tr
                             key={lead.id}
                             onClick={() => {
