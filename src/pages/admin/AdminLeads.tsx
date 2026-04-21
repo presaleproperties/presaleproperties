@@ -979,6 +979,66 @@ export default function AdminLeads() {
             </div>
           </div>
 
+          {/* ── Filter Presets ─────────────────────────────────── */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <Bookmark className="h-3 w-3" /> Presets
+            </span>
+            {BUILT_IN_PRESETS.map((p) => {
+              const active = activePresetId === p.id;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => applyPreset(p)}
+                  className={cn(
+                    "inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition-all",
+                    active
+                      ? "border-primary bg-primary/10 text-primary shadow-sm"
+                      : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                  )}
+                >
+                  {presetIcon(p.icon)}
+                  {p.name}
+                </button>
+              );
+            })}
+            {customPresets.map((p) => {
+              const active = activePresetId === p.id;
+              return (
+                <div key={p.id} className="group relative inline-flex items-center">
+                  <button
+                    onClick={() => applyPreset(p)}
+                    className={cn(
+                      "inline-flex h-7 items-center gap-1.5 rounded-full border pl-2.5 pr-6 text-[11px] font-medium transition-all",
+                      active
+                        ? "border-primary bg-primary/10 text-primary shadow-sm"
+                        : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                    )}
+                  >
+                    <Star className="h-3 w-3" />
+                    {p.name}
+                  </button>
+                  <button
+                    onClick={() => deletePreset(p.id)}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+                    title="Delete preset"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              );
+            })}
+            {hasActiveFilters && (
+              <button
+                onClick={saveCurrentAsPreset}
+                className="inline-flex h-7 items-center gap-1 rounded-full border border-dashed border-border bg-transparent px-2.5 text-[11px] font-medium text-muted-foreground transition-all hover:border-primary hover:text-primary"
+              >
+                <BookmarkPlus className="h-3 w-3" />
+                Save current
+              </button>
+            )}
+          </div>
+
           {/* ── Filter bar ─────────────────────────────────────── */}
           <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
