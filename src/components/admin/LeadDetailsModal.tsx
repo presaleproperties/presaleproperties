@@ -8,7 +8,7 @@
  *  - Attribution: first/last UTM, referrer, landing page, device, IP
  *  - Email: sent/opened/clicked emails + deck visits (post-submission engagement)
  */
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, formatDistanceToNow } from "date-fns";
 import {
@@ -138,6 +138,7 @@ interface LeadDetailsModalProps {
   type: "project" | "listing";
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialTab?: "overview" | "activity" | "engagement" | "attribution" | "email" | "hub";
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -204,8 +205,13 @@ const eventLabels: Record<string, { label: string; icon: LucideIcon; color: stri
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetailsModalProps) {
-  const [tab, setTab] = useState("overview");
+export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = "overview" }: LeadDetailsModalProps) {
+  const [tab, setTab] = useState<string>(initialTab);
+
+  // Reset tab whenever the drawer opens with a different initialTab.
+  useEffect(() => {
+    if (open) setTab(initialTab);
+  }, [open, initialTab]);
 
   const isProjectLead = type === "project";
   const projectLead = (lead ?? {}) as ProjectLead;
