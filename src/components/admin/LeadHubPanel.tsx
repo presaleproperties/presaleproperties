@@ -166,6 +166,14 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
         });
         if (error) throw error;
         toast.success(`Sent "${tpl.name}" to ${leadEmail}`);
+
+        supabase.functions.invoke("send-lead-engagement-event", {
+          body: {
+            email: leadEmail,
+            eventType: "template_sent",
+            eventData: { template_id: tpl.id, template_name: tpl.name, sent_via: "lead_hub_panel" },
+          },
+        }).catch(() => {});
       } else {
         const { error: jobErr } = await (supabase as any).from("email_jobs").insert({
           to_email: leadEmail,
@@ -185,6 +193,14 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
         toast.success(
           `Scheduled "${tpl.name}" for ${format(scheduledAt, "MMM d, h:mm a")} (in ${formatDistanceToNow(scheduledAt)})`,
         );
+
+        supabase.functions.invoke("send-lead-engagement-event", {
+          body: {
+            email: leadEmail,
+            eventType: "template_scheduled",
+            eventData: { template_id: tpl.id, template_name: tpl.name, scheduled_at: scheduledAt.toISOString() },
+          },
+        }).catch(() => {});
       }
     } catch (err: any) {
       toast.error(err?.message || "Failed to send template");
