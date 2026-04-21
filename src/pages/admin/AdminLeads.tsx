@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
+import { BulkEmailDialog } from "@/components/admin/BulkEmailDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -425,6 +426,7 @@ export default function AdminLeads() {
   const [selectedLead, setSelectedLead] = useState<ProjectLead | ListingLead | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalInitialTab, setModalInitialTab] = useState<"overview" | "hub">("overview");
+  const [bulkEmailOpen, setBulkEmailOpen] = useState(false);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [intentFilter, setIntentFilter] = useState<string>("all");
@@ -660,10 +662,18 @@ export default function AdminLeads() {
   const bulkEmailSelected = () => {
     const leads = activeTab === "project" ? projectLeads : listingLeads;
     if (!leads) return;
-    const emails = leads.filter((l) => selectedIds.has(l.id)).map((l) => l.email);
-    if (emails.length === 0) return;
-    window.open(`mailto:${emails.join(",")}`, "_blank");
+    const selected = leads.filter((l) => selectedIds.has(l.id));
+    if (selected.length === 0) return;
+    setBulkEmailOpen(true);
   };
+
+  const bulkEmailRecipients = useMemo(() => {
+    const leads = activeTab === "project" ? projectLeads : listingLeads;
+    if (!leads) return [];
+    return leads
+      .filter((l) => selectedIds.has(l.id))
+      .map((l) => ({ id: l.id, email: l.email, name: l.name }));
+  }, [activeTab, projectLeads, listingLeads, selectedIds]);
 
   const bulkExportSelected = () => {
     const leads = activeTab === "project" ? filteredProjectLeads : filteredListingLeads;
@@ -1370,13 +1380,19 @@ export default function AdminLeads() {
                               {projectColumns.contact && (
                                 <td className="px-3 py-3">
                                   <div className="flex flex-col gap-0.5">
-                                    <a
-                                      href={`mailto:${lead.email}`}
-                                      onClick={(e) => e.stopPropagation()}
-                                      className="block max-w-[180px] truncate text-xs text-muted-foreground transition-colors hover:text-primary"
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedLead(lead);
+                                        setModalInitialTab("hub");
+                                        setModalOpen(true);
+                                      }}
+                                      className="block max-w-[180px] truncate text-left text-xs text-muted-foreground transition-colors hover:text-primary"
+                                      title="Compose email in-app"
                                     >
                                       {lead.email}
-                                    </a>
+                                    </button>
                                     {lead.phone ? (
                                       <a
                                         href={`tel:${lead.phone}`}
@@ -1465,12 +1481,14 @@ export default function AdminLeads() {
                                     variant="ghost"
                                     size="icon"
                                     className="h-8 w-8 text-primary hover:bg-primary/10"
-                                    asChild
-                                    title="Email"
+                                    onClick={() => {
+                                      setSelectedLead(lead);
+                                      setModalInitialTab("hub");
+                                      setModalOpen(true);
+                                    }}
+                                    title="Compose email in-app"
                                   >
-                                    <a href={`mailto:${lead.email}`}>
-                                      <Mail className="h-4 w-4" />
-                                    </a>
+                                    <Mail className="h-4 w-4" />
                                   </Button>
                                   <Button
                                     variant="ghost"
@@ -1594,11 +1612,15 @@ export default function AdminLeads() {
                                 variant="outline"
                                 size="icon"
                                 className="h-8 w-8 rounded-lg border-border/50 hover:border-primary/30 hover:bg-primary/10"
-                                asChild
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedLead(lead);
+                                  setModalInitialTab("hub");
+                                  setModalOpen(true);
+                                }}
+                                title="Compose email in-app"
                               >
-                                <a href={`mailto:${lead.email}`} onClick={(e) => e.stopPropagation()}>
-                                  <Mail className="h-4 w-4" />
-                                </a>
+                                <Mail className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="outline"
@@ -1713,13 +1735,19 @@ export default function AdminLeads() {
                             {listingColumns.contact && (
                               <td className="px-3 py-3">
                                 <div className="flex flex-col gap-0.5">
-                                  <a
-                                    href={`mailto:${lead.email}`}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="block max-w-[180px] truncate text-xs text-muted-foreground hover:text-primary"
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedLead(lead);
+                                      setModalInitialTab("hub");
+                                      setModalOpen(true);
+                                    }}
+                                    className="block max-w-[180px] truncate text-left text-xs text-muted-foreground hover:text-primary"
+                                    title="Compose email in-app"
                                   >
                                     {lead.email}
-                                  </a>
+                                  </button>
                                   {lead.phone && (
                                     <a
                                       href={`tel:${lead.phone}`}
@@ -1785,12 +1813,14 @@ export default function AdminLeads() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8 text-primary hover:bg-primary/10"
-                                  asChild
-                                  title="Email"
+                                  onClick={() => {
+                                    setSelectedLead(lead);
+                                    setModalInitialTab("hub");
+                                    setModalOpen(true);
+                                  }}
+                                  title="Compose email in-app"
                                 >
-                                  <a href={`mailto:${lead.email}`}>
-                                    <Mail className="h-4 w-4" />
-                                  </a>
+                                  <Mail className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
@@ -1883,11 +1913,15 @@ export default function AdminLeads() {
                                 variant="outline"
                                 size="icon"
                                 className="h-8 w-8 rounded-lg border-border/50 hover:border-primary/30 hover:bg-primary/10"
-                                asChild
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedLead(lead);
+                                  setModalInitialTab("hub");
+                                  setModalOpen(true);
+                                }}
+                                title="Compose email in-app"
                               >
-                                <a href={`mailto:${lead.email}`} onClick={(e) => e.stopPropagation()}>
-                                  <Mail className="h-4 w-4" />
-                                </a>
+                                <Mail className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="outline"
@@ -1987,6 +2021,13 @@ export default function AdminLeads() {
           open={modalOpen}
           onOpenChange={setModalOpen}
           initialTab={modalInitialTab}
+        />
+
+        <BulkEmailDialog
+          open={bulkEmailOpen}
+          onOpenChange={setBulkEmailOpen}
+          recipients={bulkEmailRecipients}
+          campaignName={`admin_bulk_${activeTab}_leads`}
         />
       </div>
     </AdminLayout>
