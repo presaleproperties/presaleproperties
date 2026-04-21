@@ -81,6 +81,8 @@ export function LeadComposeEmail({ leadEmail, leadName, firstName }: Props) {
   const [newTplProject, setNewTplProject] = useState("");
   const [sending, setSending] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
+  const [includeSignature, setIncludeSignature] = useState(true);
 
   const { data: templates } = useQuery({
     queryKey: ["lead-compose-templates"],
@@ -94,6 +96,40 @@ export function LeadComposeEmail({ leadEmail, leadName, firstName }: Props) {
       return (data || []) as TemplateOption[];
     },
   });
+
+  // Active team members for the signature picker
+  const { data: agents } = useQuery({
+    queryKey: ["lead-compose-agents"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("team_members_public")
+        .select("id, full_name, title, photo_url, phone, email, sort_order, is_active")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data || []) as AgentOption[];
+    },
+  });
+
+  // Default to the first agent (typically Uzair) once loaded
+  useEffect(() => {
+    if (!selectedAgentId && agents && agents.length > 0) {
+      setSelectedAgentId(agents[0].id);
+    }
+  }, [agents, selectedAgentId]);
+
+  const selectedAgent = useMemo<SignatureAgent | null>(() => {
+    if (!agents || !selectedAgentId) return null;
+    const a = agents.find((x) => x.id === selectedAgentId);
+    if (!a) return null;
+    return {
+      full_name: a.full_name,
+      title: a.title,
+      photo_url: a.photo_url,
+      phone: a.phone,
+      email: a.email,
+    };
+  }, [agents, selectedAgentId]);
 
   // When a template is picked, hydrate the editor with its content
   useEffect(() => {
@@ -114,9 +150,12 @@ export function LeadComposeEmail({ leadEmail, leadName, firstName }: Props) {
 
   const finalHtml = useMemo(() => {
     const r = { email: leadEmail, firstName, name: leadName };
-    if (bodyIsHtml) return substituteVars(body, r);
-    return substituteVars(PLAIN_HTML_WRAPPER(body.replace(/\n/g, "<br/>"), firstName), r);
-  }, [body, bodyIsHtml, leadEmail, leadName, firstName]);
+    const baseHtml = bodyIsHtml
+      ? substituteVars(body, r)
+      : substituteVars(PLAIN_HTML_WRAPPER(body.replace(/\n/g, "<br/>"), firstName), r);
+    if (!includeSignature || !selectedAgent) return baseHtml;
+    return appendSignatureToHtml(baseHtml, selectedAgent);
+  }, [body, bodyIsHtml, leadEmail, leadName, firstName, includeSignature, selectedAgent]);
 
   const finalSubject = useMemo(
     () => substituteVars(subject, { email: leadEmail, firstName, name: leadName }),
