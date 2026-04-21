@@ -1100,6 +1100,47 @@ export default function AdminLeads() {
                             {lead.phone && (
                               <p className="text-xs text-muted-foreground">{lead.phone}</p>
                             )}
+                            {/* Quick Actions Row */}
+                            <div className="mt-3 flex items-center gap-1.5">
+                              {lead.phone && (
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-lg border-border/50 text-emerald-600 hover:border-emerald-500/30 hover:bg-emerald-500/10"
+                                  asChild
+                                >
+                                  <a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()}>
+                                    <Phone className="h-4 w-4" />
+                                  </a>
+                                </Button>
+                              )}
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 rounded-lg border-border/50 hover:border-primary/30 hover:bg-primary/10"
+                                asChild
+                              >
+                                <a href={`mailto:${lead.email}`} onClick={(e) => e.stopPropagation()}>
+                                  <Mail className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 rounded-lg border-border/50 hover:border-primary/30 hover:bg-primary/10"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedLead(lead);
+                                  setModalOpen(true);
+                                }}
+                              >
+                                <MessageSquare className="h-4 w-4" />
+                              </Button>
+                              <span className="ml-auto text-[11px] text-muted-foreground">
+                                {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
+                              </span>
+                            </div>
+                            {/* Tags Row */}
                             <div className="mt-2 flex flex-wrap items-center gap-1.5">
                               {lead.presale_projects && (
                                 <Badge variant="outline" className="h-5 gap-1 px-1.5 text-[10px] font-normal">
@@ -1111,9 +1152,6 @@ export default function AdminLeads() {
                                 {primarySource}
                               </Badge>
                               <StatusPill status={lead.lead_status} />
-                              <span className="ml-auto text-[10px] text-muted-foreground">
-                                {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
-                              </span>
                             </div>
                           </div>
                         </div>
