@@ -1339,10 +1339,12 @@ export default function AdminLeads() {
                             />
                           </th>
                           <SortHeader label="Name" field="name" sort={sort} onSort={onSort} />
-                          <SortHeader label="Contact" sort={sort} onSort={onSort} />
-                          <SortHeader label="Listing" sort={sort} onSort={onSort} />
-                          <SortHeader label="Message" sort={sort} onSort={onSort} />
-                          <SortHeader label="Submitted" field="created_at" sort={sort} onSort={onSort} />
+                          {listingColumns.contact && <SortHeader label="Contact" sort={sort} onSort={onSort} />}
+                          {listingColumns.listing && <SortHeader label="Listing" sort={sort} onSort={onSort} />}
+                          {listingColumns.message && <SortHeader label="Message" sort={sort} onSort={onSort} />}
+                          {listingColumns.submitted && (
+                            <SortHeader label="Submitted" field="created_at" sort={sort} onSort={onSort} />
+                          )}
                           <th className="w-10 px-3 py-2.5" />
                         </tr>
                       </thead>
