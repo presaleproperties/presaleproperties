@@ -1049,72 +1049,84 @@ export default function AdminLeads() {
                                 </div>
                               </td>
                               {/* Contact */}
-                              <td className="px-3 py-3">
-                                <div className="flex flex-col gap-0.5">
-                                  <a
-                                    href={`mailto:${lead.email}`}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="block max-w-[180px] truncate text-xs text-muted-foreground transition-colors hover:text-primary"
-                                  >
-                                    {lead.email}
-                                  </a>
-                                  {lead.phone ? (
+                              {projectColumns.contact && (
+                                <td className="px-3 py-3">
+                                  <div className="flex flex-col gap-0.5">
                                     <a
-                                      href={`tel:${lead.phone}`}
+                                      href={`mailto:${lead.email}`}
                                       onClick={(e) => e.stopPropagation()}
-                                      className="text-xs text-muted-foreground transition-colors hover:text-primary"
+                                      className="block max-w-[180px] truncate text-xs text-muted-foreground transition-colors hover:text-primary"
                                     >
-                                      {lead.phone}
+                                      {lead.email}
                                     </a>
-                                  ) : (
-                                    <span className="text-[10px] text-muted-foreground/40">no phone</span>
-                                  )}
-                                </div>
-                              </td>
-                              {/* Project */}
-                              <td className="px-3 py-3">
-                                {lead.presale_projects ? (
-                                  <div className="min-w-0">
-                                    <p
-                                      className="max-w-[160px] truncate text-xs font-medium"
-                                      title={lead.presale_projects.name}
-                                    >
-                                      {lead.presale_projects.name}
-                                    </p>
-                                    <p className="text-[10px] text-muted-foreground">
-                                      {lead.presale_projects.city}
-                                    </p>
+                                    {lead.phone ? (
+                                      <a
+                                        href={`tel:${lead.phone}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="text-xs text-muted-foreground transition-colors hover:text-primary"
+                                      >
+                                        {lead.phone}
+                                      </a>
+                                    ) : (
+                                      <span className="text-[10px] text-muted-foreground/40">no phone</span>
+                                    )}
                                   </div>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground/40">—</span>
-                                )}
-                              </td>
-                              {/* Intent */}
-                              <td className="px-3 py-3">
-                                <IntentBadge score={lead.intent_score} />
-                              </td>
-                              {/* Source */}
-                              <td className="px-3 py-3">
-                                <span className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px]">
-                                  {primarySource}
-                                  {extraCount > 0 && (
-                                    <span className="font-semibold text-primary">+{extraCount}</span>
+                                </td>
+                              )}
+                              {/* Project */}
+                              {projectColumns.project && (
+                                <td className="px-3 py-3">
+                                  {lead.presale_projects ? (
+                                    <div className="min-w-0">
+                                      <p
+                                        className="max-w-[160px] truncate text-xs font-medium"
+                                        title={lead.presale_projects.name}
+                                      >
+                                        {lead.presale_projects.name}
+                                      </p>
+                                      <p className="text-[10px] text-muted-foreground">
+                                        {lead.presale_projects.city}
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground/40">—</span>
                                   )}
-                                </span>
-                              </td>
-                              {/* Status */}
-                              <td className="px-3 py-3">
-                                <StatusPill status={lead.lead_status} />
-                              </td>
-                              {/* Last activity */}
-                              <td className="whitespace-nowrap px-3 py-3 text-xs text-muted-foreground">
-                                <div className="flex flex-col">
-                                  <span>{formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}</span>
-                                  <span className="text-[10px] text-muted-foreground/60">
-                                    {format(new Date(lead.created_at), "MMM d, h:mm a")}
+                                </td>
+                              )}
+                              {/* Intent */}
+                              {projectColumns.intent && (
+                                <td className="px-3 py-3">
+                                  <IntentBadge score={lead.intent_score} />
+                                </td>
+                              )}
+                              {/* Source */}
+                              {projectColumns.source && (
+                                <td className="px-3 py-3">
+                                  <span className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px]">
+                                    {primarySource}
+                                    {extraCount > 0 && (
+                                      <span className="font-semibold text-primary">+{extraCount}</span>
+                                    )}
                                   </span>
-                                </div>
-                              </td>
+                                </td>
+                              )}
+                              {/* Status */}
+                              {projectColumns.status && (
+                                <td className="px-3 py-3">
+                                  <StatusPill status={lead.lead_status} />
+                                </td>
+                              )}
+                              {/* Last activity */}
+                              {projectColumns.activity && (
+                                <td className="whitespace-nowrap px-3 py-3 text-xs text-muted-foreground">
+                                  <div className="flex flex-col">
+                                    <span>{formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}</span>
+                                    <span className="text-[10px] text-muted-foreground/60">
+                                      {format(new Date(lead.created_at), "MMM d, h:mm a")}
+                                    </span>
+                                  </div>
+                                </td>
+                              )}
                               {/* Quick Actions */}
                               <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center justify-end gap-1">
