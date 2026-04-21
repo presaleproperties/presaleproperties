@@ -139,6 +139,18 @@ export default function Blog() {
           </div>
         </div>
 
+        {/* Page heading — single H1 for SEO/AEO */}
+        <header className="border-b border-border/40 bg-background">
+          <div className="container py-6 md:py-10">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground text-balance">
+              Presale &amp; Real Estate Insights
+            </h1>
+            <p className="mt-2 text-sm md:text-base text-muted-foreground max-w-2xl">
+              Expert guides on buying presale condos in BC — market updates, deposit tips, neighbourhood guides, and investment strategies.
+            </p>
+          </div>
+        </header>
+
 
         {/* Search bar (sticky) */}
         <section aria-label="Article search" className="sticky top-14 md:top-16 z-40 bg-background/80 backdrop-blur-xl border-b border-border/40 py-3 md:py-4">

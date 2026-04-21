@@ -353,6 +353,20 @@ export default function NeighbourhoodProductPage() {
         <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+        {/* FAQPage JSON-LD — mirrors the visible FAQ accordion below for rich-result eligibility */}
+        {neighbourhoodConfig.faqs && neighbourhoodConfig.faqs.length > 0 && (
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: neighbourhoodConfig.faqs.map((f) => ({
+                "@type": "Question",
+                name: f.question,
+                acceptedAnswer: { "@type": "Answer", text: f.answer },
+              })),
+            })}
+          </script>
+        )}
       </Helmet>
 
       <div className="min-h-screen bg-background">

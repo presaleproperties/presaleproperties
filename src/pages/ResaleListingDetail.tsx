@@ -604,8 +604,8 @@ export default function ResaleListingDetail() {
                   )}
                 </div>
 
-                {/* Address - Smaller */}
-                <h1 className="font-medium text-muted-foreground text-base">{address}</h1>
+                {/* Address - Smaller (use <p>; the page H1 lives in the desktop hero below) */}
+                <p className="font-medium text-muted-foreground text-base">{address}</p>
 
                 {/* City & Neighborhood - Inline */}
                 <p className="text-sm">

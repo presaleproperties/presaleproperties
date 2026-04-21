@@ -546,6 +546,25 @@ export default function ResaleListings() {
         <meta property="og:description" content={getSeoDescription()} />
         <meta property="og:url" content={canonicalUrl} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+        {/* BreadcrumbList JSON-LD — matches the visible breadcrumb in the page header */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://presaleproperties.com" },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Move-In Ready",
+                item: "https://presaleproperties.com/properties",
+              },
+              ...(filters.city !== "any"
+                ? [{ "@type": "ListItem", position: 3, name: filters.city }]
+                : []),
+            ],
+          })}
+        </script>
       </Helmet>
 
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
