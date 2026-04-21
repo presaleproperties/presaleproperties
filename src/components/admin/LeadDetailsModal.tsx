@@ -554,6 +554,50 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                     </div>
                   </Section>
                 )}
+
+                {isProjectLead && (intent > 0 || (projectLead.pages_viewed ?? 0) > 0 || (projectLead.session_count ?? 0) > 1) && (
+                  <Section title="Intent score breakdown" icon={TrendingUp}>
+                    <div className="rounded-lg border border-border bg-card p-3 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Composite intent</span>
+                        <span className="font-bold tabular-nums text-foreground">{intent}/10</span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all",
+                            intent >= 7 ? "bg-destructive" : intent >= 4 ? "bg-amber-500" : "bg-sky-500",
+                          )}
+                          style={{ width: `${Math.min(100, intent * 10)}%` }}
+                        />
+                      </div>
+                      <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground pt-1">
+                        <li className="flex items-center justify-between">
+                          <span>Pages viewed</span>
+                          <span className="font-medium tabular-nums text-foreground">{projectLead.pages_viewed ?? 0}</span>
+                        </li>
+                        <li className="flex items-center justify-between">
+                          <span>Sessions</span>
+                          <span className="font-medium tabular-nums text-foreground">{projectLead.session_count ?? 1}</span>
+                        </li>
+                        <li className="flex items-center justify-between">
+                          <span>Time on site</span>
+                          <span className="font-medium tabular-nums text-foreground">{formatSeconds(projectLead.time_on_site)}</span>
+                        </li>
+                        <li className="flex items-center justify-between">
+                          <span>Calculator</span>
+                          <span className="font-medium text-foreground">{projectLead.used_calculator ? "Yes" : "No"}</span>
+                        </li>
+                        {deckVisits && deckVisits.length > 0 && (
+                          <li className="flex items-center justify-between col-span-2">
+                            <span>Pitch deck visits</span>
+                            <span className="font-medium tabular-nums text-foreground">{deckVisits.length}</span>
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  </Section>
+                )}
               </TabsContent>
 
               {/* ───── TIMELINE ───── */}
