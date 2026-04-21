@@ -217,7 +217,10 @@ serve(async (req: Request): Promise<Response> => {
         
         // Source tag
         tags.push("PresaleProperties.com");
-        
+
+        // Intent tier tag
+        tags.push(`Intent: ${intentTier}`);
+        if (intentScoreResolved >= 70) tags.push("Hot Lead");
         // Form type tag
         const formType = getFormType(lead.lead_source, lead.message);
         if (formType) tags.push(formType);
