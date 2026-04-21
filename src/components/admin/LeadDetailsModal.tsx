@@ -15,7 +15,6 @@ import {
   Mail,
   Phone,
   Building2,
-  Calendar,
   User,
   Home,
   UserCheck,
@@ -39,6 +38,8 @@ import {
   Send,
   MailOpen,
   ChevronRight,
+  BadgeCheck,
+  type LucideIcon,
 } from "lucide-react";
 import {
   Sheet,
@@ -181,7 +182,7 @@ const DeviceIcon = ({ device }: { device?: string | null }) => {
   return <Monitor className="h-3.5 w-3.5" />;
 };
 
-const eventLabels: Record<string, { label: string; icon: typeof Eye; color: string }> = {
+const eventLabels: Record<string, { label: string; icon: LucideIcon; color: string }> = {
   page_view: { label: "Page view", icon: Eye, color: "text-muted-foreground" },
   property_view: { label: "Project viewed", icon: Building2, color: "text-blue-600" },
   floorplan_view: { label: "Floor plan viewed", icon: FileText, color: "text-indigo-600" },
@@ -191,22 +192,12 @@ const eventLabels: Record<string, { label: string; icon: typeof Eye; color: stri
   city_cta_click: { label: "City CTA clicked", icon: MapPin, color: "text-amber-600" },
   search: { label: "Search performed", icon: Globe, color: "text-muted-foreground" },
   form_start: { label: "Form started", icon: FileText, color: "text-orange-600" },
-  form_submit: { label: "Form submitted", icon: CheckBadge, color: "text-emerald-700" },
+  form_submit: { label: "Form submitted", icon: BadgeCheck, color: "text-emerald-700" },
   contact_form: { label: "Contact form", icon: Mail, color: "text-emerald-700" },
   return_visit: { label: "Return visit", icon: TrendingUp, color: "text-purple-600" },
   deck_section_view: { label: "Pitch deck section viewed", icon: FileText, color: "text-violet-600" },
   property_email_sent: { label: "Property email sent", icon: Send, color: "text-sky-600" },
 };
-
-// Inline icon since lucide doesn't ship "CheckBadge" by default
-function CheckBadge(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="m9 12 2 2 4-4" />
-      <circle cx="12" cy="12" r="10" />
-    </svg>
-  );
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
