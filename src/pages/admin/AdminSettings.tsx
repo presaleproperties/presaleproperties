@@ -628,9 +628,66 @@ export default function AdminSettings() {
                       </p>
                     </div>
                   </div>
-                </div>
 
-                {/* Social Media Automation */}
+                  {/* Engagement Events Webhook (NEW) — fires on email opens/clicks, deck views, workflow enrolls */}
+                  <div className="mt-4 rounded-lg border-2 border-dashed border-primary/40 bg-primary/5 p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="zapier_engagement_webhook" className="text-sm font-semibold">
+                        🔥 Lead Engagement Events Webhook (Live Sync to Lofty)
+                      </Label>
+                      <span className="text-[10px] uppercase tracking-wider text-primary font-bold">New</span>
+                    </div>
+                    <Input
+                      id="zapier_engagement_webhook"
+                      type="url"
+                      placeholder="https://hooks.zapier.com/..."
+                      value={settings.zapier_engagement_webhook}
+                      onChange={(e) => setSettings(prev => ({
+                        ...prev,
+                        zapier_engagement_webhook: e.target.value
+                      }))}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Fires an enriched payload to Zapier whenever a lead engages: <strong>email opened/clicked, pitch deck viewed, workflow enrolled, template sent</strong>. Keeps Lofty contacts live with intent score, engagement counts, attribution depth & workflow state.
+                    </p>
+                    <details className="text-xs">
+                      <summary className="cursor-pointer text-primary hover:underline font-medium">
+                        View payload schema (fields sent to Lofty)
+                      </summary>
+                      <pre className="mt-2 overflow-x-auto rounded bg-muted p-3 text-[10px] leading-relaxed">{`{
+  event_type: "email_opened" | "email_clicked" | "deck_viewed" |
+              "workflow_enrolled" | "template_sent" | "template_scheduled" | ...,
+  event_at: ISO timestamp,
+  event_data: { ... },           // event-specific payload
+
+  // Identity
+  lead_id, lead_email, lead_name, lead_phone,
+
+  // Intent (Hot ≥70, Warm 40-69, Cold <40)
+  intent_score, intent_tier, lead_temperature, is_hot_lead,
+
+  // Engagement counters
+  total_emails_sent, total_emails_opened, total_emails_clicked,
+  last_email_opened_at, total_property_views, total_site_visits,
+  pitch_deck_visits, last_deck_viewed, last_deck_viewed_at, last_seen_at,
+
+  // Workflow state
+  enrolled_workflows: [workflow_id, ...],
+  next_scheduled_email_at,
+
+  // Attribution
+  first_touch_source, first_touch_medium, first_touch_campaign,
+  first_touch_landing_page, first_touch_at,
+  last_touch_source, last_touch_medium, last_touch_campaign,
+  touch_count, days_since_first_touch,
+
+  // Lofty Smart Lists
+  tags_array: ["Hot Lead", "Intent: Hot", "Deck Viewed", "In Workflow", ...],
+  source: "PresaleProperties.com"
+}`}</pre>
+                    </details>
+                  </div>
+                </div>
                 <div className="space-y-3">
                   <h4 className="font-medium text-sm">Social Media & Research Automation</h4>
                   <div className="grid gap-4 md:grid-cols-2">
