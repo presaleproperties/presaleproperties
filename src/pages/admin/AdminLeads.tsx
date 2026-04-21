@@ -791,11 +791,67 @@ export default function AdminLeads() {
                 )}
               </TabsTrigger>
             </TabsList>
-            {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2 text-xs">
-                <X className="mr-1 h-3 w-3" /> Clear filters
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2 text-xs">
+                  <X className="mr-1 h-3 w-3" /> Clear filters
+                </Button>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 gap-1.5 px-2.5 text-xs">
+                    <Columns3 className="h-3.5 w-3.5" />
+                    Columns
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Visible Columns
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {activeTab === "project"
+                    ? PROJECT_COLUMNS.map((col) => (
+                        <DropdownMenuCheckboxItem
+                          key={col.key}
+                          checked={col.required ? true : !!projectColumns[col.key]}
+                          disabled={col.required}
+                          onCheckedChange={() => !col.required && toggleProjectColumn(col.key)}
+                          onSelect={(e) => e.preventDefault()}
+                          className="text-xs"
+                        >
+                          {col.label}
+                          {col.required && (
+                            <span className="ml-auto text-[9px] uppercase text-muted-foreground">Pinned</span>
+                          )}
+                        </DropdownMenuCheckboxItem>
+                      ))
+                    : LISTING_COLUMNS.map((col) => (
+                        <DropdownMenuCheckboxItem
+                          key={col.key}
+                          checked={col.required ? true : !!listingColumns[col.key]}
+                          disabled={col.required}
+                          onCheckedChange={() => !col.required && toggleListingColumn(col.key)}
+                          onSelect={(e) => e.preventDefault()}
+                          className="text-xs"
+                        >
+                          {col.label}
+                          {col.required && (
+                            <span className="ml-auto text-[9px] uppercase text-muted-foreground">Pinned</span>
+                          )}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-xs"
+                    onClick={() =>
+                      activeTab === "project" ? resetProjectColumns() : resetListingColumns()
+                    }
+                  >
+                    Reset to default
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
           {/* ── Filter bar ─────────────────────────────────────── */}
