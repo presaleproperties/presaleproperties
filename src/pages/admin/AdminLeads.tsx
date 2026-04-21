@@ -317,6 +317,105 @@ function EmptyState({ message }: { message: string }) {
   );
 }
 
+function PaginationFooter({
+  page,
+  totalPages,
+  totalItems,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  page: number;
+  totalPages: number;
+  totalItems: number;
+  pageSize: number;
+  onPageChange: (n: number) => void;
+  onPageSizeChange: (n: number) => void;
+}) {
+  if (totalItems === 0) return null;
+  const start = (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, totalItems);
+
+  // Build compact page list with ellipses
+  const pages: (number | "…")[] = [];
+  const push = (n: number | "…") => {
+    if (pages[pages.length - 1] !== n) pages.push(n);
+  };
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || Math.abs(i - page) <= 1) push(i);
+    else if (i < page) push("…");
+    else if (i > page) {
+      push("…");
+      // jump remaining
+      // (we'll just continue; dedupe handled by push)
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-2 text-[11px] sm:flex-row">
+      <div className="flex items-center gap-3 text-muted-foreground">
+        <span className="tabular-nums">
+          Showing <span className="font-semibold text-foreground">{start}</span>–
+          <span className="font-semibold text-foreground">{end}</span> of{" "}
+          <span className="font-semibold text-foreground">{totalItems.toLocaleString()}</span>
+        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="hidden sm:inline">Per page</span>
+          <Select value={String(pageSize)} onValueChange={(v) => onPageSizeChange(parseInt(v, 10))}>
+            <SelectTrigger className="h-7 w-[68px] text-[11px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[25, 50, 100, 200].map((n) => (
+                <SelectItem key={n} value={String(n)} className="text-xs">
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 px-2 text-[11px]"
+          disabled={page <= 1}
+          onClick={() => onPageChange(page - 1)}
+        >
+          Prev
+        </Button>
+        {pages.map((p, idx) =>
+          p === "…" ? (
+            <span key={`e-${idx}`} className="px-1.5 text-muted-foreground">
+              …
+            </span>
+          ) : (
+            <Button
+              key={p}
+              variant={p === page ? "default" : "ghost"}
+              size="sm"
+              className="h-7 min-w-7 px-2 text-[11px] tabular-nums"
+              onClick={() => onPageChange(p)}
+            >
+              {p}
+            </Button>
+          ),
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 px-2 text-[11px]"
+          disabled={page >= totalPages}
+          onClick={() => onPageChange(page + 1)}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function AdminLeads() {
