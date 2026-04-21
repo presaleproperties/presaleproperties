@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLeadSubmission } from "@/hooks/useLeadSubmission";
+import { upsertProjectLead } from "@/lib/upsertProjectLead";
 import { formatPhoneNumber, stripPhoneFormatting } from "@/lib/formatPhone";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import {
@@ -116,20 +117,20 @@ export function LpLeadForm({
       const cityInterest = getCityInterests();
       const leadValue = 100; // CAD — same intrinsic value as organic project inquiries
 
-      const { error } = await supabase.from("project_leads").insert({
+      // Use central upsert helper — dedupes on email, validates form_type/
+      // lead_source, and merges sources for repeat submitters.
+      await upsertProjectLead({
         id: leadId,
         project_id: projectId || null,
         name: data.fullName,
         email: data.email,
         phone: data.phone,
         persona: "buyer",
-        // Distinct form_type so Lofty + reporting can filter paid LP submissions
         form_type: "project_inquiry_lp",
         lead_status: "new",
         drip_sequence: "buyer",
         last_drip_sent: 0,
         next_drip_at: new Date().toISOString(),
-        // lead_source defaults to "lp_paid"; UTM overrides allow per-campaign split
         lead_source: utmData.utm_source ? `lp_${utmData.utm_source}` : leadSource,
         utm_source: utmData.utm_source,
         utm_medium: utmData.utm_medium,
@@ -148,9 +149,7 @@ export function LpLeadForm({
         fbc: tracking.fbc ?? null,
         user_agent: tracking.user_agent ?? null,
         value: leadValue,
-      } as any);
-
-      if (error) throw error;
+      });
 
       // Lead-scoring + Lofty Zapier hand-off (also persists tracking columns)
       submitLead({
