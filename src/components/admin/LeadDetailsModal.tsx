@@ -58,6 +58,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { generateProjectUrl } from "@/lib/seoUrls";
 import { cn } from "@/lib/utils";
 import { List as VirtualList, type RowComponentProps } from "react-window";
+import { LeadHubPanel } from "./LeadHubPanel";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -406,7 +407,7 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
         </SheetHeader>
 
         <Tabs value={tab} onValueChange={setTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="mx-6 mt-4 grid grid-cols-5 h-9">
+          <TabsList className="mx-6 mt-4 grid grid-cols-6 h-9">
             <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
             <TabsTrigger value="activity" className="text-xs">
               Timeline
@@ -414,13 +415,17 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                 <span className="ml-1 text-[10px] text-muted-foreground">({activity.length})</span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="engagement" className="text-xs">Engagement</TabsTrigger>
+            <TabsTrigger value="engagement" className="text-xs">Engage</TabsTrigger>
             <TabsTrigger value="attribution" className="text-xs">Source</TabsTrigger>
             <TabsTrigger value="email" className="text-xs">
               Email
               {emailLogs && emailLogs.length > 0 && (
                 <span className="ml-1 text-[10px] text-muted-foreground">({emailLogs.length})</span>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="hub" className="text-xs gap-1">
+              <Sparkles className="h-3 w-3" />
+              Hub
             </TabsTrigger>
           </TabsList>
 
