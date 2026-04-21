@@ -59,16 +59,51 @@ export function BulkEmailDialog({ open, onOpenChange, recipients, campaignName }
   const [bodyIsHtml, setBodyIsHtml] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [sending, setSending] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
+  const [includeSignature, setIncludeSignature] = useState(true);
 
   const validRecipients = useMemo(
     () => recipients.filter((r) => !!r.email && /\S+@\S+/.test(r.email)),
     [recipients],
   );
 
+  const { data: agents } = useQuery({
+    queryKey: ["bulk-email-agents"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("team_members_public")
+        .select("id, full_name, title, photo_url, phone, email, sort_order, is_active")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data || []) as AgentOption[];
+    },
+  });
+
+  useEffect(() => {
+    if (!selectedAgentId && agents && agents.length > 0) {
+      setSelectedAgentId(agents[0].id);
+    }
+  }, [agents, selectedAgentId]);
+
+  const selectedAgent = useMemo<SignatureAgent | null>(() => {
+    if (!agents || !selectedAgentId) return null;
+    const a = agents.find((x) => x.id === selectedAgentId);
+    if (!a) return null;
+    return {
+      full_name: a.full_name,
+      title: a.title,
+      photo_url: a.photo_url,
+      phone: a.phone,
+      email: a.email,
+    };
+  }, [agents, selectedAgentId]);
+
   const finalHtml = useMemo(() => {
-    if (bodyIsHtml) return body;
-    return BULK_HTML_WRAPPER(body.replace(/\n/g, "<br/>"));
-  }, [body, bodyIsHtml]);
+    const base = bodyIsHtml ? body : BULK_HTML_WRAPPER(body.replace(/\n/g, "<br/>"));
+    if (!includeSignature || !selectedAgent) return base;
+    return appendSignatureToHtml(base, selectedAgent);
+  }, [body, bodyIsHtml, includeSignature, selectedAgent]);
 
   const canSend =
     subject.trim().length > 0 &&
