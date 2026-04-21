@@ -660,6 +660,28 @@ export default function AdminLeads() {
     return sorted;
   }, [listingLeads, searchQuery, dateFilter, sort]);
 
+  // ── Pagination derivations ────────────────────────────────────────────────
+  const projectTotalPages = Math.max(1, Math.ceil(filteredProjectLeads.length / pageSize));
+  const listingTotalPages = Math.max(1, Math.ceil(filteredListingLeads.length / pageSize));
+  const safeProjectPage = Math.min(projectPage, projectTotalPages);
+  const safeListingPage = Math.min(listingPage, listingTotalPages);
+  const paginatedProjectLeads = useMemo(
+    () => filteredProjectLeads.slice((safeProjectPage - 1) * pageSize, safeProjectPage * pageSize),
+    [filteredProjectLeads, safeProjectPage, pageSize],
+  );
+  const paginatedListingLeads = useMemo(
+    () => filteredListingLeads.slice((safeListingPage - 1) * pageSize, safeListingPage * pageSize),
+    [filteredListingLeads, safeListingPage, pageSize],
+  );
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setProjectPage(1);
+  }, [searchQuery, sourceFilter, dateFilter, intentFilter, statusFilter, personaFilter, sort]);
+  useEffect(() => {
+    setListingPage(1);
+  }, [searchQuery, dateFilter, sort]);
+
   // ── CSV Export ────────────────────────────────────────────────────────────
 
   const exportToCSV = (type: "project" | "listing") => {
