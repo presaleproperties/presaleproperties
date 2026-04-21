@@ -24,11 +24,19 @@ import {
   PlayCircle,
   Target,
   Info,
+  CalendarClock,
+  Zap,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { format, formatDistanceToNow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -139,19 +147,45 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
     },
   };
 
-  const sendTemplate = async (tpl: CampaignTemplate) => {
+  /**
+   * Send a template now, or queue it for a future time via `email_jobs`.
+   * - `scheduledAt = null` → invoke edge function immediately.
+   * - `scheduledAt = Date` → insert queued row (dispatcher picks it up).
+   */
+  const sendTemplate = async (tpl: CampaignTemplate, scheduledAt: Date | null) => {
     setBusyId(`tpl-${tpl.id}`);
     try {
-      const { error } = await supabase.functions.invoke("send-template-email", {
-        body: {
-          templateId: tpl.id,
-          recipient: { email: leadEmail, firstName, name: leadName },
-          utm: outgoingUtm,
-          meta: { ...attributionMeta, template_id: tpl.id, template_name: tpl.name },
-        },
-      });
-      if (error) throw error;
-      toast.success(`Sent "${tpl.name}" to ${leadEmail}`);
+      if (!scheduledAt) {
+        const { error } = await supabase.functions.invoke("send-template-email", {
+          body: {
+            templateId: tpl.id,
+            recipient: { email: leadEmail, firstName, name: leadName },
+            utm: outgoingUtm,
+            meta: { ...attributionMeta, template_id: tpl.id, template_name: tpl.name },
+          },
+        });
+        if (error) throw error;
+        toast.success(`Sent "${tpl.name}" to ${leadEmail}`);
+      } else {
+        const { error: jobErr } = await (supabase as any).from("email_jobs").insert({
+          to_email: leadEmail,
+          to_name: leadName,
+          template_id: tpl.id,
+          scheduled_at: scheduledAt.toISOString(),
+          status: "queued",
+          variables: { firstName, name: leadName, ...outgoingUtm },
+          meta: {
+            ...attributionMeta,
+            template_id: tpl.id,
+            template_name: tpl.name,
+            scheduled_via: "lead_hub_panel",
+          },
+        });
+        if (jobErr) throw jobErr;
+        toast.success(
+          `Scheduled "${tpl.name}" for ${format(scheduledAt, "MMM d, h:mm a")} (in ${formatDistanceToNow(scheduledAt)})`,
+        );
+      }
     } catch (err: any) {
       toast.error(err?.message || "Failed to send template");
     } finally {
@@ -343,20 +377,10 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
                         ))}
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 shrink-0 gap-1 px-2 text-[11px]"
-                      disabled={busy}
-                      onClick={() => sendTemplate(tpl)}
-                    >
-                      {busy ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Send className="h-3 w-3" />
-                      )}
-                      Send
-                    </Button>
+                    <SchedulePopover
+                      busy={busy}
+                      onConfirm={(when) => sendTemplate(tpl, when)}
+                    />
                   </li>
                 );
               })}
@@ -498,4 +522,147 @@ function fmtTouch(
 ): string {
   const parts = [source, medium, campaign].filter(Boolean);
   return parts.length ? parts.join(" / ") : "(direct)";
+}
+
+/**
+ * SchedulePopover
+ * "Send now" or pick a future date + time. Confirms via `onConfirm(when)`
+ * where `when` is `null` for immediate send or a Date for queued send.
+ */
+function SchedulePopover({
+  busy,
+  onConfirm,
+}: {
+  busy: boolean;
+  onConfirm: (when: Date | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  // Default time = now + 1h, rounded
+  const defaultTime = (() => {
+    const d = new Date(Date.now() + 60 * 60 * 1000);
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  })();
+  const [time, setTime] = useState<string>(defaultTime);
+
+  const scheduledDate = (() => {
+    if (!date) return null;
+    const [hh, mm] = (time || "09:00").split(":").map((n) => parseInt(n, 10));
+    const d = new Date(date);
+    d.setHours(hh || 0, mm || 0, 0, 0);
+    return d;
+  })();
+  const isPast = scheduledDate ? scheduledDate.getTime() <= Date.now() : false;
+
+  const sendNow = () => {
+    setOpen(false);
+    onConfirm(null);
+  };
+  const schedule = () => {
+    if (!scheduledDate || isPast) return;
+    setOpen(false);
+    onConfirm(scheduledDate);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-7 shrink-0 gap-1 px-2 text-[11px]"
+          disabled={busy}
+        >
+          {busy ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : (
+            <Send className="h-3 w-3" />
+          )}
+          Send
+          <ChevronDown className="h-3 w-3 opacity-60" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-[280px] p-0">
+        {/* Send now */}
+        <button
+          type="button"
+          onClick={sendNow}
+          className="flex w-full items-center gap-2 border-b border-border p-2.5 text-left text-xs hover:bg-accent/50"
+        >
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <Zap className="h-3.5 w-3.5" />
+          </div>
+          <div className="flex-1">
+            <div className="font-medium">Send now</div>
+            <div className="text-[10px] text-muted-foreground">
+              Delivered immediately
+            </div>
+          </div>
+        </button>
+
+        {/* Schedule */}
+        <div className="space-y-2 p-2.5">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <CalendarClock className="h-3 w-3" />
+            Schedule for later
+          </div>
+
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+            initialFocus
+            className={cn("rounded-md border p-2 pointer-events-auto")}
+          />
+
+          <div className="space-y-1">
+            <Label htmlFor="schedule-time" className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Time
+            </Label>
+            <Input
+              id="schedule-time"
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="h-8 text-xs"
+            />
+          </div>
+
+          {scheduledDate && (
+            <div
+              className={cn(
+                "rounded-md border px-2 py-1.5 text-[10.5px]",
+                isPast
+                  ? "border-destructive/40 bg-destructive/5 text-destructive"
+                  : "border-border bg-muted/40 text-muted-foreground",
+              )}
+            >
+              {isPast ? (
+                <>That time is in the past — pick a future moment.</>
+              ) : (
+                <>
+                  Will queue for{" "}
+                  <span className="font-medium text-foreground">
+                    {format(scheduledDate, "EEE MMM d, h:mm a")}
+                  </span>{" "}
+                  · {formatDistanceToNow(scheduledDate, { addSuffix: true })}
+                </>
+              )}
+            </div>
+          )}
+
+          <Button
+            size="sm"
+            className="h-8 w-full gap-1 text-[11px]"
+            disabled={!scheduledDate || isPast}
+            onClick={schedule}
+          >
+            <CalendarClock className="h-3 w-3" />
+            Schedule send
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 }
