@@ -1438,7 +1438,7 @@ export default function AdminLeads() {
 
                 {/* Mobile Cards */}
                 <div className="space-y-2 md:hidden">
-                  {filteredProjectLeads.map((lead) => {
+                  {paginatedProjectLeads.map((lead) => {
                     const primarySource = getLeadSourceLabel(lead.lead_source);
                     const isHot = (lead.intent_score ?? 0) >= 8;
                     return (
