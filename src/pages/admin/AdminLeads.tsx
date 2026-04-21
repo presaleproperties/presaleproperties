@@ -210,7 +210,13 @@ export default function AdminLeads() {
         .select(`
           id, name, email, phone, message, persona, home_size, agent_status,
           lead_source, lead_sources, landing_page, created_at, project_id,
-          lead_status, admin_notes, contacted_at, converted_at, intent_score,
+          lead_status, admin_notes, contacted_at, converted_at, responded_at,
+          intent_score, lead_score, lead_temperature, form_type,
+          visitor_id, session_id, pages_viewed, time_on_site, session_count,
+          used_calculator, device_type, user_agent, ip_address, tracking_data,
+          utm_source, utm_medium, utm_campaign, utm_content, utm_term, referrer,
+          first_touch_utm_source, first_touch_utm_medium, first_touch_utm_campaign,
+          first_touch_at, city_interest, project_interest,
           presale_projects (name, slug, city, neighborhood, project_type)
         `)
         .neq("name", "Newsletter Signup")
