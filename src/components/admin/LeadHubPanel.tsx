@@ -463,6 +463,13 @@ export function LeadHubPanel({ leadId, leadEmail, leadName, attribution }: LeadH
           </ul>
         )}
       </section>
+      <WorkflowPreviewDialog
+        workflow={previewWf}
+        onClose={() => setPreviewWf(null)}
+        onConfirm={(step) => previewWf && performEnroll(previewWf, step)}
+        busy={!!previewWf && busyId === `wf-${previewWf.id}`}
+        recipient={{ email: leadEmail, firstName, name: leadName }}
+      />
     </div>
   );
 }
