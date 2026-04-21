@@ -1912,6 +1912,14 @@ export default function AdminLeads() {
                     </div>
                   ))}
                 </div>
+                <PaginationFooter
+                  page={safeListingPage}
+                  totalPages={listingTotalPages}
+                  totalItems={filteredListingLeads.length}
+                  pageSize={pageSize}
+                  onPageChange={setListingPage}
+                  onPageSizeChange={updatePageSize}
+                />
               </div>
             )}
           </TabsContent>
