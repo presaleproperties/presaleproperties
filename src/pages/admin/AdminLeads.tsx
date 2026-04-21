@@ -1352,14 +1352,6 @@ export default function AdminLeads() {
                               {/* Name */}
                               <td className="px-3 py-3">
                                 <div className="flex items-center gap-2">
-                                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
-                                    {lead.name
-                                      .split(" ")
-                                      .map((p) => p[0])
-                                      .slice(0, 2)
-                                      .join("")
-                                      .toUpperCase()}
-                                  </div>
                                   <div className="min-w-0">
                                     <p className="max-w-[180px] truncate font-medium text-foreground">
                                       {lead.name}
