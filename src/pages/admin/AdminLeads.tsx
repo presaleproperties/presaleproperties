@@ -1370,53 +1370,61 @@ export default function AdminLeads() {
                             <td className="px-3 py-3">
                               <p className="max-w-[180px] truncate font-medium">{lead.name}</p>
                             </td>
-                            <td className="px-3 py-3">
-                              <div className="flex flex-col gap-0.5">
-                                <a
-                                  href={`mailto:${lead.email}`}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="block max-w-[180px] truncate text-xs text-muted-foreground hover:text-primary"
-                                >
-                                  {lead.email}
-                                </a>
-                                {lead.phone && (
+                            {listingColumns.contact && (
+                              <td className="px-3 py-3">
+                                <div className="flex flex-col gap-0.5">
                                   <a
-                                    href={`tel:${lead.phone}`}
+                                    href={`mailto:${lead.email}`}
                                     onClick={(e) => e.stopPropagation()}
-                                    className="text-xs text-muted-foreground hover:text-primary"
+                                    className="block max-w-[180px] truncate text-xs text-muted-foreground hover:text-primary"
                                   >
-                                    {lead.phone}
+                                    {lead.email}
                                   </a>
+                                  {lead.phone && (
+                                    <a
+                                      href={`tel:${lead.phone}`}
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="text-xs text-muted-foreground hover:text-primary"
+                                    >
+                                      {lead.phone}
+                                    </a>
+                                  )}
+                                </div>
+                              </td>
+                            )}
+                            {listingColumns.listing && (
+                              <td className="px-3 py-3">
+                                {lead.listings ? (
+                                  <span
+                                    className="block max-w-[160px] truncate text-xs"
+                                    title={lead.listings.title}
+                                  >
+                                    {lead.listings.title}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground/40">—</span>
                                 )}
-                              </div>
-                            </td>
-                            <td className="px-3 py-3">
-                              {lead.listings ? (
-                                <span
-                                  className="block max-w-[160px] truncate text-xs"
-                                  title={lead.listings.title}
-                                >
-                                  {lead.listings.title}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-muted-foreground/40">—</span>
-                              )}
-                            </td>
-                            <td className="px-3 py-3">
-                              {lead.message ? (
-                                <span
-                                  className="block max-w-[200px] truncate text-xs text-muted-foreground"
-                                  title={lead.message}
-                                >
-                                  {lead.message}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-muted-foreground/40">—</span>
-                              )}
-                            </td>
-                            <td className="whitespace-nowrap px-3 py-3 text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
-                            </td>
+                              </td>
+                            )}
+                            {listingColumns.message && (
+                              <td className="px-3 py-3">
+                                {lead.message ? (
+                                  <span
+                                    className="block max-w-[200px] truncate text-xs text-muted-foreground"
+                                    title={lead.message}
+                                  >
+                                    {lead.message}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground/40">—</span>
+                                )}
+                              </td>
+                            )}
+                            {listingColumns.submitted && (
+                              <td className="whitespace-nowrap px-3 py-3 text-xs text-muted-foreground">
+                                {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
+                              </td>
+                            )}
                             {/* Quick Actions */}
                             <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center justify-end gap-1">
