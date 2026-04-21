@@ -6,8 +6,9 @@
  * edge function (which already loops + logs to email_logs). Replaces the
  * previous `mailto:` workflow that opened the OS mail client.
  */
-import { useMemo, useState } from "react";
-import { Loader2, Send, Eye, Code2, Sparkles, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, Send, Eye, Code2, Sparkles, Users, UserCircle2, CheckCircle2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { appendSignatureToHtml, type SignatureAgent } from "@/lib/emailSignature";
+
+interface AgentOption {
+  id: string;
+  full_name: string;
+  title: string | null;
+  photo_url: string | null;
+  phone: string | null;
+  email: string | null;
+}
 
 interface Recipient {
   id: string;
@@ -48,16 +59,51 @@ export function BulkEmailDialog({ open, onOpenChange, recipients, campaignName }
   const [bodyIsHtml, setBodyIsHtml] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [sending, setSending] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
+  const [includeSignature, setIncludeSignature] = useState(true);
 
   const validRecipients = useMemo(
     () => recipients.filter((r) => !!r.email && /\S+@\S+/.test(r.email)),
     [recipients],
   );
 
+  const { data: agents } = useQuery({
+    queryKey: ["bulk-email-agents"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("team_members_public")
+        .select("id, full_name, title, photo_url, phone, email, sort_order, is_active")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data || []) as AgentOption[];
+    },
+  });
+
+  useEffect(() => {
+    if (!selectedAgentId && agents && agents.length > 0) {
+      setSelectedAgentId(agents[0].id);
+    }
+  }, [agents, selectedAgentId]);
+
+  const selectedAgent = useMemo<SignatureAgent | null>(() => {
+    if (!agents || !selectedAgentId) return null;
+    const a = agents.find((x) => x.id === selectedAgentId);
+    if (!a) return null;
+    return {
+      full_name: a.full_name,
+      title: a.title,
+      photo_url: a.photo_url,
+      phone: a.phone,
+      email: a.email,
+    };
+  }, [agents, selectedAgentId]);
+
   const finalHtml = useMemo(() => {
-    if (bodyIsHtml) return body;
-    return BULK_HTML_WRAPPER(body.replace(/\n/g, "<br/>"));
-  }, [body, bodyIsHtml]);
+    const base = bodyIsHtml ? body : BULK_HTML_WRAPPER(body.replace(/\n/g, "<br/>"));
+    if (!includeSignature || !selectedAgent) return base;
+    return appendSignatureToHtml(base, selectedAgent);
+  }, [body, bodyIsHtml, includeSignature, selectedAgent]);
 
   const canSend =
     subject.trim().length > 0 &&
@@ -182,6 +228,65 @@ export function BulkEmailDialog({ open, onOpenChange, recipients, campaignName }
               <Sparkles className="mr-0.5 inline h-2.5 w-2.5" />
               Same message goes to all selected leads — keep it generic.
             </p>
+          </div>
+
+          {/* Signature picker — same agent block as our email templates */}
+          <div className="space-y-1.5 rounded-md border border-border bg-muted/20 p-2.5">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <UserCircle2 className="h-3 w-3" />
+                Signature
+              </Label>
+              <button
+                type="button"
+                onClick={() => setIncludeSignature((v) => !v)}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] transition-colors",
+                  includeSignature
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {includeSignature ? <CheckCircle2 className="h-2.5 w-2.5" /> : null}
+                {includeSignature ? "Signature on" : "Signature off"}
+              </button>
+            </div>
+            {includeSignature && (
+              <div className="flex flex-wrap gap-1.5">
+                {(agents || []).map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => setSelectedAgentId(a.id)}
+                    className={cn(
+                      "flex flex-1 min-w-[120px] items-center gap-2 rounded-lg border px-2 py-1.5 text-left transition-all",
+                      selectedAgentId === a.id
+                        ? "border-primary bg-primary/8 shadow-sm"
+                        : "border-border bg-card hover:border-primary/40",
+                    )}
+                  >
+                    {a.photo_url ? (
+                      <img
+                        src={a.photo_url}
+                        alt={a.full_name}
+                        className="h-7 w-7 shrink-0 rounded-full border border-border object-cover object-top"
+                      />
+                    ) : (
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                        {a.full_name.charAt(0)}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-[11px] font-semibold">{a.full_name}</div>
+                      <div className="truncate text-[9px] text-muted-foreground">{a.title}</div>
+                    </div>
+                    {selectedAgentId === a.id && (
+                      <CheckCircle2 className="h-3 w-3 shrink-0 text-primary" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <DialogFooter className="gap-2">
