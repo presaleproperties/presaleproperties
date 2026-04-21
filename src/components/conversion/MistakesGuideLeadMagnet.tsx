@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 import { useLeadSubmission } from "@/hooks/useLeadSubmission";
+import { upsertProjectLead } from "@/lib/upsertProjectLead";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -100,9 +101,9 @@ export function MistakesGuideLeadMagnet({
         if (error && !error.message.includes("duplicate")) throw error;
       });
 
-      const leadId = crypto.randomUUID();
-      await supabase.from("project_leads").insert({
-        id: leadId,
+      // Use central upsert helper — dedupes on email, validates form_type/
+      // lead_source so this magnet always appears in ROI reporting.
+      const leadId = await upsertProjectLead({
         name: data.name.trim(),
         email: data.email.trim(),
         form_type: "lead_magnet",
