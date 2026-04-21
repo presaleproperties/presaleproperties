@@ -424,6 +424,7 @@ export default function AdminLeads() {
   const [activeTab, setActiveTab] = useState("project");
   const [selectedLead, setSelectedLead] = useState<ProjectLead | ListingLead | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalInitialTab, setModalInitialTab] = useState<"overview" | "hub">("overview");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [intentFilter, setIntentFilter] = useState<string>("all");
@@ -1474,9 +1475,23 @@ export default function AdminLeads() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
+                                    className="h-8 w-8 text-primary hover:bg-primary/10"
+                                    onClick={() => {
+                                      setSelectedLead(lead);
+                                      setModalInitialTab("hub");
+                                      setModalOpen(true);
+                                    }}
+                                    title="Send template / enroll in flow"
+                                  >
+                                    <Sparkles className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
                                     className="h-8 w-8"
                                     onClick={() => {
                                       setSelectedLead(lead);
+                                      setModalInitialTab("overview");
                                       setModalOpen(true);
                                     }}
                                     title="View Details"
@@ -1971,6 +1986,7 @@ export default function AdminLeads() {
           type={activeTab as "project" | "listing"}
           open={modalOpen}
           onOpenChange={setModalOpen}
+          initialTab={modalInitialTab}
         />
       </div>
     </AdminLayout>
