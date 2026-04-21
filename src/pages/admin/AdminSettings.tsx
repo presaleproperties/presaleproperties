@@ -197,6 +197,7 @@ export default function AdminSettings() {
         if (item.key === "lofty_tracking_webhook") settingsMap.lofty_tracking_webhook = item.value as string;
         if (item.key === "zapier_behavior_webhook") settingsMap.zapier_behavior_webhook = item.value as string;
         if (item.key === "zapier_daily_digest_webhook") settingsMap.zapier_daily_digest_webhook = item.value as string;
+        if (item.key === "zapier_engagement_webhook") settingsMap.zapier_engagement_webhook = item.value as string;
         if (item.key === "meta_pixel_id") settingsMap.meta_pixel_id = item.value as string;
         if (item.key === "ga4_measurement_id") settingsMap.ga4_measurement_id = item.value as string;
         if (item.key === "email_sender") settingsMap.email_sender = item.value as string;
@@ -229,6 +230,7 @@ export default function AdminSettings() {
         { key: "lofty_tracking_webhook", value: settings.lofty_tracking_webhook },
         { key: "zapier_behavior_webhook", value: settings.zapier_behavior_webhook },
         { key: "zapier_daily_digest_webhook", value: settings.zapier_daily_digest_webhook },
+        { key: "zapier_engagement_webhook", value: settings.zapier_engagement_webhook },
         { key: "meta_pixel_id", value: settings.meta_pixel_id },
         { key: "ga4_measurement_id", value: settings.ga4_measurement_id },
         { key: "email_sender", value: settings.email_sender },
