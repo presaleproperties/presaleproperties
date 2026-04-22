@@ -929,6 +929,18 @@ export function LeadComposeDialog({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Undo-send banner (5s window) */}
+      {pendingSendLabel && (
+        <UndoSendBanner
+          label={pendingSendLabel}
+          onUndo={undoSend}
+          onComplete={onUndoTimerComplete}
+        />
+      )}
+
+      {/* Bulk send progress */}
+      {bulkProgress && <BulkSendProgress sent={bulkProgress.sent} total={bulkProgress.total} />}
     </>
   );
 }
