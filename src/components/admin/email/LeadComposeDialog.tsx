@@ -317,27 +317,37 @@ export function LeadComposeDialog({
   const canSend = subject.trim().length > 0 && body.trim().length > 0 && validRecipients.length > 0 && !sending;
 
   // ── Send ────────────────────────────────────────────────────────────────
-  const handleSend = async () => {
-    if (!canSend) return;
+  /** The actual network send — runs after the 5s undo window completes. */
+  const performSend = async () => {
+    setPendingSendLabel(null);
     setSending(true);
     try {
-      // Single send — personalised HTML
-      // Bulk send — same HTML to all (still per-recipient firstName only matters for shell)
       let sentCount = 0;
       let failedCount = 0;
 
       if (isBulk) {
-        const html = buildHtmlFor(validRecipients[0]); // use first recipient's first-name shell
-        const { error } = await supabase.functions.invoke("send-direct-email", {
-          body: {
-            to: validRecipients.map((r) => r.email),
-            subject: subject.trim(),
-            html,
-            campaign_name: campaignName || "admin_bulk_compose",
-          },
-        });
-        if (error) throw error;
-        sentCount = validRecipients.length;
+        // Per-recipient progress for clearer UX during bulk sends.
+        setBulkProgress({ sent: 0, total: validRecipients.length });
+        // Chunk in groups of 25 to keep edge function payloads safe and feedback fluid.
+        const CHUNK = 25;
+        for (let i = 0; i < validRecipients.length; i += CHUNK) {
+          const slice = validRecipients.slice(i, i + CHUNK);
+          const html = buildHtmlFor(slice[0]);
+          const { error } = await supabase.functions.invoke("send-direct-email", {
+            body: {
+              to: slice.map((r) => r.email),
+              subject: subject.trim(),
+              html,
+              campaign_name: campaignName || "admin_bulk_compose",
+            },
+          });
+          if (error) {
+            failedCount += slice.length;
+          } else {
+            sentCount += slice.length;
+          }
+          setBulkProgress({ sent: i + slice.length, total: validRecipients.length });
+        }
       } else {
         const r = validRecipients[0];
         const firstName = firstNameOf(r.name, r.email);
@@ -398,12 +408,35 @@ export function LeadComposeDialog({
         localStorage.removeItem(dKey);
       } catch {}
 
+      setBulkProgress(null);
       setSuccess({ sent: sentCount, failed: failedCount });
     } catch (err: any) {
       toast.error(err?.message || "Failed to send");
+      setBulkProgress(null);
     } finally {
       setSending(false);
     }
+  };
+
+  /** Click handler — starts the 5-second undo window before performSend(). */
+  const handleSend = () => {
+    if (!canSend) return;
+    const label = isBulk
+      ? `Sending to ${validRecipients.length} recipients`
+      : `Sending to ${validRecipients[0].name || validRecipients[0].email}`;
+    setPendingSendLabel(label);
+    undoRef.current = { cancelled: false };
+  };
+
+  const undoSend = () => {
+    if (undoRef.current) undoRef.current.cancelled = true;
+    setPendingSendLabel(null);
+    toast.info("Send cancelled — your draft is back");
+  };
+
+  const onUndoTimerComplete = () => {
+    if (undoRef.current?.cancelled) return;
+    void performSend();
   };
 
   // ── Save as template ────────────────────────────────────────────────────
