@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import type { SavedAsset } from "@/lib/emailTemplateHelpers";
 import { timeAgo, getDisplayName, getSavedHtml } from "@/lib/emailTemplateHelpers";
+import { TemplatePerformanceBadges } from "@/components/admin/TemplatePerformanceBadges";
+import type { TemplateMetrics, TemplatePerformance } from "@/hooks/useTemplatePerformance";
 
 // ── Template Card ──
 interface TemplateCardProps {
@@ -27,11 +29,18 @@ interface TemplateCardProps {
   selectable?: boolean;
   selected?: boolean;
   onSelect?: (asset: SavedAsset) => void;
+  /** Performance metrics for this template (subject-joined). When provided,
+   *  renders the per-template badge row above the action buttons. */
+  metrics?: TemplateMetrics | null;
+  /** Latest audit run, shared across the grid. */
+  audit?: TemplatePerformance["latestAudit"];
+  /** Refetch hook fired after a successful "Re-audit now". */
+  onAuditComplete?: () => void;
 }
 
 export function TemplateCard({
   asset, onSend, onPreview, onDelete, onDuplicate, onRename, deleting,
-  selectable, selected, onSelect,
+  selectable, selected, onSelect, metrics, audit, onAuditComplete,
 }: TemplateCardProps) {
   const navigate = useNavigate();
   const fd = asset.form_data || {};
