@@ -193,16 +193,23 @@ export function TemplatePicker({ templates, selectedId, onSelect }: Props) {
               const isSelected = selectedId === t.id;
               const html = t.thumbnail_url ? null : getSavedHtml(t as unknown as SavedAsset);
               return (
-                <button
+                <div
                   key={t.id}
-                  type="button"
-                  onClick={() => onSelect(t)}
                   className={cn(
-                    "group flex flex-col overflow-hidden rounded-lg border text-left transition-all",
+                    "group relative flex flex-col overflow-hidden rounded-lg border text-left transition-all cursor-pointer",
                     isSelected
                       ? "border-primary ring-2 ring-primary/30"
                       : "border-border hover:border-primary/40 hover:shadow-sm",
                   )}
+                  onClick={() => onSelect(t)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelect(t);
+                    }
+                  }}
                 >
                   {/* Thumbnail / mini-preview */}
                   <div className="relative h-[120px] overflow-hidden bg-muted/30">
@@ -237,6 +244,20 @@ export function TemplatePicker({ templates, selectedId, onSelect }: Props) {
                     {t.is_favorited && (
                       <Star className="absolute right-1.5 top-1.5 h-3.5 w-3.5 fill-amber-400 text-amber-400 drop-shadow" />
                     )}
+                    {/* Hover preview overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100 group-focus-within:bg-black/40 group-focus-within:opacity-100">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewing(t);
+                        }}
+                        className="inline-flex items-center gap-1 rounded-md bg-background/95 px-2 py-1 text-[10px] font-medium text-foreground shadow-md hover:bg-background"
+                      >
+                        <Eye className="h-3 w-3" />
+                        Preview
+                      </button>
+                    </div>
                   </div>
 
                   {/* Meta */}
