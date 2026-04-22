@@ -258,7 +258,7 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
   // Joined to email_logs to surface the campaign subject alongside each click,
   // and split by `clicked_at` vs `created_at` so the UI can show which clicks
   // happened BEFORE the form was submitted (the conversion-attributing click).
-  const { data: ctaClicks, isLoading: ctaLoading } = useQuery({
+  const { data: emailCtaClicks, isLoading: emailCtaLoading } = useQuery({
     queryKey: ["lead-cta-clicks", projectLead.email, projectLead.id],
     queryFn: async () => {
       if (!projectLead.email) return [];
