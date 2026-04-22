@@ -10,6 +10,32 @@ const TRACKING_PIXEL = new Uint8Array([
   0x01, 0x00, 0x3b
 ]);
 
+/**
+ * Append email-attribution query params (em_*) to the destination URL so the
+ * landing site can capture them in sessionStorage and persist them on the
+ * eventual lead submission. Skips empty values; preserves existing query
+ * params on the destination; safely no-ops on unparseable URLs.
+ */
+function appendEmailAttributionParams(
+  destination: string,
+  attribution: Record<string, string | number | null | undefined>,
+): string {
+  try {
+    const u = new URL(destination);
+    for (const [key, value] of Object.entries(attribution)) {
+      if (value === null || value === undefined) continue;
+      const str = String(value).trim();
+      if (!str) continue;
+      // Don't clobber params already on the destination
+      if (u.searchParams.has(key)) continue;
+      u.searchParams.set(key, str);
+    }
+    return u.toString();
+  } catch {
+    return destination;
+  }
+}
+
 const handler = async (req: Request): Promise<Response> => {
   const pixelResponse = () => new Response(TRACKING_PIXEL, {
     status: 200,
