@@ -38,6 +38,8 @@ import {
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
 import { BulkEmailDialog } from "@/components/admin/BulkEmailDialog";
+import { LeadComposeDialog, type ComposeRecipient } from "@/components/admin/email/LeadComposeDialog";
+import { PhoneActionsPopover } from "@/components/admin/PhoneActionsPopover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
