@@ -12,6 +12,7 @@ import {
   validateRecommendationBeforeSend,
   formatValidationErrors,
 } from "@/components/admin/campaign/validateRecommendationBeforeSend";
+import { InlineAuditPanel } from "@/components/admin/campaign/InlineAuditPanel";
 import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
 import {
   fetchCampaignEnrichmentData,
@@ -2286,6 +2287,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         >
                           <Eye className="h-3 w-3" /> Open visual preview & link audit
                         </a>
+                        <InlineAuditPanel
+                          options={{
+                            subjectLine: subjectLine || "Recommended for you",
+                            previewText: previewText || "Hand-picked presales matched to your interests.",
+                            headline: headline || "Recommended for you",
+                            bodyCopy: bodyCopy || "",
+                            personalizationContext: recommendationContext,
+                            projects: recommendationProjects || [],
+                            groupByCategory: !!recommendationGroupByCategory,
+                            agent: selectedAgent,
+                            city: recommendationProjects?.[0]?.city,
+                          }}
+                        />
                         <RecommendationProjectsPanel
                           projects={recommendationProjects}
                           onChange={setRecommendationProjects}
