@@ -32,7 +32,11 @@ export interface AuditIssue {
     | "tracked_url_missing_destination"
     | "destination_unparseable"
     | "project_route_invalid"
-    | "project_route_wrong_host";
+    | "project_route_wrong_host"
+    | "missing_unsubscribe"
+    | "unsubscribe_outside_footer"
+    | "merge_tag_in_href_path"
+    | "merge_tag_outside_allowed_zone";
   href: string;
   context?: string;
   expected?: string;
@@ -235,12 +239,136 @@ export function auditEmailHtml(
     }
   }
 
+  // ── Compliance checks: unsubscribe link + merge-tag placement ──────────────
+  // These run independently of the per-anchor href rules above. Merge tags
+  // (e.g. {$unsubscribe}, {$name}, {{tracking_id}}) are deliberately skipped
+  // by the href validator (line ~133) — but we still want to ensure they
+  // (a) actually appear where required and (b) never leak into URL paths or
+  // visible body copy where the ESP wouldn't resolve them.
+  runComplianceChecks(html, anchors, errors);
+
   return {
     total: anchors.length,
     errors,
     warnings,
     ok: errors.length === 0,
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Compliance: unsubscribe presence + merge-tag placement
+// ─────────────────────────────────────────────────────────────────────────────
+
+const MERGE_TAG_RE = /\{\$[\w.]+\}|\{\{[\w.]+\}\}|\{%[\w.\s]+%\}/g;
+/** Merge tags that are valid as a complete href (footer/system links). */
+const ALLOWED_HREF_MERGE_TAGS = new Set(["{$unsubscribe}", "{$webversion}", "{$forward}"]);
+/** Merge tags allowed to appear in visible body text (personalization). */
+const ALLOWED_BODY_MERGE_TAGS = new Set([
+  "{$name}",
+  "{$first_name}",
+  "{$last_name}",
+  "{$email}",
+  "{$company}",
+  "{$city}",
+]);
+
+/** Locate the footer block — anything inside the last <table>/<td> containing "unsubscribe" wording. */
+function findFooterRange(html: string): { start: number; end: number } | null {
+  const lower = html.toLowerCase();
+  const idx = lower.lastIndexOf("unsubscribe");
+  if (idx === -1) return null;
+  // Walk back to the nearest enclosing <td or <table; walk forward to its close.
+  const start = Math.max(0, lower.lastIndexOf("<td", idx));
+  const closeIdx = lower.indexOf("</td>", idx);
+  const end = closeIdx === -1 ? html.length : closeIdx + 5;
+  return { start, end };
+}
+
+function runComplianceChecks(
+  html: string,
+  anchors: AnchorMatch[],
+  errors: AuditIssue[],
+): void {
+  // 1) Unsubscribe link must exist and use the {$unsubscribe} merge tag.
+  const unsubAnchor = anchors.find(
+    (a) => a.href === "{$unsubscribe}" || /unsubscribe/i.test(visibleText(a.inner)),
+  );
+  if (!unsubAnchor) {
+    errors.push({
+      severity: "error",
+      rule: "missing_unsubscribe",
+      href: "",
+      expected: '<a href="{$unsubscribe}">Unsubscribe</a> in footer',
+    });
+  } else if (unsubAnchor.href !== "{$unsubscribe}") {
+    errors.push({
+      severity: "error",
+      rule: "missing_unsubscribe",
+      href: unsubAnchor.href,
+      context: visibleText(unsubAnchor.inner),
+      expected: 'href="{$unsubscribe}" (ESP merge tag, not a literal URL)',
+    });
+  }
+
+  // 2) The unsubscribe anchor must live inside the footer block.
+  const footer = findFooterRange(html);
+  if (footer && unsubAnchor) {
+    const re = /<a\b[^>]*\bhref\s*=\s*["']\{\$unsubscribe\}["'][^>]*>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(html)) !== null) {
+      if (m.index < footer.start || m.index > footer.end) {
+        errors.push({
+          severity: "error",
+          rule: "unsubscribe_outside_footer",
+          href: "{$unsubscribe}",
+          expected: "unsubscribe link must live inside the footer block only",
+        });
+        break;
+      }
+    }
+  }
+
+  // 3) Merge tags must never appear inside an href URL path/query — only
+  //    as the entire href value (e.g. href="{$unsubscribe}"). A path like
+  //    href="https://x.com/{$name}" won't be resolved by the ESP and ships
+  //    a literal "{$name}" in the URL.
+  for (const a of anchors) {
+    if (!a.href) continue;
+    if (ALLOWED_HREF_MERGE_TAGS.has(a.href)) continue;
+    if (MERGE_TAG_RE.test(a.href)) {
+      errors.push({
+        severity: "error",
+        rule: "merge_tag_in_href_path",
+        href: a.href,
+        context: visibleText(a.inner),
+        expected: "merge tags only allowed as the full href (e.g. href=\"{$unsubscribe}\")",
+      });
+    }
+    MERGE_TAG_RE.lastIndex = 0;
+  }
+
+  // 4) Any merge tag in the visible body (outside <a> tags) must be on the
+  //    allow-list. Catches typos like {$nme} and stray {{tracking_id}} in copy.
+  const bodyText = html
+    .replace(/<a\b[^>]*>[\s\S]*?<\/a>/gi, " ") // strip anchors (their tags are checked above)
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ");
+  const seen = new Set<string>();
+  let mm: RegExpExecArray | null;
+  MERGE_TAG_RE.lastIndex = 0;
+  while ((mm = MERGE_TAG_RE.exec(bodyText)) !== null) {
+    const tag = mm[0];
+    if (seen.has(tag)) continue;
+    seen.add(tag);
+    if (ALLOWED_BODY_MERGE_TAGS.has(tag) || ALLOWED_HREF_MERGE_TAGS.has(tag)) continue;
+    errors.push({
+      severity: "error",
+      rule: "merge_tag_outside_allowed_zone",
+      href: tag,
+      expected: `allowed body tags: ${[...ALLOWED_BODY_MERGE_TAGS].join(", ")}`,
+    });
+  }
 }
 
 /** Throw a readable error with all findings if the report has any errors. */
