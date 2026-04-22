@@ -144,8 +144,29 @@ function quickActionPill(label: string, href: string, icon: string): string {
     </td>`;
 }
 
-function projectCardHtml(p: RecommendationProject): string {
+function projectCardHtml(p: RecommendationProject, slot: number): string {
   const location = [p.neighborhood, p.city].filter(Boolean).join(", ");
+  // Derive a slug from the projectUrl for cleaner analytics joins
+  const slug = (() => {
+    try {
+      const u = new URL(p.projectUrl);
+      return u.pathname.split("/").filter(Boolean).pop() || undefined;
+    } catch {
+      return undefined;
+    }
+  })();
+  const baseMeta = {
+    project_id: p.id,
+    project_slug: slug,
+    category: p.category,
+    city: p.city,
+    neighborhood: p.neighborhood,
+    slot,
+    section: "project_grid",
+  };
+  const imgUrl = trackUrl(p.projectUrl, { ...baseMeta, cta: "card_image" });
+  const titleUrl = trackUrl(p.projectUrl, { ...baseMeta, cta: "card_title" });
+  const ctaUrl = trackUrl(p.projectUrl, { ...baseMeta, cta: "card_button" });
 
   return `
     <td width="50%" valign="top" style="padding:6px;">
@@ -153,7 +174,7 @@ function projectCardHtml(p: RecommendationProject): string {
         <!-- Hero image with overlay -->
         <tr>
           <td style="padding:0;line-height:0;font-size:0;position:relative;">
-            <a href="${p.projectUrl}" target="_blank" style="display:block;line-height:0;text-decoration:none;">
+            <a href="${imgUrl}" target="_blank" style="display:block;line-height:0;text-decoration:none;">
               ${
                 p.featuredImage
                   ? `<img src="${p.featuredImage}" alt="${p.projectName}" width="270" style="display:block;width:100%;height:200px;object-fit:cover;border:0;" />`
@@ -165,7 +186,7 @@ function projectCardHtml(p: RecommendationProject): string {
         <!-- Title block -->
         <tr>
           <td style="padding:14px 16px 6px;">
-            <a href="${p.projectUrl}" target="_blank" style="text-decoration:none;">
+            <a href="${titleUrl}" target="_blank" style="text-decoration:none;">
               <p style="margin:0;font-family:${F};font-size:15px;font-weight:800;color:${DARK};line-height:1.25;">${p.projectName}</p>
             </a>
             ${
@@ -200,7 +221,7 @@ function projectCardHtml(p: RecommendationProject): string {
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" bgcolor="${DARK}" style="border-radius:999px;padding:10px 16px;">
-                  <a href="${p.projectUrl}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">View Project</a>
+                  <a href="${ctaUrl}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">View Project</a>
                 </td>
               </tr>
             </table>
@@ -210,8 +231,12 @@ function projectCardHtml(p: RecommendationProject): string {
     </td>`;
 }
 
-/** Render rows of 2 cards each (handles odd counts) */
-function renderProjectGrid(projects: RecommendationProject[]): string {
+/** Render rows of 2 cards each (handles odd counts). `startSlot` keeps slot
+ *  numbers globally unique across grouped category sections for analytics. */
+function renderProjectGrid(
+  projects: RecommendationProject[],
+  startSlot = 0,
+): string {
   if (projects.length === 0) return "";
   const rows: string[] = [];
   for (let i = 0; i < projects.length; i += 2) {
@@ -219,8 +244,8 @@ function renderProjectGrid(projects: RecommendationProject[]): string {
     const right = projects[i + 1];
     rows.push(`
       <tr>
-        ${projectCardHtml(left)}
-        ${right ? projectCardHtml(right) : `<td width="50%" style="padding:6px;">&nbsp;</td>`}
+        ${projectCardHtml(left, startSlot + i + 1)}
+        ${right ? projectCardHtml(right, startSlot + i + 2) : `<td width="50%" style="padding:6px;">&nbsp;</td>`}
       </tr>`);
   }
   return rows.join("");
