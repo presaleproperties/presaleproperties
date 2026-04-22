@@ -108,6 +108,7 @@ const AdminClients = lazy(() => import("./pages/admin/AdminClients"));
 const AdminClientSearches = lazy(() => import("./pages/admin/AdminClientSearches"));
 const AdminClientForm = lazy(() => import("./pages/admin/AdminClientForm"));
 const AdminAiEmailBuilder = lazy(() => import("./pages/admin/AdminAiEmailBuilder"));
+const AdminRecommendationEmailPreview = lazy(() => import("./pages/admin/AdminRecommendationEmailPreview"));
 const AdminMarketingHub = lazy(() => import("./pages/admin/AdminMarketingHub"));
 const AdminEmailCenter = lazy(() => import("./pages/admin/AdminEmailCenter"));
 const AdminEmailFlows = lazy(() => import("./pages/admin/AdminEmailFlows"));
@@ -400,6 +401,7 @@ const App = () => (
             {/* Unified Marketing Hub — replaces old email-builder-hub & campaign-hub */}
             <Route path="/admin/marketing-hub" element={<AdminProtectedRoute><AdminMarketingHub /></AdminProtectedRoute>} />
             <Route path="/admin/email-builder" element={<AdminProtectedRoute><AdminAiEmailBuilderKeyed /></AdminProtectedRoute>} />
+            <Route path="/admin/email-builder/recommendation-preview" element={<AdminProtectedRoute><AdminRecommendationEmailPreview /></AdminProtectedRoute>} />
             {/* Legacy redirects so old bookmarks still work */}
             <Route path="/admin/email-builder-hub" element={<Navigate to="/admin/marketing-hub" replace />} />
             <Route path="/admin/ai-email-builder" element={<Navigate to="/admin/email-builder" replace />} />
