@@ -1,281 +1,303 @@
 /**
  * Send Pre-flight Checklist
- * ─────────────────────────
- * Audits an email's HTML before send and BLOCKS the send button until every
- * critical compliance check passes:
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Compact checklist shown above the "Send" button in the quick-send flow.
+ * Runs hard blockers (subject, recipients, audit errors, unsubscribe placement,
+ * merge-tag allow-list) and soft warnings (open pixel, tracked links).
  *
- *   1. Audit compliance — no broken/placeholder/wrong-host links
- *   2. Unsubscribe presence — `{$unsubscribe}` merge tag in the footer
- *   3. Merge-tag placement — only allow-listed personalization tags
- *   4. Tracking essentials — open pixel + click-tracked CTAs
- *   5. Subject line non-empty
- *   6. At least one recipient
- *
- * Hard-fail items (red) block sending. Soft warnings (amber) inform but allow send.
+ * Reports `canSend` upward so the caller can disable the Send button until
+ * every blocker passes. Exposes a "View full audit report" link that opens
+ * `<FullAuditReportDialog>` with the exact failing URLs, rules, and fixes.
  */
-import { useMemo } from "react";
-import { CheckCircle2, AlertTriangle, XCircle, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useEffect, useMemo, useState } from "react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ChevronDown,
+  CircleAlert,
+  ExternalLink,
+} from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { auditEmailHtml } from "@/components/admin/campaign/auditEmailHtml";
+import { FullAuditReportDialog } from "@/components/admin/campaign/FullAuditReportDialog";
+import { cn } from "@/lib/utils";
 
-export interface PreflightResult {
-  canSend: boolean;
-  checks: PreflightCheck[];
-  blockers: number;
-  warnings: number;
+export interface PreflightContext {
+  html: string;
+  subject: string;
+  recipientCount: number;
+  /** Optional label shown in the audit dialog header. */
+  label?: string;
 }
 
-export interface PreflightCheck {
+interface CheckResult {
   id: string;
   label: string;
   status: "pass" | "fail" | "warn";
-  /** Hard blocker — when true, send is disabled until status === "pass". */
   blocking: boolean;
   detail?: string;
 }
 
-const ALLOWED_MERGE_TAGS = new Set([
-  "{$name}",
-  "{$first_name}",
-  "{$last_name}",
-  "{$email}",
-  "{$company}",
-  "{$city}",
-  "{$unsubscribe}",
-]);
+interface SendPreflightChecklistProps {
+  ctx: PreflightContext;
+  /** Called whenever readiness changes so the caller can gate the Send button. */
+  onReadyChange?: (ready: boolean) => void;
+  className?: string;
+}
 
-/** Run all pre-flight checks against an HTML payload + send context. */
-export function runPreflight(opts: {
-  html: string;
-  subject: string;
-  recipientsCount: number;
-}): PreflightResult {
-  const { html, subject, recipientsCount } = opts;
-  const checks: PreflightCheck[] = [];
+const TRACK_PATH = "/functions/v1/track-email-open";
 
-  // 1. Subject line
+function runChecks(ctx: PreflightContext): CheckResult[] {
+  const checks: CheckResult[] = [];
+
+  // Subject
   checks.push({
     id: "subject",
     label: "Subject line set",
-    status: subject.trim().length > 0 ? "pass" : "fail",
+    status: ctx.subject.trim() ? "pass" : "fail",
     blocking: true,
-    detail: subject.trim().length === 0 ? "Add a subject line before sending." : undefined,
+    detail: ctx.subject.trim() ? undefined : "Subject line cannot be empty.",
   });
 
-  // 2. Recipients
+  // Recipients
   checks.push({
     id: "recipients",
     label: "At least one recipient",
-    status: recipientsCount > 0 ? "pass" : "fail",
+    status: ctx.recipientCount > 0 ? "pass" : "fail",
     blocking: true,
-    detail: recipientsCount === 0 ? "Add at least one recipient." : undefined,
+    detail:
+      ctx.recipientCount > 0
+        ? `${ctx.recipientCount} recipient${ctx.recipientCount === 1 ? "" : "s"} added.`
+        : "Add at least one recipient before sending.",
   });
 
-  // 3. Audit compliance (link rules)
-  let auditIssues: Array<{ rule: string; href?: string; context?: string; expected?: string }> = [];
-  try {
-    const report = auditEmailHtml(html);
-    auditIssues = report.errors as typeof auditIssues;
-  } catch {
-    auditIssues = [];
+  // Audit (links + unsubscribe + merge tags all in one)
+  if (!ctx.html) {
+    checks.push({
+      id: "audit",
+      label: "Link audit clean",
+      status: "fail",
+      blocking: true,
+      detail: "No rendered HTML available for auditing.",
+    });
+  } else {
+    let report;
+    try {
+      report = auditEmailHtml(ctx.html, { requireProjectRoute: true });
+    } catch {
+      report = null;
+    }
+    if (!report) {
+      checks.push({
+        id: "audit",
+        label: "Link audit clean",
+        status: "fail",
+        blocking: true,
+        detail: "Audit failed to run on this template.",
+      });
+    } else {
+      const hasUnsub = report.errors.some(
+        (e) => e.rule === "missing_unsubscribe" || e.rule === "unsubscribe_outside_footer",
+      );
+      const hasMerge = report.errors.some(
+        (e) => e.rule === "merge_tag_in_href_path" || e.rule === "merge_tag_outside_allowed_zone",
+      );
+      const linkErrors = report.errors.filter(
+        (e) =>
+          e.rule !== "missing_unsubscribe" &&
+          e.rule !== "unsubscribe_outside_footer" &&
+          e.rule !== "merge_tag_in_href_path" &&
+          e.rule !== "merge_tag_outside_allowed_zone",
+      );
+
+      checks.push({
+        id: "audit",
+        label: "Link audit clean",
+        status: linkErrors.length === 0 ? "pass" : "fail",
+        blocking: true,
+        detail:
+          linkErrors.length === 0
+            ? `${report.total} link${report.total === 1 ? "" : "s"} validated.`
+            : `${linkErrors.length} link issue${linkErrors.length === 1 ? "" : "s"} detected.`,
+      });
+      checks.push({
+        id: "unsubscribe",
+        label: "Unsubscribe in footer ({$unsubscribe})",
+        status: hasUnsub ? "fail" : "pass",
+        blocking: true,
+        detail: hasUnsub
+          ? "Unsubscribe link missing or placed outside the footer."
+          : "Unsubscribe merge tag found in footer.",
+      });
+      checks.push({
+        id: "merge_tags",
+        label: "Merge tags valid",
+        status: hasMerge ? "fail" : "pass",
+        blocking: true,
+        detail: hasMerge
+          ? "Disallowed merge tag detected in body or href path."
+          : "All merge tags on the allow-list.",
+      });
+    }
   }
-  // Separate concerns: unsubscribe checks have their own row.
-  const linkAuditIssues = auditIssues.filter(
-    (i) => i.rule !== "missing_unsubscribe" && i.rule !== "unsubscribe_outside_footer",
-  );
-  checks.push({
-    id: "audit",
-    label: "Link audit clean",
-    status: linkAuditIssues.length === 0 ? "pass" : "fail",
-    blocking: true,
-    detail:
-      linkAuditIssues.length > 0
-        ? `${linkAuditIssues.length} link issue${linkAuditIssues.length === 1 ? "" : "s"} — open the inline audit panel for details.`
-        : undefined,
-  });
 
-  // 4. Unsubscribe placement
-  const unsubscribeIssues = auditIssues.filter(
-    (i) => i.rule === "missing_unsubscribe" || i.rule === "unsubscribe_outside_footer",
-  );
-  const hasUnsubMergeTag = /\{\$unsubscribe\}/i.test(html);
-  const unsubStatus: PreflightCheck["status"] =
-    unsubscribeIssues.length === 0 && hasUnsubMergeTag ? "pass" : "fail";
-  checks.push({
-    id: "unsubscribe",
-    label: "Unsubscribe link in footer",
-    status: unsubStatus,
-    blocking: true,
-    detail:
-      unsubStatus === "pass"
-        ? undefined
-        : !hasUnsubMergeTag
-        ? "Add an anchor with href=\"{$unsubscribe}\" inside the footer."
-        : "Unsubscribe link is misplaced — keep it inside the footer block only.",
-  });
-
-  // 5. Merge-tag placement (allow-list)
-  const mergeTagPattern = /\{\$[a-zA-Z_][a-zA-Z0-9_]*\}/g;
-  const foundTags = Array.from(new Set(html.match(mergeTagPattern) || []));
-  const disallowed = foundTags.filter((t) => !ALLOWED_MERGE_TAGS.has(t.toLowerCase()));
-  checks.push({
-    id: "merge_tags",
-    label: "Merge tags valid",
-    status: disallowed.length === 0 ? "pass" : "fail",
-    blocking: true,
-    detail:
-      disallowed.length === 0
-        ? undefined
-        : `Unknown merge tag${disallowed.length === 1 ? "" : "s"}: ${disallowed.join(", ")}. Use only the allow-list.`,
-  });
-
-  // 6. Tracking — open pixel
-  const hasOpenPixel = /track-email-open|open-pixel|tracking-pixel/i.test(html);
+  // Soft warnings
+  const hasPixel = /track-email-open/i.test(ctx.html) || /pixel/i.test(ctx.html);
   checks.push({
     id: "open_pixel",
     label: "Open-tracking pixel present",
-    status: hasOpenPixel ? "pass" : "warn",
+    status: hasPixel ? "pass" : "warn",
     blocking: false,
-    detail: hasOpenPixel
-      ? undefined
-      : "No open-tracking pixel detected — opens won't be recorded. The send pipeline normally injects this automatically.",
+    detail: hasPixel
+      ? "Pixel detected — opens will be tracked."
+      : "No open-tracking pixel found. Opens won't be tracked, but the email will still send.",
   });
 
-  // 7. Tracking — at least one click-tracked CTA
-  const hasClickTracking = /\/track-click\?|\/functions\/v1\/track-click/i.test(html);
-  const hasAnyHref = /<a\b[^>]*href=/i.test(html);
+  const hasTracked = ctx.html.includes(TRACK_PATH);
   checks.push({
     id: "click_tracking",
-    label: "Click tracking on CTAs",
-    status: hasClickTracking ? "pass" : hasAnyHref ? "warn" : "warn",
+    label: "Click-tracking on CTAs",
+    status: hasTracked ? "pass" : "warn",
     blocking: false,
-    detail: hasClickTracking
-      ? undefined
-      : "No click-tracked links found — clicks may not be attributed. The send pipeline normally rewrites links.",
+    detail: hasTracked
+      ? "CTAs route through the redirect tracker."
+      : "No tracked CTA links found. Clicks won't attribute back to the campaign.",
   });
 
-  const blockers = checks.filter((c) => c.blocking && c.status !== "pass").length;
-  const warnings = checks.filter((c) => c.status === "warn").length;
-
-  return {
-    canSend: blockers === 0,
-    checks,
-    blockers,
-    warnings,
-  };
-}
-
-interface SendPreflightChecklistProps {
-  html: string;
-  subject: string;
-  recipientsCount: number;
-  /** Notifies the parent whether send is allowed. */
-  onResult?: (result: PreflightResult) => void;
-  className?: string;
-  loading?: boolean;
+  return checks;
 }
 
 export function SendPreflightChecklist({
-  html,
-  subject,
-  recipientsCount,
-  onResult,
+  ctx,
+  onReadyChange,
   className,
-  loading,
 }: SendPreflightChecklistProps) {
-  const result = useMemo(() => {
-    const r = runPreflight({ html, subject, recipientsCount });
-    return r;
-  }, [html, subject, recipientsCount]);
+  const [auditOpen, setAuditOpen] = useState(false);
 
-  // Notify parent on every recompute.
-  useMemo(() => {
-    onResult?.(result);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result.canSend, result.blockers, result.warnings]);
+  const { checks, blockers, warnings, canSend } = useMemo(() => {
+    const all = runChecks(ctx);
+    const blockersN = all.filter((c) => c.blocking && c.status !== "pass").length;
+    const warningsN = all.filter((c) => c.status === "warn").length;
+    return {
+      checks: all,
+      blockers: blockersN,
+      warnings: warningsN,
+      canSend: blockersN === 0,
+    };
+  }, [ctx]);
 
-  if (loading) {
-    return (
-      <div className={cn("rounded-lg border border-border bg-muted/30 p-3", className)}>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          Running pre-flight checks…
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    onReadyChange?.(canSend);
+  }, [canSend, onReadyChange]);
 
-  const headerColor = result.canSend
-    ? "border-emerald-500/30 bg-emerald-500/5"
-    : "border-destructive/40 bg-destructive/5";
-
-  const headerIcon = result.canSend ? (
-    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-  ) : (
-    <XCircle className="h-4 w-4 text-destructive shrink-0" />
+  // Whether any link/unsubscribe/merge-tag check failed — drives "View full
+  // audit report" link visibility.
+  const hasAuditFailure = checks.some(
+    (c) =>
+      (c.id === "audit" || c.id === "unsubscribe" || c.id === "merge_tags") &&
+      c.status === "fail",
   );
 
-  const headerText = result.canSend
-    ? result.warnings > 0
-      ? `Ready to send — ${result.warnings} warning${result.warnings === 1 ? "" : "s"}`
-      : "Ready to send — all checks passed"
-    : `${result.blockers} blocker${result.blockers === 1 ? "" : "s"} — fix before sending`;
-
   return (
-    <div className={cn("rounded-lg border", headerColor, className)}>
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border/40">
-        {headerIcon}
-        <span
-          className={cn(
-            "text-[11px] font-bold",
-            result.canSend ? "text-emerald-700 dark:text-emerald-400" : "text-destructive",
-          )}
-        >
-          {headerText}
-        </span>
-      </div>
-      <ul className="divide-y divide-border/40">
-        {result.checks.map((c) => (
-          <li key={c.id} className="flex items-start gap-2 px-3 py-2">
-            {c.status === "pass" && (
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
+    <>
+      <Collapsible
+        defaultOpen={!canSend}
+        className={cn(
+          "rounded-md border",
+          canSend
+            ? "border-emerald-500/30 bg-emerald-500/5"
+            : "border-destructive/40 bg-destructive/5",
+          className,
+        )}
+      >
+        <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left">
+          <div className="flex items-center gap-2 min-w-0">
+            {canSend ? (
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />
             )}
-            {c.status === "fail" && (
-              <XCircle className="h-3.5 w-3.5 text-destructive shrink-0 mt-0.5" />
-            )}
-            {c.status === "warn" && (
-              <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
-            )}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <span
-                  className={cn(
-                    "text-[11px] font-semibold",
-                    c.status === "fail" ? "text-destructive" : "text-foreground",
-                  )}
-                >
-                  {c.label}
-                </span>
-                {c.blocking && c.status !== "pass" && (
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-destructive">
-                    Blocker
-                  </span>
-                )}
-                {!c.blocking && c.status === "warn" && (
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-amber-600">
-                    Warning
-                  </span>
-                )}
-              </div>
-              {c.detail && (
-                <p className="text-[10.5px] text-muted-foreground leading-snug mt-0.5">
-                  {c.detail}
-                </p>
+            <span
+              className={cn(
+                "text-[11px] font-bold truncate",
+                canSend
+                  ? "text-emerald-700 dark:text-emerald-400"
+                  : "text-destructive",
               )}
+            >
+              {canSend
+                ? `Pre-flight passed${warnings ? ` (${warnings} warning${warnings === 1 ? "" : "s"})` : ""} — safe to send`
+                : `${blockers} blocker${blockers === 1 ? "" : "s"} — fix before sending`}
+            </span>
+          </div>
+          <ChevronDown className="h-3.5 w-3.5 shrink-0 transition-transform data-[state=open]:rotate-180" />
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <ul className="space-y-1 px-3 pb-2 pt-1">
+            {checks.map((c) => {
+              const Icon =
+                c.status === "pass"
+                  ? CheckCircle2
+                  : c.status === "warn"
+                    ? CircleAlert
+                    : AlertTriangle;
+              const tone =
+                c.status === "pass"
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : c.status === "warn"
+                    ? "text-amber-600 dark:text-amber-400"
+                    : "text-destructive";
+              return (
+                <li
+                  key={c.id}
+                  className="flex items-start gap-2 text-[10.5px] leading-relaxed"
+                >
+                  <Icon className={cn("h-3 w-3 mt-0.5 shrink-0", tone)} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-semibold text-foreground">
+                        {c.label}
+                      </span>
+                      {c.blocking && c.status !== "pass" && (
+                        <span className="text-[8.5px] font-bold uppercase text-destructive/80">
+                          blocking
+                        </span>
+                      )}
+                    </div>
+                    {c.detail && (
+                      <p className="text-muted-foreground">{c.detail}</p>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          {hasAuditFailure && (
+            <div className="border-t border-destructive/20 px-3 py-2">
+              <button
+                type="button"
+                onClick={() => setAuditOpen(true)}
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-destructive hover:underline"
+              >
+                <ExternalLink className="h-3 w-3" />
+                View full audit report — exact URLs, rules &amp; fixes
+              </button>
             </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+          )}
+        </CollapsibleContent>
+      </Collapsible>
+
+      <FullAuditReportDialog
+        open={auditOpen}
+        onOpenChange={setAuditOpen}
+        html={ctx.html}
+        label={ctx.label}
+      />
+    </>
   );
 }

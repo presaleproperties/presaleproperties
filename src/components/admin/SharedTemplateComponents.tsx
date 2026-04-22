@@ -226,7 +226,8 @@ export function TemplateQuickSendDialog({
   const [preflightOk, setPreflightOk] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  const previewHtml = asset ? getSavedHtml(asset) : "";
+  const previewHtml = asset ? getSavedHtml(asset) || "" : "";
+  const templateLabel = asset ? getDisplayName(asset) : undefined;
 
   useEffect(() => {
     if (!open) { setQuery(""); setSearchResults([]); setRecipients([]); setManualEmail(""); }
@@ -389,21 +390,20 @@ export function TemplateQuickSendDialog({
               </div>
             )}
           </div>
-          {/* Pre-flight checklist — must pass before send is enabled */}
-          {asset && (
-            <SendPreflightChecklist
-              html={previewHtml}
-              subject={subjectLine}
-              recipientsCount={recipients.length}
-              onResult={(r) => setPreflightOk(r.canSend)}
-            />
-          )}
-
+          {/* Pre-flight checklist — gates the Send button until blockers pass */}
+          <SendPreflightChecklist
+            ctx={{
+              html: previewHtml,
+              subject: subjectLine,
+              recipientCount: recipients.length,
+              label: templateLabel,
+            }}
+            onReadyChange={setPreflightOk}
+          />
           <Button
             className="w-full h-10 gap-2 font-semibold"
             onClick={handleSend}
             disabled={sending || recipients.length === 0 || !preflightOk}
-            title={!preflightOk ? "Resolve all pre-flight blockers before sending." : undefined}
           >
             {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Sending…</> : <><Send className="h-4 w-4" />Send to {recipients.length} recipient{recipients.length !== 1 ? "s" : ""}</>}
           </Button>
