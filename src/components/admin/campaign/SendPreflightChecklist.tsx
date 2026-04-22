@@ -182,6 +182,7 @@ function runChecks(ctx: PreflightContext): CheckResult[] {
 export function SendPreflightChecklist({
   ctx,
   onReadyChange,
+  onChecksChange,
   className,
 }: SendPreflightChecklistProps) {
   const [auditOpen, setAuditOpen] = useState(false);
@@ -232,6 +233,10 @@ export function SendPreflightChecklist({
   useEffect(() => {
     onReadyChange?.(canSend);
   }, [canSend, onReadyChange]);
+
+  useEffect(() => {
+    onChecksChange?.(checks);
+  }, [checks, onChecksChange]);
 
   // Whether any link/unsubscribe/merge-tag check failed — drives "View full
   // audit report" link visibility.
