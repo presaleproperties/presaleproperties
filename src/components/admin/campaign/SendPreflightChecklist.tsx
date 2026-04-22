@@ -50,8 +50,12 @@ interface SendPreflightChecklistProps {
   ctx: PreflightContext;
   /** Called whenever readiness changes so the caller can gate the Send button. */
   onReadyChange?: (ready: boolean) => void;
+  /** Called whenever the check list changes so callers can persist them on send. */
+  onChecksChange?: (checks: CheckResult[]) => void;
   className?: string;
 }
+
+export type PreflightCheckResult = CheckResult;
 
 const TRACK_PATH = "/functions/v1/track-email-open";
 
