@@ -6,6 +6,8 @@ import { CAMPAIGN_WEEKS } from "@/components/admin/campaign/CampaignWeekConfig";
 import { buildMultiProjectEmailHtml, type MultiProjectData } from "@/components/admin/campaign/buildMultiProjectEmailHtml";
 import { buildCatalogueEmailHtml, type CatalogueProject } from "@/components/admin/campaign/buildCatalogueEmailHtml";
 import { CatalogueProjectsPanel } from "@/components/admin/campaign/CatalogueProjectsPanel";
+import { buildRecommendationEmailHtml, type RecommendationProject } from "@/components/admin/campaign/buildRecommendationEmailHtml";
+import { RecommendationProjectsPanel } from "@/components/admin/campaign/RecommendationProjectsPanel";
 import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
 import {
   fetchCampaignEnrichmentData,
@@ -107,7 +109,7 @@ function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
-  layoutVersion?: "modern" | "modern-v2" | "editorial" | "catalogue",
+  layoutVersion?: "modern" | "modern-v2" | "editorial" | "catalogue" | "recommendation",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
   brochureUrl?: string,
@@ -117,7 +119,26 @@ function buildFinalHtml(
   bookShowingUrl?: string,
   catalogueProjects?: CatalogueProject[],
   interestedWhatsapp?: string,
+  recommendationProjects?: RecommendationProject[],
+  recommendationGroupByCategory?: boolean,
+  recommendationContext?: string,
 ): string {
+  // ── RECOMMENDATION template (Catalogue V2 — auto behavior-triggered) ──────
+  if (layoutVersion === "recommendation") {
+    return buildRecommendationEmailHtml({
+      subjectLine: fields.subjectLine || "Recommended for you",
+      previewText: fields.previewText || "Hand-picked presales matched to your interests.",
+      headline: fields.headline || "Presales picked for you",
+      subline: "Hand-picked matches, updated weekly.",
+      bodyCopy: fields.bodyCopy || "",
+      personalizationContext: recommendationContext,
+      projects: recommendationProjects || [],
+      groupByCategory: !!recommendationGroupByCategory,
+      agent,
+      city: recommendationProjects?.[0]?.city,
+    });
+  }
+
   // ── CATALOGUE template (multi-project picker) ─────────────────────────────
   if (layoutVersion === "catalogue") {
     return buildCatalogueEmailHtml({
@@ -538,12 +559,18 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // Layout version
-  const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial" | "catalogue">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial" | "catalogue");
+  const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial" | "catalogue" | "recommendation">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial" | "catalogue" | "recommendation");
   const [layoutSectionOpen, setLayoutSectionOpen] = useState(true);
 
   // ── CATALOGUE MODE state ──────────────────────────────────────────────────
   // Multi-project "catalogue" emails: pick 1-5 projects, each with its own CTA toggles
   const [catalogueProjects, setCatalogueProjects] = useState<CatalogueProject[]>(savedDraft?.catalogueProjects ?? []);
+
+  // ── RECOMMENDATION MODE state (Catalogue V2) ──────────────────────────────
+  // Auto behavior-triggered emails: 2-8 projects, optional category grouping
+  const [recommendationProjects, setRecommendationProjects] = useState<RecommendationProject[]>(savedDraft?.recommendationProjects ?? []);
+  const [recommendationGroupByCategory, setRecommendationGroupByCategory] = useState<boolean>(savedDraft?.recommendationGroupByCategory ?? true);
+  const [recommendationContext, setRecommendationContext] = useState<string>(savedDraft?.recommendationContext ?? "");
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
@@ -858,6 +885,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         layoutVersion, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
         showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
         catalogueProjects,
+        recommendationProjects, recommendationGroupByCategory, recommendationContext,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -879,7 +907,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
     showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
-    dbDraftLoading, catalogueProjects,
+    dbDraftLoading, catalogueProjects, recommendationProjects, recommendationGroupByCategory, recommendationContext,
   ]); // eslint-disable-line
 
   // Warn before leaving with unsaved changes (existing template only)
@@ -911,7 +939,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined, recommendationProjects, recommendationGroupByCategory, recommendationContext)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -919,14 +947,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (campaignHtmlOverride) return;
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined, recommendationProjects, recommendationGroupByCategory, recommendationContext));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, pricingUrl, showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp, bookShowingUrl, campaignHtmlOverride, catalogueProjects]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, pricingUrl, showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp, bookShowingUrl, campaignHtmlOverride, catalogueProjects, recommendationProjects, recommendationGroupByCategory, recommendationContext]);
 
   // finalHtml used only for copy/save — always reflects latest state
   // When campaignHtmlOverride is set (multi-project weeks), use it instead
-  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined);
+  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined, recommendationProjects, recommendationGroupByCategory, recommendationContext);
   const finalHtml = campaignHtmlOverride || baseFinalHtml;
 
   // Also update multi-project preview when body copy changes (live editing)
@@ -2178,7 +2206,42 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         <div className="text-[9px] text-muted-foreground leading-tight">Multi-project · 1–5 picks</div>
                         {layoutVersion === "catalogue" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-amber-500" />}
                       </button>
+                      <button
+                        onClick={() => setLayoutVersion("recommendation")}
+                        className={cn(
+                          "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                          layoutVersion === "recommendation"
+                            ? "border-rose-500 bg-rose-500/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-rose-400/50"
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
+                          Recommendation
+                          <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-rose-500/15 text-rose-600 uppercase tracking-wide">V2</span>
+                        </div>
+                        <div className="text-[9px] text-muted-foreground leading-tight">2–8 picks · By category</div>
+                        {layoutVersion === "recommendation" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-rose-500" />}
+                      </button>
                     </div>
+                    {layoutVersion === "recommendation" && (
+                      <div className="mt-3 pt-3 border-t border-border space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Package className="h-3 w-3 text-rose-500" />
+                          <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Recommended Projects</Label>
+                        </div>
+                        <p className="text-[9px] text-muted-foreground leading-relaxed">
+                          Auto-triggered email for behaviour-based recommendations. Pick 2–8 projects, tag each as Condo / Townhome / Detached, and optionally group by category.
+                        </p>
+                        <RecommendationProjectsPanel
+                          projects={recommendationProjects}
+                          onChange={setRecommendationProjects}
+                          groupByCategory={recommendationGroupByCategory}
+                          onGroupByCategoryChange={setRecommendationGroupByCategory}
+                          personalizationContext={recommendationContext}
+                          onPersonalizationContextChange={setRecommendationContext}
+                        />
+                      </div>
+                    )}
                     {layoutVersion === "catalogue" && (
                       <div className="mt-3 pt-3 border-t border-border space-y-2">
                         <div className="flex items-center gap-1.5">
