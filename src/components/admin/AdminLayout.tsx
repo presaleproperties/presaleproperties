@@ -40,6 +40,7 @@ import {
   CalendarCog,
   PenTool,
   Target,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
