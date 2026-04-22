@@ -15,6 +15,7 @@ import type { SavedAsset } from "@/lib/emailTemplateHelpers";
 import { timeAgo, getDisplayName, getSavedHtml } from "@/lib/emailTemplateHelpers";
 import { TemplatePerformanceBadges } from "@/components/admin/TemplatePerformanceBadges";
 import type { TemplateMetrics, TemplatePerformance } from "@/hooks/useTemplatePerformance";
+import { SendPreflightChecklist } from "@/components/admin/campaign/SendPreflightChecklist";
 
 // ── Template Card ──
 interface TemplateCardProps {
@@ -222,7 +223,10 @@ export function TemplateQuickSendDialog({
   const [manualEmail, setManualEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [subjectLine, setSubjectLine] = useState("");
+  const [preflightOk, setPreflightOk] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const previewHtml = asset ? getSavedHtml(asset) : "";
 
   useEffect(() => {
     if (!open) { setQuery(""); setSearchResults([]); setRecipients([]); setManualEmail(""); }
@@ -311,7 +315,7 @@ export function TemplateQuickSendDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Send className="h-4 w-4 text-primary" />
@@ -385,7 +389,22 @@ export function TemplateQuickSendDialog({
               </div>
             )}
           </div>
-          <Button className="w-full h-10 gap-2 font-semibold" onClick={handleSend} disabled={sending || recipients.length === 0}>
+          {/* Pre-flight checklist — must pass before send is enabled */}
+          {asset && (
+            <SendPreflightChecklist
+              html={previewHtml}
+              subject={subjectLine}
+              recipientsCount={recipients.length}
+              onResult={(r) => setPreflightOk(r.canSend)}
+            />
+          )}
+
+          <Button
+            className="w-full h-10 gap-2 font-semibold"
+            onClick={handleSend}
+            disabled={sending || recipients.length === 0 || !preflightOk}
+            title={!preflightOk ? "Resolve all pre-flight blockers before sending." : undefined}
+          >
             {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Sending…</> : <><Send className="h-4 w-4" />Send to {recipients.length} recipient{recipients.length !== 1 ? "s" : ""}</>}
           </Button>
         </div>
