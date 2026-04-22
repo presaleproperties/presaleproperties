@@ -315,6 +315,71 @@ export function SendPreflightChecklist({
             })}
           </ul>
 
+          {showTrackerSection && (
+            <div className="border-t border-border/60 px-3 py-2 space-y-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 text-[10.5px] font-semibold text-foreground">
+                  <Radio className="h-3 w-3" />
+                  Tracker connectivity
+                  <span
+                    className={cn(
+                      "ml-1 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase",
+                      tracker.status === "ok" && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+                      tracker.status === "warn" && "bg-amber-500/15 text-amber-700 dark:text-amber-400",
+                      tracker.status === "error" && "bg-destructive/15 text-destructive",
+                      tracker.status === "checking" && "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {tracker.status === "checking" && (
+                      <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                    )}
+                    {tracker.status}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={recheckTracker}
+                  disabled={tracker.status === "checking"}
+                  className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+                >
+                  <RefreshCw className={cn("h-2.5 w-2.5", tracker.status === "checking" && "animate-spin")} />
+                  Re-check
+                </button>
+              </div>
+              {tracker.trackerBase && (
+                <p className="text-[9.5px] text-muted-foreground break-all">
+                  Endpoint: <code className="rounded bg-muted/60 px-1 py-0.5">{tracker.trackerBase}</code>
+                </p>
+              )}
+              {tracker.details.length > 0 && (
+                <ul className="space-y-0.5">
+                  {tracker.details.map((d, i) => (
+                    <li key={i} className="flex items-start gap-1.5 text-[10px] leading-relaxed">
+                      <span
+                        className={cn(
+                          "mt-1 inline-block h-1.5 w-1.5 rounded-full shrink-0",
+                          d.status === "pass" && "bg-emerald-500",
+                          d.status === "warn" && "bg-amber-500",
+                          d.status === "fail" && "bg-destructive",
+                        )}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <span className="font-semibold text-foreground">{d.label}: </span>
+                        <span className="text-muted-foreground">{d.note}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {tracker.status === "error" && (
+                <p className="text-[10px] text-destructive font-medium">
+                  Sending now will still work, but click and open events won't be recorded
+                  until the endpoint is reachable.
+                </p>
+              )}
+            </div>
+          )}
+
           {hasAuditFailure && (
             <div className="border-t border-destructive/20 px-3 py-2">
               <button
