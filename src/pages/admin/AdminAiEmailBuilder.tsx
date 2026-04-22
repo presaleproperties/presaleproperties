@@ -36,7 +36,7 @@ import {
 import {
   ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2,
   Building2, Image, Mail, FileText, Wand2,
-  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Italic, Underline, List, Minus, Presentation, Send, PanelRightClose, PanelRight, MousePointerClick, Settings,
+  Eye, Code2, Save, X, Upload, ChevronDown, ChevronUp, Monitor, Smartphone, Type, Bold, Italic, Underline, List, Minus, Presentation, Send, PanelRightClose, PanelRight, PanelLeftClose, PanelLeft, MousePointerClick, Settings,
   Undo2, Redo2, Tag, Package,
 } from "lucide-react";
 import { toast } from "sonner";
