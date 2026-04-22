@@ -17,6 +17,9 @@ import { TemplatePerformanceBadges } from "@/components/admin/TemplatePerformanc
 import type { TemplateMetrics, TemplatePerformance } from "@/hooks/useTemplatePerformance";
 import { SendPreflightChecklist } from "@/components/admin/campaign/SendPreflightChecklist";
 import { annotateEmailHtmlWithAudit } from "@/components/admin/campaign/annotateEmailHtmlWithAudit";
+import { insertUnsubscribeFooter, describeInsertResult } from "@/components/admin/campaign/insertUnsubscribeFooter";
+import { auditEmailHtml } from "@/components/admin/campaign/auditEmailHtml";
+import { Wand2 } from "lucide-react";
 
 // ── Template Card ──
 interface TemplateCardProps {
@@ -185,15 +188,80 @@ export function TemplateCard({
 }
 
 // ── Preview Dialog ──
-export function TemplatePreviewDialog({ asset, open, onOpenChange }: { asset: SavedAsset | null; open: boolean; onOpenChange: (v: boolean) => void }) {
-  const html = asset ? getSavedHtml(asset) : "";
+export function TemplatePreviewDialog({
+  asset,
+  open,
+  onOpenChange,
+  onAssetUpdated,
+}: {
+  asset: SavedAsset | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  /** Fired after a quick-action saves a mutation back to the asset. */
+  onAssetUpdated?: () => void;
+}) {
+  // Local override so quick-actions update the preview without a refetch round-trip.
+  const [overrideHtml, setOverrideHtml] = useState<string | null>(null);
   const [highlightAudit, setHighlightAudit] = useState(true);
+  const [fixingUnsub, setFixingUnsub] = useState(false);
+
+  // Reset override whenever the dialog opens with a new asset.
+  useEffect(() => {
+    if (open) setOverrideHtml(null);
+  }, [open, asset?.id]);
+
+  const baseHtml = asset ? getSavedHtml(asset) : "";
+  const html = overrideHtml ?? baseHtml;
+
+  /** Detect whether the audit currently flags a missing/misplaced unsubscribe. */
+  const unsubNeedsFix = useMemo(() => {
+    if (!html) return false;
+    try {
+      const r = auditEmailHtml(html, { requireProjectRoute: false });
+      return r.errors.some(
+        (e) => e.rule === "missing_unsubscribe" || e.rule === "unsubscribe_outside_footer",
+      );
+    } catch {
+      return false;
+    }
+  }, [html]);
+
   const annotated = useMemo(
-    () => (highlightAudit ? annotateEmailHtmlWithAudit(html) : { html, anchorIssues: 0, tagIssues: 0, unsubBannerInjected: false }),
+    () =>
+      highlightAudit
+        ? annotateEmailHtmlWithAudit(html)
+        : { html, anchorIssues: 0, tagIssues: 0, unsubBannerInjected: false },
     [html, highlightAudit],
   );
   const totalIssues =
     annotated.anchorIssues + annotated.tagIssues + (annotated.unsubBannerInjected ? 1 : 0);
+
+  const handleInsertUnsubscribe = async () => {
+    if (!asset || fixingUnsub) return;
+    setFixingUnsub(true);
+    try {
+      const result = insertUnsubscribeFooter(html);
+      if (!result.changed) {
+        toast.info(describeInsertResult(result));
+        return;
+      }
+      // Persist by freezing the new HTML into form_data.finalHtml so getSavedHtml()
+      // returns the patched version on next read.
+      const nextFormData = { ...(asset.form_data || {}), finalHtml: result.html };
+      const { error } = await (supabase as any)
+        .from("campaign_templates")
+        .update({ form_data: nextFormData, updated_at: new Date().toISOString() })
+        .eq("id", asset.id);
+      if (error) throw error;
+      setOverrideHtml(result.html);
+      toast.success(describeInsertResult(result));
+      onAssetUpdated?.();
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to insert unsubscribe footer.");
+    } finally {
+      setFixingUnsub(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -204,8 +272,8 @@ export function TemplatePreviewDialog({ asset, open, onOpenChange }: { asset: Sa
         {asset?.form_data?.vars?.subjectLine && (
           <p className="text-sm"><span className="font-medium">Subject:</span> {asset.form_data.vars.subjectLine}</p>
         )}
-        <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-3 py-2">
-          <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-3 py-2 flex-wrap">
+          <div className="flex items-center gap-2 text-xs flex-wrap">
             <button
               type="button"
               onClick={() => setHighlightAudit(v => !v)}
@@ -219,6 +287,25 @@ export function TemplatePreviewDialog({ asset, open, onOpenChange }: { asset: Sa
               <Eye className="h-3 w-3" />
               {highlightAudit ? "Audit highlights on" : "Audit highlights off"}
             </button>
+            {unsubNeedsFix && asset && (
+              <button
+                type="button"
+                onClick={handleInsertUnsubscribe}
+                disabled={fixingUnsub}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md border border-destructive/50 bg-destructive/10 px-2 py-1 font-semibold text-destructive transition-colors hover:bg-destructive/20",
+                  fixingUnsub && "opacity-60 cursor-wait",
+                )}
+                title="Place {$unsubscribe} in the correct footer location"
+              >
+                {fixingUnsub ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Wand2 className="h-3 w-3" />
+                )}
+                Insert unsubscribe footer
+              </button>
+            )}
             {highlightAudit && totalIssues > 0 && (
               <span className="text-[11px] text-destructive font-medium">
                 {annotated.anchorIssues > 0 && `${annotated.anchorIssues} broken link${annotated.anchorIssues === 1 ? "" : "s"}`}
