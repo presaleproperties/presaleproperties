@@ -35,6 +35,9 @@ import {
   Star,
   Clock,
   Users,
+  History,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import {
   Dialog,
@@ -58,6 +61,10 @@ import { cn } from "@/lib/utils";
 import { getSavedHtml, type SavedAsset } from "@/lib/emailTemplateHelpers";
 import { appendSignatureToHtml, type SignatureAgent } from "@/lib/emailSignature";
 import { RichTextEditor } from "./RichTextEditor";
+import { AiAssistMenu } from "./AiAssistMenu";
+import { SubjectSuggestions } from "./SubjectSuggestions";
+import { SentEmailsList } from "./SentEmailsList";
+import { UndoSendBanner, BulkSendProgress } from "./UndoSendBanner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface ComposeRecipient {
