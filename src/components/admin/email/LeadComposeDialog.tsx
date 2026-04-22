@@ -149,6 +149,10 @@ export function LeadComposeDialog({
   const [success, setSuccess] = useState<{ sent: number; failed: number } | null>(null);
   const [manualEmail, setManualEmail] = useState("");
   const [draftRestored, setDraftRestored] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [pendingSendLabel, setPendingSendLabel] = useState<string | null>(null);
+  const [bulkProgress, setBulkProgress] = useState<{ sent: number; total: number } | null>(null);
+  const undoRef = useRef<{ cancelled: boolean } | null>(null);
   const subjectRef = useRef<HTMLInputElement>(null);
 
   // Sync recipients when reopened
