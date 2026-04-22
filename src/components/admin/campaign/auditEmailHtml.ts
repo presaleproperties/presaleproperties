@@ -68,14 +68,20 @@ function visibleText(inner: string): string {
 
 /**
  * Determine the expected URL scheme for a link based on its visible text.
- *  - "Call …" → tel:
- *  - "Email …" → mailto:
+ *  - Text mentioning "call" / phone-number-shaped → tel:
+ *  - Text shaped like an email address or starting with "Email " → mailto:
  *  - everything else → http(s):
  */
 function expectedScheme(text: string): "tel" | "mailto" | "http" {
-  const t = text.toLowerCase();
-  if (/^call\b/.test(t) || /\bbook a call\b/.test(t)) return "tel";
+  const t = text.toLowerCase().trim();
+  // Phone-number-shaped text e.g. "778-231-3592", "(778) 231-3592", "+1 778..."
+  const digitCount = (t.match(/\d/g) || []).length;
+  if (/^[+()\-.\s\d]+$/.test(t) && digitCount >= 7) return "tel";
+  // Any "call"-related CTA: "Call now", "Book a Call", "Book a 15-min Call", etc.
+  if (/\bcall\b/.test(t)) return "tel";
+  // Email-address-shaped text or "Email …" CTA
   if (/^email\b/.test(t)) return "mailto";
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return "mailto";
   return "http";
 }
 
