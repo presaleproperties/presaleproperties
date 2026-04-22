@@ -66,6 +66,7 @@ export default function AdminMarketingHub() {
   const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
   const [sendAsset, setSendAsset] = useState<SavedAsset | null>(null);
   const [previewAsset, setPreviewAsset] = useState<SavedAsset | null>(null);
+  const perf = useTemplatePerformance();
 
   const fetchAssets = async () => {
     setLoading(true);
@@ -275,6 +276,9 @@ export default function AdminMarketingHub() {
                       onDuplicate={handleDuplicate}
                       onRename={handleRename}
                       deleting={deleting}
+                      metrics={lookupMetrics(perf, asset)}
+                      audit={perf.latestAudit}
+                      onAuditComplete={perf.refetch}
                     />
                   ))}
                 </div>
