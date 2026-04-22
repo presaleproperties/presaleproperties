@@ -2278,6 +2278,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         <p className="text-[9px] text-muted-foreground leading-relaxed">
                           Auto-triggered email for behaviour-based recommendations. Pick 2–8 projects, tag each as Condo / Townhome / Detached, and optionally group by category.
                         </p>
+                        <a
+                          href="/admin/email-builder/recommendation-preview"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary hover:underline"
+                        >
+                          <Eye className="h-3 w-3" /> Open visual preview & link audit
+                        </a>
                         <RecommendationProjectsPanel
                           projects={recommendationProjects}
                           onChange={setRecommendationProjects}
