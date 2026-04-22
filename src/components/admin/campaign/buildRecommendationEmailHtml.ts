@@ -440,7 +440,7 @@ ${options.previewText || ""}
             <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin-top:18px;">
               <tr>
                 <td align="center" bgcolor="${DARK}" style="border-radius:999px;padding:12px 26px;">
-                  <a href="${SITE_BASE}/presale-projects/${cityDisplay.toLowerCase()}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">Browse All in ${cityDisplay}</a>
+                  <a href="${trackUrl(`${SITE_BASE}/presale-projects/${cityDisplay.toLowerCase()}`, { cta: "hero_browse_city", section: "hero", city: cityDisplay })}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">Browse All in ${cityDisplay}</a>
                 </td>
               </tr>
             </table>
