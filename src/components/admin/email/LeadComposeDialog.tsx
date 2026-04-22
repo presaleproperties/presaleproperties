@@ -568,21 +568,43 @@ export function LeadComposeDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="max-w-3xl p-0 gap-0 overflow-hidden">
+        <DialogContent
+          className={cn(
+            "p-0 gap-0 overflow-hidden transition-[max-width] duration-200",
+            livePreviewOpen ? "max-w-6xl" : "max-w-3xl",
+          )}
+        >
           <DialogHeader className="border-b border-border bg-muted/20 px-5 py-3">
             <div className="flex items-center justify-between">
               <DialogTitle className="flex items-center gap-2 text-base">
                 {isBulk ? <Users className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
                 {isBulk ? `Compose · ${validRecipients.length} recipients` : "Compose email"}
               </DialogTitle>
-              <kbd className="rounded border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                ⌘ + ↵ to send
-              </kbd>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setLivePreviewOpen((v) => !v)}
+                  className="inline-flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                  title={livePreviewOpen ? "Hide live preview" : "Show live preview"}
+                >
+                  {livePreviewOpen ? (
+                    <PanelRightClose className="h-3 w-3" />
+                  ) : (
+                    <PanelRightOpen className="h-3 w-3" />
+                  )}
+                  {livePreviewOpen ? "Hide preview" : "Show preview"}
+                </button>
+                <kbd className="rounded border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                  ⌘ + ↵ to send
+                </kbd>
+              </div>
             </div>
             <DialogDescription className="sr-only">Compose and send an email to selected leads.</DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-[72vh]">
+          <div className="flex min-h-0 flex-1">
+            <div className={cn("min-w-0 flex-1", livePreviewOpen && "border-r border-border")}>
+              <ScrollArea className="max-h-[72vh]">
             <div className="space-y-4 px-5 py-4">
               {/* Recipients */}
               <div className="space-y-1.5">
