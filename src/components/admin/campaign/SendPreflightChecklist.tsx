@@ -16,6 +16,9 @@ import {
   ChevronDown,
   CircleAlert,
   ExternalLink,
+  Loader2,
+  RefreshCw,
+  Radio,
 } from "lucide-react";
 import {
   Collapsible,
@@ -24,6 +27,7 @@ import {
 } from "@/components/ui/collapsible";
 import { auditEmailHtml } from "@/components/admin/campaign/auditEmailHtml";
 import { FullAuditReportDialog } from "@/components/admin/campaign/FullAuditReportDialog";
+import { useTrackerConnectivity } from "@/components/admin/campaign/checkTrackerConnectivity";
 import { cn } from "@/lib/utils";
 
 export interface PreflightContext {
@@ -177,9 +181,40 @@ export function SendPreflightChecklist({
   className,
 }: SendPreflightChecklistProps) {
   const [auditOpen, setAuditOpen] = useState(false);
+  const { result: tracker, recheck: recheckTracker } = useTrackerConnectivity();
+
+  // Whether the email actually contains tracked links / pixels worth verifying.
+  const usesTracker = useMemo(
+    () => /track-email-open/i.test(ctx.html),
+    [ctx.html],
+  );
 
   const { checks, blockers, warnings, canSend } = useMemo(() => {
     const all = runChecks(ctx);
+
+    // Append tracker connectivity as a non-blocking check (only when the email
+    // actually uses tracking — otherwise it'd be noise).
+    if (usesTracker) {
+      const status: CheckResult["status"] =
+        tracker.status === "checking"
+          ? "warn"
+          : tracker.status === "ok"
+            ? "pass"
+            : tracker.status === "warn"
+              ? "warn"
+              : "fail";
+      all.push({
+        id: "tracker_connectivity",
+        label: "Tracker endpoints reachable",
+        status,
+        blocking: false,
+        detail:
+          tracker.status === "checking"
+            ? "Verifying open-pixel and click-redirect endpoints…"
+            : tracker.summary,
+      });
+    }
+
     const blockersN = all.filter((c) => c.blocking && c.status !== "pass").length;
     const warningsN = all.filter((c) => c.status === "warn").length;
     return {
@@ -188,7 +223,7 @@ export function SendPreflightChecklist({
       warnings: warningsN,
       canSend: blockersN === 0,
     };
-  }, [ctx]);
+  }, [ctx, tracker, usesTracker]);
 
   useEffect(() => {
     onReadyChange?.(canSend);
@@ -201,6 +236,9 @@ export function SendPreflightChecklist({
       (c.id === "audit" || c.id === "unsubscribe" || c.id === "merge_tags") &&
       c.status === "fail",
   );
+
+  // Whether to surface the tracker recheck action.
+  const showTrackerSection = usesTracker;
 
   return (
     <>
