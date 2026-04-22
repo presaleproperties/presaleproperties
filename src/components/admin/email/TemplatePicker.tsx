@@ -48,6 +48,11 @@ export function TemplatePicker({ templates, selectedId, onSelect }: Props) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [category, setCategory] = useState<string>("__all__");
+  const [previewing, setPreviewing] = useState<PickerTemplate | null>(null);
+  const previewHtml = useMemo(
+    () => (previewing ? getSavedHtml(previewing as unknown as SavedAsset) : ""),
+    [previewing],
+  );
 
   const categories = useMemo(() => {
     const map = new Map<string, number>();
