@@ -429,6 +429,12 @@ export default function AdminLeads() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalInitialTab, setModalInitialTab] = useState<"overview" | "hub">("overview");
   const [bulkEmailOpen, setBulkEmailOpen] = useState(false);
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [composeRecipient, setComposeRecipient] = useState<ComposeRecipient[]>([]);
+  const openCompose = (lead: { id: string; email: string; name: string }) => {
+    setComposeRecipient([{ id: lead.id, email: lead.email, name: lead.name, leadId: lead.id }]);
+    setComposeOpen(true);
+  };
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [intentFilter, setIntentFilter] = useState<string>("all");
