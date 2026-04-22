@@ -17,6 +17,7 @@ import {
   TemplatePreviewDialog,
   TemplateQuickSendDialog,
 } from "@/components/admin/SharedTemplateComponents";
+import { useTemplatePerformance, lookupMetrics } from "@/hooks/useTemplatePerformance";
 import { SocialPostGenerator } from "@/components/admin/marketing/SocialPostGenerator";
 import { SoldPostGenerator } from "@/components/admin/marketing/SoldPostGenerator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";

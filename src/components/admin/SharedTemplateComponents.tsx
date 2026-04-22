@@ -152,6 +152,15 @@ export function TemplateCard({
           </div>
         )}
 
+        {/* Per-template performance + audit badges (emails only, when wired) */}
+        {isEmail && !selectable && (metrics !== undefined || audit !== undefined) && (
+          <TemplatePerformanceBadges
+            metrics={metrics ?? null}
+            audit={audit ?? null}
+            onAuditComplete={onAuditComplete}
+          />
+        )}
+
         {!selectable && (
           <div className="flex items-center gap-1.5 pt-3 border-t border-border">
             <Button size="sm" className="flex-1 h-8 text-xs gap-1.5" onClick={() => onSend(asset)}>
