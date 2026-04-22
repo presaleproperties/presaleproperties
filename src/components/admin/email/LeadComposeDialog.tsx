@@ -159,6 +159,9 @@ export function LeadComposeDialog({
   const [bulkProgress, setBulkProgress] = useState<{ sent: number; total: number } | null>(null);
   const undoRef = useRef<{ cancelled: boolean } | null>(null);
   const subjectRef = useRef<HTMLInputElement>(null);
+  const [livePreviewOpen, setLivePreviewOpen] = useState(true);
+  const [previewIdx, setPreviewIdx] = useState(0);
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
 
   // Sync recipients when reopened
   useEffect(() => {
