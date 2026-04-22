@@ -587,48 +587,6 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [pushedML,      setPushedML]      = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
-
-  /**
-   * Pre-send guard for the Recommendation email variant.
-   * Blocks opening the Send dialog when any project card is missing
-   * `projectUrl` or any tracked CTA would generate an invalid redirect URL.
-   * Other layouts open the dialog immediately.
-   */
-  const requestOpenSendDialog = useCallback(() => {
-    if (layoutVersion !== "recommendation") {
-      setSendDialogOpen(true);
-      return;
-    }
-    const result = validateRecommendationBeforeSend({
-      subjectLine: subjectLine || "Recommended for you",
-      previewText: previewText || "Hand-picked presales matched to your interests.",
-      headline: headline || "Recommended for you",
-      bodyCopy: bodyCopy || "",
-      personalizationContext: recommendationContext,
-      projects: recommendationProjects || [],
-      groupByCategory: !!recommendationGroupByCategory,
-      agent: selectedAgent,
-      city: recommendationProjects?.[0]?.city,
-    });
-    if (!result.ok) {
-      toast.error("Cannot send — fix these issues first:", {
-        description: formatValidationErrors(result),
-        duration: 10000,
-      });
-      return;
-    }
-    setSendDialogOpen(true);
-  }, [
-    layoutVersion,
-    subjectLine,
-    previewText,
-    headline,
-    bodyCopy,
-    recommendationContext,
-    recommendationProjects,
-    recommendationGroupByCategory,
-    selectedAgent,
-  ]);
   const [editorOpen, setEditorOpen] = useState(true);
 
   // ── Campaign mode state ──────────────────────────────────────────────────────
