@@ -302,7 +302,8 @@ export function LeadComposeDialog({
     return appendSignatureToHtml(baseHtml, selectedAgent);
   };
 
-  const previewRecipient = recipients[0] || { email: "preview@example.com", name: "Preview" };
+  const safePreviewIdx = recipients.length > 0 ? previewIdx % recipients.length : 0;
+  const previewRecipient = recipients[safePreviewIdx] || { email: "preview@example.com", name: "Preview" };
   const previewHtml = useMemo(
     () => buildHtmlFor(previewRecipient),
     // eslint-disable-next-line react-hooks/exhaustive-deps
