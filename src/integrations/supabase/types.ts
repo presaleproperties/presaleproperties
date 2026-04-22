@@ -1313,6 +1313,45 @@ export type Database = {
         }
         Relationships: []
       }
+      email_audit_runs: {
+        Row: {
+          duration_ms: number | null
+          errors: Json | null
+          id: string
+          projects_sampled: number
+          ran_at: string
+          status: string
+          template_key: string
+          total_errors: number
+          total_links: number
+          trigger_source: string
+        }
+        Insert: {
+          duration_ms?: number | null
+          errors?: Json | null
+          id?: string
+          projects_sampled?: number
+          ran_at?: string
+          status: string
+          template_key: string
+          total_errors?: number
+          total_links?: number
+          trigger_source?: string
+        }
+        Update: {
+          duration_ms?: number | null
+          errors?: Json | null
+          id?: string
+          projects_sampled?: number
+          ran_at?: string
+          status?: string
+          template_key?: string
+          total_errors?: number
+          total_links?: number
+          trigger_source?: string
+        }
+        Relationships: []
+      }
       email_jobs: {
         Row: {
           created_at: string
