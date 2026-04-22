@@ -605,6 +605,48 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [agents,   setAgents]   = useState<AgentInfo[]>([]);
   const [selAgent, setSelAgent] = useState(savedDraft?.selAgent ?? "default");
   const selectedAgent: AgentInfo = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
+
+  /**
+   * Pre-send guard for the Recommendation email variant.
+   * Blocks opening the Send dialog when any project card is missing
+   * `projectUrl` or any tracked CTA would generate an invalid redirect URL.
+   * Other layouts open the dialog immediately.
+   */
+  const requestOpenSendDialog = useCallback(() => {
+    if (layoutVersion !== "recommendation") {
+      setSendDialogOpen(true);
+      return;
+    }
+    const result = validateRecommendationBeforeSend({
+      subjectLine: subjectLine || "Recommended for you",
+      previewText: previewText || "Hand-picked presales matched to your interests.",
+      headline: headline || "Recommended for you",
+      bodyCopy: bodyCopy || "",
+      personalizationContext: recommendationContext,
+      projects: recommendationProjects || [],
+      groupByCategory: !!recommendationGroupByCategory,
+      agent: selectedAgent,
+      city: recommendationProjects?.[0]?.city,
+    });
+    if (!result.ok) {
+      toast.error("Cannot send — fix these issues first:", {
+        description: formatValidationErrors(result),
+        duration: 10000,
+      });
+      return;
+    }
+    setSendDialogOpen(true);
+  }, [
+    layoutVersion,
+    subjectLine,
+    previewText,
+    headline,
+    bodyCopy,
+    recommendationContext,
+    recommendationProjects,
+    recommendationGroupByCategory,
+    selectedAgent,
+  ]);
   // Loop slideshow images (auto-filled from project gallery)
   const [loopSlides, setLoopSlides] = useState<string[]>(savedDraft?.loopSlides ?? []);
   // Hero mode: "static" = single image, "gif" = rotating carousel
