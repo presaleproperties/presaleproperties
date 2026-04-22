@@ -2206,7 +2206,42 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         <div className="text-[9px] text-muted-foreground leading-tight">Multi-project · 1–5 picks</div>
                         {layoutVersion === "catalogue" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-amber-500" />}
                       </button>
+                      <button
+                        onClick={() => setLayoutVersion("recommendation")}
+                        className={cn(
+                          "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
+                          layoutVersion === "recommendation"
+                            ? "border-rose-500 bg-rose-500/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-rose-400/50"
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
+                          Recommendation
+                          <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-rose-500/15 text-rose-600 uppercase tracking-wide">V2</span>
+                        </div>
+                        <div className="text-[9px] text-muted-foreground leading-tight">2–8 picks · By category</div>
+                        {layoutVersion === "recommendation" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-rose-500" />}
+                      </button>
                     </div>
+                    {layoutVersion === "recommendation" && (
+                      <div className="mt-3 pt-3 border-t border-border space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Package className="h-3 w-3 text-rose-500" />
+                          <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Recommended Projects</Label>
+                        </div>
+                        <p className="text-[9px] text-muted-foreground leading-relaxed">
+                          Auto-triggered email for behaviour-based recommendations. Pick 2–8 projects, tag each as Condo / Townhome / Detached, and optionally group by category.
+                        </p>
+                        <RecommendationProjectsPanel
+                          projects={recommendationProjects}
+                          onChange={setRecommendationProjects}
+                          groupByCategory={recommendationGroupByCategory}
+                          onGroupByCategoryChange={setRecommendationGroupByCategory}
+                          personalizationContext={recommendationContext}
+                          onPersonalizationContextChange={setRecommendationContext}
+                        />
+                      </div>
+                    )}
                     {layoutVersion === "catalogue" && (
                       <div className="mt-3 pt-3 border-t border-border space-y-2">
                         <div className="flex items-center gap-1.5">
