@@ -790,6 +790,12 @@ export function LeadComposeDialog({
                 <code className="font-mono">{"{email}"}</code>
               </p>
 
+              {/* Personalization check — flags missing merge fields per recipient */}
+              <PersonalizationCheck
+                subject={subject}
+                body={body}
+                recipients={validRecipients}
+              />
               {/* Signature */}
               <div className="space-y-1.5 rounded-md border border-border bg-muted/20 p-2.5">
                 <div className="flex items-center justify-between">
