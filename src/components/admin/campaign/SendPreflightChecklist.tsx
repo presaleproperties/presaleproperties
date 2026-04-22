@@ -72,9 +72,10 @@ export function runPreflight(opts: {
   });
 
   // 3. Audit compliance (link rules)
-  let auditIssues: ReturnType<typeof auditEmailHtml> = [];
+  let auditIssues: Array<{ rule: string; href?: string; context?: string; expected?: string }> = [];
   try {
-    auditIssues = auditEmailHtml(html);
+    const report = auditEmailHtml(html);
+    auditIssues = report.errors as typeof auditIssues;
   } catch {
     auditIssues = [];
   }
