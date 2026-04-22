@@ -85,7 +85,30 @@ const handler = async (req: Request): Promise<Response> => {
             })
             .eq("id", logEntry.id);
 
-          console.log(`Tracked click for tracking_id ${trackingId} (click #${newClickCount}, url: ${clickUrl})`);
+          // Granular click record — powers per-project / per-neighborhood
+          // engagement analytics for the recommendation email
+          if (hasClickContext || clickUrl) {
+            await supabase.from("email_link_clicks").insert({
+              email_log_id: logEntry.id,
+              tracking_id: trackingId,
+              recipient_email: logEntry.email_to,
+              destination_url: clickUrl,
+              cta: clickContext.cta,
+              section: clickContext.section,
+              project_id: clickContext.project_id,
+              project_slug: clickContext.project_slug,
+              category: clickContext.category,
+              city: clickContext.city,
+              neighborhood: clickContext.neighborhood,
+              slot: clickContext.slot ? Number(clickContext.slot) : null,
+              user_agent: req.headers.get("user-agent"),
+              referer: req.headers.get("referer"),
+            }).then(({ error }) => {
+              if (error) console.error("email_link_clicks insert failed:", error);
+            });
+          }
+
+          console.log(`Tracked click for tracking_id ${trackingId} (click #${newClickCount}, url: ${clickUrl}, cta: ${clickContext.cta}, project: ${clickContext.project_slug})`);
 
           // Fire engagement event → Zapier/Lofty (fire-and-forget)
           supabase.functions.invoke("send-lead-engagement-event", {
