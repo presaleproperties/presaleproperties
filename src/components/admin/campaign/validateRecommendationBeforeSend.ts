@@ -142,6 +142,16 @@ function formatAuditIssue(issue: AuditIssue): string {
       return `${ctx}project CTA points to the wrong host (${issue.href}). Expected ${issue.expected}.`;
     case "project_route_invalid":
       return `${ctx}project CTA does not resolve to a valid /presale-projects/<slug> route (${issue.href}).`;
+    case "missing_unsubscribe":
+      return issue.href
+        ? `unsubscribe link must use the merge tag ${issue.expected} (got ${issue.href}).`
+        : `email is missing a required unsubscribe link in the footer.`;
+    case "unsubscribe_outside_footer":
+      return `unsubscribe link appears outside the footer block — move it into the footer only.`;
+    case "merge_tag_in_href_path":
+      return `${ctx}merge tag ${issue.href} is embedded inside a URL — ESPs only resolve merge tags that are the entire href.`;
+    case "merge_tag_outside_allowed_zone":
+      return `merge tag ${issue.href} is not on the allow-list and won't be substituted at send time.`;
     default:
       return `${ctx}${issue.rule}: ${issue.href}`;
   }
