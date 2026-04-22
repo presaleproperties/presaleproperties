@@ -2010,6 +2010,13 @@ export default function AdminLeads() {
           recipients={bulkEmailRecipients}
           campaignName={`admin_bulk_${activeTab}_leads`}
         />
+
+        <LeadComposeDialog
+          open={composeOpen}
+          onOpenChange={setComposeOpen}
+          recipients={composeRecipient}
+          campaignName="admin_lead_row_compose"
+        />
       </div>
     </AdminLayout>
   );
