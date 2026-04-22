@@ -885,6 +885,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         layoutVersion, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
         showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
         catalogueProjects,
+        recommendationProjects, recommendationGroupByCategory, recommendationContext,
       };
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
       setDraftSavedAt(new Date());
@@ -906,7 +907,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
     showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
-    dbDraftLoading, catalogueProjects,
+    dbDraftLoading, catalogueProjects, recommendationProjects, recommendationGroupByCategory, recommendationContext,
   ]); // eslint-disable-line
 
   // Warn before leaving with unsaved changes (existing template only)
