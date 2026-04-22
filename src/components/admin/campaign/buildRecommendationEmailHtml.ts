@@ -515,6 +515,24 @@ ${options.previewText || ""}
                 </td>
               </tr>
             </table>
+            <!--
+              Separate TRACKED CTA so VIP call intent is measurable.
+              The tel: button above can't be wrapped in our 302 redirect
+              (email clients won't follow redirects to tel: schemes), so we
+              expose a secondary link that routes through trackUrl. Clicks
+              here are logged as cta=vip_book_call_tracked in email_link_clicks.
+            -->
+            <p style="margin:14px 0 0;font-family:${F};font-size:12px;color:#cccccc;line-height:1.5;">
+              Prefer we call you?
+              <a
+                href="${trackUrl(`${SITE_BASE}/contact?intent=vip_call`, {
+                  cta: "vip_book_call_tracked",
+                  section: "vip_block",
+                })}"
+                target="_blank"
+                style="color:${ACCENT};text-decoration:underline;font-weight:600;"
+              >Request a callback →</a>
+            </p>
           </td>
         </tr>
       </table>
