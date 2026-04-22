@@ -254,6 +254,7 @@ function renderProjectGrid(
 function renderCategorySection(
   category: RecommendationCategory,
   projects: RecommendationProject[],
+  startSlot = 0,
 ): string {
   if (projects.length === 0) return "";
   const label = CATEGORY_LABELS[category];
@@ -273,7 +274,7 @@ function renderCategorySection(
     <tr>
       <td class="content-pad" style="padding:8px 26px 12px;">
         <table cellpadding="0" cellspacing="0" border="0" width="100%">
-          ${renderProjectGrid(projects)}
+          ${renderProjectGrid(projects, startSlot)}
         </table>
       </td>
     </tr>`;
