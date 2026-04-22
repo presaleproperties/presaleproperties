@@ -13,6 +13,7 @@
  */
 
 import { type AgentInfo, DEFAULT_AGENT } from "@/components/admin/AiEmailTemplate";
+import { auditEmailHtml, assertEmailHtmlValid } from "./auditEmailHtml";
 
 const LOGO_EMAIL_URL =
   "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
@@ -380,7 +381,7 @@ export function buildRecommendationEmailHtml(
     </tr>`
     : "";
 
-  return `<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta charset="utf-8"/>
@@ -601,4 +602,15 @@ ${options.previewText || ""}
 
 </body>
 </html>`;
+
+  // Audit every anchor in the rendered HTML — fails loudly so admins see
+  // broken hrefs in the Email Builder before the email ships.
+  assertEmailHtmlValid(auditEmailHtml(html), "RecommendationEmail");
+
+  return html;
+}
+
+/** Run the audit without throwing — useful for UI surfacing in the builder. */
+export function auditRecommendationEmailHtml(html: string) {
+  return auditEmailHtml(html);
 }
