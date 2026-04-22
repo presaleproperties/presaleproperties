@@ -8,6 +8,10 @@ import { buildCatalogueEmailHtml, type CatalogueProject } from "@/components/adm
 import { CatalogueProjectsPanel } from "@/components/admin/campaign/CatalogueProjectsPanel";
 import { buildRecommendationEmailHtml, type RecommendationProject } from "@/components/admin/campaign/buildRecommendationEmailHtml";
 import { RecommendationProjectsPanel } from "@/components/admin/campaign/RecommendationProjectsPanel";
+import {
+  validateRecommendationBeforeSend,
+  formatValidationErrors,
+} from "@/components/admin/campaign/validateRecommendationBeforeSend";
 import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
 import {
   fetchCampaignEnrichmentData,
