@@ -207,9 +207,27 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // For click tracking, redirect to the destination URL
+    // For click tracking, redirect to the destination URL — but first
+    // append email-attribution params so the landing page can persist them
+    // and tie any subsequent form submission back to this exact click.
     if (type === "click" && clickUrl) {
-      return redirectResponse(clickUrl);
+      const finalUrl = appendEmailAttributionParams(clickUrl, {
+        em_log: trackingId
+          ? // resolve email_log_id from earlier query — we re-fetch lazily only
+            // if needed; cheaper to embed tracking_id which is already unique
+            undefined
+          : undefined,
+        em_tid: trackingId,
+        em_pid: clickContext.project_id,
+        em_pslug: clickContext.project_slug,
+        em_slot: clickContext.slot,
+        em_cta: clickContext.cta,
+        em_section: clickContext.section,
+        em_cat: clickContext.category,
+        em_city: clickContext.city,
+        em_nbhd: clickContext.neighborhood,
+      });
+      return redirectResponse(finalUrl);
     }
 
     return pixelResponse();
