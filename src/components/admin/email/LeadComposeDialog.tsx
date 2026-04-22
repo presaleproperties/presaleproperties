@@ -38,6 +38,11 @@ import {
   History,
   ChevronDown,
   ChevronRight,
+  PanelRightOpen,
+  PanelRightClose,
+  ChevronLeft,
+  Smartphone,
+  Monitor,
 } from "lucide-react";
 import {
   Dialog,
