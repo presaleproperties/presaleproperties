@@ -71,6 +71,7 @@ import { SubjectSuggestions } from "./SubjectSuggestions";
 import { SentEmailsList } from "./SentEmailsList";
 import { UndoSendBanner, BulkSendProgress } from "./UndoSendBanner";
 import { TemplatePicker } from "./TemplatePicker";
+import { PersonalizationCheck } from "./PersonalizationCheck";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface ComposeRecipient {
