@@ -486,7 +486,7 @@ ${options.previewText || ""}
             <table cellpadding="0" cellspacing="0" border="0" align="center">
               <tr>
                 <td align="center" bgcolor="${ACCENT}" style="border-radius:999px;padding:12px 26px;">
-                  <a href="tel:${phone.replace(/\D/g, "")}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${DARK};text-decoration:none;display:block;">Book a 15-min Call</a>
+                  <a href="${trackUrl(`tel:${phone.replace(/\D/g, "")}`, { cta: "vip_book_call", section: "vip_block" })}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${DARK};text-decoration:none;display:block;">Book a 15-min Call</a>
                 </td>
               </tr>
             </table>
