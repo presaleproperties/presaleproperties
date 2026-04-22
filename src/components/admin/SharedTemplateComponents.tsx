@@ -15,10 +15,11 @@ import type { SavedAsset } from "@/lib/emailTemplateHelpers";
 import { timeAgo, getDisplayName, getSavedHtml } from "@/lib/emailTemplateHelpers";
 import { TemplatePerformanceBadges } from "@/components/admin/TemplatePerformanceBadges";
 import type { TemplateMetrics, TemplatePerformance } from "@/hooks/useTemplatePerformance";
-import { SendPreflightChecklist } from "@/components/admin/campaign/SendPreflightChecklist";
+import { SendPreflightChecklist, type PreflightCheckResult } from "@/components/admin/campaign/SendPreflightChecklist";
 import { annotateEmailHtmlWithAudit } from "@/components/admin/campaign/annotateEmailHtmlWithAudit";
 import { insertUnsubscribeFooter, describeInsertResult } from "@/components/admin/campaign/insertUnsubscribeFooter";
 import { auditEmailHtml } from "@/components/admin/campaign/auditEmailHtml";
+import { logPreflightAttempt, markPreflightSendResult } from "@/components/admin/campaign/preflightLogger";
 import { Wand2 } from "lucide-react";
 
 // ── Template Card ──
