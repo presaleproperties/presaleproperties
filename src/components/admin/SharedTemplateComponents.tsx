@@ -222,7 +222,10 @@ export function TemplateQuickSendDialog({
   const [manualEmail, setManualEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [subjectLine, setSubjectLine] = useState("");
+  const [preflightOk, setPreflightOk] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const previewHtml = asset ? getSavedHtml(asset) : "";
 
   useEffect(() => {
     if (!open) { setQuery(""); setSearchResults([]); setRecipients([]); setManualEmail(""); }
