@@ -753,31 +753,11 @@ export function LeadComposeDialog({
               {/* Body */}
               {mode === "template" ? (
                 <div className="space-y-1.5">
-                  <Select value={selectedTemplateId} onValueChange={(id) => {
-                    const t = templates?.find((x) => x.id === id);
-                    if (t) loadTemplate(t);
-                  }}>
-                    <SelectTrigger className="h-9 text-xs">
-                      <SelectValue placeholder="Pick from full template library…" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(templates || []).map((t) => (
-                        <SelectItem key={t.id} value={t.id} className="text-xs">
-                          <div className="flex items-center gap-2">
-                            <span>{t.name}</span>
-                            {t.project_name && (
-                              <Badge variant="outline" className="h-4 px-1 text-[9px]">
-                                {t.project_name}
-                              </Badge>
-                            )}
-                          </div>
-                        </SelectItem>
-                      ))}
-                      {(!templates || templates.length === 0) && (
-                        <div className="px-2 py-3 text-xs text-muted-foreground">No templates yet</div>
-                      )}
-                    </SelectContent>
-                  </Select>
+                  <TemplatePicker
+                    templates={(templates || []) as any}
+                    selectedId={selectedTemplateId}
+                    onSelect={(t) => loadTemplate(t as any)}
+                  />
                   {selectedTemplateId && (
                     <p className="text-[10px] text-muted-foreground">
                       Loaded — switch to Rich/HTML to tweak before sending.
