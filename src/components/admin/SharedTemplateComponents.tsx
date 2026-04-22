@@ -364,6 +364,7 @@ export function TemplateQuickSendDialog({
   const [sending, setSending] = useState(false);
   const [subjectLine, setSubjectLine] = useState("");
   const [preflightOk, setPreflightOk] = useState(false);
+  const [preflightChecks, setPreflightChecks] = useState<PreflightCheckResult[]>([]);
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const previewHtml = asset ? getSavedHtml(asset) || "" : "";
@@ -418,10 +419,29 @@ export function TemplateQuickSendDialog({
   const handleSend = async () => {
     if (!recipients.length || !asset) return;
     setSending(true);
+
+    // Persist the pre-flight result for this attempt — admins can review the
+    // last N attempts at /admin/preflight-log.
+    const logId = await logPreflightAttempt({
+      checks: preflightChecks,
+      sendAttempted: true,
+      ctx: {
+        subject: subjectLine,
+        recipientCount: recipients.length,
+        label: templateLabel,
+      },
+      assetId: asset.id,
+    });
+
     try {
       const html = getSavedHtml(asset);
       const subject = subjectLine.trim() || asset.name;
-      if (!html || !subject) { toast.error("Template has no content"); setSending(false); return; }
+      if (!html || !subject) {
+        toast.error("Template has no content");
+        await markPreflightSendResult(logId, { succeeded: false, error: "Template has no content" });
+        setSending(false);
+        return;
+      }
 
       const { data, error } = await supabase.functions.invoke("send-builder-email", {
         body: {
@@ -445,10 +465,12 @@ export function TemplateQuickSendDialog({
         }).catch(() => {});
       }
 
+      await markPreflightSendResult(logId, { succeeded: true });
       onSent();
       onOpenChange(false);
     } catch (e: any) {
       toast.error(e.message || "Failed to send");
+      await markPreflightSendResult(logId, { succeeded: false, error: e?.message ?? "Unknown error" });
     } finally {
       setSending(false);
     }
@@ -539,6 +561,7 @@ export function TemplateQuickSendDialog({
               label: templateLabel,
             }}
             onReadyChange={setPreflightOk}
+            onChecksChange={setPreflightChecks}
           />
           <Button
             className="w-full h-10 gap-2 font-semibold"
