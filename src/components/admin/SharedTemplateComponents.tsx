@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { timeAgo, getDisplayName, getSavedHtml } from "@/lib/emailTemplateHelper
 import { TemplatePerformanceBadges } from "@/components/admin/TemplatePerformanceBadges";
 import type { TemplateMetrics, TemplatePerformance } from "@/hooks/useTemplatePerformance";
 import { SendPreflightChecklist } from "@/components/admin/campaign/SendPreflightChecklist";
+import { annotateEmailHtmlWithAudit } from "@/components/admin/campaign/annotateEmailHtmlWithAudit";
 
 // ── Template Card ──
 interface TemplateCardProps {
@@ -186,6 +187,14 @@ export function TemplateCard({
 // ── Preview Dialog ──
 export function TemplatePreviewDialog({ asset, open, onOpenChange }: { asset: SavedAsset | null; open: boolean; onOpenChange: (v: boolean) => void }) {
   const html = asset ? getSavedHtml(asset) : "";
+  const [highlightAudit, setHighlightAudit] = useState(true);
+  const annotated = useMemo(
+    () => (highlightAudit ? annotateEmailHtmlWithAudit(html) : { html, anchorIssues: 0, tagIssues: 0, unsubBannerInjected: false }),
+    [html, highlightAudit],
+  );
+  const totalIssues =
+    annotated.anchorIssues + annotated.tagIssues + (annotated.unsubBannerInjected ? 1 : 0);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh]">
@@ -195,8 +204,51 @@ export function TemplatePreviewDialog({ asset, open, onOpenChange }: { asset: Sa
         {asset?.form_data?.vars?.subjectLine && (
           <p className="text-sm"><span className="font-medium">Subject:</span> {asset.form_data.vars.subjectLine}</p>
         )}
+        <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-3 py-2">
+          <div className="flex items-center gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => setHighlightAudit(v => !v)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md border px-2 py-1 font-semibold transition-colors",
+                highlightAudit
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-border bg-background text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Eye className="h-3 w-3" />
+              {highlightAudit ? "Audit highlights on" : "Audit highlights off"}
+            </button>
+            {highlightAudit && totalIssues > 0 && (
+              <span className="text-[11px] text-destructive font-medium">
+                {annotated.anchorIssues > 0 && `${annotated.anchorIssues} broken link${annotated.anchorIssues === 1 ? "" : "s"}`}
+                {annotated.anchorIssues > 0 && (annotated.tagIssues > 0 || annotated.unsubBannerInjected) && " · "}
+                {annotated.tagIssues > 0 && `${annotated.tagIssues} unknown tag${annotated.tagIssues === 1 ? "" : "s"}`}
+                {annotated.tagIssues > 0 && annotated.unsubBannerInjected && " · "}
+                {annotated.unsubBannerInjected && "unsubscribe missing"}
+              </span>
+            )}
+            {highlightAudit && totalIssues === 0 && html && (
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                ✓ No audit issues
+              </span>
+            )}
+          </div>
+          {highlightAudit && (
+            <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1">
+                <span className="inline-block h-2 w-3 rounded-sm border-2 border-dashed border-destructive" />
+                broken link
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="inline-block h-2 w-3 rounded-sm bg-amber-500/30 border-b-2 border-dashed border-amber-600" />
+                unknown tag
+              </span>
+            </div>
+          )}
+        </div>
         <iframe
-          srcDoc={html}
+          srcDoc={annotated.html}
           className="w-full border rounded-lg bg-white"
           style={{ height: "60vh" }}
           sandbox="allow-same-origin"
