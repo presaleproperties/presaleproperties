@@ -8,6 +8,10 @@ import { buildCatalogueEmailHtml, type CatalogueProject } from "@/components/adm
 import { CatalogueProjectsPanel } from "@/components/admin/campaign/CatalogueProjectsPanel";
 import { buildRecommendationEmailHtml, type RecommendationProject } from "@/components/admin/campaign/buildRecommendationEmailHtml";
 import { RecommendationProjectsPanel } from "@/components/admin/campaign/RecommendationProjectsPanel";
+import {
+  validateRecommendationBeforeSend,
+  formatValidationErrors,
+} from "@/components/admin/campaign/validateRecommendationBeforeSend";
 import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
 import {
   fetchCampaignEnrichmentData,
@@ -601,6 +605,48 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [agents,   setAgents]   = useState<AgentInfo[]>([]);
   const [selAgent, setSelAgent] = useState(savedDraft?.selAgent ?? "default");
   const selectedAgent: AgentInfo = agents.find(a => a.full_name === selAgent) ?? DEFAULT_AGENT;
+
+  /**
+   * Pre-send guard for the Recommendation email variant.
+   * Blocks opening the Send dialog when any project card is missing
+   * `projectUrl` or any tracked CTA would generate an invalid redirect URL.
+   * Other layouts open the dialog immediately.
+   */
+  const requestOpenSendDialog = useCallback(() => {
+    if (layoutVersion !== "recommendation") {
+      setSendDialogOpen(true);
+      return;
+    }
+    const result = validateRecommendationBeforeSend({
+      subjectLine: subjectLine || "Recommended for you",
+      previewText: previewText || "Hand-picked presales matched to your interests.",
+      headline: headline || "Recommended for you",
+      bodyCopy: bodyCopy || "",
+      personalizationContext: recommendationContext,
+      projects: recommendationProjects || [],
+      groupByCategory: !!recommendationGroupByCategory,
+      agent: selectedAgent,
+      city: recommendationProjects?.[0]?.city,
+    });
+    if (!result.ok) {
+      toast.error("Cannot send — fix these issues first:", {
+        description: formatValidationErrors(result),
+        duration: 10000,
+      });
+      return;
+    }
+    setSendDialogOpen(true);
+  }, [
+    layoutVersion,
+    subjectLine,
+    previewText,
+    headline,
+    bodyCopy,
+    recommendationContext,
+    recommendationProjects,
+    recommendationGroupByCategory,
+    selectedAgent,
+  ]);
   // Loop slideshow images (auto-filled from project gallery)
   const [loopSlides, setLoopSlides] = useState<string[]>(savedDraft?.loopSlides ?? []);
   // Hero mode: "static" = single image, "gif" = rotating carousel
@@ -1842,7 +1888,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           <Button
             size="sm"
             className="h-8 gap-1.5 shrink-0 text-xs px-2.5"
-            onClick={() => setSendDialogOpen(true)}
+            onClick={requestOpenSendDialog}
           >
             <Send className="h-3.5 w-3.5" />
             <span className="hidden md:inline">Send Email</span>
@@ -1995,7 +2041,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 size="sm"
                 variant="outline"
                 className="h-7 gap-1 font-semibold text-xs px-2.5 lg:hidden shrink-0"
-                onClick={() => setSendDialogOpen(true)}
+                onClick={requestOpenSendDialog}
               >
                 <Send className="h-3.5 w-3.5" />
                 Send
@@ -2907,7 +2953,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             <div className="hidden lg:block px-3 pb-3 pt-2 border-t border-border shrink-0 bg-muted/5 space-y-2">
               <Button
                 className="w-full h-9 gap-1.5 font-semibold text-sm"
-                onClick={() => setSendDialogOpen(true)}
+                onClick={requestOpenSendDialog}
               >
                 <Send className="h-3.5 w-3.5" /> Send Email
               </Button>
@@ -2956,7 +3002,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             variant="outline"
             size="lg"
             className="flex-1 h-12 gap-2 font-semibold"
-            onClick={() => setSendDialogOpen(true)}
+            onClick={requestOpenSendDialog}
           >
             <Send className="h-4 w-4" />
             Send
