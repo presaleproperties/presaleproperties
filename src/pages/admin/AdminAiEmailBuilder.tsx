@@ -559,12 +559,18 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const selectedFont = EMAIL_FONT_PAIRINGS.find(f => f.id === selectedFontId) ?? EMAIL_FONT_PAIRINGS[0];
 
   // Layout version
-  const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial" | "catalogue">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial" | "catalogue");
+  const [layoutVersion, setLayoutVersion] = useState<"modern" | "modern-v2" | "editorial" | "catalogue" | "recommendation">((savedDraft?.layoutVersion === "classic" || savedDraft?.layoutVersion === "loop" || savedDraft?.layoutVersion === "pitch-deck") ? "modern" : (savedDraft?.layoutVersion ?? "modern") as "modern" | "modern-v2" | "editorial" | "catalogue" | "recommendation");
   const [layoutSectionOpen, setLayoutSectionOpen] = useState(true);
 
   // ── CATALOGUE MODE state ──────────────────────────────────────────────────
   // Multi-project "catalogue" emails: pick 1-5 projects, each with its own CTA toggles
   const [catalogueProjects, setCatalogueProjects] = useState<CatalogueProject[]>(savedDraft?.catalogueProjects ?? []);
+
+  // ── RECOMMENDATION MODE state (Catalogue V2) ──────────────────────────────
+  // Auto behavior-triggered emails: 2-8 projects, optional category grouping
+  const [recommendationProjects, setRecommendationProjects] = useState<RecommendationProject[]>(savedDraft?.recommendationProjects ?? []);
+  const [recommendationGroupByCategory, setRecommendationGroupByCategory] = useState<boolean>(savedDraft?.recommendationGroupByCategory ?? true);
+  const [recommendationContext, setRecommendationContext] = useState<string>(savedDraft?.recommendationContext ?? "");
 
   // UI
   const [previewMode,   setPreviewMode]   = useState<"preview" | "edit" | "code">("preview");
