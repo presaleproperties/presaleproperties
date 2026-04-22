@@ -864,8 +864,106 @@ export function LeadComposeDialog({
                   </div>
                 )}
               </div>
+              </ScrollArea>
             </div>
-          </ScrollArea>
+
+            {/* Live preview pane */}
+            {livePreviewOpen && (
+              <aside className="hidden lg:flex w-[440px] shrink-0 flex-col bg-muted/10">
+                <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/20 px-3 py-2">
+                  <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <Eye className="h-3 w-3" />
+                    Live preview
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {recipients.length > 1 && (
+                      <div className="flex items-center gap-0.5 rounded border border-border bg-background">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewIdx((i) => (i - 1 + recipients.length) % recipients.length)}
+                          className="flex h-5 w-5 items-center justify-center text-muted-foreground hover:text-foreground"
+                          title="Previous recipient"
+                        >
+                          <ChevronLeft className="h-3 w-3" />
+                        </button>
+                        <span className="px-1 text-[10px] text-muted-foreground tabular-nums">
+                          {safePreviewIdx + 1}/{recipients.length}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setPreviewIdx((i) => (i + 1) % recipients.length)}
+                          className="flex h-5 w-5 items-center justify-center text-muted-foreground hover:text-foreground"
+                          title="Next recipient"
+                        >
+                          <ChevronRight className="h-3 w-3" />
+                        </button>
+                      </div>
+                    )}
+                    <div className="flex items-center rounded border border-border bg-background">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewDevice("desktop")}
+                        className={cn(
+                          "flex h-5 w-6 items-center justify-center rounded-l transition-colors",
+                          previewDevice === "desktop" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
+                        )}
+                        title="Desktop width"
+                      >
+                        <Monitor className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewDevice("mobile")}
+                        className={cn(
+                          "flex h-5 w-6 items-center justify-center rounded-r transition-colors",
+                          previewDevice === "mobile" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
+                        )}
+                        title="Mobile width"
+                      >
+                        <Smartphone className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-b border-border bg-background px-3 py-2 text-[11px]">
+                  <div className="truncate">
+                    <span className="text-muted-foreground">To: </span>
+                    <span className="font-mono text-foreground">{previewRecipient.email}</span>
+                  </div>
+                  <div className="mt-0.5 truncate">
+                    <span className="text-muted-foreground">Subject: </span>
+                    <span className="font-medium text-foreground">{previewSubject || <em className="text-muted-foreground">(empty)</em>}</span>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-auto bg-muted/30 p-3">
+                  {body.trim() ? (
+                    <div
+                      className={cn(
+                        "mx-auto overflow-hidden rounded border border-border bg-background shadow-sm transition-all",
+                        previewDevice === "mobile" ? "max-w-[390px]" : "max-w-full",
+                      )}
+                    >
+                      <iframe
+                        srcDoc={previewHtml}
+                        title="Live email preview"
+                        sandbox=""
+                        className="h-[60vh] w-full bg-white"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-center text-xs text-muted-foreground">
+                      <div>
+                        <Mail className="mx-auto mb-2 h-6 w-6 opacity-40" />
+                        Start writing to see a live preview here.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </aside>
+            )}
+          </div>
 
           {/* Footer */}
           <DialogFooter className="flex-row items-center justify-between gap-2 border-t border-border bg-muted/20 px-5 py-3 sm:flex-row">
