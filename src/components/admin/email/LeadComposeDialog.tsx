@@ -864,6 +864,7 @@ export function LeadComposeDialog({
                   </div>
                 )}
               </div>
+                </div>
               </ScrollArea>
             </div>
 
