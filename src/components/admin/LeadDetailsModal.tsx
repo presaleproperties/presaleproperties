@@ -254,6 +254,28 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
     enabled: open && isProjectLead,
   });
 
+  // Pull email-CTA clicks for this lead's address.
+  // Joined to email_logs to surface the campaign subject alongside each click,
+  // and split by `clicked_at` vs `created_at` so the UI can show which clicks
+  // happened BEFORE the form was submitted (the conversion-attributing click).
+  const { data: ctaClicks, isLoading: ctaLoading } = useQuery({
+    queryKey: ["lead-cta-clicks", projectLead.email, projectLead.id],
+    queryFn: async () => {
+      if (!projectLead.email) return [];
+      const { data, error } = await (supabase as any)
+        .from("email_link_clicks")
+        .select(
+          "id, clicked_at, cta, section, slot, project_slug, project_id, category, city, neighborhood, destination_url, email_log_id, email_logs:email_log_id(subject, sent_at, template_type)",
+        )
+        .eq("recipient_email", projectLead.email)
+        .order("clicked_at", { ascending: false })
+        .limit(100);
+      if (error) return [];
+      return data || [];
+    },
+    enabled: open && isProjectLead && !!projectLead.email,
+  });
+
   // Pull pitch deck visits (post-submission warmth signal)
   const { data: deckVisits } = useQuery({
     queryKey: ["lead-deck-visits", visitorId, projectLead.email],
