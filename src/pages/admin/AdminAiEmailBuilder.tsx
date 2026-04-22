@@ -6,6 +6,8 @@ import { CAMPAIGN_WEEKS } from "@/components/admin/campaign/CampaignWeekConfig";
 import { buildMultiProjectEmailHtml, type MultiProjectData } from "@/components/admin/campaign/buildMultiProjectEmailHtml";
 import { buildCatalogueEmailHtml, type CatalogueProject } from "@/components/admin/campaign/buildCatalogueEmailHtml";
 import { CatalogueProjectsPanel } from "@/components/admin/campaign/CatalogueProjectsPanel";
+import { buildRecommendationEmailHtml, type RecommendationProject } from "@/components/admin/campaign/buildRecommendationEmailHtml";
+import { RecommendationProjectsPanel } from "@/components/admin/campaign/RecommendationProjectsPanel";
 import { generateCampaignWeekCopy } from "@/components/admin/campaign/CampaignAiContent";
 import {
   fetchCampaignEnrichmentData,
@@ -107,7 +109,7 @@ function buildFinalHtml(
   fields: AiEmailCopy, agent: AgentInfo, heroImage: string,
   floorPlans: FloorPlanEntry[], fpHeading: string, fpSubheading: string, ctaUrl?: string,
   font?: EmailFontPairing,
-  layoutVersion?: "modern" | "modern-v2" | "editorial" | "catalogue",
+  layoutVersion?: "modern" | "modern-v2" | "editorial" | "catalogue" | "recommendation",
   imageCards?: ImageCardEntry[],
   loopSlides?: string[],
   brochureUrl?: string,
@@ -117,7 +119,26 @@ function buildFinalHtml(
   bookShowingUrl?: string,
   catalogueProjects?: CatalogueProject[],
   interestedWhatsapp?: string,
+  recommendationProjects?: RecommendationProject[],
+  recommendationGroupByCategory?: boolean,
+  recommendationContext?: string,
 ): string {
+  // ── RECOMMENDATION template (Catalogue V2 — auto behavior-triggered) ──────
+  if (layoutVersion === "recommendation") {
+    return buildRecommendationEmailHtml({
+      subjectLine: fields.subjectLine || "Recommended for you",
+      previewText: fields.previewText || "Hand-picked presales matched to your interests.",
+      headline: fields.headline || "Presales picked for you",
+      subline: "Hand-picked matches, updated weekly.",
+      bodyCopy: fields.bodyCopy || "",
+      personalizationContext: recommendationContext,
+      projects: recommendationProjects || [],
+      groupByCategory: !!recommendationGroupByCategory,
+      agent,
+      city: recommendationProjects?.[0]?.city,
+    });
+  }
+
   // ── CATALOGUE template (multi-project picker) ─────────────────────────────
   if (layoutVersion === "catalogue") {
     return buildCatalogueEmailHtml({
