@@ -122,9 +122,20 @@ export interface RecommendationEmailOptions {
 // Atoms
 // ───────────────────────────────────────────────────────────────────────────
 
+// Cities the nav recognizes — anything else (e.g. "Map") won't get tagged
+// as a city in analytics, avoiding garbage rows in email_link_clicks.city.
+const NAV_CITY_SET = new Set(["Vancouver", "Burnaby", "Surrey", "Coquitlam", "Richmond", "Langley", "North Vancouver"]);
+
 function navLink(label: string, href: string): string {
-  const tracked = trackUrl(href, { cta: "nav", section: "header", city: label });
+  const meta: Parameters<typeof trackUrl>[1] = { cta: "nav", section: "header" };
+  if (NAV_CITY_SET.has(label)) meta.city = label;
+  const tracked = trackUrl(href, meta);
   return `<a href="${tracked}" target="_blank" style="font-family:${F};font-size:12px;font-weight:600;color:${DARK};text-decoration:none;letter-spacing:0.3px;padding:0 10px;">${label}</a>`;
+}
+
+/** URL-safe slug (lowercases, replaces spaces and non-alphanum with hyphens). */
+function slugifyCity(city: string): string {
+  return city.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
 function quickActionPill(label: string, href: string, icon: string): string {
@@ -290,8 +301,20 @@ export function buildRecommendationEmailHtml(
   const agent = options.agent || DEFAULT_AGENT;
   const cityDisplay =
     options.city || options.projects[0]?.city || "Vancouver";
+  const citySlug = slugifyCity(cityDisplay);
   const phone = agent.phone || DEFAULT_AGENT.phone;
   const projectCount = options.projects.length;
+
+  // Validate every project has a usable URL — fail loud at build time so
+  // the admin sees the issue in the Email Builder preview rather than
+  // shipping broken cards.
+  options.projects.forEach((p, i) => {
+    if (!p.projectUrl || !/^https?:\/\//i.test(p.projectUrl)) {
+      throw new Error(
+        `RecommendationEmail: project #${i + 1} ("${p.projectName}") is missing a valid projectUrl (got: ${JSON.stringify(p.projectUrl)})`,
+      );
+    }
+  });
 
   // Body copy with bold + paragraphs
   const bodyLines = (options.bodyCopy || "")
@@ -440,7 +463,7 @@ ${options.previewText || ""}
             <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin-top:18px;">
               <tr>
                 <td align="center" bgcolor="${DARK}" style="border-radius:999px;padding:12px 26px;">
-                  <a href="${trackUrl(`${SITE_BASE}/presale-projects/${cityDisplay.toLowerCase()}`, { cta: "hero_browse_city", section: "hero", city: cityDisplay })}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">Browse All in ${cityDisplay}</a>
+                  <a href="${trackUrl(`${SITE_BASE}/presale-projects/${citySlug}`, { cta: "hero_browse_city", section: "hero", city: cityDisplay })}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">Browse All in ${cityDisplay}</a>
                 </td>
               </tr>
             </table>
@@ -486,7 +509,8 @@ ${options.previewText || ""}
             <table cellpadding="0" cellspacing="0" border="0" align="center">
               <tr>
                 <td align="center" bgcolor="${ACCENT}" style="border-radius:999px;padding:12px 26px;">
-                  <a href="${trackUrl(`tel:${phone.replace(/\D/g, "")}`, { cta: "vip_book_call", section: "vip_block" })}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${DARK};text-decoration:none;display:block;">Book a 15-min Call</a>
+                  <!-- tel: links must be direct — email clients won't follow a 302 redirect to a tel: scheme. -->
+                  <a href="tel:${phone.replace(/\D/g, "")}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${DARK};text-decoration:none;display:block;">Book a 15-min Call</a>
                 </td>
               </tr>
             </table>
@@ -551,7 +575,7 @@ ${options.previewText || ""}
   <tr>
     <td class="content-pad" style="padding:20px 40px;background:${DARK};">
       <p style="margin:0 0 4px 0;font-family:${F};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${ACCENT};">PRESALE PROPERTIES &nbsp;·&nbsp; ${cityDisplay.toUpperCase()}, BC</p>
-      <p style="margin:0;font-family:${F};font-size:12px;color:#888888;"><a href="${SITE_BASE}" style="color:#888888;text-decoration:none;">presaleproperties.com</a> &nbsp;·&nbsp; ${phone}</p>
+      <p style="margin:0;font-family:${F};font-size:12px;color:#888888;"><a href="${trackUrl(SITE_BASE, { cta: "footer_home", section: "footer" })}" target="_blank" style="color:#888888;text-decoration:none;">presaleproperties.com</a> &nbsp;·&nbsp; ${phone}</p>
     </td>
   </tr>
 
