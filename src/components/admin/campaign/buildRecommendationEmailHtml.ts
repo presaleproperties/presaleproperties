@@ -25,12 +25,56 @@ const GOOGLE_FONT =
   "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
 const SITE_BASE = "https://presaleproperties.com";
 
+// Click-tracking endpoint — reuses the existing track-email-open edge function
+// which logs click_count + clicked_url to email_logs and 302-redirects to the
+// destination URL. We tag every link with `cs` (click source) so we can
+// attribute engagement to specific projects, neighborhoods, and CTAs.
+const TRACK_BASE =
+  "https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/track-email-open";
+
 const AGENT_WEBSITE_URLS: Record<string, string> = {
   Uzair: "https://presalewithuzair.com/",
 };
 
 function getAgentWebsiteUrl(fullName: string): string | undefined {
   return AGENT_WEBSITE_URLS[fullName.split(" ")[0]];
+}
+
+/**
+ * Wrap a destination URL with the click-tracking redirect endpoint.
+ * MailerLite injects `{$tracking_id}` into the merge tag at send time
+ * (see email_logs.tracking_id) so each recipient's clicks are attributed.
+ *
+ * @param destination Final URL the user lands on
+ * @param meta        Semantic context (project, category, city, slot, cta)
+ *                    — surfaced as query params for analytics joins.
+ */
+function trackUrl(
+  destination: string,
+  meta: {
+    cta?: string;
+    project_id?: string;
+    project_slug?: string;
+    category?: string;
+    city?: string;
+    neighborhood?: string;
+    slot?: number | string;
+    section?: string;
+  } = {},
+): string {
+  const params = new URLSearchParams();
+  params.set("t", "click");
+  params.set("tid", "{$tracking_id}"); // MailerLite merge tag — per-recipient
+  params.set("url", destination);
+  if (meta.cta) params.set("cta", meta.cta);
+  if (meta.project_id) params.set("pid", meta.project_id);
+  if (meta.project_slug) params.set("pslug", meta.project_slug);
+  if (meta.category) params.set("cat", meta.category);
+  if (meta.city) params.set("city", meta.city);
+  if (meta.neighborhood) params.set("nbhd", meta.neighborhood);
+  if (meta.slot !== undefined) params.set("slot", String(meta.slot));
+  if (meta.section) params.set("section", meta.section);
+  return `${TRACK_BASE}?${params.toString()}`;
 }
 
 export type RecommendationCategory = "condo" | "townhome" | "detached";
@@ -79,13 +123,15 @@ export interface RecommendationEmailOptions {
 // ───────────────────────────────────────────────────────────────────────────
 
 function navLink(label: string, href: string): string {
-  return `<a href="${href}" target="_blank" style="font-family:${F};font-size:12px;font-weight:600;color:${DARK};text-decoration:none;letter-spacing:0.3px;padding:0 10px;">${label}</a>`;
+  const tracked = trackUrl(href, { cta: "nav", section: "header", city: label });
+  return `<a href="${tracked}" target="_blank" style="font-family:${F};font-size:12px;font-weight:600;color:${DARK};text-decoration:none;letter-spacing:0.3px;padding:0 10px;">${label}</a>`;
 }
 
 function quickActionPill(label: string, href: string, icon: string): string {
+  const tracked = trackUrl(href, { cta: "quick_action", section: "explore_more" });
   return `
     <td width="50%" style="padding:5px;" valign="top">
-      <a href="${href}" target="_blank" style="display:block;text-decoration:none;">
+      <a href="${tracked}" target="_blank" style="display:block;text-decoration:none;">
         <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border:1px solid #e8e2d6;border-radius:999px;">
           <tr>
             <td style="padding:14px 18px;font-family:${F};">
@@ -98,8 +144,29 @@ function quickActionPill(label: string, href: string, icon: string): string {
     </td>`;
 }
 
-function projectCardHtml(p: RecommendationProject): string {
+function projectCardHtml(p: RecommendationProject, slot: number): string {
   const location = [p.neighborhood, p.city].filter(Boolean).join(", ");
+  // Derive a slug from the projectUrl for cleaner analytics joins
+  const slug = (() => {
+    try {
+      const u = new URL(p.projectUrl);
+      return u.pathname.split("/").filter(Boolean).pop() || undefined;
+    } catch {
+      return undefined;
+    }
+  })();
+  const baseMeta = {
+    project_id: p.id,
+    project_slug: slug,
+    category: p.category,
+    city: p.city,
+    neighborhood: p.neighborhood,
+    slot,
+    section: "project_grid",
+  };
+  const imgUrl = trackUrl(p.projectUrl, { ...baseMeta, cta: "card_image" });
+  const titleUrl = trackUrl(p.projectUrl, { ...baseMeta, cta: "card_title" });
+  const ctaUrl = trackUrl(p.projectUrl, { ...baseMeta, cta: "card_button" });
 
   return `
     <td width="50%" valign="top" style="padding:6px;">
@@ -107,7 +174,7 @@ function projectCardHtml(p: RecommendationProject): string {
         <!-- Hero image with overlay -->
         <tr>
           <td style="padding:0;line-height:0;font-size:0;position:relative;">
-            <a href="${p.projectUrl}" target="_blank" style="display:block;line-height:0;text-decoration:none;">
+            <a href="${imgUrl}" target="_blank" style="display:block;line-height:0;text-decoration:none;">
               ${
                 p.featuredImage
                   ? `<img src="${p.featuredImage}" alt="${p.projectName}" width="270" style="display:block;width:100%;height:200px;object-fit:cover;border:0;" />`
@@ -119,7 +186,7 @@ function projectCardHtml(p: RecommendationProject): string {
         <!-- Title block -->
         <tr>
           <td style="padding:14px 16px 6px;">
-            <a href="${p.projectUrl}" target="_blank" style="text-decoration:none;">
+            <a href="${titleUrl}" target="_blank" style="text-decoration:none;">
               <p style="margin:0;font-family:${F};font-size:15px;font-weight:800;color:${DARK};line-height:1.25;">${p.projectName}</p>
             </a>
             ${
@@ -154,7 +221,7 @@ function projectCardHtml(p: RecommendationProject): string {
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td align="center" bgcolor="${DARK}" style="border-radius:999px;padding:10px 16px;">
-                  <a href="${p.projectUrl}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">View Project</a>
+                  <a href="${ctaUrl}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">View Project</a>
                 </td>
               </tr>
             </table>
@@ -164,8 +231,12 @@ function projectCardHtml(p: RecommendationProject): string {
     </td>`;
 }
 
-/** Render rows of 2 cards each (handles odd counts) */
-function renderProjectGrid(projects: RecommendationProject[]): string {
+/** Render rows of 2 cards each (handles odd counts). `startSlot` keeps slot
+ *  numbers globally unique across grouped category sections for analytics. */
+function renderProjectGrid(
+  projects: RecommendationProject[],
+  startSlot = 0,
+): string {
   if (projects.length === 0) return "";
   const rows: string[] = [];
   for (let i = 0; i < projects.length; i += 2) {
@@ -173,8 +244,8 @@ function renderProjectGrid(projects: RecommendationProject[]): string {
     const right = projects[i + 1];
     rows.push(`
       <tr>
-        ${projectCardHtml(left)}
-        ${right ? projectCardHtml(right) : `<td width="50%" style="padding:6px;">&nbsp;</td>`}
+        ${projectCardHtml(left, startSlot + i + 1)}
+        ${right ? projectCardHtml(right, startSlot + i + 2) : `<td width="50%" style="padding:6px;">&nbsp;</td>`}
       </tr>`);
   }
   return rows.join("");
@@ -183,6 +254,7 @@ function renderProjectGrid(projects: RecommendationProject[]): string {
 function renderCategorySection(
   category: RecommendationCategory,
   projects: RecommendationProject[],
+  startSlot = 0,
 ): string {
   if (projects.length === 0) return "";
   const label = CATEGORY_LABELS[category];
@@ -202,7 +274,7 @@ function renderCategorySection(
     <tr>
       <td class="content-pad" style="padding:8px 26px 12px;">
         <table cellpadding="0" cellspacing="0" border="0" width="100%">
-          ${renderProjectGrid(projects)}
+          ${renderProjectGrid(projects, startSlot)}
         </table>
       </td>
     </tr>`;
@@ -247,15 +319,23 @@ export function buildRecommendationEmailHtml(
       grouped[p.category].push(p);
     }
     cardsBlock =
-      renderCategorySection("condo", grouped.condo) +
-      renderCategorySection("townhome", grouped.townhome) +
-      renderCategorySection("detached", grouped.detached);
+      renderCategorySection("condo", grouped.condo, 0) +
+      renderCategorySection(
+        "townhome",
+        grouped.townhome,
+        grouped.condo.length,
+      ) +
+      renderCategorySection(
+        "detached",
+        grouped.detached,
+        grouped.condo.length + grouped.townhome.length,
+      );
   } else {
     cardsBlock = `
     <tr>
       <td class="content-pad" style="padding:8px 26px 12px;">
         <table cellpadding="0" cellspacing="0" border="0" width="100%">
-          ${renderProjectGrid(options.projects)}
+          ${renderProjectGrid(options.projects, 0)}
         </table>
       </td>
     </tr>`;
@@ -360,7 +440,7 @@ ${options.previewText || ""}
             <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin-top:18px;">
               <tr>
                 <td align="center" bgcolor="${DARK}" style="border-radius:999px;padding:12px 26px;">
-                  <a href="${SITE_BASE}/presale-projects/${cityDisplay.toLowerCase()}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">Browse All in ${cityDisplay}</a>
+                  <a href="${trackUrl(`${SITE_BASE}/presale-projects/${cityDisplay.toLowerCase()}`, { cta: "hero_browse_city", section: "hero", city: cityDisplay })}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ffffff;text-decoration:none;display:block;">Browse All in ${cityDisplay}</a>
                 </td>
               </tr>
             </table>
@@ -406,7 +486,7 @@ ${options.previewText || ""}
             <table cellpadding="0" cellspacing="0" border="0" align="center">
               <tr>
                 <td align="center" bgcolor="${ACCENT}" style="border-radius:999px;padding:12px 26px;">
-                  <a href="tel:${phone.replace(/\D/g, "")}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${DARK};text-decoration:none;display:block;">Book a 15-min Call</a>
+                  <a href="${trackUrl(`tel:${phone.replace(/\D/g, "")}`, { cta: "vip_book_call", section: "vip_block" })}" target="_blank" style="font-family:${F};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${DARK};text-decoration:none;display:block;">Book a 15-min Call</a>
                 </td>
               </tr>
             </table>

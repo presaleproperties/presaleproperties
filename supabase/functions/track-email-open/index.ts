@@ -34,6 +34,19 @@ const handler = async (req: Request): Promise<Response> => {
     const type = url.searchParams.get("t") || "open";
     const clickUrl = url.searchParams.get("url"); // destination URL for click tracking
 
+    // Recommendation-email click context (set by buildRecommendationEmailHtml)
+    const clickContext = {
+      cta: url.searchParams.get("cta"),
+      project_id: url.searchParams.get("pid"),
+      project_slug: url.searchParams.get("pslug"),
+      category: url.searchParams.get("cat"),
+      city: url.searchParams.get("city"),
+      neighborhood: url.searchParams.get("nbhd"),
+      slot: url.searchParams.get("slot"),
+      section: url.searchParams.get("section"),
+    };
+    const hasClickContext = Object.values(clickContext).some((v) => v !== null);
+
     if (!trackingId && !alertId && !clientId) {
       console.log("No tracking ID provided");
       return clickUrl ? redirectResponse(clickUrl) : pixelResponse();
@@ -72,7 +85,30 @@ const handler = async (req: Request): Promise<Response> => {
             })
             .eq("id", logEntry.id);
 
-          console.log(`Tracked click for tracking_id ${trackingId} (click #${newClickCount}, url: ${clickUrl})`);
+          // Granular click record — powers per-project / per-neighborhood
+          // engagement analytics for the recommendation email
+          if (hasClickContext || clickUrl) {
+            await supabase.from("email_link_clicks").insert({
+              email_log_id: logEntry.id,
+              tracking_id: trackingId,
+              recipient_email: logEntry.email_to,
+              destination_url: clickUrl,
+              cta: clickContext.cta,
+              section: clickContext.section,
+              project_id: clickContext.project_id,
+              project_slug: clickContext.project_slug,
+              category: clickContext.category,
+              city: clickContext.city,
+              neighborhood: clickContext.neighborhood,
+              slot: clickContext.slot ? Number(clickContext.slot) : null,
+              user_agent: req.headers.get("user-agent"),
+              referer: req.headers.get("referer"),
+            }).then(({ error }) => {
+              if (error) console.error("email_link_clicks insert failed:", error);
+            });
+          }
+
+          console.log(`Tracked click for tracking_id ${trackingId} (click #${newClickCount}, url: ${clickUrl}, cta: ${clickContext.cta}, project: ${clickContext.project_slug})`);
 
           // Fire engagement event → Zapier/Lofty (fire-and-forget)
           supabase.functions.invoke("send-lead-engagement-event", {

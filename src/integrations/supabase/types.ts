@@ -1373,6 +1373,71 @@ export type Database = {
           },
         ]
       }
+      email_link_clicks: {
+        Row: {
+          category: string | null
+          city: string | null
+          clicked_at: string
+          cta: string | null
+          destination_url: string | null
+          email_log_id: string | null
+          id: string
+          neighborhood: string | null
+          project_id: string | null
+          project_slug: string | null
+          recipient_email: string | null
+          referer: string | null
+          section: string | null
+          slot: number | null
+          tracking_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          clicked_at?: string
+          cta?: string | null
+          destination_url?: string | null
+          email_log_id?: string | null
+          id?: string
+          neighborhood?: string | null
+          project_id?: string | null
+          project_slug?: string | null
+          recipient_email?: string | null
+          referer?: string | null
+          section?: string | null
+          slot?: number | null
+          tracking_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          clicked_at?: string
+          cta?: string | null
+          destination_url?: string | null
+          email_log_id?: string | null
+          id?: string
+          neighborhood?: string | null
+          project_id?: string | null
+          project_slug?: string | null
+          recipient_email?: string | null
+          referer?: string | null
+          section?: string | null
+          slot?: number | null
+          tracking_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_link_clicks_email_log_id_fkey"
+            columns: ["email_log_id"]
+            isOneToOne: false
+            referencedRelation: "email_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_logs: {
         Row: {
           campaign_id: string | null
