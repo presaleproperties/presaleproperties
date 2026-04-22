@@ -123,13 +123,15 @@ export interface RecommendationEmailOptions {
 // ───────────────────────────────────────────────────────────────────────────
 
 function navLink(label: string, href: string): string {
-  return `<a href="${href}" target="_blank" style="font-family:${F};font-size:12px;font-weight:600;color:${DARK};text-decoration:none;letter-spacing:0.3px;padding:0 10px;">${label}</a>`;
+  const tracked = trackUrl(href, { cta: "nav", section: "header", city: label });
+  return `<a href="${tracked}" target="_blank" style="font-family:${F};font-size:12px;font-weight:600;color:${DARK};text-decoration:none;letter-spacing:0.3px;padding:0 10px;">${label}</a>`;
 }
 
 function quickActionPill(label: string, href: string, icon: string): string {
+  const tracked = trackUrl(href, { cta: "quick_action", section: "explore_more" });
   return `
     <td width="50%" style="padding:5px;" valign="top">
-      <a href="${href}" target="_blank" style="display:block;text-decoration:none;">
+      <a href="${tracked}" target="_blank" style="display:block;text-decoration:none;">
         <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;border:1px solid #e8e2d6;border-radius:999px;">
           <tr>
             <td style="padding:14px 18px;font-family:${F};">
