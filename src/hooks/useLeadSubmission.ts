@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectTrackingData } from "@/lib/collectTrackingData";
 import { calculateLeadScore } from "@/lib/leadScoring";
+import { getEmailAttribution } from "@/lib/emailAttribution";
 
 
 export interface LeadSubmissionPayload {
@@ -51,6 +52,7 @@ export function useLeadSubmission(): LeadSubmissionResult {
 
     try {
       const tracking = collectTrackingData();
+      const emailAttribution = getEmailAttribution();
       const { score, temperature } = calculateLeadScore({
         usedCalculator: tracking.usedCalculator,
         pagesViewed: tracking.pagesViewed,
@@ -139,6 +141,10 @@ export function useLeadSubmission(): LeadSubmissionResult {
             calculatorData: tracking.calculatorData ?? null,
             utmTerm: tracking.utmTerm,
             utmContent: tracking.utmContent,
+            // Per-card email attribution (set when the visitor arrived via
+            // a tracked link in a recommendation/marketing email). Lets us
+            // join project_leads ↔ email_logs ↔ email_link_clicks.
+            email_attribution: emailAttribution ?? null,
           })),
         } as any).eq("id", payload.leadId).then(({ error: patchErr }) => {
           if (patchErr) console.warn("[useLeadSubmission] DB patch failed:", patchErr);
