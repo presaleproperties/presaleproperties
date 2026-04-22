@@ -657,6 +657,28 @@ export function LeadComposeDialog({
                 </div>
               )}
 
+              {/* Conversation history (single recipient only) */}
+              {!isBulk && validRecipients.length === 1 && (
+                <div className="space-y-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setShowHistory((v) => !v)}
+                    className="flex w-full items-center justify-between rounded-md border border-border bg-muted/20 px-2.5 py-1.5 text-left transition-colors hover:bg-muted/40"
+                  >
+                    <span className="flex items-center gap-1.5 text-[11px] font-medium">
+                      <History className="h-3 w-3 text-muted-foreground" />
+                      Past emails to this lead
+                    </span>
+                    {showHistory ? (
+                      <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                    )}
+                  </button>
+                  {showHistory && <SentEmailsList email={validRecipients[0].email} />}
+                </div>
+              )}
+
               {/* Subject */}
               <div className="space-y-1">
                 <Label htmlFor="compose-subject" className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -670,25 +692,31 @@ export function LeadComposeDialog({
                   placeholder="A short, compelling subject…"
                   className="h-9 text-sm"
                 />
+                <SubjectSuggestions body={body} currentSubject={subject} onPick={setSubject} />
               </div>
 
               {/* Mode tabs */}
-              <Tabs value={mode} onValueChange={(v) => setMode(v as any)}>
-                <TabsList className="grid w-full grid-cols-4 h-8">
-                  <TabsTrigger value="rich" className="text-[11px] gap-1">
-                    <Wand2 className="h-3 w-3" /> Rich
-                  </TabsTrigger>
-                  <TabsTrigger value="plain" className="text-[11px] gap-1">
-                    <Pencil className="h-3 w-3" /> Plain
-                  </TabsTrigger>
-                  <TabsTrigger value="html" className="text-[11px] gap-1">
-                    <Code2 className="h-3 w-3" /> HTML
-                  </TabsTrigger>
-                  <TabsTrigger value="template" className="text-[11px] gap-1">
-                    <FileText className="h-3 w-3" /> Templates
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <div className="flex items-center justify-between gap-2">
+                <Tabs value={mode} onValueChange={(v) => setMode(v as any)} className="flex-1">
+                  <TabsList className="grid w-full grid-cols-4 h-8">
+                    <TabsTrigger value="rich" className="text-[11px] gap-1">
+                      <Wand2 className="h-3 w-3" /> Rich
+                    </TabsTrigger>
+                    <TabsTrigger value="plain" className="text-[11px] gap-1">
+                      <Pencil className="h-3 w-3" /> Plain
+                    </TabsTrigger>
+                    <TabsTrigger value="html" className="text-[11px] gap-1">
+                      <Code2 className="h-3 w-3" /> HTML
+                    </TabsTrigger>
+                    <TabsTrigger value="template" className="text-[11px] gap-1">
+                      <FileText className="h-3 w-3" /> Templates
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                {mode !== "template" && mode !== "html" && (
+                  <AiAssistMenu body={body} onRewrite={setBody} mode={mode} disabled={!body.trim()} />
+                )}
+              </div>
 
               {/* Body */}
               {mode === "template" ? (
