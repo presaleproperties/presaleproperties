@@ -1473,43 +1473,16 @@ export default function AdminLeads() {
                               <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center justify-end gap-1">
                                   {lead.phone && (
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700"
-                                      asChild
-                                      title="Call"
-                                    >
-                                      <a href={`tel:${lead.phone}`}>
-                                        <Phone className="h-4 w-4" />
-                                      </a>
-                                    </Button>
+                                    <PhoneActionsPopover phone={lead.phone} leadName={lead.name} />
                                   )}
                                   <Button
                                     variant="ghost"
                                     size="icon"
                                     className="h-8 w-8 text-primary hover:bg-primary/10"
-                                    onClick={() => {
-                                      setSelectedLead(lead);
-                                      setModalInitialTab("hub");
-                                      setModalOpen(true);
-                                    }}
-                                    title="Compose email in-app"
+                                    onClick={() => openCompose({ id: lead.id, email: lead.email, name: lead.name })}
+                                    title="Compose email (⌘+↵ to send)"
                                   >
                                     <Mail className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-primary hover:bg-primary/10"
-                                    onClick={() => {
-                                      setSelectedLead(lead);
-                                      setModalInitialTab("hub");
-                                      setModalOpen(true);
-                                    }}
-                                    title="Send template / enroll in flow"
-                                  >
-                                    <Sparkles className="h-4 w-4" />
                                   </Button>
                                   <Button
                                     variant="ghost"
