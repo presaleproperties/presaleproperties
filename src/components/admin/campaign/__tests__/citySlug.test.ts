@@ -162,6 +162,7 @@ describe("buildCatalogueEmailHtml — no unslugged city leaks into hrefs", () =>
       const html = buildCatalogueEmailHtml({
         subjectLine: "Test",
         previewText: "Test",
+        headline: "Test",
         bodyCopy: "Test",
         city: display,
         projects: [
@@ -187,7 +188,10 @@ describe("buildMultiProjectEmailHtml — no unslugged city leaks into hrefs", ()
       const html = buildMultiProjectEmailHtml({
         subjectLine: "Test",
         previewText: "Test",
+        headline: "Test",
         bodyCopy: "Test",
+        weekNumber: 1,
+        weekLabel: "Week 1",
         city: display,
         projects: [
           {
