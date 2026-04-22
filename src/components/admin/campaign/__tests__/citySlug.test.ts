@@ -74,7 +74,9 @@ const SPACE_CITIES: Array<{ display: string; slug: string }> = [
 
 /**
  * Assert that none of the URL-encoded variants of a space-bearing city ever
- * appear inside an href. Visible text is allowed to contain the raw display.
+ * appear inside the *path* of an href (or the tracked destination's path).
+ * The raw city is allowed inside analytics query params (e.g. `?city=North+Vancouver`)
+ * — that's a metadata label, not a route.
  */
 function assertNoUnsluggedCityInHrefs(html: string, cityDisplay: string) {
   const hrefs = extractHrefs(html);
@@ -86,17 +88,27 @@ function assertNoUnsluggedCityInHrefs(html: string, cityDisplay: string) {
     cityDisplay.toLowerCase().replace(/ /g, "%20"),
     cityDisplay.toLowerCase().replace(/ /g, "+"),
   ];
+
+  /** Pull just the path portion (no query/hash) from a URL string. */
+  const pathOf = (raw: string): string => {
+    try {
+      return new URL(raw).pathname;
+    } catch {
+      return raw.split("?")[0].split("#")[0];
+    }
+  };
+
   for (const href of hrefs) {
-    // Resolve through tracker so we inspect the real destination too.
-    const dest = resolveHref(href);
+    const wrapperPath = pathOf(href);
+    const destPath = pathOf(resolveHref(href));
     for (const bad of forbiddenForms) {
       expect(
-        href.includes(bad),
-        `Raw city "${bad}" leaked into href: ${href}`,
+        wrapperPath.includes(bad),
+        `Raw city "${bad}" leaked into href path: ${wrapperPath} (full: ${href})`,
       ).toBe(false);
       expect(
-        dest.includes(bad),
-        `Raw city "${bad}" leaked into tracked destination: ${dest} (from ${href})`,
+        destPath.includes(bad),
+        `Raw city "${bad}" leaked into tracked destination path: ${destPath} (from ${href})`,
       ).toBe(false);
     }
   }
