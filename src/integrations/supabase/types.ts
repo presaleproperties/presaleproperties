@@ -3292,6 +3292,63 @@ export type Database = {
         }
         Relationships: []
       }
+      preflight_send_log: {
+        Row: {
+          asset_id: string | null
+          blocker_count: number
+          checks: Json
+          created_at: string
+          id: string
+          passed_count: number
+          recipient_count: number
+          send_attempted: boolean
+          send_error: string | null
+          send_succeeded: boolean | null
+          status: string
+          subject: string | null
+          template_label: string | null
+          total_checks: number
+          user_id: string | null
+          warn_count: number
+        }
+        Insert: {
+          asset_id?: string | null
+          blocker_count?: number
+          checks?: Json
+          created_at?: string
+          id?: string
+          passed_count?: number
+          recipient_count?: number
+          send_attempted?: boolean
+          send_error?: string | null
+          send_succeeded?: boolean | null
+          status: string
+          subject?: string | null
+          template_label?: string | null
+          total_checks?: number
+          user_id?: string | null
+          warn_count?: number
+        }
+        Update: {
+          asset_id?: string | null
+          blocker_count?: number
+          checks?: Json
+          created_at?: string
+          id?: string
+          passed_count?: number
+          recipient_count?: number
+          send_attempted?: boolean
+          send_error?: string | null
+          send_succeeded?: boolean | null
+          status?: string
+          subject?: string | null
+          template_label?: string | null
+          total_checks?: number
+          user_id?: string | null
+          warn_count?: number
+        }
+        Relationships: []
+      }
       presale_projects: {
         Row: {
           address: string | null
