@@ -863,9 +863,9 @@ export function LeadComposeDialog({
                 Save as template
               </Button>
             </div>
-            <Button onClick={handleSend} disabled={!canSend} size="sm" className="h-8 gap-1.5 text-xs">
-              {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
-              {sending ? "Sending…" : isBulk ? `Send to ${validRecipients.length}` : "Send"}
+            <Button onClick={handleSend} disabled={!canSend || !!pendingSendLabel} size="sm" className="h-8 gap-1.5 text-xs">
+              {sending || pendingSendLabel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+              {pendingSendLabel ? "Queued…" : sending ? "Sending…" : isBulk ? `Send to ${validRecipients.length}` : "Send"}
             </Button>
           </DialogFooter>
         </DialogContent>
