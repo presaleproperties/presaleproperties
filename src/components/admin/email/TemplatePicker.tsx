@@ -9,9 +9,18 @@
  *  • Click → loads template into composer
  */
 import { useMemo, useState } from "react";
-import { Search, Star, Clock, FileText, X } from "lucide-react";
+import { Search, Star, Clock, FileText, X, Eye, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { getSavedHtml, type SavedAsset } from "@/lib/emailTemplateHelpers";
