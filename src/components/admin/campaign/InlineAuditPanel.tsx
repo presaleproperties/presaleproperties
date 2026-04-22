@@ -60,6 +60,14 @@ function suggestFix(err: RecommendationValidationError): string {
       return `Point the projectUrl at ${err.issue.expected} (no other domains are allowed for tracked card CTAs).`;
     case "project_route_invalid":
       return "The destination must look like /presale-projects/<slug>. Update the projectUrl to a real project page route.";
+    case "missing_unsubscribe":
+      return 'Add an unsubscribe anchor in the footer with href="{$unsubscribe}". The ESP swaps this for the recipient\'s real unsubscribe URL at send time.';
+    case "unsubscribe_outside_footer":
+      return "Keep the unsubscribe link inside the footer block only. Extra unsubscribe links in the body confuse mailbox providers and hurt deliverability.";
+    case "merge_tag_in_href_path":
+      return "Don't embed merge tags inside URL paths or query strings. Either move the merge tag to be the full href value, or pre-resolve the value before rendering.";
+    case "merge_tag_outside_allowed_zone":
+      return "Use only allow-listed personalization tags in body copy ({$name}, {$first_name}, {$last_name}, {$email}, {$company}, {$city}). Anything else won't be substituted.";
     default:
       return "Review and fix this link before sending.";
   }
@@ -85,6 +93,16 @@ function describeReason(err: RecommendationValidationError): string {
       return `Destination points to wrong host (expected ${err.issue.expected}).`;
     case "project_route_invalid":
       return "Destination is not a valid /presale-projects/<slug> route.";
+    case "missing_unsubscribe":
+      return err.issue?.href
+        ? "Unsubscribe link uses a literal URL instead of the {$unsubscribe} merge tag."
+        : "No unsubscribe link found in the footer.";
+    case "unsubscribe_outside_footer":
+      return "Unsubscribe link found outside the footer block.";
+    case "merge_tag_in_href_path":
+      return `Merge tag ${err.issue?.href} is embedded inside a URL path.`;
+    case "merge_tag_outside_allowed_zone":
+      return `Merge tag ${err.issue?.href} is not on the allow-list.`;
     default:
       return err.message;
   }
