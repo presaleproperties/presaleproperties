@@ -38,6 +38,8 @@ import {
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
 import { BulkEmailDialog } from "@/components/admin/BulkEmailDialog";
+import { LeadComposeDialog, type ComposeRecipient } from "@/components/admin/email/LeadComposeDialog";
+import { PhoneActionsPopover } from "@/components/admin/PhoneActionsPopover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -427,6 +429,12 @@ export default function AdminLeads() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalInitialTab, setModalInitialTab] = useState<"overview" | "hub">("overview");
   const [bulkEmailOpen, setBulkEmailOpen] = useState(false);
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [composeRecipient, setComposeRecipient] = useState<ComposeRecipient[]>([]);
+  const openCompose = (lead: { id: string; email: string; name: string }) => {
+    setComposeRecipient([{ id: lead.id, email: lead.email, name: lead.name, leadId: lead.id }]);
+    setComposeOpen(true);
+  };
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [intentFilter, setIntentFilter] = useState<string>("all");
@@ -1465,43 +1473,16 @@ export default function AdminLeads() {
                               <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center justify-end gap-1">
                                   {lead.phone && (
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700"
-                                      asChild
-                                      title="Call"
-                                    >
-                                      <a href={`tel:${lead.phone}`}>
-                                        <Phone className="h-4 w-4" />
-                                      </a>
-                                    </Button>
+                                    <PhoneActionsPopover phone={lead.phone} leadName={lead.name} />
                                   )}
                                   <Button
                                     variant="ghost"
                                     size="icon"
                                     className="h-8 w-8 text-primary hover:bg-primary/10"
-                                    onClick={() => {
-                                      setSelectedLead(lead);
-                                      setModalInitialTab("hub");
-                                      setModalOpen(true);
-                                    }}
-                                    title="Compose email in-app"
+                                    onClick={() => openCompose({ id: lead.id, email: lead.email, name: lead.name })}
+                                    title="Compose email (⌘+↵ to send)"
                                   >
                                     <Mail className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-primary hover:bg-primary/10"
-                                    onClick={() => {
-                                      setSelectedLead(lead);
-                                      setModalInitialTab("hub");
-                                      setModalOpen(true);
-                                    }}
-                                    title="Send template / enroll in flow"
-                                  >
-                                    <Sparkles className="h-4 w-4" />
                                   </Button>
                                   <Button
                                     variant="ghost"
@@ -2028,6 +2009,13 @@ export default function AdminLeads() {
           onOpenChange={setBulkEmailOpen}
           recipients={bulkEmailRecipients}
           campaignName={`admin_bulk_${activeTab}_leads`}
+        />
+
+        <LeadComposeDialog
+          open={composeOpen}
+          onOpenChange={setComposeOpen}
+          recipients={composeRecipient}
+          campaignName="admin_lead_row_compose"
         />
       </div>
     </AdminLayout>
