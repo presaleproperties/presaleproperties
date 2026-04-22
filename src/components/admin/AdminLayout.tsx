@@ -94,6 +94,7 @@ const navSections = [
       { href: "/admin/email-builder", label: "Email Builder", icon: PenTool,      badgeKey: null },
       { href: "/admin/email-flows",   label: "Email Flows",   icon: Zap,          badgeKey: null },
       { href: "/admin/email-center",  label: "Email Activity", icon: Mail,        badgeKey: null },
+      { href: "/admin/email-health",  label: "Email Health",   icon: ShieldCheck,  badgeKey: null },
       { href: "/dashboard/decks",     label: "Pitch Decks",   icon: Presentation, badgeKey: null },
       { href: "/admin/blogs",         label: "Blog",          icon: BookOpen,     badgeKey: null },
       { href: "/admin/google-reviews",label: "Reviews",       icon: Star,         badgeKey: null },
