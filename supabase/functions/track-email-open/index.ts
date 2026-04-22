@@ -34,6 +34,19 @@ const handler = async (req: Request): Promise<Response> => {
     const type = url.searchParams.get("t") || "open";
     const clickUrl = url.searchParams.get("url"); // destination URL for click tracking
 
+    // Recommendation-email click context (set by buildRecommendationEmailHtml)
+    const clickContext = {
+      cta: url.searchParams.get("cta"),
+      project_id: url.searchParams.get("pid"),
+      project_slug: url.searchParams.get("pslug"),
+      category: url.searchParams.get("cat"),
+      city: url.searchParams.get("city"),
+      neighborhood: url.searchParams.get("nbhd"),
+      slot: url.searchParams.get("slot"),
+      section: url.searchParams.get("section"),
+    };
+    const hasClickContext = Object.values(clickContext).some((v) => v !== null);
+
     if (!trackingId && !alertId && !clientId) {
       console.log("No tracking ID provided");
       return clickUrl ? redirectResponse(clickUrl) : pixelResponse();
