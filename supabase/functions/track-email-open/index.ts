@@ -84,6 +84,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     const now = new Date().toISOString();
 
+    // Resolved email_logs.id — populated when we find a matching trackingId.
+    // Forwarded onto the redirect URL as `em_log` so the landing page can
+    // persist it for downstream lead-attribution joins.
+    let resolvedEmailLogId: string | null = null;
+
     // ── Track via tracking_id (email_logs) ──
     if (trackingId) {
       const { data: logEntry } = await supabase
@@ -93,6 +98,7 @@ const handler = async (req: Request): Promise<Response> => {
         .single();
 
       if (logEntry) {
+        resolvedEmailLogId = logEntry.id;
         if (type === "click") {
           // ── Click tracking ──
           const isFirstClick = !logEntry.clicked_at;
@@ -238,11 +244,7 @@ const handler = async (req: Request): Promise<Response> => {
     // and tie any subsequent form submission back to this exact click.
     if (type === "click" && clickUrl) {
       const finalUrl = appendEmailAttributionParams(clickUrl, {
-        em_log: trackingId
-          ? // resolve email_log_id from earlier query — we re-fetch lazily only
-            // if needed; cheaper to embed tracking_id which is already unique
-            undefined
-          : undefined,
+        em_log: resolvedEmailLogId,
         em_tid: trackingId,
         em_pid: clickContext.project_id,
         em_pslug: clickContext.project_slug,
