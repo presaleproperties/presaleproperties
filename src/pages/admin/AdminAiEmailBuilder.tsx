@@ -1888,7 +1888,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           <Button
             size="sm"
             className="h-8 gap-1.5 shrink-0 text-xs px-2.5"
-            onClick={() => setSendDialogOpen(true)}
+            onClick={requestOpenSendDialog}
           >
             <Send className="h-3.5 w-3.5" />
             <span className="hidden md:inline">Send Email</span>
@@ -2041,7 +2041,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 size="sm"
                 variant="outline"
                 className="h-7 gap-1 font-semibold text-xs px-2.5 lg:hidden shrink-0"
-                onClick={() => setSendDialogOpen(true)}
+                onClick={requestOpenSendDialog}
               >
                 <Send className="h-3.5 w-3.5" />
                 Send
@@ -2953,7 +2953,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             <div className="hidden lg:block px-3 pb-3 pt-2 border-t border-border shrink-0 bg-muted/5 space-y-2">
               <Button
                 className="w-full h-9 gap-1.5 font-semibold text-sm"
-                onClick={() => setSendDialogOpen(true)}
+                onClick={requestOpenSendDialog}
               >
                 <Send className="h-3.5 w-3.5" /> Send Email
               </Button>
@@ -3002,7 +3002,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             variant="outline"
             size="lg"
             className="flex-1 h-12 gap-2 font-semibold"
-            onClick={() => setSendDialogOpen(true)}
+            onClick={requestOpenSendDialog}
           >
             <Send className="h-4 w-4" />
             Send
