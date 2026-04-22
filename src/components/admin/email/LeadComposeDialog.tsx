@@ -70,6 +70,7 @@ import { AiAssistMenu } from "./AiAssistMenu";
 import { SubjectSuggestions } from "./SubjectSuggestions";
 import { SentEmailsList } from "./SentEmailsList";
 import { UndoSendBanner, BulkSendProgress } from "./UndoSendBanner";
+import { TemplatePicker } from "./TemplatePicker";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface ComposeRecipient {
