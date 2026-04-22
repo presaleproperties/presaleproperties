@@ -254,6 +254,28 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
     enabled: open && isProjectLead,
   });
 
+  // Pull email-CTA clicks for this lead's address.
+  // Joined to email_logs to surface the campaign subject alongside each click,
+  // and split by `clicked_at` vs `created_at` so the UI can show which clicks
+  // happened BEFORE the form was submitted (the conversion-attributing click).
+  const { data: emailCtaClicks, isLoading: emailCtaLoading } = useQuery({
+    queryKey: ["lead-cta-clicks", projectLead.email, projectLead.id],
+    queryFn: async () => {
+      if (!projectLead.email) return [];
+      const { data, error } = await (supabase as any)
+        .from("email_link_clicks")
+        .select(
+          "id, clicked_at, cta, section, slot, project_slug, project_id, category, city, neighborhood, destination_url, email_log_id, email_logs:email_log_id(subject, sent_at, template_type)",
+        )
+        .eq("recipient_email", projectLead.email)
+        .order("clicked_at", { ascending: false })
+        .limit(100);
+      if (error) return [];
+      return data || [];
+    },
+    enabled: open && isProjectLead && !!projectLead.email,
+  });
+
   // Pull pitch deck visits (post-submission warmth signal)
   const { data: deckVisits } = useQuery({
     queryKey: ["lead-deck-visits", visitorId, projectLead.email],
@@ -763,45 +785,135 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
               </TabsContent>
 
               {/* ───── EMAIL ───── */}
-              <TabsContent value="email" className="m-0 space-y-3">
-                {emailLoading ? (
-                  <div className="space-y-2">
-                    {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
+              <TabsContent value="email" className="m-0 space-y-5">
+                {/* ─── CTA Attribution: which email + CTA the lead clicked ─── */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Email CTA clicks
+                    </h4>
+                    {emailCtaClicks && emailCtaClicks.length > 0 && (
+                      <span className="text-[10px] text-muted-foreground tabular-nums">
+                        {emailCtaClicks.length} click{emailCtaClicks.length === 1 ? "" : "s"}
+                      </span>
+                    )}
                   </div>
-                ) : !emailLogs || emailLogs.length === 0 ? (
-                  <EmptyMsg icon={Mail}>
-                    No emails sent to this lead yet — try the <strong>Hub</strong> tab to send a template.
-                  </EmptyMsg>
-                ) : (
-                  <ul className="space-y-2">
-                    {emailLogs.map((e: any) => (
-                      <li key={e.id} className="border border-border rounded-lg p-3 space-y-1.5">
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="text-sm font-medium truncate flex-1">{e.subject}</p>
-                          <Badge variant={e.opened_at ? "default" : "outline"} className="text-[10px] shrink-0">
-                            {e.opened_at ? "Opened" : e.status || "Sent"}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-3 text-[10px] text-muted-foreground flex-wrap">
-                          <span className="inline-flex items-center gap-1">
-                            <Send className="h-3 w-3" /> {format(new Date(e.sent_at), "MMM d, h:mm a")}
-                          </span>
-                          {e.opened_at && (
+
+                  {emailCtaLoading ? (
+                    <div className="space-y-2">
+                      {[...Array(2)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}
+                    </div>
+                  ) : !emailCtaClicks || emailCtaClicks.length === 0 ? (
+                    <EmptyMsg icon={MousePointerClick}>
+                      No email CTA clicks recorded for this address yet.
+                    </EmptyMsg>
+                  ) : (
+                    <ul className="space-y-2">
+                      {emailCtaClicks.map((c: any) => {
+                        const beforeSubmit = new Date(c.clicked_at).getTime() <= new Date(submittedAt).getTime();
+                        const log = c.email_logs as { subject?: string; sent_at?: string; template_type?: string } | null;
+                        const ctaLabel = (c.cta || "link").replace(/_/g, " ");
+                        const projectLabel = c.project_slug ? c.project_slug.replace(/-/g, " ") : null;
+                        return (
+                          <li key={c.id} className="border border-border rounded-lg p-3 space-y-1.5">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium truncate">
+                                  {log?.subject || "Untitled email"}
+                                </p>
+                                <p className="text-xs text-muted-foreground capitalize truncate">
+                                  Clicked <span className="text-foreground font-medium">{ctaLabel}</span>
+                                  {c.section ? <> in <span className="text-foreground">{c.section.replace(/_/g, " ")}</span></> : null}
+                                  {projectLabel ? <> · {projectLabel}</> : null}
+                                </p>
+                              </div>
+                              {beforeSubmit ? (
+                                <Badge className="text-[10px] shrink-0 bg-emerald-500/15 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/15">
+                                  Before submit
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="text-[10px] shrink-0">
+                                  After submit
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 text-[10px] text-muted-foreground flex-wrap">
+                              <span className="inline-flex items-center gap-1">
+                                <MousePointerClick className="h-3 w-3" />
+                                {format(new Date(c.clicked_at), "MMM d, h:mm a")}
+                                <span className="text-muted-foreground/70">
+                                  ({formatDistanceToNow(new Date(c.clicked_at), { addSuffix: true })})
+                                </span>
+                              </span>
+                              {typeof c.slot === "number" && (
+                                <Badge variant="secondary" className="text-[9px]">slot {c.slot}</Badge>
+                              )}
+                              {c.category && <Badge variant="secondary" className="text-[9px]">{c.category}</Badge>}
+                              {c.city && <span>· {c.city}</span>}
+                              {c.destination_url && (
+                                <a
+                                  href={c.destination_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-0.5 text-primary hover:underline"
+                                >
+                                  destination <ExternalLink className="h-2.5 w-2.5" />
+                                </a>
+                              )}
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+
+                <Separator />
+
+                {/* ─── Email send log ─── */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Email sends
+                  </h4>
+                  {emailLoading ? (
+                    <div className="space-y-2">
+                      {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
+                    </div>
+                  ) : !emailLogs || emailLogs.length === 0 ? (
+                    <EmptyMsg icon={Mail}>
+                      No emails sent to this lead yet — try the <strong>Hub</strong> tab to send a template.
+                    </EmptyMsg>
+                  ) : (
+                    <ul className="space-y-2">
+                      {emailLogs.map((e: any) => (
+                        <li key={e.id} className="border border-border rounded-lg p-3 space-y-1.5">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-medium truncate flex-1">{e.subject}</p>
+                            <Badge variant={e.opened_at ? "default" : "outline"} className="text-[10px] shrink-0">
+                              {e.opened_at ? "Opened" : e.status || "Sent"}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-3 text-[10px] text-muted-foreground flex-wrap">
                             <span className="inline-flex items-center gap-1">
-                              <MailOpen className="h-3 w-3" /> {e.open_count}× opened
+                              <Send className="h-3 w-3" /> {format(new Date(e.sent_at), "MMM d, h:mm a")}
                             </span>
-                          )}
-                          {e.click_count > 0 && (
-                            <span className="inline-flex items-center gap-1 text-emerald-600">
-                              <MousePointerClick className="h-3 w-3" /> {e.click_count} click(s)
-                            </span>
-                          )}
-                          {e.template_type && <Badge variant="secondary" className="text-[9px]">{e.template_type}</Badge>}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                            {e.opened_at && (
+                              <span className="inline-flex items-center gap-1">
+                                <MailOpen className="h-3 w-3" /> {e.open_count}× opened
+                              </span>
+                            )}
+                            {e.click_count > 0 && (
+                              <span className="inline-flex items-center gap-1 text-emerald-600">
+                                <MousePointerClick className="h-3 w-3" /> {e.click_count} click(s)
+                              </span>
+                            )}
+                            {e.template_type && <Badge variant="secondary" className="text-[9px]">{e.template_type}</Badge>}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </TabsContent>
 
               {/* ───── HUB (Marketing + Email Hub integration) ───── */}
