@@ -281,12 +281,81 @@ export function TemplatePicker({ templates, selectedId, onSelect }: Props) {
                       )}
                     </div>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>
         )}
       </ScrollArea>
+
+      {/* Full-size preview modal */}
+      <Dialog open={!!previewing} onOpenChange={(v) => !v && setPreviewing(null)}>
+        <DialogContent className="max-w-3xl p-0 gap-0 overflow-hidden">
+          <DialogHeader className="border-b border-border bg-muted/20 px-5 py-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <DialogTitle className="truncate text-base">
+                  {previewing?.name || "Template preview"}
+                </DialogTitle>
+                <DialogDescription className="mt-0.5 flex items-center gap-1.5 text-xs">
+                  {previewing?.project_name && (
+                    <Badge variant="outline" className="h-4 px-1 text-[9px]">
+                      {previewing.project_name}
+                    </Badge>
+                  )}
+                  {previewing?.is_favorited && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] text-amber-600">
+                      <Star className="h-2.5 w-2.5 fill-amber-500 text-amber-500" />
+                      Favorited
+                    </span>
+                  )}
+                  {previewing?.last_sent_at && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                      <Clock className="h-2.5 w-2.5" />
+                      Last sent {new Date(previewing.last_sent_at).toLocaleDateString()}
+                    </span>
+                  )}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="bg-muted/30 p-3">
+            {previewHtml ? (
+              <iframe
+                srcDoc={previewHtml}
+                title="Template preview"
+                sandbox=""
+                className="h-[65vh] w-full rounded-md border border-border bg-white"
+              />
+            ) : (
+              <div className="flex h-[40vh] items-center justify-center text-xs text-muted-foreground">
+                No preview available for this template.
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="border-t border-border bg-muted/20 px-5 py-3">
+            <Button variant="outline" size="sm" onClick={() => setPreviewing(null)}>
+              Close
+            </Button>
+            <Button
+              size="sm"
+              className="gap-1.5"
+              onClick={() => {
+                if (previewing) {
+                  onSelect(previewing);
+                  setPreviewing(null);
+                }
+              }}
+              disabled={!previewing}
+            >
+              <Check className="h-3.5 w-3.5" />
+              Use this template
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
