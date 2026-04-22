@@ -27,6 +27,7 @@ import { GA4Tracker } from "@/components/tracking/GA4Tracker";
 import { TrackingScripts } from "@/components/tracking/TrackingScripts";
 import { ContactClickTracker } from "@/components/tracking/ContactClickTracker";
 import { AttributionTracker } from "@/components/tracking/AttributionTracker";
+import { EmailAttributionCapture } from "@/components/tracking/EmailAttributionCapture";
 import { PixelHealthCheck } from "@/components/tracking/PixelHealthCheck";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
@@ -202,6 +203,7 @@ const App = () => (
             <TrackingScripts />
             <ContactClickTracker />
             <AttributionTracker />
+            <EmailAttributionCapture />
             <PixelHealthCheck />
             
             {/* <ExitIntentPopup /> - Temporarily hidden */}

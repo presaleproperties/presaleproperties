@@ -10,6 +10,32 @@ const TRACKING_PIXEL = new Uint8Array([
   0x01, 0x00, 0x3b
 ]);
 
+/**
+ * Append email-attribution query params (em_*) to the destination URL so the
+ * landing site can capture them in sessionStorage and persist them on the
+ * eventual lead submission. Skips empty values; preserves existing query
+ * params on the destination; safely no-ops on unparseable URLs.
+ */
+function appendEmailAttributionParams(
+  destination: string,
+  attribution: Record<string, string | number | null | undefined>,
+): string {
+  try {
+    const u = new URL(destination);
+    for (const [key, value] of Object.entries(attribution)) {
+      if (value === null || value === undefined) continue;
+      const str = String(value).trim();
+      if (!str) continue;
+      // Don't clobber params already on the destination
+      if (u.searchParams.has(key)) continue;
+      u.searchParams.set(key, str);
+    }
+    return u.toString();
+  } catch {
+    return destination;
+  }
+}
+
 const handler = async (req: Request): Promise<Response> => {
   const pixelResponse = () => new Response(TRACKING_PIXEL, {
     status: 200,
@@ -58,6 +84,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     const now = new Date().toISOString();
 
+    // Resolved email_logs.id — populated when we find a matching trackingId.
+    // Forwarded onto the redirect URL as `em_log` so the landing page can
+    // persist it for downstream lead-attribution joins.
+    let resolvedEmailLogId: string | null = null;
+
     // ── Track via tracking_id (email_logs) ──
     if (trackingId) {
       const { data: logEntry } = await supabase
@@ -67,6 +98,7 @@ const handler = async (req: Request): Promise<Response> => {
         .single();
 
       if (logEntry) {
+        resolvedEmailLogId = logEntry.id;
         if (type === "click") {
           // ── Click tracking ──
           const isFirstClick = !logEntry.clicked_at;
@@ -207,9 +239,23 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // For click tracking, redirect to the destination URL
+    // For click tracking, redirect to the destination URL — but first
+    // append email-attribution params so the landing page can persist them
+    // and tie any subsequent form submission back to this exact click.
     if (type === "click" && clickUrl) {
-      return redirectResponse(clickUrl);
+      const finalUrl = appendEmailAttributionParams(clickUrl, {
+        em_log: resolvedEmailLogId,
+        em_tid: trackingId,
+        em_pid: clickContext.project_id,
+        em_pslug: clickContext.project_slug,
+        em_slot: clickContext.slot,
+        em_cta: clickContext.cta,
+        em_section: clickContext.section,
+        em_cat: clickContext.category,
+        em_city: clickContext.city,
+        em_nbhd: clickContext.neighborhood,
+      });
+      return redirectResponse(finalUrl);
     }
 
     return pixelResponse();
