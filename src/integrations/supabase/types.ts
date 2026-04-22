@@ -226,41 +226,65 @@ export type Database = {
       }
       alert_config: {
         Row: {
+          audit_failure_enabled: boolean
+          bounce_spike_enabled: boolean
+          bounce_spike_threshold: number
+          click_anomaly_drop_pct: number
+          click_anomaly_enabled: boolean
           created_at: string
           daily_digest_enabled: boolean
           digest_hour_utc: number
+          email_enabled: boolean
           hot_lead_enabled: boolean
           hot_lead_threshold: number
           id: string
           meta_test_event_code: string | null
           meta_test_mode: boolean
           recipient_email: string
+          slack_enabled: boolean
+          slack_webhook_url: string | null
           sync_failure_enabled: boolean
           updated_at: string
         }
         Insert: {
+          audit_failure_enabled?: boolean
+          bounce_spike_enabled?: boolean
+          bounce_spike_threshold?: number
+          click_anomaly_drop_pct?: number
+          click_anomaly_enabled?: boolean
           created_at?: string
           daily_digest_enabled?: boolean
           digest_hour_utc?: number
+          email_enabled?: boolean
           hot_lead_enabled?: boolean
           hot_lead_threshold?: number
           id?: string
           meta_test_event_code?: string | null
           meta_test_mode?: boolean
           recipient_email: string
+          slack_enabled?: boolean
+          slack_webhook_url?: string | null
           sync_failure_enabled?: boolean
           updated_at?: string
         }
         Update: {
+          audit_failure_enabled?: boolean
+          bounce_spike_enabled?: boolean
+          bounce_spike_threshold?: number
+          click_anomaly_drop_pct?: number
+          click_anomaly_enabled?: boolean
           created_at?: string
           daily_digest_enabled?: boolean
           digest_hour_utc?: number
+          email_enabled?: boolean
           hot_lead_enabled?: boolean
           hot_lead_threshold?: number
           id?: string
           meta_test_event_code?: string | null
           meta_test_mode?: boolean
           recipient_email?: string
+          slack_enabled?: boolean
+          slack_webhook_url?: string | null
           sync_failure_enabled?: boolean
           updated_at?: string
         }
