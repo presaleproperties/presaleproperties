@@ -35,6 +35,9 @@ import {
   Star,
   Clock,
   Users,
+  History,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import {
   Dialog,
@@ -58,6 +61,10 @@ import { cn } from "@/lib/utils";
 import { getSavedHtml, type SavedAsset } from "@/lib/emailTemplateHelpers";
 import { appendSignatureToHtml, type SignatureAgent } from "@/lib/emailSignature";
 import { RichTextEditor } from "./RichTextEditor";
+import { AiAssistMenu } from "./AiAssistMenu";
+import { SubjectSuggestions } from "./SubjectSuggestions";
+import { SentEmailsList } from "./SentEmailsList";
+import { UndoSendBanner, BulkSendProgress } from "./UndoSendBanner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface ComposeRecipient {
@@ -142,6 +149,10 @@ export function LeadComposeDialog({
   const [success, setSuccess] = useState<{ sent: number; failed: number } | null>(null);
   const [manualEmail, setManualEmail] = useState("");
   const [draftRestored, setDraftRestored] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [pendingSendLabel, setPendingSendLabel] = useState<string | null>(null);
+  const [bulkProgress, setBulkProgress] = useState<{ sent: number; total: number } | null>(null);
+  const undoRef = useRef<{ cancelled: boolean } | null>(null);
   const subjectRef = useRef<HTMLInputElement>(null);
 
   // Sync recipients when reopened
@@ -306,27 +317,37 @@ export function LeadComposeDialog({
   const canSend = subject.trim().length > 0 && body.trim().length > 0 && validRecipients.length > 0 && !sending;
 
   // ── Send ────────────────────────────────────────────────────────────────
-  const handleSend = async () => {
-    if (!canSend) return;
+  /** The actual network send — runs after the 5s undo window completes. */
+  const performSend = async () => {
+    setPendingSendLabel(null);
     setSending(true);
     try {
-      // Single send — personalised HTML
-      // Bulk send — same HTML to all (still per-recipient firstName only matters for shell)
       let sentCount = 0;
       let failedCount = 0;
 
       if (isBulk) {
-        const html = buildHtmlFor(validRecipients[0]); // use first recipient's first-name shell
-        const { error } = await supabase.functions.invoke("send-direct-email", {
-          body: {
-            to: validRecipients.map((r) => r.email),
-            subject: subject.trim(),
-            html,
-            campaign_name: campaignName || "admin_bulk_compose",
-          },
-        });
-        if (error) throw error;
-        sentCount = validRecipients.length;
+        // Per-recipient progress for clearer UX during bulk sends.
+        setBulkProgress({ sent: 0, total: validRecipients.length });
+        // Chunk in groups of 25 to keep edge function payloads safe and feedback fluid.
+        const CHUNK = 25;
+        for (let i = 0; i < validRecipients.length; i += CHUNK) {
+          const slice = validRecipients.slice(i, i + CHUNK);
+          const html = buildHtmlFor(slice[0]);
+          const { error } = await supabase.functions.invoke("send-direct-email", {
+            body: {
+              to: slice.map((r) => r.email),
+              subject: subject.trim(),
+              html,
+              campaign_name: campaignName || "admin_bulk_compose",
+            },
+          });
+          if (error) {
+            failedCount += slice.length;
+          } else {
+            sentCount += slice.length;
+          }
+          setBulkProgress({ sent: i + slice.length, total: validRecipients.length });
+        }
       } else {
         const r = validRecipients[0];
         const firstName = firstNameOf(r.name, r.email);
@@ -387,12 +408,35 @@ export function LeadComposeDialog({
         localStorage.removeItem(dKey);
       } catch {}
 
+      setBulkProgress(null);
       setSuccess({ sent: sentCount, failed: failedCount });
     } catch (err: any) {
       toast.error(err?.message || "Failed to send");
+      setBulkProgress(null);
     } finally {
       setSending(false);
     }
+  };
+
+  /** Click handler — starts the 5-second undo window before performSend(). */
+  const handleSend = () => {
+    if (!canSend) return;
+    const label = isBulk
+      ? `Sending to ${validRecipients.length} recipients`
+      : `Sending to ${validRecipients[0].name || validRecipients[0].email}`;
+    setPendingSendLabel(label);
+    undoRef.current = { cancelled: false };
+  };
+
+  const undoSend = () => {
+    if (undoRef.current) undoRef.current.cancelled = true;
+    setPendingSendLabel(null);
+    toast.info("Send cancelled — your draft is back");
+  };
+
+  const onUndoTimerComplete = () => {
+    if (undoRef.current?.cancelled) return;
+    void performSend();
   };
 
   // ── Save as template ────────────────────────────────────────────────────
@@ -613,6 +657,28 @@ export function LeadComposeDialog({
                 </div>
               )}
 
+              {/* Conversation history (single recipient only) */}
+              {!isBulk && validRecipients.length === 1 && (
+                <div className="space-y-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setShowHistory((v) => !v)}
+                    className="flex w-full items-center justify-between rounded-md border border-border bg-muted/20 px-2.5 py-1.5 text-left transition-colors hover:bg-muted/40"
+                  >
+                    <span className="flex items-center gap-1.5 text-[11px] font-medium">
+                      <History className="h-3 w-3 text-muted-foreground" />
+                      Past emails to this lead
+                    </span>
+                    {showHistory ? (
+                      <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                    )}
+                  </button>
+                  {showHistory && <SentEmailsList email={validRecipients[0].email} />}
+                </div>
+              )}
+
               {/* Subject */}
               <div className="space-y-1">
                 <Label htmlFor="compose-subject" className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -626,25 +692,31 @@ export function LeadComposeDialog({
                   placeholder="A short, compelling subject…"
                   className="h-9 text-sm"
                 />
+                <SubjectSuggestions body={body} currentSubject={subject} onPick={setSubject} />
               </div>
 
               {/* Mode tabs */}
-              <Tabs value={mode} onValueChange={(v) => setMode(v as any)}>
-                <TabsList className="grid w-full grid-cols-4 h-8">
-                  <TabsTrigger value="rich" className="text-[11px] gap-1">
-                    <Wand2 className="h-3 w-3" /> Rich
-                  </TabsTrigger>
-                  <TabsTrigger value="plain" className="text-[11px] gap-1">
-                    <Pencil className="h-3 w-3" /> Plain
-                  </TabsTrigger>
-                  <TabsTrigger value="html" className="text-[11px] gap-1">
-                    <Code2 className="h-3 w-3" /> HTML
-                  </TabsTrigger>
-                  <TabsTrigger value="template" className="text-[11px] gap-1">
-                    <FileText className="h-3 w-3" /> Templates
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <div className="flex items-center justify-between gap-2">
+                <Tabs value={mode} onValueChange={(v) => setMode(v as any)} className="flex-1">
+                  <TabsList className="grid w-full grid-cols-4 h-8">
+                    <TabsTrigger value="rich" className="text-[11px] gap-1">
+                      <Wand2 className="h-3 w-3" /> Rich
+                    </TabsTrigger>
+                    <TabsTrigger value="plain" className="text-[11px] gap-1">
+                      <Pencil className="h-3 w-3" /> Plain
+                    </TabsTrigger>
+                    <TabsTrigger value="html" className="text-[11px] gap-1">
+                      <Code2 className="h-3 w-3" /> HTML
+                    </TabsTrigger>
+                    <TabsTrigger value="template" className="text-[11px] gap-1">
+                      <FileText className="h-3 w-3" /> Templates
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                {mode !== "template" && mode !== "html" && (
+                  <AiAssistMenu body={body} onRewrite={setBody} mode={mode} disabled={!body.trim()} />
+                )}
+              </div>
 
               {/* Body */}
               {mode === "template" ? (
@@ -791,9 +863,9 @@ export function LeadComposeDialog({
                 Save as template
               </Button>
             </div>
-            <Button onClick={handleSend} disabled={!canSend} size="sm" className="h-8 gap-1.5 text-xs">
-              {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
-              {sending ? "Sending…" : isBulk ? `Send to ${validRecipients.length}` : "Send"}
+            <Button onClick={handleSend} disabled={!canSend || !!pendingSendLabel} size="sm" className="h-8 gap-1.5 text-xs">
+              {sending || pendingSendLabel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+              {pendingSendLabel ? "Queued…" : sending ? "Sending…" : isBulk ? `Send to ${validRecipients.length}` : "Send"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -857,6 +929,18 @@ export function LeadComposeDialog({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Undo-send banner (5s window) */}
+      {pendingSendLabel && (
+        <UndoSendBanner
+          label={pendingSendLabel}
+          onUndo={undoSend}
+          onComplete={onUndoTimerComplete}
+        />
+      )}
+
+      {/* Bulk send progress */}
+      {bulkProgress && <BulkSendProgress sent={bulkProgress.sent} total={bulkProgress.total} />}
     </>
   );
 }
