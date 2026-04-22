@@ -122,6 +122,12 @@ export function auditEmailHtml(
     const text = visibleText(a.inner) || "(no text)";
     const ctx = text.length > 60 ? `${text.slice(0, 57)}…` : text;
 
+    // Skip ESP merge tags (e.g. {$unsubscribe}, {{tracking_id}}) — those
+    // are resolved server-side by the email platform at send time.
+    if (/^\{[\$%{]?[\w.]+[}%]?\}$/.test(a.href) || /^\{\{[^}]+\}\}$/.test(a.href)) {
+      continue;
+    }
+
     // 1) Empty / placeholder href
     if (!a.href) {
       errors.push({ severity: "error", rule: "empty_href", href: a.href, context: ctx });

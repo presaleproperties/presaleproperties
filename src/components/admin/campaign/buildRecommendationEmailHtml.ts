@@ -13,6 +13,7 @@
  */
 
 import { type AgentInfo, DEFAULT_AGENT } from "@/components/admin/AiEmailTemplate";
+import { auditEmailHtml, assertEmailHtmlValid } from "./auditEmailHtml";
 
 const LOGO_EMAIL_URL =
   "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
