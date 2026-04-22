@@ -25,12 +25,56 @@ const GOOGLE_FONT =
   "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
 const SITE_BASE = "https://presaleproperties.com";
 
+// Click-tracking endpoint — reuses the existing track-email-open edge function
+// which logs click_count + clicked_url to email_logs and 302-redirects to the
+// destination URL. We tag every link with `cs` (click source) so we can
+// attribute engagement to specific projects, neighborhoods, and CTAs.
+const TRACK_BASE =
+  "https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/track-email-open";
+
 const AGENT_WEBSITE_URLS: Record<string, string> = {
   Uzair: "https://presalewithuzair.com/",
 };
 
 function getAgentWebsiteUrl(fullName: string): string | undefined {
   return AGENT_WEBSITE_URLS[fullName.split(" ")[0]];
+}
+
+/**
+ * Wrap a destination URL with the click-tracking redirect endpoint.
+ * MailerLite injects `{$tracking_id}` into the merge tag at send time
+ * (see email_logs.tracking_id) so each recipient's clicks are attributed.
+ *
+ * @param destination Final URL the user lands on
+ * @param meta        Semantic context (project, category, city, slot, cta)
+ *                    — surfaced as query params for analytics joins.
+ */
+function trackUrl(
+  destination: string,
+  meta: {
+    cta?: string;
+    project_id?: string;
+    project_slug?: string;
+    category?: string;
+    city?: string;
+    neighborhood?: string;
+    slot?: number | string;
+    section?: string;
+  } = {},
+): string {
+  const params = new URLSearchParams();
+  params.set("t", "click");
+  params.set("tid", "{$tracking_id}"); // MailerLite merge tag — per-recipient
+  params.set("url", destination);
+  if (meta.cta) params.set("cta", meta.cta);
+  if (meta.project_id) params.set("pid", meta.project_id);
+  if (meta.project_slug) params.set("pslug", meta.project_slug);
+  if (meta.category) params.set("cat", meta.category);
+  if (meta.city) params.set("city", meta.city);
+  if (meta.neighborhood) params.set("nbhd", meta.neighborhood);
+  if (meta.slot !== undefined) params.set("slot", String(meta.slot));
+  if (meta.section) params.set("section", meta.section);
+  return `${TRACK_BASE}?${params.toString()}`;
 }
 
 export type RecommendationCategory = "condo" | "townhome" | "detached";
