@@ -15,6 +15,7 @@ import type { SavedAsset } from "@/lib/emailTemplateHelpers";
 import { timeAgo, getDisplayName, getSavedHtml } from "@/lib/emailTemplateHelpers";
 import { TemplatePerformanceBadges } from "@/components/admin/TemplatePerformanceBadges";
 import type { TemplateMetrics, TemplatePerformance } from "@/hooks/useTemplatePerformance";
+import { SendPreflightChecklist } from "@/components/admin/campaign/SendPreflightChecklist";
 
 // ── Template Card ──
 interface TemplateCardProps {
@@ -388,7 +389,22 @@ export function TemplateQuickSendDialog({
               </div>
             )}
           </div>
-          <Button className="w-full h-10 gap-2 font-semibold" onClick={handleSend} disabled={sending || recipients.length === 0}>
+          {/* Pre-flight checklist — must pass before send is enabled */}
+          {asset && (
+            <SendPreflightChecklist
+              html={previewHtml}
+              subject={subjectLine}
+              recipientsCount={recipients.length}
+              onResult={(r) => setPreflightOk(r.canSend)}
+            />
+          )}
+
+          <Button
+            className="w-full h-10 gap-2 font-semibold"
+            onClick={handleSend}
+            disabled={sending || recipients.length === 0 || !preflightOk}
+            title={!preflightOk ? "Resolve all pre-flight blockers before sending." : undefined}
+          >
             {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Sending…</> : <><Send className="h-4 w-4" />Send to {recipients.length} recipient{recipients.length !== 1 ? "s" : ""}</>}
           </Button>
         </div>
