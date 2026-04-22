@@ -319,15 +319,23 @@ export function buildRecommendationEmailHtml(
       grouped[p.category].push(p);
     }
     cardsBlock =
-      renderCategorySection("condo", grouped.condo) +
-      renderCategorySection("townhome", grouped.townhome) +
-      renderCategorySection("detached", grouped.detached);
+      renderCategorySection("condo", grouped.condo, 0) +
+      renderCategorySection(
+        "townhome",
+        grouped.townhome,
+        grouped.condo.length,
+      ) +
+      renderCategorySection(
+        "detached",
+        grouped.detached,
+        grouped.condo.length + grouped.townhome.length,
+      );
   } else {
     cardsBlock = `
     <tr>
       <td class="content-pad" style="padding:8px 26px 12px;">
         <table cellpadding="0" cellspacing="0" border="0" width="100%">
-          ${renderProjectGrid(options.projects)}
+          ${renderProjectGrid(options.projects, 0)}
         </table>
       </td>
     </tr>`;
