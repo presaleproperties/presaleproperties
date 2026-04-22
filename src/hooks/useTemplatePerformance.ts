@@ -87,16 +87,16 @@ export function useTemplatePerformance(): TemplatePerformance {
     }
     setBySubject(map);
 
-    const audit = (auditRes.data?.[0] ?? null) as
-      | { status: LatestAudit extends infer T ? T : never; ran_at: string; total_errors: number; total_links: number }
+    const auditRow = (auditRes.data?.[0] ?? null) as
+      | { status: string; ran_at: string; total_errors: number; total_links: number }
       | null;
     setLatestAudit(
-      audit
+      auditRow
         ? {
-            status: audit.status as "ok" | "failed" | "error",
-            ranAt: audit.ran_at,
-            totalErrors: audit.total_errors,
-            totalLinks: audit.total_links,
+            status: auditRow.status as "ok" | "failed" | "error",
+            ranAt: auditRow.ran_at,
+            totalErrors: auditRow.total_errors,
+            totalLinks: auditRow.total_links,
           }
         : null,
     );
