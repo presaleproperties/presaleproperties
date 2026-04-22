@@ -32,7 +32,11 @@ export interface AuditIssue {
     | "tracked_url_missing_destination"
     | "destination_unparseable"
     | "project_route_invalid"
-    | "project_route_wrong_host";
+    | "project_route_wrong_host"
+    | "missing_unsubscribe"
+    | "unsubscribe_outside_footer"
+    | "merge_tag_in_href_path"
+    | "merge_tag_outside_allowed_zone";
   href: string;
   context?: string;
   expected?: string;
