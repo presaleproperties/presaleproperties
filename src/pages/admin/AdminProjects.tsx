@@ -77,6 +77,7 @@ type Project = {
   completion_year: number | null;
   is_featured: boolean;
   is_published: boolean;
+  show_in_hero: boolean;
   updated_at: string;
   brochure_files: string[] | null;
   floorplan_files: string[] | null;
@@ -139,7 +140,7 @@ export default function AdminProjects() {
     try {
       const { data, error } = await supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, completion_year, is_featured, is_published, updated_at, brochure_files, floorplan_files, pricing_sheets, seo_title, seo_description")
+        .select("id, name, slug, city, neighborhood, status, completion_year, is_featured, is_published, show_in_hero, updated_at, brochure_files, floorplan_files, pricing_sheets, seo_title, seo_description")
         .order("updated_at", { ascending: false });
 
       if (error) throw error;
@@ -465,6 +466,30 @@ export default function AdminProjects() {
     }
   };
 
+  const toggleHero = async (project: Project) => {
+    try {
+      const { error } = await supabase
+        .from("presale_projects")
+        .update({ show_in_hero: !project.show_in_hero })
+        .eq("id", project.id);
+
+      if (error) throw error;
+
+      toast({
+        title: project.show_in_hero ? "Removed from Hero Slider" : "Added to Hero Slider",
+        description: `"${project.name}" ${project.show_in_hero ? "no longer appears" : "now appears"} on the homepage hero`,
+      });
+      fetchProjects();
+    } catch (error) {
+      console.error("Error updating project:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update hero slider status",
+        variant: "destructive",
+      });
+    }
+  };
+
   const exportProjectsToCSV = async () => {
     try {
       // Fetch full project data for export
@@ -560,6 +585,8 @@ export default function AdminProjects() {
       matchesDocs = !hasDoc(project.pricing_sheets);
     } else if (docsFilter === "missing_seo") {
       matchesDocs = !hasSeo(project);
+    } else if (docsFilter === "in_hero") {
+      matchesDocs = project.show_in_hero;
     } else if (docsFilter === "complete") {
       matchesDocs = hasDoc(project.brochure_files) && hasDoc(project.floorplan_files) && hasDoc(project.pricing_sheets);
     } else if (docsFilter === "incomplete") {
@@ -585,6 +612,7 @@ export default function AdminProjects() {
   // Stats calculations
   const totalProjects = projects.length;
   const missingBrochureCount = projects.filter(p => !hasDoc(p.brochure_files)).length;
+  const heroCount = projects.filter(p => p.show_in_hero).length;
 
   return (
     <AdminLayout>
@@ -654,6 +682,19 @@ export default function AdminProjects() {
             <FileText className="h-4 w-4" />
             <span className="font-medium">{missingBrochureCount}</span>
             <span>Missing Brochure</span>
+          </button>
+          <button
+            onClick={() => setDocsFilter(docsFilter === "in_hero" ? "all" : "in_hero")}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors",
+              docsFilter === "in_hero"
+                ? "bg-amber-100 text-amber-700 ring-1 ring-amber-300"
+                : "hover:bg-amber-50 text-amber-600 hover:text-amber-700"
+            )}
+          >
+            <Sparkles className="h-4 w-4" />
+            <span className="font-medium">{heroCount}</span>
+            <span>In Hero</span>
           </button>
           {seoMissingCount > 0 && (
             <button 
@@ -766,6 +807,12 @@ export default function AdminProjects() {
                         {project.is_featured && (
                           <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                         )}
+                        {project.show_in_hero && (
+                          <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200">
+                            <Sparkles className="h-3 w-3" />
+                            In Hero
+                          </Badge>
+                        )}
                         <Badge className={getStatusColor(project.status)}>
                           {formatStatus(project.status)}
                         </Badge>
@@ -861,6 +908,15 @@ export default function AdminProjects() {
                         className={project.is_featured ? "text-yellow-500 hover:text-yellow-600" : ""}
                       >
                         <Star className={`h-4 w-4 ${project.is_featured ? "fill-current" : ""}`} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleHero(project)}
+                        title={project.show_in_hero ? "Remove from Hero Slider" : "Add to Hero Slider"}
+                        className={project.show_in_hero ? "text-amber-600 hover:text-amber-700" : ""}
+                      >
+                        <Sparkles className={`h-4 w-4 ${project.show_in_hero ? "fill-current" : ""}`} />
                       </Button>
                       <Button
                         variant="ghost"
