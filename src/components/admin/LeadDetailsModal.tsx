@@ -884,33 +884,69 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
                       No emails sent to this lead yet — try the <strong>Hub</strong> tab to send a template.
                     </EmptyMsg>
                   ) : (
+                    <div className="flex items-center gap-3 text-[10px] text-muted-foreground mb-1">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="h-2 w-2 rounded-full bg-blue-500" /> To client
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="h-2 w-2 rounded-full bg-amber-500" /> Internal (to you)
+                      </span>
+                    </div>
                     <ul className="space-y-2">
-                      {emailLogs.map((e: any) => (
-                        <li key={e.id} className="border border-border rounded-lg p-3 space-y-1.5">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-sm font-medium truncate flex-1">{e.subject}</p>
-                            <Badge variant={e.opened_at ? "default" : "outline"} className="text-[10px] shrink-0">
-                              {e.opened_at ? "Opened" : e.status || "Sent"}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-3 text-[10px] text-muted-foreground flex-wrap">
-                            <span className="inline-flex items-center gap-1">
-                              <Send className="h-3 w-3" /> {format(new Date(e.sent_at), "MMM d, h:mm a")}
-                            </span>
-                            {e.opened_at && (
+                      {emailLogs.map((e: any) => {
+                        const isInternal =
+                          (e.template_type || "").startsWith("internal_") ||
+                          (e.subject || "").startsWith("[Lead]") ||
+                          (e.recipient_name || "").toLowerCase().includes("internal");
+                        return (
+                          <li
+                            key={e.id}
+                            className={`border-l-4 border border-border rounded-lg p-3 space-y-1.5 ${
+                              isInternal ? "border-l-amber-500 bg-amber-500/5" : "border-l-blue-500 bg-blue-500/5"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{e.subject}</p>
+                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                  {isInternal ? "→ Internal copy to Zara (not sent to lead)" : `→ Sent to ${e.email_to}`}
+                                </p>
+                              </div>
+                              <div className="flex flex-col items-end gap-1 shrink-0">
+                                <Badge
+                                  variant="outline"
+                                  className={`text-[9px] font-semibold ${
+                                    isInternal
+                                      ? "border-amber-500/40 text-amber-700 dark:text-amber-400"
+                                      : "border-blue-500/40 text-blue-700 dark:text-blue-400"
+                                  }`}
+                                >
+                                  {isInternal ? "INTERNAL" : "CLIENT"}
+                                </Badge>
+                                <Badge variant={e.opened_at ? "default" : "outline"} className="text-[10px]">
+                                  {e.opened_at ? "Opened" : e.status || "Sent"}
+                                </Badge>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3 text-[10px] text-muted-foreground flex-wrap">
                               <span className="inline-flex items-center gap-1">
-                                <MailOpen className="h-3 w-3" /> {e.open_count}× opened
+                                <Send className="h-3 w-3" /> {format(new Date(e.sent_at), "MMM d, h:mm a")}
                               </span>
-                            )}
-                            {e.click_count > 0 && (
-                              <span className="inline-flex items-center gap-1 text-emerald-600">
-                                <MousePointerClick className="h-3 w-3" /> {e.click_count} click(s)
-                              </span>
-                            )}
-                            {e.template_type && <Badge variant="secondary" className="text-[9px]">{e.template_type}</Badge>}
-                          </div>
-                        </li>
-                      ))}
+                              {e.opened_at && (
+                                <span className="inline-flex items-center gap-1">
+                                  <MailOpen className="h-3 w-3" /> {e.open_count}× opened
+                                </span>
+                              )}
+                              {e.click_count > 0 && (
+                                <span className="inline-flex items-center gap-1 text-emerald-600">
+                                  <MousePointerClick className="h-3 w-3" /> {e.click_count} click(s)
+                                </span>
+                              )}
+                              {e.template_type && <Badge variant="secondary" className="text-[9px]">{e.template_type}</Badge>}
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>
