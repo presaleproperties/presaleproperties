@@ -979,3 +979,31 @@
   margin: 2rem 0;
   display: block;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Modal / Dialog scroll-lock smoothing
+   Fixes mobile issues where opening/closing a modal causes:
+   - White strip at the bottom (scroll-lock position-fixed quirk)
+   - Layout shift from Radix's padding-right scrollbar compensation
+   ───────────────────────────────────────────────────────────── */
+html {
+  /* Match body bg so any momentary gap during scroll-lock blends in */
+  background-color: hsl(var(--background));
+  /* Prevent iOS rubber-band background flash during modal transitions */
+  overscroll-behavior-y: none;
+}
+
+/* Touch devices: no scrollbar exists, so don't compensate for it */
+@media (hover: none) and (pointer: coarse) {
+  body[data-scroll-locked] {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* When Radix locks scroll, ensure body stays visually anchored */
+body[data-scroll-locked] {
+  overflow: hidden !important;
+  /* Avoid the page being pushed when scrollbar is gone on desktop too */
+  overscroll-behavior: contain;
+}
