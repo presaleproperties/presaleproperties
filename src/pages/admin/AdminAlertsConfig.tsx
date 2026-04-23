@@ -19,7 +19,7 @@
  * matching `type` so admins can confirm the channel actually delivers.
  */
 import { useEffect, useState } from "react";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+import { AdminPage } from "@/components/admin/AdminPage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,20 +113,14 @@ export default function AdminAlertsConfig() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="p-6 max-w-3xl space-y-4">
-          <Skeleton className="h-12 w-72" />
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-64 w-full" />
-        </div>
-      </AdminLayout>
+      <AdminPage loading />
     );
   }
   if (!cfg) {
     return (
-      <AdminLayout>
+      <AdminPage>
         <div className="p-6">No alert config row found.</div>
-      </AdminLayout>
+      </AdminPage>
     );
   }
 
@@ -162,7 +156,7 @@ export default function AdminAlertsConfig() {
   const noChannel = !cfg.email_enabled && !cfg.slack_enabled;
 
   return (
-    <AdminLayout>
+    <AdminPage>
       <div className="space-y-6 p-6 max-w-3xl">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -441,6 +435,6 @@ export default function AdminAlertsConfig() {
           </Button>
         </div>
       </div>
-    </AdminLayout>
+    </AdminPage>
   );
 }

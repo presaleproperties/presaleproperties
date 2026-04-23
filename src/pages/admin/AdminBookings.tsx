@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "@/components/seo/Helmet";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+import { AdminPage } from "@/components/admin/AdminPage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -296,18 +296,8 @@ export default function AdminBookings() {
     (b.status === "confirmed" || b.status === "pending")
   ).length;
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
-    <AdminLayout>
+    <AdminPage loading={loading}>
       <Helmet>
         <title>Bookings | Admin</title>
       </Helmet>
@@ -436,6 +426,6 @@ export default function AdminBookings() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AdminLayout>
+    </AdminPage>
   );
 }

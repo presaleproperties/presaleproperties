@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+import { AdminPage } from "@/components/admin/AdminPage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -128,17 +128,11 @@ export default function AdminSchedulerSettings() {
   };
 
   if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </AdminLayout>
-    );
+    return <AdminPage loading />;
   }
 
   return (
-    <AdminLayout>
+    <AdminPage>
       <div className="space-y-6 max-w-4xl">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -304,6 +298,6 @@ export default function AdminSchedulerSettings() {
           </Card>
         )}
       </div>
-    </AdminLayout>
+    </AdminPage>
   );
 }

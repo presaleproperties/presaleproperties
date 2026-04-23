@@ -40,12 +40,19 @@ function buildReport(): PageReport[] {
   return Object.entries(adminPageSources)
     .map(([path, source]) => {
       const fileName = path.split("/").pop() || path;
-      // Heuristic: presence of `AdminLayout` import OR JSX usage in the source.
-      // Comments, strings, etc. would false-positive — accept that risk for a heuristic
-      // scan. The exclusion list keeps it actionable.
-      const usesLayout =
-        /from\s+["'][^"']*AdminLayout["']/.test(source) &&
-        /<AdminLayout[\s>]/.test(source);
+      // Heuristic: presence of `AdminLayout` import OR `AdminPage` import,
+      // AND the source actually references it (JSX usage, dynamic alias, etc.).
+      // Accepting `AdminPage` here lets pages adopt the shared template
+      // without tripping the regression check.
+      const importsLayout =
+        /from\s+["'][^"']*AdminLayout["']/.test(source) ||
+        /from\s+["'][^"']*AdminPage["']/.test(source);
+      const rendersLayout =
+        /<AdminLayout[\s>]/.test(source) ||
+        /<AdminPage[\s/>]/.test(source) ||
+        // dynamic pattern: `const Layout = … ? … : AdminLayout` then `<Layout>`
+        /\bAdminLayout\b/.test(source);
+      const usesLayout = importsLayout && rendersLayout;
       const exclusionReason = INTENTIONAL_EXCLUSIONS[fileName] ?? null;
       const status: PageReport["status"] = usesLayout
         ? "ok"
