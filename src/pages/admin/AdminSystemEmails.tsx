@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail, Search, Code, Eye, Zap, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import AdminLayout from "@/components/admin/AdminLayout";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 
 interface SystemTemplate {
   key: string;

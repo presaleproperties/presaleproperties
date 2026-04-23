@@ -28,7 +28,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import AdminLayout from "@/components/admin/AdminLayout";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 
