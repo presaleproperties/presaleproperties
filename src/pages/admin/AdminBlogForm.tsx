@@ -246,6 +246,7 @@ export default function AdminBlogForm() {
   return (
     <AdminLayout>
       <form onSubmit={handleSubmit} className="space-y-6">
+        <AdminBackLink to="/admin/blogs" label="Back to all posts" />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
