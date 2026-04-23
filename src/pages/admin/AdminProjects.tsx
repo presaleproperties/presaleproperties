@@ -791,6 +791,12 @@ export default function AdminProjects() {
                         {project.is_featured && (
                           <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                         )}
+                        {project.show_in_hero && (
+                          <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200">
+                            <Sparkles className="h-3 w-3" />
+                            In Hero
+                          </Badge>
+                        )}
                         <Badge className={getStatusColor(project.status)}>
                           {formatStatus(project.status)}
                         </Badge>
@@ -886,6 +892,15 @@ export default function AdminProjects() {
                         className={project.is_featured ? "text-yellow-500 hover:text-yellow-600" : ""}
                       >
                         <Star className={`h-4 w-4 ${project.is_featured ? "fill-current" : ""}`} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleHero(project)}
+                        title={project.show_in_hero ? "Remove from Hero Slider" : "Add to Hero Slider"}
+                        className={project.show_in_hero ? "text-amber-600 hover:text-amber-700" : ""}
+                      >
+                        <Sparkles className={`h-4 w-4 ${project.show_in_hero ? "fill-current" : ""}`} />
                       </Button>
                       <Button
                         variant="ghost"
