@@ -65,17 +65,27 @@ export default function AdminSharePreview() {
     }
   };
 
-  const runCheck = async () => {
+  const runCheck = async (opts: { fresh?: boolean } = {}) => {
     setError(null);
     setResult(null);
     setLoading(true);
     try {
       const path = normalizePath(input);
       if (!PROJECT_ID) throw new Error("Project ID not configured.");
-      const ogUrl = `https://${PROJECT_ID}.supabase.co/functions/v1/og-preview?path=${encodeURIComponent(path)}`;
+      const params = new URLSearchParams({ path });
+      if (opts.fresh) {
+        params.set("fresh", "1");
+        params.set("v", String(Date.now()));
+      }
+      const ogUrl = `https://${PROJECT_ID}.supabase.co/functions/v1/og-preview?${params.toString()}`;
       const resp = await fetch(ogUrl, {
-        headers: { "User-Agent": CRAWLER_UA, "x-test-crawler": "1" },
+        headers: {
+          "User-Agent": CRAWLER_UA,
+          "x-test-crawler": "1",
+          ...(opts.fresh ? { "Cache-Control": "no-cache" } : {}),
+        },
         redirect: "manual",
+        cache: opts.fresh ? "no-store" : "default",
       });
       const html = await resp.text();
       const meta = parseMeta(html);
@@ -85,6 +95,7 @@ export default function AdminSharePreview() {
         status: resp.status,
         fetchedFrom: ogUrl,
       });
+      if (opts.fresh) toast.success("Fetched fresh — cache bypassed");
     } catch (e: any) {
       setError(e?.message || "Failed to fetch preview");
     } finally {
@@ -92,11 +103,11 @@ export default function AdminSharePreview() {
     }
   };
 
-  const copyShareUrl = async () => {
+  const copyShareUrl = async (fresh = false) => {
     const path = normalizePath(input);
-    const url = getShareableUrl(path);
+    const url = getShareableUrl(path, fresh ? { fresh: true, version: Date.now() } : {});
     await navigator.clipboard.writeText(url);
-    toast.success("Shareable URL copied");
+    toast.success(fresh ? "Fresh share URL copied (cache-busting)" : "Shareable URL copied");
   };
 
   const checks = result
@@ -143,8 +154,16 @@ export default function AdminSharePreview() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && runCheck()}
                 />
-                <Button onClick={runCheck} disabled={loading || !input.trim()}>
+                <Button onClick={() => runCheck()} disabled={loading || !input.trim()}>
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Check"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => runCheck({ fresh: true })}
+                  disabled={loading || !input.trim()}
+                  title="Bypass cache & force re-fetch from the database"
+                >
+                  Force fresh
                 </Button>
               </div>
             </div>
@@ -215,9 +234,13 @@ export default function AdminSharePreview() {
                 </div>
 
                 <div className="flex gap-2 mt-4 flex-wrap">
-                  <Button size="sm" variant="outline" onClick={copyShareUrl}>
+                  <Button size="sm" variant="outline" onClick={() => copyShareUrl(false)}>
                     <Copy className="h-4 w-4 mr-2" />
                     Copy share URL
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => copyShareUrl(true)}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy fresh URL
                   </Button>
                   <Button size="sm" variant="outline" asChild>
                     <a href={result.fetchedFrom} target="_blank" rel="noopener noreferrer">
