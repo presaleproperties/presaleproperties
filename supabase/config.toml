@@ -194,3 +194,10 @@ verify_jwt = false
 
 [functions.send-lead-approval-email]
 verify_jwt = false
+
+[functions.push-vapid-key]
+verify_jwt = false
+
+[functions.send-lead-push]
+verify_jwt = false
+
