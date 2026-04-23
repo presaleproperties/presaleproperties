@@ -28,6 +28,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 
@@ -160,7 +161,7 @@ export default function AdminLeadApprovals() {
   }, []);
 
   return (
-    <>
+    <AdminLayout>
       <div className="container max-w-7xl py-6 space-y-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
@@ -381,6 +382,6 @@ export default function AdminLeadApprovals() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </AdminLayout>
   );
 }
