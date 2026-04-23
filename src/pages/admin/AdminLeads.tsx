@@ -1086,25 +1086,6 @@ export default function AdminLeads() {
             </Button>
           </div>
         </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/admin/leads/analytics">
-                <BarChart3 className="mr-2 h-4 w-4" />
-                Analytics
-              </Link>
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => exportToCSV(activeTab as "project" | "listing")}
-              disabled={
-                (activeTab === "project" ? filteredProjectLeads.length : filteredListingLeads.length) === 0
-              }
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-          </div>
-        </div>
 
         {/* ── KPI Strip ────────────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
