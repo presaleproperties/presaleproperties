@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import { getShareableUrl } from "@/lib/share";
 
 interface SocialShareButtonsProps {
   title: string;
@@ -27,7 +28,8 @@ export function SocialShareButtons({
   className = "",
   variant = "default"
 }: SocialShareButtonsProps) {
-  const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "");
+  // Use crawler-friendly preview URL so iMessage/WhatsApp/Slack/etc render per-page OG tags
+  const shareUrl = url || (typeof window !== "undefined" ? getShareableUrl() : "");
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);
   const encodedDescription = encodeURIComponent(description);
