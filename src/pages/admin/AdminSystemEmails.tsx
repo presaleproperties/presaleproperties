@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail, Search, Code, Eye, Zap, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 interface SystemTemplate {
   key: string;
@@ -65,6 +66,7 @@ export default function AdminSystemEmails() {
   const active = templates.find((t) => t.key === activeKey);
 
   return (
+    <AdminLayout>
     <div className="container mx-auto p-6 max-w-[1600px]">
       {/* Header */}
       <div className="mb-6">
@@ -231,5 +233,6 @@ export default function AdminSystemEmails() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }

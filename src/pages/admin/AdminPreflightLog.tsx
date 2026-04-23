@@ -20,6 +20,7 @@ import {
   Send as SendIcon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -139,6 +140,7 @@ export default function AdminPreflightLog() {
   }, [data]);
 
   return (
+    <AdminLayout>
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
@@ -270,6 +272,7 @@ export default function AdminPreflightLog() {
         </CardContent>
       </Card>
     </div>
+    </AdminLayout>
   );
 }
 
