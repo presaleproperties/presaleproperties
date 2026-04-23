@@ -1958,7 +1958,42 @@ export default function AdminLeads() {
                   </div>
                 </div>
 
-                {/* Mobile cards */}
+                {/* Desktop Cards Grid */}
+                {viewMode === "cards" && (
+                  <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
+                    {paginatedListingLeads.map((lead) => {
+                      const data: LeadCardData = {
+                        id: lead.id,
+                        name: lead.name,
+                        email: lead.email,
+                        phone: lead.phone,
+                        created_at: lead.created_at,
+                        contextLabel: lead.listings?.title
+                          ? `Listing: ${lead.listings.title}`
+                          : null,
+                        contextCity: lead.listings?.city ?? null,
+                      };
+                      return (
+                        <LeadCard
+                          key={lead.id}
+                          lead={data}
+                          selected={selectedListingIds.has(lead.id)}
+                          onToggleSelect={() => toggleSelectListing(lead.id)}
+                          onOpenDetails={() => {
+                            setSelectedLead(lead);
+                            setModalInitialTab("overview");
+                            setModalOpen(true);
+                          }}
+                          onComposeEmail={() =>
+                            openCompose({ id: lead.id, email: lead.email, name: lead.name })
+                          }
+                          onDelete={() => deleteListingLeadMutation.mutate(lead.id)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="space-y-2 md:hidden">
                   {paginatedListingLeads.map((lead) => (
                     <div
