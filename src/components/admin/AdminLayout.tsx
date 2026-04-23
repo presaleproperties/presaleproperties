@@ -144,6 +144,7 @@ const navSections = [
       { href: "/admin/preflight-log",      label: "Preflight Log",    icon: ScrollText,    badgeKey: null },
       { href: "/admin/system",             label: "System Status",    icon: Database,      badgeKey: null },
       { href: "/admin/tech-stack",         label: "Tech Stack",       icon: Cpu,           badgeKey: null },
+      { href: "/admin/layout-health",      label: "Layout Health",    icon: ShieldCheck,   badgeKey: null },
     ],
   },
   {
@@ -361,7 +362,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="min-h-screen flex bg-muted/30">
+      <div data-admin-layout="true" className="min-h-screen flex bg-muted/30">
 
         {/* ── Desktop Sidebar ─────────────────────────────────── */}
         <aside className={cn(
