@@ -193,8 +193,8 @@ export function AccessPackModal({
         message: messageData,
       });
 
-      // Fire auto-response email (Template A for buyers without agent, Template B otherwise)
-      supabase.functions.invoke("send-lead-autoresponse", { body: { leadId, projectId } }).catch(console.error);
+      // Auto-response email is now gated behind admin approval at /admin/lead-approvals.
+      // Lead is queued for review; the admin can approve & fire the send.
 
       trackFormSubmit({
         form_name: variant === "floorplans" ? "access_pack" : variant === "general_interest" ? "general_interest" : "callback_request",
