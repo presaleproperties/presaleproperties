@@ -155,13 +155,12 @@ export default function AdminLeadApprovals() {
     }
   }
 
+  useEffect(() => {
+    document.title = "Lead Approvals — Admin";
+  }, []);
+
   return (
     <>
-      <Helmet>
-        <title>Lead Approvals — Admin</title>
-        <meta name="robots" content="noindex,nofollow" />
-      </Helmet>
-
       <div className="container max-w-7xl py-6 space-y-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
@@ -323,7 +322,7 @@ export default function AdminLeadApprovals() {
                           {tab === "approved" ? "Approved" : "Rejected"}:{" "}
                           {formatDistanceToNow(new Date(lead.approved_at), { addSuffix: true })}
                           {lead.auto_response_sent_at && tab === "approved" && (
-                            <span className="ml-2 text-emerald-600">· Email sent</span>
+                            <span className="ml-2 text-primary">· Email sent</span>
                           )}
                         </div>
                       )}
