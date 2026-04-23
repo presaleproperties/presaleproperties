@@ -1,0 +1,1 @@
+DELETE FROM project_leads WHERE id IN ('21fa843c-6917-49f6-9556-7867ce9dda8a','dc694de7-91a7-4774-b0f5-4e5bb80c0bef');
