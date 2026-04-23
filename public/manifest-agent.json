@@ -2,7 +2,7 @@
   "name": "Presale Agent Hub",
   "short_name": "Agent Hub",
   "description": "Your real estate agent dashboard — onboard leads, send pitch decks, and manage email campaigns.",
-  "start_url": "/dashboard",
+  "start_url": "/dashboard?pwa=1",
   "display": "standalone",
   "background_color": "#1c2120",
   "theme_color": "#ffb600",
