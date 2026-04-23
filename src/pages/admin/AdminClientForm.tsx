@@ -208,6 +208,7 @@ export default function AdminClientForm() {
   return (
     <AdminLayout>
       <div className="space-y-6 max-w-3xl">
+        <AdminBackLink to="/admin/clients" label="Back to clients" />
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate("/admin/clients")}>
