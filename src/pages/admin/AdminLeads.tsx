@@ -1087,6 +1087,41 @@ export default function AdminLeads() {
               </TabsTrigger>
             </TabsList>
             <div className="flex items-center gap-2">
+              {/* List / Cards view toggle (desktop only) */}
+              <div className="hidden md:inline-flex rounded-md border border-border bg-background p-0.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className={cn(
+                    "h-7 gap-1 rounded-sm px-2 text-xs",
+                    viewMode === "list"
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                  aria-pressed={viewMode === "list"}
+                  title="List view"
+                >
+                  <List className="h-3.5 w-3.5" /> List
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setViewMode("cards")}
+                  className={cn(
+                    "h-7 gap-1 rounded-sm px-2 text-xs",
+                    viewMode === "cards"
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                  aria-pressed={viewMode === "cards"}
+                  title="Cards view"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" /> Cards
+                </Button>
+              </div>
               {hasActiveFilters && (
                 <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2 text-xs">
                   <X className="mr-1 h-3 w-3" /> Clear filters
