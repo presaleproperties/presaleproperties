@@ -247,9 +247,9 @@ export default function AdminSharePreview() {
                 {checks.map((c) => (
                   <div key={c.label} className="flex items-start gap-3 py-2 border-b last:border-0">
                     {c.pass ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                      <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                     ) : (
-                      <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                      <AlertTriangle className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm">{c.label}</div>
