@@ -2,6 +2,7 @@ import { Component, type ReactNode, type ErrorInfo } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { LeadOnboardHub } from "@/components/leads/LeadOnboardHub";
 import { QuickActions } from "@/components/dashboard/QuickActions";
+import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -54,9 +55,19 @@ export default function DashboardOverview() {
   return (
     <DashboardLayout>
       <div className="space-y-6 md:space-y-8 max-w-6xl mx-auto">
-        {/* Quick Actions — minimal, top */}
-        <section>
-          <QuickActions />
+        {/* Header — install CTA + quick actions */}
+        <section className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex-1">
+            <QuickActions />
+          </div>
+          <div className="flex-shrink-0 sm:pt-1">
+            <InstallAppButton
+              appName="Agent"
+              manifestPath="/manifest-agent.json"
+              startUrl="/dashboard"
+              label="Install Agent App"
+            />
+          </div>
         </section>
 
         {/* Lead Onboard Hub — primary view */}
