@@ -34,6 +34,8 @@ import {
   Bookmark,
   BookmarkPlus,
   Star,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
