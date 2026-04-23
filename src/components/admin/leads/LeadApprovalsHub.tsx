@@ -32,8 +32,16 @@ import {
   ShieldAlert,
   Sparkles,
   ExternalLink,
+  Bell,
+  BellOff,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import {
+  pushSupported,
+  getCurrentSubscription,
+  enablePushNotifications,
+  disablePushNotifications,
+} from "@/lib/pushNotifications";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 
@@ -165,6 +173,37 @@ export function LeadApprovalsHub() {
     document.title = "Lead Approvals — Admin";
   }, []);
 
+  // Push notification subscription state
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const isPushSupported = pushSupported();
+
+  useEffect(() => {
+    if (!isPushSupported) return;
+    getCurrentSubscription().then((s) => setPushEnabled(!!s));
+  }, [isPushSupported]);
+
+  async function togglePush() {
+    setPushBusy(true);
+    try {
+      if (pushEnabled) {
+        const r = await disablePushNotifications();
+        if (!r.ok) throw new Error(r.error);
+        setPushEnabled(false);
+        toast({ title: "Notifications off", description: "You'll no longer receive lead push alerts on this device." });
+      } else {
+        const r = await enablePushNotifications();
+        if (!r.ok) throw new Error(r.error);
+        setPushEnabled(true);
+        toast({ title: "Notifications on ✓", description: "You'll get a push alert with Approve/Reject buttons for new pending leads." });
+      }
+    } catch (err: any) {
+      toast({ title: "Notification setup failed", description: err?.message ?? "Unknown error", variant: "destructive" });
+    } finally {
+      setPushBusy(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -183,6 +222,18 @@ export function LeadApprovalsHub() {
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          {isPushSupported && (
+            <Button
+              size="sm"
+              variant={pushEnabled ? "secondary" : "outline"}
+              disabled={pushBusy}
+              onClick={togglePush}
+              className="gap-1.5"
+            >
+              {pushEnabled ? <Bell className="h-3.5 w-3.5" /> : <BellOff className="h-3.5 w-3.5" />}
+              {pushBusy ? "…" : pushEnabled ? "Push on" : "Enable push"}
+            </Button>
+          )}
           <Sparkles className="h-3 w-3" /> Risk score combines persona, brokerage email
           domain, message keywords, and submission frequency.
         </div>
