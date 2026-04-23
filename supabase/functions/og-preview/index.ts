@@ -61,6 +61,29 @@ function isCrawler(ua: string | null) {
   return CRAWLER_UA_PATTERNS.some((p) => p.test(ua));
 }
 
+// Map a crawler User-Agent to a normalized platform name for analytics.
+function detectPlatform(ua: string | null): string {
+  if (!ua) return "unknown";
+  const u = ua.toLowerCase();
+  if (u.includes("facebookexternalhit") || u.includes("facebot")) return "facebook";
+  if (u.includes("twitterbot")) return "twitter";
+  if (u.includes("linkedinbot")) return "linkedin";
+  if (u.includes("whatsapp")) return "whatsapp";
+  if (u.includes("slackbot")) return "slack";
+  if (u.includes("discordbot")) return "discord";
+  if (u.includes("telegrambot")) return "telegram";
+  if (u.includes("skypeuripreview")) return "skype";
+  if (u.includes("applebot")) return "imessage";
+  if (u.includes("pinterest")) return "pinterest";
+  if (u.includes("redditbot")) return "reddit";
+  if (u.includes("vkshare")) return "vk";
+  if (u.includes("quora")) return "quora";
+  if (u.includes("embedly") || u.includes("iframely")) return "embedly";
+  if (u.includes("googlebot")) return "google";
+  if (u.includes("bingbot")) return "bing";
+  return "other_bot";
+}
+
 function escapeHtml(s: string) {
   return s
     .replace(/&/g, "&amp;")
