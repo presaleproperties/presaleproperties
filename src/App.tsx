@@ -431,6 +431,7 @@ const App = () => (
             <Route path="/admin/system" element={<AdminProtectedRoute><AdminSystem /></AdminProtectedRoute>} />
             <Route path="/admin/tech-stack" element={<AdminProtectedRoute><AdminTechStack /></AdminProtectedRoute>} />
             <Route path="/admin/live-activity" element={<AdminProtectedRoute><AdminLiveActivity /></AdminProtectedRoute>} />
+            <Route path="/admin/layout-health" element={<AdminProtectedRoute><AdminLayoutHealthCheck /></AdminProtectedRoute>} />
             
             
             {/* Agent URL Redirects - common typos/variants */}
