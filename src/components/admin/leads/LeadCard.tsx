@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import {
   Mail,
   Phone,
@@ -13,6 +13,7 @@ import {
   ExternalLink,
   Flame,
   MessageSquare,
+  Activity,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,10 +30,8 @@ import { cn } from "@/lib/utils";
 import { PhoneActionsPopover } from "@/components/admin/PhoneActionsPopover";
 
 /**
- * Common shape — narrow enough that both project & listing leads can use it.
- * Match the AdminClients.tsx card visual language: avatar-less header,
- * intent badge top-right, criteria rows with icons, status pills,
- * quick actions footer with border-top.
+ * LeadCard — visual parity with AdminClients card grid.
+ * Header → criteria rows → activity strip → status badges → quick actions footer.
  */
 export interface LeadCardData {
   id: string;
@@ -40,15 +39,15 @@ export interface LeadCardData {
   email: string;
   phone: string | null;
   created_at: string;
-  /** Header sub-label: persona + size for project leads; listing title for listing leads */
+  /** Header sub-label (persona + size, or listing title) */
   subtitle?: string | null;
   /** Project / listing context line */
   contextLabel?: string | null;
-  /** City under context line */
+  /** City / neighborhood under context line */
   contextCity?: string | null;
-  /** Optional external URL (e.g. project page) — opens new tab in dropdown */
+  /** Optional external URL (project page) — opens new tab in dropdown */
   contextUrl?: string | null;
-  /** 0–10 intent score; omitted = no badge */
+  /** 0–10 intent score */
   intentScore?: number | null;
   /** Lead status pill text (new / contacted / converted / …) */
   status?: string | null;
@@ -56,6 +55,9 @@ export interface LeadCardData {
   sourceLabel?: string | null;
   /** Extra source count beyond the primary one */
   extraSourceCount?: number;
+  /** Optional engagement counters (matches client card "views / visits") */
+  emailCount?: number;
+  touchCount?: number;
 }
 
 export interface LeadCardProps {
@@ -67,18 +69,18 @@ export interface LeadCardProps {
   onDelete?: () => void;
 }
 
-function intentTone(score: number) {
-  if (score >= 8) return "bg-destructive/10 text-destructive border-destructive/30";
-  if (score >= 5) return "bg-amber-500/10 text-amber-700 border-amber-500/30";
-  return "bg-muted text-muted-foreground border-border";
+/** Match the Clients page intent palette (default / amber / red). */
+function intentColor(score: number) {
+  if (score >= 8) return "bg-destructive text-destructive-foreground";
+  if (score >= 5) return "bg-amber-500 text-white";
+  return "bg-secondary text-secondary-foreground";
 }
 
-function statusTone(status: string) {
+function statusVariant(status: string): "default" | "secondary" | "outline" {
   const s = status.toLowerCase();
-  if (s === "converted") return "bg-emerald-500/10 text-emerald-700 border-emerald-500/30";
-  if (s === "contacted") return "bg-blue-500/10 text-blue-700 border-blue-500/30";
-  if (s === "lost") return "bg-muted text-muted-foreground";
-  return "bg-primary/10 text-primary border-primary/30"; // new / default
+  if (s === "converted" || s === "new") return "default";
+  if (s === "lost") return "secondary";
+  return "outline";
 }
 
 export function LeadCard({
@@ -90,28 +92,34 @@ export function LeadCard({
   onDelete,
 }: LeadCardProps) {
   const isHot = (lead.intentScore ?? 0) >= 8;
+  const displayName = lead.name?.trim() || "Unnamed Lead";
+  const isListing = lead.contextLabel?.toLowerCase().includes("listing");
 
   return (
     <Card
       onClick={onOpenDetails}
       className={cn(
-        "group cursor-pointer border-2 border-transparent transition-all hover:shadow-lg hover:border-primary/20",
+        "group cursor-pointer border-2 border-transparent transition-all hover:border-primary/20 hover:shadow-lg",
         selected && "border-primary/40 bg-primary/[0.02]",
-        isHot && !selected && "border-l-destructive/60",
       )}
     >
       <CardContent className="p-4">
         {/* ── Header ────────────────────────────────────────────── */}
-        <div className="mb-3 flex items-start justify-between gap-2">
-          <div className="flex min-w-0 items-start gap-2">
+        <div className="mb-3 flex items-start justify-between">
+          <div className="flex min-w-0 flex-1 items-start gap-2">
             {onToggleSelect && (
               <div onClick={(e) => e.stopPropagation()} className="pt-1">
                 <Checkbox checked={selected} onCheckedChange={onToggleSelect} />
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="truncate font-semibold">{lead.name}</h3>
+              <div className="mb-1 flex items-center gap-2">
+                <h3 className="truncate font-semibold">{displayName}</h3>
+                {typeof lead.intentScore === "number" && (
+                  <Badge className={cn("shrink-0 text-xs", intentColor(lead.intentScore))}>
+                    {lead.intentScore}
+                  </Badge>
+                )}
                 {isHot && <Flame className="h-3.5 w-3.5 shrink-0 text-destructive" />}
               </div>
               <button
@@ -126,121 +134,119 @@ export function LeadCard({
                 {lead.email}
               </button>
               {lead.phone && (
-                <a
-                  href={`tel:${lead.phone}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
-                >
+                <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                   <Phone className="h-3 w-3" />
                   {lead.phone}
-                </a>
-              )}
-              {lead.subtitle && (
-                <p className="mt-0.5 text-[11px] text-muted-foreground">{lead.subtitle}</p>
+                </p>
               )}
             </div>
           </div>
 
-          <div className="flex shrink-0 items-start gap-1">
-            {typeof lead.intentScore === "number" && (
-              <Badge variant="outline" className={cn("text-xs", intentTone(lead.intentScore))}>
-                {lead.intentScore}
-              </Badge>
-            )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 opacity-0 group-hover:opacity-100"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenDetails();
-                  }}
-                >
-                  <Eye className="mr-2 h-4 w-4" /> View details
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 opacity-0 group-hover:opacity-100"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenDetails();
+                }}
+              >
+                <Eye className="mr-2 h-4 w-4" /> View details
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onComposeEmail();
+                }}
+              >
+                <Mail className="mr-2 h-4 w-4" /> Compose email
+              </DropdownMenuItem>
+              {lead.contextUrl && (
+                <DropdownMenuItem asChild>
+                  <a
+                    href={lead.contextUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" /> Open in new tab
+                  </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onComposeEmail();
-                  }}
-                >
-                  <Mail className="mr-2 h-4 w-4" /> Compose email
-                </DropdownMenuItem>
-                {lead.contextUrl && (
-                  <DropdownMenuItem asChild>
-                    <a
-                      href={lead.contextUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <ExternalLink className="mr-2 h-4 w-4" /> Open in new tab
-                    </a>
+              )}
+              {onDelete && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </DropdownMenuItem>
-                )}
-                {onDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete();
-                      }}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" /> Delete
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
-        {/* ── Context (project / listing) ────────────────────────── */}
-        {lead.contextLabel && (
-          <div className="mb-3 space-y-1">
-            <div className="flex items-center gap-1.5 text-sm">
-              {lead.contextLabel.toLowerCase().includes("listing") ? (
-                <Home className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              ) : (
-                <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              )}
-              <span className="truncate">{lead.contextLabel}</span>
-            </div>
+        {/* ── Criteria (project / listing context) ───────────────── */}
+        {(lead.contextLabel || lead.contextCity || lead.subtitle) && (
+          <div className="mb-3 space-y-2">
+            {lead.contextLabel && (
+              <div className="flex items-center gap-1.5 text-sm">
+                {isListing ? (
+                  <Home className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                ) : (
+                  <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                )}
+                <span className="truncate">{lead.contextLabel}</span>
+              </div>
+            )}
             {lead.contextCity && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <MapPin className="h-3 w-3 shrink-0" />
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{lead.contextCity}</span>
               </div>
+            )}
+            {lead.subtitle && (
+              <p className="truncate text-xs text-muted-foreground">{lead.subtitle}</p>
             )}
           </div>
         )}
 
-        {/* ── Activity strip ────────────────────────────────────── */}
-        <div className="flex items-center gap-3 rounded-lg bg-muted/50 px-3 py-2 text-xs">
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            <span>{formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}</span>
+        {/* ── Activity strip (mirrors Clients views/visits) ──────── */}
+        <div className="flex items-center gap-4 rounded-lg bg-muted/50 px-3 py-2 text-sm">
+          <div className="flex items-center gap-1.5">
+            <Mail className="h-3.5 w-3.5 text-blue-500" />
+            <span className="font-medium">{lead.emailCount ?? 0}</span>
+            <span className="text-xs text-muted-foreground">emails</span>
           </div>
-          <div className="ml-auto text-[10px] text-muted-foreground/70">
-            {format(new Date(lead.created_at), "MMM d")}
+          <div className="flex items-center gap-1.5">
+            <Activity className="h-3.5 w-3.5 text-emerald-500" />
+            <span className="font-medium">{lead.touchCount ?? 1}</span>
+            <span className="text-xs text-muted-foreground">touches</span>
+          </div>
+          <div className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
           </div>
         </div>
 
         {/* ── Status / source badges ────────────────────────────── */}
         {(lead.status || lead.sourceLabel) && (
-          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             {lead.status && (
-              <Badge variant="outline" className={cn("text-xs", statusTone(lead.status))}>
+              <Badge variant={statusVariant(lead.status)} className="text-xs capitalize">
                 {lead.status}
               </Badge>
             )}
@@ -276,7 +282,7 @@ export function LeadCard({
             </div>
           ) : (
             <Button size="sm" variant="outline" className="h-8 flex-1" disabled>
-              <Phone className="mr-1.5 h-3.5 w-3.5" /> No phone
+              <MessageSquare className="mr-1.5 h-3.5 w-3.5" /> No phone
             </Button>
           )}
           <Button
