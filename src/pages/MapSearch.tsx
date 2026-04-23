@@ -4,6 +4,7 @@ import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { generateProjectUrl } from "@/lib/seoUrls";
 import { getListingUrl } from "@/lib/propertiesUrls";
 import { Helmet } from "@/components/seo/Helmet";
+import { MetaTags } from "@/components/seo/MetaTags";
 import { toast } from "sonner";
 import { 
   SlidersHorizontal, X, Map, LayoutGrid, Menu,

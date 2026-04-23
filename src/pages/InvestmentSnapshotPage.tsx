@@ -1,4 +1,5 @@
 import { Helmet } from '@/components/seo/Helmet';
+import { MetaTags } from '@/components/seo/MetaTags';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { useSearchParams, Link } from 'react-router-dom';
 import { ConversionHeader } from '@/components/conversion/ConversionHeader';
