@@ -28,8 +28,9 @@ export function SocialShareButtons({
   className = "",
   variant = "default"
 }: SocialShareButtonsProps) {
-  // Use crawler-friendly preview URL so iMessage/WhatsApp/Slack/etc render per-page OG tags
-  const shareUrl = url || (typeof window !== "undefined" ? getShareableUrl() : "");
+  // Share the real site URL so the share sheet shows presaleproperties.com +
+  // favicon. Crawlers fetching this URL get the right per-page OG card.
+  const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "");
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);
   const encodedDescription = encodeURIComponent(description);

@@ -16,9 +16,10 @@ interface ShareButtonsProps {
 
 export function ShareButtons({ title, url }: ShareButtonsProps) {
   const [isFavorited, setIsFavorited] = useState(false);
-  const rawUrl = url || (typeof window !== "undefined" ? window.location.href : "");
-  // Use crawler-friendly preview URL so social platforms render per-page OG tags
-  const shareUrl = url ? url : getShareableUrl();
+  // Share the real site URL so the iOS/Android share sheet shows our domain
+  // and favicon — not the bare supabase.co function host. Crawlers (FB/WhatsApp/
+  // iMessage) follow the URL and get correct per-page OG via our edge layer.
+  const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "");
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);
 
