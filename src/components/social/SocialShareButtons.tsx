@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { getShareableUrl } from "@/lib/share";
+
 
 interface SocialShareButtonsProps {
   title: string;
