@@ -298,6 +298,6 @@ export default function AdminSchedulerSettings() {
           </Card>
         )}
       </div>
-    </AdminLayout>
+    </AdminPage>
   );
 }
