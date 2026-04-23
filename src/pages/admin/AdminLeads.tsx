@@ -1001,6 +1001,32 @@ export default function AdminLeads() {
     }
   };
 
+  // Workspace section (Pipeline / Approvals / Onboard) — shareable via ?section=
+  const [section, setSection] = useState<"pipeline" | "approvals" | "onboard">(() => {
+    if (typeof window === "undefined") return "pipeline";
+    const s = new URLSearchParams(window.location.search).get("section");
+    return s === "approvals" || s === "onboard" ? s : "pipeline";
+  });
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (section === "pipeline") url.searchParams.delete("section");
+    else url.searchParams.set("section", section);
+    window.history.replaceState({}, "", url.toString());
+  }, [section]);
+
+  // Pending-approval badge in the workspace tab
+  const { data: pendingApprovals } = useApprovalCountQuery({
+    queryKey: ["admin", "leads-workspace", "pending-count"],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("project_leads")
+        .select("id", { count: "exact", head: true })
+        .eq("approval_status", "pending");
+      return count ?? 0;
+    },
+    refetchInterval: 30_000,
+  });
+
   return (
     <AdminLayout>
       <Helmet>
@@ -1008,6 +1034,31 @@ export default function AdminLeads() {
       </Helmet>
 
       <div className="space-y-6">
+        {/* ── Workspace Tabs (Pipeline / Approvals / Onboard) ───── */}
+        <Tabs value={section} onValueChange={(v) => setSection(v as typeof section)}>
+          <TabsList className="h-auto p-1">
+            <TabsTrigger value="pipeline" className="gap-1.5">
+              <Users className="h-3.5 w-3.5" /> Pipeline
+            </TabsTrigger>
+            <TabsTrigger value="approvals" className="gap-1.5">
+              <ShieldCheck className="h-3.5 w-3.5" /> Approvals
+              {!!pendingApprovals && pendingApprovals > 0 && (
+                <Badge variant="destructive" className="ml-1 h-4 px-1.5 text-[10px]">
+                  {pendingApprovals}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="onboard" className="gap-1.5">
+              <UserPlus className="h-3.5 w-3.5" /> Onboard
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {section === "approvals" && <LeadApprovalsHub />}
+        {section === "onboard" && <LeadOnboardHub />}
+
+        {section === "pipeline" && (
+        <>
         {/* ── Header ───────────────────────────────────────────── */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -1016,6 +1067,25 @@ export default function AdminLeads() {
               {kpis.totalLeads.toLocaleString()} leads across all sources · {kpis.recentLeads} this week
             </p>
           </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/admin/leads/analytics">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                Analytics
+              </Link>
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => exportToCSV(activeTab as "project" | "listing")}
+              disabled={
+                (activeTab === "project" ? filteredProjectLeads.length : filteredListingLeads.length) === 0
+              }
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button>
+          </div>
+        </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" asChild>
               <Link to="/admin/leads/analytics">
