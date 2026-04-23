@@ -19,6 +19,7 @@ import { PropertiesCleanupRedirect } from "@/components/redirects/PropertiesSpac
 import { GlobalSEO } from "@/components/seo/GlobalSEO";
 import { FaviconLoader } from "@/components/FaviconLoader";
 import { AgentManifestSwap } from "@/components/dashboard/AgentManifestSwap";
+import { PwaSessionMemory } from "@/components/pwa/PwaSessionMemory";
 import { UtmTracker } from "@/components/UtmTracker";
 import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
@@ -199,6 +200,7 @@ const App = () => (
             <GlobalSEO />
             <FaviconLoader />
             <AgentManifestSwap />
+            <PwaSessionMemory />
             <UtmTracker />
             <LoftyPageTracker />
             <BehaviorTracker />
