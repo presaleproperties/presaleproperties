@@ -3,8 +3,8 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Loader2 } from "lucide-react";
 
 interface AdminPageProps {
-  /** Main page content. Rendered inside <AdminLayout>. */
-  children: ReactNode;
+  /** Main page content. Rendered inside <AdminLayout>. Optional when `loading` is true. */
+  children?: ReactNode;
   /** When true, replaces children with a centered spinner — but keeps the
    *  AdminLayout wrapper so the sidebar stays visible. */
   loading?: boolean;
