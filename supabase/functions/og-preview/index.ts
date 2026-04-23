@@ -329,6 +329,44 @@ Deno.serve(async (req) => {
     const pathname = new URL(targetUrl).pathname.replace(/\/+$/, "") || "/";
     const segments = pathname.split("/").filter(Boolean);
 
+    // ─── Unfurl tracking (fire-and-forget) ──────────────────────
+    // Logs every crawler hit so admins can see which links are being
+    // shared and unfurled, and on which platforms. Skip the admin
+    // verifier (it sets `x-test-crawler: 1`) so test runs don't pollute
+    // analytics. Never await — must not block the OG response.
+    const isTestCrawler = req.headers.get("x-test-crawler") === "1";
+    if (!isTestCrawler) {
+      const RESOURCE_MAP: Record<string, string> = {
+        "presale-projects": "project",
+        projects: "project",
+        listings: "listing",
+        resale: "listing",
+        blog: "blog_post",
+        deck: "pitch_deck",
+        developers: "developer",
+      };
+      const resource_type = segments[0]
+        ? RESOURCE_MAP[segments[0]] ?? segments[0]
+        : "home";
+      const resource_slug = segments[1] ?? null;
+      const platform = detectPlatform(ua);
+      // Don't await — fire and forget so a slow insert never delays the unfurl.
+      supabase
+        .from("share_events")
+        .insert({
+          event_type: "unfurl",
+          path,
+          resource_type,
+          resource_slug,
+          platform,
+          user_agent: ua,
+          referrer: req.headers.get("referer"),
+        })
+        .then(({ error }) => {
+          if (error) console.error("share_events insert failed:", error.message);
+        });
+    }
+
     let meta: Meta | null = null;
 
     // Pattern matching, most specific first
