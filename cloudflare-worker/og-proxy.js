@@ -7,7 +7,7 @@
 // Normal users pass through to the origin (Lovable hosting) unchanged.
 
 const OG_FUNCTION_URL =
-  "https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-prerender";
+  "https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-preview";
 
 const BOT_PATTERNS = [
   "facebookexternalhit",
