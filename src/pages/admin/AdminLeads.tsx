@@ -2162,6 +2162,8 @@ export default function AdminLeads() {
             )}
           </TabsContent>
         </Tabs>
+        </>
+        )}
 
         {/* ── Floating Bulk Action Bar ──────────────────────────── */}
         {selectedIds.size > 0 && (
