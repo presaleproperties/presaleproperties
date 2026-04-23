@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Shield, CheckCircle, Building2, Users, Sparkles } from "lucide-react";
+import { MetaTags } from "@/components/seo/MetaTags";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
@@ -257,6 +258,12 @@ export default function Login() {
   if (isAgentPortal) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
+        <MetaTags
+          title="Agent Login | Presale Properties"
+          description="Sign in to the Presale Properties agent dashboard to manage clients, listings, and marketing campaigns."
+          url="https://presaleproperties.com/login"
+          type="website"
+        />
         <ConversionHeader />
         
         <main className="flex-1 py-12 md:py-20">
@@ -334,6 +341,12 @@ export default function Login() {
   // Default: full login/signup portal (developer, admin, etc.)
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <MetaTags
+        title="Login | Presale Properties Portal"
+        description="Sign in or create an account to access the Presale Properties agent and developer portals."
+        url="https://presaleproperties.com/login"
+        type="website"
+      />
       <ConversionHeader />
       
       <main className="flex-1 py-12 md:py-20">
