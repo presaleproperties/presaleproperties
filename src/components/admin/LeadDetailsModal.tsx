@@ -884,6 +884,7 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
                       No emails sent to this lead yet — try the <strong>Hub</strong> tab to send a template.
                     </EmptyMsg>
                   ) : (
+                    <>
                     <div className="flex items-center gap-3 text-[10px] text-muted-foreground mb-1">
                       <span className="inline-flex items-center gap-1.5">
                         <span className="h-2 w-2 rounded-full bg-blue-500" /> To client
