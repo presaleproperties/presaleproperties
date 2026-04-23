@@ -2,6 +2,7 @@ import { Component, type ReactNode, type ErrorInfo } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { LeadOnboardHub } from "@/components/leads/LeadOnboardHub";
 import { QuickActions } from "@/components/dashboard/QuickActions";
+import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
