@@ -428,6 +428,13 @@ export default function AdminLeads() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("project");
+  const [viewMode, setViewMode] = useState<"list" | "cards">(() => {
+    if (typeof window === "undefined") return "list";
+    return (localStorage.getItem("adminLeads.viewMode") as "list" | "cards") || "list";
+  });
+  useEffect(() => {
+    localStorage.setItem("adminLeads.viewMode", viewMode);
+  }, [viewMode]);
   const [selectedLead, setSelectedLead] = useState<ProjectLead | ListingLead | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalInitialTab, setModalInitialTab] = useState<"overview" | "hub">("overview");
