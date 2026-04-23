@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "@/components/seo/Helmet";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+import { AdminPage } from "@/components/admin/AdminPage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
