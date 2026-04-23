@@ -466,6 +466,30 @@ export default function AdminProjects() {
     }
   };
 
+  const toggleHero = async (project: Project) => {
+    try {
+      const { error } = await supabase
+        .from("presale_projects")
+        .update({ show_in_hero: !project.show_in_hero })
+        .eq("id", project.id);
+
+      if (error) throw error;
+
+      toast({
+        title: project.show_in_hero ? "Removed from Hero Slider" : "Added to Hero Slider",
+        description: `"${project.name}" ${project.show_in_hero ? "no longer appears" : "now appears"} on the homepage hero`,
+      });
+      fetchProjects();
+    } catch (error) {
+      console.error("Error updating project:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update hero slider status",
+        variant: "destructive",
+      });
+    }
+  };
+
   const exportProjectsToCSV = async () => {
     try {
       // Fetch full project data for export
