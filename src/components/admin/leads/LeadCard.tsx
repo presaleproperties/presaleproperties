@@ -1,3 +1,10 @@
+/**
+ * LeadCard
+ * ─────────────────────────────────────────────────────────────────────────
+ * Visual parity with the AdminClients card grid: same spacing, hover ring,
+ * intent badge tone, criteria rows, muted activity strip, status badges,
+ * and 3-button quick-action footer.
+ */
 import { formatDistanceToNow } from "date-fns";
 import {
   Mail,
@@ -12,8 +19,6 @@ import {
   Trash2,
   ExternalLink,
   Flame,
-  MessageSquare,
-  Activity,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,10 +34,6 @@ import {
 import { cn } from "@/lib/utils";
 import { PhoneActionsPopover } from "@/components/admin/PhoneActionsPopover";
 
-/**
- * LeadCard — visual parity with AdminClients card grid.
- * Header → criteria rows → activity strip → status badges → quick actions footer.
- */
 export interface LeadCardData {
   id: string;
   name: string;
@@ -49,15 +50,12 @@ export interface LeadCardData {
   contextUrl?: string | null;
   /** 0–10 intent score */
   intentScore?: number | null;
-  /** Lead status pill text (new / contacted / converted / …) */
+  /** Lead status pill (new / contacted / converted / lost) */
   status?: string | null;
   /** Source badge text (Floor Plans, City: Vancouver, …) */
   sourceLabel?: string | null;
   /** Extra source count beyond the primary one */
   extraSourceCount?: number;
-  /** Optional engagement counters (matches client card "views / visits") */
-  emailCount?: number;
-  touchCount?: number;
 }
 
 export interface LeadCardProps {
@@ -69,18 +67,12 @@ export interface LeadCardProps {
   onDelete?: () => void;
 }
 
-/** Match the Clients page intent palette (default / amber / red). */
-function intentColor(score: number) {
+/** Match the Clients page intent palette exactly. */
+function getIntentColor(score: number) {
   if (score >= 8) return "bg-destructive text-destructive-foreground";
   if (score >= 5) return "bg-amber-500 text-white";
+  if (score >= 3) return "bg-blue-500 text-white";
   return "bg-secondary text-secondary-foreground";
-}
-
-function statusVariant(status: string): "default" | "secondary" | "outline" {
-  const s = status.toLowerCase();
-  if (s === "converted" || s === "new") return "default";
-  if (s === "lost") return "secondary";
-  return "outline";
 }
 
 export function LeadCard({
@@ -99,49 +91,38 @@ export function LeadCard({
     <Card
       onClick={onOpenDetails}
       className={cn(
-        "group cursor-pointer border-2 border-transparent transition-all hover:border-primary/20 hover:shadow-lg",
+        "hover:shadow-lg transition-all cursor-pointer group border-2 border-transparent hover:border-primary/20",
         selected && "border-primary/40 bg-primary/[0.02]",
       )}
     >
       <CardContent className="p-4">
         {/* ── Header ────────────────────────────────────────────── */}
-        <div className="mb-3 flex items-start justify-between">
-          <div className="flex min-w-0 flex-1 items-start gap-2">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1 min-w-0 flex items-start gap-2">
             {onToggleSelect && (
-              <div onClick={(e) => e.stopPropagation()} className="pt-1">
+              <div onClick={(e) => e.stopPropagation()} className="pt-0.5">
                 <Checkbox checked={selected} onCheckedChange={onToggleSelect} />
               </div>
             )}
-            <div className="min-w-0 flex-1">
-              <div className="mb-1 flex items-center gap-2">
-                <h3 className="truncate font-semibold">{displayName}</h3>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold truncate">{displayName}</h3>
                 {typeof lead.intentScore === "number" && (
-                  <Badge className={cn("shrink-0 text-xs", intentColor(lead.intentScore))}>
+                  <Badge className={cn("shrink-0 text-xs", getIntentColor(lead.intentScore))}>
                     {lead.intentScore}
                   </Badge>
                 )}
                 {isHot && <Flame className="h-3.5 w-3.5 shrink-0 text-destructive" />}
               </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onComposeEmail();
-                }}
-                className="block max-w-full truncate text-left text-sm text-muted-foreground hover:text-primary"
-                title="Compose email"
-              >
-                {lead.email}
-              </button>
+              <p className="text-sm text-muted-foreground truncate">{lead.email}</p>
               {lead.phone && (
-                <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                   <Phone className="h-3 w-3" />
                   {lead.phone}
                 </p>
               )}
             </div>
           </div>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
               <Button
@@ -159,7 +140,8 @@ export function LeadCard({
                   onOpenDetails();
                 }}
               >
-                <Eye className="mr-2 h-4 w-4" /> View details
+                <Eye className="h-4 w-4 mr-2" />
+                View Details
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={(e) => {
@@ -167,7 +149,8 @@ export function LeadCard({
                   onComposeEmail();
                 }}
               >
-                <Mail className="mr-2 h-4 w-4" /> Compose email
+                <Mail className="h-4 w-4 mr-2" />
+                Compose Email
               </DropdownMenuItem>
               {lead.contextUrl && (
                 <DropdownMenuItem asChild>
@@ -177,7 +160,8 @@ export function LeadCard({
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <ExternalLink className="mr-2 h-4 w-4" /> Open in new tab
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open in new tab
                   </a>
                 </DropdownMenuItem>
               )}
@@ -191,7 +175,8 @@ export function LeadCard({
                     }}
                     className="text-destructive focus:text-destructive"
                   >
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
                   </DropdownMenuItem>
                 </>
               )}
@@ -199,15 +184,15 @@ export function LeadCard({
           </DropdownMenu>
         </div>
 
-        {/* ── Criteria (project / listing context) ───────────────── */}
+        {/* ── Criteria (project / listing context) ──────────────── */}
         {(lead.contextLabel || lead.contextCity || lead.subtitle) && (
-          <div className="mb-3 space-y-2">
+          <div className="space-y-2 mb-3">
             {lead.contextLabel && (
               <div className="flex items-center gap-1.5 text-sm">
                 {isListing ? (
-                  <Home className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <Home className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 ) : (
-                  <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 )}
                 <span className="truncate">{lead.contextLabel}</span>
               </div>
@@ -219,24 +204,14 @@ export function LeadCard({
               </div>
             )}
             {lead.subtitle && (
-              <p className="truncate text-xs text-muted-foreground">{lead.subtitle}</p>
+              <p className="text-xs text-muted-foreground truncate">{lead.subtitle}</p>
             )}
           </div>
         )}
 
-        {/* ── Activity strip (mirrors Clients views/visits) ──────── */}
-        <div className="flex items-center gap-4 rounded-lg bg-muted/50 px-3 py-2 text-sm">
-          <div className="flex items-center gap-1.5">
-            <Mail className="h-3.5 w-3.5 text-blue-500" />
-            <span className="font-medium">{lead.emailCount ?? 0}</span>
-            <span className="text-xs text-muted-foreground">emails</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Activity className="h-3.5 w-3.5 text-emerald-500" />
-            <span className="font-medium">{lead.touchCount ?? 1}</span>
-            <span className="text-xs text-muted-foreground">touches</span>
-          </div>
-          <div className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
+        {/* ── Activity strip (relative time, mirrors Clients) ───── */}
+        <div className="flex items-center gap-4 py-2 px-3 rounded-lg bg-muted/50 text-sm">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />
             {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
           </div>
@@ -244,9 +219,12 @@ export function LeadCard({
 
         {/* ── Status / source badges ────────────────────────────── */}
         {(lead.status || lead.sourceLabel) && (
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 mt-3 flex-wrap">
             {lead.status && (
-              <Badge variant={statusVariant(lead.status)} className="text-xs capitalize">
+              <Badge
+                variant={lead.status.toLowerCase() === "new" ? "default" : "secondary"}
+                className="text-xs capitalize"
+              >
                 {lead.status}
               </Badge>
             )}
@@ -264,25 +242,27 @@ export function LeadCard({
         )}
 
         {/* ── Quick actions footer ──────────────────────────────── */}
-        <div className="mt-3 flex gap-2 border-t pt-3">
+        <div className="flex gap-2 mt-3 pt-3 border-t">
           <Button
             size="sm"
             variant="outline"
-            className="h-8 flex-1"
+            className="flex-1 h-8"
             onClick={(e) => {
               e.stopPropagation();
               onComposeEmail();
             }}
           >
-            <Mail className="mr-1.5 h-3.5 w-3.5" /> Email
+            <Mail className="h-3.5 w-3.5 mr-1.5" />
+            Email
           </Button>
           {lead.phone ? (
             <div onClick={(e) => e.stopPropagation()} className="contents">
               <PhoneActionsPopover phone={lead.phone} leadName={lead.name} />
             </div>
           ) : (
-            <Button size="sm" variant="outline" className="h-8 flex-1" disabled>
-              <MessageSquare className="mr-1.5 h-3.5 w-3.5" /> No phone
+            <Button size="sm" variant="outline" className="flex-1 h-8" disabled>
+              <Phone className="h-3.5 w-3.5 mr-1.5" />
+              No phone
             </Button>
           )}
           <Button
