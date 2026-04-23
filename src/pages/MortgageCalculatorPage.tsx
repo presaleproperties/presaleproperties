@@ -671,6 +671,12 @@ export default function MortgageCalculatorPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <MetaTags
+        title="Mortgage Calculator | Presale Properties"
+        description="Calculate how much presale property you can afford in Vancouver. Free calculator includes down payment, deposits, closing costs. Get your budget instantly."
+        url="https://presaleproperties.com/mortgage-calculator"
+        type="website"
+      />
       <Helmet>
         <title>Mortgage Calculator | Presale Properties</title>
         <meta name="description" content="Calculate how much presale property you can afford in Vancouver. Free calculator includes down payment, deposits, closing costs. Get your budget instantly." />

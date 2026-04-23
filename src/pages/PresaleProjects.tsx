@@ -490,6 +490,12 @@ export default function PresaleProjects() {
 
   return (
     <>
+      <MetaTags
+        title={getSeoTitle()}
+        description={getSeoDescription()}
+        url={canonicalUrl}
+        type="website"
+      />
       <Helmet>
         <title>{getSeoTitle()}</title>
         <meta name="description" content={getSeoDescription()} />

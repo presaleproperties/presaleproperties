@@ -22,6 +22,12 @@ export default function InvestmentSnapshotPage() {
 
   return (
     <>
+      <MetaTags
+        title="Investment Cash Flow Calculator | Presale Properties"
+        description="Calculate your presale investment returns, mortgage payments and affordability. Free tools for Metro Vancouver new construction buyers."
+        url={CANONICAL_URL}
+        type="website"
+      />
       <Helmet>
         <title>Investment Cash Flow Calculator | Presale Properties Group</title>
         <meta

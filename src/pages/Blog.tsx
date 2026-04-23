@@ -118,6 +118,12 @@ export default function Blog() {
 
   return (
     <>
+      <MetaTags
+        title="Presale Condo Blog | Guides & Market Updates"
+        description="Expert guides on buying presale condos in BC. Market updates, deposit tips, neighbourhood guides, and investment strategies from The Presale Properties Group."
+        url="https://presaleproperties.com/blog"
+        type="website"
+      />
       <Helmet>
         <title>Presale Condo Blog | Guides, Market Updates and Tips | Presale Properties</title>
         <meta name="description" content="Expert guides on buying presale condos in BC. Market updates, deposit tips, neighbourhood guides, and investment strategies from The Presale Properties Group." />

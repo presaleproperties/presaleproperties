@@ -352,6 +352,12 @@ export default function FAQ() {
 
   return (
     <div className="min-h-screen bg-background">
+      <MetaTags
+        title="Presale Condo FAQ BC | Common Questions Answered"
+        description="Get answers to the most common presale condo questions in BC. Deposits, timelines, assignments, buyer protections, and more — explained by specialists."
+        url="https://presaleproperties.com/faq"
+        type="website"
+      />
       <Helmet>
         <title>Presale Condo FAQ BC | Common Questions Answered | Presale Properties</title>
         <meta

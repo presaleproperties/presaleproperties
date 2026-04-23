@@ -348,6 +348,12 @@ export default function Assignments() {
 
   return (
     <div className="min-h-screen bg-background">
+      <MetaTags
+        title="Assignment Sales in Metro Vancouver"
+        description="Browse presale assignment sales in Metro Vancouver & Fraser Valley. Buying, selling, FAQ, and live inventory — all in one place."
+        url="https://presaleproperties.com/assignments"
+        type="website"
+      />
       <Helmet>
         <title>Assignment Sales in Metro Vancouver | PresaleProperties</title>
         <meta name="description" content="Browse presale assignment sales in Metro Vancouver & Fraser Valley. Buying, selling, FAQ, and live inventory — all in one place." />
