@@ -76,6 +76,8 @@ interface Meta {
   image: string;
   url: string;
   type?: string;
+  /** Last-modified timestamp of the underlying resource (ISO string). Used for ETag + Last-Modified. */
+  updatedAt?: string;
 }
 
 function renderHtml(meta: Meta) {
@@ -125,7 +127,7 @@ function renderHtml(meta: Meta) {
 async function resolveProject(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
   const { data } = await supabase
     .from("presale_projects")
-    .select("name, city, neighborhood, hero_image_url, gallery_images, description")
+    .select("name, city, neighborhood, hero_image_url, gallery_images, description, updated_at")
     .eq("slug", slug)
     .maybeSingle();
   if (!data) return null;
@@ -139,6 +141,7 @@ async function resolveProject(supabase: any, slug: string, fullUrl: string): Pro
     image,
     url: fullUrl,
     type: "website",
+    updatedAt: data.updated_at,
   };
 }
 
@@ -146,7 +149,7 @@ async function resolveListing(supabase: any, slug: string, fullUrl: string): Pro
   // Try by slug field first, then by id fallback
   const { data } = await supabase
     .from("listings")
-    .select("title, project_name, city, neighborhood, featured_image, photos, description, beds, baths, assignment_price")
+    .select("title, project_name, city, neighborhood, featured_image, photos, description, beds, baths, assignment_price, updated_at")
     .or(`slug.eq.${slug},id.eq.${slug}`)
     .maybeSingle();
   if (!data) return null;
@@ -165,13 +168,14 @@ async function resolveListing(supabase: any, slug: string, fullUrl: string): Pro
     image,
     url: fullUrl,
     type: "website",
+    updatedAt: data.updated_at,
   };
 }
 
 async function resolveBlog(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
   const { data } = await supabase
     .from("blog_posts")
-    .select("title, excerpt, seo_title, seo_description, featured_image")
+    .select("title, excerpt, seo_title, seo_description, featured_image, updated_at")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
@@ -182,13 +186,14 @@ async function resolveBlog(supabase: any, slug: string, fullUrl: string): Promis
     image: data.featured_image || DEFAULT_IMAGE,
     url: fullUrl,
     type: "article",
+    updatedAt: data.updated_at,
   };
 }
 
 async function resolveDeck(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
   const { data } = await supabase
     .from("pitch_decks")
-    .select("project_name, hero_image_url")
+    .select("project_name, hero_image_url, updated_at")
     .eq("slug", slug)
     .maybeSingle();
   if (!data) return null;
@@ -198,13 +203,14 @@ async function resolveDeck(supabase: any, slug: string, fullUrl: string): Promis
     image: data.hero_image_url || DEFAULT_IMAGE,
     url: fullUrl,
     type: "website",
+    updatedAt: data.updated_at,
   };
 }
 
 async function resolveDeveloper(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
   const { data } = await supabase
     .from("developers")
-    .select("name, description, logo_url, city")
+    .select("name, description, logo_url, city, updated_at")
     .eq("slug", slug)
     .maybeSingle();
   if (!data) return null;
@@ -216,6 +222,7 @@ async function resolveDeveloper(supabase: any, slug: string, fullUrl: string): P
     image: data.logo_url || DEFAULT_IMAGE,
     url: fullUrl,
     type: "website",
+    updatedAt: data.updated_at,
   };
 }
 
@@ -262,6 +269,14 @@ function resolveStatic(pathname: string, fullUrl: string): Meta | null {
 
 // ─── Handler ──────────────────────────────────────────────────
 
+// Build a stable, short ETag from updatedAt + path + image
+async function buildEtag(meta: Meta, path: string): Promise<string> {
+  const basis = `${path}|${meta.updatedAt ?? ""}|${meta.image ?? ""}|${meta.title ?? ""}`;
+  const buf = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(basis));
+  const hex = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `W/"${hex.slice(0, 16)}"`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -271,6 +286,11 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     // Caller passes the original page path as ?path=/projects/foo
     const path = url.searchParams.get("path") || "/";
+    // Cache-busting: ?fresh=1 (or ?nocache=1) forces a no-cache response so admins can
+    // re-share immediately after editing. ?v=<timestamp> changes the URL identity itself
+    // (which is what social platforms key their cache off of), so it bypasses any
+    // upstream CDN/scraper cache without us doing anything else.
+    const fresh = url.searchParams.get("fresh") === "1" || url.searchParams.get("nocache") === "1";
     const targetUrl = `${SITE_ORIGIN}${path}`;
     const ua = req.headers.get("user-agent");
 
@@ -317,12 +337,46 @@ Deno.serve(async (req) => {
       };
     }
 
+    // ETag: lets crawlers/CDNs revalidate cheaply. When the underlying resource changes
+    // (updated_at moves), the ETag changes, and the next fetch returns fresh HTML.
+    const etag = await buildEtag(meta, path);
+    const lastModified = meta.updatedAt ? new Date(meta.updatedAt).toUTCString() : undefined;
+    const ifNoneMatch = req.headers.get("if-none-match");
+
+    // Cache strategy:
+    //   - fresh=1            → no-store (admin "republish" flow)
+    //   - dynamic resources  → 60s fresh, 5min SWR (updates surface fast)
+    //   - static/default     → 5min fresh, 1h SWR (homepage etc. rarely changes)
+    const isDynamic = !!meta.updatedAt;
+    const cacheControl = fresh
+      ? "no-store, must-revalidate"
+      : isDynamic
+        ? "public, max-age=60, s-maxage=60, stale-while-revalidate=300"
+        : "public, max-age=300, s-maxage=600, stale-while-revalidate=3600";
+
+    // 304 Not Modified — Facebook/LinkedIn/etc. honor this and keep showing
+    // the (now still-correct) cached preview without us re-rendering.
+    if (!fresh && ifNoneMatch && ifNoneMatch === etag) {
+      return new Response(null, {
+        status: 304,
+        headers: {
+          ...corsHeaders,
+          ETag: etag,
+          "Cache-Control": cacheControl,
+          ...(lastModified ? { "Last-Modified": lastModified } : {}),
+        },
+      });
+    }
+
     return new Response(renderHtml(meta), {
       status: 200,
       headers: {
         ...corsHeaders,
         "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "public, max-age=300, s-maxage=600",
+        "Cache-Control": cacheControl,
+        ETag: etag,
+        Vary: "User-Agent",
+        ...(lastModified ? { "Last-Modified": lastModified } : {}),
       },
     });
   } catch (err) {
@@ -336,7 +390,11 @@ Deno.serve(async (req) => {
     });
     return new Response(fallback, {
       status: 200,
-      headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-store",
+      },
     });
   }
 });
