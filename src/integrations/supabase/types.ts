@@ -4184,6 +4184,48 @@ export type Database = {
         }
         Relationships: []
       }
+      share_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          path: string
+          platform: string | null
+          referrer: string | null
+          resource_slug: string | null
+          resource_type: string | null
+          user_agent: string | null
+          user_id: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          path: string
+          platform?: string | null
+          referrer?: string | null
+          resource_slug?: string | null
+          resource_type?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          path?: string
+          platform?: string | null
+          referrer?: string | null
+          resource_slug?: string | null
+          resource_type?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
           admin_notes: string | null
