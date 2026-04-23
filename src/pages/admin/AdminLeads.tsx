@@ -1351,7 +1351,10 @@ export default function AdminLeads() {
                 </div>
 
                 {/* Desktop Table */}
-                <div className="hidden overflow-hidden rounded-xl border border-border bg-card md:block">
+                <div className={cn(
+                  "hidden overflow-hidden rounded-xl border border-border bg-card md:block",
+                  viewMode === "cards" && "md:hidden",
+                )}>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
