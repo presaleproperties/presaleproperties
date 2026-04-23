@@ -585,6 +585,8 @@ export default function AdminProjects() {
       matchesDocs = !hasDoc(project.pricing_sheets);
     } else if (docsFilter === "missing_seo") {
       matchesDocs = !hasSeo(project);
+    } else if (docsFilter === "in_hero") {
+      matchesDocs = project.show_in_hero;
     } else if (docsFilter === "complete") {
       matchesDocs = hasDoc(project.brochure_files) && hasDoc(project.floorplan_files) && hasDoc(project.pricing_sheets);
     } else if (docsFilter === "incomplete") {
