@@ -435,6 +435,6 @@ export default function AdminAlertsConfig() {
           </Button>
         </div>
       </div>
-    </AdminLayout>
+    </AdminPage>
   );
 }
