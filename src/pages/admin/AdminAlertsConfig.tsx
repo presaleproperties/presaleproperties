@@ -19,7 +19,7 @@
  * matching `type` so admins can confirm the channel actually delivers.
  */
 import { useEffect, useState } from "react";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+import { AdminPage } from "@/components/admin/AdminPage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
