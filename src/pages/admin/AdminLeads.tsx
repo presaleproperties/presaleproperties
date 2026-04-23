@@ -1978,7 +1978,7 @@ export default function AdminLeads() {
                           key={lead.id}
                           lead={data}
                           selected={selectedListingIds.has(lead.id)}
-                          onToggleSelect={() => toggleSelectListing(lead.id)}
+                          onToggleSelect={() => toggleSelect(lead.id)}
                           onOpenDetails={() => {
                             setSelectedLead(lead);
                             setModalInitialTab("overview");
