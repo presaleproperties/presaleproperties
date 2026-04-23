@@ -188,3 +188,9 @@ verify_jwt = false
 
 [functions.bold-email-keywords]
 verify_jwt = false
+
+[functions.approve-lead-link]
+verify_jwt = false
+
+[functions.send-lead-approval-email]
+verify_jwt = false
