@@ -227,6 +227,12 @@ const Index = () => {
     // Show home content when explicitly requested via ?view=home
     return (
       <div className="min-h-screen flex flex-col bg-background">
+        <MetaTags
+          title="Presale Condos BC | VIP Pricing & Floor Plans"
+          description="Get exclusive VIP pricing on 50+ presale condos and townhomes in Surrey, Langley and Abbotsford. Buyer-only representation. 400+ families helped. Book a free 15-min call."
+          url="https://presaleproperties.com/"
+          type="website"
+        />
         <Helmet>
           <title>Presale Condos BC | VIP Pricing & Floor Plans | The Presale Properties Group</title>
           <meta name="description" content="Get exclusive VIP pricing on 50+ presale condos and townhomes in Surrey, Langley and Abbotsford. Buyer-only representation. 400+ families helped. Book a free 15-min call." />
@@ -250,6 +256,12 @@ const Index = () => {
   // Desktop: Original layout
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <MetaTags
+        title="Presale Condos BC | VIP Pricing & Floor Plans"
+        description="Get exclusive VIP pricing on 50+ presale condos and townhomes in Surrey, Langley and Abbotsford. Buyer-only representation. 400+ families helped. Book a free 15-min call."
+        url="https://presaleproperties.com/"
+        type="website"
+      />
       <Helmet>
         <title>Presale Condos BC | VIP Pricing & Floor Plans | The Presale Properties Group</title>
         <meta name="title" content="Presale Condos BC | VIP Pricing & Floor Plans | The Presale Properties Group" />
