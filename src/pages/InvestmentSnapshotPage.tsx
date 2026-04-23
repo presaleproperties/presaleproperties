@@ -1,4 +1,5 @@
 import { Helmet } from '@/components/seo/Helmet';
+import { MetaTags } from '@/components/seo/MetaTags';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { useSearchParams, Link } from 'react-router-dom';
 import { ConversionHeader } from '@/components/conversion/ConversionHeader';
@@ -22,6 +23,12 @@ export default function InvestmentSnapshotPage() {
 
   return (
     <>
+      <MetaTags
+        title="Investment Cash Flow Calculator | Presale Properties"
+        description="Calculate your presale investment returns, mortgage payments and affordability. Free tools for Metro Vancouver new construction buyers."
+        url={CANONICAL_URL}
+        type="website"
+      />
       <Helmet>
         <title>Investment Cash Flow Calculator | Presale Properties Group</title>
         <meta

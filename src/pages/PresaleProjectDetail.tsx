@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, lazy, Suspense, useMemo } from "react";
 import DOMPurify from "dompurify";
 import { useParams, Link, useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
+import { MetaTags } from "@/components/seo/MetaTags";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { generateProjectCanonicalUrl, parseProjectUrl, slugify } from "@/lib/seoUrls";
@@ -381,6 +382,12 @@ export default function PresaleProjectDetail() {
     }
     
     return <>
+        <MetaTags
+          title="Project Not Found | PresaleProperties.com"
+          description="The presale project you're looking for is unavailable. Browse all live presale projects in Metro Vancouver instead."
+          url={typeof window !== "undefined" ? window.location.href.split("?")[0] : "https://presaleproperties.com/"}
+          type="website"
+        />
         <Helmet>
           <title>Project Not Found | PresaleProperties.com</title>
           <meta name="robots" content="noindex, nofollow" />
@@ -617,7 +624,27 @@ export default function PresaleProjectDetail() {
     ? "noindex, follow"
     : "index, follow, max-image-preview:large, max-snippet:-1";
 
+  // Per-spec MetaTags: project_name | city | Floor Plans & Pricing,
+  // first 160 chars of short_description, project hero image, canonical URL.
+  const projectMetaTitle = `${project.name} | ${project.city} | Floor Plans & Pricing`;
+  const projectShortDesc = (project.short_description || ogDescription || "").trim();
+  const projectMetaDescription = projectShortDesc.length > 160
+    ? projectShortDesc.substring(0, 159).trimEnd() + "…"
+    : projectShortDesc;
+  // Force absolute https:// for hero image (Supabase Storage may return relative or http://)
+  const heroImageRaw = project.featured_image || (project.gallery_images && project.gallery_images[0]) || "";
+  const heroImageAbsolute = heroImageRaw
+    ? (heroImageRaw.startsWith("http") ? heroImageRaw.replace(/^http:\/\//, "https://") : `https:${heroImageRaw.startsWith("//") ? heroImageRaw : "//" + heroImageRaw.replace(/^\//, "")}`)
+    : undefined;
+
   return <>
+      <MetaTags
+        title={projectMetaTitle}
+        description={projectMetaDescription}
+        url={canonicalUrl}
+        image={heroImageAbsolute}
+        type="website"
+      />
       <Helmet>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />

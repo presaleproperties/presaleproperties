@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
+import { MetaTags } from "@/components/seo/MetaTags";
 import { supabase } from "@/integrations/supabase/client";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -348,6 +349,12 @@ export default function Assignments() {
 
   return (
     <div className="min-h-screen bg-background">
+      <MetaTags
+        title="Assignment Sales in Metro Vancouver"
+        description="Browse presale assignment sales in Metro Vancouver & Fraser Valley. Buying, selling, FAQ, and live inventory — all in one place."
+        url="https://presaleproperties.com/assignments"
+        type="website"
+      />
       <Helmet>
         <title>Assignment Sales in Metro Vancouver | PresaleProperties</title>
         <meta name="description" content="Browse presale assignment sales in Metro Vancouver & Fraser Valley. Buying, selling, FAQ, and live inventory — all in one place." />

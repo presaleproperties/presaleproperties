@@ -1,4 +1,5 @@
 import { Helmet } from "@/components/seo/Helmet";
+import { MetaTags } from "@/components/seo/MetaTags";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -42,6 +43,12 @@ const aboutPageSchema = {
 export default function About() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <MetaTags
+        title="About Presale Properties Group | New Construction Experts"
+        description="Meet Uzair Muhammad and The Presale Properties Group — Surrey-based presale specialists. 400+ buyers helped across Metro Vancouver since 2020."
+        url="https://presaleproperties.com/about"
+        type="website"
+      />
       <Helmet>
         <title>About Us | Presale Properties Group - New Construction Experts</title>
         <meta name="title" content="About Us | Presale Properties Group - New Construction Experts" />

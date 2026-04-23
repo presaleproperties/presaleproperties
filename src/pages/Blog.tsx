@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
+import { MetaTags } from "@/components/seo/MetaTags";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -118,6 +119,12 @@ export default function Blog() {
 
   return (
     <>
+      <MetaTags
+        title="Presale Condo Blog | Guides & Market Updates"
+        description="Expert guides on buying presale condos in BC. Market updates, deposit tips, neighbourhood guides, and investment strategies from The Presale Properties Group."
+        url="https://presaleproperties.com/blog"
+        type="website"
+      />
       <Helmet>
         <title>Presale Condo Blog | Guides, Market Updates and Tips | Presale Properties</title>
         <meta name="description" content="Expert guides on buying presale condos in BC. Market updates, deposit tips, neighbourhood guides, and investment strategies from The Presale Properties Group." />

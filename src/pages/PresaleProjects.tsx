@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
+import { MetaTags } from "@/components/seo/MetaTags";
 import { ChevronLeft, ChevronRight, Building2, Map, Home, ChevronRight as ChevronRightIcon, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -490,6 +491,12 @@ export default function PresaleProjects() {
 
   return (
     <>
+      <MetaTags
+        title={getSeoTitle()}
+        description={getSeoDescription()}
+        url={canonicalUrl}
+        type="website"
+      />
       <Helmet>
         <title>{getSeoTitle()}</title>
         <meta name="description" content={getSeoDescription()} />
