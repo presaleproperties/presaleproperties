@@ -38,6 +38,7 @@ import {
   List,
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { LeadCard, type LeadCardData } from "@/components/admin/leads/LeadCard";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
 import { BulkEmailDialog } from "@/components/admin/BulkEmailDialog";
 import { LeadComposeDialog, type ComposeRecipient } from "@/components/admin/email/LeadComposeDialog";
