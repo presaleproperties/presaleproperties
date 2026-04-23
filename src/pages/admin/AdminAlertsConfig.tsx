@@ -156,7 +156,7 @@ export default function AdminAlertsConfig() {
   const noChannel = !cfg.email_enabled && !cfg.slack_enabled;
 
   return (
-    <AdminLayout>
+    <AdminPage>
       <div className="space-y-6 p-6 max-w-3xl">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
