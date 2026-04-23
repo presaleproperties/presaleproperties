@@ -2,7 +2,7 @@
   "name": "Presale Admin",
   "short_name": "Admin",
   "description": "Approve leads, send pushes, and manage the Presale Properties platform.",
-  "start_url": "/admin/leads",
+  "start_url": "/admin?pwa=1",
   "display": "standalone",
   "background_color": "#1c2120",
   "theme_color": "#ffb600",
