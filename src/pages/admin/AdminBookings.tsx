@@ -426,6 +426,6 @@ export default function AdminBookings() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AdminLayout>
+    </AdminPage>
   );
 }
