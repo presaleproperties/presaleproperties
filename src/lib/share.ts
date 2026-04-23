@@ -44,6 +44,17 @@ export async function copyShareableUrl(path?: string): Promise<boolean> {
 
 /**
  * Trigger the native share sheet (iOS / Android) with the shareable URL.
+ *
+ * IMPORTANT: We hand the OS the *real* site URL (presaleproperties.com/...) so
+ * the share sheet shows our domain + favicon — not the bare supabase.co host.
+ * For social-media unfurls (iMessage, WhatsApp, Slack, FB, etc.) the recipient's
+ * client fetches the URL with a crawler User-Agent; that path is already handled
+ * by our Cloudflare/edge OG layer and falls back to the per-page Helmet tags
+ * baked in by the SPA's prerendered index.
+ *
+ * If you specifically need the edge-function URL (e.g. for the admin verifier
+ * page), call `getShareableUrl()` directly.
+ *
  * Falls back to clipboard copy on desktop browsers without Web Share API.
  */
 export async function shareCurrentPage(opts?: {
@@ -51,7 +62,8 @@ export async function shareCurrentPage(opts?: {
   text?: string;
   path?: string;
 }): Promise<"shared" | "copied" | "failed"> {
-  const url = getShareableUrl(opts?.path);
+  const targetPath = opts?.path ?? `${window.location.pathname}${window.location.search}`;
+  const url = `${SITE_ORIGIN}${targetPath}`;
   const data = {
     title: opts?.title ?? document.title,
     text: opts?.text,
@@ -66,6 +78,10 @@ export async function shareCurrentPage(opts?: {
       // fall through to clipboard
     }
   }
-  const ok = await copyShareableUrl(opts?.path);
-  return ok ? "copied" : "failed";
+  try {
+    await navigator.clipboard.writeText(url);
+    return "copied";
+  } catch {
+    return "failed";
+  }
 }
