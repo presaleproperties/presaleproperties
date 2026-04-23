@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, lazy, Suspense, useMemo } from "react";
 import DOMPurify from "dompurify";
 import { useParams, Link, useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "@/components/seo/Helmet";
+import { MetaTags } from "@/components/seo/MetaTags";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { generateProjectCanonicalUrl, parseProjectUrl, slugify } from "@/lib/seoUrls";
@@ -381,6 +382,12 @@ export default function PresaleProjectDetail() {
     }
     
     return <>
+        <MetaTags
+          title="Project Not Found | PresaleProperties.com"
+          description="The presale project you're looking for is unavailable. Browse all live presale projects in Metro Vancouver instead."
+          url={typeof window !== "undefined" ? window.location.href.split("?")[0] : "https://presaleproperties.com/"}
+          type="website"
+        />
         <Helmet>
           <title>Project Not Found | PresaleProperties.com</title>
           <meta name="robots" content="noindex, nofollow" />
