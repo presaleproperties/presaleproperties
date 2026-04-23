@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getShareableUrl } from "@/lib/share";
 
 interface ShareButtonsProps {
   title: string;
@@ -15,7 +16,9 @@ interface ShareButtonsProps {
 
 export function ShareButtons({ title, url }: ShareButtonsProps) {
   const [isFavorited, setIsFavorited] = useState(false);
-  const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "");
+  const rawUrl = url || (typeof window !== "undefined" ? window.location.href : "");
+  // Use crawler-friendly preview URL so social platforms render per-page OG tags
+  const shareUrl = url ? url : getShareableUrl();
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);
 
