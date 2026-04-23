@@ -154,8 +154,16 @@ export default function AdminSharePreview() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && runCheck()}
                 />
-                <Button onClick={runCheck} disabled={loading || !input.trim()}>
+                <Button onClick={() => runCheck()} disabled={loading || !input.trim()}>
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Check"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => runCheck({ fresh: true })}
+                  disabled={loading || !input.trim()}
+                  title="Bypass cache & force re-fetch from the database"
+                >
+                  Force fresh
                 </Button>
               </div>
             </div>
@@ -226,9 +234,13 @@ export default function AdminSharePreview() {
                 </div>
 
                 <div className="flex gap-2 mt-4 flex-wrap">
-                  <Button size="sm" variant="outline" onClick={copyShareUrl}>
+                  <Button size="sm" variant="outline" onClick={() => copyShareUrl(false)}>
                     <Copy className="h-4 w-4 mr-2" />
                     Copy share URL
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => copyShareUrl(true)}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy fresh URL
                   </Button>
                   <Button size="sm" variant="outline" asChild>
                     <a href={result.fetchedFrom} target="_blank" rel="noopener noreferrer">
