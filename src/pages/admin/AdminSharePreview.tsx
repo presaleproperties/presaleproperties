@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Copy, ExternalLink, CheckCircle2, AlertTriangle, Share2 } from "lucide-react";
+import { Loader2, Copy, ExternalLink, CheckCircle2, AlertTriangle, Share2, HelpCircle, MessageCircle, Phone, Slack, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { getShareableUrl } from "@/lib/share";
 
@@ -188,6 +188,14 @@ export default function AdminSharePreview() {
           </CardContent>
         </Card>
 
+        <SharingHelpCard
+          hasResult={!!result}
+          checksFailed={checks.some((c) => !c.pass)}
+          imageMissing={!!result && !result.image}
+          onForceFresh={() => runCheck({ fresh: true })}
+          forceFreshDisabled={loading || !input.trim()}
+        />
+
         {error && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
@@ -312,5 +320,182 @@ export default function AdminSharePreview() {
         )}
       </div>
     </AdminLayout>
+  );
+}
+
+// ─── Help / Checklist ─────────────────────────────────────────
+
+interface SharingHelpProps {
+  hasResult: boolean;
+  checksFailed: boolean;
+  imageMissing: boolean;
+  onForceFresh: () => void;
+  forceFreshDisabled: boolean;
+}
+
+function SharingHelpCard({
+  hasResult,
+  checksFailed,
+  imageMissing,
+  onForceFresh,
+  forceFreshDisabled,
+}: SharingHelpProps) {
+  // Adaptive guidance: only surface a "clear cache" alert when the user has
+  // run a check AND something is off (failed checks or missing image). This
+  // mirrors the most common cause — a stale social-platform cache after an
+  // edit — and tells them exactly which lever to pull.
+  const showCacheAlert = hasResult && (checksFailed || imageMissing);
+
+  const platforms = [
+    {
+      name: "iMessage",
+      icon: Phone,
+      steps: [
+        "Send the link from a fresh chat (not a thread that already cached it).",
+        "If the preview is wrong, delete the message + restart Messages app.",
+        "iOS caches per-thread for ~24h — share to a different contact to retest.",
+      ],
+    },
+    {
+      name: "WhatsApp",
+      icon: MessageCircle,
+      steps: [
+        "Type the URL and wait 1–2s for the preview to load before sending.",
+        "If it shows the homepage card, the WA cache is stale. Append ?v=" +
+          Date.now().toString().slice(-4) +
+          " to bust it.",
+        "Force-quit + reopen WhatsApp clears its in-memory preview cache.",
+      ],
+    },
+    {
+      name: "Slack",
+      icon: Slack,
+      steps: [
+        "Slack caches unfurls per workspace for ~30 min.",
+        'Use the message edit menu → "Remove preview", then re-paste the URL.',
+        "Or post in a DM to yourself first to verify before sharing publicly.",
+      ],
+    },
+  ];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <HelpCircle className="h-5 w-5 text-primary" />
+          Sharing checklist & cache help
+        </CardTitle>
+        <CardDescription>
+          Per-platform tips for iMessage, WhatsApp, and Slack — plus when to
+          bust caches if a preview looks stale.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {showCacheAlert && (
+          <Alert>
+            <RefreshCw className="h-4 w-4" />
+            <AlertTitle>Looks like a stale or incomplete preview</AlertTitle>
+            <AlertDescription className="space-y-3">
+              <p>
+                {imageMissing
+                  ? "The OG image is missing. "
+                  : "Some checks failed. "}
+                Try the steps below in order:
+              </p>
+              <ol className="list-decimal pl-5 space-y-1 text-sm">
+                <li>
+                  Click <strong>Force fresh</strong> below to bypass our edge
+                  cache and re-read from the database.
+                </li>
+                <li>
+                  Re-run the check. If it now passes, the data is fixed —
+                  social platforms just need to re-scrape.
+                </li>
+                <li>
+                  Paste the page URL into the{" "}
+                  <a
+                    href="https://developers.facebook.com/tools/debug/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    Facebook Debugger
+                  </a>{" "}
+                  and click <em>Scrape Again</em>. WhatsApp + iMessage often
+                  share the FB cache.
+                </li>
+                <li>
+                  Use the <strong>Copy fresh URL</strong> button above when
+                  re-sharing — it appends a cache-busting <code>?v=</code>
+                  param so chat apps treat it as a new link.
+                </li>
+              </ol>
+              <Button
+                size="sm"
+                variant="default"
+                onClick={onForceFresh}
+                disabled={forceFreshDisabled}
+                className="mt-1"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Force fresh now
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {platforms.map((p) => {
+            const Icon = p.icon;
+            return (
+              <div
+                key={p.name}
+                className="border rounded-lg p-4 bg-card space-y-3"
+              >
+                <div className="flex items-center gap-2 font-semibold">
+                  <Icon className="h-4 w-4 text-primary" />
+                  {p.name}
+                </div>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {p.steps.map((s, i) => (
+                    <li key={i} className="flex gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="rounded-lg border bg-muted/40 p-4 text-sm space-y-2">
+          <div className="font-semibold flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" />
+            When to clear caches
+          </div>
+          <ul className="space-y-1 text-muted-foreground">
+            <li>
+              • <strong>Just edited the listing/project?</strong> Use{" "}
+              <em>Force fresh</em>, then re-share with the <em>fresh URL</em>.
+            </li>
+            <li>
+              • <strong>Preview shows the homepage card?</strong> The crawler
+              hasn't re-scraped yet — run the FB debugger or append{" "}
+              <code>?v={"<timestamp>"}</code>.
+            </li>
+            <li>
+              • <strong>Image is wrong/old?</strong> Update <code>updated_at</code>{" "}
+              on the resource, then Force fresh — our ETag will change.
+            </li>
+            <li>
+              • <strong>Nothing works after 24h?</strong> The image URL itself
+              may be unreachable. Open the OG image link directly in a new
+              tab to verify.
+            </li>
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
