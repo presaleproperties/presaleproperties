@@ -21,14 +21,6 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // GLOBAL KILL SWITCH: Buyer welcome emails are paused alongside the
-  // lead auto-response while we work out realtor-vs-buyer gating on lead forms.
-  console.log("[DISABLED] send-buyer-welcome paused.");
-  return new Response(
-    JSON.stringify({ success: true, disabled: true, message: "Buyer welcome emails are temporarily paused." }),
-    { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-  );
-
   try {
     const { userId, email, fullName, buyerType }: BuyerWelcomeRequest = await req.json();
     
