@@ -113,20 +113,14 @@ export default function AdminAlertsConfig() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="p-6 max-w-3xl space-y-4">
-          <Skeleton className="h-12 w-72" />
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-64 w-full" />
-        </div>
-      </AdminLayout>
+      <AdminPage loading />
     );
   }
   if (!cfg) {
     return (
-      <AdminLayout>
+      <AdminPage>
         <div className="p-6">No alert config row found.</div>
-      </AdminLayout>
+      </AdminPage>
     );
   }
 
