@@ -218,6 +218,23 @@ serve(async (req: Request): Promise<Response> => {
             .update({ status: "sent", sent_at: new Date().toISOString() })
             .eq("id", notif.id);
           sent++;
+
+          // Fire-and-forget web push to admin devices
+          try {
+            const leadId = (notif.metadata as any)?.lead_id;
+            if (leadId) {
+              fetch(`${supabaseUrl}/functions/v1/send-lead-push`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${serviceKey}`,
+                },
+                body: JSON.stringify({ leadId }),
+              }).catch((e) => console.error("[push] fire failed:", e));
+            }
+          } catch (e) {
+            console.error("[push] dispatch error:", e);
+          }
         } else {
           const body = await resp.text();
           console.error("[send-lead-approval-email] Resend failed:", body);
