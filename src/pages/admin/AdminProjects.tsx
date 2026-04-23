@@ -77,6 +77,7 @@ type Project = {
   completion_year: number | null;
   is_featured: boolean;
   is_published: boolean;
+  show_in_hero: boolean;
   updated_at: string;
   brochure_files: string[] | null;
   floorplan_files: string[] | null;
@@ -139,7 +140,7 @@ export default function AdminProjects() {
     try {
       const { data, error } = await supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, completion_year, is_featured, is_published, updated_at, brochure_files, floorplan_files, pricing_sheets, seo_title, seo_description")
+        .select("id, name, slug, city, neighborhood, status, completion_year, is_featured, is_published, show_in_hero, updated_at, brochure_files, floorplan_files, pricing_sheets, seo_title, seo_description")
         .order("updated_at", { ascending: false });
 
       if (error) throw error;

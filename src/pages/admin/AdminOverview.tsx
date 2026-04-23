@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { HeroProjectsManager } from "@/components/admin/HeroProjectsManager";
 
 import {
   Plus,
@@ -256,6 +257,9 @@ export default function AdminOverview() {
             </Link>
           ))}
         </div>
+
+        {/* ── HERO SLIDER MANAGER ── */}
+        <HeroProjectsManager />
 
         {/* ── PENDING APPROVALS ── */}
         {totalPending > 0 && (
