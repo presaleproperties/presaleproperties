@@ -1771,7 +1771,10 @@ export default function AdminLeads() {
                   {filteredListingLeads.length} of {listingLeads?.length || 0} leads
                 </p>
 
-                <div className="hidden overflow-hidden rounded-xl border border-border bg-card md:block">
+                <div className={cn(
+                  "hidden overflow-hidden rounded-xl border border-border bg-card md:block",
+                  viewMode === "cards" && "md:hidden",
+                )}>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
