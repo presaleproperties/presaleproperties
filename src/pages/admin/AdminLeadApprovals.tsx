@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,6 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { Helmet } from "react-helmet-async";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 
@@ -63,13 +62,13 @@ function riskBadge(score: number) {
   }
   if (score >= 30) {
     return (
-      <Badge variant="secondary" className="gap-1 bg-amber-500/15 text-amber-700 dark:text-amber-300">
+      <Badge variant="secondary" className="gap-1">
         <AlertTriangle className="h-3 w-3" /> Medium · {score}
       </Badge>
     );
   }
   return (
-    <Badge variant="outline" className="gap-1 text-emerald-700 border-emerald-500/40">
+    <Badge variant="outline" className="gap-1">
       <CheckCircle2 className="h-3 w-3" /> Low · {score}
     </Badge>
   );
