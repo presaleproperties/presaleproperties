@@ -41,6 +41,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadCard, type LeadCardData } from "@/components/admin/leads/LeadCard";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
 import { BulkEmailDialog } from "@/components/admin/BulkEmailDialog";
+import { InstallAdminAppButton } from "@/components/admin/InstallAdminAppButton";
 import { LeadComposeDialog, type ComposeRecipient } from "@/components/admin/email/LeadComposeDialog";
 import { PhoneActionsPopover } from "@/components/admin/PhoneActionsPopover";
 import { LeadApprovalsHub } from "@/components/admin/leads/LeadApprovalsHub";
@@ -1067,7 +1068,8 @@ export default function AdminLeads() {
               {kpis.totalLeads.toLocaleString()} leads across all sources · {kpis.recentLeads} this week
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <InstallAdminAppButton />
             <Button variant="outline" size="sm" asChild>
               <Link to="/admin/leads/analytics">
                 <BarChart3 className="mr-2 h-4 w-4" />
