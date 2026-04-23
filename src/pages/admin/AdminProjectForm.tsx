@@ -1839,6 +1839,7 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
   return (
     <AdminLayout>
       <form noValidate onSubmit={handleSubmit} className="space-y-6">
+        <AdminBackLink to="/admin/projects" label="Back to projects" />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
