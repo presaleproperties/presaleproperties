@@ -296,18 +296,8 @@ export default function AdminBookings() {
     (b.status === "confirmed" || b.status === "pending")
   ).length;
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
-    <AdminLayout>
+    <AdminPage loading={loading}>
       <Helmet>
         <title>Bookings | Admin</title>
       </Helmet>
