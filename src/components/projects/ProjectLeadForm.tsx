@@ -193,7 +193,8 @@ export function ProjectLeadForm({
       trackFormSubmit({ form_name: "floor_plan_request", form_location: "project_lead_form", first_name: data.fullName, last_name: "", email: data.email, phone: data.phone, user_type: actualPersona, project_id: projectId, project_name: projectName });
 
       supabase.functions.invoke("trigger-workflow", { body: { event: "project_inquiry", data: { email: data.email, first_name: data.fullName, last_name: "", project_name: projectName, project_id: projectId }, meta: { lead_id: leadId, source: leadSource } } }).catch(console.error);
-      supabase.functions.invoke("send-lead-autoresponse", { body: { leadId, projectId } }).catch(console.error);
+      // Auto-response email is now gated behind admin approval at /admin/lead-approvals.
+      // Lead data still flows to Zapier via send-project-lead and to the internal team.
       // send-project-lead is called inside useLeadSubmission → submitLead()
       // Pass shared event_id so server CAPI dedupes with browser pixel; include lead_id for sync log.
       supabase.functions.invoke("meta-conversions-api", {

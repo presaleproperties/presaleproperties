@@ -417,21 +417,30 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  // GLOBAL KILL SWITCH: Auto-response emails to leads are paused.
-  // Realtors were posing as buyers via lead forms to receive info packages.
-  // Lead data still flows to the database (via upsertProjectLead) and to Zapier
-  // (via send-project-lead). Internal team notifications and CAPI tracking are
-  // unaffected. To re-enable, remove this early-return block.
+  // KILL SWITCH: Auto-response is paused for unsolicited lead-form submissions.
+  // It only sends when explicitly approved by an admin via the approve-lead
+  // edge function (which sets _approvedByAdmin: true in the body).
+  // Realtors were posing as buyers via lead forms; this gates the email behind
+  // a manual approval queue at /admin/lead-approvals.
+  let parsedBody: any = {};
   try {
-    const body = await req.clone().json().catch(() => ({}));
-    console.log(`[DISABLED] send-lead-autoresponse paused. leadId=${body?.leadId ?? "unknown"} projectId=${body?.projectId ?? "n/a"}`);
+    parsedBody = await req.clone().json();
   } catch (_) {
-    console.log("[DISABLED] send-lead-autoresponse paused (no body).");
+    parsedBody = {};
   }
-  return new Response(
-    JSON.stringify({ success: true, disabled: true, message: "Auto-response emails are temporarily paused." }),
-    { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-  );
+  if (!parsedBody?._approvedByAdmin) {
+    console.log(
+      `[GATED] send-lead-autoresponse skipped — awaiting admin approval. leadId=${parsedBody?.leadId ?? "unknown"}`,
+    );
+    return new Response(
+      JSON.stringify({
+        success: true,
+        gated: true,
+        message: "Auto-response is queued for admin approval.",
+      }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

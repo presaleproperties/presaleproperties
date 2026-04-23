@@ -398,8 +398,7 @@ export function ConsultationButton({ projectName, projectId }: LeadMagnetProps) 
         message: `Consultation request${projectName ? ` for ${projectName}` : ""}`,
       });
 
-      // Auto-response email
-      supabase.functions.invoke("send-lead-autoresponse", { body: { leadId, projectId } }).catch(console.error);
+      // Auto-response email is now gated behind admin approval at /admin/lead-approvals.
 
       trackFormSubmit({ form_name: "consultation", form_location: "project_detail", email: formData.email, first_name: formData.name });
       MetaEvents.lead({ content_name: "Consultation", content_category: "high_intent" });
