@@ -1,5 +1,5 @@
-// Crawler-only renderer: returns a minimal static HTML page with route-specific
-// Open Graph / Twitter / canonical meta tags baked into the <head>.
+// Crawler-only renderer v2 — per-route OG/Twitter/canonical meta tags
+// for social-media bots. Real users get a 302 to the SPA.
 //
 // Usage:  GET /functions/v1/og-snapshot?path=/<route>
 //   &force=1  — bypass UA check (for testing)
