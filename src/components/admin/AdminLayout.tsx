@@ -144,6 +144,7 @@ const navSections = [
       { href: "/admin/preflight-log",      label: "Preflight Log",    icon: ScrollText,    badgeKey: null },
       { href: "/admin/system",             label: "System Status",    icon: Database,      badgeKey: null },
       { href: "/admin/tech-stack",         label: "Tech Stack",       icon: Cpu,           badgeKey: null },
+      { href: "/admin/layout-health",      label: "Layout Health",    icon: ShieldCheck,   badgeKey: null },
     ],
   },
   {
