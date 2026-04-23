@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { AdminBackLink } from "@/components/admin/AdminBackLink";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -245,6 +246,7 @@ export default function AdminBlogForm() {
   return (
     <AdminLayout>
       <form onSubmit={handleSubmit} className="space-y-6">
+        <AdminBackLink to="/admin/blogs" label="Back to all posts" />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button

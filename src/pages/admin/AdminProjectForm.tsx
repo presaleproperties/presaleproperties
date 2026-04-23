@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { AdminBackLink } from "@/components/admin/AdminBackLink";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1838,6 +1839,7 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
   return (
     <AdminLayout>
       <form noValidate onSubmit={handleSubmit} className="space-y-6">
+        <AdminBackLink to="/admin/projects" label="Back to projects" />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
