@@ -624,7 +624,27 @@ export default function PresaleProjectDetail() {
     ? "noindex, follow"
     : "index, follow, max-image-preview:large, max-snippet:-1";
 
+  // Per-spec MetaTags: project_name | city | Floor Plans & Pricing,
+  // first 160 chars of short_description, project hero image, canonical URL.
+  const projectMetaTitle = `${project.name} | ${project.city} | Floor Plans & Pricing`;
+  const projectShortDesc = (project.short_description || ogDescription || "").trim();
+  const projectMetaDescription = projectShortDesc.length > 160
+    ? projectShortDesc.substring(0, 159).trimEnd() + "…"
+    : projectShortDesc;
+  // Force absolute https:// for hero image (Supabase Storage may return relative or http://)
+  const heroImageRaw = project.featured_image || (project.gallery_images && project.gallery_images[0]) || "";
+  const heroImageAbsolute = heroImageRaw
+    ? (heroImageRaw.startsWith("http") ? heroImageRaw.replace(/^http:\/\//, "https://") : `https:${heroImageRaw.startsWith("//") ? heroImageRaw : "//" + heroImageRaw.replace(/^\//, "")}`)
+    : undefined;
+
   return <>
+      <MetaTags
+        title={projectMetaTitle}
+        description={projectMetaDescription}
+        url={canonicalUrl}
+        image={heroImageAbsolute}
+        type="website"
+      />
       <Helmet>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
