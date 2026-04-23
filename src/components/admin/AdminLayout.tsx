@@ -41,6 +41,13 @@ import {
   PenTool,
   Target,
   ShieldCheck,
+  ShieldAlert,
+  UserPlus,
+  ScrollText,
+  Database,
+  Cpu,
+  Users2,
+
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -81,10 +88,14 @@ const navSections = [
     id: "people",
     label: "People",
     items: [
-      { href: "/admin/leads",    label: "Leads",    icon: Users,        badgeKey: null },
-      { href: "/admin/bookings", label: "Bookings", icon: CalendarDays, badgeKey: "bookings" as const },
-      { href: "/admin/clients",  label: "Clients",  icon: UserRound,    badgeKey: null },
-      { href: "/admin/agents",   label: "Agents",   icon: UserCheck,    badgeKey: "agents" as const },
+      { href: "/admin/leads",           label: "Leads",          icon: Users,        badgeKey: null },
+      { href: "/admin/lead-approvals",  label: "Lead Approvals", icon: ShieldAlert,  badgeKey: null },
+      { href: "/admin/lead-onboard",    label: "Lead Onboard",   icon: UserPlus,     badgeKey: null },
+      { href: "/admin/bookings",        label: "Bookings",       icon: CalendarDays, badgeKey: "bookings" as const },
+      { href: "/admin/clients",         label: "Clients",        icon: UserRound,    badgeKey: null },
+      { href: "/admin/agents",          label: "Agents",         icon: UserCheck,    badgeKey: "agents" as const },
+      { href: "/admin/team-members",    label: "Team Members",   icon: Users2,       badgeKey: null },
+      { href: "/admin/developer-accounts", label: "Developer Accounts", icon: Landmark, badgeKey: null },
     ],
   },
   {
@@ -110,6 +121,7 @@ const navSections = [
       { href: "/admin/alerts",           label: "Alerts",        icon: Activity,   badgeKey: null },
       { href: "/admin/leads/analytics",  label: "Lead Insights", icon: BarChart3,  badgeKey: null },
       { href: "/admin/market-dashboard", label: "Market Data",   icon: TrendingUp, badgeKey: null },
+      { href: "/admin/market-data",      label: "Market Data Admin", icon: Database, badgeKey: null },
       { href: "/admin/live-activity",    label: "Live Monitor",  icon: Activity,   badgeKey: null },
       { href: "/admin/ai-analytics",     label: "AI Insights",   icon: Zap,        badgeKey: null },
     ],
@@ -129,6 +141,9 @@ const navSections = [
       { href: "/admin/tasks",              label: "Tasks",            icon: ClipboardList, badgeKey: null },
       { href: "/admin/scheduler-settings", label: "Scheduler",        icon: CalendarCog,   badgeKey: null },
       { href: "/admin/email-workflows",    label: "Legacy Workflows", icon: Workflow,      badgeKey: null },
+      { href: "/admin/preflight-log",      label: "Preflight Log",    icon: ScrollText,    badgeKey: null },
+      { href: "/admin/system",             label: "System Status",    icon: Database,      badgeKey: null },
+      { href: "/admin/tech-stack",         label: "Tech Stack",       icon: Cpu,           badgeKey: null },
     ],
   },
   {
