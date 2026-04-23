@@ -34,8 +34,11 @@ import {
   Bookmark,
   BookmarkPlus,
   Star,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { LeadCard, type LeadCardData } from "@/components/admin/leads/LeadCard";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
 import { BulkEmailDialog } from "@/components/admin/BulkEmailDialog";
 import { LeadComposeDialog, type ComposeRecipient } from "@/components/admin/email/LeadComposeDialog";
@@ -425,6 +428,13 @@ export default function AdminLeads() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("project");
+  const [viewMode, setViewMode] = useState<"list" | "cards">(() => {
+    if (typeof window === "undefined") return "list";
+    return (localStorage.getItem("adminLeads.viewMode") as "list" | "cards") || "list";
+  });
+  useEffect(() => {
+    localStorage.setItem("adminLeads.viewMode", viewMode);
+  }, [viewMode]);
   const [selectedLead, setSelectedLead] = useState<ProjectLead | ListingLead | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalInitialTab, setModalInitialTab] = useState<"overview" | "hub">("overview");
@@ -1077,6 +1087,41 @@ export default function AdminLeads() {
               </TabsTrigger>
             </TabsList>
             <div className="flex items-center gap-2">
+              {/* List / Cards view toggle (desktop only) */}
+              <div className="hidden md:inline-flex rounded-md border border-border bg-background p-0.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className={cn(
+                    "h-7 gap-1 rounded-sm px-2 text-xs",
+                    viewMode === "list"
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                  aria-pressed={viewMode === "list"}
+                  title="List view"
+                >
+                  <List className="h-3.5 w-3.5" /> List
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setViewMode("cards")}
+                  className={cn(
+                    "h-7 gap-1 rounded-sm px-2 text-xs",
+                    viewMode === "cards"
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                  aria-pressed={viewMode === "cards"}
+                  title="Cards view"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" /> Cards
+                </Button>
+              </div>
               {hasActiveFilters && (
                 <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2 text-xs">
                   <X className="mr-1 h-3 w-3" /> Clear filters
@@ -1306,7 +1351,10 @@ export default function AdminLeads() {
                 </div>
 
                 {/* Desktop Table */}
-                <div className="hidden overflow-hidden rounded-xl border border-border bg-card md:block">
+                <div className={cn(
+                  "hidden overflow-hidden rounded-xl border border-border bg-card md:block",
+                  viewMode === "cards" && "md:hidden",
+                )}>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
@@ -1541,7 +1589,63 @@ export default function AdminLeads() {
                   </div>
                 </div>
 
-                {/* Mobile Cards */}
+                {/* Desktop Cards Grid */}
+                {viewMode === "cards" && (
+                  <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
+                    {paginatedProjectLeads.map((lead) => {
+                      const sources =
+                        lead.lead_sources && lead.lead_sources.length > 0
+                          ? lead.lead_sources
+                          : lead.lead_source
+                            ? [lead.lead_source]
+                            : [];
+                      const data: LeadCardData = {
+                        id: lead.id,
+                        name: lead.name,
+                        email: lead.email,
+                        phone: lead.phone,
+                        created_at: lead.created_at,
+                        subtitle: lead.persona
+                          ? `${getPersonaLabel(lead.persona)}${lead.home_size ? ` · ${getHomeSizeLabel(lead.home_size)}` : ""}`
+                          : null,
+                        contextLabel: lead.presale_projects?.name ?? null,
+                        contextCity: lead.presale_projects?.city ?? null,
+                        contextUrl: lead.presale_projects
+                          ? generateProjectUrl({
+                              slug: lead.presale_projects.slug,
+                              neighborhood:
+                                lead.presale_projects.neighborhood ||
+                                lead.presale_projects.city,
+                              projectType: (lead.presale_projects.project_type ||
+                                "condo") as any,
+                            })
+                          : null,
+                        intentScore: lead.intent_score,
+                        status: lead.lead_status,
+                        sourceLabel: getLeadSourceLabel(sources[0] || null),
+                        extraSourceCount: Math.max(0, sources.length - 1),
+                      };
+                      return (
+                        <LeadCard
+                          key={lead.id}
+                          lead={data}
+                          selected={selectedProjectIds.has(lead.id)}
+                          onToggleSelect={() => toggleSelect(lead.id)}
+                          onOpenDetails={() => {
+                            setSelectedLead(lead);
+                            setModalInitialTab("overview");
+                            setModalOpen(true);
+                          }}
+                          onComposeEmail={() =>
+                            openCompose({ id: lead.id, email: lead.email, name: lead.name })
+                          }
+                          onDelete={() => deleteProjectLeadMutation.mutate(lead.id)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="space-y-2 md:hidden">
                   {paginatedProjectLeads.map((lead) => {
                     const primarySource = getLeadSourceLabel(lead.lead_source);
@@ -1667,7 +1771,10 @@ export default function AdminLeads() {
                   {filteredListingLeads.length} of {listingLeads?.length || 0} leads
                 </p>
 
-                <div className="hidden overflow-hidden rounded-xl border border-border bg-card md:block">
+                <div className={cn(
+                  "hidden overflow-hidden rounded-xl border border-border bg-card md:block",
+                  viewMode === "cards" && "md:hidden",
+                )}>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
@@ -1851,7 +1958,42 @@ export default function AdminLeads() {
                   </div>
                 </div>
 
-                {/* Mobile cards */}
+                {/* Desktop Cards Grid */}
+                {viewMode === "cards" && (
+                  <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
+                    {paginatedListingLeads.map((lead) => {
+                      const data: LeadCardData = {
+                        id: lead.id,
+                        name: lead.name,
+                        email: lead.email,
+                        phone: lead.phone,
+                        created_at: lead.created_at,
+                        contextLabel: lead.listings?.title
+                          ? `Listing: ${lead.listings.title}`
+                          : null,
+                        contextCity: lead.listings?.city ?? null,
+                      };
+                      return (
+                        <LeadCard
+                          key={lead.id}
+                          lead={data}
+                          selected={selectedListingIds.has(lead.id)}
+                          onToggleSelect={() => toggleSelect(lead.id)}
+                          onOpenDetails={() => {
+                            setSelectedLead(lead);
+                            setModalInitialTab("overview");
+                            setModalOpen(true);
+                          }}
+                          onComposeEmail={() =>
+                            openCompose({ id: lead.id, email: lead.email, name: lead.name })
+                          }
+                          onDelete={() => deleteListingLeadMutation.mutate(lead.id)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="space-y-2 md:hidden">
                   {paginatedListingLeads.map((lead) => (
                     <div
