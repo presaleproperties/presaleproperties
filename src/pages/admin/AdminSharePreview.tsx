@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Copy, ExternalLink, CheckCircle2, AlertTriangle, Share2 } from "lucide-react";
+import { Loader2, Copy, ExternalLink, CheckCircle2, AlertTriangle, Share2, HelpCircle, MessageCircle, Phone, Slack, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { getShareableUrl } from "@/lib/share";
 
@@ -187,6 +187,14 @@ export default function AdminSharePreview() {
             </div>
           </CardContent>
         </Card>
+
+        <SharingHelpCard
+          hasResult={!!result}
+          checksFailed={checks.some((c) => !c.pass)}
+          imageMissing={!!result && !result.image}
+          onForceFresh={() => runCheck({ fresh: true })}
+          forceFreshDisabled={loading || !input.trim()}
+        />
 
         {error && (
           <Alert variant="destructive">
