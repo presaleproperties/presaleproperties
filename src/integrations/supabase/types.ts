@@ -3564,6 +3564,10 @@ export type Database = {
           ab_variant: string | null
           admin_notes: string | null
           agent_status: string | null
+          approval_status: string
+          approved_at: string | null
+          approved_by: string | null
+          auto_response_sent_at: string | null
           budget: string | null
           city_interest: Json | null
           contacted_at: string | null
@@ -3602,7 +3606,10 @@ export type Database = {
           phone: string | null
           project_id: string | null
           project_interest: Json | null
+          realtor_risk_score: number
+          realtor_risk_signals: Json
           referrer: string | null
+          rejection_reason: string | null
           responded_at: string | null
           session_count: number | null
           session_id: string | null
@@ -3623,6 +3630,10 @@ export type Database = {
           ab_variant?: string | null
           admin_notes?: string | null
           agent_status?: string | null
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          auto_response_sent_at?: string | null
           budget?: string | null
           city_interest?: Json | null
           contacted_at?: string | null
@@ -3661,7 +3672,10 @@ export type Database = {
           phone?: string | null
           project_id?: string | null
           project_interest?: Json | null
+          realtor_risk_score?: number
+          realtor_risk_signals?: Json
           referrer?: string | null
+          rejection_reason?: string | null
           responded_at?: string | null
           session_count?: number | null
           session_id?: string | null
@@ -3682,6 +3696,10 @@ export type Database = {
           ab_variant?: string | null
           admin_notes?: string | null
           agent_status?: string | null
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          auto_response_sent_at?: string | null
           budget?: string | null
           city_interest?: Json | null
           contacted_at?: string | null
@@ -3720,7 +3738,10 @@ export type Database = {
           phone?: string | null
           project_id?: string | null
           project_interest?: Json | null
+          realtor_risk_score?: number
+          realtor_risk_signals?: Json
           referrer?: string | null
+          rejection_reason?: string | null
           responded_at?: string | null
           session_count?: number | null
           session_id?: string | null
@@ -3831,6 +3852,33 @@ export type Database = {
           created_at?: string
           id?: number
           rate_key?: string
+        }
+        Relationships: []
+      }
+      realtor_email_domains: {
+        Row: {
+          brokerage_name: string | null
+          created_at: string
+          created_by: string | null
+          domain: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          brokerage_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          domain: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          brokerage_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          domain?: string
+          id?: string
+          notes?: string | null
         }
         Relationships: []
       }
@@ -4803,6 +4851,7 @@ export type Database = {
         Args: { project_id: string }
         Returns: undefined
       }
+      score_lead_realtor_risk: { Args: { p_lead_id: string }; Returns: Json }
       update_listing_agent_names: { Args: never; Returns: undefined }
     }
     Enums: {
