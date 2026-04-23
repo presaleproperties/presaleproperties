@@ -12,11 +12,21 @@
 const PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID;
 const SITE_ORIGIN = "https://presaleproperties.com";
 
-export function getShareableUrl(path?: string): string {
+export interface ShareUrlOptions {
+  /** Force the edge function to skip its cache (admin "republish" flow). */
+  fresh?: boolean;
+  /** Append a cache-buster (e.g. resource updated_at) so social platforms re-scrape. */
+  version?: string | number;
+}
+
+export function getShareableUrl(path?: string, opts: ShareUrlOptions = {}): string {
   const targetPath = path ?? `${window.location.pathname}${window.location.search}`;
   const direct = `${SITE_ORIGIN}${targetPath}`;
   if (!PROJECT_ID) return direct;
-  return `https://${PROJECT_ID}.supabase.co/functions/v1/og-preview?path=${encodeURIComponent(targetPath)}`;
+  const params = new URLSearchParams({ path: targetPath });
+  if (opts.fresh) params.set("fresh", "1");
+  if (opts.version != null) params.set("v", String(opts.version));
+  return `https://${PROJECT_ID}.supabase.co/functions/v1/og-preview?${params.toString()}`;
 }
 
 /**
