@@ -949,6 +949,7 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
                         );
                       })}
                     </ul>
+                    </>
                   )}
                 </div>
               </TabsContent>
