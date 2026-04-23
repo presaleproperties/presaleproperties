@@ -610,6 +610,7 @@ export default function AdminProjects() {
   // Stats calculations
   const totalProjects = projects.length;
   const missingBrochureCount = projects.filter(p => !hasDoc(p.brochure_files)).length;
+  const heroCount = projects.filter(p => p.show_in_hero).length;
 
   return (
     <AdminLayout>
@@ -679,6 +680,19 @@ export default function AdminProjects() {
             <FileText className="h-4 w-4" />
             <span className="font-medium">{missingBrochureCount}</span>
             <span>Missing Brochure</span>
+          </button>
+          <button
+            onClick={() => setDocsFilter(docsFilter === "in_hero" ? "all" : "in_hero")}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors",
+              docsFilter === "in_hero"
+                ? "bg-amber-100 text-amber-700 ring-1 ring-amber-300"
+                : "hover:bg-amber-50 text-amber-600 hover:text-amber-700"
+            )}
+          >
+            <Sparkles className="h-4 w-4" />
+            <span className="font-medium">{heroCount}</span>
+            <span>In Hero</span>
           </button>
           {seoMissingCount > 0 && (
             <button 
