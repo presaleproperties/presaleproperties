@@ -1589,7 +1589,63 @@ export default function AdminLeads() {
                   </div>
                 </div>
 
-                {/* Mobile Cards */}
+                {/* Desktop Cards Grid */}
+                {viewMode === "cards" && (
+                  <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
+                    {paginatedProjectLeads.map((lead) => {
+                      const sources =
+                        lead.lead_sources && lead.lead_sources.length > 0
+                          ? lead.lead_sources
+                          : lead.lead_source
+                            ? [lead.lead_source]
+                            : [];
+                      const data: LeadCardData = {
+                        id: lead.id,
+                        name: lead.name,
+                        email: lead.email,
+                        phone: lead.phone,
+                        created_at: lead.created_at,
+                        subtitle: lead.persona
+                          ? `${getPersonaLabel(lead.persona)}${lead.home_size ? ` · ${getHomeSizeLabel(lead.home_size)}` : ""}`
+                          : null,
+                        contextLabel: lead.presale_projects?.name ?? null,
+                        contextCity: lead.presale_projects?.city ?? null,
+                        contextUrl: lead.presale_projects
+                          ? generateProjectUrl({
+                              slug: lead.presale_projects.slug,
+                              neighborhood:
+                                lead.presale_projects.neighborhood ||
+                                lead.presale_projects.city,
+                              projectType: (lead.presale_projects.project_type ||
+                                "condo") as any,
+                            })
+                          : null,
+                        intentScore: lead.intent_score,
+                        status: lead.lead_status,
+                        sourceLabel: getLeadSourceLabel(sources[0] || null),
+                        extraSourceCount: Math.max(0, sources.length - 1),
+                      };
+                      return (
+                        <LeadCard
+                          key={lead.id}
+                          lead={data}
+                          selected={selectedProjectIds.has(lead.id)}
+                          onToggleSelect={() => toggleSelect(lead.id)}
+                          onOpenDetails={() => {
+                            setSelectedLead(lead);
+                            setModalInitialTab("overview");
+                            setModalOpen(true);
+                          }}
+                          onComposeEmail={() =>
+                            openCompose({ id: lead.id, email: lead.email, name: lead.name })
+                          }
+                          onDelete={() => deleteProjectLeadMutation.mutate(lead.id)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="space-y-2 md:hidden">
                   {paginatedProjectLeads.map((lead) => {
                     const primarySource = getLeadSourceLabel(lead.lead_source);
