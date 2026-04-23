@@ -87,6 +87,7 @@ const AdminPaidAdsDashboard = lazy(() => import("./pages/admin/AdminPaidAdsDashb
 const AdminCampaignROI = lazy(() => import("./pages/admin/AdminCampaignROI"));
 const AdminAlertsConfig = lazy(() => import("./pages/admin/AdminAlertsConfig"));
 const AdminLeadOnboard = lazy(() => import("./pages/admin/AdminLeadOnboard"));
+const AdminLayoutHealthCheck = lazy(() => import("./pages/admin/AdminLayoutHealthCheck"));
 
 const AdminAIAnalytics = lazy(() => import("./pages/admin/AdminAIAnalytics"));
 const AdminBookings = lazy(() => import("./pages/admin/AdminBookings"));
