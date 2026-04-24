@@ -4337,6 +4337,24 @@ export type Database = {
         }
         Relationships: []
       }
+      system_flags: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       team_members: {
         Row: {
           bio: string | null
