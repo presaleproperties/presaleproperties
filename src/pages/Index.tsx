@@ -23,6 +23,7 @@ import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { TwoWaysToBuy } from "@/components/home/TwoWaysToBuy";
 import { NewConstructionTrustBar } from "@/components/home/NewConstructionTrustBar";
+import { WhyChooseUs } from "@/components/home/WhyChooseUs";
 // Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
 const HOME_FAQS = [
   {
@@ -323,6 +324,9 @@ const Index = () => {
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <PresaleExpertsSection />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <WhyChooseUs />
         </ScrollReveal>
         {/* Lead magnet: cinematic banner — replaces inline form for better visual impact */}
         <ScrollReveal animation="fade-up" delay={100}>
