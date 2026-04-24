@@ -15,6 +15,10 @@ import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { Footer } from "@/components/layout/Footer";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "@/components/home/HeroProjectSlider";
+import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
+import { TrendingProjectPromo } from "@/components/home/TrendingProjectPromo";
+import { SecondaryProjectPromo } from "@/components/home/SecondaryProjectPromo";
+import { RisingStarPromo } from "@/components/home/RisingStarPromo";
 import { SearchTab } from "@/components/home/HeroSection";
 import { supabase } from "@/integrations/supabase/client";
 
