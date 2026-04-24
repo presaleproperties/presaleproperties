@@ -29,10 +29,10 @@ export function TrendingProjectPromo() {
 
   return (
     <section className="py-6 md:py-10">
-      <div className="container px-4">
+      <div className="container px-4 sm:px-6">
         <Link
           to={url}
-          className="relative block overflow-hidden rounded-3xl border border-border shadow-xl group min-h-[360px] md:min-h-[460px]"
+          className="relative block overflow-hidden rounded-3xl border border-border shadow-xl group min-h-[340px] sm:min-h-[400px] lg:min-h-[460px]"
         >
           <img
             src={project.featured_image!}
@@ -50,7 +50,7 @@ export function TrendingProjectPromo() {
           </div>
 
           {/* Content overlay */}
-          <div className="absolute inset-x-0 bottom-0 p-6 md:p-10 text-on-dark">
+          <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 lg:p-10 text-on-dark">
             <div className="flex items-center gap-1.5 text-on-dark/80 text-sm mb-2">
               <MapPin className="h-4 w-4 text-primary" />
               <span>
