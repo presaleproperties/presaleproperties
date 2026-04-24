@@ -196,11 +196,11 @@ export default function DashboardProjectDocuments() {
           </div>
 
           {/* Locked Card */}
-          <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-background">
+          <Card className="border-warning/30 bg-gradient-to-br from-warning/5 to-background">
             <CardContent className="py-12">
               <div className="flex flex-col items-center justify-center text-center max-w-md mx-auto">
-                <div className="p-4 rounded-full bg-amber-500/10 mb-4">
-                  <Lock className="h-10 w-10 text-amber-600" />
+                <div className="p-4 rounded-full bg-warning/10 mb-4">
+                  <Lock className="h-10 w-10 text-warning" />
                 </div>
                 <h2 className="text-xl font-semibold mb-2">Verification Required</h2>
                 <p className="text-muted-foreground mb-6">
@@ -256,7 +256,7 @@ export default function DashboardProjectDocuments() {
                 <div className="flex items-center gap-2 mb-2">
                   <Crown className="h-5 w-5 text-primary" />
                   <span className="text-sm font-medium text-primary">Verified Agent Access</span>
-                  <Badge variant="default" className="bg-green-500/20 text-green-700 border-green-500/30">
+                  <Badge variant="default" className="bg-success/20 text-success-strong border-success/30">
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Verified
                   </Badge>
@@ -373,13 +373,13 @@ export default function DashboardProjectDocuments() {
                   {/* Document badges */}
                   <div className="absolute top-2 right-2 flex gap-1">
                     {project.floorplan_files && project.floorplan_files.length > 0 && (
-                      <Badge className="bg-blue-500/90 text-white text-xs">
+                      <Badge className="bg-info/90 text-on-dark text-xs">
                         <ImageIcon className="h-3 w-3 mr-1" />
                         {project.floorplan_files.length} Floorplans
                       </Badge>
                     )}
                     {project.brochure_files && project.brochure_files.length > 0 && (
-                      <Badge className="bg-green-500/90 text-white text-xs">
+                      <Badge className="bg-success/90 text-on-dark text-xs">
                         <FileText className="h-3 w-3 mr-1" />
                         Brochure
                       </Badge>
@@ -482,7 +482,7 @@ export default function DashboardProjectDocuments() {
                   {/* Floorplans Section */}
                   <div>
                     <h4 className="font-medium mb-3 flex items-center gap-2">
-                      <ImageIcon className="h-4 w-4 text-blue-500" />
+                      <ImageIcon className="h-4 w-4 text-info" />
                       Floorplans
                     </h4>
                     {selectedProject.floorplan_files &&
@@ -497,8 +497,8 @@ export default function DashboardProjectDocuments() {
                             className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors group"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-blue-500/10">
-                                <FileText className="h-4 w-4 text-blue-500" />
+                              <div className="p-2 rounded-lg bg-info/10">
+                                <FileText className="h-4 w-4 text-info" />
                               </div>
                               <span className="text-sm font-medium">
                                 Floorplan {index + 1}
@@ -526,7 +526,7 @@ export default function DashboardProjectDocuments() {
                   {/* Brochures Section */}
                   <div>
                     <h4 className="font-medium mb-3 flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-green-500" />
+                      <FileText className="h-4 w-4 text-success" />
                       Brochures & Pricing Sheets
                     </h4>
                     {selectedProject.brochure_files &&
@@ -541,8 +541,8 @@ export default function DashboardProjectDocuments() {
                             className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors group"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-green-500/10">
-                                <FileText className="h-4 w-4 text-green-500" />
+                              <div className="p-2 rounded-lg bg-success/10">
+                                <FileText className="h-4 w-4 text-success" />
                               </div>
                               <span className="text-sm font-medium">
                                 {index === 0 ? "Project Brochure" : `Brochure ${index + 1}`}

@@ -68,7 +68,7 @@ function MobileVIPModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-neutral-900/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-card rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md p-6">
         <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
           <X className="h-5 w-5" />
@@ -98,7 +98,7 @@ function MobileVIPModal({ onClose }: { onClose: () => void }) {
               <button type="submit" disabled={isSubmitting} className="w-full h-11 bg-primary text-primary-foreground rounded-full font-bold text-sm disabled:opacity-60">
                 {isSubmitting ? "Submitting..." : "Get Instant Access"}
               </button>
-              {error && <p className="text-center text-xs text-red-500">{error}</p>}
+              {error && <p className="text-center text-xs text-danger">{error}</p>}
               <p className="text-center text-[11px] text-muted-foreground">No spam. Unsubscribe anytime.</p>
             </form>
           </>
@@ -183,19 +183,19 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 overflow-visible pointer-events-none" style={{ paddingTop: "clamp(60px, 22vh, 180px)" }}>
 
           {/* Headline */}
-          <h1 className="text-[2rem] sm:text-4xl font-extrabold text-white leading-[1.08] text-center mb-2 tracking-tight max-w-[320px] sm:max-w-md" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+          <h1 className="text-[2rem] sm:text-4xl font-extrabold text-on-dark leading-[1.08] text-center mb-2 tracking-tight max-w-[320px] sm:max-w-md" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
             Find New Homes.
           </h1>
 
           {/* Subheadline */}
-          <p className="text-white/70 text-sm text-center max-w-[300px] sm:max-w-sm mb-4 leading-relaxed flex items-center justify-center gap-1.5" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
+          <p className="text-on-dark/70 text-sm text-center max-w-[300px] sm:max-w-sm mb-4 leading-relaxed flex items-center justify-center gap-1.5" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
             <MapPin className="w-3.5 h-3.5 text-primary shrink-0" strokeWidth={2.5} />
             Metro Vancouver
           </p>
 
           {/* Search bar */}
           <div className="relative z-[10] w-full max-w-[340px] sm:max-w-[500px] pointer-events-auto">
-            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[60px] sm:h-[68px] border border-white/40">
+            <div ref={searchBarRef} className="relative flex items-center bg-card/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[60px] sm:h-[68px] border border-card/40">
               {/* Tab switcher — compact on mobile */}
               <div className="flex items-center shrink-0 pl-1 gap-0.5">
                 {(["projects", "resale"] as SearchTab[]).map((tab) => (
@@ -240,9 +240,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           <div className="flex items-center justify-center mt-4 pointer-events-auto">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold active:scale-95 transition-all shadow-lg"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900/50 backdrop-blur-md border border-card/15 text-on-dark text-sm font-semibold active:scale-95 transition-all shadow-lg"
             >
-              <MapPin className="w-4 h-4 text-white/80" />
+              <MapPin className="w-4 h-4 text-on-dark/80" />
               <span className="sm:hidden">Map</span>
               <span className="hidden sm:inline">Search by Map</span>
             </Link>

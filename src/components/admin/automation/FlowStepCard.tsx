@@ -27,9 +27,9 @@ function getTemplateEditHref(kind?: string, value?: string): string {
 
 function getTemplateIcon(kind?: string, value?: string) {
   const k = kind || (value?.startsWith("campaign:") ? "campaign" : value?.startsWith("db:") ? "db" : "system");
-  if (k === "campaign") return { Icon: FileText, color: "text-amber-600" };
-  if (k === "db") return { Icon: Mail, color: "text-emerald-600" };
-  return { Icon: Sparkles, color: "text-blue-600" };
+  if (k === "campaign") return { Icon: FileText, color: "text-warning" };
+  if (k === "db") return { Icon: Mail, color: "text-success" };
+  return { Icon: Sparkles, color: "text-info" };
 }
 
 function getTemplateBadgeLabel(kind?: string, value?: string) {
@@ -40,11 +40,11 @@ function getTemplateBadgeLabel(kind?: string, value?: string) {
 }
 
 const STEP_META: Record<StepType, { icon: any; color: string; bg: string }> = {
-  delay: { icon: Clock, color: "text-amber-600", bg: "bg-amber-50 border-amber-200" },
-  send_email: { icon: Mail, color: "text-blue-600", bg: "bg-blue-50 border-blue-200" },
-  send_sms: { icon: Phone, color: "text-green-600", bg: "bg-green-50 border-green-200" },
-  send_whatsapp: { icon: MessageCircle, color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200" },
-  condition: { icon: GitBranch, color: "text-purple-600", bg: "bg-purple-50 border-purple-200" },
+  delay: { icon: Clock, color: "text-warning", bg: "bg-warning-soft border-warning/30" },
+  send_email: { icon: Mail, color: "text-info", bg: "bg-info-soft border-info/30" },
+  send_sms: { icon: Phone, color: "text-success", bg: "bg-success-soft border-success/30" },
+  send_whatsapp: { icon: MessageCircle, color: "text-success", bg: "bg-success-soft border-success/30" },
+  condition: { icon: GitBranch, color: "text-primary", bg: "bg-primary/10 border-primary/30" },
 };
 
 const DELAY_PRESETS = [
@@ -130,10 +130,10 @@ export function FlowStepCard({
         <CardContent className="p-0">
           {/* Header row */}
           <div className="flex items-center gap-2 px-3 py-2.5">
-            <div className="cursor-grab active:cursor-grabbing p-1 hover:bg-black/5 rounded">
+            <div className="cursor-grab active:cursor-grabbing p-1 hover:bg-neutral-900/5 rounded">
               <GripVertical className="h-4 w-4 text-muted-foreground/50" />
             </div>
-            <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", meta.color, "bg-white/60")}>
+            <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", meta.color, "bg-card/60")}>
               <Icon className="h-4 w-4" />
             </div>
             <div className="flex-1 min-w-0">
@@ -170,7 +170,7 @@ export function FlowStepCard({
 
           {/* Expanded config */}
           {expanded && (
-            <div className="px-4 pb-3 pt-1 border-t border-black/5 space-y-3">
+            <div className="px-4 pb-3 pt-1 border-t border-neutral-900/5 space-y-3">
               {step.step_type === "delay" && (
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Delay Duration</label>
@@ -183,7 +183,7 @@ export function FlowStepCard({
                       });
                     }}
                   >
-                    <SelectTrigger className="h-9 text-sm bg-white">
+                    <SelectTrigger className="h-9 text-sm bg-card">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -231,7 +231,7 @@ export function FlowStepCard({
                     {step.config?.template_name ? (
                       <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground flex-wrap">
                         <span>This step sends:</span>
-                        <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal gap-1 bg-white">
+                        <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal gap-1 bg-card">
                           {(() => {
                             const { Icon: TIcon, color } = getTemplateIcon(step.config?.template_kind, step.config?.template);
                             return <TIcon className={cn("h-2.5 w-2.5", color)} />;
@@ -252,7 +252,7 @@ export function FlowStepCard({
                       value={step.config?.label || ""}
                       onChange={(e) => onUpdate(step.id, { config: { ...step.config, label: e.target.value } })}
                       placeholder="e.g. Send welcome email"
-                      className="h-9 text-sm bg-white"
+                      className="h-9 text-sm bg-card"
                     />
                   </div>
                 </div>
@@ -266,7 +266,7 @@ export function FlowStepCard({
                       value={step.config?.message || ""}
                       onChange={(e) => onUpdate(step.id, { config: { ...step.config, message: e.target.value } })}
                       placeholder={`Hi {$name}, thanks for your interest in {{project_name}}...`}
-                      className="w-full h-20 rounded-md border bg-white px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="w-full h-20 rounded-md border bg-card px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
                   <div>
@@ -275,7 +275,7 @@ export function FlowStepCard({
                       value={step.config?.label || ""}
                       onChange={(e) => onUpdate(step.id, { config: { ...step.config, label: e.target.value } })}
                       placeholder="e.g. Send intro WhatsApp"
-                      className="h-9 text-sm bg-white"
+                      className="h-9 text-sm bg-card"
                     />
                   </div>
                 </div>
@@ -290,7 +290,7 @@ export function FlowStepCard({
                         value={step.config?.field || "agent_status"}
                         onValueChange={(v) => onUpdate(step.id, { config: { ...step.config, field: v } })}
                       >
-                        <SelectTrigger className="h-9 text-sm bg-white">
+                        <SelectTrigger className="h-9 text-sm bg-card">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -307,7 +307,7 @@ export function FlowStepCard({
                         value={step.config?.operator || "equals"}
                         onValueChange={(v) => onUpdate(step.id, { config: { ...step.config, operator: v } })}
                       >
-                        <SelectTrigger className="h-9 text-sm bg-white">
+                        <SelectTrigger className="h-9 text-sm bg-card">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -322,7 +322,7 @@ export function FlowStepCard({
                       <Input
                         value={step.config?.value || ""}
                         onChange={(e) => onUpdate(step.id, { config: { ...step.config, value: e.target.value } })}
-                        className="h-9 text-sm bg-white"
+                        className="h-9 text-sm bg-card"
                       />
                     </div>
                   </div>

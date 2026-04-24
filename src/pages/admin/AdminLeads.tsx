@@ -196,7 +196,7 @@ function IntentBadge({ score }: { score: number | null }) {
     s >= 8
       ? "bg-destructive/15 text-destructive border-destructive/30"
       : s >= 5
-        ? "bg-amber-500/15 text-amber-600 border-amber-500/30 dark:text-amber-400"
+        ? "bg-warning/15 text-warning border-warning/30 dark:text-warning"
         : "bg-muted text-muted-foreground border-border";
   return (
     <span
@@ -217,8 +217,8 @@ function StatusPill({ status }: { status: string | null }) {
   const map: Record<string, string> = {
     new: "bg-muted text-foreground border-border",
     contacted: "bg-primary/10 text-primary border-primary/20",
-    qualified: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
-    converted: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40",
+    qualified: "bg-success/15 text-success-strong dark:text-success border-success/30",
+    converted: "bg-success/20 text-success-strong dark:text-success-soft-foreground border-success/40",
     lost: "bg-destructive/10 text-destructive border-destructive/20",
   };
   return (
@@ -252,7 +252,7 @@ function KpiCard({
       : tone === "primary"
         ? "text-primary"
         : tone === "success"
-          ? "text-emerald-600 dark:text-emerald-400"
+          ? "text-success dark:text-success"
           : "text-foreground";
   return (
     <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md">
@@ -1742,7 +1742,7 @@ export default function AdminLeads() {
                                 <Button
                                   variant="outline"
                                   size="icon"
-                                  className="h-8 w-8 rounded-lg border-border/50 text-emerald-600 hover:border-emerald-500/30 hover:bg-emerald-500/10"
+                                  className="h-8 w-8 rounded-lg border-border/50 text-success hover:border-success/30 hover:bg-success/10"
                                   asChild
                                 >
                                   <a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()}>
@@ -1945,7 +1945,7 @@ export default function AdminLeads() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700"
+                                    className="h-8 w-8 text-success hover:bg-success/10 hover:text-success-strong"
                                     asChild
                                     title="Call"
                                   >
@@ -2081,7 +2081,7 @@ export default function AdminLeads() {
                                 <Button
                                   variant="outline"
                                   size="icon"
-                                  className="h-8 w-8 rounded-lg border-border/50 text-emerald-600 hover:border-emerald-500/30 hover:bg-emerald-500/10"
+                                  className="h-8 w-8 rounded-lg border-border/50 text-success hover:border-success/30 hover:bg-success/10"
                                   asChild
                                 >
                                   <a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()}>

@@ -158,11 +158,11 @@ export function MobileCityQuickLinks({ mode = "presale" }: MobileCityQuickLinksP
                   loading="lazy"
                 />
                 {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/60 via-neutral-900/20 to-transparent" />
                 
                 {/* City name overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <h4 className="text-white font-bold text-base leading-tight drop-shadow-lg">
+                  <h4 className="text-on-dark font-bold text-base leading-tight drop-shadow-lg">
                     {city.name}
                   </h4>
                 </div>

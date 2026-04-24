@@ -394,7 +394,7 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
           <div className="space-y-4 pt-4 border-t">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-5 w-5 text-success" />
                 Extracted Data Preview
               </h3>
               <Badge variant="secondary">
@@ -446,7 +446,7 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
                       Rental Yield
                     </div>
                     <div>
-                      <span className={`block font-medium ${(city.yoy_price_change || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <span className={`block font-medium ${(city.yoy_price_change || 0) >= 0 ? 'text-success' : 'text-danger'}`}>
                         {city.yoy_price_change ? `${city.yoy_price_change > 0 ? '+' : ''}${city.yoy_price_change.toFixed(1)}%` : '—'}
                       </span>
                       YoY Change
@@ -474,9 +474,9 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
 
             {/* Email Notification Toggle */}
             {autoGenerateBlogs && (
-              <div className="flex items-center justify-between p-3 bg-blue-500/5 rounded-lg border border-blue-500/20">
+              <div className="flex items-center justify-between p-3 bg-info/5 rounded-lg border border-info/20">
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-blue-500" />
+                  <Mail className="h-4 w-4 text-info" />
                   <div>
                     <p className="text-sm font-medium">Email notification</p>
                     <p className="text-xs text-muted-foreground">Get reminded to review & publish drafts</p>

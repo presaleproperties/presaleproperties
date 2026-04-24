@@ -157,7 +157,7 @@ export default function AdminAgents() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "verified":
-        return <Badge className="bg-green-500/10 text-green-600 border-green-500/20">Verified</Badge>;
+        return <Badge className="bg-success/10 text-success border-success/20">Verified</Badge>;
       case "rejected":
         return <Badge variant="destructive">Rejected</Badge>;
       default:
@@ -253,7 +253,7 @@ export default function AdminAgents() {
                             <>
                               <Button
                                 variant="outline"
-                                className="text-green-600 border-green-600 hover:bg-green-50"
+                                className="text-success border-success hover:bg-success-soft"
                                 onClick={() => handleAction(agent, "verify")}
                               >
                                 <CheckCircle className="h-4 w-4 mr-2" />
@@ -261,7 +261,7 @@ export default function AdminAgents() {
                               </Button>
                               <Button
                                 variant="outline"
-                                className="text-red-600 border-red-600 hover:bg-red-50"
+                                className="text-danger border-danger hover:bg-danger-soft"
                                 onClick={() => handleAction(agent, "reject")}
                               >
                                 <XCircle className="h-4 w-4 mr-2" />
@@ -326,7 +326,7 @@ export default function AdminAgents() {
             <Button
               onClick={confirmAction}
               disabled={processing || (actionType === "reject" && !notes.trim())}
-              className={actionType === "verify" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+              className={actionType === "verify" ? "bg-success hover:bg-success" : "bg-danger hover:bg-danger"}
             >
               {processing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {actionType === "verify" ? "Confirm Verification" : "Confirm Rejection"}

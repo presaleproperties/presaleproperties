@@ -18,9 +18,9 @@ const typeIcon: Record<CampaignWeekType, React.ReactNode> = {
 };
 
 const typeColor: Record<CampaignWeekType, string> = {
-  "single-project": "text-blue-500",
-  "multi-project": "text-purple-500",
-  "ai-content": "text-amber-500",
+  "single-project": "text-info",
+  "multi-project": "text-primary",
+  "ai-content": "text-warning",
 };
 
 export function CampaignWeekNavigator({
@@ -64,7 +64,7 @@ export function CampaignWeekNavigator({
                 isActive
                   ? "border-primary bg-primary/5"
                   : isDone
-                    ? "border-emerald-500/50 hover:bg-muted/30"
+                    ? "border-success/50 hover:bg-muted/30"
                     : "border-transparent hover:bg-muted/30 hover:border-muted-foreground/20"
               )}
               title={w.description}
@@ -72,7 +72,7 @@ export function CampaignWeekNavigator({
               {/* Week number + status icon */}
               <div className="flex items-center gap-1">
                 {isDone ? (
-                  <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                  <CheckCircle2 className="h-3 w-3 text-success" />
                 ) : (
                   <span className={cn("text-[9px] font-bold", isActive ? "text-primary" : "text-muted-foreground")}>
                     W{w.week}

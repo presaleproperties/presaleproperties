@@ -434,7 +434,7 @@ export function SignatureEditor() {
                 <Copy className="h-2.5 w-2.5" /> Copy
               </Button>
             </div>
-            <div className="bg-white">
+            <div className="bg-card">
               <iframe
                 ref={iframeHRef}
                 title="Horizontal Signature"
@@ -462,7 +462,7 @@ export function SignatureEditor() {
                 <Copy className="h-2.5 w-2.5" /> Copy
               </Button>
             </div>
-            <div className="bg-white">
+            <div className="bg-card">
               <iframe
                 ref={iframeVRef}
                 title="Stacked Signature"

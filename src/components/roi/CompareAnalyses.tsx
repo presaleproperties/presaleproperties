@@ -70,11 +70,11 @@ export function CompareAnalyses({ analyses, onBack, onDelete }: CompareAnalysesP
             key={analysis.id}
             className={`py-2 px-3 rounded text-sm font-medium text-center ${
               isBest && highlightBest
-                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                ? "bg-success-soft text-success-strong dark:bg-success-strong/30 dark:text-success"
                 : format === "percent" || format === "currency"
                 ? isPositive
                   ? ""
-                  : "text-red-600"
+                  : "text-danger"
                 : ""
             }`}
           >
@@ -278,7 +278,7 @@ export function CompareAnalyses({ analyses, onBack, onDelete }: CompareAnalysesP
       {/* Legend */}
       <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded bg-green-100 dark:bg-green-900/30" />
+          <span className="inline-block w-3 h-3 rounded bg-success-soft dark:bg-success-strong/30" />
           ★ Best in category
         </span>
       </div>

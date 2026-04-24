@@ -46,11 +46,11 @@ const BUILTIN_TEMPLATES = [
     name: "Main Project Email",
     desc: "Hero image, stats bar, highlights, floor plan CTA, agent card.",
     icon: Mail,
-    color: "from-emerald-600 to-emerald-800",
-    iconBg: "bg-emerald-500/10",
-    iconColor: "text-emerald-600",
+    color: "from-success to-success-strong",
+    iconBg: "bg-success/10",
+    iconColor: "text-success",
     badge: "Core",
-    badgeColor: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
+    badgeColor: "bg-success/15 text-success border-success/30",
     form_data: {
       vars: {
         headline: "Introducing — [Project Name]",
@@ -83,11 +83,11 @@ const BUILTIN_TEMPLATES = [
     name: "Exclusive Offer",
     desc: "High-urgency email for limited-time promotions, incentives, or special pricing windows.",
     icon: Star,
-    color: "from-amber-500 to-amber-700",
-    iconBg: "bg-amber-500/10",
-    iconColor: "text-amber-600",
+    color: "from-warning to-warning-strong",
+    iconBg: "bg-warning/10",
+    iconColor: "text-warning",
     badge: "Promo",
-    badgeColor: "bg-amber-500/15 text-amber-600 border-amber-500/30",
+    badgeColor: "bg-warning/15 text-warning border-warning/30",
     form_data: {
       vars: {
         headline: "Exclusive Offer — [Time-Sensitive Pricing]",
@@ -121,7 +121,7 @@ const BUILTIN_TEMPLATES = [
 function PreviewModal({ html, name, onClose }: { html: string; name: string; onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/70 backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <div
@@ -236,8 +236,8 @@ function AiEmailModal({
         <div className="flex-shrink-0 border-b border-border px-6 py-4">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="h-4 w-4 text-violet-600" />
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="h-4 w-4 text-primary" />
               </div>
               <div>
                 <div className="text-sm font-bold">AI Email Writer</div>
@@ -303,7 +303,7 @@ function AiEmailModal({
               </div>
 
               <Button
-                className="w-full h-9 gap-2 font-semibold text-white bg-violet-600 hover:bg-violet-700"
+                className="w-full h-9 gap-2 font-semibold text-on-dark bg-primary hover:bg-primary"
                 onClick={handleGenerate}
                 disabled={loading || !prompt.trim()}
               >
@@ -330,21 +330,21 @@ function AiEmailModal({
                 <div className="flex items-center bg-background border border-border rounded-lg p-0.5 gap-0.5">
                   <button
                     onClick={() => setActiveVersion("A")}
-                    className={cn("px-3 py-1 text-xs font-semibold rounded transition-all", activeVersion === "A" ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                    className={cn("px-3 py-1 text-xs font-semibold rounded transition-all", activeVersion === "A" ? "bg-success text-on-dark shadow-sm" : "text-muted-foreground hover:text-foreground")}
                   >
                     Version A — Detailed
                   </button>
                   {(result.subjectLineB || result.bodyCopyB) && (
                     <button
                       onClick={() => setActiveVersion("B")}
-                      className={cn("px-3 py-1 text-xs font-semibold rounded transition-all", activeVersion === "B" ? "bg-amber-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                      className={cn("px-3 py-1 text-xs font-semibold rounded transition-all", activeVersion === "B" ? "bg-warning text-on-dark shadow-sm" : "text-muted-foreground hover:text-foreground")}
                     >
                       Version B — Punchy
                     </button>
                   )}
                 </div>
                 <Button variant="outline" size="sm" className="h-7 text-xs gap-1.5" onClick={handleCopyHtml}>
-                  {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> : <Download className="h-3.5 w-3.5" />}
+                  {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-success" /> : <Download className="h-3.5 w-3.5" />}
                   {copied ? "Copied!" : "Copy HTML"}
                 </Button>
               </div>
@@ -504,7 +504,7 @@ export default function AdminEmailBuilderHub() {
           <div className="flex items-center gap-2">
             <Button
               onClick={() => setAiModalOpen(true)}
-              className="gap-1.5 h-8 text-xs bg-violet-600 hover:bg-violet-700 text-white"
+              className="gap-1.5 h-8 text-xs bg-primary hover:bg-primary text-on-dark"
             >
               <Sparkles className="h-3.5 w-3.5" />
               Write with AI
@@ -530,16 +530,16 @@ export default function AdminEmailBuilderHub() {
                 {/* AI */}
                 <button
                   onClick={() => setAiModalOpen(true)}
-                  className="group flex items-center gap-3 p-4 rounded-xl border-2 border-violet-500/30 bg-violet-500/5 hover:border-violet-500/60 hover:bg-violet-500/10 transition-all text-left"
+                  className="group flex items-center gap-3 p-4 rounded-xl border-2 border-primary/30 bg-primary/5 hover:border-primary/60 hover:bg-primary/10 transition-all text-left"
                 >
-                  <div className="h-9 w-9 rounded-lg bg-violet-500/15 flex items-center justify-center shrink-0">
-                    <Sparkles className="h-4 w-4 text-violet-600" />
+                  <div className="h-9 w-9 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                    <Sparkles className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold">Write with AI</div>
                     <div className="text-[11px] text-muted-foreground">Describe it — AI writes the copy</div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-violet-500/60 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ArrowRight className="h-4 w-4 text-primary/60 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
 
                 {/* Builtin templates */}

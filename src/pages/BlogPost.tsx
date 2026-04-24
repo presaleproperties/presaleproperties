@@ -248,7 +248,7 @@ export default function BlogPost() {
           />
 
           {/* Subtle top vignette so nav area stays visible */}
-          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/40 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-neutral-900/40 to-transparent" />
 
           {/* Main gradient overlay — bottom 60% transparent → rgba(0,0,0,0.85) */}
           <div
@@ -263,7 +263,7 @@ export default function BlogPost() {
           <div className="absolute top-4 left-4 md:left-8 z-10">
             <Link
               to="/blog"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/80 hover:text-white transition-colors bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/10"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-on-dark/80 hover:text-on-dark transition-colors bg-neutral-900/30 backdrop-blur-sm px-3 py-1.5 rounded-full border border-card/10"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
               All Guides
@@ -274,7 +274,7 @@ export default function BlogPost() {
           <div className="absolute top-4 right-4 md:right-8 z-10">
             <button
               onClick={handleShare}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/80 hover:text-white transition-colors bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/10"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-on-dark/80 hover:text-on-dark transition-colors bg-neutral-900/30 backdrop-blur-sm px-3 py-1.5 rounded-full border border-card/10"
             >
               <Share2 className="h-3.5 w-3.5" />
               Share
@@ -302,7 +302,7 @@ export default function BlogPost() {
 
               {/* Title */}
               <h1
-                className="text-2xl sm:text-3xl md:text-[2.4rem] lg:text-[2.75rem] font-extrabold leading-[1.1] tracking-tight text-white mb-4 max-w-3xl"
+                className="text-2xl sm:text-3xl md:text-[2.4rem] lg:text-[2.75rem] font-extrabold leading-[1.1] tracking-tight text-on-dark mb-4 max-w-3xl"
                 style={{ textShadow: "0 2px 16px rgba(0,0,0,0.5)" }}
               >
                 {post.title}
@@ -397,7 +397,7 @@ export default function BlogPost() {
                 >
                   Written by
                 </p>
-                <p className="text-base font-extrabold text-white leading-snug mb-0.5">
+                <p className="text-base font-extrabold text-on-dark leading-snug mb-0.5">
                   Uzair Muhammad
                 </p>
                 <p className="text-sm" style={{ color: "hsl(220 10% 60%)" }}>
@@ -513,7 +513,7 @@ export default function BlogPost() {
                           className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
 
                       {/* Content */}

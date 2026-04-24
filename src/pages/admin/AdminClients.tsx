@@ -361,13 +361,13 @@ export default function AdminClients() {
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case "property_view": return <Home className="h-4 w-4 text-blue-500" />;
-      case "page_view": return <Eye className="h-4 w-4 text-gray-500" />;
-      case "search": return <Search className="h-4 w-4 text-purple-500" />;
-      case "favorite": return <Heart className="h-4 w-4 text-red-500" />;
-      case "email_click": return <MousePointerClick className="h-4 w-4 text-green-500" />;
-      case "form_submit": return <FileText className="h-4 w-4 text-orange-500" />;
-      default: return <Activity className="h-4 w-4 text-gray-400" />;
+      case "property_view": return <Home className="h-4 w-4 text-info" />;
+      case "page_view": return <Eye className="h-4 w-4 text-muted-foreground" />;
+      case "search": return <Search className="h-4 w-4 text-primary" />;
+      case "favorite": return <Heart className="h-4 w-4 text-danger" />;
+      case "email_click": return <MousePointerClick className="h-4 w-4 text-success" />;
+      case "form_submit": return <FileText className="h-4 w-4 text-warning" />;
+      default: return <Activity className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -393,10 +393,10 @@ export default function AdminClients() {
   };
 
   const getIntentColor = (score: number) => {
-    if (score >= 30) return "bg-green-500 text-white";
-    if (score >= 20) return "bg-emerald-500 text-white";
-    if (score >= 10) return "bg-amber-500 text-white";
-    return "bg-gray-200 text-gray-700";
+    if (score >= 30) return "bg-success text-on-dark";
+    if (score >= 20) return "bg-success text-on-dark";
+    if (score >= 10) return "bg-warning text-on-dark";
+    return "bg-surface-strong text-foreground";
   };
 
   return (
@@ -447,41 +447,41 @@ export default function AdminClients() {
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-background to-emerald-500/5">
+          <Card className="bg-gradient-to-br from-background to-success/5">
             <CardContent className="pt-4 pb-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Active</p>
-                  <p className="text-2xl font-bold text-emerald-600">{stats.active}</p>
+                  <p className="text-2xl font-bold text-success">{stats.active}</p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                  <Activity className="h-5 w-5 text-emerald-500" />
+                <div className="h-10 w-10 rounded-full bg-success/10 flex items-center justify-center">
+                  <Activity className="h-5 w-5 text-success" />
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-background to-amber-500/5">
+          <Card className="bg-gradient-to-br from-background to-warning/5">
             <CardContent className="pt-4 pb-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">With Alerts</p>
-                  <p className="text-2xl font-bold text-amber-600">{stats.withAlerts}</p>
+                  <p className="text-2xl font-bold text-warning">{stats.withAlerts}</p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center">
-                  <Bell className="h-5 w-5 text-amber-500" />
+                <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center">
+                  <Bell className="h-5 w-5 text-warning" />
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-background to-purple-500/5">
+          <Card className="bg-gradient-to-br from-background to-primary/5">
             <CardContent className="pt-4 pb-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">High Intent</p>
-                  <p className="text-2xl font-bold text-purple-600">{stats.highIntent}</p>
+                  <p className="text-2xl font-bold text-primary">{stats.highIntent}</p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-                  <Target className="h-5 w-5 text-purple-500" />
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Target className="h-5 w-5 text-primary" />
                 </div>
               </div>
             </CardContent>
@@ -597,12 +597,12 @@ export default function AdminClients() {
                   {/* Activity Stats */}
                   <div className="flex items-center gap-4 py-2 px-3 rounded-lg bg-muted/50 text-sm">
                     <div className="flex items-center gap-1.5">
-                      <Eye className="h-3.5 w-3.5 text-blue-500" />
+                      <Eye className="h-3.5 w-3.5 text-info" />
                       <span className="font-medium">{client.total_property_views}</span>
                       <span className="text-muted-foreground text-xs">views</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Activity className="h-3.5 w-3.5 text-emerald-500" />
+                      <Activity className="h-3.5 w-3.5 text-success" />
                       <span className="font-medium">{client.total_site_visits}</span>
                       <span className="text-muted-foreground text-xs">visits</span>
                     </div>
@@ -620,7 +620,7 @@ export default function AdminClients() {
                       {client.status}
                     </Badge>
                     {client.alerts_enabled && (
-                      <Badge variant="outline" className="gap-1 text-xs border-amber-300 text-amber-600">
+                      <Badge variant="outline" className="gap-1 text-xs border-warning text-warning">
                         <Bell className="h-3 w-3" />
                         Alerts On
                       </Badge>
@@ -1040,7 +1040,7 @@ export default function AdminClients() {
                               className={`absolute top-2 right-2 text-[10px] ${
                                 property.type === "presale" 
                                   ? "bg-primary text-primary-foreground" 
-                                  : "bg-emerald-500 text-white"
+                                  : "bg-success text-on-dark"
                               }`}
                             >
                               {property.type === "presale" ? "PRESALE" : "MOVE-IN"}

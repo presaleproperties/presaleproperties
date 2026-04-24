@@ -25,7 +25,7 @@ export function ResaleHeroSection() {
       />
       
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/25 to-black/40 sm:from-black/50 sm:via-black/40 sm:to-black/60" />
+      <div className="absolute inset-0 bg-gradient-to-b from-neutral-900/30 via-neutral-900/25 to-neutral-900/40 sm:from-neutral-900/50 sm:via-neutral-900/40 sm:to-neutral-900/60" />
       
       {/* Content */}
       <div className="container relative z-10 py-5 sm:py-14 md:py-20 px-4">
@@ -36,24 +36,24 @@ export function ResaleHeroSection() {
           </p>
           
           {/* Main Heading - SEO optimized H1 */}
-          <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tightest text-white animate-fade-in leading-[1.05] drop-shadow-lg" style={{ animationDelay: "0.1s" }}>
+          <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tightest text-on-dark animate-fade-in leading-[1.05] drop-shadow-lg" style={{ animationDelay: "0.1s" }}>
             Find Your <span className="text-primary drop-shadow-[0_0_25px_hsl(40_65%_55%/0.5)]">New</span> Home
           </h1>
           
           {/* Subheadline */}
-          <p className="text-white/90 text-base sm:text-lg md:text-xl font-medium animate-fade-in max-w-xl mx-auto leading-relaxed" style={{ animationDelay: "0.15s" }}>
+          <p className="text-on-dark/90 text-base sm:text-lg md:text-xl font-medium animate-fade-in max-w-xl mx-auto leading-relaxed" style={{ animationDelay: "0.15s" }}>
             Search Presale & move-in ready homes
           </p>
 
           {/* Floating Search Card - Compact on mobile */}
           {/* IMPORTANT: No overflow-hidden - it clips the PowerSearch dropdown */}
           <div 
-            className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl mx-auto animate-fade-in"
+            className="bg-card rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl mx-auto animate-fade-in"
             style={{ animationDelay: "0.2s" }}
           >
             {/* Search Header */}
             <div className="flex items-center justify-between border-b border-border px-2.5 sm:px-4 py-2 sm:py-3">
-              <span className="px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold bg-gray-900 text-white shadow-sm">
+              <span className="px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold bg-neutral-900 text-on-dark shadow-sm">
                 New Homes
               </span>
               <Link
@@ -78,7 +78,7 @@ export function ResaleHeroSection() {
 
           {/* Trust Line */}
           <div className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
-            <p className="text-white/70 text-sm font-medium flex items-center justify-center gap-2">
+            <p className="text-on-dark/70 text-sm font-medium flex items-center justify-center gap-2">
               <ShieldCheck className="h-4 w-4 text-primary" />
               Expert guidance at no extra cost
             </p>
@@ -86,7 +86,7 @@ export function ResaleHeroSection() {
 
           {/* Top Cities */}
           <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <span className="text-[10px] sm:text-sm text-white/70 font-medium tracking-wide block mb-2">
+            <span className="text-[10px] sm:text-sm text-on-dark/70 font-medium tracking-wide block mb-2">
               Top Cities
             </span>
             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 md:gap-3 px-2">
@@ -96,7 +96,7 @@ export function ResaleHeroSection() {
                   variant="outline"
                   size="sm"
                   onClick={() => handleCityClick(city)}
-                  className="rounded-full bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white hover:text-foreground hover:border-white active:scale-95 transition-all duration-200 text-[11px] sm:text-xs md:text-sm px-3 sm:px-3.5 md:px-4 h-8 sm:h-8 font-medium whitespace-nowrap"
+                  className="rounded-full bg-card/10 backdrop-blur-sm text-on-dark border-card/30 hover:bg-card hover:text-foreground hover:border-card active:scale-95 transition-all duration-200 text-[11px] sm:text-xs md:text-sm px-3 sm:px-3.5 md:px-4 h-8 sm:h-8 font-medium whitespace-nowrap"
                 >
                   {city}
                 </Button>

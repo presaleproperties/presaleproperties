@@ -27,8 +27,8 @@ export function TopProjectsTable({ projects }: TopProjectsTableProps) {
       <CardHeader className="py-4 px-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-blue-100 p-1.5">
-              <TrendingUp className="h-3.5 w-3.5 text-blue-600" />
+            <div className="rounded-lg bg-info-soft p-1.5">
+              <TrendingUp className="h-3.5 w-3.5 text-info" />
             </div>
             <CardTitle className="text-sm font-semibold">Top Projects by Engagement</CardTitle>
           </div>
@@ -72,14 +72,14 @@ export function TopProjectsTable({ projects }: TopProjectsTableProps) {
                     className="border-b border-border/30 hover:bg-muted/30 transition-colors"
                   >
                     <td className="py-2.5 pr-3">
-                      <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] font-bold text-info bg-info-soft px-1.5 py-0.5 rounded">
                         #{index + 1}
                       </span>
                     </td>
                     <td className="py-2.5 pr-3">
                       <Link 
                         to={`/admin/projects/${project.project_id}/edit`}
-                        className="hover:text-blue-600 transition-colors"
+                        className="hover:text-info transition-colors"
                       >
                         <p className="font-medium truncate max-w-[180px]">{project.project_name}</p>
                         <p className="text-[10px] text-muted-foreground flex items-center gap-0.5">
@@ -96,7 +96,7 @@ export function TopProjectsTable({ projects }: TopProjectsTableProps) {
                       <div className="flex items-center justify-center gap-1">
                         <span>{project.form_submits}</span>
                         {dropOff && (
-                          <Badge variant="outline" className="text-[8px] px-1 py-0 bg-red-50 text-red-600 border-red-200" title={`${project.form_starts - project.form_submits} abandoned`}>
+                          <Badge variant="outline" className="text-[8px] px-1 py-0 bg-danger-soft text-danger border-danger/30" title={`${project.form_starts - project.form_submits} abandoned`}>
                             -{project.form_starts - project.form_submits}
                           </Badge>
                         )}
@@ -106,8 +106,8 @@ export function TopProjectsTable({ projects }: TopProjectsTableProps) {
                       <Badge 
                         variant="outline" 
                         className={`text-[10px] px-1.5 py-0 ${
-                          Number(convRate) > 2 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                          Number(convRate) > 0 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                          Number(convRate) > 2 ? 'bg-success-soft text-success-strong border-success/30' :
+                          Number(convRate) > 0 ? 'bg-warning-soft text-warning-strong border-warning/30' :
                           'bg-muted text-muted-foreground'
                         }`}
                       >
@@ -128,7 +128,7 @@ export function TopProjectsTable({ projects }: TopProjectsTableProps) {
           <span className="text-[10px] text-muted-foreground flex items-center gap-1"><MousePointerClick className="h-2.5 w-2.5" /> CTAs</span>
           <span className="text-[10px] text-muted-foreground flex items-center gap-1"><Send className="h-2.5 w-2.5" /> Leads</span>
           <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-            <Badge variant="outline" className="text-[8px] px-1 py-0 bg-red-50 text-red-600 border-red-200">-N</Badge> Drop-offs
+            <Badge variant="outline" className="text-[8px] px-1 py-0 bg-danger-soft text-danger border-danger/30">-N</Badge> Drop-offs
           </span>
         </div>
       </CardContent>

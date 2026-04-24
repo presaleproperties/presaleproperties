@@ -83,7 +83,7 @@ export function PullToRefreshIndicator({
         className={cn(
           "flex items-center justify-center w-10 h-10 rounded-full shadow-lg transition-all duration-300",
           showSuccess 
-            ? "bg-green-500 border-green-500 scale-110" 
+            ? "bg-success border-success scale-110" 
             : shouldTrigger || isRefreshing 
               ? "bg-primary border-primary" 
               : "bg-background border border-border"
@@ -95,7 +95,7 @@ export function PullToRefreshIndicator({
         }}
       >
         {showSuccess ? (
-          <Check className="h-5 w-5 text-white animate-scale-in" />
+          <Check className="h-5 w-5 text-on-dark animate-scale-in" />
         ) : isRefreshing ? (
           <Loader2 className="h-5 w-5 text-primary-foreground animate-spin" />
         ) : (
@@ -113,7 +113,7 @@ export function PullToRefreshIndicator({
         className={cn(
           "mt-1.5 text-xs font-medium transition-all duration-200",
           showSuccess 
-            ? "text-green-600" 
+            ? "text-success" 
             : shouldTrigger || isRefreshing 
               ? "text-primary" 
               : "text-muted-foreground"

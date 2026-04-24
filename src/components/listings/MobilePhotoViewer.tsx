@@ -127,41 +127,41 @@ export function MobilePhotoViewer({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black">
+    <div className="fixed inset-0 z-[100] bg-neutral-900">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-3 bg-gradient-to-b from-black/80 to-transparent safe-top">
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-3 bg-gradient-to-b from-neutral-900/80 to-transparent safe-top">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
-            className="h-11 w-11 text-white hover:bg-white/20 rounded-full"
+            className="h-11 w-11 text-on-dark hover:bg-card/20 rounded-full"
             onClick={onClose}
           >
             <X className="h-6 w-6" />
           </Button>
-          <span className="text-white font-medium text-sm">
+          <span className="text-on-dark font-medium text-sm">
             {activeIndex + 1} of {photos.length}
           </span>
         </div>
         
         {/* Zoom controls */}
-        <div className="flex items-center gap-1 bg-white/10 backdrop-blur-sm rounded-full p-1">
+        <div className="flex items-center gap-1 bg-card/10 backdrop-blur-sm rounded-full p-1">
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 text-white hover:bg-white/20 rounded-full"
+            className="h-9 w-9 text-on-dark hover:bg-card/20 rounded-full"
             onClick={zoomOut}
             disabled={scale <= 1}
           >
             <ZoomOut className="h-5 w-5" />
           </Button>
-          <span className="text-white text-xs font-medium w-10 text-center">
+          <span className="text-on-dark text-xs font-medium w-10 text-center">
             {Math.round(scale * 100)}%
           </span>
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 text-white hover:bg-white/20 rounded-full"
+            className="h-9 w-9 text-on-dark hover:bg-card/20 rounded-full"
             onClick={zoomIn}
             disabled={scale >= 4}
           >
@@ -172,7 +172,7 @@ export function MobilePhotoViewer({
 
       {/* Scroll indicator */}
       {photos.length > 1 && scale === 1 && (
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-white/60 animate-pulse">
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-on-dark/60 animate-pulse">
           <ChevronDown className="h-5 w-5" />
           <span className="text-xs">Scroll to see more</span>
         </div>
@@ -225,7 +225,7 @@ export function MobilePhotoViewer({
 
       {/* Thumbnail strip at bottom */}
       {photos.length > 1 && (
-        <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/90 via-black/70 to-transparent pt-8 pb-4 safe-bottom">
+        <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-neutral-900/90 via-neutral-900/70 to-transparent pt-8 pb-4 safe-bottom">
           <div className="flex gap-2 px-3 overflow-x-auto scrollbar-hide">
             {photos.map((photo, index) => (
               <button
@@ -241,7 +241,7 @@ export function MobilePhotoViewer({
                   "flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all",
                   index === activeIndex
                     ? "border-primary ring-2 ring-primary/50 scale-105"
-                    : "border-white/20 opacity-60 hover:opacity-100"
+                    : "border-card/20 opacity-60 hover:opacity-100"
                 )}
               >
                 <img

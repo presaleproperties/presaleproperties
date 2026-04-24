@@ -36,28 +36,28 @@ const coreFeatures = [
     title: "Complete Project Library",
     description: "Access floor plans and brochures for every presale project in BC. Always up-to-date.",
     highlight: "100+ Projects",
-    gradient: "from-amber-500/20 to-orange-500/20"
+    gradient: "from-warning/20 to-warning/20"
   },
   {
     icon: Lock,
     title: "All Assignments, One Place",
     description: "Stop scrolling Facebook groups. Search by location, price, and unit type. Connect with listing agents instantly—no more lost posts.",
     highlight: "Searchable & Organized",
-    gradient: "from-violet-500/20 to-purple-500/20"
+    gradient: "from-primary/20 to-primary/20"
   },
   {
     icon: Upload,
     title: "Post Your Assignments",
     description: "List your client's assignments to our network of verified agents. Reach serious buyers instantly.",
     highlight: "500+ Agents",
-    gradient: "from-amber-500/20 to-orange-500/20"
+    gradient: "from-warning/20 to-warning/20"
   },
   {
     icon: Megaphone,
     title: "Promote Your Exclusives",
     description: "Feature your exclusive assignments with premium placement. Get your listings in front of serious buyers and agents.",
     highlight: "Premium Exposure",
-    gradient: "from-rose-500/20 to-pink-500/20"
+    gradient: "from-danger/20 to-primary/20"
   }
 ];
 

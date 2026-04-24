@@ -155,7 +155,7 @@ export function DeckPriceGate({ slug, projectName, projectId, onUnlock, onClose 
   return (
     /* Backdrop — taps outside closes */
     <div
-      className="fixed inset-0 z-[9000] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-[9000] flex items-end sm:items-center justify-center bg-neutral-900/50 backdrop-blur-sm"
       onClick={onClose}
     >
       {/* Sheet — stop propagation so tapping inside doesn't close */}

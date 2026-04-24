@@ -179,7 +179,7 @@ export function MarketBlogGenerator({ cities }: MarketBlogGeneratorProps) {
           <div className="space-y-4 pt-4 border-t">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-5 w-5 text-success" />
                 Generated Blog Post
               </h3>
               <Badge variant="secondary">Draft</Badge>

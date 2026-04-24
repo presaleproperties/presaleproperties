@@ -122,7 +122,7 @@ export function SaveButton({ listingId, variant = "icon", className }: SaveButto
       onClick={handleToggleSave}
       disabled={isLoading}
       className={cn(
-        "flex items-center justify-center w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all duration-200 hover:scale-110",
+        "flex items-center justify-center w-8 h-8 rounded-full bg-card/90 backdrop-blur-sm shadow-md transition-all duration-200 hover:scale-110",
         isSaved && "bg-primary text-primary-foreground",
         isLoading && "opacity-50 cursor-not-allowed",
         className

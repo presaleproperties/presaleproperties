@@ -96,8 +96,8 @@ export function TemplatePerformanceBadges({ metrics, audit, onAuditComplete }: P
     : ShieldX;
 
   const auditCls = {
-    ok: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
-    warn: "border-amber-500/30 bg-amber-500/10 text-amber-700",
+    ok: "border-success/30 bg-success/10 text-success-strong",
+    warn: "border-warning/30 bg-warning/10 text-warning-strong",
     danger: "border-destructive/30 bg-destructive/10 text-destructive",
     neutral: "border-border bg-muted/40 text-muted-foreground",
   }[auditTone];

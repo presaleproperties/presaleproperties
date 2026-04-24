@@ -141,7 +141,7 @@ export function InstallAppButton({
   if (installed) {
     return (
       <Button variant="outline" size={size} disabled className={`gap-2 ${className ?? ""}`}>
-        <Check className="h-4 w-4 text-emerald-600" />
+        <Check className="h-4 w-4 text-success" />
         {appName} app installed
       </Button>
     );

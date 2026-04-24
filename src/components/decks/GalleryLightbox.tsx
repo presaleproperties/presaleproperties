@@ -178,7 +178,7 @@ export function GalleryLightbox({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex flex-col bg-black"
+      className="fixed inset-0 z-[9999] flex flex-col bg-neutral-900"
       style={{
         height: "100dvh",
         opacity: isVisible ? 1 : 0,
@@ -187,25 +187,25 @@ export function GalleryLightbox({
     >
       {/* Top bar */}
       <div
-        className="flex items-center justify-between px-4 shrink-0 bg-gradient-to-b from-black via-black/80 to-transparent absolute top-0 left-0 right-0 z-20 pointer-events-none"
+        className="flex items-center justify-between px-4 shrink-0 bg-gradient-to-b from-neutral-900 via-neutral-900/80 to-transparent absolute top-0 left-0 right-0 z-20 pointer-events-none"
         style={{ paddingTop: "max(0.875rem, env(safe-area-inset-top))", paddingBottom: "3rem" }}
       >
         <div className="flex items-center gap-3 pointer-events-auto">
           <button
-            className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-white transition-colors touch-manipulation backdrop-blur-sm"
+            className="p-2.5 rounded-full bg-card/10 hover:bg-card/20 active:bg-card/30 text-on-dark transition-colors touch-manipulation backdrop-blur-sm"
             onClick={handleClose}
             aria-label="Close gallery"
           >
             <X className="h-5 w-5" />
           </button>
-          <span className="text-white/80 text-sm font-medium tabular-nums">
-            {activeIndex + 1} <span className="text-white/40">/</span> {images.length}
+          <span className="text-on-dark/80 text-sm font-medium tabular-nums">
+            {activeIndex + 1} <span className="text-on-dark/40">/</span> {images.length}
           </span>
         </div>
 
         {zoomScale > 1 && (
           <button
-            className="pointer-events-auto flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full border border-white/20 touch-manipulation"
+            className="pointer-events-auto flex items-center gap-1.5 bg-card/10 backdrop-blur-sm text-on-dark text-xs font-medium px-3 py-1.5 rounded-full border border-card/20 touch-manipulation"
             onClick={() => setZoomScale(1)}
           >
             <ZoomIn className="h-3.5 w-3.5" />
@@ -236,7 +236,7 @@ export function GalleryLightbox({
               key={i}
               ref={(el) => { itemRefs.current[i] = el; }}
               data-img-index={i}
-              className="flex items-center justify-center bg-black select-none"
+              className="flex items-center justify-center bg-neutral-900 select-none"
               style={{ minHeight: "82dvh" }}
               onClick={(e) => handleDoubleTap(e, i)}
             >
@@ -272,14 +272,14 @@ export function GalleryLightbox({
       {images.length > 1 && zoomScale <= 1 && (
         <>
           <button
-            className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 hover:bg-black/80 active:scale-95 text-white transition-all items-center justify-center border border-white/10 backdrop-blur-sm"
+            className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-neutral-900/50 hover:bg-neutral-900/80 active:scale-95 text-on-dark transition-all items-center justify-center border border-card/10 backdrop-blur-sm"
             onClick={() => { setZoomScale(1); onPrev(); }}
             aria-label="Previous"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
           <button
-            className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 hover:bg-black/80 active:scale-95 text-white transition-all items-center justify-center border border-white/10 backdrop-blur-sm"
+            className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-neutral-900/50 hover:bg-neutral-900/80 active:scale-95 text-on-dark transition-all items-center justify-center border border-card/10 backdrop-blur-sm"
             onClick={() => { setZoomScale(1); onNext(); }}
             aria-label="Next"
           >
@@ -294,7 +294,7 @@ export function GalleryLightbox({
           className="sm:hidden absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
           style={{ opacity: 0.5 }}
         >
-          <span className="text-white text-[10px] font-medium bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full">
+          <span className="text-on-dark text-[10px] font-medium bg-neutral-900/50 backdrop-blur-sm px-2 py-1 rounded-full">
             Double-tap to zoom
           </span>
         </div>
@@ -304,7 +304,7 @@ export function GalleryLightbox({
       {images.length > 1 && (
         <div
           ref={thumbnailRef}
-          className="shrink-0 flex px-3 pt-2 gap-2 overflow-x-auto bg-gradient-to-t from-black to-black/90 scrollbar-hide z-20"
+          className="shrink-0 flex px-3 pt-2 gap-2 overflow-x-auto bg-gradient-to-t from-neutral-900 to-neutral-900/90 scrollbar-hide z-20"
           style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
         >
           {images.map((img, i) => (

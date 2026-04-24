@@ -516,7 +516,7 @@ export function PowerSearch({
             ref={dropdownRef}
             className={cn(
             useFixed ? "fixed z-[99999] overflow-hidden" : "absolute left-0 right-0 z-[9999] overflow-hidden",
-            "bg-white dark:bg-card",
+            "bg-card dark:bg-card",
             "border border-border/40",
             "shadow-[0_16px_48px_-8px_rgba(0,0,0,0.22)]",
             "animate-in fade-in-0 slide-in-from-top-2 duration-200 ease-out",

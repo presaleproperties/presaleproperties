@@ -191,18 +191,18 @@ export function AdminAssignmentCard({
             {/* Badges Row */}
             <div className="flex items-center gap-2 flex-wrap">
               {listing.is_featured && (
-                <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20">
+                <Badge className="bg-warning/10 text-warning border-warning/20">
                   <Star className="h-3 w-3 mr-1 fill-current" />
                   Featured
                 </Badge>
               )}
               {listing.visibility_mode === "restricted" ? (
-                <Badge variant="outline" className="text-amber-600 border-amber-600">
+                <Badge variant="outline" className="text-warning border-warning">
                   <Lock className="h-3 w-3 mr-1" />
                   Restricted
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-green-600 border-green-600">
+                <Badge variant="outline" className="text-success border-success">
                   <Globe className="h-3 w-3 mr-1" />
                   Public
                 </Badge>
@@ -212,9 +212,9 @@ export function AdminAssignmentCard({
                   variant={expiryInfo.variant === "warning" ? "outline" : expiryInfo.variant}
                   className={
                     expiryInfo.variant === "warning" 
-                      ? "text-amber-600 border-amber-500 bg-amber-50" 
+                      ? "text-warning border-warning bg-warning-soft" 
                       : expiryInfo.variant === "destructive"
-                      ? "bg-red-100 text-red-700 border-red-300"
+                      ? "bg-danger-soft text-danger-strong border-danger"
                       : ""
                   }
                 >

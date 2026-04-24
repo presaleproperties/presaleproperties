@@ -158,7 +158,7 @@ export default function DeveloperProjectForm() {
   if (authLoading || initializing) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#C8A951" }} />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -172,8 +172,8 @@ export default function DeveloperProjectForm() {
         </Link>
 
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#1A1A2E" }}>
-            <Building2 className="h-5 w-5" style={{ color: "#C8A951" }} />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-neutral-900">
+            <Building2 className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">
@@ -264,8 +264,7 @@ export default function DeveloperProjectForm() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full font-bold rounded-lg py-2.5"
-                style={{ background: "#C8A951", color: "#1A1A2E" }}
+                className="w-full font-bold rounded-lg py-2.5 bg-primary text-primary-foreground hover:bg-primary-deep"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 {isEditing ? "Save Changes" : "Save & Add Units →"}

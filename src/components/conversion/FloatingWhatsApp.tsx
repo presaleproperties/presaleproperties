@@ -28,7 +28,7 @@ export function FloatingWhatsApp() {
   return (
     <button
       onClick={handleClick}
-      className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 h-14 w-14 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center group"
+      className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 h-14 w-14 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-on-dark shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center group"
       aria-label="Chat on WhatsApp"
     >
       <MessageCircle className="h-7 w-7" />

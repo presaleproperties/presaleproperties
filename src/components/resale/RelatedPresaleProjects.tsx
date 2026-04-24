@@ -36,10 +36,10 @@ interface PresaleProject {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  selling: "bg-green-500 text-white",
-  registering: "bg-blue-500 text-white",
-  coming_soon: "bg-amber-500 text-white",
-  sold_out: "bg-gray-500 text-white",
+  selling: "bg-success text-on-dark",
+  registering: "bg-info text-on-dark",
+  coming_soon: "bg-warning text-on-dark",
+  sold_out: "bg-neutral-500 text-on-dark",
 };
 
 const STATUS_LABELS: Record<string, string> = {

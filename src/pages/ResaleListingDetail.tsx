@@ -572,18 +572,18 @@ export default function ResaleListingDetail() {
             {isMobileOrTablet && <div className="space-y-4">
                 {/* Key Badges - FIRST, right under photo */}
                 <div className="flex flex-wrap items-center gap-2">
-                  {listing.year_built && listing.year_built >= 2024 && <Badge className="bg-emerald-600 text-white gap-1 text-xs">
+                  {listing.year_built && listing.year_built >= 2024 && <Badge className="bg-success text-on-dark gap-1 text-xs">
                       <Sparkles className="h-3 w-3" />
                       Move-In Ready
                     </Badge>}
-                  {daysOnMarket !== null && <Badge className={`gap-1 text-xs ${daysOnMarket <= 7 ? 'bg-blue-600 text-white' : 'bg-muted text-muted-foreground'}`}>
+                  {daysOnMarket !== null && <Badge className={`gap-1 text-xs ${daysOnMarket <= 7 ? 'bg-info text-on-dark' : 'bg-muted text-muted-foreground'}`}>
                       <Clock className="h-3 w-3" />
                       {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
                     </Badge>}
                   <Badge variant="secondary" className="text-xs">
                     {formatPropertyType(listing.property_sub_type || listing.property_type)}
                   </Badge>
-                  {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && <Badge className="bg-orange-500 text-white gap-1 text-xs">
+                  {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && <Badge className="bg-warning text-on-dark gap-1 text-xs">
                       <Calendar className="h-3 w-3" />
                       Open House
                     </Badge>}
@@ -795,24 +795,24 @@ export default function ResaleListingDetail() {
             <div className="hidden lg:block space-y-1.5">
               {/* Badges Row */}
               <div className="flex flex-wrap items-center gap-2">
-                {listing.year_built && listing.year_built >= 2024 && <Badge className="bg-emerald-600 text-white gap-1">
+                {listing.year_built && listing.year_built >= 2024 && <Badge className="bg-success text-on-dark gap-1">
                     <Sparkles className="h-3 w-3" />
                     Move-In Ready
                   </Badge>}
                 <Badge variant="secondary" className="text-xs">
                   {formatPropertyType(listing.property_sub_type || listing.property_type)}
                 </Badge>
-                <Badge variant="secondary" className={listing.mls_status === "Active" ? "bg-green-500/10 text-green-700 border-green-200" : ""}>
+                <Badge variant="secondary" className={listing.mls_status === "Active" ? "bg-success/10 text-success-strong border-success/30" : ""}>
                   {listing.mls_status}
                 </Badge>
-                {daysOnMarket !== null && daysOnMarket >= 0 && (daysOnMarket <= 7 ? <Badge className="bg-blue-600 text-white gap-1">
+                {daysOnMarket !== null && daysOnMarket >= 0 && (daysOnMarket <= 7 ? <Badge className="bg-info text-on-dark gap-1">
                       <Clock className="h-3 w-3" />
                       {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket} Days on Market`}
                     </Badge> : <Badge variant="outline" className="text-xs gap-1">
                       <Clock className="h-3 w-3" />
                       {daysOnMarket} Days on Market
                     </Badge>)}
-                {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && <Badge className="bg-orange-500 text-white gap-1">
+                {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && <Badge className="bg-warning text-on-dark gap-1">
                     <Calendar className="h-3 w-3" />
                     Open House: {new Date(listing.open_house_date).toLocaleDateString('en-CA', {
                     weekday: 'short',
@@ -889,7 +889,7 @@ export default function ResaleListingDetail() {
 
               {listing.original_list_price && listing.original_list_price !== listing.listing_price && <p className="text-sm text-muted-foreground mt-3 flex items-center gap-2">
                   <span>Original: <span className="line-through">{formatPrice(listing.original_list_price)}</span></span>
-                  {listing.original_list_price > listing.listing_price && <Badge variant="outline" className="text-xs text-green-600 border-green-200 bg-green-50">
+                  {listing.original_list_price > listing.listing_price && <Badge variant="outline" className="text-xs text-success border-success/30 bg-success-soft">
                       {formatPrice(listing.original_list_price - listing.listing_price)} below asking
                     </Badge>}
                 </p>}
@@ -1008,11 +1008,11 @@ export default function ResaleListingDetail() {
                   {(listing.pool_yn || listing.waterfront_yn) && <>
                       {listing.pool_yn && <div className="flex justify-between items-center py-2 border-b border-border/50">
                           <span className="text-sm text-muted-foreground">Pool</span>
-                          <span className="font-semibold text-foreground text-green-600">Yes</span>
+                          <span className="font-semibold text-foreground text-success">Yes</span>
                         </div>}
                       {listing.waterfront_yn && <div className="flex justify-between items-center py-2 border-b border-border/50">
                           <span className="text-sm text-muted-foreground">Waterfront</span>
-                          <span className="font-semibold text-foreground text-green-600">Yes</span>
+                          <span className="font-semibold text-foreground text-success">Yes</span>
                         </div>}
                     </>}
                 </div>
@@ -1193,7 +1193,7 @@ export default function ResaleListingDetail() {
                     </div>}
                   <div className="flex justify-between items-center py-2 border-b border-border/50">
                     <span className="text-sm text-muted-foreground">Status</span>
-                    <Badge variant="secondary" className={listing.mls_status === "Active" ? "bg-green-500/10 text-green-700 border-green-200" : ""}>
+                    <Badge variant="secondary" className={listing.mls_status === "Active" ? "bg-success/10 text-success-strong border-success/30" : ""}>
                       {listing.mls_status}
                     </Badge>
                   </div>

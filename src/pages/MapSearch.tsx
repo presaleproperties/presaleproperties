@@ -1889,7 +1889,7 @@ export default function MapSearch() {
                     e.stopPropagation();
                     setShowCarousel(true);
                   }}
-                  className="px-5 py-3 rounded-2xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center gap-2 active:scale-[0.98] transition-transform touch-manipulation select-none"
+                  className="px-5 py-3 rounded-2xl bg-card/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-neutral-900/5 dark:border-card/10 flex items-center gap-2 active:scale-[0.98] transition-transform touch-manipulation select-none"
                   aria-label="Show properties"
                   style={{ WebkitTapHighlightColor: 'transparent' }}
                 >
@@ -1918,7 +1918,7 @@ export default function MapSearch() {
                     paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' 
                   }}
                 >
-                  <span className="text-xs font-semibold text-foreground bg-white/95 dark:bg-background/95 backdrop-blur-xl px-3 py-1.5 rounded-lg shadow-lg border border-black/5 dark:border-white/10">
+                  <span className="text-xs font-semibold text-foreground bg-card/95 dark:bg-background/95 backdrop-blur-xl px-3 py-1.5 rounded-lg shadow-lg border border-neutral-900/5 dark:border-card/10">
                     {propertiesInViewCount} Properties
                   </span>
                   <button
@@ -1932,7 +1932,7 @@ export default function MapSearch() {
                       e.stopPropagation();
                       setShowCarousel(false);
                     }}
-                    className="w-8 h-8 rounded-lg bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-lg border border-black/5 dark:border-white/10 flex items-center justify-center active:bg-black/5 dark:active:bg-white/10 transition-colors select-none"
+                    className="w-8 h-8 rounded-lg bg-card/95 dark:bg-background/95 backdrop-blur-xl shadow-lg border border-neutral-900/5 dark:border-card/10 flex items-center justify-center active:bg-neutral-900/5 dark:active:bg-card/10 transition-colors select-none"
                     aria-label="Hide properties"
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
@@ -1982,7 +1982,7 @@ export default function MapSearch() {
                             : selectedItemId === id 
                               ? 'border-primary/50 ring-1 ring-primary/20' 
                               : isAssignment
-                              ? 'border-amber-500/50'
+                              ? 'border-warning/50'
                               : 'border-border/30 active:border-primary/50'
                         }`}>
                           {/* Compact image with price overlay */}
@@ -2001,8 +2001,8 @@ export default function MapSearch() {
                               return assignImg ? (
                                 <img src={assignImg} alt={(data as Assignment).project_name} className="w-full h-full object-cover" loading="eager" />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20">
-                                  <Building2 className="h-6 w-6 text-amber-500" />
+                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-warning-soft to-warning-soft dark:from-warning-strong/30 dark:to-warning-strong/20">
+                                  <Building2 className="h-6 w-6 text-warning" />
                                 </div>
                               );
                             })()
@@ -2021,12 +2021,12 @@ export default function MapSearch() {
                               )
                             )}
                             {/* Gradient + price overlay */}
-                            <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
+                            <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-neutral-900/70 to-transparent pointer-events-none" />
                             <div className="absolute bottom-1.5 left-2">
                               {isPresale && (
-                                <span className="text-white/70 text-[9px] font-medium block leading-none mb-0.5">From</span>
+                                <span className="text-on-dark/70 text-[9px] font-medium block leading-none mb-0.5">From</span>
                               )}
-                              <span className="text-white font-bold text-sm leading-none drop-shadow-md">
+                              <span className="text-on-dark font-bold text-sm leading-none drop-shadow-md">
                                 {isPresale 
                                   ? formatPrice((data as PresaleProject).starting_price)
                                   : isAssignment
@@ -2039,7 +2039,7 @@ export default function MapSearch() {
                               isPresale 
                                 ? 'bg-foreground/90 text-background' 
                                 : isAssignment
-                                ? 'bg-amber-500 text-white'
+                                ? 'bg-warning text-on-dark'
                                 : 'bg-primary/90 text-primary-foreground'
                             }`}>
                               {isPresale ? 'PRESALE' : isAssignment ? 'ASSIGNMENT' : 'MOVE-IN'}
@@ -2447,7 +2447,7 @@ export default function MapSearch() {
                           : selectedItemId === id 
                             ? 'border-primary/50 ring-1 ring-primary/20' 
                             : isAssignment
-                            ? 'border-amber-500/50 hover:border-amber-500'
+                            ? 'border-warning/50 hover:border-warning'
                             : 'border-border hover:border-primary/50'
                       )}>
                         {/* Image with price overlay */}
@@ -2471,8 +2471,8 @@ export default function MapSearch() {
                               return assignImg ? (
                                 <img src={assignImg} alt={(data as Assignment).project_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20">
-                                  <Building2 className="h-10 w-10 text-amber-500" />
+                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-warning-soft to-warning-soft dark:from-warning-strong/30 dark:to-warning-strong/20">
+                                  <Building2 className="h-10 w-10 text-warning" />
                                 </div>
                               );
                             })()
@@ -2492,16 +2492,16 @@ export default function MapSearch() {
                           )}
                           {/* Gradient overlay for price - only on non-wide cards */}
                           {!(isPresale && mapMode === "all") && (
-                            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent" />
+                            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-neutral-900/70 to-transparent" />
                           )}
                           {/* Price on image - only on non-wide cards */}
                           {!(isPresale && mapMode === "all") && (
                             <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between">
                               <div>
-                                <span className="text-white/70 text-[10px] font-medium block leading-none mb-0.5">
+                                <span className="text-on-dark/70 text-[10px] font-medium block leading-none mb-0.5">
                                   {isPresale ? 'From' : isAssignment ? 'Asking' : ''}
                                 </span>
-                                <span className="text-white font-bold text-xl lg:text-lg leading-none drop-shadow-md">
+                                <span className="text-on-dark font-bold text-xl lg:text-lg leading-none drop-shadow-md">
                                   {isPresale
                                     ? formatPrice((data as PresaleProject).starting_price)
                                     : isAssignment
@@ -2517,7 +2517,7 @@ export default function MapSearch() {
                             isPresale 
                               ? 'bg-foreground text-background' 
                               : isAssignment
-                              ? 'bg-amber-500 text-white'
+                              ? 'bg-warning text-on-dark'
                               : 'bg-primary text-primary-foreground'
                           }`}>
                             {isPresale ? 'PRESALE' : isAssignment ? 'ASSIGNMENT' : 'MOVE-IN'}

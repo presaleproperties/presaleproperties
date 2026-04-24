@@ -177,7 +177,7 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
           <div className="flex items-center gap-0.5 md:gap-2">
             {isAdmin && (
               <Link to="/admin">
-                <Button variant="ghost" size="icon" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 h-8 w-8 md:h-8 md:w-auto md:px-3">
+                <Button variant="ghost" size="icon" className="text-warning hover:text-warning-strong hover:bg-warning-soft h-8 w-8 md:h-8 md:w-auto md:px-3">
                   <Shield className="h-4 w-4 md:mr-1.5" />
                   <span className="hidden md:inline text-sm">Admin</span>
                 </Button>

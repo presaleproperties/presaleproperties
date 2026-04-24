@@ -56,7 +56,7 @@ export function AssignmentMapCard({
     >
       <Card className={cn(
         "overflow-hidden transition-all duration-200 h-full",
-        isFocused && "ring-2 ring-amber-500 shadow-lg",
+        isFocused && "ring-2 ring-warning shadow-lg",
         className
       )}>
         <CardContent className="p-0">
@@ -74,12 +74,12 @@ export function AssignmentMapCard({
             )}
             
             {savings > 0 && (
-              <Badge className="absolute top-2 left-2 bg-green-600 hover:bg-green-600 text-white text-[10px] px-2">
+              <Badge className="absolute top-2 left-2 bg-success hover:bg-success text-on-dark text-[10px] px-2">
                 Save {formatPrice(savings)}
               </Badge>
             )}
             
-            <Badge className="absolute top-2 right-2 bg-amber-500 hover:bg-amber-500 text-white text-[10px] px-2">
+            <Badge className="absolute top-2 right-2 bg-warning hover:bg-warning text-on-dark text-[10px] px-2">
               Assignment
             </Badge>
           </div>

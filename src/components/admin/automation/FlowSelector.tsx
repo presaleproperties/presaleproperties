@@ -36,7 +36,7 @@ export function FlowSelector({ flows, selectedId, onSelect, onNew, onPublish, on
           >
             <span className={cn(
               "h-2 w-2 rounded-full shrink-0",
-              flow.is_active ? "bg-green-500" : "bg-muted-foreground/30"
+              flow.is_active ? "bg-success" : "bg-muted-foreground/30"
             )} />
             {flow.name}
             <Badge variant={flow.is_published ? "default" : "secondary"} className="text-[10px] h-4 px-1.5">

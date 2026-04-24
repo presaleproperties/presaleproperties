@@ -195,9 +195,9 @@ export function CalculatorLeadCapture({
 
   if (isSubmitted) {
     return (
-      <Card className="bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800">
+      <Card className="bg-success-soft border-success/30 dark:bg-success-strong/20 dark:border-success">
         <CardContent className="p-5 md:p-6 text-center">
-          <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto mb-3" />
+          <CheckCircle2 className="h-12 w-12 text-success mx-auto mb-3" />
           <h3 className="font-semibold text-lg mb-2">{config.successTitle}</h3>
           <p className="text-sm text-muted-foreground mb-4">{config.successMessage}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

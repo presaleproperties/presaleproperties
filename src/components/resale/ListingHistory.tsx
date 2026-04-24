@@ -160,40 +160,40 @@ export function ListingHistory({
       {calculatedDom !== null && (
         <div className="mb-4">
           {calculatedDom <= MARKET_THRESHOLDS.HOT && (
-            <div className="bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
+            <div className="bg-warning-soft dark:bg-warning-strong/30 border border-warning/30 dark:border-warning rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-full bg-orange-500">
-                  <Flame className="h-4 w-4 text-white" />
+                <div className="p-1.5 rounded-full bg-warning">
+                  <Flame className="h-4 w-4 text-on-dark" />
                 </div>
                 <div>
-                  <span className="text-sm font-semibold text-orange-700 dark:text-orange-400">
+                  <span className="text-sm font-semibold text-warning-strong dark:text-warning">
                     Hot Listing!
                   </span>
                   <p className="text-xs text-muted-foreground">
                     Listed {calculatedDom === 0 ? "today" : calculatedDom === 1 ? "yesterday" : `${calculatedDom} days ago`} - Act fast!
                   </p>
                 </div>
-                <Badge className="ml-auto bg-orange-500 text-white text-xs">
+                <Badge className="ml-auto bg-warning text-on-dark text-xs">
                   NEW
                 </Badge>
               </div>
             </div>
           )}
           {calculatedDom >= MARKET_THRESHOLDS.OPPORTUNITY && (
-            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+            <div className="bg-warning-soft dark:bg-warning-strong/30 border border-warning/30 dark:border-warning rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-full bg-amber-600">
-                  <Target className="h-4 w-4 text-white" />
+                <div className="p-1.5 rounded-full bg-warning">
+                  <Target className="h-4 w-4 text-on-dark" />
                 </div>
                 <div>
-                  <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                  <span className="text-sm font-semibold text-warning-strong dark:text-warning">
                     Negotiation Opportunity
                   </span>
                   <p className="text-xs text-muted-foreground">
                     On market for {calculatedDom} days - seller may be motivated
                   </p>
                 </div>
-                <Badge className="ml-auto bg-amber-600 text-white text-xs">
+                <Badge className="ml-auto bg-warning text-on-dark text-xs">
                   {calculatedDom}+ DAYS
                 </Badge>
               </div>
@@ -234,13 +234,13 @@ export function ListingHistory({
 
       {/* Price Reduction Alert */}
       {hasPriceReduction && priceReduction > 0 && (
-        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4">
+        <div className="bg-danger-soft dark:bg-danger-strong/30 border border-danger/30 dark:border-danger rounded-lg p-3 mb-4">
           <div className="flex items-center gap-2 mb-1">
-            <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
-            <span className="text-sm font-semibold text-red-700 dark:text-red-400">
+            <TrendingDown className="h-4 w-4 text-danger dark:text-danger" />
+            <span className="text-sm font-semibold text-danger-strong dark:text-danger">
               Price Reduced!
             </span>
-            <Badge className="ml-auto bg-red-600 text-white text-xs">
+            <Badge className="ml-auto bg-danger text-on-dark text-xs">
               -{priceReductionPercent}%
             </Badge>
           </div>
@@ -248,7 +248,7 @@ export function ListingHistory({
             <span className="text-muted-foreground line-through">
               {formatPrice(totalOriginalPrice!)}
             </span>
-            <ArrowDownRight className="h-3 w-3 text-red-600 dark:text-red-400" />
+            <ArrowDownRight className="h-3 w-3 text-danger dark:text-danger" />
             <span className="font-semibold text-foreground">
               {formatPrice(currentPrice)}
             </span>
@@ -275,7 +275,7 @@ export function ListingHistory({
                 <div 
                   className={`relative z-10 w-3.5 h-3.5 rounded-full border-2 mt-0.5 ${
                     event.highlight 
-                      ? "bg-red-600 border-red-600" 
+                      ? "bg-danger border-danger" 
                       : event.type === "listed"
                         ? "bg-primary border-primary"
                         : "bg-background border-border"
@@ -286,7 +286,7 @@ export function ListingHistory({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className={`text-sm font-medium ${
-                      event.highlight ? "text-red-600 dark:text-red-400" : "text-foreground"
+                      event.highlight ? "text-danger dark:text-danger" : "text-foreground"
                     }`}>
                       {event.label}
                     </span>

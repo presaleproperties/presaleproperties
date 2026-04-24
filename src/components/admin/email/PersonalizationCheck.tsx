@@ -102,8 +102,8 @@ export function PersonalizationCheck({ subject, body, recipients, extra }: Props
       className={cn(
         "rounded-md border text-xs",
         allGood
-          ? "border-emerald-500/30 bg-emerald-500/5"
-          : "border-amber-500/40 bg-amber-500/5",
+          ? "border-success/30 bg-success/5"
+          : "border-warning/40 bg-warning/5",
       )}
     >
       <button
@@ -113,9 +113,9 @@ export function PersonalizationCheck({ subject, body, recipients, extra }: Props
       >
         <div className="flex min-w-0 items-center gap-1.5">
           {allGood ? (
-            <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-success" />
           ) : (
-            <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-warning" />
           )}
           <span className="truncate text-[11px] font-medium">
             {allGood ? (
@@ -123,7 +123,7 @@ export function PersonalizationCheck({ subject, body, recipients, extra }: Props
             ) : (
               <>
                 Missing fields for{" "}
-                <span className="text-amber-700 dark:text-amber-400">
+                <span className="text-warning-strong dark:text-warning">
                   {affected} of {total}
                 </span>{" "}
                 recipients
@@ -157,7 +157,7 @@ export function PersonalizationCheck({ subject, body, recipients, extra }: Props
       {expanded && (
         <div className="border-t border-border/60 px-2.5 py-2">
           {allGood ? (
-            <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400">
+            <div className="flex items-center gap-1.5 text-[11px] text-success-strong dark:text-success">
               <CheckCircle2 className="h-3 w-3" />
               Every merge tag resolves for every recipient.
             </div>
@@ -166,10 +166,10 @@ export function PersonalizationCheck({ subject, body, recipients, extra }: Props
               {issues.slice(0, 50).map(({ recipient, missing }) => (
                 <li
                   key={recipient.email}
-                  className="flex items-center justify-between gap-2 rounded border border-amber-500/20 bg-background/50 px-2 py-1"
+                  className="flex items-center justify-between gap-2 rounded border border-warning/20 bg-background/50 px-2 py-1"
                 >
                   <div className="flex min-w-0 items-center gap-1.5">
-                    <UserX className="h-3 w-3 shrink-0 text-amber-600" />
+                    <UserX className="h-3 w-3 shrink-0 text-warning" />
                     <span className="truncate text-[11px]">
                       {recipient.name || (
                         <em className="text-muted-foreground">no name</em>
@@ -184,7 +184,7 @@ export function PersonalizationCheck({ subject, body, recipients, extra }: Props
                       <Badge
                         key={t}
                         variant="outline"
-                        className="h-4 border-amber-500/40 px-1 font-mono text-[9px] text-amber-700 dark:text-amber-400"
+                        className="h-4 border-warning/40 px-1 font-mono text-[9px] text-warning-strong dark:text-warning"
                       >
                         {FRIENDLY[t] || t}
                       </Badge>

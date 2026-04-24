@@ -42,10 +42,10 @@ const statusLabel: Record<string, string> = {
 };
 
 const statusStyle: Record<string, string> = {
-  coming_soon: "bg-blue-100 text-blue-800 border-blue-200",
-  registering: "bg-amber-100 text-amber-800 border-amber-200",
-  active: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  sold_out: "bg-slate-100 text-slate-600 border-slate-200",
+  coming_soon: "bg-info-soft text-info-strong border-info/30",
+  registering: "bg-warning-soft text-warning-strong border-warning/30",
+  active: "bg-success-soft text-success-strong border-success/30",
+  sold_out: "bg-muted text-foreground border-border",
 };
 
 export default function DeveloperProjects() {
@@ -182,7 +182,7 @@ export default function DeveloperProjects() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-semibold text-foreground text-sm">{project.name}</h3>
                   {project._claimed && (
-                    <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-medium">
+                    <span className="inline-flex items-center gap-1 text-[10px] bg-success-soft text-success-strong px-1.5 py-0.5 rounded-full font-medium">
                       <CheckCircle2 className="h-2.5 w-2.5" /> Linked
                     </span>
                   )}
@@ -194,7 +194,7 @@ export default function DeveloperProjects() {
                   <p className="text-[11px] text-muted-foreground/70 mt-0.5">{project.developer_name}</p>
                 )}
               </div>
-              <Badge variant="outline" className={`text-[10px] shrink-0 ${statusStyle[project.status] || "bg-slate-100 text-slate-600"}`}>
+              <Badge variant="outline" className={`text-[10px] shrink-0 ${statusStyle[project.status] || "bg-muted text-foreground"}`}>
                 {statusLabel[project.status] || project.status}
               </Badge>
             </div>
@@ -286,7 +286,7 @@ export default function DeveloperProjects() {
         {/* My Linked Projects */}
         <section className="space-y-3">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <CheckCircle2 className="h-4 w-4 text-success" />
             <h2 className="text-sm font-semibold text-foreground">My Projects</h2>
             <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">{myProjects.length}</Badge>
           </div>
@@ -312,9 +312,9 @@ export default function DeveloperProjects() {
         {matchedProjects.length > 0 && (
           <section className="space-y-3">
             <div className="flex items-center gap-2">
-              <Link2 className="h-4 w-4 text-amber-500" />
+              <Link2 className="h-4 w-4 text-warning" />
               <h2 className="text-sm font-semibold text-foreground">Projects Matching Your Company</h2>
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-amber-200 text-amber-700">
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-warning/30 text-warning-strong">
                 {matchedProjects.length} found
               </Badge>
             </div>

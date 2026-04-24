@@ -27,9 +27,9 @@ interface SecretItem {
 }
 
 const statusColors: Record<string, string> = {
-  active: "bg-emerald-500/15 text-emerald-700 border-emerald-200",
-  configured: "bg-blue-500/15 text-blue-700 border-blue-200",
-  dormant: "bg-amber-500/15 text-amber-700 border-amber-200",
+  active: "bg-success/15 text-success-strong border-success/30",
+  configured: "bg-info/15 text-info-strong border-info/30",
+  dormant: "bg-warning/15 text-warning-strong border-warning/30",
   issue: "bg-destructive/15 text-destructive border-destructive/20",
 };
 
@@ -278,7 +278,7 @@ export default function AdminTechStack() {
           icon={MonitorSmartphone}
           title="Hosting & Frontend"
           description="Where our site lives and how it's built"
-          iconColor="bg-blue-500/15 text-blue-600"
+          iconColor="bg-info/15 text-info"
           items={hostingPlatform}
         />
 
@@ -287,7 +287,7 @@ export default function AdminTechStack() {
           icon={Globe}
           title="External APIs & Services"
           description="Third-party services our backend connects to"
-          iconColor="bg-violet-500/15 text-violet-600"
+          iconColor="bg-primary/15 text-primary"
           items={externalAPIs}
         />
 
@@ -296,7 +296,7 @@ export default function AdminTechStack() {
           icon={Webhook}
           title="Zapier Automations"
           description="Webhook-based automations connecting our site to Lofty CRM and social channels"
-          iconColor="bg-orange-500/15 text-orange-600"
+          iconColor="bg-warning/15 text-warning"
           items={zapierIntegrations}
         />
 
@@ -306,7 +306,7 @@ export default function AdminTechStack() {
             icon={Database}
             title="Database"
             description="PostgreSQL with Row Level Security"
-            iconColor="bg-emerald-500/15 text-emerald-600"
+            iconColor="bg-success/15 text-success"
             items={databaseSystems}
           />
 
@@ -315,7 +315,7 @@ export default function AdminTechStack() {
             icon={HardDrive}
             title="File Storage Buckets"
             description="Cloud storage for images, documents, and brand assets"
-            iconColor="bg-cyan-500/15 text-cyan-600"
+            iconColor="bg-info/15 text-info"
             items={fileStorage}
           />
         </div>
@@ -324,7 +324,7 @@ export default function AdminTechStack() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2.5 text-base">
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-amber-500/15 text-amber-600">
+              <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-warning/15 text-warning">
                 <Clock className="h-4 w-4" />
               </div>
               Scheduled Jobs (Cron)
@@ -337,8 +337,8 @@ export default function AdminTechStack() {
             <div className="space-y-2">
               {cronJobs.map((job) => (
                 <div key={job.id} className="flex items-start gap-3 rounded-lg border bg-muted/20 p-3">
-                  <div className="h-6 w-6 rounded-md bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-[10px] font-bold text-amber-700">#{job.id}</span>
+                  <div className="h-6 w-6 rounded-md bg-warning/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-[10px] font-bold text-warning-strong">#{job.id}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
@@ -357,7 +357,7 @@ export default function AdminTechStack() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2.5 text-base">
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-purple-500/15 text-purple-600">
+              <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-primary/15 text-primary">
                 <Zap className="h-4 w-4" />
               </div>
               Backend Functions ({edgeFunctions.reduce((a, c) => a + c.functions.length, 0)} total)
@@ -396,7 +396,7 @@ export default function AdminTechStack() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2.5 text-base">
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-emerald-500/15 text-emerald-600">
+              <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-success/15 text-success">
                 <Layers className="h-4 w-4" />
               </div>
               Database Tables
@@ -413,8 +413,8 @@ export default function AdminTechStack() {
                   <div className="space-y-1">
                     {group.tables.map((table) => (
                       <div key={table} className="flex items-center gap-1.5">
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500/50 shrink-0" />
-                        <span className={`text-[11px] font-mono ${table.includes("*") ? "text-amber-600" : "text-muted-foreground"}`}>
+                        <div className="h-1.5 w-1.5 rounded-full bg-success/50 shrink-0" />
+                        <span className={`text-[11px] font-mono ${table.includes("*") ? "text-warning" : "text-muted-foreground"}`}>
                           {table}
                         </span>
                       </div>
@@ -430,7 +430,7 @@ export default function AdminTechStack() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2.5 text-base">
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-rose-500/15 text-rose-600">
+              <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-danger/15 text-danger">
                 <Key className="h-4 w-4" />
               </div>
               API Keys & Secrets

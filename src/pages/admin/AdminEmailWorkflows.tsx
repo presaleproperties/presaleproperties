@@ -385,13 +385,13 @@ export default function AdminEmailWorkflows() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "sent":
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle2 className="h-3 w-3 mr-1" />Sent</Badge>;
+        return <Badge className="bg-success-soft text-success-strong"><CheckCircle2 className="h-3 w-3 mr-1" />Sent</Badge>;
       case "failed":
         return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Failed</Badge>;
       case "queued":
         return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Queued</Badge>;
       case "processing":
-        return <Badge className="bg-blue-100 text-blue-800"><RefreshCw className="h-3 w-3 mr-1 animate-spin" />Processing</Badge>;
+        return <Badge className="bg-info-soft text-info-strong"><RefreshCw className="h-3 w-3 mr-1 animate-spin" />Processing</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

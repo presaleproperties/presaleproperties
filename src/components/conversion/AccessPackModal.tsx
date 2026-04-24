@@ -282,7 +282,7 @@ export function AccessPackModal({
                 ? `Get expert guidance on ${projectName}`
                 : "Connect with our presale experts"}
             </p>
-            <p className="text-xs text-green-600 font-medium mt-1">✓ Same-day callback available</p>
+            <p className="text-xs text-success font-medium mt-1">✓ Same-day callback available</p>
           </div>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
@@ -446,7 +446,7 @@ export function AccessPackModal({
               One of our agents will contact you shortly with all the details.
             </p>
           </div>
-          <Button asChild className="w-full h-12 bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
+          <Button asChild className="w-full h-12 bg-[#25D366] hover:bg-[#1ebe5a] text-on-dark border-0">
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
               <MessageCircle className="h-4 w-4 mr-2" />
               Chat on WhatsApp Now

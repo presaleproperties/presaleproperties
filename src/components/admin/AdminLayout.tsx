@@ -224,14 +224,14 @@ function NavItem({
         <>
           <span className="flex-1 truncate">{item.label}</span>
           {pending && pending > 0 ? (
-            <span className="shrink-0 min-w-[18px] h-[18px] rounded-full bg-amber-500 text-white text-[9px] font-bold flex items-center justify-center px-1">
+            <span className="shrink-0 min-w-[18px] h-[18px] rounded-full bg-warning text-on-dark text-[9px] font-bold flex items-center justify-center px-1">
               {pending > 99 ? "99+" : pending}
             </span>
           ) : null}
         </>
       )}
       {collapsed && pending && pending > 0 ? (
-        <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-amber-500 text-[8px] text-white font-bold flex items-center justify-center">
+        <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-warning text-[8px] text-on-dark font-bold flex items-center justify-center">
           {pending > 9 ? "9+" : pending}
         </span>
       ) : null}
@@ -474,7 +474,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             >
               {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               {totalPending > 0 && !mobileMenuOpen && (
-                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-amber-500 text-[9px] text-white font-bold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-warning text-[9px] text-on-dark font-bold flex items-center justify-center">
                   {totalPending > 9 ? "9+" : totalPending}
                 </span>
               )}
@@ -504,7 +504,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="ml-auto flex items-center gap-2">
               {/* Pending pill */}
               {totalPending > 0 && (
-                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/70 text-amber-700 text-[11px] font-medium">
+                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-warning-soft border border-warning/30/70 text-warning-strong text-[11px] font-medium">
                   <Bell className="h-3 w-3 shrink-0" />
                   <span>{totalPending} pending</span>
                 </div>

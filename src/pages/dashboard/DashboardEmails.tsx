@@ -91,11 +91,11 @@ const DATE_FILTERS = [
 ];
 
 const STATUS_CONFIG: Record<string, { icon: typeof CheckCircle2; label: string; className: string }> = {
-  sent: { icon: CheckCircle2, label: "Sent", className: "text-emerald-500 bg-emerald-500/10" },
-  opened: { icon: MailOpen, label: "Opened", className: "text-blue-500 bg-blue-500/10" },
-  failed: { icon: XCircle, label: "Failed", className: "text-red-500 bg-red-500/10" },
-  pending: { icon: Clock, label: "Pending", className: "text-amber-500 bg-amber-500/10" },
-  queued: { icon: Clock, label: "Queued", className: "text-amber-500 bg-amber-500/10" },
+  sent: { icon: CheckCircle2, label: "Sent", className: "text-success bg-success/10" },
+  opened: { icon: MailOpen, label: "Opened", className: "text-info bg-info/10" },
+  failed: { icon: XCircle, label: "Failed", className: "text-danger bg-danger/10" },
+  pending: { icon: Clock, label: "Pending", className: "text-warning bg-warning/10" },
+  queued: { icon: Clock, label: "Queued", className: "text-warning bg-warning/10" },
 };
 
 const TEMPLATE_LABELS: Record<string, string> = {
@@ -193,7 +193,7 @@ function TemplatePreviewDialog({
               <iframe
                 srcDoc={previewHtml}
                 title="Template Preview"
-                className="w-full bg-white rounded-md border shadow-sm"
+                className="w-full bg-card rounded-md border shadow-sm"
                 style={{ maxWidth: 680, height: "60vh" }}
                 sandbox="allow-same-origin"
               />
@@ -493,14 +493,14 @@ export default function DashboardEmails() {
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
-                <MailOpen className="h-4 w-4 text-blue-500" />
+                <MailOpen className="h-4 w-4 text-info" />
                 <div>
                   <p className="text-lg font-bold leading-none">{openRate}%</p>
                   <p className="text-[11px] text-muted-foreground">Open Rate</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
-                <Eye className="h-4 w-4 text-emerald-500" />
+                <Eye className="h-4 w-4 text-success" />
                 <div>
                   <p className="text-lg font-bold leading-none">{totalOpened}</p>
                   <p className="text-[11px] text-muted-foreground">Opened</p>
@@ -561,7 +561,7 @@ export default function DashboardEmails() {
                   const statusConf = STATUS_CONFIG[effectiveStatus] || STATUS_CONFIG.sent;
                   const StatusIcon = statusConf.icon;
                   return (
-                    <div key={email.id} className={cn("flex items-center gap-3 p-3 rounded-lg border transition-colors", email.open_count > 0 ? "border-blue-500/20 bg-blue-500/5" : "border-border")}>
+                    <div key={email.id} className={cn("flex items-center gap-3 p-3 rounded-lg border transition-colors", email.open_count > 0 ? "border-info/20 bg-info/5" : "border-border")}>
                       <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0", statusConf.className)}>
                         <StatusIcon className="h-4 w-4" />
                       </div>
@@ -569,7 +569,7 @@ export default function DashboardEmails() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-medium text-sm truncate">{email.recipient_name || email.email_to}</p>
                           {email.template_type && <Badge variant="outline" className="text-[10px] h-4 px-1.5">{TEMPLATE_LABELS[email.template_type] || email.template_type}</Badge>}
-                          {email.open_count > 0 && <Badge className="text-[10px] h-4 px-1.5 bg-blue-500/10 text-blue-500 border-0 gap-0.5"><Eye className="h-2.5 w-2.5" /> {email.open_count}x</Badge>}
+                          {email.open_count > 0 && <Badge className="text-[10px] h-4 px-1.5 bg-info/10 text-info border-0 gap-0.5"><Eye className="h-2.5 w-2.5" /> {email.open_count}x</Badge>}
                         </div>
                         <p className="text-xs text-muted-foreground truncate mt-0.5">{email.subject}</p>
                         {email.recipient_name && <p className="text-[11px] text-muted-foreground/70 truncate">{email.email_to}</p>}
@@ -577,10 +577,10 @@ export default function DashboardEmails() {
                       <div className="text-right shrink-0 hidden sm:block">
                         <p className="text-[11px] text-muted-foreground">{format(new Date(email.sent_at), "MMM d")}</p>
                         <p className="text-[10px] text-muted-foreground/60">{format(new Date(email.sent_at), "h:mm a")}</p>
-                        {email.last_opened_at && <p className="text-[10px] text-blue-500 mt-0.5">Opened {format(new Date(email.last_opened_at), "MMM d")}</p>}
+                        {email.last_opened_at && <p className="text-[10px] text-info mt-0.5">Opened {format(new Date(email.last_opened_at), "MMM d")}</p>}
                       </div>
                       {email.status === "failed" && email.error_message && (
-                        <div className="shrink-0" title={email.error_message}><AlertCircle className="h-4 w-4 text-red-500" /></div>
+                        <div className="shrink-0" title={email.error_message}><AlertCircle className="h-4 w-4 text-danger" /></div>
                       )}
                     </div>
                   );
@@ -799,7 +799,7 @@ function TemplateCard({
             <Mail className="h-10 w-10 text-muted-foreground/15" />
           </div>
         )}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+        <div className="absolute inset-0 bg-neutral-900/0 group-hover:bg-neutral-900/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
           <Button size="sm" variant="secondary" className="gap-1.5 shadow-lg">
             <Eye className="h-3.5 w-3.5" /> Preview
           </Button>

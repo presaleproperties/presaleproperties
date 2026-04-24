@@ -533,8 +533,8 @@ export function LeadComposeDialog({
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-md text-center">
           <div className="flex flex-col items-center gap-3 py-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15">
-              <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-success/15">
+              <CheckCircle2 className="h-7 w-7 text-success" />
             </div>
             <div>
               <h3 className="text-lg font-semibold">Email sent</h3>
@@ -613,7 +613,7 @@ export function LeadComposeDialog({
                 <div className="flex items-center justify-between">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">To</Label>
                   {draftRestored && (
-                    <span className="text-[10px] text-emerald-600">↺ Draft restored</span>
+                    <span className="text-[10px] text-success">↺ Draft restored</span>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-1.5 rounded-md border border-input bg-background p-2">
@@ -669,9 +669,9 @@ export function LeadComposeDialog({
                         key={`fav-${t.id}`}
                         type="button"
                         onClick={() => loadTemplate(t)}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/5 px-2 py-1 text-[11px] hover:bg-amber-500/10"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-warning/30 bg-warning/5 px-2 py-1 text-[11px] hover:bg-warning/10"
                       >
-                        <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                        <Star className="h-3 w-3 fill-warning text-warning" />
                         <span className="max-w-[160px] truncate">{t.name}</span>
                       </button>
                     ))}
@@ -938,7 +938,7 @@ export function LeadComposeDialog({
                         srcDoc={previewHtml}
                         title="Live email preview"
                         sandbox=""
-                        className="h-[60vh] w-full bg-white"
+                        className="h-[60vh] w-full bg-card"
                       />
                     </div>
                   ) : (
@@ -1000,7 +1000,7 @@ export function LeadComposeDialog({
             </DialogDescription>
           </DialogHeader>
           <div className="overflow-hidden rounded-md border border-border bg-muted/30">
-            <iframe srcDoc={previewHtml} title="Email preview" sandbox="" className="h-[460px] w-full bg-white" />
+            <iframe srcDoc={previewHtml} title="Email preview" sandbox="" className="h-[460px] w-full bg-card" />
           </div>
         </DialogContent>
       </Dialog>

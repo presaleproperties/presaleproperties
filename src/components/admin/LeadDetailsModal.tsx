@@ -188,19 +188,19 @@ const DeviceIcon = ({ device }: { device?: string | null }) => {
 
 const eventLabels: Record<string, { label: string; icon: LucideIcon; color: string }> = {
   page_view: { label: "Page view", icon: Eye, color: "text-muted-foreground" },
-  property_view: { label: "Project viewed", icon: Building2, color: "text-blue-600" },
-  floorplan_view: { label: "Floor plan viewed", icon: FileText, color: "text-indigo-600" },
-  floorplan_download: { label: "Floor plan downloaded", icon: DownloadIcon, color: "text-emerald-600" },
-  favorite_add: { label: "Added to favorites", icon: TrendingUp, color: "text-pink-600" },
-  cta_click: { label: "CTA clicked", icon: MousePointerClick, color: "text-amber-600" },
-  city_cta_click: { label: "City CTA clicked", icon: MapPin, color: "text-amber-600" },
+  property_view: { label: "Project viewed", icon: Building2, color: "text-info" },
+  floorplan_view: { label: "Floor plan viewed", icon: FileText, color: "text-info" },
+  floorplan_download: { label: "Floor plan downloaded", icon: DownloadIcon, color: "text-success" },
+  favorite_add: { label: "Added to favorites", icon: TrendingUp, color: "text-primary" },
+  cta_click: { label: "CTA clicked", icon: MousePointerClick, color: "text-warning" },
+  city_cta_click: { label: "City CTA clicked", icon: MapPin, color: "text-warning" },
   search: { label: "Search performed", icon: Globe, color: "text-muted-foreground" },
-  form_start: { label: "Form started", icon: FileText, color: "text-orange-600" },
-  form_submit: { label: "Form submitted", icon: BadgeCheck, color: "text-emerald-700" },
-  contact_form: { label: "Contact form", icon: Mail, color: "text-emerald-700" },
-  return_visit: { label: "Return visit", icon: TrendingUp, color: "text-purple-600" },
-  deck_section_view: { label: "Pitch deck section viewed", icon: FileText, color: "text-violet-600" },
-  property_email_sent: { label: "Property email sent", icon: Send, color: "text-sky-600" },
+  form_start: { label: "Form started", icon: FileText, color: "text-warning" },
+  form_submit: { label: "Form submitted", icon: BadgeCheck, color: "text-success-strong" },
+  contact_form: { label: "Contact form", icon: Mail, color: "text-success-strong" },
+  return_visit: { label: "Return visit", icon: TrendingUp, color: "text-primary" },
+  deck_section_view: { label: "Pitch deck section viewed", icon: FileText, color: "text-primary" },
+  property_email_sent: { label: "Property email sent", icon: Send, color: "text-info" },
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -353,10 +353,10 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
   const score = projectLead.lead_score ?? 0;
   const tempColor =
     projectLead.lead_temperature === "hot"
-      ? "bg-red-500/10 text-red-700 border-red-200"
+      ? "bg-danger/10 text-danger-strong border-danger/30"
       : projectLead.lead_temperature === "warm"
-      ? "bg-amber-500/10 text-amber-700 border-amber-200"
-      : "bg-sky-500/10 text-sky-700 border-sky-200";
+      ? "bg-warning/10 text-warning-strong border-warning/30"
+      : "bg-info/10 text-info-strong border-info/30";
 
   if (!lead) return null;
 
@@ -594,7 +594,7 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
                         <div
                           className={cn(
                             "h-full rounded-full transition-all",
-                            intent >= 7 ? "bg-destructive" : intent >= 4 ? "bg-amber-500" : "bg-sky-500",
+                            intent >= 7 ? "bg-destructive" : intent >= 4 ? "bg-warning" : "bg-info",
                           )}
                           style={{ width: `${Math.min(100, intent * 10)}%` }}
                         />
@@ -828,7 +828,7 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
                                 </p>
                               </div>
                               {beforeSubmit ? (
-                                <Badge className="text-[10px] shrink-0 bg-emerald-500/15 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/15">
+                                <Badge className="text-[10px] shrink-0 bg-success/15 text-success-strong border-success/30 hover:bg-success/15">
                                   Before submit
                                 </Badge>
                               ) : (
@@ -887,10 +887,10 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
                     <>
                     <div className="flex items-center gap-3 text-[10px] text-muted-foreground mb-1">
                       <span className="inline-flex items-center gap-1.5">
-                        <span className="h-2 w-2 rounded-full bg-blue-500" /> To client
+                        <span className="h-2 w-2 rounded-full bg-info" /> To client
                       </span>
                       <span className="inline-flex items-center gap-1.5">
-                        <span className="h-2 w-2 rounded-full bg-amber-500" /> Internal (to you)
+                        <span className="h-2 w-2 rounded-full bg-warning" /> Internal (to you)
                       </span>
                     </div>
                     <ul className="space-y-2">
@@ -903,7 +903,7 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
                           <li
                             key={e.id}
                             className={`border-l-4 border border-border rounded-lg p-3 space-y-1.5 ${
-                              isInternal ? "border-l-amber-500 bg-amber-500/5" : "border-l-blue-500 bg-blue-500/5"
+                              isInternal ? "border-l-amber-500 bg-warning/5" : "border-l-blue-500 bg-info/5"
                             }`}
                           >
                             <div className="flex items-start justify-between gap-2">
@@ -918,8 +918,8 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
                                   variant="outline"
                                   className={`text-[9px] font-semibold ${
                                     isInternal
-                                      ? "border-amber-500/40 text-amber-700 dark:text-amber-400"
-                                      : "border-blue-500/40 text-blue-700 dark:text-blue-400"
+                                      ? "border-warning/40 text-warning-strong dark:text-warning"
+                                      : "border-info/40 text-info-strong dark:text-info"
                                   }`}
                                 >
                                   {isInternal ? "INTERNAL" : "CLIENT"}
@@ -939,7 +939,7 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange, initialTab = 
                                 </span>
                               )}
                               {e.click_count > 0 && (
-                                <span className="inline-flex items-center gap-1 text-emerald-600">
+                                <span className="inline-flex items-center gap-1 text-success">
                                   <MousePointerClick className="h-3 w-3" /> {e.click_count} click(s)
                                 </span>
                               )}

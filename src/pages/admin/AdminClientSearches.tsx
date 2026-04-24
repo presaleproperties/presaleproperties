@@ -530,12 +530,12 @@ export default function AdminClientSearches() {
         </div>
 
         {/* Master Alert Toggle */}
-        <Card className={`transition-all ${client?.alerts_enabled ? "border-emerald-200 bg-emerald-50/30" : ""}`}>
+        <Card className={`transition-all ${client?.alerts_enabled ? "border-success/30 bg-success-soft/30" : ""}`}>
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full ${client?.alerts_enabled ? "bg-emerald-100" : "bg-muted"}`}>
-                  <Bell className={`h-5 w-5 ${client?.alerts_enabled ? "text-emerald-600" : "text-muted-foreground"}`} />
+                <div className={`p-2 rounded-full ${client?.alerts_enabled ? "bg-success-soft" : "bg-muted"}`}>
+                  <Bell className={`h-5 w-5 ${client?.alerts_enabled ? "text-success" : "text-muted-foreground"}`} />
                 </div>
                 <div>
                   <h3 className="font-medium">Property Alerts</h3>
@@ -599,7 +599,7 @@ export default function AdminClientSearches() {
                           <h3 className="font-semibold">{search.name}</h3>
                           <Badge 
                             variant={search.is_active ? "default" : "secondary"}
-                            className={search.is_active ? "bg-emerald-500" : ""}
+                            className={search.is_active ? "bg-success" : ""}
                           >
                             {search.is_active ? "Active" : "Paused"}
                           </Badge>
@@ -717,7 +717,7 @@ export default function AdminClientSearches() {
                   ))}
                 </div>
                 {newSearch.cities.length === 0 && (
-                  <p className="text-xs text-amber-600 flex items-center gap-1">
+                  <p className="text-xs text-warning flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
                     Select at least one city
                   </p>
@@ -756,7 +756,7 @@ export default function AdminClientSearches() {
                       variant={newSearch.listing_types.includes(type.value) ? "default" : "outline"}
                       className={`cursor-pointer transition-all ${
                         newSearch.listing_types.includes(type.value) 
-                          ? type.value === "presale" ? "bg-primary" : "bg-emerald-500"
+                          ? type.value === "presale" ? "bg-primary" : "bg-success"
                           : "hover:bg-muted"
                       }`}
                       onClick={() => toggleListingType(type.value)}
@@ -994,7 +994,7 @@ export default function AdminClientSearches() {
                                     className={`absolute top-2 right-2 text-[10px] ${
                                       property.type === "presale" 
                                         ? "bg-primary text-primary-foreground" 
-                                        : "bg-emerald-500 text-white"
+                                        : "bg-success text-on-dark"
                                     }`}
                                   >
                                     {property.type === "presale" ? "PRESALE" : "MOVE-IN"}

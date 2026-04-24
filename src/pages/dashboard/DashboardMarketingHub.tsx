@@ -83,8 +83,8 @@ const CREATE_OPTIONS = [
     title: "Project Email",
     desc: "Hero image, stats, highlights, floor plans",
     icon: Building2,
-    color: "text-emerald-600",
-    bg: "bg-emerald-500/10",
+    color: "text-success",
+    bg: "bg-success/10",
     badge: "Most Used",
     url: "/dashboard/email-builder?template=project-email",
   },
@@ -93,8 +93,8 @@ const CREATE_OPTIONS = [
     title: "Exclusive Offer",
     desc: "High-urgency promo with incentive spotlight",
     icon: Star,
-    color: "text-amber-600",
-    bg: "bg-amber-500/10",
+    color: "text-warning",
+    bg: "bg-warning/10",
     badge: "Promo",
     url: "/dashboard/email-builder?template=exclusive-offer",
   },
@@ -310,18 +310,18 @@ export default function DashboardMarketingHub() {
             <div className="w-full h-full flex items-center justify-center"><Mail className="h-10 w-10 text-muted-foreground/15" /></div>
           )}
           {!isAdmin && (
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <div className="absolute inset-0 bg-neutral-900/0 group-hover:bg-neutral-900/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
               <Button size="sm" variant="secondary" className="gap-1.5 shadow-lg"><ExternalLink className="h-3.5 w-3.5" /> Open</Button>
             </div>
           )}
           <div className="absolute top-2 left-2 flex gap-1">
-            <Badge className={cn("text-[9px] px-1.5 py-0.5 shadow-sm hover:bg-emerald-500/90", isAdmin ? "bg-card/90 text-foreground border" : "bg-emerald-500/90 text-white")}>
+            <Badge className={cn("text-[9px] px-1.5 py-0.5 shadow-sm hover:bg-success/90", isAdmin ? "bg-card/90 text-foreground border" : "bg-success/90 text-on-dark")}>
               {isAdmin ? "Admin" : "Email"}
             </Badge>
           </div>
           {!isAdmin && (
             <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(asset); }}
-              className={cn("absolute top-2 right-2 p-1.5 rounded-full transition-all shadow-sm", asset.is_favorited ? "bg-amber-500 text-white" : "bg-card/80 text-muted-foreground hover:bg-card hover:text-amber-500")}>
+              className={cn("absolute top-2 right-2 p-1.5 rounded-full transition-all shadow-sm", asset.is_favorited ? "bg-warning text-on-dark" : "bg-card/80 text-muted-foreground hover:bg-card hover:text-warning")}>
               <Star className="h-3 w-3" fill={asset.is_favorited ? "currentColor" : "none"} />
             </button>
           )}
@@ -375,7 +375,7 @@ export default function DashboardMarketingHub() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold truncate cursor-pointer hover:text-primary" onClick={() => navigate(openUrl)}>{getDisplayName(asset)}</p>
-            {asset.is_favorited && <Star className="h-3 w-3 text-amber-500 shrink-0" fill="currentColor" />}
+            {asset.is_favorited && <Star className="h-3 w-3 text-warning shrink-0" fill="currentColor" />}
           </div>
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground/60 mt-0.5">
             <span>{timeAgo(asset.updated_at)}</span>
@@ -392,7 +392,7 @@ export default function DashboardMarketingHub() {
           <Button size="sm" variant="outline" className="h-7 text-xs gap-1 px-2" onClick={() => handleQuickSend(asset)}><Send className="h-3 w-3" /> Send</Button>
           <Button size="sm" variant="outline" className="h-7 text-xs px-2" onClick={() => navigate(openUrl)}>Edit</Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleToggleFavorite(asset)}>
-            <Star className={cn("h-3 w-3", asset.is_favorited ? "text-amber-500" : "text-muted-foreground")} fill={asset.is_favorited ? "currentColor" : "none"} />
+            <Star className={cn("h-3 w-3", asset.is_favorited ? "text-warning" : "text-muted-foreground")} fill={asset.is_favorited ? "currentColor" : "none"} />
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDuplicate(asset)}><Copy className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" disabled={deleting === asset.id} onClick={() => handleDelete(asset.id)}><Trash2 className="h-3 w-3" /></Button>

@@ -598,9 +598,9 @@ export default function AdminProjects() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "coming_soon": return "bg-blue-100 text-blue-800";
-      case "active": return "bg-green-100 text-green-800";
-      case "sold_out": return "bg-gray-100 text-gray-800";
+      case "coming_soon": return "bg-info-soft text-info-strong";
+      case "active": return "bg-success-soft text-success-strong";
+      case "sold_out": return "bg-muted text-foreground";
       default: return "";
     }
   };
@@ -688,8 +688,8 @@ export default function AdminProjects() {
             className={cn(
               "flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors",
               docsFilter === "in_hero"
-                ? "bg-amber-100 text-amber-700 ring-1 ring-amber-300"
-                : "hover:bg-amber-50 text-amber-600 hover:text-amber-700"
+                ? "bg-warning-soft text-warning-strong ring-1 ring-warning"
+                : "hover:bg-warning-soft text-warning hover:text-warning-strong"
             )}
           >
             <Sparkles className="h-4 w-4" />
@@ -702,8 +702,8 @@ export default function AdminProjects() {
               className={cn(
                 "flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors",
                 docsFilter === "missing_seo" 
-                  ? "bg-amber-100 text-amber-700 ring-1 ring-amber-300" 
-                  : "hover:bg-amber-50 text-amber-600 hover:text-amber-700"
+                  ? "bg-warning-soft text-warning-strong ring-1 ring-warning" 
+                  : "hover:bg-warning-soft text-warning hover:text-warning-strong"
               )}
             >
               <Sparkles className="h-4 w-4" />
@@ -805,10 +805,10 @@ export default function AdminProjects() {
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <h3 className="font-semibold truncate">{project.name}</h3>
                         {project.is_featured && (
-                          <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                          <Star className="h-4 w-4 text-warning fill-warning" />
                         )}
                         {project.show_in_hero && (
-                          <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200">
+                          <Badge className="gap-1 bg-warning-soft text-warning-strong hover:bg-warning-soft border-warning/30">
                             <Sparkles className="h-3 w-3" />
                             In Hero
                           </Badge>
@@ -841,7 +841,7 @@ export default function AdminProjects() {
                               <div className={cn(
                                 "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
                                 hasDoc(project.brochure_files) 
-                                  ? "bg-green-100 text-green-600" 
+                                  ? "bg-success-soft text-success" 
                                   : "bg-destructive/10 text-destructive"
                               )}>
                                 <FileText className="h-3 w-3" />
@@ -857,7 +857,7 @@ export default function AdminProjects() {
                               <div className={cn(
                                 "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
                                 hasDoc(project.floorplan_files) 
-                                  ? "bg-green-100 text-green-600" 
+                                  ? "bg-success-soft text-success" 
                                   : "bg-destructive/10 text-destructive"
                               )}>
                                 <LayoutGrid className="h-3 w-3" />
@@ -873,7 +873,7 @@ export default function AdminProjects() {
                               <div className={cn(
                                 "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
                                 hasDoc(project.pricing_sheets) 
-                                  ? "bg-green-100 text-green-600" 
+                                  ? "bg-success-soft text-success" 
                                   : "bg-destructive/10 text-destructive"
                               )}>
                                 <DollarSign className="h-3 w-3" />
@@ -905,7 +905,7 @@ export default function AdminProjects() {
                         size="sm"
                         onClick={() => toggleFeatured(project)}
                         title={project.is_featured ? "Remove from Featured" : "Add to Featured"}
-                        className={project.is_featured ? "text-yellow-500 hover:text-yellow-600" : ""}
+                        className={project.is_featured ? "text-warning hover:text-warning" : ""}
                       >
                         <Star className={`h-4 w-4 ${project.is_featured ? "fill-current" : ""}`} />
                       </Button>
@@ -914,7 +914,7 @@ export default function AdminProjects() {
                         size="sm"
                         onClick={() => toggleHero(project)}
                         title={project.show_in_hero ? "Remove from Hero Slider" : "Add to Hero Slider"}
-                        className={project.show_in_hero ? "text-amber-600 hover:text-amber-700" : ""}
+                        className={project.show_in_hero ? "text-warning hover:text-warning-strong" : ""}
                       >
                         <Sparkles className={`h-4 w-4 ${project.show_in_hero ? "fill-current" : ""}`} />
                       </Button>
@@ -991,7 +991,7 @@ export default function AdminProjects() {
             {projectsToGeocode.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center">
-                  <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                  <CheckCircle2 className="h-12 w-12 text-success mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">
                     {geocodeAllProjects ? "No projects found" : "All projects have coordinates!"}
                   </h3>
@@ -1068,13 +1068,13 @@ export default function AdminProjects() {
                             <div className="h-5 w-5 rounded-full border-2 border-muted-foreground/30" />
                           )}
                           {result.status === 'success' && (
-                            <CheckCircle2 className="h-5 w-5 text-green-500" />
+                            <CheckCircle2 className="h-5 w-5 text-success" />
                           )}
                           {result.status === 'failed' && (
                             <XCircle className="h-5 w-5 text-destructive" />
                           )}
                           {result.status === 'skipped' && (
-                            <AlertCircle className="h-5 w-5 text-yellow-500" />
+                            <AlertCircle className="h-5 w-5 text-warning" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -1110,7 +1110,7 @@ export default function AdminProjects() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-amber-500" />
+              <Sparkles className="h-5 w-5 text-warning" />
               Bulk SEO Generation
             </DialogTitle>
             <DialogDescription>
@@ -1123,7 +1123,7 @@ export default function AdminProjects() {
             {seoMissingCount === 0 && !seoResults ? (
               <Card>
                 <CardContent className="py-8 text-center">
-                  <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                  <CheckCircle2 className="h-12 w-12 text-success mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">All projects have SEO meta!</h3>
                   <p className="text-muted-foreground">
                     Every published project already has SEO title and description.
@@ -1206,7 +1206,7 @@ export default function AdminProjects() {
                       {seoResults.results.map((result, index) => (
                         <div key={index} className="px-4 py-3 space-y-1">
                           <div className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                            <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
                             <p className="font-medium text-sm">{result.name}</p>
                           </div>
                           <p className="text-xs text-primary ml-6 truncate">{result.seo_title}</p>

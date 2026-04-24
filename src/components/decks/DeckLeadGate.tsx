@@ -156,8 +156,8 @@ export function DeckLeadGate({ slug, projectName, projectId, heroImageUrl, onUnl
               <div className="h-11 w-11 rounded-full bg-primary/90 flex items-center justify-center mb-2 shadow-lg">
                 <Lock className="h-5 w-5 text-primary-foreground" />
               </div>
-              <p className="text-white font-bold text-base leading-tight">{projectName}</p>
-              <p className="text-white/70 text-xs mt-0.5">Floor Plans · Pricing · Investment Calculator</p>
+              <p className="text-on-dark font-bold text-base leading-tight">{projectName}</p>
+              <p className="text-on-dark/70 text-xs mt-0.5">Floor Plans · Pricing · Investment Calculator</p>
             </div>
           </div>
 

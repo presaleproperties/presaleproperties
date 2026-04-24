@@ -93,9 +93,9 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const TEMP_CONFIG = {
-  hot: { icon: Flame, label: "Hot", className: "text-red-500", bg: "bg-red-500/10 border-red-500/20", badgeCn: "bg-red-500/10 text-red-600 border-red-500/20" },
-  warm: { icon: Thermometer, label: "Warm", className: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20", badgeCn: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
-  cold: { icon: Snowflake, label: "Cold", className: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20", badgeCn: "bg-blue-400/10 text-blue-500 border-blue-400/20" },
+  hot: { icon: Flame, label: "Hot", className: "text-danger", bg: "bg-danger/10 border-danger/20", badgeCn: "bg-danger/10 text-danger border-danger/20" },
+  warm: { icon: Thermometer, label: "Warm", className: "text-warning", bg: "bg-warning/10 border-warning/20", badgeCn: "bg-warning/10 text-warning border-warning/20" },
+  cold: { icon: Snowflake, label: "Cold", className: "text-info", bg: "bg-info/10 border-info/20", badgeCn: "bg-info/10 text-info border-info/20" },
 } as const;
 
 const DATE_FILTERS = [
@@ -366,7 +366,7 @@ export default function DashboardLeads() {
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
-            <Flame className="h-4 w-4 text-red-500" />
+            <Flame className="h-4 w-4 text-danger" />
             <div>
               <p className="text-lg font-bold leading-none">{hotCount}</p>
               <p className="text-[11px] text-muted-foreground">Hot</p>
@@ -513,7 +513,7 @@ export default function DashboardLeads() {
                                 key={lead.id}
                                 className={cn(
                                   "border-b border-border/50 last:border-0 transition-colors",
-                                  lead.temperature === "hot" ? "bg-red-500/[0.03]" : "hover:bg-muted/30"
+                                  lead.temperature === "hot" ? "bg-danger/[0.03]" : "hover:bg-muted/30"
                                 )}
                               >
                                 {/* Status — single temperature indicator */}
@@ -698,7 +698,7 @@ export default function DashboardLeads() {
                                 <td className="px-3 py-2.5">
                                   <div className="flex items-center justify-center gap-1">
                                     {lead.phone && (
-                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10" asChild title="Call">
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-success hover:bg-success/10" asChild title="Call">
                                         <a href={`tel:${lead.phone.replace(/\D/g, "")}`}>
                                           <PhoneCall className="h-3.5 w-3.5" />
                                         </a>
@@ -722,13 +722,13 @@ export default function DashboardLeads() {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-44">
                                       <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "hot")}>
-                                        <Flame className="h-3.5 w-3.5 mr-2 text-red-500" /> Mark Hot
+                                        <Flame className="h-3.5 w-3.5 mr-2 text-danger" /> Mark Hot
                                       </DropdownMenuItem>
                                       <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "warm")}>
-                                        <Thermometer className="h-3.5 w-3.5 mr-2 text-amber-500" /> Mark Warm
+                                        <Thermometer className="h-3.5 w-3.5 mr-2 text-warning" /> Mark Warm
                                       </DropdownMenuItem>
                                       <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "cold")}>
-                                        <Snowflake className="h-3.5 w-3.5 mr-2 text-blue-400" /> Mark Cold
+                                        <Snowflake className="h-3.5 w-3.5 mr-2 text-info" /> Mark Cold
                                       </DropdownMenuItem>
                                       <DropdownMenuSeparator />
                                       <DropdownMenuItem asChild>
@@ -814,13 +814,13 @@ export default function DashboardLeads() {
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-44">
                                     <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "hot")}>
-                                      <Flame className="h-3.5 w-3.5 mr-2 text-red-500" /> Mark Hot
+                                      <Flame className="h-3.5 w-3.5 mr-2 text-danger" /> Mark Hot
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "warm")}>
-                                      <Thermometer className="h-3.5 w-3.5 mr-2 text-amber-500" /> Mark Warm
+                                      <Thermometer className="h-3.5 w-3.5 mr-2 text-warning" /> Mark Warm
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => handleSetTemperature(lead.id, "cold")}>
-                                      <Snowflake className="h-3.5 w-3.5 mr-2 text-blue-400" /> Mark Cold
+                                      <Snowflake className="h-3.5 w-3.5 mr-2 text-info" /> Mark Cold
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>

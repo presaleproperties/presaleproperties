@@ -160,14 +160,14 @@ export function ListingCard({
                 <>
                   <button
                     onClick={goToPrevImage}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-neutral-900/50 text-on-dark flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-neutral-900/70"
                     aria-label="Previous image"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
                   <button
                     onClick={goToNextImage}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-neutral-900/50 text-on-dark flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-neutral-900/70"
                     aria-label="Next image"
                   >
                     <ChevronRight className="h-5 w-5" />
@@ -181,13 +181,13 @@ export function ListingCard({
                         className={cn(
                           "h-1.5 w-1.5 rounded-full transition-all",
                           idx === currentImageIndex 
-                            ? "bg-white w-3" 
-                            : "bg-white/50"
+                            ? "bg-card w-3" 
+                            : "bg-card/50"
                         )}
                       />
                     ))}
                     {imageCount > 5 && (
-                      <span className="text-white text-xs ml-1">+{imageCount - 5}</span>
+                      <span className="text-on-dark text-xs ml-1">+{imageCount - 5}</span>
                     )}
                   </div>
                 </>
@@ -200,7 +200,7 @@ export function ListingCard({
           )}
           
           {/* Gradient overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
           
           {/* Badges - Top Left */}
           <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -210,7 +210,7 @@ export function ListingCard({
               </Badge>
             )}
             {isRestricted && (
-              <Badge variant="secondary" className="bg-amber-500/90 text-white gap-1">
+              <Badge variant="secondary" className="bg-warning/90 text-on-dark gap-1">
                 <Lock className="h-3 w-3" />
                 Restricted
               </Badge>
@@ -224,7 +224,7 @@ export function ListingCard({
 
           {/* Photo Count - Bottom Right */}
           {photoCount > 1 && (
-            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/70 text-white text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
+            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-neutral-900/70 text-on-dark text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
               <Camera className="h-3.5 w-3.5" />
               <span>{currentImageIndex + 1}/{photoCount}</span>
             </div>

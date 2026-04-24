@@ -63,7 +63,7 @@ export function BlogFeaturedCarousel({ posts, formatDate }: BlogFeaturedCarousel
                       </div>
                     )}
                     {/* Cinematic gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/70 via-neutral-900/20 to-transparent" />
                     
                     {/* Featured badge */}
                     <div className="absolute top-3 left-3 md:top-4 md:left-4">
@@ -76,11 +76,11 @@ export function BlogFeaturedCarousel({ posts, formatDate }: BlogFeaturedCarousel
                     {/* Title overlay */}
                     <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7">
                       {post.category && (
-                        <span className="inline-block mb-2.5 text-[10px] md:text-xs font-bold uppercase tracking-widest text-white/70">
+                        <span className="inline-block mb-2.5 text-[10px] md:text-xs font-bold uppercase tracking-widest text-on-dark/70">
                           {post.category}
                         </span>
                       )}
-                      <h3 className="font-extrabold text-lg sm:text-xl md:text-2xl lg:text-3xl text-white leading-tight line-clamp-2 tracking-tight">
+                      <h3 className="font-extrabold text-lg sm:text-xl md:text-2xl lg:text-3xl text-on-dark leading-tight line-clamp-2 tracking-tight">
                         {post.title}
                       </h3>
                     </div>

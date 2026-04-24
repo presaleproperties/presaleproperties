@@ -319,7 +319,7 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
   // Mobile bottom sheet
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => onOpenChange(false)} />
+      <div className="absolute inset-0 bg-neutral-900/50 backdrop-blur-sm" onClick={() => onOpenChange(false)} />
       <div className="relative w-full max-w-lg bg-card rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom duration-300 flex flex-col"
         style={{ maxHeight: "88vh" }}
       >

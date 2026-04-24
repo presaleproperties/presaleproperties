@@ -140,42 +140,42 @@ const costs = [
     description:
       "Typically 5–15% of the purchase price, paid in installments over 12–18 months (up to 20% in a hot market). Held in a lawyer's trust account — fully protected until completion.",
     typical: "5–15% of price",
-    color: "bg-blue-50 text-blue-700 border-blue-100",
+    color: "bg-info-soft text-info-strong border-info/30",
   },
   {
     name: "Property Transfer Tax",
     description:
       "1% on first $200K, 2% on $200K–$2M, 3% over $2M. First-time buyers may qualify for full exemption on new construction up to $1.1M (2026 BC rules).",
     typical: "Varies",
-    color: "bg-amber-50 text-amber-700 border-amber-100",
+    color: "bg-warning-soft text-warning-strong border-warning/30",
   },
   {
     name: "GST (New Home)",
     description:
       "GST applies to all new homes. Full rebate (up to $50K) for primary residences priced at or under $1M. Partial rebate up to $1.5M. No rebate for investors.",
     typical: "5% of price",
-    color: "bg-purple-50 text-purple-700 border-purple-100",
+    color: "bg-primary/10 text-primary-deep border-primary/30",
   },
   {
     name: "Legal Fees",
     description:
       "Your lawyer reviews the contract, handles title transfer, and ensures all documents are properly executed.",
     typical: "$1,500 – $2,500",
-    color: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    color: "bg-success-soft text-success-strong border-success/30",
   },
   {
     name: "Strata Fees",
     description:
       "Monthly fees begin at move-in, covering building maintenance, insurance, and amenities.",
     typical: "$200 – $600/mo",
-    color: "bg-rose-50 text-rose-700 border-rose-100",
+    color: "bg-danger-soft text-danger-strong border-danger/30",
   },
   {
     name: "Home Insurance",
     description:
       "Required before completion. Covers your unit contents and any improvements you make.",
     typical: "$300 – $800/yr",
-    color: "bg-cyan-50 text-cyan-700 border-cyan-100",
+    color: "bg-info-soft text-info-strong border-info/30",
   },
 ];
 
@@ -515,9 +515,9 @@ export default function PresaleGuide() {
                 ))}
               </div>
 
-              <div className="mt-6 flex items-start gap-3 p-4 bg-amber-50 border border-amber-200/80 rounded-xl">
-                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-800">
+              <div className="mt-6 flex items-start gap-3 p-4 bg-warning-soft border border-warning/30/80 rounded-xl">
+                <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                <p className="text-sm text-warning-strong">
                   <strong>Budget Tip:</strong> Always plan for an additional 3–5% of purchase price in closing costs beyond your deposit. First-time buyers should research exemptions — you could save thousands on Property Transfer Tax.
                 </p>
               </div>

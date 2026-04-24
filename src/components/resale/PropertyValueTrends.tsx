@@ -189,8 +189,8 @@ export function PropertyValueTrends({
           <Badge 
             variant="secondary" 
             className={`gap-1 ${
-              isUp ? "bg-green-500/10 text-green-700" : 
-              isDown ? "bg-red-500/10 text-red-700" : 
+              isUp ? "bg-success/10 text-success-strong" : 
+              isDown ? "bg-danger/10 text-danger-strong" : 
               "bg-muted text-muted-foreground"
             }`}
           >
@@ -215,8 +215,8 @@ export function PropertyValueTrends({
         <div className="bg-background rounded-lg p-2">
           <p className="text-xs text-muted-foreground">vs Market</p>
           <p className={`font-semibold text-sm ${
-            currentPrice < avgPrice ? "text-green-600" : 
-            currentPrice > avgPrice ? "text-amber-600" : ""
+            currentPrice < avgPrice ? "text-success" : 
+            currentPrice > avgPrice ? "text-warning" : ""
           }`}>
             {currentPrice < avgPrice ? 
               `-${formatPrice(avgPrice - currentPrice)}` : 

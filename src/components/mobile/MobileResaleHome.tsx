@@ -109,15 +109,15 @@ export function MobileResaleHome() {
             alt="Modern home interior" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-900/50 to-neutral-900/60" />
         </div>
 
         {/* Hero Content - Compact mobile messaging */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
-          <h1 className="text-xl font-bold text-white leading-tight">
+          <h1 className="text-xl font-bold text-on-dark leading-tight">
             Presale & <span className="text-primary">Move-In Ready</span> Homes
           </h1>
-          <p className="text-white/80 text-xs mt-1.5">
+          <p className="text-on-dark/80 text-xs mt-1.5">
             Brand new. Never lived in.
           </p>
         </div>
@@ -126,7 +126,7 @@ export function MobileResaleHome() {
         <div className="relative px-4 -mb-14 z-10">
           <div 
             ref={searchContainerRef}
-            className="bg-white rounded-xl shadow-[0_15px_50px_-10px_rgba(0,0,0,0.3)] border border-border/10 overflow-hidden"
+            className="bg-card rounded-xl shadow-[0_15px_50px_-10px_rgba(0,0,0,0.3)] border border-border/10 overflow-hidden"
           >
             {/* Search Header */}
             <div className="flex items-center justify-between px-4 py-2 border-b border-border/20 bg-muted/30">

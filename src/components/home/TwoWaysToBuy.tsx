@@ -52,12 +52,12 @@ export function TwoWaysToBuy() {
           <Card className="relative overflow-hidden border-border hover:border-primary/40 hover:shadow-lg transition-all duration-300 group">
             <CardContent className="p-5 sm:p-6">
               <div className="flex items-start gap-4">
-                <div className="shrink-0 h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                  <Home className="h-6 w-6 text-emerald-600" />
+                <div className="shrink-0 h-12 w-12 rounded-xl bg-success/10 flex items-center justify-center">
+                  <Home className="h-6 w-6 text-success" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className="text-[10px] sm:text-xs font-semibold bg-emerald-600 text-white">
+                    <Badge className="text-[10px] sm:text-xs font-semibold bg-success text-on-dark">
                       MOVE-IN READY
                     </Badge>
                   </div>
@@ -68,7 +68,7 @@ export function TwoWaysToBuy() {
                     Just completed new construction. Move in within 30-60 days. Built within last 6 months, never lived in.
                   </p>
                   <Link to="/properties">
-                    <Button variant="outline" size="sm" className="gap-1.5 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-colors">
+                    <Button variant="outline" size="sm" className="gap-1.5 group-hover:bg-success group-hover:text-on-dark group-hover:border-success transition-colors">
                       View Available Now
                       <ArrowRight className="h-3.5 w-3.5" />
                     </Button>

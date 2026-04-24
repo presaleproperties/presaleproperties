@@ -235,10 +235,10 @@ export function PitchDecksList() {
                 </DropdownMenu>
               </div>
               <div className="flex items-center gap-2 mb-4 flex-wrap">
-                <Badge variant={deck.is_published ? "default" : "secondary"} className={deck.is_published ? "bg-green-500/10 text-green-600 border-green-500/20" : ""}>
+                <Badge variant={deck.is_published ? "default" : "secondary"} className={deck.is_published ? "bg-success/10 text-success border-success/20" : ""}>
                   {deck.is_published ? "Published" : "Draft"}
                 </Badge>
-                <Badge variant="outline" className={deck.gate_enabled !== false ? "bg-amber-500/10 text-amber-600 border-amber-500/20 gap-1" : "bg-muted text-muted-foreground border-border gap-1"}>
+                <Badge variant="outline" className={deck.gate_enabled !== false ? "bg-warning/10 text-warning border-warning/20 gap-1" : "bg-muted text-muted-foreground border-border gap-1"}>
                   {deck.gate_enabled !== false ? <><Lock className="h-3 w-3" /> Gated</> : <><Unlock className="h-3 w-3" /> Open</>}
                 </Badge>
                 <span className="text-xs text-muted-foreground">

@@ -186,13 +186,13 @@ export function InvestmentAnalysis({
         </div>
         <div className="flex items-center gap-2">
           {isPriceSqftVerified && (
-            <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 text-[10px]">
+            <Badge variant="outline" className="bg-info-soft dark:bg-info-strong/30 text-info-strong dark:text-info border-info/30 dark:border-info text-[10px]">
               <ShieldCheck className="h-3 w-3 mr-1" />
               MLS Data
             </Badge>
           )}
           {hasCMHCData && (
-            <Badge variant="outline" className="bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 text-[10px]">
+            <Badge variant="outline" className="bg-success-soft dark:bg-success-strong/30 text-success-strong dark:text-success border-success/30 dark:border-success text-[10px]">
               <ShieldCheck className="h-3 w-3 mr-1" />
               CMHC Rents
             </Badge>
@@ -209,8 +209,8 @@ export function InvestmentAnalysis({
           <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
             {isPriceSqftVerified ? (
               <>
-                <ShieldCheck className="h-2.5 w-2.5 text-green-500" />
-                <span className="text-green-600 dark:text-green-400">MLS Verified</span>
+                <ShieldCheck className="h-2.5 w-2.5 text-success" />
+                <span className="text-success dark:text-success">MLS Verified</span>
               </>
             ) : (
               <>vs ${verifiedPriceSqft || data.avg_price_sqft} avg</>
@@ -225,12 +225,12 @@ export function InvestmentAnalysis({
           <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
             {hasCMHCData ? (
               <>
-                <ShieldCheck className="h-2.5 w-2.5 text-green-500" />
-                <span className="text-green-600 dark:text-green-400">CMHC {cmhcData?.report_year}</span>
+                <ShieldCheck className="h-2.5 w-2.5 text-success" />
+                <span className="text-success dark:text-success">CMHC {cmhcData?.report_year}</span>
               </>
             ) : (
               <>
-                <AlertCircle className="h-2.5 w-2.5 text-amber-500" />
+                <AlertCircle className="h-2.5 w-2.5 text-warning" />
                 <span>Estimated</span>
               </>
             )}
@@ -238,18 +238,18 @@ export function InvestmentAnalysis({
         </div>
 
         <div className="bg-background/80 rounded-xl p-4 border border-border/50 text-center">
-          <BarChart3 className="h-5 w-5 text-green-500 mx-auto mb-1.5" />
+          <BarChart3 className="h-5 w-5 text-success mx-auto mb-1.5" />
           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Rental Yield</p>
-          <p className="text-lg font-bold text-green-600 dark:text-green-400">{displayYield}%</p>
+          <p className="text-lg font-bold text-success dark:text-success">{displayYield}%</p>
           <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
             {isYieldVerified ? (
               <>
-                <ShieldCheck className="h-2.5 w-2.5 text-green-500" />
-                <span className="text-green-600 dark:text-green-400">Calculated</span>
+                <ShieldCheck className="h-2.5 w-2.5 text-success" />
+                <span className="text-success dark:text-success">Calculated</span>
               </>
             ) : (
               <>
-                <AlertCircle className="h-2.5 w-2.5 text-amber-500" />
+                <AlertCircle className="h-2.5 w-2.5 text-warning" />
                 <span>{city} avg</span>
               </>
             )}
@@ -257,11 +257,11 @@ export function InvestmentAnalysis({
         </div>
 
         <div className="bg-background/80 rounded-xl p-4 border border-border/50 text-center">
-          <TrendingUp className="h-5 w-5 text-green-500 mx-auto mb-1.5" />
+          <TrendingUp className="h-5 w-5 text-success mx-auto mb-1.5" />
           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">5-Year Growth</p>
-          <p className="text-lg font-bold text-green-600 dark:text-green-400">+{data.appreciation_5yr}%</p>
+          <p className="text-lg font-bold text-success dark:text-success">+{data.appreciation_5yr}%</p>
           <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
-            <AlertCircle className="h-2.5 w-2.5 text-amber-500" />
+            <AlertCircle className="h-2.5 w-2.5 text-warning" />
             <span>Historical avg</span>
           </p>
         </div>
@@ -269,10 +269,10 @@ export function InvestmentAnalysis({
 
       {/* CMHC Rental Details - Only show if verified data available */}
       {hasCMHCData && (
-        <div className="bg-green-50/50 dark:bg-green-950/20 rounded-xl p-4 border border-green-200/50 dark:border-green-800/50 mb-5">
+        <div className="bg-success-soft/50 dark:bg-success-strong/20 rounded-xl p-4 border border-success/30/50 dark:border-success/50 mb-5">
           <div className="flex items-center gap-2 mb-3">
-            <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
-            <p className="text-sm font-semibold text-green-700 dark:text-green-400">Verified CMHC Rental Data ({cmhcData?.report_year})</p>
+            <ShieldCheck className="h-4 w-4 text-success dark:text-success" />
+            <p className="text-sm font-semibold text-success-strong dark:text-success">Verified CMHC Rental Data ({cmhcData?.report_year})</p>
           </div>
           <div className="grid grid-cols-3 gap-4 text-center">
             {verifiedRent1br && (
@@ -304,7 +304,7 @@ export function InvestmentAnalysis({
           {pricePerSqft < data.avg_price_sqft ? " strong" : " competitive"} investment potential.
           {futureValue && startingPrice && (
             <> At {formatPrice(startingPrice)}, the estimated value at completion ({completionYear}) 
-            could reach <strong className="text-green-600 dark:text-green-400">{formatPrice(futureValue)}</strong> based on 
+            could reach <strong className="text-success dark:text-success">{formatPrice(futureValue)}</strong> based on 
             historical {city} appreciation trends.</>
           )}
           {projectType === "townhome" && " Townhomes in this area typically offer higher rental yields and stronger family demand."}
@@ -337,7 +337,7 @@ export function InvestmentAnalysis({
                 href="https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/rental-market"
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-0.5 text-green-600 dark:text-green-400 hover:underline"
+                className="inline-flex items-center gap-0.5 text-success dark:text-success hover:underline"
               >
                 CMHC Rental Market Report
                 <ExternalLink className="h-2.5 w-2.5" />

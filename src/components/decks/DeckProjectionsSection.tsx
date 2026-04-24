@@ -64,7 +64,7 @@ function BreakdownRow({ label, value, green, sub, strikethrough }: { label: stri
       </div>
       <span className={cn(
         "text-sm font-semibold",
-        green && "text-green-400",
+        green && "text-success",
         strikethrough && "line-through text-background/35"
       )}>{value}</span>
     </div>
@@ -240,11 +240,11 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
 
           {/* FTB savings banner */}
           {isFirstTimeBuyer && (
-            <div className="mx-4 sm:mx-5 mt-4 flex items-start gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
-              <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+            <div className="mx-4 sm:mx-5 mt-4 flex items-start gap-3 p-4 rounded-xl bg-success-soft dark:bg-success-strong/20 border border-success/30 dark:border-success">
+              <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-bold text-green-800 dark:text-green-300">First-Time Buyer Savings Applied</p>
-                <p className="text-xs text-green-700 dark:text-green-400 mt-1">
+                <p className="text-sm font-bold text-success-strong dark:text-success-soft-foreground">First-Time Buyer Savings Applied</p>
+                <p className="text-xs text-success-strong dark:text-success mt-1">
                   {price <= 1_100_000 ? "✓ Full PTT exemption · " : price <= 1_150_000 ? "✓ Partial PTT exemption · " : "✗ No PTT exemption (over $1.15M) · "}
                   {price <= 1_000_000 ? "✓ 100% GST rebate (≤$1M, Bill C-4)" : price < 1_500_000 ? "✓ Partial GST rebate ($1M–$1.5M, Bill C-4)" : "✗ No GST rebate above $1.5M"}
                   {results.gstRebate > 0 || results.ptt === 0 ? ` · You save ${fmt(results.pttRaw - results.ptt + results.gstRebate)}` : ""}
@@ -357,7 +357,7 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                       {results.cmhc > 0 && " · CMHC insured"}
                     </p>
                     {results.cmhc > 0 && (
-                      <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2.5 mt-3">
+                      <div className="flex items-center gap-2 text-sm text-warning dark:text-warning bg-warning-soft dark:bg-warning-strong/20 border border-warning/30 dark:border-warning rounded-lg px-3 py-2.5 mt-3">
                         <AlertCircle className="h-4 w-4 shrink-0" />
                         <span>CMHC premium {fmt(results.cmhc)} added to mortgage (down payment &lt;20%)</span>
                       </div>
@@ -432,10 +432,10 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                   {results.monthlyCashFlow !== null && (
                     <div className={cn(
                       "rounded-2xl p-5 border-2 text-center",
-                      isPositiveCF ? "bg-green-50/80 dark:bg-green-950/20 border-green-200 dark:border-green-800" : "bg-red-50/70 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+                      isPositiveCF ? "bg-success-soft/80 dark:bg-success-strong/20 border-success/30 dark:border-success" : "bg-danger-soft/70 dark:bg-danger-strong/20 border-danger/30 dark:border-danger"
                     )}>
-                      <p className={cn("text-xs font-bold uppercase tracking-widest mb-2", isPositiveCF ? "text-green-700" : "text-red-700")}>Monthly Profit After All Costs</p>
-                      <p className={cn("text-5xl font-black", isPositiveCF ? "text-green-600" : "text-red-600")}>
+                      <p className={cn("text-xs font-bold uppercase tracking-widest mb-2", isPositiveCF ? "text-success-strong" : "text-danger-strong")}>Monthly Profit After All Costs</p>
+                      <p className={cn("text-5xl font-black", isPositiveCF ? "text-success" : "text-danger")}>
                         {isPositiveCF ? "+" : ""}{fmt(results.monthlyCashFlow)}
                       </p>
                       <p className="text-sm text-muted-foreground mt-2">
@@ -485,11 +485,11 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                 </div>
 
                 {/* Future value */}
-                <div className="rounded-2xl bg-gradient-to-r from-green-50 to-green-50/30 dark:from-green-950/30 dark:to-green-950/10 border border-green-200 dark:border-green-800 p-5 flex items-center justify-between">
+                <div className="rounded-2xl bg-gradient-to-r from-success-soft to-success-soft/30 dark:from-success-strong/30 dark:to-success-strong/10 border border-success/30 dark:border-success p-5 flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1.5">Est. Value in {holdYears} yr</p>
-                    <div className="text-3xl font-black text-green-700 dark:text-green-400">{fmt(results.futureValue)}</div>
-                    <div className="flex items-center gap-1.5 text-sm text-green-600 mt-1.5 font-semibold">
+                    <p className="text-xs text-success font-bold uppercase tracking-wider mb-1.5">Est. Value in {holdYears} yr</p>
+                    <div className="text-3xl font-black text-success-strong dark:text-success">{fmt(results.futureValue)}</div>
+                    <div className="flex items-center gap-1.5 text-sm text-success mt-1.5 font-semibold">
                       <ArrowUpRight className="h-4 w-4" />
                       +{fmt(results.appreciation)} appreciation
                     </div>
@@ -510,8 +510,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                     <div className="h-3 rounded-full overflow-hidden flex mb-5 bg-muted/60">
                       {[
                         { value: results.downAmt, color: "bg-primary/70" },
-                        { value: results.principalPaid, color: "bg-blue-500" },
-                        { value: results.appreciation, color: "bg-green-500" },
+                        { value: results.principalPaid, color: "bg-info" },
+                        { value: results.appreciation, color: "bg-success" },
                       ].map(({ value, color }, i) => (
                         <div key={i} className={cn(color, "transition-all")}
                           style={{ width: `${(value / (results.totalEquity || 1)) * 100}%` }} />
@@ -520,8 +520,8 @@ export function DeckProjectionsSection({ projections, defaultPrice, floorPlans =
                     <div className="grid grid-cols-3 gap-3 text-center">
                       {[
                         { label: "Down Payment", value: results.downAmt, dot: "bg-primary/70" },
-                        { label: "Mortgage Paid", value: results.principalPaid, dot: "bg-blue-500" },
-                        { label: "Value Growth", value: results.appreciation, dot: "bg-green-500" },
+                        { label: "Mortgage Paid", value: results.principalPaid, dot: "bg-info" },
+                        { label: "Value Growth", value: results.appreciation, dot: "bg-success" },
                       ].map(({ label, value, dot }) => (
                         <div key={label}>
                           <div className="flex items-center justify-center gap-1.5 mb-1.5">

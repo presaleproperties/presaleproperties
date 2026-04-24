@@ -148,7 +148,7 @@ function Row({ label, value, sub, accent, green }: { label: string; value: strin
       <span className={cn(
         "text-[14px] font-bold",
         accent && "text-foreground",
-        green && "text-green-600"
+        green && "text-success"
       )}>
         {value}
       </span>
@@ -295,7 +295,7 @@ export function InvestmentSnapshot() {
                 onClick={onClick}
                 disabled={disabled}
                 title={label}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-background/50 hover:text-background hover:bg-white/10 transition-colors disabled:opacity-40"
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-background/50 hover:text-background hover:bg-card/10 transition-colors disabled:opacity-40"
               >
                 <Icon className="h-3.5 w-3.5" />
               </button>
@@ -479,10 +479,10 @@ export function InvestmentSnapshot() {
                       {/* PTT */}
                       <div className="flex items-center justify-between py-2.5 border-t border-border/40">
                         <span className="text-[14px] font-semibold text-foreground">
-                          PTT{isFirstTimeBuyer && <span className="text-green-600 text-[12px] ml-2">✓ Exempt</span>}
+                          PTT{isFirstTimeBuyer && <span className="text-success text-[12px] ml-2">✓ Exempt</span>}
                         </span>
                         {isFirstTimeBuyer ? (
-                          <span className="text-[14px] font-bold text-green-600 line-through opacity-60">
+                          <span className="text-[14px] font-bold text-success line-through opacity-60">
                             {fmt(results.pttRaw)}
                           </span>
                         ) : (
@@ -499,7 +499,7 @@ export function InvestmentSnapshot() {
                       <div className="pt-2.5 border-t border-border/40">
                         <div className="flex items-center justify-between mb-2.5">
                           <span className="text-[14px] font-semibold text-foreground">Dev. Credit</span>
-                          <span className="text-[14px] font-bold text-green-600">-{fmt(results.creditTotal)}</span>
+                          <span className="text-[14px] font-bold text-success">-{fmt(results.creditTotal)}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <Input type="number" step="0.5" min="0" max="10" value={inputs.creditPercent}
@@ -524,25 +524,25 @@ export function InvestmentSnapshot() {
                     isFirstTimeBuyer
                       ? "bg-primary/6 border-primary/25"
                       : isPositive
-                        ? "bg-green-50/80 border-green-200"
-                        : "bg-red-50/70 border-red-200"
+                        ? "bg-success-soft/80 border-success/30"
+                        : "bg-danger-soft/70 border-danger/30"
                   )}>
                     <div className="flex items-center justify-center gap-2 mb-2">
                       {isFirstTimeBuyer
                         ? <Home className="h-4 w-4 text-primary" />
                         : isPositive
-                          ? <TrendingUp className="h-4 w-4 text-green-600" />
-                          : <TrendingDown className="h-4 w-4 text-red-600" />
+                          ? <TrendingUp className="h-4 w-4 text-success" />
+                          : <TrendingDown className="h-4 w-4 text-danger" />
                       }
                       <FieldLabel className={cn(
-                        isFirstTimeBuyer ? "text-primary" : isPositive ? "text-green-700" : "text-red-700"
+                        isFirstTimeBuyer ? "text-primary" : isPositive ? "text-success-strong" : "text-danger-strong"
                       )}>
                         {isFirstTimeBuyer ? 'Monthly Payment' : 'Monthly Cash Flow'}
                       </FieldLabel>
                     </div>
                     <div className={cn(
                       "text-[44px] font-black leading-none tracking-tight",
-                      isFirstTimeBuyer ? "text-foreground" : isPositive ? "text-green-600" : "text-red-600"
+                      isFirstTimeBuyer ? "text-foreground" : isPositive ? "text-success" : "text-danger"
                     )}>
                       {isFirstTimeBuyer
                         ? fmt(results.totalMonthlyExpenses)
@@ -568,14 +568,14 @@ export function InvestmentSnapshot() {
                       </div>
                     </SectionCard>
                   ) : (
-                    <SectionCard className="border-green-200 bg-green-50/50">
+                    <SectionCard className="border-success/30 bg-success-soft/50">
                       <div className="p-4">
-                        <FieldLabel className="text-green-700/80">Monthly Rent</FieldLabel>
+                        <FieldLabel className="text-success-strong/80">Monthly Rent</FieldLabel>
                         <Input
                           type="number"
                           value={inputs.monthlyRent || ''}
                           onChange={(e) => updateInput('monthlyRent', e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
-                          className="mt-2 h-11 text-center font-bold border-green-200 text-base"
+                          className="mt-2 h-11 text-center font-bold border-success/30 text-base"
                         />
                       </div>
                     </SectionCard>
@@ -595,7 +595,7 @@ export function InvestmentSnapshot() {
                       {!isFirstTimeBuyer && (
                         <div className="flex justify-between pt-2">
                           <span className="text-[15px] font-bold text-foreground">Rent Income</span>
-                          <span className="text-[15px] font-black text-green-600">{fmt(inputs.monthlyRent)}</span>
+                          <span className="text-[15px] font-black text-success">{fmt(inputs.monthlyRent)}</span>
                         </div>
                       )}
                     </div>
@@ -636,7 +636,7 @@ export function InvestmentSnapshot() {
                       {results.creditTotal > 0 && (
                         <div className="flex justify-between">
                           <span className="text-background/65">Dev. Credit</span>
-                          <span className="font-semibold text-green-400">-{fmt(results.creditTotal)}</span>
+                          <span className="font-semibold text-success">-{fmt(results.creditTotal)}</span>
                         </div>
                       )}
                       {results.cmhcPremium > 0 && (
@@ -650,24 +650,24 @@ export function InvestmentSnapshot() {
 
                   {/* First-time buyer: PTT + GST savings */}
                   {isFirstTimeBuyer && (
-                    <SectionCard className="border-green-200 bg-green-50/60">
+                    <SectionCard className="border-success/30 bg-success-soft/60">
                       <div className="p-3 space-y-2">
-                        <FieldLabel className="text-green-700/80 block">FTB Savings</FieldLabel>
+                        <FieldLabel className="text-success-strong/80 block">FTB Savings</FieldLabel>
                         <div className="flex justify-between items-center">
-                          <span className="text-[13px] font-semibold text-green-800">PTT Exempt</span>
-                          <span className="text-lg font-black text-green-600">{fmt(calculatePTT(inputs.purchasePrice, false))}</span>
+                          <span className="text-[13px] font-semibold text-success-strong">PTT Exempt</span>
+                          <span className="text-lg font-black text-success">{fmt(calculatePTT(inputs.purchasePrice, false))}</span>
                         </div>
                         {inputs.includeGST && (
-                          <div className="flex justify-between items-center pt-2 border-t border-green-200">
-                            <span className="text-[13px] font-semibold text-green-800">GST Rebate</span>
-                            <span className="text-lg font-black text-green-600">
+                          <div className="flex justify-between items-center pt-2 border-t border-success/30">
+                            <span className="text-[13px] font-semibold text-success-strong">GST Rebate</span>
+                            <span className="text-lg font-black text-success">
                               {fmt(inputs.purchasePrice <= 1000000 ? Math.min(results.gst, 50000) : inputs.purchasePrice < 1500000 ? Math.min(results.gst, 50000) * ((1500000 - inputs.purchasePrice) / 500000) : 0)}
                             </span>
                           </div>
                         )}
-                        <div className="flex justify-between items-center pt-2 border-t border-green-300">
-                          <span className="text-[12px] font-bold text-green-800 uppercase tracking-wide">Total Savings</span>
-                          <span className="text-2xl font-black text-green-700">
+                        <div className="flex justify-between items-center pt-2 border-t border-success">
+                          <span className="text-[12px] font-bold text-success-strong uppercase tracking-wide">Total Savings</span>
+                          <span className="text-2xl font-black text-success-strong">
                             {fmt(calculatePTT(inputs.purchasePrice, false) + (inputs.includeGST ? inputs.purchasePrice <= 1000000 ? Math.min(results.gst, 50000) : inputs.purchasePrice < 1500000 ? Math.min(results.gst, 50000) * ((1500000 - inputs.purchasePrice) / 500000) : 0 : 0))}
                           </span>
                         </div>
@@ -729,11 +729,11 @@ export function InvestmentSnapshot() {
               </div>
 
               {/* Future Value Hero */}
-              <div className="rounded-2xl bg-gradient-to-r from-green-50 to-green-50/30 border border-green-200 p-4 flex items-center justify-between">
+              <div className="rounded-2xl bg-gradient-to-r from-success-soft to-success-soft/30 border border-success/30 p-4 flex items-center justify-between">
                 <div>
-                  <FieldLabel className="text-green-600 block mb-0.5">Value in {inputs.holdingPeriodYears}yr</FieldLabel>
-                  <div className="text-3xl font-black text-green-700">{fmt(results.futureValue)}</div>
-                  <div className="flex items-center gap-1 text-[12px] text-green-600 mt-0.5 font-semibold">
+                  <FieldLabel className="text-success block mb-0.5">Value in {inputs.holdingPeriodYears}yr</FieldLabel>
+                  <div className="text-3xl font-black text-success-strong">{fmt(results.futureValue)}</div>
+                  <div className="flex items-center gap-1 text-[12px] text-success mt-0.5 font-semibold">
                     <ArrowUpRight className="h-3.5 w-3.5" />
                     +{fmt(results.appreciation)}
                   </div>
@@ -755,8 +755,8 @@ export function InvestmentSnapshot() {
                   <div className="h-2.5 rounded-full overflow-hidden flex mb-3 bg-muted/60">
                     {[
                       { value: results.downPayment,    color: 'bg-primary/70' },
-                      { value: results.principalPaid,  color: 'bg-blue-500' },
-                      { value: results.appreciation,   color: 'bg-green-500' },
+                      { value: results.principalPaid,  color: 'bg-info' },
+                      { value: results.appreciation,   color: 'bg-success' },
                     ].map(({ value, color }, i) => (
                       <div key={i} className={cn(color, "transition-all")}
                         style={{ width: `${(value / (results.totalEquityBuilt || 1)) * 100}%` }} />
@@ -765,8 +765,8 @@ export function InvestmentSnapshot() {
                   <div className="grid grid-cols-3 gap-2 text-center">
                     {[
                       { label: 'Down Pmt', value: results.downPayment,   dot: 'bg-primary/70' },
-                      { label: 'Paydown',  value: results.principalPaid, dot: 'bg-blue-500' },
-                      { label: 'Apprec.',  value: results.appreciation,  dot: 'bg-green-500' },
+                      { label: 'Paydown',  value: results.principalPaid, dot: 'bg-info' },
+                      { label: 'Apprec.',  value: results.appreciation,  dot: 'bg-success' },
                     ].map(({ label, value, dot }) => (
                       <div key={label}>
                         <div className="flex items-center justify-center gap-1 mb-0.5">
@@ -809,14 +809,14 @@ export function InvestmentSnapshot() {
                       <FieldLabel className="block mb-2.5">Return Sources</FieldLabel>
                       <div className="space-y-3">
                         {[
-                          { label: 'Appreciation', value: results.appreciation, pct: results.totalReturn !== 0 ? (results.appreciation / Math.abs(results.totalReturn) * 100) : 0, color: 'bg-green-500' },
-                          { label: 'Paydown', value: results.principalPaid, pct: results.totalReturn !== 0 ? (results.principalPaid / Math.abs(results.totalReturn) * 100) : 0, color: 'bg-blue-500' },
-                          { label: 'Cash Flow', value: results.totalCashFlowOverPeriod, pct: results.totalReturn !== 0 ? (results.totalCashFlowOverPeriod / Math.abs(results.totalReturn) * 100) : 0, color: results.totalCashFlowOverPeriod >= 0 ? 'bg-emerald-400' : 'bg-red-400' },
+                          { label: 'Appreciation', value: results.appreciation, pct: results.totalReturn !== 0 ? (results.appreciation / Math.abs(results.totalReturn) * 100) : 0, color: 'bg-success' },
+                          { label: 'Paydown', value: results.principalPaid, pct: results.totalReturn !== 0 ? (results.principalPaid / Math.abs(results.totalReturn) * 100) : 0, color: 'bg-info' },
+                          { label: 'Cash Flow', value: results.totalCashFlowOverPeriod, pct: results.totalReturn !== 0 ? (results.totalCashFlowOverPeriod / Math.abs(results.totalReturn) * 100) : 0, color: results.totalCashFlowOverPeriod >= 0 ? 'bg-success' : 'bg-danger' },
                         ].map(({ label, value, pct, color }) => (
                           <div key={label}>
                             <div className="flex justify-between text-[12px] mb-1">
                               <span className="text-muted-foreground">{label} <span className="text-muted-foreground/50">({pct.toFixed(0)}%)</span></span>
-                              <span className={cn("font-bold", value >= 0 ? "text-green-600" : "text-red-600")}>
+                              <span className={cn("font-bold", value >= 0 ? "text-success" : "text-danger")}>
                                 {value >= 0 ? '+' : ''}{fmt(value)}
                               </span>
                             </div>
@@ -856,11 +856,11 @@ export function InvestmentSnapshot() {
                         <div key={yr} className="flex items-center gap-2 text-[12px]">
                           <span className="w-8 text-muted-foreground font-semibold shrink-0">Yr{yr}</span>
                           <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all"
+                            <div className="h-full bg-gradient-to-r from-success to-success rounded-full transition-all"
                               style={{ width: `${maxGain > 0 ? (gain / maxGain) * 100 : 0}%` }} />
                           </div>
                           <span className="w-[68px] text-right font-bold shrink-0">{fmt(val)}</span>
-                          <span className="w-[52px] text-right text-green-600 font-semibold shrink-0">+{fmt(gain)}</span>
+                          <span className="w-[52px] text-right text-success font-semibold shrink-0">+{fmt(gain)}</span>
                         </div>
                       );
                     })}
@@ -878,8 +878,8 @@ export function InvestmentSnapshot() {
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-2.5">
                       {[
-                        { label: 'Total Rent Paid', value: `-${fmt(rentVsOwn.totalRentPaid)}`, color: 'text-red-600' },
-                        { label: 'Equity Built',    value: fmt(rentVsOwn.equityBuilt),          color: 'text-green-600' },
+                        { label: 'Total Rent Paid', value: `-${fmt(rentVsOwn.totalRentPaid)}`, color: 'text-danger' },
+                        { label: 'Equity Built',    value: fmt(rentVsOwn.equityBuilt),          color: 'text-success' },
                       ].map(({ label, value, color }) => (
                         <div key={label} className="bg-background rounded-xl p-2.5 border border-border/50 text-center">
                           <FieldLabel className="block mb-0.5">{label}</FieldLabel>
@@ -889,9 +889,9 @@ export function InvestmentSnapshot() {
                     </div>
                     <div className={cn(
                       "rounded-xl p-2.5 text-center",
-                      rentVsOwn.owningIsBetter ? "bg-green-100 border border-green-300" : "bg-amber-50 border border-amber-200"
+                      rentVsOwn.owningIsBetter ? "bg-success-soft border border-success" : "bg-warning-soft border border-warning/30"
                     )}>
-                      <div className={cn("text-[13px] font-bold", rentVsOwn.owningIsBetter ? "text-green-700" : "text-amber-700")}>
+                      <div className={cn("text-[13px] font-bold", rentVsOwn.owningIsBetter ? "text-success-strong" : "text-warning-strong")}>
                         {rentVsOwn.owningIsBetter
                           ? `Buying builds ${fmt(rentVsOwn.wealthDifference)} more wealth`
                           : `Renting saves ${fmt(Math.abs(rentVsOwn.wealthDifference))}`
@@ -954,7 +954,7 @@ export function InvestmentSnapshot() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Cash Flow</span>
-                <span className={cn("font-semibold", results.monthlyCashFlow >= 0 ? "text-green-600" : "text-red-600")}>
+                <span className={cn("font-semibold", results.monthlyCashFlow >= 0 ? "text-success" : "text-danger")}>
                   {fmt(results.monthlyCashFlow)}/mo
                 </span>
               </div>

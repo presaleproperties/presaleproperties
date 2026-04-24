@@ -157,10 +157,10 @@ export default function AdminOverview() {
           </Link>
 
           <Link to="/dashboard/decks">
-            <Card className="group cursor-pointer hover:shadow-card-hover transition-all h-full border-teal-200/60 bg-gradient-to-br from-teal-50/50 to-transparent">
+            <Card className="group cursor-pointer hover:shadow-card-hover transition-all h-full border-success/30/60 bg-gradient-to-br from-success-soft/50 to-transparent">
               <CardContent className="p-5 flex items-center gap-4">
-                <div className="rounded-xl bg-teal-100 p-3 group-hover:scale-110 transition-transform">
-                  <Presentation className="h-6 w-6 text-teal-600" />
+                <div className="rounded-xl bg-success-soft p-3 group-hover:scale-110 transition-transform">
+                  <Presentation className="h-6 w-6 text-success" />
                 </div>
                 <div>
                   <p className="font-bold text-foreground">Pitch Decks</p>
@@ -174,34 +174,34 @@ export default function AdminOverview() {
         {/* ── PORTALS ROW ── */}
         <div className="grid gap-3 sm:grid-cols-2">
           <Link to="/developer">
-            <Card className="group cursor-pointer border-amber-200/60 bg-gradient-to-r from-amber-50/80 to-orange-50/50 hover:shadow-card-hover transition-all h-full">
+            <Card className="group cursor-pointer border-warning/30/60 bg-gradient-to-r from-warning-soft/80 to-warning-soft/50 hover:shadow-card-hover transition-all h-full">
               <CardContent className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-amber-100 p-2.5">
-                    <Building2 className="h-5 w-5 text-amber-600" />
+                  <div className="rounded-xl bg-warning-soft p-2.5">
+                    <Building2 className="h-5 w-5 text-warning" />
                   </div>
                   <div>
                     <p className="font-semibold text-foreground text-sm">Developer Portal</p>
                     <p className="text-xs text-muted-foreground">Inventory & tour requests</p>
                   </div>
                 </div>
-                <ExternalLink className="h-4 w-4 text-amber-500 group-hover:translate-x-0.5 transition-transform" />
+                <ExternalLink className="h-4 w-4 text-warning group-hover:translate-x-0.5 transition-transform" />
               </CardContent>
             </Card>
           </Link>
           <Link to="/dashboard">
-            <Card className="group cursor-pointer border-blue-200/60 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 hover:shadow-card-hover transition-all h-full">
+            <Card className="group cursor-pointer border-info/30/60 bg-gradient-to-r from-info-soft/80 to-info-soft/50 hover:shadow-card-hover transition-all h-full">
               <CardContent className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-blue-100 p-2.5">
-                    <Sparkles className="h-5 w-5 text-blue-600" />
+                  <div className="rounded-xl bg-info-soft p-2.5">
+                    <Sparkles className="h-5 w-5 text-info" />
                   </div>
                   <div>
                     <p className="font-semibold text-foreground text-sm">Agent Hub</p>
                     <p className="text-xs text-muted-foreground">Listings, leads & decks</p>
                   </div>
                 </div>
-                <ExternalLink className="h-4 w-4 text-blue-500 group-hover:translate-x-0.5 transition-transform" />
+                <ExternalLink className="h-4 w-4 text-info group-hover:translate-x-0.5 transition-transform" />
               </CardContent>
             </Card>
           </Link>
@@ -210,15 +210,15 @@ export default function AdminOverview() {
         {/* ── KPI STATS ── */}
         <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           {[
-            { label: "Leads", value: stats.totalLeads, icon: Users, color: "text-emerald-600", bg: "bg-emerald-100", href: "/admin/leads", sub: (
-              <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${stats.growth >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+            { label: "Leads", value: stats.totalLeads, icon: Users, color: "text-success", bg: "bg-success-soft", href: "/admin/leads", sub: (
+              <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${stats.growth >= 0 ? "text-success" : "text-danger"}`}>
                 {stats.growth >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                 {Math.abs(stats.growth)}% vs last mo
               </span>
             )},
-            { label: "Projects", value: stats.publishedProjects, icon: Building2, color: "text-blue-600", bg: "bg-blue-100", href: "/admin/projects", sub: <span className="text-xs text-muted-foreground">{stats.totalProjects} total</span> },
-            { label: "Assignments", value: stats.totalAssignments, icon: FileStack, color: "text-violet-600", bg: "bg-violet-100", href: "/admin/assignments", sub: stats.pendingAssignments > 0 ? <span className="text-xs text-amber-600">{stats.pendingAssignments} pending</span> : <span className="text-xs text-muted-foreground">All clear</span> },
-            { label: "Bookings", value: stats.totalBookings, icon: Calendar, color: "text-amber-600", bg: "bg-amber-100", href: "/admin/bookings", sub: stats.pendingBookings > 0 ? <span className="text-xs text-amber-600">{stats.pendingBookings} pending</span> : <span className="text-xs text-muted-foreground">None pending</span> },
+            { label: "Projects", value: stats.publishedProjects, icon: Building2, color: "text-info", bg: "bg-info-soft", href: "/admin/projects", sub: <span className="text-xs text-muted-foreground">{stats.totalProjects} total</span> },
+            { label: "Assignments", value: stats.totalAssignments, icon: FileStack, color: "text-primary", bg: "bg-primary/10", href: "/admin/assignments", sub: stats.pendingAssignments > 0 ? <span className="text-xs text-warning">{stats.pendingAssignments} pending</span> : <span className="text-xs text-muted-foreground">All clear</span> },
+            { label: "Bookings", value: stats.totalBookings, icon: Calendar, color: "text-warning", bg: "bg-warning-soft", href: "/admin/bookings", sub: stats.pendingBookings > 0 ? <span className="text-xs text-warning">{stats.pendingBookings} pending</span> : <span className="text-xs text-muted-foreground">None pending</span> },
           ].map(({ label, value, icon: Icon, color, bg, href, sub }) => (
             <Link key={label} to={href}>
               <Card className="group cursor-pointer hover:shadow-card-hover transition-all h-full">
@@ -286,7 +286,7 @@ export default function AdminOverview() {
                         <Button size="sm" variant="outline" className="h-7 text-xs border-destructive/40 text-destructive" disabled={approvingId === l.id} onClick={() => reject("listings", l.id, { status: "rejected", rejection_reason: "Rejected from dashboard" }, setPendingListings)}>
                           <XCircle className="h-3 w-3" />
                         </Button>
-                        <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" disabled={approvingId === l.id} onClick={() => approve("listings", l.id, { status: "published", published_at: new Date().toISOString() }, setPendingListings)}>
+                        <Button size="sm" className="h-7 text-xs bg-success hover:bg-success text-on-dark" disabled={approvingId === l.id} onClick={() => approve("listings", l.id, { status: "published", published_at: new Date().toISOString() }, setPendingListings)}>
                           <CheckCheck className="h-3 w-3" />
                         </Button>
                       </div>
@@ -312,7 +312,7 @@ export default function AdminOverview() {
                         <Button size="sm" variant="outline" className="h-7 text-xs border-destructive/40 text-destructive" disabled={approvingId === dev.id} onClick={() => reject("developer_profiles", dev.id, { verification_status: "rejected" }, setPendingDevelopers)}>
                           <XCircle className="h-3 w-3" />
                         </Button>
-                        <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" disabled={approvingId === dev.id} onClick={() => approve("developer_profiles", dev.id, { verification_status: "approved", verified_at: new Date().toISOString() }, setPendingDevelopers)}>
+                        <Button size="sm" className="h-7 text-xs bg-success hover:bg-success text-on-dark" disabled={approvingId === dev.id} onClick={() => approve("developer_profiles", dev.id, { verification_status: "approved", verified_at: new Date().toISOString() }, setPendingDevelopers)}>
                           <ShieldCheck className="h-3 w-3" />
                         </Button>
                       </div>
@@ -338,7 +338,7 @@ export default function AdminOverview() {
                         <Button size="sm" variant="outline" className="h-7 text-xs border-destructive/40 text-destructive" disabled={approvingId === a.id} onClick={() => reject("agent_profiles", a.id, { verification_status: "rejected" }, setPendingAgents)}>
                           <XCircle className="h-3 w-3" />
                         </Button>
-                        <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" disabled={approvingId === a.id} onClick={() => approve("agent_profiles", a.id, { verification_status: "verified", verified_at: new Date().toISOString() }, setPendingAgents)}>
+                        <Button size="sm" className="h-7 text-xs bg-success hover:bg-success text-on-dark" disabled={approvingId === a.id} onClick={() => approve("agent_profiles", a.id, { verification_status: "verified", verified_at: new Date().toISOString() }, setPendingAgents)}>
                           <ShieldCheck className="h-3 w-3" />
                         </Button>
                       </div>

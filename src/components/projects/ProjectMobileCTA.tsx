@@ -235,7 +235,7 @@ export function ProjectMobileCTA({
                     </div>
                   </div>
                   {whatsappLink && (
-                    <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-white border-0">
+                    <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebe5a] text-on-dark border-0">
                       <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                         <MessageCircle className="h-4 w-4 mr-2" />Chat Now on WhatsApp
                       </a>

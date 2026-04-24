@@ -809,8 +809,8 @@ export default function AdminListings() {
           subtitle="Manage, approve, and monitor all assignments"
           stats={[
             { label: "Total", value: listings.length, icon: <Layers className="h-3.5 w-3.5 text-background" />, color: "bg-background/20" },
-            { label: "Published", value: publishedListings.length, icon: <TrendingUp className="h-3.5 w-3.5 text-green-400" />, color: "bg-green-500/20" },
-            { label: "Pending", value: pendingListings.length, icon: <Clock className="h-3.5 w-3.5 text-amber-400" />, color: "bg-amber-500/20" },
+            { label: "Published", value: publishedListings.length, icon: <TrendingUp className="h-3.5 w-3.5 text-success" />, color: "bg-success/20" },
+            { label: "Pending", value: pendingListings.length, icon: <Clock className="h-3.5 w-3.5 text-warning" />, color: "bg-warning/20" },
             { label: "Featured", value: featuredListings.length, icon: <Star className="h-3.5 w-3.5 text-primary" />, color: "bg-primary/20" },
           ]}
           searchQuery={searchQuery}
@@ -818,7 +818,7 @@ export default function AdminListings() {
           searchPlaceholder="Search by title, project, city, unit, or agent..."
           alertBadges={<>
             {pendingListings.length > 0 && (
-              <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 px-3 py-1">
+              <Badge className="bg-warning/20 text-warning-soft-foreground border-warning/30 px-3 py-1">
                 <AlertTriangle className="h-3.5 w-3.5 mr-1" />
                 {pendingListings.length} Pending
               </Badge>
@@ -868,7 +868,7 @@ export default function AdminListings() {
             <>
               <TabsContent value="pending" className="mt-6">
                 {filteredListings.length === 0
-                  ? renderEmptyState(<CheckCircle className="h-12 w-12 text-green-500" />, "All caught up!", "No assignments pending approval")
+                  ? renderEmptyState(<CheckCircle className="h-12 w-12 text-success" />, "All caught up!", "No assignments pending approval")
                   : <div className="space-y-4">{filteredListings.map(l => (
                     <AdminAssignmentCard key={l.id} listing={l} showApprovalActions onRefresh={fetchListings}
                       onPreview={() => setPreviewListing(l)}
@@ -966,7 +966,7 @@ export default function AdminListings() {
             <Button
               onClick={confirmAction}
               disabled={processing || (actionType === "reject" && !notes.trim())}
-              className={actionType === "approve" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+              className={actionType === "approve" ? "bg-success hover:bg-success" : "bg-danger hover:bg-danger"}
             >
               {processing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {actionType === "approve" ? "Confirm Approval" : "Confirm Rejection"}
@@ -1062,7 +1062,7 @@ export default function AdminListings() {
                 {addForm.floor_plan_url ? (
                   <div className="rounded-lg border border-primary/30 bg-primary/5 overflow-hidden">
                     {addForm.floor_plan_url.match(/\.(jpg|jpeg|png|webp|gif)$/i)
-                      ? <img src={addForm.floor_plan_url} alt="Floor plan" className="w-full max-h-48 object-contain bg-white" />
+                      ? <img src={addForm.floor_plan_url} alt="Floor plan" className="w-full max-h-48 object-contain bg-card" />
                       : <div className="flex items-center gap-3 px-4 py-3">
                         <FileText className="h-5 w-5 text-primary shrink-0" />
                         <span className="text-sm text-primary font-medium flex-1 truncate">Floor plan uploaded</span>
@@ -1171,7 +1171,7 @@ export default function AdminListings() {
                         onClick={() => setAddForm(f => ({ ...f, [key]: !f[key] }))}
                         className={`h-5 w-9 rounded-full transition-colors relative ${addForm[key] ? "bg-primary" : "bg-muted"}`}
                       >
-                        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${addForm[key] ? "left-[18px]" : "left-0.5"}`} />
+                        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-all ${addForm[key] ? "left-[18px]" : "left-0.5"}`} />
                       </button>
                       <span className="text-xs text-muted-foreground">{label}</span>
                     </label>
@@ -1344,7 +1344,7 @@ export default function AdminListings() {
                   {([["has_locker", "Locker Included"], ["developer_approval_required", "Dev. Approval Required"]] as [keyof AddListingForm, string][]).map(([key, label]) => (
                     <label key={key} className="flex items-center gap-2 cursor-pointer select-none">
                       <button type="button" onClick={() => setEditForm(f => ({ ...f, [key]: !f[key] }))} className={`h-5 w-9 rounded-full transition-colors relative ${editForm[key] ? "bg-primary" : "bg-muted"}`}>
-                        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${editForm[key] ? "left-[18px]" : "left-0.5"}`} />
+                        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-all ${editForm[key] ? "left-[18px]" : "left-0.5"}`} />
                       </button>
                       <span className="text-xs text-muted-foreground">{label}</span>
                     </label>

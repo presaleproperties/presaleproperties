@@ -491,7 +491,7 @@ export default function AdminMarketData() {
                             <TableCell className="font-medium">{data.city}</TableCell>
                             <TableCell className="text-right">${data.avg_price_sqft}</TableCell>
                             <TableCell className="text-right">{data.rental_yield}%</TableCell>
-                            <TableCell className="text-right text-green-600">+{data.appreciation_5yr}%</TableCell>
+                            <TableCell className="text-right text-success">+{data.appreciation_5yr}%</TableCell>
                             <TableCell className="text-right">${data.avg_rent_1br}</TableCell>
                             <TableCell className="text-right">${data.avg_rent_2br}</TableCell>
                             <TableCell>

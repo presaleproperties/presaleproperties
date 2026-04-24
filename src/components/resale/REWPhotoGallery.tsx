@@ -295,7 +295,7 @@ export function REWPhotoGallery({
             />
             
             {/* Photo counter badge - hidden on mobile (dots shown instead), visible on tablet/desktop */}
-            <div className="hidden sm:block absolute sm:bottom-3 right-2.5 sm:right-3 bg-black/50 text-white text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
+            <div className="hidden sm:block absolute sm:bottom-3 right-2.5 sm:right-3 bg-neutral-900/50 text-on-dark text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
               {selectedIndex + 1}/{photos.length}
             </div>
 
@@ -309,7 +309,7 @@ export function REWPhotoGallery({
                       "block rounded-full transition-all duration-300",
                       selectedIndex === i
                         ? "w-5 h-[5px] bg-primary"
-                        : "w-[5px] h-[5px] bg-white/50"
+                        : "w-[5px] h-[5px] bg-card/50"
                     )}
                   />
                 ))}
@@ -323,7 +323,7 @@ export function REWPhotoGallery({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 bg-white/90 hover:bg-white text-foreground shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 bg-card/90 hover:bg-card text-foreground shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={(e) => { e.stopPropagation(); goToPrev(); }}
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -331,7 +331,7 @@ export function REWPhotoGallery({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 bg-white/90 hover:bg-white text-foreground shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 bg-card/90 hover:bg-card text-foreground shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={(e) => { e.stopPropagation(); goToNext(); }}
               >
                 <ChevronRight className="h-5 w-5" />
@@ -368,8 +368,8 @@ export function REWPhotoGallery({
                 />
                 {/* "+N more" overlay on last thumbnail */}
                 {i === 4 && photos.length > 5 && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm md:text-base">
+                  <div className="absolute inset-0 bg-neutral-900/60 flex items-center justify-center">
+                    <span className="text-on-dark font-bold text-sm md:text-base">
                       +{photos.length - 5} more
                     </span>
                   </div>
@@ -385,7 +385,7 @@ export function REWPhotoGallery({
       {/* Full Screen Gallery Modal - REW Style */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent 
-          className="max-w-[100vw] w-[100vw] p-0 bg-gray-50 border-none rounded-none [&>button]:hidden overflow-hidden"
+          className="max-w-[100vw] w-[100vw] p-0 bg-muted border-none rounded-none [&>button]:hidden overflow-hidden"
           style={{ height: '100dvh', maxHeight: '100dvh' }}
           aria-describedby={undefined}
         >
@@ -395,13 +395,13 @@ export function REWPhotoGallery({
           
           <div className="flex flex-col h-full overflow-hidden">
             {/* Header with tabs */}
-            <header className="flex items-center justify-between px-4 py-3 border-b bg-white sticky top-0 z-50" style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 12px))' }}>
+            <header className="flex items-center justify-between px-4 py-3 border-b bg-card sticky top-0 z-50" style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 12px))' }}>
               {/* Back button */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => viewMode === "single" ? closeSingleView() : setIsOpen(false)}
-                className="h-10 w-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                className="h-10 w-10 text-foreground hover:text-foreground hover:bg-muted"
               >
                 <ChevronLeft className="h-6 w-6" />
               </Button>
@@ -415,7 +415,7 @@ export function REWPhotoGallery({
                       "px-5 py-2 rounded-full text-sm font-semibold transition-all",
                       activeTab === "photos"
                         ? "bg-primary text-primary-foreground"
-                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                        : "bg-card text-foreground border border-input hover:bg-muted"
                     )}
                   >
                     PHOTOS
@@ -427,7 +427,7 @@ export function REWPhotoGallery({
                         "px-5 py-2 rounded-full text-sm font-semibold transition-all",
                         activeTab === "virtualTour"
                           ? "bg-primary text-primary-foreground"
-                          : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                          : "bg-card text-foreground border border-input hover:bg-muted"
                       )}
                     >
                       VIRTUAL TOURS
@@ -440,7 +440,7 @@ export function REWPhotoGallery({
                         "px-5 py-2 rounded-full text-sm font-semibold transition-all",
                         activeTab === "video"
                           ? "bg-primary text-primary-foreground"
-                          : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                          : "bg-card text-foreground border border-input hover:bg-muted"
                       )}
                     >
                       VIDEO
@@ -449,26 +449,26 @@ export function REWPhotoGallery({
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  <span className="text-gray-700 font-medium">
+                  <span className="text-foreground font-medium">
                     {zoomedIndex + 1} / {photos.length}
                   </span>
-                  <div className="flex items-center gap-1 bg-gray-100 rounded-full px-1">
+                  <div className="flex items-center gap-1 bg-muted rounded-full px-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-gray-600 hover:text-gray-900"
+                      className="h-8 w-8 text-foreground hover:text-foreground"
                       onClick={zoomOut}
                       disabled={scale <= 1}
                     >
                       <ZoomOut className="h-4 w-4" />
                     </Button>
-                    <span className="text-xs text-gray-600 min-w-[40px] text-center">
+                    <span className="text-xs text-foreground min-w-[40px] text-center">
                       {Math.round(scale * 100)}%
                     </span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-gray-600 hover:text-gray-900"
+                      className="h-8 w-8 text-foreground hover:text-foreground"
                       onClick={zoomIn}
                       disabled={scale >= 4}
                     >
@@ -483,7 +483,7 @@ export function REWPhotoGallery({
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsOpen(false)}
-                className="h-10 w-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                className="h-10 w-10 text-foreground hover:text-foreground hover:bg-muted"
               >
                 <X className="h-6 w-6" />
               </Button>
@@ -499,7 +499,7 @@ export function REWPhotoGallery({
                       {photos.map((photo, i) => (
                         <div
                           key={i}
-                          className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-200 cursor-zoom-in group"
+                          className="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-strong cursor-zoom-in group"
                           onClick={() => openSingleView(i)}
                         >
                           <img
@@ -527,8 +527,8 @@ export function REWPhotoGallery({
                       <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                         <ExternalLink className="h-10 w-10 text-primary" />
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">Virtual Tour Available</h3>
-                      <p className="text-gray-600 mb-6">
+                      <h3 className="text-xl font-semibold text-foreground mb-2">Virtual Tour Available</h3>
+                      <p className="text-foreground mb-6">
                         Explore this property from the comfort of your home with an immersive 3D tour.
                       </p>
                       <Button
@@ -545,7 +545,7 @@ export function REWPhotoGallery({
                   /* Video Tab */
                   <div className="flex flex-col items-center justify-center h-full p-4 md:p-8">
                     <div className="w-full max-w-4xl">
-                      <div className="relative aspect-video rounded-xl overflow-hidden bg-black shadow-lg">
+                      <div className="relative aspect-video rounded-xl overflow-hidden bg-neutral-900 shadow-lg">
                         <iframe
                           src={videoEmbedUrl}
                           className="absolute inset-0 w-full h-full"
@@ -564,7 +564,7 @@ export function REWPhotoGallery({
             ) : (
               /* Single Image View with Zoom */
               <div 
-                className="flex-1 bg-black flex items-center justify-center relative overflow-hidden"
+                className="flex-1 bg-neutral-900 flex items-center justify-center relative overflow-hidden"
                 onTouchStart={onZoomedTouchStart}
                 onTouchMove={onZoomedTouchMove}
                 onTouchEnd={onZoomedTouchEnd}
@@ -574,7 +574,7 @@ export function REWPhotoGallery({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute left-4 z-10 h-12 w-12 text-white bg-black/40 hover:bg-black/60"
+                    className="absolute left-4 z-10 h-12 w-12 text-on-dark bg-neutral-900/40 hover:bg-neutral-900/60"
                     onClick={goToPrevZoomed}
                   >
                     <ChevronLeft className="h-8 w-8" />
@@ -611,7 +611,7 @@ export function REWPhotoGallery({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute right-4 z-10 h-12 w-12 text-white bg-black/40 hover:bg-black/60"
+                    className="absolute right-4 z-10 h-12 w-12 text-on-dark bg-neutral-900/40 hover:bg-neutral-900/60"
                     onClick={goToNextZoomed}
                   >
                     <ChevronRight className="h-8 w-8" />
@@ -622,7 +622,7 @@ export function REWPhotoGallery({
             
             {/* Floating CTA - Mobile only */}
             {(onScheduleShowing || onGalleryCTA) && (
-              <div className="fixed bottom-0 left-0 right-0 px-4 pt-3 pb-4 bg-gradient-to-t from-black/90 to-transparent md:hidden z-50" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+              <div className="fixed bottom-0 left-0 right-0 px-4 pt-3 pb-4 bg-gradient-to-t from-neutral-900/90 to-transparent md:hidden z-50" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
                 <Button 
                   onClick={() => {
                     setIsOpen(false);

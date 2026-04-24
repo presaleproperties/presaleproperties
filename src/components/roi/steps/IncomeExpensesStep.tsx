@@ -78,14 +78,14 @@ export function IncomeExpensesStep({
     <div className="space-y-4">
       {/* CMHC Verified Data Banner */}
       {cmhcData && city && (
-        <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
+        <div className="bg-success-soft dark:bg-success-strong/30 border border-success/30 dark:border-success rounded-lg p-3">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <span className="text-sm font-medium text-green-700 dark:text-green-400">
+              <ShieldCheck className="h-4 w-4 text-success dark:text-success" />
+              <span className="text-sm font-medium text-success-strong dark:text-success">
                 CMHC Verified Data for {city}
               </span>
-              <Badge variant="outline" className="text-[10px] bg-white dark:bg-background">
+              <Badge variant="outline" className="text-[10px] bg-card dark:bg-background">
                 {cmhcData.report_year}
               </Badge>
             </div>
@@ -93,7 +93,7 @@ export function IncomeExpensesStep({
               variant="outline"
               size="sm"
               onClick={handleApplyCMHCRent}
-              className="h-7 text-xs border-green-300 text-green-700 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-950"
+              className="h-7 text-xs border-success text-success-strong hover:bg-success-soft dark:border-success dark:text-success dark:hover:bg-success-strong"
             >
               <Sparkles className="h-3 w-3 mr-1" />
               Apply Verified Data
@@ -146,7 +146,7 @@ export function IncomeExpensesStep({
               />
             </div>
             {suggestedRent && rental.monthlyRentStart !== suggestedRent && (
-              <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+              <p className="text-xs text-success dark:text-success flex items-center gap-1">
                 <ShieldCheck className="h-3 w-3" />
                 CMHC suggests {formatCurrency(suggestedRent)}/mo for {propertyType === 'townhome' ? 'townhomes' : '2BR'} in {city}
               </p>
@@ -202,7 +202,7 @@ export function IncomeExpensesStep({
           </div>
 
           {/* Income Summary */}
-          <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3 space-y-1 text-sm">
+          <div className="bg-success-soft dark:bg-success-strong/20 rounded-lg p-3 space-y-1 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Gross Rent:</span>
               <span>{formatCurrency(annualGrossRent)}/yr</span>
@@ -213,7 +213,7 @@ export function IncomeExpensesStep({
             </div>
             <div className="flex justify-between font-medium pt-1 border-t">
               <span>Effective Income:</span>
-              <span className="text-green-600 dark:text-green-400">{formatCurrency(effectiveRent)}/yr</span>
+              <span className="text-success dark:text-success">{formatCurrency(effectiveRent)}/yr</span>
             </div>
           </div>
         </CardContent>
@@ -294,7 +294,7 @@ export function IncomeExpensesStep({
           </div>
 
           {/* Expenses Summary */}
-          <div className="bg-red-50 dark:bg-red-950/20 rounded-lg p-3 space-y-1 text-sm">
+          <div className="bg-danger-soft dark:bg-danger-strong/20 rounded-lg p-3 space-y-1 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Strata:</span>
               <span>{formatCurrency(annualStrata)}/yr</span>
@@ -322,7 +322,7 @@ export function IncomeExpensesStep({
           {/* NOI */}
           <div className="bg-muted rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground mb-1">Net Operating Income (Year 1)</p>
-            <p className={`text-xl font-bold ${noi >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
+            <p className={`text-xl font-bold ${noi >= 0 ? 'text-success dark:text-success' : 'text-destructive'}`}>
               {formatCurrency(noi)}/yr
             </p>
           </div>

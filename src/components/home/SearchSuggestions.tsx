@@ -287,8 +287,8 @@ export function SearchSuggestions({
   }
 
   const getIcon = (type: SuggestionType) => {
-    const iconClass = glassStyle ? "text-white/80" : "text-primary";
-    const mutedIconClass = glassStyle ? "text-white/60" : "text-muted-foreground";
+    const iconClass = glassStyle ? "text-on-dark/80" : "text-primary";
+    const mutedIconClass = glassStyle ? "text-on-dark/60" : "text-muted-foreground";
     
     switch (type) {
       case "project":
@@ -341,8 +341,8 @@ export function SearchSuggestions({
             "w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors",
             glassStyle 
               ? index === activeIndex 
-                ? "bg-white/20" 
-                : "hover:bg-white/10"
+                ? "bg-card/20" 
+                : "hover:bg-card/10"
               : index === activeIndex 
                 ? "bg-muted" 
                 : "hover:bg-muted/50"
@@ -354,13 +354,13 @@ export function SearchSuggestions({
           <div className="flex-1 min-w-0">
             <p className={cn(
               "font-medium truncate text-sm",
-              glassStyle ? "text-white" : "text-foreground"
+              glassStyle ? "text-on-dark" : "text-foreground"
             )}>
               {suggestion.type === "listing" ? suggestion.sublabel?.split(" • ")[0] || suggestion.value : suggestion.value}
             </p>
             <p className={cn(
               "text-xs truncate",
-              glassStyle ? "text-white/60" : "text-muted-foreground"
+              glassStyle ? "text-on-dark/60" : "text-muted-foreground"
             )}>
               {getLabel(suggestion.type, suggestion.sublabel)}
               {suggestion.type !== "listing" && suggestion.count > 1 && ` · ${suggestion.count} ${suggestion.type === "presale" ? "project" : "listing"}${suggestion.count !== 1 ? "s" : ""}`}

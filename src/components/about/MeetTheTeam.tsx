@@ -102,7 +102,7 @@ export function MeetTheTeam() {
                   <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
 
                   <div className="absolute bottom-5 left-5 right-5">
-                    <h3 className="text-xl font-extrabold text-white leading-tight">{member.full_name}</h3>
+                    <h3 className="text-xl font-extrabold text-on-dark leading-tight">{member.full_name}</h3>
                     <p className="text-primary text-sm font-semibold mt-0.5">{member.title}</p>
                   </div>
 
@@ -113,7 +113,7 @@ export function MeetTheTeam() {
                           href={member.linkedin_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
+                          className="p-2 bg-card/90 backdrop-blur-sm rounded-full hover:bg-card transition-colors shadow-sm"
                           aria-label={`${member.full_name}'s LinkedIn`}
                         >
                           <Linkedin className="h-3.5 w-3.5 text-[#0077B5]" />
@@ -124,7 +124,7 @@ export function MeetTheTeam() {
                           href={member.instagram_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
+                          className="p-2 bg-card/90 backdrop-blur-sm rounded-full hover:bg-card transition-colors shadow-sm"
                           aria-label={`${member.full_name}'s Instagram`}
                         >
                           <Instagram className="h-3.5 w-3.5 text-[#E4405F]" />

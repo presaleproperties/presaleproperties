@@ -2781,24 +2781,24 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                 </div>
 
                 {/* Extract Images from PDF */}
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
-                  <div className="flex items-center gap-2 text-sm font-medium text-blue-700">
+                <div className="p-3 bg-info-soft border border-info/30 rounded-lg space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium text-info-strong">
                     <FileText className="h-4 w-4" />
                     Extract Images from Brochure PDF
                   </div>
-                  <p className="text-xs text-blue-600">
+                  <p className="text-xs text-info">
                     Extracts embedded photos & renders (no text) - up to 7 images
                   </p>
-                  <label className={`flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors ${isExtractingFromPdf ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <label className={`flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-info rounded-lg cursor-pointer hover:border-info transition-colors ${isExtractingFromPdf ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     {isExtractingFromPdf ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                        <span className="text-sm text-blue-600">Extracting images...</span>
+                        <Loader2 className="h-4 w-4 animate-spin text-info" />
+                        <span className="text-sm text-info">Extracting images...</span>
                       </>
                     ) : (
                       <>
-                        <Upload className="h-4 w-4 text-blue-500" />
-                        <span className="text-sm text-blue-600">Upload PDF for images</span>
+                        <Upload className="h-4 w-4 text-info" />
+                        <span className="text-sm text-info">Upload PDF for images</span>
                       </>
                     )}
                     <input
@@ -2843,10 +2843,10 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                             alt={`Gallery ${i + 1}`}
                             className="w-full h-full object-cover rounded-lg"
                           />
-                          <div className="absolute top-1 left-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+                          <div className="absolute top-1 left-1 bg-neutral-900/60 text-on-dark text-xs px-1.5 py-0.5 rounded">
                             {i + 1}
                           </div>
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-lg" />
+                          <div className="absolute inset-0 bg-neutral-900/0 group-hover:bg-neutral-900/40 transition-colors rounded-lg" />
                           <Button
                             type="button"
                             variant="secondary"
@@ -2924,7 +2924,7 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                     
                     if (embedUrl) {
                       return (
-                        <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
+                        <div className="relative aspect-video rounded-lg overflow-hidden bg-neutral-900">
                           <iframe
                             src={embedUrl}
                             className="absolute inset-0 w-full h-full"
@@ -2936,7 +2936,7 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                     }
                     
                     return (
-                      <p className="text-xs text-amber-600">
+                      <p className="text-xs text-warning">
                         ⚠️ Could not parse video URL. Supported: YouTube, Vimeo
                       </p>
                     );
@@ -3354,13 +3354,13 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                     className="w-full h-full object-cover"
                   />
                   <div className={`absolute inset-0 transition-colors ${
-                    selectedPreviewImages.has(index) ? 'bg-primary/10' : 'bg-black/0 hover:bg-black/10'
+                    selectedPreviewImages.has(index) ? 'bg-primary/10' : 'bg-neutral-900/0 hover:bg-neutral-900/10'
                   }`} />
                   <div className="absolute top-2 left-2">
                     <Checkbox
                       checked={selectedPreviewImages.has(index)}
                       onCheckedChange={() => togglePreviewImageSelection(index)}
-                      className="h-5 w-5 bg-white/90 border-2"
+                      className="h-5 w-5 bg-card/90 border-2"
                     />
                   </div>
                   {img.isPrimary && (
@@ -3370,11 +3370,11 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                     </div>
                   )}
                   {/* Category badge */}
-                  <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded capitalize">
+                  <div className="absolute bottom-1 left-1 bg-neutral-900/70 text-on-dark text-xs px-1.5 py-0.5 rounded capitalize">
                     {img.category}
                   </div>
                   {/* Quality & size badge */}
-                  <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                  <div className="absolute bottom-1 right-1 bg-neutral-900/70 text-on-dark text-xs px-1.5 py-0.5 rounded">
                     {img.width}×{img.height} • Q{img.qualityScore}
                   </div>
                 </div>

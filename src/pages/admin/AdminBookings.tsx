@@ -76,9 +76,9 @@ const formatTimeline = (timeline: string) => {
 };
 
 const statusConfig: Record<BookingStatus, { label: string; className: string }> = {
-  pending: { label: "Pending", className: "bg-amber-100 text-amber-800 border-amber-200" },
-  confirmed: { label: "Confirmed", className: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-  completed: { label: "Completed", className: "bg-sky-100 text-sky-800 border-sky-200" },
+  pending: { label: "Pending", className: "bg-warning-soft text-warning-strong border-warning/30" },
+  confirmed: { label: "Confirmed", className: "bg-success-soft text-success-strong border-success/30" },
+  completed: { label: "Completed", className: "bg-info-soft text-info-strong border-info/30" },
   cancelled: { label: "Cancelled", className: "bg-muted text-muted-foreground" },
 };
 
@@ -172,7 +172,7 @@ function BookingCard({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 gap-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200"
+                  className="h-8 gap-1.5 text-success hover:text-success-strong hover:bg-success-soft border-success/30"
                   onClick={onConfirm}
                   disabled={processing}
                 >
@@ -315,8 +315,8 @@ export default function AdminBookings() {
         <div className="grid grid-cols-3 gap-4">
           <Card className="border-l-4 border-l-amber-500">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-xl bg-amber-100 p-2.5">
-                <CalendarClock className="h-5 w-5 text-amber-600" />
+              <div className="rounded-xl bg-warning-soft p-2.5">
+                <CalendarClock className="h-5 w-5 text-warning" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{pendingCount}</p>
@@ -326,8 +326,8 @@ export default function AdminBookings() {
           </Card>
           <Card className="border-l-4 border-l-emerald-500">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-xl bg-emerald-100 p-2.5">
-                <CalendarCheck className="h-5 w-5 text-emerald-600" />
+              <div className="rounded-xl bg-success-soft p-2.5">
+                <CalendarCheck className="h-5 w-5 text-success" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{confirmedCount}</p>
@@ -337,8 +337,8 @@ export default function AdminBookings() {
           </Card>
           <Card className="border-l-4 border-l-sky-500">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-xl bg-sky-100 p-2.5">
-                <Calendar className="h-5 w-5 text-sky-600" />
+              <div className="rounded-xl bg-info-soft p-2.5">
+                <Calendar className="h-5 w-5 text-info" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{todayCount}</p>

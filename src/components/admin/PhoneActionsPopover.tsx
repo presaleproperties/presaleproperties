@@ -57,7 +57,7 @@ export function PhoneActionsPopover({ phone, leadName, className }: Props) {
           variant="ghost"
           size="icon"
           className={cn(
-            "h-8 w-8 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700",
+            "h-8 w-8 text-success hover:bg-success/10 hover:text-success-strong",
             className,
           )}
           title="Phone actions"
@@ -77,14 +77,14 @@ export function PhoneActionsPopover({ phone, leadName, className }: Props) {
           href={`tel:${e164}`}
           className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs hover:bg-accent"
         >
-          <Phone className="h-3.5 w-3.5 text-emerald-600" />
+          <Phone className="h-3.5 w-3.5 text-success" />
           <span className="font-medium">Call</span>
         </a>
         <a
           href={`sms:${e164}${smsBody ? `?&body=${encodeURIComponent(smsBody)}` : ""}`}
           className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs hover:bg-accent"
         >
-          <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
+          <MessageSquare className="h-3.5 w-3.5 text-info" />
           <span className="font-medium">Send SMS</span>
         </a>
         <a
@@ -102,7 +102,7 @@ export function PhoneActionsPopover({ phone, leadName, className }: Props) {
           className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs hover:bg-accent"
         >
           {copied ? (
-            <Check className="h-3.5 w-3.5 text-emerald-600" />
+            <Check className="h-3.5 w-3.5 text-success" />
           ) : (
             <Copy className="h-3.5 w-3.5 text-muted-foreground" />
           )}

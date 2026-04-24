@@ -205,9 +205,9 @@ function StatCard({
 }: { icon: any; label: string; value: string | number; sub?: string; tone?: "default" | "good" | "bad" | "warn" }) {
   const toneColor = {
     default: "text-foreground",
-    good: "text-emerald-600 dark:text-emerald-400",
+    good: "text-success dark:text-success",
     bad: "text-destructive",
-    warn: "text-amber-600 dark:text-amber-400",
+    warn: "text-warning dark:text-warning",
   }[tone];
   return (
     <Card>
@@ -225,7 +225,7 @@ function StatCard({
 
 function HealthBar({ label, current, total, hint }: { label: string; current: number; total: number; hint: string }) {
   const pct = total ? Math.round((current / total) * 100) : 0;
-  const tone = pct >= 80 ? "bg-emerald-500" : pct >= 50 ? "bg-amber-500" : "bg-destructive";
+  const tone = pct >= 80 ? "bg-success" : pct >= 50 ? "bg-warning" : "bg-destructive";
   return (
     <div>
       <div className="flex items-baseline justify-between text-xs mb-1.5">
@@ -551,14 +551,14 @@ export default function AdminPaidAdsDashboard() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  <AlertTriangle className="h-4 w-4 text-warning" />
                   Recent Sync Failures
                 </CardTitle>
                 <CardDescription>Failed Lofty / Meta CAPI calls — fix these to stop losing attribution.</CardDescription>
               </CardHeader>
               <CardContent>
                 {data.recentFailures.length === 0 ? (
-                  <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 py-4">
+                  <div className="flex items-center gap-2 text-sm text-success dark:text-success py-4">
                     <CheckCircle2 className="h-4 w-4" />
                     No sync failures in the last {range} days.
                   </div>

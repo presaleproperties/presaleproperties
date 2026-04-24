@@ -88,7 +88,7 @@ export function SentEmailsList({ email }: Props) {
               {opened && (
                 <Badge
                   variant="secondary"
-                  className="h-4 gap-0.5 px-1 text-[9px] font-normal text-emerald-600"
+                  className="h-4 gap-0.5 px-1 text-[9px] font-normal text-success"
                   title={`Opened ${e.open_count}× ${e.last_opened_at ? `· last ${formatDistanceToNow(new Date(e.last_opened_at), { addSuffix: true })}` : ""}`}
                 >
                   <Eye className="h-2.5 w-2.5" />
@@ -98,7 +98,7 @@ export function SentEmailsList({ email }: Props) {
               {clicked && (
                 <Badge
                   variant="secondary"
-                  className="h-4 gap-0.5 px-1 text-[9px] font-normal text-blue-600"
+                  className="h-4 gap-0.5 px-1 text-[9px] font-normal text-info"
                   title={`Clicked ${e.click_count}×`}
                 >
                   <MousePointerClick className="h-2.5 w-2.5" />

@@ -257,15 +257,15 @@ export function ResearchImporter({ onImportComplete }: ResearchImporterProps) {
         {/* Supported Sources */}
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary" className="gap-1">
-            <span className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="w-2 h-2 rounded-full bg-success" />
             MLA Canada
           </Badge>
           <Badge variant="secondary" className="gap-1">
-            <span className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="w-2 h-2 rounded-full bg-success" />
             Presale Pulse
           </Badge>
           <Badge variant="secondary" className="gap-1">
-            <span className="w-2 h-2 rounded-full bg-blue-500" />
+            <span className="w-2 h-2 rounded-full bg-info" />
             Rennie Intelligence
           </Badge>
         </div>
@@ -275,7 +275,7 @@ export function ResearchImporter({ onImportComplete }: ResearchImporterProps) {
           <div className="space-y-4 pt-4 border-t">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-5 w-5 text-success" />
                 Extracted Data
               </h3>
               <Badge variant="outline">
@@ -342,7 +342,7 @@ export function ResearchImporter({ onImportComplete }: ResearchImporterProps) {
                         </div>
                         {city.yoyChange !== undefined && (
                           <div>
-                            <span className={`block font-medium ${city.yoyChange >= 0 ? "text-green-600" : "text-red-600"}`}>
+                            <span className={`block font-medium ${city.yoyChange >= 0 ? "text-success" : "text-danger"}`}>
                               {city.yoyChange > 0 ? "+" : ""}{city.yoyChange?.toFixed(1)}%
                             </span>
                             YoY Change
@@ -368,9 +368,9 @@ export function ResearchImporter({ onImportComplete }: ResearchImporterProps) {
                 <Switch checked={updateMarketData} onCheckedChange={setUpdateMarketData} disabled={isSaving} />
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-blue-500/5 rounded-lg border border-blue-500/20">
+              <div className="flex items-center justify-between p-3 bg-info/5 rounded-lg border border-info/20">
                 <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-blue-500" />
+                  <BookOpen className="h-4 w-4 text-info" />
                   <div>
                     <p className="text-sm font-medium">Generate blog post</p>
                     <p className="text-xs text-muted-foreground">Create SEO article citing source</p>

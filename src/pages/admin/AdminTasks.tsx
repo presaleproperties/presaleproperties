@@ -32,24 +32,24 @@ type Task = {
 };
 
 const categoryConfig: Record<string, { label: string; icon: typeof Target; color: string }> = {
-  seo: { label: "SEO / AEO", icon: TrendingUp, color: "text-blue-600 bg-blue-50 border-blue-200" },
-  content: { label: "Content", icon: FileText, color: "text-rose-600 bg-rose-50 border-rose-200" },
-  technical: { label: "Technical", icon: Wrench, color: "text-violet-600 bg-violet-50 border-violet-200" },
-  data: { label: "Data / Ops", icon: Database, color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
-  general: { label: "General", icon: Target, color: "text-slate-600 bg-slate-50 border-slate-200" },
+  seo: { label: "SEO / AEO", icon: TrendingUp, color: "text-info bg-info-soft border-info/30" },
+  content: { label: "Content", icon: FileText, color: "text-danger bg-danger-soft border-danger/30" },
+  technical: { label: "Technical", icon: Wrench, color: "text-primary bg-primary/10 border-primary/30" },
+  data: { label: "Data / Ops", icon: Database, color: "text-success bg-success-soft border-success/30" },
+  general: { label: "General", icon: Target, color: "text-foreground bg-muted border-border" },
 };
 
 const priorityConfig: Record<string, { label: string; icon: typeof ArrowUpCircle; color: string }> = {
-  high: { label: "High", icon: ArrowUpCircle, color: "text-red-600" },
-  medium: { label: "Medium", icon: ArrowRightCircle, color: "text-amber-600" },
-  low: { label: "Low", icon: ArrowDownCircle, color: "text-slate-400" },
+  high: { label: "High", icon: ArrowUpCircle, color: "text-danger" },
+  medium: { label: "Medium", icon: ArrowRightCircle, color: "text-warning" },
+  low: { label: "Low", icon: ArrowDownCircle, color: "text-muted-foreground" },
 };
 
 const statusConfig: Record<string, { label: string; icon: typeof Circle; color: string }> = {
-  todo: { label: "To Do", icon: Circle, color: "bg-slate-100 text-slate-700 border-slate-200" },
-  in_progress: { label: "In Progress", icon: Clock, color: "bg-amber-50 text-amber-700 border-amber-200" },
-  done: { label: "Done", icon: CheckCircle2, color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  blocked: { label: "Blocked", icon: AlertTriangle, color: "bg-red-50 text-red-700 border-red-200" },
+  todo: { label: "To Do", icon: Circle, color: "bg-muted text-foreground border-border" },
+  in_progress: { label: "In Progress", icon: Clock, color: "bg-warning-soft text-warning-strong border-warning/30" },
+  done: { label: "Done", icon: CheckCircle2, color: "bg-success-soft text-success-strong border-success/30" },
+  blocked: { label: "Blocked", icon: AlertTriangle, color: "bg-danger-soft text-danger-strong border-danger/30" },
 };
 
 export default function AdminTasks() {
@@ -193,10 +193,10 @@ export default function AdminTasks() {
             </CardContent>
           </Card>
           {[
-            { label: "To Do", value: total - done - inProgress, icon: Circle, color: "text-slate-500", border: "border-l-slate-300" },
-            { label: "In Progress", value: inProgress, icon: Clock, color: "text-amber-500", border: "border-l-amber-400" },
-            { label: "High Priority", value: highPriority, icon: ArrowUpCircle, color: "text-red-500", border: "border-l-red-400" },
-            { label: "Overdue", value: overdue, icon: AlertTriangle, color: "text-red-600", border: "border-l-red-500" },
+            { label: "To Do", value: total - done - inProgress, icon: Circle, color: "text-muted-foreground", border: "border-l-slate-300" },
+            { label: "In Progress", value: inProgress, icon: Clock, color: "text-warning", border: "border-l-amber-400" },
+            { label: "High Priority", value: highPriority, icon: ArrowUpCircle, color: "text-danger", border: "border-l-red-400" },
+            { label: "Overdue", value: overdue, icon: AlertTriangle, color: "text-danger", border: "border-l-red-500" },
           ].map((s) => (
             <Card key={s.label} className={cn("border-l-4", s.border)}>
               <CardContent className="p-4">
@@ -287,7 +287,7 @@ export default function AdminTasks() {
                       onClick={() => statusToggle.mutate({ id: task.id, status: task.status })}
                       className="mt-0.5 shrink-0"
                     >
-                      <StaIcon className={cn("h-5 w-5", task.status === "done" ? "text-emerald-500" : "text-muted-foreground hover:text-primary")} />
+                      <StaIcon className={cn("h-5 w-5", task.status === "done" ? "text-success" : "text-muted-foreground hover:text-primary")} />
                     </button>
 
                     <div className="flex-1 min-w-0">
@@ -303,7 +303,7 @@ export default function AdminTasks() {
                       )}
                       <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
                         {task.due_date && (
-                          <span className={cn("flex items-center gap-1", isOverdue && "text-red-600 font-semibold")}>
+                          <span className={cn("flex items-center gap-1", isOverdue && "text-danger font-semibold")}>
                             <Calendar className="h-3 w-3" />
                             {isOverdue ? "Overdue: " : "Due: "}{new Date(task.due_date).toLocaleDateString()}
                           </span>

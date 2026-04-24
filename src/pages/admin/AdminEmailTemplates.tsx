@@ -229,7 +229,7 @@ export default function AdminEmailTemplates() {
           <div className="flex items-center justify-between">
             <Button variant="ghost" onClick={() => setEditing(null)}>← Back to Templates</Button>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+              <CheckCircle className="h-3.5 w-3.5 text-success" />
               Synced with DealsFlow CRM
               {lastSyncTime && <span>· {lastSyncTime.toLocaleTimeString()}</span>}
             </div>
@@ -301,7 +301,7 @@ export default function AdminEmailTemplates() {
                   <div className="px-3 py-2 border-b bg-muted/30 text-xs font-medium text-muted-foreground">Live Preview</div>
                   <iframe
                     srcDoc={form.html_content}
-                    className="flex-1 w-full bg-white"
+                    className="flex-1 w-full bg-card"
                     sandbox="allow-same-origin"
                     title="Email Preview"
                   />
@@ -320,7 +320,7 @@ export default function AdminEmailTemplates() {
       <div className="space-y-6">
         {/* Sync bar */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="h-2 w-2 rounded-full bg-green-500 inline-block" />
+          <span className="h-2 w-2 rounded-full bg-success inline-block" />
           Synced with DealsFlow CRM
           {lastSyncTime && <span>· Last sync {lastSyncTime.toLocaleTimeString()}</span>}
         </div>
@@ -375,8 +375,8 @@ export default function AdminEmailTemplates() {
                       <p className="font-medium truncate">{tpl.name}</p>
                       <p className="text-xs text-muted-foreground truncate">{tpl.subject}</p>
                     </div>
-                    <button onClick={() => toggleFavorite(tpl)} className="p-1 hover:text-yellow-500 transition-colors">
-                      <Star className={`h-4 w-4 ${tpl.is_favorite ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground/40"}`} />
+                    <button onClick={() => toggleFavorite(tpl)} className="p-1 hover:text-warning transition-colors">
+                      <Star className={`h-4 w-4 ${tpl.is_favorite ? "fill-warning text-warning" : "text-muted-foreground/40"}`} />
                     </button>
                   </div>
 
@@ -429,7 +429,7 @@ export default function AdminEmailTemplates() {
             </div>
             <iframe
               srcDoc={previewTemplate?.html_content || ""}
-              className="w-full border rounded-lg bg-white"
+              className="w-full border rounded-lg bg-card"
               style={{ height: "60vh" }}
               sandbox="allow-same-origin"
               title="Template Preview"

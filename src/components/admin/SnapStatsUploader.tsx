@@ -480,16 +480,16 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
 
         {/* File Naming Convention Help */}
         {bulkMode && (
-          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">📁 File Naming Convention</p>
-            <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
+          <div className="bg-info-soft dark:bg-info-strong/30 border border-info/30 dark:border-info rounded-lg p-4">
+            <p className="text-sm font-medium text-info-strong dark:text-info-soft-foreground mb-2">📁 File Naming Convention</p>
+            <p className="text-xs text-info-strong dark:text-info-soft-foreground mb-2">
               Name your files so the month and year can be detected automatically:
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-              <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">FVR_2025_January.pdf</code>
-              <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">FVR_Feb_2025.pdf</code>
-              <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">2025_03_FVR.pdf</code>
-              <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">FVR_2025-04.pdf</code>
+              <code className="bg-info-soft dark:bg-info-strong/50 px-2 py-1 rounded">FVR_2025_January.pdf</code>
+              <code className="bg-info-soft dark:bg-info-strong/50 px-2 py-1 rounded">FVR_Feb_2025.pdf</code>
+              <code className="bg-info-soft dark:bg-info-strong/50 px-2 py-1 rounded">2025_03_FVR.pdf</code>
+              <code className="bg-info-soft dark:bg-info-strong/50 px-2 py-1 rounded">FVR_2025-04.pdf</code>
             </div>
           </div>
         )}
@@ -595,9 +595,9 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
               </div>
             </div>
             
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-800 font-medium">How to share a Google Drive folder:</p>
-              <ol className="text-xs text-blue-700 mt-2 space-y-1 list-decimal list-inside">
+            <div className="bg-info-soft border border-info/30 rounded-lg p-3">
+              <p className="text-sm text-info-strong font-medium">How to share a Google Drive folder:</p>
+              <ol className="text-xs text-info-strong mt-2 space-y-1 list-decimal list-inside">
                 <li>Right-click your folder in Google Drive</li>
                 <li>Click "Share" → "Get link"</li>
                 <li>Change to "Anyone with the link"</li>
@@ -648,12 +648,12 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
               {files.map((f, i) => (
                 <div key={i} className={`flex items-center gap-2 p-3 rounded-lg transition-all ${
                   f.status === 'processing' ? 'bg-primary/10 border border-primary/30' :
-                  f.status === 'done' ? 'bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800' :
+                  f.status === 'done' ? 'bg-success-soft dark:bg-success-strong/30 border border-success/30 dark:border-success' :
                   f.status === 'error' ? 'bg-destructive/10 border border-destructive/30' :
                   'bg-muted/50'
                 }`}>
                   <FileText className={`h-5 w-5 shrink-0 ${
-                    f.status === 'done' ? 'text-green-600' : 'text-primary'
+                    f.status === 'done' ? 'text-success' : 'text-primary'
                   }`} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{f.file.name}</p>
@@ -727,7 +727,7 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
                   
                   {/* Status Indicators */}
                   {f.status === 'processing' && <Loader2 className="h-4 w-4 animate-spin shrink-0 text-primary" />}
-                  {f.status === 'done' && <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />}
+                  {f.status === 'done' && <CheckCircle2 className="h-4 w-4 text-success shrink-0" />}
                   {f.status === 'error' && (
                     <div className="flex items-center gap-1">
                       <AlertCircle className="h-4 w-4 text-destructive shrink-0" />
@@ -794,7 +794,7 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
           <div className="space-y-6 pt-4 border-t">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-5 w-5 text-success" />
                 Extracted Data Preview
               </h3>
               <div className="flex gap-2">
@@ -859,7 +859,7 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
                           <span className="text-muted-foreground">Sales Ratio</span>
                         </div>
                         <div>
-                          <span className={`block font-medium ${(stat.yoy_price_change || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          <span className={`block font-medium ${(stat.yoy_price_change || 0) >= 0 ? 'text-success' : 'text-danger'}`}>
                             {stat.yoy_price_change ? `${stat.yoy_price_change > 0 ? '+' : ''}${stat.yoy_price_change}%` : '—'}
                           </span>
                           <span className="text-muted-foreground">YoY Change</span>

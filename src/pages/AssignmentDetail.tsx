@@ -373,12 +373,12 @@ export default function AssignmentDetail() {
                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
                   <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs px-2 py-0.5">Assignment</Badge>
                   {discount && discount > 0 && (
-                    <Badge className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-0.5">
+                    <Badge className="bg-success hover:bg-success text-on-dark text-xs px-2 py-0.5">
                       Save {formatPrice(discount)}
                     </Badge>
                   )}
                   {developerCredit && (
-                    <Badge className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-0.5">
+                    <Badge className="bg-success hover:bg-success text-on-dark text-xs px-2 py-0.5">
                       {formatPrice(developerCredit)} Credit
                     </Badge>
                   )}
@@ -572,7 +572,7 @@ export default function AssignmentDetail() {
                         </div>
                       )}
                       {discount && discount > 0 && (
-                        <div className="flex justify-between text-green-600 dark:text-green-400">
+                        <div className="flex justify-between text-success dark:text-success">
                           <span>Buyer Savings</span>
                           <span className="font-semibold">−{formatPrice(discount)}</span>
                         </div>
@@ -585,7 +585,7 @@ export default function AssignmentDetail() {
                       )}
                       {developerCredit && (
                         <>
-                          <div className="flex justify-between text-green-600 dark:text-green-400">
+                          <div className="flex justify-between text-success dark:text-success">
                             <span>Developer Credit (at completion)</span>
                             <span className="font-semibold">−{formatPrice(developerCredit)}</span>
                           </div>
@@ -604,7 +604,7 @@ export default function AssignmentDetail() {
                         </div>
                       )}
                       {listing.developer_approval_required && (
-                        <div className="flex justify-between text-amber-600 dark:text-amber-400">
+                        <div className="flex justify-between text-warning dark:text-warning">
                           <span>Developer Approval</span>
                           <span className="font-medium">Required</span>
                         </div>
@@ -675,7 +675,7 @@ export default function AssignmentDetail() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
                       {project.amenities.map((a, i) => (
                         <div key={i} className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                          <CheckCircle className="h-4 w-4 text-success shrink-0" />
                           <span className="text-sm text-foreground">{a}</span>
                         </div>
                       ))}
@@ -689,7 +689,7 @@ export default function AssignmentDetail() {
                     <h2 className="text-base font-bold text-foreground mb-3">Video Walkthrough</h2>
                     <div className="space-y-3">
                       {videoFiles.map((vid) => (
-                        <div key={vid.id} className="rounded-lg overflow-hidden border border-border bg-black">
+                        <div key={vid.id} className="rounded-lg overflow-hidden border border-border bg-neutral-900">
                           <video controls preload="metadata" className="w-full max-h-[500px]" playsInline>
                             <source src={vid.url} type={vid.url.endsWith(".webm") ? "video/webm" : vid.url.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
                           </video>
@@ -728,12 +728,12 @@ export default function AssignmentDetail() {
                     <div className="text-3xl font-bold text-foreground mb-1">{priceFormatted}</div>
 
                     {discount && discount > 0 && (
-                      <p className="text-sm text-green-600 dark:text-green-400 font-medium mb-1">
+                      <p className="text-sm text-success dark:text-success font-medium mb-1">
                         Save {formatPrice(discount)} vs. original
                       </p>
                     )}
                     {developerCredit && (
-                      <p className="text-sm text-green-600 dark:text-green-400 font-medium mb-1">
+                      <p className="text-sm text-success dark:text-success font-medium mb-1">
                         {formatPrice(developerCredit)} developer credit
                       </p>
                     )}
@@ -773,7 +773,7 @@ export default function AssignmentDetail() {
                           </a>
                         </div>
                         <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
-                          <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#1da851] text-white">
+                          <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#1da851] text-on-dark">
                             <MessageCircle className="h-4 w-4 mr-2" />
                             WhatsApp {listingAgent.full_name?.split(" ")[0] || "Agent"}
                           </Button>

@@ -197,7 +197,7 @@ export function CatalogueProjectsPanel({ projects, onChange }: CatalogueProjects
               key={p.id}
               className={cn(
                 "rounded-lg border bg-card overflow-hidden",
-                idx === 0 && projects.length > 1 ? "border-amber-400/60 ring-1 ring-amber-400/30" : "border-border",
+                idx === 0 && projects.length > 1 ? "border-warning/60 ring-1 ring-warning/30" : "border-border",
               )}
             >
               {/* Header */}
@@ -222,8 +222,8 @@ export function CatalogueProjectsPanel({ projects, onChange }: CatalogueProjects
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     {idx === 0 && projects.length > 1 && (
-                      <Badge variant="outline" className="h-4 px-1.5 text-[8px] gap-0.5 border-amber-500/60 text-amber-600 bg-amber-50">
-                        <Star className="h-2.5 w-2.5 fill-amber-500 text-amber-500" />
+                      <Badge variant="outline" className="h-4 px-1.5 text-[8px] gap-0.5 border-warning/60 text-warning bg-warning-soft">
+                        <Star className="h-2.5 w-2.5 fill-warning text-warning" />
                         FEATURED
                       </Badge>
                     )}
@@ -293,7 +293,7 @@ export function CatalogueProjectsPanel({ projects, onChange }: CatalogueProjects
 
                 <div className="flex items-center justify-between text-[11px]">
                   <span className="flex items-center gap-1.5 text-foreground">
-                    <ExternalLink className="h-3 w-3 text-emerald-500" />
+                    <ExternalLink className="h-3 w-3 text-success" />
                     View Project Details
                     <span className="text-[8px] text-muted-foreground">(always on)</span>
                   </span>
@@ -302,7 +302,7 @@ export function CatalogueProjectsPanel({ projects, onChange }: CatalogueProjects
 
                 <div className="flex items-center justify-between text-[11px]">
                   <span className="flex items-center gap-1.5 text-foreground">
-                    <LayoutGrid className="h-3 w-3 text-sky-500" />
+                    <LayoutGrid className="h-3 w-3 text-info" />
                     Floor Plans
                   </span>
                   <Switch
@@ -319,7 +319,7 @@ export function CatalogueProjectsPanel({ projects, onChange }: CatalogueProjects
                   )}
                 >
                   <span className="flex items-center gap-1.5 text-foreground">
-                    <FileText className="h-3 w-3 text-amber-500" />
+                    <FileText className="h-3 w-3 text-warning" />
                     Brochure {!p.brochureUrl && <span className="text-[8px] text-muted-foreground">(none uploaded)</span>}
                   </span>
                   <Switch
@@ -337,7 +337,7 @@ export function CatalogueProjectsPanel({ projects, onChange }: CatalogueProjects
                   )}
                 >
                   <span className="flex items-center gap-1.5 text-foreground">
-                    <FileSpreadsheet className="h-3 w-3 text-violet-500" />
+                    <FileSpreadsheet className="h-3 w-3 text-primary" />
                     Pricing Sheet {!p.pricingUrl && <span className="text-[8px] text-muted-foreground">(none uploaded)</span>}
                   </span>
                   <Switch
@@ -415,7 +415,7 @@ export function CatalogueProjectsPanel({ projects, onChange }: CatalogueProjects
                         </p>
                       </div>
                       {already ? (
-                        <span className="text-[9px] text-emerald-600 font-medium shrink-0">Added</span>
+                        <span className="text-[9px] text-success font-medium shrink-0">Added</span>
                       ) : (
                         <Plus className="h-3 w-3 text-muted-foreground shrink-0" />
                       )}

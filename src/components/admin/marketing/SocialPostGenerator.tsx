@@ -214,13 +214,13 @@ export function SocialPostGenerator() {
                       {/* Selection overlay */}
                       <div className={cn(
                         "absolute inset-0 transition-all flex items-center justify-center",
-                        isSelected ? "bg-primary/10" : "bg-black/0 group-hover:bg-black/10"
+                        isSelected ? "bg-primary/10" : "bg-neutral-900/0 group-hover:bg-neutral-900/10"
                       )}>
                         <div className={cn(
                           "h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all",
                           isSelected
                             ? "bg-primary border-primary text-primary-foreground"
-                            : "border-white/70 bg-black/20 opacity-0 group-hover:opacity-100"
+                            : "border-card/70 bg-neutral-900/20 opacity-0 group-hover:opacity-100"
                         )}>
                           {isSelected && <Check className="h-3.5 w-3.5" />}
                         </div>
@@ -228,7 +228,7 @@ export function SocialPostGenerator() {
                       {/* Individual download */}
                       <button
                         onClick={e => { e.stopPropagation(); downloadImage(url, i); }}
-                        className="absolute top-1.5 right-1.5 h-6 w-6 rounded-md bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                        className="absolute top-1.5 right-1.5 h-6 w-6 rounded-md bg-neutral-900/50 flex items-center justify-center text-on-dark opacity-0 group-hover:opacity-100 transition-opacity hover:bg-neutral-900/70"
                       >
                         <Download className="h-3 w-3" />
                       </button>
@@ -269,7 +269,7 @@ export function SocialPostGenerator() {
 
                     <div className="p-4 space-y-3">
                       {/* Headline preview — styled like the reference ads */}
-                      <div className="rounded-lg bg-gradient-to-r from-amber-500/90 to-orange-500/90 p-4 text-white">
+                      <div className="rounded-lg bg-gradient-to-r from-warning/90 to-warning/90 p-4 text-on-dark">
                         <p className="text-xl font-extrabold leading-tight">{v.headline}</p>
                         <p className="text-sm font-medium mt-1 opacity-90">{v.subline}</p>
                       </div>

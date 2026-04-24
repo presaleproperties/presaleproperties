@@ -256,7 +256,7 @@ export function SendPreflightChecklist({
         className={cn(
           "rounded-md border",
           canSend
-            ? "border-emerald-500/30 bg-emerald-500/5"
+            ? "border-success/30 bg-success/5"
             : "border-destructive/40 bg-destructive/5",
           className,
         )}
@@ -264,7 +264,7 @@ export function SendPreflightChecklist({
         <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left">
           <div className="flex items-center gap-2 min-w-0">
             {canSend ? (
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
             ) : (
               <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />
             )}
@@ -272,7 +272,7 @@ export function SendPreflightChecklist({
               className={cn(
                 "text-[11px] font-bold truncate",
                 canSend
-                  ? "text-emerald-700 dark:text-emerald-400"
+                  ? "text-success-strong dark:text-success"
                   : "text-destructive",
               )}
             >
@@ -294,9 +294,9 @@ export function SendPreflightChecklist({
                     : AlertTriangle;
               const tone =
                 c.status === "pass"
-                  ? "text-emerald-600 dark:text-emerald-400"
+                  ? "text-success dark:text-success"
                   : c.status === "warn"
-                    ? "text-amber-600 dark:text-amber-400"
+                    ? "text-warning dark:text-warning"
                     : "text-destructive";
               return (
                 <li
@@ -333,8 +333,8 @@ export function SendPreflightChecklist({
                   <span
                     className={cn(
                       "ml-1 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase",
-                      tracker.status === "ok" && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-                      tracker.status === "warn" && "bg-amber-500/15 text-amber-700 dark:text-amber-400",
+                      tracker.status === "ok" && "bg-success/15 text-success-strong dark:text-success",
+                      tracker.status === "warn" && "bg-warning/15 text-warning-strong dark:text-warning",
                       tracker.status === "error" && "bg-destructive/15 text-destructive",
                       tracker.status === "checking" && "bg-muted text-muted-foreground",
                     )}
@@ -367,8 +367,8 @@ export function SendPreflightChecklist({
                       <span
                         className={cn(
                           "mt-1 inline-block h-1.5 w-1.5 rounded-full shrink-0",
-                          d.status === "pass" && "bg-emerald-500",
-                          d.status === "warn" && "bg-amber-500",
+                          d.status === "pass" && "bg-success",
+                          d.status === "warn" && "bg-warning",
                           d.status === "fail" && "bg-destructive",
                         )}
                       />

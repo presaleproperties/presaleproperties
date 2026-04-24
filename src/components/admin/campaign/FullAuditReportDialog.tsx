@@ -137,10 +137,10 @@ export function FullAuditReportDialog({
             template content.
           </div>
         ) : report.ok ? (
-          <div className="flex items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-4">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+          <div className="flex items-center gap-2 rounded-md border border-success/30 bg-success/5 p-4">
+            <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
             <div className="text-sm">
-              <p className="font-semibold text-emerald-700 dark:text-emerald-400">
+              <p className="font-semibold text-success-strong dark:text-success">
                 All {report.total} link{report.total === 1 ? "" : "s"} valid.
               </p>
               <p className="text-xs text-muted-foreground">
@@ -217,7 +217,7 @@ export function FullAuditReportDialog({
                             </code>
                           </div>
                         )}
-                        <div className="text-emerald-700 dark:text-emerald-400">
+                        <div className="text-success-strong dark:text-success">
                           <span className="font-semibold">Fix: </span>
                           {suggestFix(issue)}
                         </div>

@@ -391,12 +391,12 @@ export default function AdminSettings() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-start gap-3 p-4 rounded-lg bg-green-50 border border-green-200">
-                  <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-success-soft border border-success/30">
+                  <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
                   <div className="text-sm">
-                    <p className="text-green-800 font-medium">Gmail SMTP Active</p>
-                    <p className="text-green-700 mt-1">
-                      All emails send from <code className="bg-green-100 px-1 py-0.5 rounded">info@presaleproperties.com</code> via Google Workspace.
+                    <p className="text-success-strong font-medium">Gmail SMTP Active</p>
+                    <p className="text-success-strong mt-1">
+                      All emails send from <code className="bg-success-soft px-1 py-0.5 rounded">info@presaleproperties.com</code> via Google Workspace.
                     </p>
                   </div>
                 </div>
@@ -468,8 +468,8 @@ export default function AdminSettings() {
               {/* Behavioral Tracking */}
                 <div className="space-y-3">
                   <h4 className="font-medium text-sm">Behavioral Tracking (Optimized)</h4>
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-3">
-                    <p className="text-xs text-green-800">
+                  <div className="p-3 bg-success-soft border border-success/30 rounded-lg mb-3">
+                    <p className="text-xs text-success-strong">
                       <strong>✓ Optimized for Zapier credits:</strong> Only form submissions trigger real-time webhooks. All other events are stored locally and sent as a daily digest report (1 Zap per visitor per day instead of dozens).
                     </p>
                   </div>

@@ -481,7 +481,7 @@ export function LeadComposeEmail({ leadEmail, leadName, firstName }: Props) {
               srcDoc={finalHtml}
               title="Email preview"
               sandbox=""
-              className="h-[460px] w-full bg-white"
+              className="h-[460px] w-full bg-card"
             />
           </div>
         </DialogContent>

@@ -94,10 +94,10 @@ export function MarketingAnalytics() {
   const clickRate = emailStats.sent > 0 ? Math.round((emailStats.clicked / emailStats.sent) * 100) : 0;
 
   const stats: StatCard[] = [
-    { label: "Emails Sent", value: emailStats.sent, icon: <Mail className="h-4 w-4" />, change: `${openRate}% open rate`, color: "text-blue-500" },
-    { label: "Deck Views", value: deckStats.totalVisits, icon: <Eye className="h-4 w-4" />, change: `${deckStats.uniqueVisitors} unique`, color: "text-purple-500" },
-    { label: "Leads Captured", value: leadStats.total, icon: <Users className="h-4 w-4" />, change: `${leadStats.thisMonth} this month`, color: "text-emerald-500" },
-    { label: "Click Rate", value: `${clickRate}%`, icon: <MousePointer className="h-4 w-4" />, change: `${emailStats.clicked} clicks`, color: "text-amber-500" },
+    { label: "Emails Sent", value: emailStats.sent, icon: <Mail className="h-4 w-4" />, change: `${openRate}% open rate`, color: "text-info" },
+    { label: "Deck Views", value: deckStats.totalVisits, icon: <Eye className="h-4 w-4" />, change: `${deckStats.uniqueVisitors} unique`, color: "text-primary" },
+    { label: "Leads Captured", value: leadStats.total, icon: <Users className="h-4 w-4" />, change: `${leadStats.thisMonth} this month`, color: "text-success" },
+    { label: "Click Rate", value: `${clickRate}%`, icon: <MousePointer className="h-4 w-4" />, change: `${emailStats.clicked} clicks`, color: "text-warning" },
   ];
 
   if (loading) {

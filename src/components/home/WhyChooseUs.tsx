@@ -71,8 +71,8 @@ export function WhyChooseUs() {
                     loading="lazy"
                   />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent p-3">
-                    <p className="text-white text-xs sm:text-sm font-bold leading-tight">{m.full_name}</p>
-                    <p className="text-white/80 text-[10px] sm:text-xs leading-tight">{m.title}</p>
+                    <p className="text-on-dark text-xs sm:text-sm font-bold leading-tight">{m.full_name}</p>
+                    <p className="text-on-dark/80 text-[10px] sm:text-xs leading-tight">{m.title}</p>
                   </div>
                 </div>
               ))

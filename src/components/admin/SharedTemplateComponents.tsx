@@ -96,8 +96,8 @@ export function TemplateCard({
           <Badge className={cn(
             "text-[9px] px-1.5 py-0.5 shadow-sm",
             isEmail
-              ? "bg-emerald-500/90 text-white hover:bg-emerald-500/90"
-              : "bg-violet-500/90 text-white hover:bg-violet-500/90"
+              ? "bg-success/90 text-on-dark hover:bg-success/90"
+              : "bg-primary/90 text-on-dark hover:bg-primary/90"
           )}>
             {isEmail ? "Email" : "Flyer"}
           </Badge>
@@ -108,7 +108,7 @@ export function TemplateCard({
           </div>
         )}
         {!selectable && (
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <div className="absolute inset-0 bg-neutral-900/0 group-hover:bg-neutral-900/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
             <Button size="sm" variant="secondary" className="gap-1.5 shadow-lg">
               <Eye className="h-3.5 w-3.5" /> Preview
             </Button>
@@ -317,7 +317,7 @@ export function TemplatePreviewDialog({
               </span>
             )}
             {highlightAudit && totalIssues === 0 && html && (
-              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+              <span className="text-[11px] text-success dark:text-success font-medium">
                 ✓ No audit issues
               </span>
             )}
@@ -329,7 +329,7 @@ export function TemplatePreviewDialog({
                 broken link
               </span>
               <span className="inline-flex items-center gap-1">
-                <span className="inline-block h-2 w-3 rounded-sm bg-amber-500/30 border-b-2 border-dashed border-amber-600" />
+                <span className="inline-block h-2 w-3 rounded-sm bg-warning/30 border-b-2 border-dashed border-warning" />
                 unknown tag
               </span>
             </div>
@@ -337,7 +337,7 @@ export function TemplatePreviewDialog({
         </div>
         <iframe
           srcDoc={annotated.html}
-          className="w-full border rounded-lg bg-white"
+          className="w-full border rounded-lg bg-card"
           style={{ height: "60vh" }}
           sandbox="allow-same-origin"
           title="Template Preview"

@@ -59,9 +59,9 @@ interface AutomationWorkflow {
 // ── Helpers ──
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { cls: string }> = {
-    sent:   { cls: "bg-emerald-100 text-emerald-700 border-emerald-200" },
-    failed: { cls: "bg-red-100 text-red-700 border-red-200" },
-    queued: { cls: "bg-amber-100 text-amber-700 border-amber-200" },
+    sent:   { cls: "bg-success-soft text-success-strong border-success/30" },
+    failed: { cls: "bg-danger-soft text-danger-strong border-danger/30" },
+    queued: { cls: "bg-warning-soft text-warning-strong border-warning/30" },
   };
   const cfg = map[status] ?? { cls: "bg-muted text-muted-foreground" };
   return (
@@ -156,12 +156,12 @@ function DashboardStats({ logs }: { logs: EmailLog[] }) {
   const reopened = logs.filter(l => l.open_count >= 2).length;
 
   const stats = [
-    { label: "Total Sent", value: sent, icon: <Send className="h-4 w-4 text-emerald-500" />, color: "text-emerald-600" },
-    { label: "Opened", value: opened, icon: <MailOpen className="h-4 w-4 text-blue-500" />, color: "text-blue-600" },
-    { label: "Open Rate", value: `${openRate}%`, icon: <TrendingUp className="h-4 w-4 text-violet-500" />, color: "text-violet-600" },
-    { label: "Clicked", value: `${clicked} (${clickRate}%)`, icon: <Zap className="h-4 w-4 text-orange-500" />, color: "text-orange-600" },
-    { label: "Re-opened", value: reopened, icon: <RefreshCw className="h-4 w-4 text-amber-500" />, color: "text-amber-600" },
-    { label: "Failed", value: failed, icon: <XCircle className="h-4 w-4 text-red-500" />, color: failed > 0 ? "text-red-600" : "text-muted-foreground" },
+    { label: "Total Sent", value: sent, icon: <Send className="h-4 w-4 text-success" />, color: "text-success" },
+    { label: "Opened", value: opened, icon: <MailOpen className="h-4 w-4 text-info" />, color: "text-info" },
+    { label: "Open Rate", value: `${openRate}%`, icon: <TrendingUp className="h-4 w-4 text-primary" />, color: "text-primary" },
+    { label: "Clicked", value: `${clicked} (${clickRate}%)`, icon: <Zap className="h-4 w-4 text-warning" />, color: "text-warning" },
+    { label: "Re-opened", value: reopened, icon: <RefreshCw className="h-4 w-4 text-warning" />, color: "text-warning" },
+    { label: "Failed", value: failed, icon: <XCircle className="h-4 w-4 text-danger" />, color: failed > 0 ? "text-danger" : "text-muted-foreground" },
   ];
 
   return (
@@ -253,8 +253,8 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
                 <span className="flex items-center gap-1.5">
                   {log.opened_at ? (
                     <>
-                      <MailOpen className="h-3 w-3 text-blue-500" />
-                      <span className="text-xs font-medium text-blue-600">{log.open_count}×</span>
+                      <MailOpen className="h-3 w-3 text-info" />
+                      <span className="text-xs font-medium text-info">{log.open_count}×</span>
                     </>
                   ) : log.status === "sent" ? (
                     <span className="text-[10px] text-muted-foreground">—</span>
@@ -263,8 +263,8 @@ function EmailLogTable({ logs, loading, onDelete }: { logs: EmailLog[]; loading:
                 <span className="flex items-center gap-1">
                   {log.clicked_at ? (
                     <>
-                      <Zap className="h-3 w-3 text-orange-500" />
-                      <span className="text-xs font-medium text-orange-600">{log.click_count}×</span>
+                      <Zap className="h-3 w-3 text-warning" />
+                      <span className="text-xs font-medium text-warning">{log.click_count}×</span>
                     </>
                   ) : (
                     <span className="text-[10px] text-muted-foreground">—</span>
@@ -394,11 +394,11 @@ export default function AdminEmailCenter() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-4 text-xs bg-muted/40 border border-border px-4 py-2 rounded-lg">
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-success" />
                 <span className="font-semibold">{sentEmails.length}</span> sent
               </span>
               <span className="flex items-center gap-1.5">
-                <MailOpen className="h-3.5 w-3.5 text-blue-500" />
+                <MailOpen className="h-3.5 w-3.5 text-info" />
                 <span className="font-semibold">{openRate}%</span> open rate
               </span>
             </div>
@@ -457,7 +457,7 @@ export default function AdminEmailCenter() {
           <TabsContent value="automations" className="mt-4">
             <div className="bg-card border border-border rounded-xl p-6">
               <div className="flex items-center gap-2 mb-5 pb-4 border-b border-border">
-                <Zap className="h-4 w-4 text-violet-500" />
+                <Zap className="h-4 w-4 text-primary" />
                 <div>
                   <p className="text-sm font-semibold">Email Automations</p>
                   <p className="text-xs text-muted-foreground">Workflows that fire automatically based on user actions</p>

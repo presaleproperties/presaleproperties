@@ -330,7 +330,7 @@ function ChecklistSection({ sections }: { sections: typeof CONDO_SECTIONS }) {
               <ul className="space-y-2">
                 {section.items.map((item, j) => (
                   <li key={j} className="flex items-start gap-3 text-sm text-foreground/80">
-                    <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0 mt-0.5" />
                     {item}
                   </li>
                 ))}
@@ -377,9 +377,9 @@ export default function DeficiencyWalkthroughGuide() {
 
       <main>
         {/* ── Hero ── */}
-        <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
+        <section className="relative bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 text-on-dark overflow-hidden">
           <div className="absolute inset-0 bg-[url('https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/blog-images/blog-townhome-walkthrough-hero.jpg')] bg-cover bg-center opacity-20" />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-transparent to-slate-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-900/60 via-transparent to-neutral-900/80" />
           <div className="relative max-w-5xl mx-auto px-4 py-20 md:py-28 text-center">
             <Badge className="mb-4 bg-primary/20 text-primary border-primary/30 text-xs font-semibold tracking-wide uppercase">
               Free BC Buyer Resource
@@ -389,31 +389,31 @@ export default function DeficiencyWalkthroughGuide() {
               <span className="text-primary"> Deficiency Walkthrough</span><br className="hidden md:block" />
               Guide for BC Buyers
             </h1>
-            <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed">
+            <p className="text-lg md:text-xl text-on-dark-muted max-w-2xl mx-auto mb-8 leading-relaxed">
               Your brand-new home is almost ready. Before you sign for it, use this level-by-level PDI guide to catch every deficiency — for both condos and townhomes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <DownloadCTA />
-              <a href="#guide" className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors text-sm font-medium">
+              <a href="#guide" className="flex items-center gap-2 text-on-dark-muted hover:text-on-dark transition-colors text-sm font-medium">
                 Read the full guide <ArrowRight className="h-4 w-4" />
               </a>
             </div>
-            <div className="flex flex-wrap justify-center gap-6 mt-12 text-sm text-slate-400">
-              <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-400" /> Covers condos & townhomes</span>
-              <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-400" /> BC Home Warranty reference</span>
-              <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-400" /> Free printable checklist</span>
+            <div className="flex flex-wrap justify-center gap-6 mt-12 text-sm text-muted-foreground">
+              <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Covers condos & townhomes</span>
+              <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> BC Home Warranty reference</span>
+              <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Free printable checklist</span>
             </div>
           </div>
         </section>
 
         {/* ── Why it matters ── */}
-        <section className="bg-amber-50 dark:bg-amber-950/20 border-y border-amber-200 dark:border-amber-800/40 py-10">
+        <section className="bg-warning-soft dark:bg-warning-strong/20 border-y border-warning/30 dark:border-warning/40 py-10">
           <div className="max-w-4xl mx-auto px-4">
             <div className="flex gap-4">
-              <AlertCircle className="h-6 w-6 text-amber-600 flex-shrink-0 mt-1" />
+              <AlertCircle className="h-6 w-6 text-warning flex-shrink-0 mt-1" />
               <div>
-                <p className="font-semibold text-amber-900 dark:text-amber-200 mb-1">Why the walkthrough is your most important appointment</p>
-                <p className="text-amber-800 dark:text-amber-300 text-sm leading-relaxed">
+                <p className="font-semibold text-warning-strong dark:text-warning-soft-foreground mb-1">Why the walkthrough is your most important appointment</p>
+                <p className="text-warning-strong dark:text-warning-soft-foreground text-sm leading-relaxed">
                   In BC, developers must repair defects you identify <strong>before possession</strong>. Cosmetic damage found <em>after</em> you move in can be blamed on your move. A thorough PDI is the only way to protect your investment — and your deposit.
                 </p>
               </div>
@@ -479,9 +479,9 @@ export default function DeficiencyWalkthroughGuide() {
               </TabsList>
 
               <TabsContent value="condo">
-                <div className="mb-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/40 flex gap-3">
-                  <Building2 className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-blue-800 dark:text-blue-300">
+                <div className="mb-4 p-4 rounded-xl bg-info-soft dark:bg-info-strong/30 border border-info/30 dark:border-info/40 flex gap-3">
+                  <Building2 className="h-5 w-5 text-info flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-info-strong dark:text-info-soft-foreground">
                     <strong>Condo PDI focus:</strong> Pay extra attention to mechanical systems (fan coils, ventilation) and balcony / window seals — these are the most common condo deficiencies in BC new builds.
                   </p>
                 </div>
@@ -489,9 +489,9 @@ export default function DeficiencyWalkthroughGuide() {
               </TabsContent>
 
               <TabsContent value="townhome">
-                <div className="mb-4 p-4 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/40 flex gap-3">
-                  <Home className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-green-800 dark:text-green-300">
+                <div className="mb-4 p-4 rounded-xl bg-success-soft dark:bg-success-strong/30 border border-success/30 dark:border-success/40 flex gap-3">
+                  <Home className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-success-strong dark:text-success-soft-foreground">
                     <strong>Townhome PDI focus:</strong> A townhome has a garage, exterior, and private mechanical room — all additional points of failure compared to a condo. Start outside and work level by level.
                   </p>
                 </div>
@@ -528,7 +528,7 @@ export default function DeficiencyWalkthroughGuide() {
                       <td className="px-5 py-4 align-top">
                         <span className="font-semibold text-primary whitespace-nowrap">{row.period}</span>
                         {row.note && (
-                          <span className="block mt-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 rounded px-1.5 py-0.5 w-fit">{row.note}</span>
+                          <span className="block mt-1 text-xs font-medium text-info dark:text-info bg-info-soft dark:bg-info-strong/40 rounded px-1.5 py-0.5 w-fit">{row.note}</span>
                         )}
                       </td>
                       <td className="px-5 py-4 text-foreground/80">{row.covers}</td>
@@ -538,8 +538,8 @@ export default function DeficiencyWalkthroughGuide() {
               </table>
             </div>
 
-            <div className="mt-6 p-5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40">
-              <p className="text-sm text-amber-800 dark:text-amber-300">
+            <div className="mt-6 p-5 rounded-xl bg-warning-soft dark:bg-warning-strong/20 border border-warning/30 dark:border-warning/40">
+              <p className="text-sm text-warning-strong dark:text-warning-soft-foreground">
                 <strong>💡 Pro Tip:</strong> Set a calendar reminder for <strong>10–11 months after possession</strong>. Walk through your home again and submit warranty claims for any settling cracks, nail pops, or minor defects before your <strong>12-month materials & labour warranty</strong> expires. Strata owners: you have until <strong>15 months</strong> for common property claims.
               </p>
             </div>
@@ -572,8 +572,8 @@ export default function DeficiencyWalkthroughGuide() {
                 to="/blog/presale-condo-deficiency-walkthrough-guide-bc"
                 className="group block rounded-2xl overflow-hidden border border-border bg-card hover:shadow-lg transition-all"
               >
-                <div className="h-44 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
-                  <Building2 className="h-16 w-16 text-white/60 group-hover:text-white/80 transition-colors" />
+                <div className="h-44 bg-gradient-to-br from-info to-info-strong flex items-center justify-center">
+                  <Building2 className="h-16 w-16 text-on-dark/60 group-hover:text-on-dark/80 transition-colors" />
                 </div>
                 <div className="p-5">
                   <Badge className="mb-2 text-xs">Condo</Badge>
@@ -591,11 +591,11 @@ export default function DeficiencyWalkthroughGuide() {
                 to="/blog/presale-townhome-deficiency-walkthrough-guide-bc"
                 className="group block rounded-2xl overflow-hidden border border-border bg-card hover:shadow-lg transition-all"
               >
-                <div className="h-44 bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center">
-                  <Home className="h-16 w-16 text-white/60 group-hover:text-white/80 transition-colors" />
+                <div className="h-44 bg-gradient-to-br from-success to-success-strong flex items-center justify-center">
+                  <Home className="h-16 w-16 text-on-dark/60 group-hover:text-on-dark/80 transition-colors" />
                 </div>
                 <div className="p-5">
-                  <Badge className="mb-2 text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">Townhome</Badge>
+                  <Badge className="mb-2 text-xs bg-success-soft text-success-strong dark:bg-success-strong/40 dark:text-success-soft-foreground">Townhome</Badge>
                   <h3 className="font-bold text-lg leading-snug mb-2 group-hover:text-primary transition-colors">
                     The Complete Presale Townhome Deficiency Walkthrough Guide for BC Buyers
                   </h3>
@@ -610,17 +610,17 @@ export default function DeficiencyWalkthroughGuide() {
         </section>
 
         {/* ── Download CTA band ── */}
-        <section className="py-16 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+        <section className="py-16 bg-gradient-to-br from-neutral-900 to-neutral-800 text-on-dark">
           <div className="max-w-3xl mx-auto px-4 text-center">
             <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto mb-6">
               <FileText className="h-8 w-8 text-primary" />
             </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Download Your Free Printable Checklist</h2>
-            <p className="text-slate-300 mb-8 text-lg max-w-xl mx-auto">
+            <p className="text-on-dark-muted mb-8 text-lg max-w-xl mx-auto">
               Don't try to memorize this. Print our comprehensive checklist and bring it to your walkthrough. Works for both condos and townhomes across Surrey, Langley, and Metro Vancouver.
             </p>
             <DownloadCTA />
-            <p className="text-xs text-slate-500 mt-4">PDF · Printable · Free · No sign-up required</p>
+            <p className="text-xs text-muted-foreground mt-4">PDF · Printable · Free · No sign-up required</p>
           </div>
         </section>
 
@@ -628,7 +628,7 @@ export default function DeficiencyWalkthroughGuide() {
         <section className="py-16 bg-card border-t border-border">
           <div className="max-w-3xl mx-auto px-4 text-center">
             <div className="flex items-center justify-center gap-1 mb-4">
-              {[1,2,3,4,5].map(i => <Star key={i} className="h-5 w-5 fill-amber-400 text-amber-400" />)}
+              {[1,2,3,4,5].map(i => <Star key={i} className="h-5 w-5 fill-warning text-warning" />)}
             </div>
             <h2 className="text-3xl font-bold mb-4">Don't Navigate the Presale Market Alone</h2>
             <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">

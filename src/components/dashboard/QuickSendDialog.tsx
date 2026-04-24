@@ -555,7 +555,7 @@ export function QuickSendDialog({ open, onOpenChange }: QuickSendDialogProps) {
                           <iframe
                             title={`${t.name} preview`}
                             srcDoc={previewHtml}
-                            className="w-full h-full border-0 bg-white pointer-events-none scale-[0.34] origin-top-left"
+                            className="w-full h-full border-0 bg-card pointer-events-none scale-[0.34] origin-top-left"
                             style={{ width: "294%", height: "294%" }}
                             sandbox="allow-same-origin"
                           />
@@ -611,7 +611,7 @@ export function QuickSendDialog({ open, onOpenChange }: QuickSendDialogProps) {
                 <iframe
                   title="Email preview"
                   srcDoc={previewHtml}
-                  className="w-full h-[360px] border-0 bg-white"
+                  className="w-full h-[360px] border-0 bg-card"
                   sandbox="allow-same-origin"
                 />
               )}

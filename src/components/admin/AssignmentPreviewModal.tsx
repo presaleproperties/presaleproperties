@@ -166,9 +166,9 @@ export function AssignmentPreviewModal({
 
   const statusConfig: Record<string, { label: string; className: string }> = {
     draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
-    pending_approval: { label: "Pending Review", className: "bg-amber-100 text-amber-800 border-amber-300" },
-    published: { label: "Published", className: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    rejected: { label: "Rejected", className: "bg-red-100 text-red-800 border-red-300" },
+    pending_approval: { label: "Pending Review", className: "bg-warning-soft text-warning-strong border-warning" },
+    published: { label: "Published", className: "bg-success-soft text-success-strong border-success" },
+    rejected: { label: "Rejected", className: "bg-danger-soft text-danger-strong border-danger" },
     paused: { label: "Paused", className: "bg-muted text-muted-foreground" },
     expired: { label: "Expired", className: "bg-muted text-muted-foreground" },
   };
@@ -192,20 +192,20 @@ export function AssignmentPreviewModal({
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/70 via-neutral-900/20 to-transparent" />
 
               {/* Navigation arrows */}
               {photos.length > 1 && (
                 <>
                   <button
                     onClick={() => setSelectedPhoto((prev) => (prev === 0 ? photos.length - 1 : prev - 1))}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-colors opacity-0 group-hover:opacity-100"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-neutral-900/40 backdrop-blur-sm text-on-dark flex items-center justify-center hover:bg-neutral-900/60 transition-colors opacity-0 group-hover:opacity-100"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
                   <button
                     onClick={() => setSelectedPhoto((prev) => (prev === photos.length - 1 ? 0 : prev + 1))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-colors opacity-0 group-hover:opacity-100"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-neutral-900/40 backdrop-blur-sm text-on-dark flex items-center justify-center hover:bg-neutral-900/60 transition-colors opacity-0 group-hover:opacity-100"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
@@ -214,7 +214,7 @@ export function AssignmentPreviewModal({
 
               {/* Photo counter */}
               {photos.length > 1 && (
-                <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                <div className="absolute top-3 right-3 bg-neutral-900/50 backdrop-blur-sm text-on-dark text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5">
                   <ImageIcon className="h-3 w-3" />
                   {selectedPhoto + 1} / {photos.length}
                 </div>
@@ -222,30 +222,30 @@ export function AssignmentPreviewModal({
 
               {/* Floor plan name badge */}
               {listing.floor_plan_name && (
-                <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                <div className="absolute top-3 left-3 bg-neutral-900/50 backdrop-blur-sm text-on-dark text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5">
                   <Layers className="h-3 w-3" />
                   {listing.floor_plan_name}
                 </div>
               )}
 
               {/* Hero overlay info */}
-              <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+              <div className="absolute bottom-0 left-0 right-0 p-5 text-on-dark">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge className={`${currentStatus.className} border text-xs`}>
                     {currentStatus.label}
                   </Badge>
                   {listing.visibility_mode === "restricted" ? (
-                    <Badge variant="outline" className="bg-black/30 border-amber-400/50 text-amber-200 text-xs">
+                    <Badge variant="outline" className="bg-neutral-900/30 border-warning/50 text-warning-soft-foreground text-xs">
                       <Lock className="h-3 w-3 mr-1" /> Restricted
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="bg-black/30 border-emerald-400/50 text-emerald-200 text-xs">
+                    <Badge variant="outline" className="bg-neutral-900/30 border-success/50 text-success-soft-foreground text-xs">
                       <Globe className="h-3 w-3 mr-1" /> Public
                     </Badge>
                   )}
                 </div>
                 <h2 className="text-2xl font-bold leading-tight mb-1 drop-shadow-lg">{listing.title}</h2>
-                <div className="flex items-center gap-3 text-sm text-white/80">
+                <div className="flex items-center gap-3 text-sm text-on-dark/80">
                   <span className="flex items-center gap-1"><Building2 className="h-3.5 w-3.5" />{listing.project_name}</span>
                   <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{listing.city}{listing.neighborhood ? `, ${listing.neighborhood}` : ""}</span>
                 </div>
@@ -296,28 +296,28 @@ export function AssignmentPreviewModal({
               {assignmentPremium !== null && (
                 <div className={`flex-1 min-w-[120px] rounded-xl p-4 border ${
                   assignmentPremium > 0 
-                    ? "bg-emerald-50 border-emerald-200" 
+                    ? "bg-success-soft border-success/30" 
                     : assignmentPremium < 0 
-                    ? "bg-red-50 border-red-200"
+                    ? "bg-danger-soft border-danger/30"
                     : "bg-muted/50 border-border"
                 }`}>
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Premium</p>
                   <div className="flex items-center gap-1.5">
                     {assignmentPremium > 0 ? (
-                      <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+                      <ArrowUpRight className="h-4 w-4 text-success" />
                     ) : assignmentPremium < 0 ? (
-                      <ArrowDownRight className="h-4 w-4 text-red-600" />
+                      <ArrowDownRight className="h-4 w-4 text-danger" />
                     ) : (
                       <Minus className="h-4 w-4 text-muted-foreground" />
                     )}
                     <p className={`text-xl font-bold ${
-                      assignmentPremium > 0 ? "text-emerald-700" : assignmentPremium < 0 ? "text-red-700" : ""
+                      assignmentPremium > 0 ? "text-success-strong" : assignmentPremium < 0 ? "text-danger-strong" : ""
                     }`}>
                       {assignmentPremium > 0 ? "+" : ""}{formatPrice(assignmentPremium)}
                     </p>
                     {premiumPercent && (
                       <span className={`text-xs font-medium ml-1 ${
-                        assignmentPremium > 0 ? "text-emerald-600" : "text-red-600"
+                        assignmentPremium > 0 ? "text-success" : "text-danger"
                       }`}>
                         ({assignmentPremium > 0 ? "+" : ""}{premiumPercent}%)
                       </span>
@@ -381,7 +381,7 @@ export function AssignmentPreviewModal({
                     {listing.developer_approval_required && (
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Dev. Approval</span>
-                        <Badge variant="outline" className="text-amber-600 border-amber-400 text-xs h-5">Required</Badge>
+                        <Badge variant="outline" className="text-warning border-warning text-xs h-5">Required</Badge>
                       </div>
                     )}
                   </div>
@@ -534,7 +534,7 @@ export function AssignmentPreviewModal({
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+              className="border-danger text-danger hover:bg-danger-soft hover:border-danger"
               onClick={onReject}
               disabled={processing}
             >
@@ -542,7 +542,7 @@ export function AssignmentPreviewModal({
               Reject
             </Button>
             <Button
-              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+              className="bg-success hover:bg-success text-on-dark shadow-sm"
               onClick={onApprove}
               disabled={processing}
             >

@@ -44,7 +44,7 @@ export function ShareButtons({ title, url }: ShareButtonsProps) {
               className="h-8 w-8"
               onClick={() => setIsFavorited(!isFavorited)}
             >
-              <Heart className={`h-4 w-4 ${isFavorited ? "fill-red-500 text-red-500" : ""}`} />
+              <Heart className={`h-4 w-4 ${isFavorited ? "fill-danger text-danger" : ""}`} />
             </Button>
           </TooltipTrigger>
           <TooltipContent>{isFavorited ? "Remove from favorites" : "Add to favorites"}</TooltipContent>

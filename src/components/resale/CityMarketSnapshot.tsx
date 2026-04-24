@@ -35,9 +35,9 @@ export function CityMarketSnapshot({ city, propertyType = 'condo', compact = fal
 
   const getMarketTypeColor = (type: string | null) => {
     switch (type) {
-      case 'sellers': return 'bg-red-500/10 text-red-600 border-red-200';
-      case 'balanced': return 'bg-yellow-500/10 text-yellow-600 border-yellow-200';
-      case 'buyers': return 'bg-green-500/10 text-green-600 border-green-200';
+      case 'sellers': return 'bg-danger/10 text-danger border-danger/30';
+      case 'balanced': return 'bg-warning/10 text-warning border-warning/30';
+      case 'buyers': return 'bg-success/10 text-success border-success/30';
       default: return 'bg-muted text-muted-foreground';
     }
   };
@@ -73,7 +73,7 @@ export function CityMarketSnapshot({ city, propertyType = 'condo', compact = fal
         <span className="font-medium">{formatPrice(stats.benchmark_price)}</span>
         <span className="text-muted-foreground">${stats.avg_price_sqft}/sqft</span>
         {stats.yoy_price_change && (
-          <span className={stats.yoy_price_change >= 0 ? 'text-green-600' : 'text-red-600'}>
+          <span className={stats.yoy_price_change >= 0 ? 'text-success' : 'text-danger'}>
             {stats.yoy_price_change > 0 ? '+' : ''}{stats.yoy_price_change}% YoY
           </span>
         )}
@@ -94,7 +94,7 @@ export function CityMarketSnapshot({ city, propertyType = 'condo', compact = fal
         {reportDate && (
           <div className="flex items-center gap-2">
             {stats.source_board === 'MLS New Construction' && (
-              <Badge variant="outline" className="text-xs bg-green-500/10 text-green-700 border-green-200">
+              <Badge variant="outline" className="text-xs bg-success/10 text-success-strong border-success/30">
                 ✓ MLS Verified
               </Badge>
             )}
@@ -117,7 +117,7 @@ export function CityMarketSnapshot({ city, propertyType = 'condo', compact = fal
               <div className="flex items-baseline gap-2">
                 <span className="text-lg font-semibold">{metric.value}</span>
                 {metric.change !== undefined && metric.change !== null && (
-                  <span className={`text-xs flex items-center gap-0.5 ${metric.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`text-xs flex items-center gap-0.5 ${metric.change >= 0 ? 'text-success' : 'text-danger'}`}>
                     {metric.change >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                     {metric.change > 0 ? '+' : ''}{metric.change}%
                   </span>

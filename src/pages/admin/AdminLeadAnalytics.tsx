@@ -361,7 +361,7 @@ export default function AdminLeadAnalytics() {
                   <p className="text-sm text-muted-foreground">
                     This Week
                     {weekGrowth !== 0 && (
-                      <span className={weekGrowth > 0 ? "text-green-600 ml-1" : "text-red-600 ml-1"}>
+                      <span className={weekGrowth > 0 ? "text-success ml-1" : "text-danger ml-1"}>
                         {weekGrowth > 0 ? "+" : ""}{weekGrowth}%
                       </span>
                     )}

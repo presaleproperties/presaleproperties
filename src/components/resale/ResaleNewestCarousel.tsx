@@ -122,7 +122,7 @@ export function ResaleNewestCarousel() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Flame className="h-5 w-5 text-orange-500" />
+            <Flame className="h-5 w-5 text-warning" />
             <Skeleton className="h-6 w-48" />
           </div>
         </div>
@@ -148,7 +148,7 @@ export function ResaleNewestCarousel() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Flame className="h-5 w-5 text-orange-500 animate-pulse" />
+          <Flame className="h-5 w-5 text-warning animate-pulse" />
           <h3 className="text-xl sm:text-2xl font-bold text-foreground">Newest Listings</h3>
         </div>
         <div className="flex items-center gap-2">

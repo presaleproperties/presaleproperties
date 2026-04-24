@@ -120,22 +120,22 @@ export function EmailTemplatePicker({ value, onChange }: EmailTemplatePickerProp
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between h-9 bg-white text-sm font-normal"
+          className="w-full justify-between h-9 bg-card text-sm font-normal"
         >
           <span className="flex items-center gap-2 min-w-0 truncate">
             {selected?.group === "campaign" ? (
-              <FileText className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+              <FileText className="h-3.5 w-3.5 text-warning shrink-0" />
             ) : selected?.group === "db" ? (
-              <Mail className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <Mail className="h-3.5 w-3.5 text-success shrink-0" />
             ) : (
-              <Sparkles className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+              <Sparkles className="h-3.5 w-3.5 text-info shrink-0" />
             )}
             <span className="truncate">{selected?.label || "Select a template…"}</span>
           </span>
           <ChevronsUpDown className="h-3.5 w-3.5 opacity-50 shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[420px] p-0 bg-white" align="start">
+      <PopoverContent className="w-[420px] p-0 bg-card" align="start">
         <Command>
           <div className="flex items-center border-b px-3">
             <Search className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
@@ -183,7 +183,7 @@ function TemplateRow({
 }: { opt: TemplateOption; selected: boolean; onSelect: (o: TemplateOption) => void }) {
   const Icon = opt.group === "campaign" ? FileText : opt.group === "db" ? Mail : Sparkles;
   const iconColor =
-    opt.group === "campaign" ? "text-amber-600" : opt.group === "db" ? "text-emerald-600" : "text-blue-600";
+    opt.group === "campaign" ? "text-warning" : opt.group === "db" ? "text-success" : "text-info";
   return (
     <CommandItem
       value={`${opt.label} ${opt.description || ""} ${opt.value}`}

@@ -60,9 +60,9 @@ const CATEGORY_META: Record<
   RecommendationCategory,
   { label: string; icon: React.ComponentType<{ className?: string }>; color: string }
 > = {
-  condo: { label: "Condo", icon: Building2, color: "text-sky-500" },
-  townhome: { label: "Townhome", icon: Home, color: "text-emerald-500" },
-  detached: { label: "Detached", icon: Trees, color: "text-amber-500" },
+  condo: { label: "Condo", icon: Building2, color: "text-info" },
+  townhome: { label: "Townhome", icon: Home, color: "text-success" },
+  detached: { label: "Detached", icon: Trees, color: "text-warning" },
 };
 
 function inferCategory(projectType: string | null): RecommendationCategory {
@@ -243,7 +243,7 @@ export function RecommendationProjectsPanel({
       {/* Group by category toggle */}
       <div className="flex items-center justify-between rounded-lg border border-border bg-muted/20 px-3 py-2">
         <div className="flex items-center gap-2">
-          <Layers className="h-3.5 w-3.5 text-amber-500" />
+          <Layers className="h-3.5 w-3.5 text-warning" />
           <div>
             <p className="text-[11px] font-semibold text-foreground">
               Group by category
@@ -450,7 +450,7 @@ export function RecommendationProjectsPanel({
                         </p>
                       </div>
                       {already ? (
-                        <span className="text-[9px] text-emerald-600 font-medium shrink-0">
+                        <span className="text-[9px] text-success font-medium shrink-0">
                           Added
                         </span>
                       ) : (

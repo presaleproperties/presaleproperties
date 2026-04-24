@@ -251,18 +251,18 @@ export default function DashboardProfile() {
   const getVerificationIcon = () => {
     switch (agentProfile?.verification_status) {
       case "verified":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-success" />;
       case "rejected":
         return <XCircle className="h-5 w-5 text-destructive" />;
       default:
-        return <AlertCircle className="h-5 w-5 text-amber-500" />;
+        return <AlertCircle className="h-5 w-5 text-warning" />;
     }
   };
 
   const getVerificationBadge = () => {
     switch (agentProfile?.verification_status) {
       case "verified":
-        return <Badge className="bg-green-500/10 text-green-600 border-green-500/20">Verified</Badge>;
+        return <Badge className="bg-success/10 text-success border-success/20">Verified</Badge>;
       case "rejected":
         return <Badge variant="destructive">Rejected</Badge>;
       default:

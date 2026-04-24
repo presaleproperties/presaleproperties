@@ -90,11 +90,11 @@ export default function AdminDeveloperProfiles() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
-        return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Pending</Badge>;
+        return <Badge variant="outline" className="bg-warning-soft text-warning-strong border-warning/30">Pending</Badge>;
       case "approved":
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Approved</Badge>;
+        return <Badge variant="outline" className="bg-success-soft text-success-strong border-success/30">Approved</Badge>;
       case "rejected":
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Rejected</Badge>;
+        return <Badge variant="outline" className="bg-danger-soft text-danger-strong border-danger/30">Rejected</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -113,11 +113,11 @@ export default function AdminDeveloperProfiles() {
         </div>
 
         {pendingCount > 0 && (
-          <Card className="border-amber-200 bg-amber-50">
+          <Card className="border-warning/30 bg-warning-soft">
             <CardContent className="py-4">
               <div className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-amber-600" />
-                <span className="font-medium text-amber-800">
+                <Building2 className="h-5 w-5 text-warning" />
+                <span className="font-medium text-warning-strong">
                   {pendingCount} developer{pendingCount !== 1 ? "s" : ""} pending review
                 </span>
               </div>

@@ -242,10 +242,10 @@ export function TemplatePicker({ templates, selectedId, onSelect }: Props) {
                       </div>
                     )}
                     {t.is_favorited && (
-                      <Star className="absolute right-1.5 top-1.5 h-3.5 w-3.5 fill-amber-400 text-amber-400 drop-shadow" />
+                      <Star className="absolute right-1.5 top-1.5 h-3.5 w-3.5 fill-warning text-warning drop-shadow" />
                     )}
                     {/* Hover preview overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100 group-focus-within:bg-black/40 group-focus-within:opacity-100">
+                    <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/0 opacity-0 transition-all group-hover:bg-neutral-900/40 group-hover:opacity-100 group-focus-within:bg-neutral-900/40 group-focus-within:opacity-100">
                       <button
                         type="button"
                         onClick={(e) => {
@@ -304,8 +304,8 @@ export function TemplatePicker({ templates, selectedId, onSelect }: Props) {
                     </Badge>
                   )}
                   {previewing?.is_favorited && (
-                    <span className="inline-flex items-center gap-0.5 text-[10px] text-amber-600">
-                      <Star className="h-2.5 w-2.5 fill-amber-500 text-amber-500" />
+                    <span className="inline-flex items-center gap-0.5 text-[10px] text-warning">
+                      <Star className="h-2.5 w-2.5 fill-warning text-warning" />
                       Favorited
                     </span>
                   )}
@@ -326,7 +326,7 @@ export function TemplatePicker({ templates, selectedId, onSelect }: Props) {
                 srcDoc={previewHtml}
                 title="Template preview"
                 sandbox=""
-                className="h-[65vh] w-full rounded-md border border-border bg-white"
+                className="h-[65vh] w-full rounded-md border border-border bg-card"
               />
             ) : (
               <div className="flex h-[40vh] items-center justify-center text-xs text-muted-foreground">

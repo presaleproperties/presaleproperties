@@ -360,7 +360,7 @@ export default function BlogCategoryPage() {
                           )}
                           {post.is_featured && (
                             <div className="absolute top-3 left-3">
-                              <Badge className="bg-yellow-500 hover:bg-yellow-600">
+                              <Badge className="bg-warning hover:bg-warning">
                                 <Star className="h-3 w-3 mr-1 fill-current" />
                                 Featured
                               </Badge>
