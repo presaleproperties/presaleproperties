@@ -486,3 +486,18 @@ function CarouselSection({ children }: {children: React.ReactNode;delay?: number
     </div>);
 
 }
+
+/**
+ * Wraps a promo card + adjacent carousel inside a single rounded panel so the
+ * two feel like one unified module on mobile/tablet — matches the desktop
+ * CityGroup pattern. Uses px-4 outer margin and consistent internal padding.
+ */
+function MobileGroup({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mx-4 my-6 rounded-2xl border border-border/60 bg-card/40 shadow-sm overflow-hidden">
+      <div className="p-4 sm:p-5 space-y-5 sm:space-y-6">
+        {children}
+      </div>
+    </div>
+  );
+}
