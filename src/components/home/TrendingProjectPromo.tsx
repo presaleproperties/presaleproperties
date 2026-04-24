@@ -28,7 +28,7 @@ export function TrendingProjectPromo() {
   const price = formatPrice(project.starting_price);
 
   return (
-    <section className="py-12 md:py-16">
+    <section className="py-6 md:py-10">
       <div className="container px-4">
         <Link
           to={url}
