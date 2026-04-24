@@ -153,7 +153,7 @@ export function GoogleReviewsCarousel() {
                 </div>
                 <span className="text-sm font-bold text-foreground">5.0</span>
                 <span className="text-sm text-muted-foreground">
-                  ({reviews.length} reviews)
+                  More reviews
                 </span>
               </div>
               <div className="hidden sm:flex gap-2">
