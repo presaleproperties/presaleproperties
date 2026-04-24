@@ -231,7 +231,7 @@ export function PresaleExpertsSection() {
                 Your Presale Team
               </span>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight mb-5">
-                Why Choose{" "}
+                Why Choose<br />
                 <span className="text-primary">Presale Properties?</span>
               </h2>
               <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-8">
