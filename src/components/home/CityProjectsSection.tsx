@@ -16,6 +16,7 @@ const FEATURED_CITIES = [
  */
 const PRE_CITY_PROMOS: Record<string, { slug: string; badgeLabel?: string }> = {
   Coquitlam: { slug: "ironwood", badgeLabel: "Coquitlam Spotlight" },
+  Vancouver: { slug: "baden-park", badgeLabel: "Vancouver Spotlight" },
 };
 
 export function CityProjectsSection() {
