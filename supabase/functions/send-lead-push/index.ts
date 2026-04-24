@@ -7,6 +7,7 @@
  */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+// @ts-ignore -- npm package resolved at runtime by edge runtime
 import webpush from "npm:web-push@3.6.7";
 
 const corsHeaders = {

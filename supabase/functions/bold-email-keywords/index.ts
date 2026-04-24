@@ -119,7 +119,7 @@ ${bodyCopy || ""}`;
       cleaned = cleaned
         .replace(/,\s*}/g, "}")
         .replace(/,\s*]/g, "]")
-        .replace(/[\x00-\x1F\x7F]/g, (ch) => ch === "\n" || ch === "\t" ? ch : "");
+        .replace(/[\x00-\x1F\x7F]/g, (ch: string) => ch === "\n" || ch === "\t" ? ch : "");
       try {
         parsed = JSON.parse(cleaned);
       } catch {

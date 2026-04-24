@@ -58,7 +58,7 @@ export async function isRateLimited(
   windowSeconds: number
 ): Promise<boolean> {
   try {
-    const { data, error } = await supabase.rpc("check_rate_limit", {
+    const { data, error } = await (supabase.rpc as any)("check_rate_limit", {
       p_key: key,
       p_max_requests: maxRequests,
       p_window_seconds: windowSeconds,
