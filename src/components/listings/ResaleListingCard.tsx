@@ -277,10 +277,10 @@ export function ResaleListingCard({
                 <img
                   src={photoUrls[currentImageIndex]}
                   alt={address}
-                  className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform backface-visibility-hidden"
+                  className="absolute inset-0 h-full w-full min-w-full min-h-full object-cover object-center transition-transform duration-300 ease-out group-hover:scale-110 will-change-transform backface-visibility-hidden"
                   loading="lazy"
                   decoding="async"
-                  style={{ transform: 'translateZ(0)', contentVisibility: 'auto' }}
+                  style={{ transform: 'translateZ(0) scale(1.02)', transformOrigin: 'center', contentVisibility: 'auto' }}
                 />
 
                 {/* Bottom gradient for price overlay */}
