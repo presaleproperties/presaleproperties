@@ -31,8 +31,10 @@ Deno.serve(async (req) => {
     }
 
     const payload = {
-      presale_user_id: body.presale_user_id,
-      ...(body.email ? { email: String(body.email).trim().toLowerCase() } : {}),
+      identity: {
+        presale_user_id: body.presale_user_id,
+        ...(body.email ? { email: String(body.email).trim().toLowerCase() } : {}),
+      },
       behavior: body.behavior,
     };
 
