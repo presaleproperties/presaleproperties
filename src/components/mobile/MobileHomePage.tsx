@@ -395,7 +395,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </>
         }
 
-        {/* City-based Carousels - Only show for Presale tab */}
+        {/* City-based Carousels - Only show for Presale tab. Trimmed from 7 → 3 to reduce mobile scroll fatigue. */}
         {activeTab === "projects" &&
         <>
             <CarouselSection delay={150}>
@@ -415,14 +415,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            <CarouselSection delay={250}>
-              <MobileDiscoveryCarousel
-              type="city_burnaby"
-              title="Burnaby"
-              city={selectedCity} />
-
-            </CarouselSection>
-
             <CarouselSection delay={300}>
               <FeaturedProjectPromo slug="ironwood" badgeLabel="Coquitlam Spotlight" />
               <MobileDiscoveryCarousel
@@ -432,37 +424,16 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            <CarouselSection delay={350}>
-              <MobileDiscoveryCarousel
-              type="city_langley"
-              title="Langley"
-              city={selectedCity} />
-
-            </CarouselSection>
-
-            <CarouselSection delay={400}>
-              <MobileDiscoveryCarousel
-              type="city_richmond"
-              title="Richmond"
-              city={selectedCity} />
-
-            </CarouselSection>
-
-            <CarouselSection delay={450}>
-              <MobileDiscoveryCarousel
-              type="city_delta"
-              title="Delta"
-              city={selectedCity} />
-
-            </CarouselSection>
-
-            <CarouselSection delay={500}>
-              <MobileDiscoveryCarousel
-              type="city_abbotsford"
-              title="Abbotsford"
-              city={selectedCity} />
-
-            </CarouselSection>
+            {/* Browse other cities CTA — replaces 4 carousels (Burnaby, Langley, Richmond, Delta, Abbotsford) */}
+            <div className="px-4 my-8">
+              <Link
+                to="/presale-projects"
+                className="flex items-center justify-center gap-2 w-full h-12 rounded-full border border-border bg-background text-foreground font-semibold text-sm shadow-sm active:scale-[0.98] transition-transform"
+              >
+                Explore other cities
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </>
         }
       </div>
