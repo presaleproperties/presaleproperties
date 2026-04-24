@@ -195,7 +195,132 @@ export function PresaleExpertsSection() {
         </div>
       </div>
 
-      {/* Bottom: Expert Trust + VIP CTA — two-column dark/gold split */}
+      {/* Middle: Why Choose Us — photo collage + numbered reasons (Springfield-style) */}
+      <div className="py-12 md:py-24 border-b border-border/40 bg-background">
+        <div className="container px-4 sm:px-6">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+            {/* Left — Photo collage: 1 large hero + 2 smaller below */}
+            <div className="space-y-3 sm:space-y-4">
+              {/* Large hero photo */}
+              <div className="aspect-[16/10] rounded-2xl overflow-hidden shadow-xl ring-1 ring-border/50">
+                {photosLoading || photos.length === 0 ? (
+                  <Skeleton className="w-full h-full" />
+                ) : (
+                  <img
+                    src={photos[0].photo_url!}
+                    alt={`${photos[0].full_name} — ${photos[0].title}`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                )}
+              </div>
+
+              {/* Two smaller photos */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {photosLoading || photos.length < 2
+                  ? [0, 1].map((i) => (
+                      <Skeleton key={i} className="aspect-[4/3] rounded-2xl" />
+                    ))
+                  : photos.slice(1, 3).map((m) => (
+                      <div
+                        key={m.id}
+                        className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lg ring-1 ring-border/50 group relative"
+                      >
+                        <img
+                          src={m.photo_url!}
+                          alt={`${m.full_name} — ${m.title}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent p-2.5">
+                          <p className="text-background text-xs font-bold leading-tight">{m.full_name}</p>
+                          <p className="text-background/80 text-[10px] leading-tight">{m.title}</p>
+                        </div>
+                      </div>
+                    ))}
+              </div>
+            </div>
+
+            {/* Right — Headline + numbered reasons + stats */}
+            <div>
+              <span className="text-xs font-bold uppercase tracking-[0.25em] text-primary block mb-3">
+                Your Presale Team
+              </span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight mb-5">
+                Why Choose{" "}
+                <span className="text-primary">Presale Properties?</span>
+              </h2>
+              <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-8">
+                With 5+ years focused exclusively on presales and 400+ families served, we help you find new construction homes perfectly aligned with your lifestyle and investment goals.
+              </p>
+
+              <div className="space-y-6 mb-8">
+                {[
+                  {
+                    title: "Market Expertise",
+                    body: "Deep knowledge of the Surrey, Langley, Vancouver, Coquitlam, Burnaby and Abbotsford presale market — we know what's launching, what's worth it, and what to skip.",
+                  },
+                  {
+                    title: "Exclusive Inventory & Incentives",
+                    body: "VIP access to off-market floor plans, developer credits, and pricing you won't find on public listings — often before launch day.",
+                  },
+                  {
+                    title: "Client-Centric Approach",
+                    body: "No pressure, no commission games. Straight answers, full disclosure, and ongoing support long after assignment or completion.",
+                  },
+                ].map((p, i) => (
+                  <div key={p.title}>
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1.5 flex items-baseline gap-3">
+                      <span className="text-primary">{i + 1}.</span>
+                      <span>{p.title}</span>
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed pl-7 text-sm sm:text-base">
+                      {p.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Stats strip */}
+              <div className="grid grid-cols-3 gap-4 sm:gap-6 py-5 border-t border-b border-border mb-6">
+                {[
+                  { value: "$200M+", label: "Sales Volume" },
+                  { value: "400+", label: "Units Sold" },
+                  { value: "5 Yrs", label: "In Presale Market" },
+                ].map((s) => (
+                  <div key={s.label}>
+                    <div className="text-2xl sm:text-3xl font-extrabold text-primary leading-none mb-1">
+                      {s.value}
+                    </div>
+                    <div className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                      {s.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Rating + CTA */}
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                    ))}
+                  </div>
+                  <span className="text-sm font-semibold text-foreground">5.0 Google Rating</span>
+                </div>
+                <Button asChild variant="outline" className="gap-2">
+                  <Link to="/about">
+                    Meet The Team <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-foreground text-background py-10 md:py-20">
         <div className="container px-4 sm:px-6">
           <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 md:gap-16 items-center">
