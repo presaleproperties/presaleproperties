@@ -48,7 +48,7 @@ export function SpotlightProjectPromo() {
                 <span>{project.neighborhood ? `${project.neighborhood}, ` : ""}{project.city}, BC</span>
               </div>
 
-              <h2 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight mb-3">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground leading-tight mb-3 break-words">
                 {project.name}
               </h2>
 
