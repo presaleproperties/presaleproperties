@@ -200,6 +200,7 @@ const App = () => (
           <SwipeNavigationProvider>
             <GlobalPullToRefresh>
             <ScrollToTop />
+            <ScrollLockSafety />
             <GlobalSEO />
             <FaviconLoader />
             <AgentManifestSwap />
