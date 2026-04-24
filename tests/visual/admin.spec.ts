@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { stabilizePage } from "./helpers";
 
 /**
@@ -10,6 +11,8 @@ import { stabilizePage } from "./helpers";
  * empty (no VR_ADMIN_EMAIL/VR_ADMIN_PASSWORD configured) the entire suite is
  * skipped so local dev without admin creds isn't blocked.
  */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const AUTH_FILE = path.join(__dirname, ".auth", "admin.json");
 
 let hasAuth = false;
