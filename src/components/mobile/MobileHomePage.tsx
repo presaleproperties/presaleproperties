@@ -319,10 +319,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               </Link>
             </div>
 
-            {/* 4. Projects Near You - City Quick Links */}
-            <CarouselSection delay={125}>
-              <MobileCityQuickLinks />
-            </CarouselSection>
           </> :
 
         <>
