@@ -15,9 +15,25 @@ const badgeVariants = cva(
         success: "border-transparent bg-success text-success-foreground",
         premium: "border-transparent bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold",
       },
+      tone: {
+        none: "",
+        // Solid tones
+        success: "border-transparent bg-success text-success-foreground hover:bg-success/90",
+        warning: "border-transparent bg-warning text-warning-foreground hover:bg-warning/90",
+        info: "border-transparent bg-info text-info-foreground hover:bg-info/90",
+        danger: "border-transparent bg-danger text-danger-foreground hover:bg-danger/90",
+        neutral: "border-transparent bg-muted text-muted-foreground hover:bg-muted/80",
+        // Soft (low-emphasis) tones — preferred for table chips, statuses
+        "success-soft": "border-transparent bg-success-soft text-success-soft-foreground hover:bg-success-soft/80",
+        "warning-soft": "border-transparent bg-warning-soft text-warning-soft-foreground hover:bg-warning-soft/80",
+        "info-soft": "border-transparent bg-info-soft text-info-soft-foreground hover:bg-info-soft/80",
+        "danger-soft": "border-transparent bg-danger-soft text-danger-soft-foreground hover:bg-danger-soft/80",
+        "neutral-soft": "border-transparent bg-muted text-foreground hover:bg-muted/80",
+      },
     },
     defaultVariants: {
       variant: "default",
+      tone: "none",
     },
   },
 );
@@ -25,8 +41,10 @@ const badgeVariants = cva(
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
 
 const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
-  ({ className, variant, ...props }, ref) => {
-    return <div ref={ref} className={cn(badgeVariants({ variant }), className)} {...props} />;
+  ({ className, variant, tone, ...props }, ref) => {
+    // When a tone is provided, it takes precedence over variant styling.
+    const resolvedVariant = tone && tone !== "none" ? undefined : variant;
+    return <div ref={ref} className={cn(badgeVariants({ variant: resolvedVariant, tone }), className)} {...props} />;
   }
 );
 Badge.displayName = "Badge";
