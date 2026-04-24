@@ -14,10 +14,9 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
-import { TrendingProjectPromo } from "@/components/home/TrendingProjectPromo";
-import { SecondaryProjectPromo } from "@/components/home/SecondaryProjectPromo";
-import { RisingStarPromo } from "@/components/home/RisingStarPromo";
+// Promo cards (Spotlight, Trending, Secondary, RisingStar) are now rendered
+// inside CityProjectsSection so each promo sits next to its city carousel.
+
 
 import { MistakesGuideBanner } from "@/components/home/MistakesGuideBanner";
 
