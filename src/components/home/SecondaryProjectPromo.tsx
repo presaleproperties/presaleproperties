@@ -79,7 +79,7 @@ export function SecondaryProjectPromo({ inline = false }: SecondaryProjectPromoP
 
         <Link
           to={url}
-          className="relative aspect-[4/3] md:aspect-auto md:h-auto md:min-h-[420px] overflow-hidden group order-1 md:order-2"
+          className="relative aspect-[4/3] lg:aspect-auto lg:h-auto lg:min-h-[420px] overflow-hidden group order-1 lg:order-2"
         >
           <img
             src={project.featured_image!}
