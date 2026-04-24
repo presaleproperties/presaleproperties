@@ -24,6 +24,7 @@ import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { TwoWaysToBuy } from "@/components/home/TwoWaysToBuy";
 import { NewConstructionTrustBar } from "@/components/home/NewConstructionTrustBar";
 import { WhyChooseUs } from "@/components/home/WhyChooseUs";
+import { GoogleReviewsCarousel } from "@/components/home/GoogleReviewsCarousel";
 // Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
 const HOME_FAQS = [
   {
@@ -327,6 +328,9 @@ const Index = () => {
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <WhyChooseUs />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <GoogleReviewsCarousel />
         </ScrollReveal>
         {/* Lead magnet: cinematic banner — replaces inline form for better visual impact */}
         <ScrollReveal animation="fade-up" delay={100}>
