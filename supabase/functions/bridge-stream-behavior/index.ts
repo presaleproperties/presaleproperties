@@ -30,12 +30,18 @@ Deno.serve(async (req) => {
       return json({ error: "behavior is required" }, 400);
     }
 
+    const beh = body.behavior as { sessions?: any[]; views?: any[]; forms?: any[] };
+    const events: Array<Record<string, unknown>> = [];
+    for (const s of beh.sessions ?? []) events.push({ type: "session", ...s });
+    for (const v of beh.views ?? []) events.push({ type: "property_view", ...v });
+    for (const f of beh.forms ?? []) events.push({ type: "form", ...f });
+
     const payload = {
       identity: {
         presale_user_id: body.presale_user_id,
         ...(body.email ? { email: String(body.email).trim().toLowerCase() } : {}),
       },
-      behavior: body.behavior,
+      events,
     };
 
     const res = await fetch(CRM_BEHAVIOR_URL, {
