@@ -3,6 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { collectTrackingData } from "@/lib/collectTrackingData";
 import { calculateLeadScore } from "@/lib/leadScoring";
 import { getEmailAttribution } from "@/lib/emailAttribution";
+import {
+  buildBehaviorPayload,
+  recordFormEvent,
+  getPresaleUserId,
+} from "@/lib/tracking/behaviorBuffer";
+import { setKnownEmail, streamBehavior } from "@/lib/tracking/streamBehavior";
 
 
 export interface LeadSubmissionPayload {
@@ -150,13 +156,31 @@ export function useLeadSubmission(): LeadSubmissionResult {
           if (patchErr) console.warn("[useLeadSubmission] DB patch failed:", patchErr);
           else {
             console.log("[useLeadSubmission] DB row patched with tracking data");
-            // Fire Zapier webhook now that tracking data is saved
-            supabase.functions.invoke("send-project-lead", { body: { leadId: payload.leadId } })
+            // Pin known email and record signup completion in the buffer so it
+            // gets bundled into the bridge call below.
+            setKnownEmail(payload.email);
+            recordFormEvent({
+              form_type: payload.formType || "signup_completed",
+              status: "completed",
+              funnel_step: 3,
+              funnel_total_steps: 3,
+            });
+            const behavior = buildBehaviorPayload();
+            const presale_user_id = getPresaleUserId();
+
+            // Fire Zapier + DealzFlow bridge with full behavior bundle.
+            supabase.functions.invoke("send-project-lead", {
+              body: { leadId: payload.leadId, behavior, presale_user_id },
+            })
               .then(({ error: fnErr }) => {
                 if (fnErr) console.warn("[useLeadSubmission] send-project-lead failed:", fnErr);
                 else console.log("[useLeadSubmission] Zapier webhook fired successfully");
               })
               .catch((e) => console.warn("[useLeadSubmission] send-project-lead error:", e));
+
+            // Also stream behavior to the CRM directly with the now-known email
+            // so anonymous activity collected pre-signup gets stitched.
+            streamBehavior({ immediate: true });
 
             // Fire hot-lead alert (dispatcher checks threshold + enabled flag)
             supabase.functions.invoke("alert-dispatcher", {
