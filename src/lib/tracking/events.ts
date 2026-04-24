@@ -3,7 +3,7 @@
  * Sends all events to Zapier webhook with rich payload
  */
 
-import { supabase } from "@/integrations/supabase/client";
+import { safeTrackingInvoke } from "./safeInvoke";
 import { getVisitorId, getSessionId, generateEventId } from "./identifiers";
 import { getAttributionData, getReferrer } from "./attribution";
 
@@ -87,17 +87,10 @@ async function sendEvent(eventName: string, eventPayload: object = {}): Promise<
     console.log(`📊 [Tracking] ${eventName}:`, payload);
   }
 
-  try {
-    const { error } = await supabase.functions.invoke("send-behavior-event", {
-      body: payload,
-    });
-
-    if (error) {
-      console.error("Failed to proxy tracking event:", error);
-    }
-  } catch (error) {
-    console.error("Failed to proxy tracking event:", error);
-  }
+  // Fire-and-forget. Transport errors (e.g. preview-iframe fetch proxy,
+  // ad-blockers) are silenced inside safeTrackingInvoke so they never bubble
+  // up as user-visible errors or pollute the console.
+  await safeTrackingInvoke("send-behavior-event", payload);
 }
 
 // ============ EVENT TRACKING FUNCTIONS ============
