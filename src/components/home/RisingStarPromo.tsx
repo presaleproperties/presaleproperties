@@ -50,7 +50,7 @@ export function RisingStarPromo() {
               </div>
             </Link>
 
-            <div className="p-6 md:p-8 flex flex-col justify-center">
+            <div className="p-5 sm:p-6 md:p-8 flex flex-col justify-center min-w-0">
               <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-2">
                 <MapPin className="h-3.5 w-3.5 text-primary" />
                 <span>
