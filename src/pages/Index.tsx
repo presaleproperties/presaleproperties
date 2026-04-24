@@ -14,10 +14,9 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
-import { TrendingProjectPromo } from "@/components/home/TrendingProjectPromo";
-import { SecondaryProjectPromo } from "@/components/home/SecondaryProjectPromo";
-import { RisingStarPromo } from "@/components/home/RisingStarPromo";
+// Promo cards (Spotlight, Trending, Secondary, RisingStar) are now rendered
+// inside CityProjectsSection so each promo sits next to its city carousel.
+
 
 import { MistakesGuideBanner } from "@/components/home/MistakesGuideBanner";
 
@@ -313,40 +312,21 @@ const Index = () => {
       <main className="flex-1">
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
         {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
-        {/* Promo: Spotlight project — placed high to capture interest after browsing featured */}
-        {activeTab === "projects" && (
-          <ScrollReveal animation="fade-up" delay={100}>
-            <SpotlightProjectPromo />
-          </ScrollReveal>
-        )}
+        {/*
+          City block now owns ALL project promo cards (Spotlight, Trending,
+          Secondary, RisingStar + hand-picked Featured per city). Each promo
+          sits adjacent to its city carousel for a coherent "promo by city" rhythm.
+        */}
         <ScrollReveal animation="fade-up" delay={100}>
           {activeTab === "projects" ? <CityProjectsSection /> : <ResaleCitySection />}
         </ScrollReveal>
-        {/* Promo: Trending #2 — cinematic full-bleed hero, auto-picked by hotness score */}
-        {activeTab === "projects" && (
-          <ScrollReveal animation="fade-up" delay={100}>
-            <TrendingProjectPromo />
-          </ScrollReveal>
-        )}
+        {/* Editorial flow: trust → social proof → lead magnet → tools → map */}
         <ScrollReveal animation="fade-up" delay={100}>
           <PresaleExpertsSection />
         </ScrollReveal>
-        {/* Promo: Secondary trending project — mirrored split layout */}
-        {activeTab === "projects" && (
-          <ScrollReveal animation="fade-up" delay={100}>
-            <SecondaryProjectPromo />
-          </ScrollReveal>
-        )}
         <ScrollReveal animation="fade-up" delay={100}>
           <GoogleReviewsCarousel />
         </ScrollReveal>
-        {/* Promo: Rising Star — compact ribbon, rank #4 */}
-        {activeTab === "projects" && (
-          <ScrollReveal animation="fade-up" delay={100}>
-            <RisingStarPromo />
-          </ScrollReveal>
-        )}
-        {/* Lead magnet: cinematic banner — replaces inline form for better visual impact */}
         <ScrollReveal animation="fade-up" delay={100}>
           <MistakesGuideBanner location="homepage_banner" />
         </ScrollReveal>
@@ -361,7 +341,7 @@ const Index = () => {
           <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
         </ScrollReveal>
       </main>
-      
+
       <Footer />
     </div>
   );

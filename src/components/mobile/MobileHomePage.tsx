@@ -17,7 +17,7 @@ import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "@/components/home/HeroProjectSlider";
 import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
 import { TrendingProjectPromo } from "@/components/home/TrendingProjectPromo";
-import { SecondaryProjectPromo } from "@/components/home/SecondaryProjectPromo";
+
 import { RisingStarPromo } from "@/components/home/RisingStarPromo";
 import { FeaturedProjectPromo } from "@/components/home/FeaturedProjectPromo";
 import { SearchTab } from "@/components/home/HeroSection";
@@ -287,7 +287,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            {/* Promo: Spotlight (rank #1 trending) */}
+            {/* Promo: Spotlight (rank #1 trending) — lead-in before category carousels */}
             <SpotlightProjectPromo />
 
             {/* 2. Condos */}
@@ -307,9 +307,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               city={selectedCity} />
 
             </CarouselSection>
-
-            {/* Promo: Trending (rank #2) — single ad-style break, not stacked between every row */}
-            <TrendingProjectPromo />
 
             {/* "See all projects" CTA — escape hatch for power users */}
             <div className="px-4 my-6">
@@ -408,6 +405,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </CarouselSection>
 
             <CarouselSection delay={200}>
+              <TrendingProjectPromo />
               <MobileDiscoveryCarousel
               type="city_surrey"
               title="Surrey"
@@ -422,6 +420,11 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               title="Coquitlam"
               city={selectedCity} />
 
+            </CarouselSection>
+
+            {/* Closer: Rising Star (rank #4) — compact ribbon caps the city block */}
+            <CarouselSection delay={350}>
+              <RisingStarPromo />
             </CarouselSection>
 
             {/* Browse other cities CTA — replaces 4 carousels (Burnaby, Langley, Richmond, Delta, Abbotsford) */}
