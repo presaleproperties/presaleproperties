@@ -36,11 +36,11 @@ export function RisingStarPromo({ inline = false }: RisingStarPromoProps = {}) {
 
   const card = (
     <div className="relative isolate overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-primary/5 via-card to-card shadow-lg">
-      {/* Stack vertically on mobile/tablet, side-by-side from md+ to avoid clipping */}
-      <div className="grid md:grid-cols-[300px_1fr] lg:grid-cols-[340px_1fr] gap-0">
+      {/* Stack vertically on mobile/tablet, side-by-side from lg+ to avoid clipping */}
+      <div className="grid lg:grid-cols-[300px_1fr] xl:grid-cols-[340px_1fr] gap-0">
         <Link
           to={url}
-          className="relative aspect-[16/10] md:aspect-auto md:h-auto md:min-h-[220px] overflow-hidden group"
+          className="relative aspect-[16/10] lg:aspect-auto lg:h-auto lg:min-h-[220px] overflow-hidden group"
         >
           <img
             src={project.featured_image!}
