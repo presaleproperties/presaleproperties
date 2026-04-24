@@ -28,10 +28,10 @@ export function SecondaryProjectPromo() {
 
   return (
     <section className="py-6 md:py-12">
-      <div className="container px-4 sm:px-6">
+      <div className="container px-4">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-            <div className="p-6 sm:p-8 lg:p-12 flex flex-col justify-center order-2 lg:order-1">
+          <div className="grid md:grid-cols-2 gap-0">
+            <div className="p-8 md:p-12 flex flex-col justify-center order-2 md:order-1">
               <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
                 <MapPin className="h-4 w-4 text-primary" />
                 <span>
@@ -74,7 +74,7 @@ export function SecondaryProjectPromo() {
 
             <Link
               to={url}
-              className="relative h-56 sm:h-72 lg:h-auto lg:min-h-[420px] overflow-hidden group order-1 lg:order-2"
+              className="relative h-64 md:h-auto md:min-h-[420px] overflow-hidden group order-1 md:order-2"
             >
               <img
                 src={project.featured_image!}

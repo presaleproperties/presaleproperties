@@ -32,7 +32,7 @@ export function TrendingProjectPromo() {
       <div className="container px-4 sm:px-6">
         <Link
           to={url}
-          className="relative block overflow-hidden rounded-3xl border border-border shadow-xl group min-h-[340px] sm:min-h-[400px] lg:min-h-[460px]"
+          className="relative flex flex-col justify-end overflow-hidden rounded-3xl border border-border shadow-xl group min-h-[420px] sm:min-h-[480px] lg:min-h-[520px]"
         >
           <img
             src={project.featured_image!}
@@ -41,18 +41,18 @@ export function TrendingProjectPromo() {
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
           {/* Gradient for readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
 
           {/* Top badge */}
-          <div className="absolute top-5 left-5 inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1 shadow-lg">
+          <div className="absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1 shadow-lg">
             <TrendingUp className="h-3 w-3" />
             <span className="text-[11px] font-bold uppercase tracking-wider">Hot Right Now</span>
           </div>
 
-          {/* Content overlay */}
-          <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 lg:p-10 text-on-dark">
+          {/* Content — flows naturally inside flex column, pinned to bottom */}
+          <div className="relative z-[1] p-5 sm:p-6 lg:p-10 text-on-dark">
             <div className="flex items-center gap-1.5 text-on-dark/80 text-sm mb-2">
-              <MapPin className="h-4 w-4 text-primary" />
+              <MapPin className="h-4 w-4 text-primary shrink-0" />
               <span>
                 {project.neighborhood ? `${project.neighborhood}, ` : ""}
                 {project.city}, BC
