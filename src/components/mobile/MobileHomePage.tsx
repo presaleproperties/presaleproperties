@@ -188,12 +188,12 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 overflow-visible pointer-events-none" style={{ paddingTop: "clamp(60px, 22vh, 180px)" }}>
 
           {/* Headline */}
-          <h1 className="text-[2rem] sm:text-4xl font-extrabold text-on-dark leading-[1.08] text-center mb-2 tracking-tight max-w-[320px] sm:max-w-md" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+          <h1 className="text-[2rem] font-extrabold text-on-dark leading-[1.08] text-center mb-2 tracking-tight max-w-[320px]" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
             Find New Homes.
           </h1>
 
           {/* Subheadline */}
-          <p className="text-on-dark/70 text-sm text-center max-w-[300px] sm:max-w-sm mb-4 leading-relaxed flex items-center justify-center gap-1.5" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
+          <p className="text-on-dark/70 text-sm text-center max-w-[300px] mb-4 leading-relaxed flex items-center justify-center gap-1.5" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
             <MapPin className="w-3.5 h-3.5 text-primary shrink-0" strokeWidth={2.5} />
             Metro Vancouver
           </p>
