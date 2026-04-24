@@ -202,6 +202,29 @@ export function PresaleExpertsSection() {
 
             {/* Left — Expert credibility */}
             <div className="space-y-5">
+              {/* Team headshot collage */}
+              <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-2">
+                {photosLoading || photos.length === 0
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="aspect-square rounded-xl bg-background/10" />
+                    ))
+                  : photos.slice(0, 4).map((m) => (
+                      <div
+                        key={m.id}
+                        className="aspect-square rounded-xl overflow-hidden shadow-lg ring-1 ring-background/10 group relative"
+                      >
+                        <img
+                          src={m.photo_url!}
+                          alt={`${m.full_name} — ${m.title}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/30 to-transparent p-1.5">
+                          <p className="text-background text-[10px] font-bold leading-tight truncate">{m.full_name}</p>
+                        </div>
+                      </div>
+                    ))}
+              </div>
               <span className="text-xs font-semibold uppercase tracking-widest text-primary block">
                 Your Presale Team
               </span>
