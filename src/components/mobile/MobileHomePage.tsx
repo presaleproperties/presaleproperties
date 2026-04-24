@@ -286,6 +286,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
+            {/* Promo: Spotlight (rank #1 trending) */}
+            <SpotlightProjectPromo />
+
             <div className="my-6 border-t border-border/50" />
 
             {/* Condos */}
@@ -296,6 +299,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               city={selectedCity} />
 
             </CarouselSection>
+
+            {/* Promo: Trending (rank #2 trending) */}
+            <TrendingProjectPromo />
 
             <div className="my-6 border-t border-border/50" />
 
@@ -308,6 +314,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
+            {/* Promo: Secondary (rank #3 trending) */}
+            <SecondaryProjectPromo />
+
             <div className="my-6 border-t border-border/50" />
 
             {/* Single-Family / Detached */}
@@ -318,6 +327,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               city={selectedCity} />
 
             </CarouselSection>
+
+            {/* Promo: Rising Star (rank #4 trending) */}
+            <RisingStarPromo />
 
             <div className="my-6 border-t border-border/50" />
 
