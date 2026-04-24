@@ -15,6 +15,7 @@ import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
+import { SecondaryProjectPromo } from "@/components/home/SecondaryProjectPromo";
 import { VipListSignup } from "@/components/home/VipListSignup";
 import { MistakesGuideBanner } from "@/components/home/MistakesGuideBanner";
 
@@ -326,6 +327,12 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           <WhyChooseUs />
         </ScrollReveal>
+        {/* Promo: Secondary trending project — second high-visual project moment */}
+        {activeTab === "projects" && (
+          <ScrollReveal animation="fade-up" delay={100}>
+            <SecondaryProjectPromo />
+          </ScrollReveal>
+        )}
         <ScrollReveal animation="fade-up" delay={100}>
           <GoogleReviewsCarousel />
         </ScrollReveal>
