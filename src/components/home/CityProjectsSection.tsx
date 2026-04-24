@@ -51,12 +51,8 @@ function CityGroup({ city, title, subtitle, promoSlug, children }: CityGroupProp
   return (
     <ScrollReveal animation="fade-up" delay={100}>
       <div className="rounded-3xl border border-border/60 bg-card/40 shadow-sm overflow-hidden">
-        {children && (
-          <div className="p-4 sm:p-6 md:p-8 pb-0 sm:pb-0 md:pb-0">
-            {children}
-          </div>
-        )}
-        <div className="p-4 sm:p-6 md:p-8">
+        <div className="p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8">
+          {children}
           <CityProjectsCarousel
             city={city}
             title={title}
