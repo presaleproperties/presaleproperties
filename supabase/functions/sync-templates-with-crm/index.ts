@@ -24,14 +24,47 @@ async function hashContent(s: string): Promise<string> {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  const startedAt = new Date();
+  const triggeredBy = new URL(req.url).searchParams.get("triggered_by") || "manual";
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  // Insert a "running" log entry
+  const { data: runRow } = await supabase
+    .from("crm_sync_runs")
+    .insert({
+      sync_type: "templates",
+      status: "running",
+      triggered_by: triggeredBy,
+      started_at: startedAt.toISOString(),
+    })
+    .select("id")
+    .single();
+  const runId = runRow?.id;
+
+  async function finalize(status: string, fields: Record<string, unknown>) {
+    if (!runId) return;
+    const finishedAt = new Date();
+    await supabase
+      .from("crm_sync_runs")
+      .update({
+        status,
+        finished_at: finishedAt.toISOString(),
+        duration_ms: finishedAt.getTime() - startedAt.getTime(),
+        ...fields,
+      })
+      .eq("id", runId);
+  }
+
   try {
     const bridgeSecret = Deno.env.get("BRIDGE_SECRET");
-    if (!bridgeSecret) return json({ error: "BRIDGE_SECRET not configured" }, 500);
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
+    if (!bridgeSecret) {
+      await finalize("failed", { error_message: "BRIDGE_SECRET not configured" });
+      return json({ error: "BRIDGE_SECRET not configured" }, 500);
+    }
 
     // 1. PULL from CRM
     let pulled = 0;
@@ -57,7 +90,7 @@ Deno.serve(async (req) => {
           name: t.name,
           subject: t.subject,
           body_html: t.body_html,
-          html_content: t.body_html, // mirror to required NOT NULL column
+          html_content: t.body_html,
           category: t.category,
           merge_tags: t.merge_tags || [],
           sync_hash: t.sync_hash,
@@ -106,10 +139,18 @@ Deno.serve(async (req) => {
     let pushResult: unknown = null;
     try { pushResult = await pushRes.json(); } catch { pushResult = { ok: pushRes.ok }; }
 
+    await finalize("success", {
+      pulled_count: pulled,
+      pushed_count: pushPayload.length,
+      result: { pulled, pushed: pushPayload.length, pushResult },
+    });
+
     return json({ ok: true, pulled, pushed: pushPayload.length, pushResult }, 200);
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
     console.error("[sync-templates-with-crm]", err);
-    return json({ error: err instanceof Error ? err.message : String(err) }, 500);
+    await finalize("failed", { error_message: message });
+    return json({ error: message }, 500);
   }
 });
 
