@@ -15,6 +15,8 @@ import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
+import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
+import { VipListSignup } from "@/components/home/VipListSignup";
 
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
@@ -306,17 +308,28 @@ const Index = () => {
       <main className="flex-1">
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
         {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
+        {/* Promo: Spotlight project — placed high to capture interest after browsing featured */}
+        {activeTab === "projects" && (
+          <ScrollReveal animation="fade-up" delay={100}>
+            <SpotlightProjectPromo />
+          </ScrollReveal>
+        )}
         <ScrollReveal animation="fade-up" delay={100}>
           {activeTab === "projects" ? <CityProjectsSection /> : <ResaleCitySection />}
+        </ScrollReveal>
+        {/* Lead magnet: VIP list — mid-page email capture */}
+        <ScrollReveal animation="fade-up" delay={100}>
+          <VipListSignup />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <PresaleExpertsSection />
         </ScrollReveal>
-        <ScrollReveal animation="fade-up" delay={100}>
-          <ROICalculatorTeaser />
-        </ScrollReveal>
+        {/* Lead magnet: Mistakes Guide — moved earlier from position 6 */}
         <ScrollReveal animation="fade-up" delay={100}>
           <MistakesGuideLeadMagnet location="homepage" />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <ROICalculatorTeaser />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
