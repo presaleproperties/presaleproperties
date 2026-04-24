@@ -74,7 +74,7 @@ export function SecondaryProjectPromo() {
 
             <Link
               to={url}
-              className="relative h-64 md:h-auto md:min-h-[420px] overflow-hidden group order-1 md:order-2"
+              className="relative h-56 sm:h-72 lg:h-auto lg:min-h-[420px] overflow-hidden group order-1 lg:order-2"
             >
               <img
                 src={project.featured_image!}
