@@ -28,6 +28,8 @@ interface MobileDiscoveryCarouselProps {
   city?: string;
   limit?: number;
   size?: "default" | "large";
+  /** When true, the carousel removes its own horizontal padding so it can be embedded inside another padded container (e.g. MobileGroup). */
+  unpadded?: boolean;
 }
 
 const getCityFromType = (type: CarouselType): string | null => {
@@ -60,9 +62,12 @@ export function MobileDiscoveryCarousel({
   badge,
   city = "all",
   limit = 10,
-  size
+  size,
+  unpadded = false,
 }: MobileDiscoveryCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const headerPadX = unpadded ? "" : "px-4 sm:px-6";
+  const scrollPadX = unpadded ? "" : "px-4 sm:px-6 scroll-px-4 sm:scroll-px-6";
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["mobile-discovery", type, city],
@@ -157,7 +162,7 @@ export function MobileDiscoveryCarousel({
   return (
     <div className="space-y-4 md:space-y-5 lg:hidden">
       {/* Header - Adaptive spacing */}
-      <div className="px-4 sm:px-6">
+      <div className={headerPadX}>
         {badge && (
           <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-2 block">
             {badge}
@@ -184,7 +189,7 @@ export function MobileDiscoveryCarousel({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory px-4 sm:px-6 scroll-px-4 sm:scroll-px-6"
+        className={`flex gap-3 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory ${scrollPadX}`}
       >
         {projects.map((project) => (
           <div key={project.id} className="snap-start first:ml-0">
