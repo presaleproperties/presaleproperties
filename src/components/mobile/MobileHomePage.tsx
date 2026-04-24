@@ -285,7 +285,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
                   type="hot_projects"
                   title="Most Popular Projects"
                   subtitle="The most in-demand presale projects"
-                  city={selectedCity} />
+                  city={selectedCity}
+                  unpadded />
               </MobileGroup>
             </CarouselSection>
 
