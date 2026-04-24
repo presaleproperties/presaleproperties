@@ -328,10 +328,6 @@ const Index = () => {
             <TrendingProjectPromo />
           </ScrollReveal>
         )}
-        {/* Lead magnet: VIP list — mid-page email capture */}
-        <ScrollReveal animation="fade-up" delay={100}>
-          <VipListSignup />
-        </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <PresaleExpertsSection />
         </ScrollReveal>
