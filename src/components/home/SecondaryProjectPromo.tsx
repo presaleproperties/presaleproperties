@@ -3,6 +3,7 @@ import { Flame, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateProjectUrl } from "@/lib/seoUrls";
 import { useTrendingProjects } from "@/hooks/useTrendingProjects";
+import { HAND_PICKED_PROMO_SLUGS } from "./promoExclusions";
 
 const formatPrice = (price: number | null) => {
   if (!price) return null;
@@ -15,8 +16,9 @@ const formatPrice = (price: number | null) => {
  * project (Spotlight = #1, TrendingProjectPromo = #2, Secondary = #3).
  */
 export function SecondaryProjectPromo() {
-  const { data: projects } = useTrendingProjects(4);
-  const project = projects?.[2];
+  const { data: projects } = useTrendingProjects(8);
+  const eligible = (projects ?? []).filter((p) => !HAND_PICKED_PROMO_SLUGS.has(p.slug));
+  const project = eligible[2];
   if (!project) return null;
 
   const url = generateProjectUrl({

@@ -3,6 +3,7 @@ import { Star, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateProjectUrl } from "@/lib/seoUrls";
 import { useTrendingProjects } from "@/hooks/useTrendingProjects";
+import { HAND_PICKED_PROMO_SLUGS } from "./promoExclusions";
 
 const formatPrice = (price: number | null) => {
   if (!price) return null;
@@ -16,8 +17,9 @@ const formatPrice = (price: number | null) => {
  * doesn't feel like four identical hero cards stacked together.
  */
 export function RisingStarPromo() {
-  const { data: projects } = useTrendingProjects(4);
-  const project = projects?.[3];
+  const { data: projects } = useTrendingProjects(8);
+  const eligible = (projects ?? []).filter((p) => !HAND_PICKED_PROMO_SLUGS.has(p.slug));
+  const project = eligible[3];
   if (!project) return null;
 
   const url = generateProjectUrl({
