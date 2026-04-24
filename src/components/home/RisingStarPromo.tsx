@@ -28,9 +28,9 @@ export function RisingStarPromo() {
   const price = formatPrice(project.starting_price);
 
   return (
-    <section className="py-10 md:py-14">
+    <section className="relative isolate overflow-hidden py-10 md:py-14">
       <div className="container px-4">
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-primary/5 via-card to-card shadow-lg">
+        <div className="relative isolate overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-primary/5 via-card to-card shadow-lg">
           <div className="grid sm:grid-cols-[260px_1fr] md:grid-cols-[340px_1fr] gap-0">
             <Link
               to={url}
