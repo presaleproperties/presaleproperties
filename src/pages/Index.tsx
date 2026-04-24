@@ -323,9 +323,6 @@ const Index = () => {
           <VipListSignup />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
-          <WhyChooseUs />
-        </ScrollReveal>
-        <ScrollReveal animation="fade-up" delay={100}>
           <GoogleReviewsCarousel />
         </ScrollReveal>
         {/* Lead magnet: cinematic banner — replaces inline form for better visual impact */}
