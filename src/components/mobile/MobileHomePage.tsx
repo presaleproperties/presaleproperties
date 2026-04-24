@@ -287,7 +287,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            {/* Promo: Spotlight (rank #1 trending) */}
+            {/* Promo: Spotlight (rank #1 trending) — lead-in before category carousels */}
             <SpotlightProjectPromo />
 
             {/* 2. Condos */}
@@ -307,9 +307,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               city={selectedCity} />
 
             </CarouselSection>
-
-            {/* Promo: Trending (rank #2) — single ad-style break, not stacked between every row */}
-            <TrendingProjectPromo />
 
             {/* "See all projects" CTA — escape hatch for power users */}
             <div className="px-4 my-6">
