@@ -95,84 +95,154 @@ const PRICE_LINKS = [
   { label: "Surrey Townhomes Under $700K", href: "/presale-projects/surrey/townhomes-under-700k" },
 ];
 
+// Reusable collapsible nav group: <details> on mobile/tablet, always-open on desktop (lg+)
+function FooterNavGroup({
+  title,
+  links,
+  ariaLabel,
+  prefixLink,
+}: {
+  title: string;
+  links: { label: string; href: string }[];
+  ariaLabel: string;
+  prefixLink?: { label: string; href: string };
+}) {
+  return (
+    <nav aria-label={ariaLabel}>
+      {/* Mobile/tablet: collapsible */}
+      <details className="lg:hidden group border-b border-border/50 py-3">
+        <summary className="flex items-center justify-between cursor-pointer list-none text-sm font-semibold text-foreground">
+          {title}
+          <span className="text-muted-foreground transition-transform group-open:rotate-45 text-lg leading-none">+</span>
+        </summary>
+        <ul className="space-y-2 text-xs text-muted-foreground pt-3 pl-1">
+          {prefixLink && (
+            <li><Link to={prefixLink.href} className="hover:text-foreground transition-colors">{prefixLink.label}</Link></li>
+          )}
+          {links.map((link) => (
+            <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
+          ))}
+        </ul>
+      </details>
+
+      {/* Desktop: always-open list */}
+      <div className="hidden lg:block">
+        <h4 className="text-xs font-semibold mb-2">{title}</h4>
+        <ul className="space-y-1 text-xs text-muted-foreground">
+          {prefixLink && (
+            <li><Link to={prefixLink.href} className="hover:text-foreground transition-colors">{prefixLink.label}</Link></li>
+          )}
+          {links.map((link) => (
+            <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  );
+}
+
 export function Footer() {
+  // Tablet/mobile: trim price links to top 4
+  const PRICE_LINKS_COMPACT = PRICE_LINKS.slice(0, 4);
+
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="py-6 lg:py-8 px-4 lg:container lg:px-4">
 
-        {/* Main grid — tighter on desktop */}
-        <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
-
-          {/* Brand */}
-          <div className="space-y-2 col-span-2 sm:col-span-3 lg:col-span-1">
-            <Logo size="xl" className="-my-10" />
-            <p className="text-xs text-muted-foreground leading-relaxed pt-1">
-              Metro Vancouver's presale marketplace. VIP pricing, floor plans &amp; early access.
-            </p>
-          </div>
-
-          {/* Presale Condos */}
-          <nav aria-label="Presale condos by city">
-            <h4 className="text-xs font-semibold mb-2">Presale Condos</h4>
-            <ul className="space-y-1 text-xs text-muted-foreground">
-              <li><Link to="/presale-projects" className="hover:text-foreground transition-colors">All Projects</Link></li>
-              {CONDO_CITY_LINKS.map((link) => (
-                <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Presale Townhomes */}
-          <nav aria-label="Presale townhomes by city">
-            <h4 className="text-xs font-semibold mb-2">Presale Townhomes</h4>
-            <ul className="space-y-1 text-xs text-muted-foreground">
-              {TOWNHOME_CITY_LINKS.map((link) => (
-                <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Neighbourhoods */}
-          <nav aria-label="Neighbourhoods">
-            <h4 className="text-xs font-semibold mb-2">Neighbourhoods</h4>
-            <ul className="space-y-1 text-xs text-muted-foreground">
-              {NEIGHBOURHOOD_LINKS.map((link) => (
-                <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Move-In Ready */}
-          <nav aria-label="Move-in ready homes">
-            <h4 className="text-xs font-semibold mb-2">Move-In Ready</h4>
-            <ul className="space-y-1 text-xs text-muted-foreground">
-              {MOVE_IN_LINKS.map((link) => (
-                <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Resources */}
-          <nav aria-label="Resources">
-            <h4 className="text-xs font-semibold mb-2">Resources</h4>
-            <ul className="space-y-1 text-xs text-muted-foreground">
-              {RESOURCE_LINKS.map((link) => (
-                <li key={link.href}><Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link></li>
-              ))}
-            </ul>
-          </nav>
+        {/* Brand — always visible */}
+        <div className="space-y-2 mb-4 lg:mb-0">
+          <Logo size="xl" className="-my-10" />
+          <p className="text-xs text-muted-foreground leading-relaxed pt-1 max-w-md">
+            Metro Vancouver's presale marketplace. VIP pricing, floor plans &amp; early access.
+          </p>
         </div>
 
-        {/* Browse by Price — compact inline */}
+        {/* Mobile/tablet: stacked collapsibles */}
+        <div className="lg:hidden">
+          <FooterNavGroup
+            title="Presale Condos"
+            ariaLabel="Presale condos by city"
+            links={CONDO_CITY_LINKS}
+            prefixLink={{ label: "All Projects", href: "/presale-projects" }}
+          />
+          <FooterNavGroup
+            title="Presale Townhomes"
+            ariaLabel="Presale townhomes by city"
+            links={TOWNHOME_CITY_LINKS}
+          />
+          <FooterNavGroup
+            title="Neighbourhoods"
+            ariaLabel="Neighbourhoods"
+            links={NEIGHBOURHOOD_LINKS}
+          />
+          <FooterNavGroup
+            title="Move-In Ready"
+            ariaLabel="Move-in ready homes"
+            links={MOVE_IN_LINKS}
+          />
+          <FooterNavGroup
+            title="Resources"
+            ariaLabel="Resources"
+            links={RESOURCE_LINKS}
+          />
+        </div>
+
+        {/* Desktop (≥1024px): full 6-column grid */}
+        <div className="hidden lg:grid gap-6 grid-cols-6 mt-6">
+          <div /> {/* spacer to align with brand col above when stacked */}
+          <FooterNavGroup
+            title="Presale Condos"
+            ariaLabel="Presale condos by city"
+            links={CONDO_CITY_LINKS}
+            prefixLink={{ label: "All Projects", href: "/presale-projects" }}
+          />
+          <FooterNavGroup
+            title="Presale Townhomes"
+            ariaLabel="Presale townhomes by city"
+            links={TOWNHOME_CITY_LINKS}
+          />
+          <FooterNavGroup
+            title="Neighbourhoods"
+            ariaLabel="Neighbourhoods"
+            links={NEIGHBOURHOOD_LINKS}
+          />
+          <FooterNavGroup
+            title="Move-In Ready"
+            ariaLabel="Move-in ready homes"
+            links={MOVE_IN_LINKS}
+          />
+          <FooterNavGroup
+            title="Resources"
+            ariaLabel="Resources"
+            links={RESOURCE_LINKS}
+          />
+        </div>
+
+        {/* Browse by Price — compact (top 4) on mobile/tablet, full on desktop */}
         <div className="mt-5 pt-4 border-t border-border">
           <span className="text-xs font-semibold mr-3">Browse by Price:</span>
           <span className="text-xs text-muted-foreground">
-            {PRICE_LINKS.map((link, i) => (
-              <span key={link.href}>
-                <Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link>
-                {i < PRICE_LINKS.length - 1 && <span className="mx-2 text-border">·</span>}
-              </span>
-            ))}
+            {/* Mobile/tablet: top 4 + see all */}
+            <span className="lg:hidden">
+              {PRICE_LINKS_COMPACT.map((link, i) => (
+                <span key={link.href}>
+                  <Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link>
+                  {i < PRICE_LINKS_COMPACT.length - 1 && <span className="mx-2 text-border">·</span>}
+                </span>
+              ))}
+              <span className="mx-2 text-border">·</span>
+              <Link to="/presale-projects" className="font-semibold text-foreground hover:underline">See all price ranges</Link>
+            </span>
+
+            {/* Desktop: full list */}
+            <span className="hidden lg:inline">
+              {PRICE_LINKS.map((link, i) => (
+                <span key={link.href}>
+                  <Link to={link.href} className="hover:text-foreground transition-colors">{link.label}</Link>
+                  {i < PRICE_LINKS.length - 1 && <span className="mx-2 text-border">·</span>}
+                </span>
+              ))}
+            </span>
           </span>
         </div>
 
