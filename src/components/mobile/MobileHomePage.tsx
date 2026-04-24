@@ -424,12 +424,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               </MobileGroup>
             </CarouselSection>
 
-            {/* Closer: Rising Star (rank #4) — compact ribbon caps the city block */}
-            <CarouselSection delay={350}>
-              <div className="px-4 my-8">
-                <RisingStarPromo inline />
-              </div>
-            </CarouselSection>
 
             {/* Browse other cities CTA — replaces 4 carousels (Burnaby, Langley, Richmond, Delta, Abbotsford) */}
             <div className="px-4 my-8">
