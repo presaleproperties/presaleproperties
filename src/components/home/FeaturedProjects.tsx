@@ -104,6 +104,11 @@ export function FeaturedProjects() {
           })}
         </div>
 
+        {/* Spotlight promo — embedded as the hero feature inside this section */}
+        <div className="mb-6 sm:mb-8">
+          <SpotlightProjectPromo inline />
+        </div>
+
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
             {[...Array(6)].map((_, i) => (
