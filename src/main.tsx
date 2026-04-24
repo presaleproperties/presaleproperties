@@ -2,7 +2,11 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary.tsx";
+import { bootstrapCrmTemplateSeed } from "./lib/bootstrapCrmTemplateSeed";
 import "./index.css";
+
+// Best-effort: ensure CRM template seed runs once after deployment.
+bootstrapCrmTemplateSeed();
 
 function dismissSplash() {
   const splash = document.getElementById("app-splash");
