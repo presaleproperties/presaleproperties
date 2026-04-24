@@ -17,7 +17,7 @@ import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "@/components/home/HeroProjectSlider";
 import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
 import { TrendingProjectPromo } from "@/components/home/TrendingProjectPromo";
-import { SecondaryProjectPromo } from "@/components/home/SecondaryProjectPromo";
+
 import { RisingStarPromo } from "@/components/home/RisingStarPromo";
 import { FeaturedProjectPromo } from "@/components/home/FeaturedProjectPromo";
 import { SearchTab } from "@/components/home/HeroSection";
