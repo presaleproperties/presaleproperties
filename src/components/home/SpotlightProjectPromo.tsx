@@ -12,8 +12,9 @@ const formatPrice = (price: number | null) => {
 };
 
 export function SpotlightProjectPromo() {
-  const { data: projects } = useTrendingProjects(4);
-  const project = projects?.[0];
+  const { data: projects } = useTrendingProjects(8);
+  const eligible = (projects ?? []).filter((p) => !HAND_PICKED_PROMO_SLUGS.has(p.slug));
+  const project = eligible[0];
   if (!project) return null;
 
   const url = generateProjectUrl({
