@@ -1578,12 +1578,19 @@ export type Database = {
       email_templates: {
         Row: {
           audience_type: string | null
+          body_html: string | null
+          category: string | null
           created_at: string
+          crm_id: string | null
           html_content: string
           id: string
           is_active: boolean
+          last_synced_at: string | null
+          merge_tags: Json | null
           name: string
+          source: string
           subject: string
+          sync_hash: string | null
           template_key: string | null
           template_type: string
           text_body: string | null
@@ -1592,12 +1599,19 @@ export type Database = {
         }
         Insert: {
           audience_type?: string | null
+          body_html?: string | null
+          category?: string | null
           created_at?: string
+          crm_id?: string | null
           html_content: string
           id?: string
           is_active?: boolean
+          last_synced_at?: string | null
+          merge_tags?: Json | null
           name: string
+          source?: string
           subject: string
+          sync_hash?: string | null
           template_key?: string | null
           template_type?: string
           text_body?: string | null
@@ -1606,12 +1620,19 @@ export type Database = {
         }
         Update: {
           audience_type?: string | null
+          body_html?: string | null
+          category?: string | null
           created_at?: string
+          crm_id?: string | null
           html_content?: string
           id?: string
           is_active?: boolean
+          last_synced_at?: string | null
+          merge_tags?: Json | null
           name?: string
+          source?: string
           subject?: string
+          sync_hash?: string | null
           template_key?: string | null
           template_type?: string
           text_body?: string | null
