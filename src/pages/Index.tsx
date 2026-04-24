@@ -23,6 +23,7 @@ import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { TwoWaysToBuy } from "@/components/home/TwoWaysToBuy";
 import { NewConstructionTrustBar } from "@/components/home/NewConstructionTrustBar";
+import { WhyChooseUs } from "@/components/home/WhyChooseUs";
 // Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
 const HOME_FAQS = [
   {
