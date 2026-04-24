@@ -1,21 +1,8 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Sparkles, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { generateProjectUrl } from "@/lib/seoUrls";
-
-interface SpotlightProject {
-  id: string;
-  name: string;
-  slug: string;
-  city: string;
-  neighborhood: string | null;
-  starting_price: number | null;
-  featured_image: string | null;
-  project_type: string | null;
-  short_description: string | null;
-}
+import { useTrendingProjects } from "@/hooks/useTrendingProjects";
 
 const formatPrice = (price: number | null) => {
   if (!price) return null;
@@ -24,27 +11,13 @@ const formatPrice = (price: number | null) => {
 };
 
 export function SpotlightProjectPromo() {
-  const [project, setProject] = useState<SpotlightProject | null>(null);
-
-  useEffect(() => {
-    supabase
-      .from("presale_projects")
-      .select("id, name, slug, city, neighborhood, starting_price, featured_image, project_type, short_description")
-      .eq("is_published", true)
-      .not("featured_image", "is", null)
-      .order("view_count", { ascending: false, nullsFirst: false })
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setProject(data as SpotlightProject);
-      });
-  }, []);
-
+  const { data: projects } = useTrendingProjects(4);
+  const project = projects?.[0];
   if (!project) return null;
 
   const url = generateProjectUrl({
     slug: project.slug,
-    neighborhood: project.neighborhood || project.city,
+    neighborhood: project.neighborhood || project.city || "",
     projectType: (project.project_type as any) || "condo",
   });
   const price = formatPrice(project.starting_price);
@@ -54,7 +27,6 @@ export function SpotlightProjectPromo() {
       <div className="container px-4">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
           <div className="grid md:grid-cols-2 gap-0">
-            {/* Image */}
             <Link to={url} className="relative h-64 md:h-auto md:min-h-[420px] overflow-hidden group">
               <img
                 src={project.featured_image!}
@@ -68,7 +40,6 @@ export function SpotlightProjectPromo() {
               </div>
             </Link>
 
-            {/* Content */}
             <div className="p-8 md:p-12 flex flex-col justify-center">
               <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
                 <MapPin className="h-4 w-4 text-primary" />

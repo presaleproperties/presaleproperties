@@ -15,6 +15,10 @@ import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { Footer } from "@/components/layout/Footer";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "@/components/home/HeroProjectSlider";
+import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
+import { TrendingProjectPromo } from "@/components/home/TrendingProjectPromo";
+import { SecondaryProjectPromo } from "@/components/home/SecondaryProjectPromo";
+import { RisingStarPromo } from "@/components/home/RisingStarPromo";
 import { SearchTab } from "@/components/home/HeroSection";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -282,6 +286,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
+            {/* Promo: Spotlight (rank #1 trending) */}
+            <SpotlightProjectPromo />
+
             <div className="my-6 border-t border-border/50" />
 
             {/* Condos */}
@@ -292,6 +299,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               city={selectedCity} />
 
             </CarouselSection>
+
+            {/* Promo: Trending (rank #2 trending) */}
+            <TrendingProjectPromo />
 
             <div className="my-6 border-t border-border/50" />
 
@@ -304,6 +314,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
+            {/* Promo: Secondary (rank #3 trending) */}
+            <SecondaryProjectPromo />
+
             <div className="my-6 border-t border-border/50" />
 
             {/* Single-Family / Detached */}
@@ -314,6 +327,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               city={selectedCity} />
 
             </CarouselSection>
+
+            {/* Promo: Rising Star (rank #4 trending) */}
+            <RisingStarPromo />
 
             <div className="my-6 border-t border-border/50" />
 

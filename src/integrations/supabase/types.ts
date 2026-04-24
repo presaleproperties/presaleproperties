@@ -4999,6 +4999,21 @@ export type Database = {
           unique_visitors: number
         }[]
       }
+      get_trending_projects: {
+        Args: { result_limit?: number }
+        Returns: {
+          city: string
+          featured_image: string
+          hotness_score: number
+          id: string
+          name: string
+          neighborhood: string
+          project_type: string
+          short_description: string
+          slug: string
+          starting_price: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

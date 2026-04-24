@@ -15,7 +15,9 @@ import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
+import { TrendingProjectPromo } from "@/components/home/TrendingProjectPromo";
 import { SecondaryProjectPromo } from "@/components/home/SecondaryProjectPromo";
+import { RisingStarPromo } from "@/components/home/RisingStarPromo";
 import { VipListSignup } from "@/components/home/VipListSignup";
 import { MistakesGuideBanner } from "@/components/home/MistakesGuideBanner";
 
@@ -320,6 +322,12 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           {activeTab === "projects" ? <CityProjectsSection /> : <ResaleCitySection />}
         </ScrollReveal>
+        {/* Promo: Trending #2 — cinematic full-bleed hero, auto-picked by hotness score */}
+        {activeTab === "projects" && (
+          <ScrollReveal animation="fade-up" delay={100}>
+            <TrendingProjectPromo />
+          </ScrollReveal>
+        )}
         {/* Lead magnet: VIP list — mid-page email capture */}
         <ScrollReveal animation="fade-up" delay={100}>
           <VipListSignup />
@@ -327,7 +335,7 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           <PresaleExpertsSection />
         </ScrollReveal>
-        {/* Promo: Secondary trending project — second high-visual project moment */}
+        {/* Promo: Secondary trending project — mirrored split layout */}
         {activeTab === "projects" && (
           <ScrollReveal animation="fade-up" delay={100}>
             <SecondaryProjectPromo />
@@ -336,6 +344,12 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           <GoogleReviewsCarousel />
         </ScrollReveal>
+        {/* Promo: Rising Star — compact ribbon, rank #4 */}
+        {activeTab === "projects" && (
+          <ScrollReveal animation="fade-up" delay={100}>
+            <RisingStarPromo />
+          </ScrollReveal>
+        )}
         {/* Lead magnet: cinematic banner — replaces inline form for better visual impact */}
         <ScrollReveal animation="fade-up" delay={100}>
           <MistakesGuideBanner location="homepage_banner" />
