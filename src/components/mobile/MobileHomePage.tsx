@@ -277,18 +277,17 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
       <div className="pb-6">
         {activeTab === "projects" ?
         <>
-            {/* 1. Hot Projects - Featured Section */}
+            {/* 1. Hot Projects - Featured Section (Spotlight promo embedded inside) */}
             <CarouselSection delay={0}>
-              <MobileDiscoveryCarousel
-              type="hot_projects"
-              title="Most Popular Projects"
-              subtitle="The most in-demand presale projects"
-              city={selectedCity} />
-
+              <MobileGroup>
+                <SpotlightProjectPromo inline />
+                <MobileDiscoveryCarousel
+                  type="hot_projects"
+                  title="Most Popular Projects"
+                  subtitle="The most in-demand presale projects"
+                  city={selectedCity} />
+              </MobileGroup>
             </CarouselSection>
-
-            {/* Promo: Spotlight (rank #1 trending) — lead-in before category carousels */}
-            <SpotlightProjectPromo />
 
             {/* 2. Condos */}
             <CarouselSection delay={50}>
@@ -392,39 +391,44 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </>
         }
 
-        {/* City-based Carousels - Only show for Presale tab. Trimmed from 7 → 3 to reduce mobile scroll fatigue. */}
+        {/* City-based Carousels - Only show for Presale tab. Each promo + carousel sits inside one unified rounded panel for visual cohesion. */}
         {activeTab === "projects" &&
         <>
             <CarouselSection delay={150}>
-              <FeaturedProjectPromo slug="baden-park" badgeLabel="Vancouver Spotlight" />
-              <MobileDiscoveryCarousel
-              type="city_vancouver"
-              title="Vancouver"
-              city={selectedCity} />
-
+              <MobileGroup>
+                <FeaturedProjectPromo slug="baden-park" badgeLabel="Vancouver Spotlight" inline />
+                <MobileDiscoveryCarousel
+                  type="city_vancouver"
+                  title="Vancouver"
+                  city={selectedCity} />
+              </MobileGroup>
             </CarouselSection>
 
             <CarouselSection delay={200}>
-              <TrendingProjectPromo />
-              <MobileDiscoveryCarousel
-              type="city_surrey"
-              title="Surrey"
-              city={selectedCity} />
-
+              <MobileGroup>
+                <TrendingProjectPromo inline />
+                <MobileDiscoveryCarousel
+                  type="city_surrey"
+                  title="Surrey"
+                  city={selectedCity} />
+              </MobileGroup>
             </CarouselSection>
 
             <CarouselSection delay={300}>
-              <FeaturedProjectPromo slug="ironwood" badgeLabel="Coquitlam Spotlight" />
-              <MobileDiscoveryCarousel
-              type="city_coquitlam"
-              title="Coquitlam"
-              city={selectedCity} />
-
+              <MobileGroup>
+                <FeaturedProjectPromo slug="ironwood" badgeLabel="Coquitlam Spotlight" inline />
+                <MobileDiscoveryCarousel
+                  type="city_coquitlam"
+                  title="Coquitlam"
+                  city={selectedCity} />
+              </MobileGroup>
             </CarouselSection>
 
             {/* Closer: Rising Star (rank #4) — compact ribbon caps the city block */}
             <CarouselSection delay={350}>
-              <RisingStarPromo />
+              <div className="px-4 my-8">
+                <RisingStarPromo inline />
+              </div>
             </CarouselSection>
 
             {/* Browse other cities CTA — replaces 4 carousels (Burnaby, Langley, Richmond, Delta, Abbotsford) */}
