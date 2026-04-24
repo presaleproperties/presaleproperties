@@ -130,10 +130,10 @@ export function PresaleExpertsSection() {
   return (
     <section className="bg-background">
       {/* Top: Why Buy Presale — benefits grid */}
-      <div className="py-10 md:py-24">
+      <div className="py-12 md:py-24">
         <div className="container px-4 sm:px-6">
           <div className="max-w-5xl mx-auto">
-            <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-16 items-center">
+            <div className="grid lg:grid-cols-[1fr_1.2fr] gap-10 sm:gap-12 lg:gap-16 items-center">
 
               {/* Left — editorial text block */}
               <div className="space-y-5">
@@ -196,9 +196,9 @@ export function PresaleExpertsSection() {
       </div>
 
       {/* Middle: Why Choose Us — photo collage + numbered reasons (Springfield-style) */}
-      <div className="py-14 md:py-28 bg-background">
+      <div className="py-12 md:py-28 bg-background">
         <div className="container px-4 sm:px-6">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-16 items-center">
 
             {/* Left — Photo collage: 2x2 equal-size cards (all team members) */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
