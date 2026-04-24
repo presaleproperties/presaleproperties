@@ -25,38 +25,6 @@ function useTeamPhotos() {
   });
 }
 
-const benefits = [
-  {
-    icon: TrendingUp,
-    title: "Lock In Today's Price",
-    description: "Secure a home before it's built and benefit from appreciation before you move in."
-  },
-  {
-    icon: Clock,
-    title: "Flexible Deposits",
-    description: "Only 5–20% upfront, staggered over time. More runway to prepare your mortgage."
-  },
-  {
-    icon: Palette,
-    title: "Customize Your Home",
-    description: "Choose finishes, colours & upgrades. Your new home, exactly the way you want it."
-  },
-  {
-    icon: Shield,
-    title: "New Home Warranty",
-    description: "Full BC warranty coverage — 2-5-10 years on materials, envelope & structure."
-  },
-  {
-    icon: Home,
-    title: "Modern Design",
-    description: "Energy-efficient, built to latest codes with smart home technology included."
-  },
-  {
-    icon: Building2,
-    title: "Prime Locations",
-    description: "New developments near SkyTrain, schools & amenities in Metro Vancouver's fastest-growing neighbourhoods."
-  }
-];
 
 const languages = ["English", "Hindi", "Punjabi", "Urdu", "Arabic"];
 
