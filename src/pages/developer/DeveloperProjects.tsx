@@ -188,9 +188,11 @@ export default function DeveloperProjects() {
                   <p className="text-[11px] text-muted-foreground/70 mt-0.5">{project.developer_name}</p>
                 )}
               </div>
-              <Badge variant="outline" className={`text-[10px] shrink-0 ${statusStyle[project.status] || "bg-muted text-foreground"}`}>
-                {statusLabel[project.status] || project.status}
-              </Badge>
+              <StatusBadge
+                status={project.status}
+                label={statusLabel[project.status] || project.status}
+                className="text-[10px] shrink-0"
+              />
             </div>
 
             <div className="flex items-center justify-between gap-2 flex-wrap">
