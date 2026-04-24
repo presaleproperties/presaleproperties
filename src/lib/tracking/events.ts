@@ -100,6 +100,9 @@ async function sendEvent(eventName: string, eventPayload: object = {}): Promise<
  */
 export function trackPageView(): void {
   sendEvent("page_view", {});
+  // Update local behavior buffer + stream to CRM (anonymous-friendly)
+  import("./behaviorBuffer").then(({ recordPageView }) => recordPageView());
+  import("./streamBehavior").then(({ streamBehavior }) => streamBehavior());
 }
 
 /**
@@ -117,6 +120,16 @@ export interface PropertyViewData {
 
 export function trackPropertyView(data: PropertyViewData): void {
   sendEvent("property_view", data);
+  // Buffer for CRM bundle + stream live
+  import("./behaviorBuffer").then(({ recordPropertyView }) => {
+    recordPropertyView({
+      property_id: data.project_id,
+      property_name: data.project_name,
+      property_url: typeof window !== "undefined" ? window.location.href : "",
+      action: "view",
+    });
+  });
+  import("./streamBehavior").then(({ streamBehavior }) => streamBehavior());
   // Mirror to Meta as ViewContent (dual-send: Pixel + CAPI)
   import("./metaPixel").then(({ Meta }) => {
     Meta.viewContent({
