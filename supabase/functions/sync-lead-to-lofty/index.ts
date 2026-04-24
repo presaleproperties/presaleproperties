@@ -145,6 +145,26 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log("Prepared contact:", { firstName, lastName, email, phone, tags });
 
+    // Fan out to DealzFlow CRM (fire-and-forget, never blocks Lofty sync)
+    try {
+      fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/push-activity-to-crm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+        },
+        body: JSON.stringify({
+          event_type: "lofty_lead_sync",
+          email,
+          source: "presale_properties_lofty",
+          payload: { firstName, lastName, phone, tags, supabaseLeadId },
+        }),
+      }).catch((err) => console.error("[CRM lofty fan-out] error:", err));
+    } catch (crmErr) {
+      console.error("[CRM lofty fan-out] outer error:", crmErr);
+    }
+
+
     // ── Always CREATE a new lead — Lofty handles deduplication ──────────────
     // We never search for or PUT/update existing contacts. This prevents
     // overwriting names, removing tags, or corrupting existing Lofty data.
