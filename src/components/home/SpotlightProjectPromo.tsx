@@ -23,9 +23,9 @@ export function SpotlightProjectPromo() {
   const price = formatPrice(project.starting_price);
 
   return (
-    <section className="py-6 md:py-12">
+    <section className="relative isolate overflow-hidden py-6 md:py-12">
       <div className="container px-4">
-        <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
+        <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
           <div className="grid md:grid-cols-2 gap-0">
             <Link to={url} className="relative h-64 md:h-auto md:min-h-[420px] overflow-hidden group">
               <img
