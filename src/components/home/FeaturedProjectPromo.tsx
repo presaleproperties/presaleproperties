@@ -53,8 +53,8 @@ export function FeaturedProjectPromo({ slug, badgeLabel = "Featured This Week", 
 
   const card = (
     <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
-      <div className="grid md:grid-cols-2 gap-0">
-        <Link to={url} className="relative aspect-[4/3] md:aspect-auto md:h-auto md:min-h-[420px] overflow-hidden group">
+      <div className="grid lg:grid-cols-2 gap-0">
+        <Link to={url} className="relative aspect-[4/3] lg:aspect-auto lg:h-auto lg:min-h-[420px] overflow-hidden group">
           <img
             src={project.featured_image}
             alt={`${project.name} in ${project.city}`}
