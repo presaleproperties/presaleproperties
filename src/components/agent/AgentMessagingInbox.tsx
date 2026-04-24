@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -173,16 +174,12 @@ export function AgentMessagingInbox() {
   });
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Badge variant="outline" className="text-warning border-warning"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
-      case "responded":
-        return <Badge variant="outline" className="text-success border-success"><CheckCircle className="w-3 h-3 mr-1" /> Responded</Badge>;
-      case "declined":
-        return <Badge variant="outline" className="text-destructive border-destructive"><XCircle className="w-3 h-3 mr-1" /> Declined</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
+    const iconMap: Record<string, JSX.Element> = {
+      pending: <Clock className="w-3 h-3" />,
+      responded: <CheckCircle className="w-3 h-3" />,
+      declined: <XCircle className="w-3 h-3" />,
+    };
+    return <StatusBadge status={status} icon={iconMap[status]} />;
   };
 
   const formatPrice = (price: number) => {

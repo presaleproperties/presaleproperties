@@ -1,6 +1,7 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge as SharedStatusBadge } from "@/components/ui/status-badge";
 import { Separator } from "@/components/ui/separator";
 import {
   Server, Database, Cloud, Mail, Map, Globe, Search, BarChart3,
@@ -26,20 +27,9 @@ interface SecretItem {
   usedBy: string;
 }
 
-const statusColors: Record<string, string> = {
-  active: "bg-success/15 text-success-strong border-success/30",
-  configured: "bg-info/15 text-info-strong border-info/30",
-  dormant: "bg-warning/15 text-warning-strong border-warning/30",
-  issue: "bg-destructive/15 text-destructive border-destructive/20",
-};
-
 function StatusBadge({ status }: { status?: string }) {
   if (!status) return null;
-  return (
-    <Badge variant="outline" className={`text-[10px] ${statusColors[status] || ""}`}>
-      {status}
-    </Badge>
-  );
+  return <SharedStatusBadge status={status} className="text-[10px]" />;
 }
 
 function SystemCard({ icon: Icon, title, description, items, iconColor }: {

@@ -5,6 +5,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
@@ -87,18 +88,7 @@ export default function AdminDeveloperProfiles() {
     },
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Badge variant="outline" className="bg-warning-soft text-warning-strong border-warning/30">Pending</Badge>;
-      case "approved":
-        return <Badge variant="outline" className="bg-success-soft text-success-strong border-success/30">Approved</Badge>;
-      case "rejected":
-        return <Badge variant="outline" className="bg-danger-soft text-danger-strong border-danger/30">Rejected</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
 
   const pendingCount = developers?.filter(d => d.verification_status === "pending").length || 0;
 

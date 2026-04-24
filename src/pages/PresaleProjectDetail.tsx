@@ -11,6 +11,7 @@ import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ProjectContextualLinks } from "@/components/seo/ProjectContextualLinks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
 import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
@@ -293,16 +294,10 @@ export default function PresaleProjectDetail() {
     }).format(price);
   };
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "coming_soon":
-        return <Badge className="bg-info hover:bg-info text-on-dark text-xs px-2 py-0.5">Coming Soon</Badge>;
-      case "active":
-        return <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs px-2 py-0.5">Now Selling</Badge>;
-      case "sold_out":
-        return <Badge variant="secondary" className="text-xs px-2 py-0.5">Sold Out</Badge>;
-      default:
-        return null;
-    }
+    if (!["coming_soon", "active", "sold_out"].includes(status)) return null;
+    // Map "active" to the "Now Selling" copy used historically on this page.
+    const labelOverride = status === "active" ? "Now Selling" : undefined;
+    return <StatusBadge status={status} label={labelOverride} className="text-xs px-2 py-0.5" />;
   };
   const getMonthName = (month: number) => {
     return new Date(2000, month - 1).toLocaleString("default", {

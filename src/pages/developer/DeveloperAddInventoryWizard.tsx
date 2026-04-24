@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
@@ -96,12 +97,6 @@ const statusLabel: Record<string, string> = {
   registering: "Registering",
   active: "Active",
   sold_out: "Sold Out",
-};
-const statusStyle: Record<string, string> = {
-  coming_soon: "bg-info-soft text-info-strong border-info/30",
-  registering: "bg-warning-soft text-warning-strong border-warning/30",
-  active: "bg-success-soft text-success-strong border-success/30",
-  sold_out: "bg-muted text-foreground border-border",
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -672,9 +667,11 @@ function ProjectRow({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <p className="text-sm font-semibold text-foreground truncate">{project.name}</p>
-          <Badge variant="outline" className={cn("text-[10px] shrink-0", statusStyle[project.status] || "bg-muted text-foreground")}>
-            {statusLabel[project.status] || project.status}
-          </Badge>
+          <StatusBadge
+            status={project.status}
+            label={statusLabel[project.status] || project.status}
+            className="text-[10px] shrink-0"
+          />
         </div>
         <p className="text-xs text-muted-foreground mt-0.5">
           {[project.neighborhood, project.city].filter(Boolean).join(", ")}

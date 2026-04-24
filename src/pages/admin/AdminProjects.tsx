@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -596,15 +597,6 @@ export default function AdminProjects() {
     return matchesSearch && matchesCity && matchesStatus && matchesPublished && matchesDocs;
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "coming_soon": return "bg-info-soft text-info-strong";
-      case "active": return "bg-success-soft text-success-strong";
-      case "sold_out": return "bg-muted text-foreground";
-      default: return "";
-    }
-  };
-
   const formatStatus = (status: string) => {
     return status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
   };
@@ -813,9 +805,7 @@ export default function AdminProjects() {
                             In Hero
                           </Badge>
                         )}
-                        <Badge className={getStatusColor(project.status)}>
-                          {formatStatus(project.status)}
-                        </Badge>
+                        <StatusBadge status={project.status} label={formatStatus(project.status)} />
                         <Badge variant={project.is_published ? "default" : "secondary"}>
                           {project.is_published ? "Published" : "Draft"}
                         </Badge>

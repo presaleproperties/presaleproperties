@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DeveloperPortalLayout } from "@/components/developer/DeveloperPortalLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Loader2, Calendar, Clock, User, Mail, Phone, Building2 } from "lucide-react";
 
 interface TourRequest {
@@ -77,15 +78,6 @@ export default function DeveloperTourRequests() {
     setLoading(false);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending": return "bg-warning-soft text-warning-strong";
-      case "confirmed": return "bg-success-soft text-success-strong";
-      case "cancelled": return "bg-danger-soft text-danger-strong";
-      case "completed": return "bg-info-soft text-info-strong";
-      default: return "bg-muted text-foreground";
-    }
-  };
 
   if (authLoading || loading) {
     return (
@@ -135,9 +127,7 @@ export default function DeveloperTourRequests() {
                         </span>
                       </div>
                     </div>
-                    <Badge className={getStatusColor(request.status)}>
-                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                    </Badge>
+                    <StatusBadge status={request.status} />
                   </div>
 
                   <div className="border-t pt-4 grid sm:grid-cols-3 gap-4 text-sm">

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -383,18 +384,13 @@ export default function AdminEmailWorkflows() {
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "sent":
-        return <Badge className="bg-success-soft text-success-strong"><CheckCircle2 className="h-3 w-3 mr-1" />Sent</Badge>;
-      case "failed":
-        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Failed</Badge>;
-      case "queued":
-        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Queued</Badge>;
-      case "processing":
-        return <Badge className="bg-info-soft text-info-strong"><RefreshCw className="h-3 w-3 mr-1 animate-spin" />Processing</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
+    const iconMap: Record<string, JSX.Element> = {
+      sent: <CheckCircle2 className="h-3 w-3" />,
+      failed: <XCircle className="h-3 w-3" />,
+      queued: <Clock className="h-3 w-3" />,
+      processing: <RefreshCw className="h-3 w-3 animate-spin" />,
+    };
+    return <StatusBadge status={status} icon={iconMap[status]} />;
   };
 
   return (

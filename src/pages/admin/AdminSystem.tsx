@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -424,11 +425,6 @@ function BackgroundJobs() {
     },
   });
 
-  const statusColor = (s: string) => {
-    if (s === "completed" || s === "sent") return "bg-success/15 text-success-strong border-success/30";
-    if (s === "running" || s === "sending" || s === "queued") return "bg-warning/15 text-warning-strong border-warning/30";
-    return "bg-destructive/15 text-destructive border-destructive/20";
-  };
 
   return (
     <Card>
@@ -469,7 +465,7 @@ function BackgroundJobs() {
                         <TableRow key={j.id}>
                           <TableCell className="text-xs font-medium">{j.sync_type}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className={`text-[10px] ${statusColor(j.status)}`}>{j.status}</Badge>
+                            <StatusBadge status={j.status} className="text-[10px]" />
                           </TableCell>
                           <TableCell className="text-xs">{j.listings_fetched ?? 0}</TableCell>
                           <TableCell className="text-xs">{j.listings_created ?? 0}</TableCell>
@@ -507,7 +503,7 @@ function BackgroundJobs() {
                         <TableRow key={j.id}>
                           <TableCell className="text-xs font-medium">{j.trigger_source ?? "manual"}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className={`text-[10px] ${statusColor(j.status)}`}>{j.status}</Badge>
+                            <StatusBadge status={j.status} className="text-[10px]" />
                           </TableCell>
                           <TableCell className="text-xs">{j.listings_processed ?? 0}</TableCell>
                           <TableCell className="text-xs">{j.api_calls_made ?? 0}</TableCell>
@@ -544,7 +540,7 @@ function BackgroundJobs() {
                         <TableRow key={j.id}>
                           <TableCell className="text-xs">{j.to_email}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className={`text-[10px] ${statusColor(j.status)}`}>{j.status}</Badge>
+                            <StatusBadge status={j.status} className="text-[10px]" />
                           </TableCell>
                           <TableCell className="text-[10px] text-muted-foreground">
                             {formatDistanceToNow(new Date(j.scheduled_at), { addSuffix: true })}

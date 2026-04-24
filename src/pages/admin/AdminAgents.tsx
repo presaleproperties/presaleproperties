@@ -3,6 +3,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -154,16 +155,7 @@ export default function AdminAgents() {
     return true;
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "verified":
-        return <Badge className="bg-success/10 text-success border-success/20">Verified</Badge>;
-      case "rejected":
-        return <Badge variant="destructive">Rejected</Badge>;
-      default:
-        return <Badge variant="secondary">Pending</Badge>;
-    }
-  };
+  const getStatusBadge = (status: string) => <StatusBadge status={status || "pending"} />;
 
   return (
     <AdminLayout>
