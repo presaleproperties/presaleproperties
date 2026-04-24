@@ -144,7 +144,7 @@ export default function DeveloperUnitsPage() {
   if (authLoading || initializing) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#C8A951]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -152,24 +152,24 @@ export default function DeveloperUnitsPage() {
   return (
     <DeveloperPortalLayout>
       <div className="px-6 md:px-10 py-8 max-w-3xl mx-auto">
-        <Link to="/developer/projects" className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#1F2937] mb-6">
+        <Link to="/developer/projects" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="h-4 w-4" />
           Back to Projects
         </Link>
 
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#1A1A2E] flex items-center justify-center">
-              <Home className="h-5 w-5 text-[#C8A951]" />
+            <div className="w-10 h-10 rounded-xl bg-neutral-900 flex items-center justify-center">
+              <Home className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#1F2937]">Units</h1>
-              <p className="text-[#6B7280] text-sm">{projectName}</p>
+              <h1 className="text-2xl font-bold text-foreground">Units</h1>
+              <p className="text-muted-foreground text-sm">{projectName}</p>
             </div>
           </div>
           <Button
             onClick={() => { setShowForm(true); reset({ beds: 1, baths: 1 }); }}
-            className="bg-[#C8A951] hover:bg-[#b8993f] text-[#1A1A2E] font-bold rounded-lg"
+            className="bg-primary hover:bg-primary-deep text-neutral-900 font-bold rounded-lg"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Unit
@@ -178,59 +178,59 @@ export default function DeveloperUnitsPage() {
 
         {/* Add Unit Form */}
         {showForm && (
-          <Card className="rounded-xl shadow-sm border border-[#C8A951]/30 mb-6 bg-[#FFFDF5]">
+          <Card className="rounded-xl shadow-sm border border-primary/30 mb-6 bg-muted">
             <CardContent className="p-6">
-              <h2 className="font-bold text-[#1F2937] mb-4">Add New Unit</h2>
+              <h2 className="font-bold text-foreground mb-4">Add New Unit</h2>
               <form onSubmit={handleSubmit(onAddUnit)} className="space-y-4">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Unit # *</Label>
+                    <Label className="text-foreground text-xs">Unit # *</Label>
                     <Input {...register("unit_number")} placeholder="401" className="mt-1" />
                     {errors.unit_number && <p className="text-danger text-xs mt-0.5">{errors.unit_number.message}</p>}
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Unit Type</Label>
+                    <Label className="text-foreground text-xs">Unit Type</Label>
                     <Input {...register("unit_type")} placeholder="1BR, 2BR+Den..." className="mt-1" />
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Floor Level</Label>
+                    <Label className="text-foreground text-xs">Floor Level</Label>
                     <Input {...register("floor_level")} type="number" placeholder="4" className="mt-1" />
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Bedrooms *</Label>
+                    <Label className="text-foreground text-xs">Bedrooms *</Label>
                     <Input {...register("beds")} type="number" min={0} step={1} className="mt-1" />
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Bathrooms *</Label>
+                    <Label className="text-foreground text-xs">Bathrooms *</Label>
                     <Input {...register("baths")} type="number" min={0} step={0.5} className="mt-1" />
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Exposure</Label>
+                    <Label className="text-foreground text-xs">Exposure</Label>
                     <Input {...register("exposure")} placeholder="South, NW..." className="mt-1" />
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Interior sqft</Label>
+                    <Label className="text-foreground text-xs">Interior sqft</Label>
                     <Input {...register("interior_sqft")} type="number" placeholder="750" className="mt-1" />
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Exterior sqft</Label>
+                    <Label className="text-foreground text-xs">Exterior sqft</Label>
                     <Input {...register("exterior_sqft")} type="number" placeholder="80" className="mt-1" />
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Parking</Label>
+                    <Label className="text-foreground text-xs">Parking</Label>
                     <Input {...register("parking")} placeholder="1 stall included" className="mt-1" />
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Asking Price ($) *</Label>
+                    <Label className="text-foreground text-xs">Asking Price ($) *</Label>
                     <Input {...register("assignment_price")} type="number" placeholder="699000" className="mt-1" />
                     {errors.assignment_price && <p className="text-danger text-xs mt-0.5">{errors.assignment_price.message}</p>}
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Original Price ($)</Label>
+                    <Label className="text-foreground text-xs">Original Price ($)</Label>
                     <Input {...register("original_price")} type="number" placeholder="750000" className="mt-1" />
                   </div>
                   <div>
-                    <Label className="text-[#1F2937] text-xs">Est. Completion</Label>
+                    <Label className="text-foreground text-xs">Est. Completion</Label>
                     <Input {...register("estimated_completion")} placeholder="Q4 2025" className="mt-1" />
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export default function DeveloperUnitsPage() {
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="bg-[#C8A951] hover:bg-[#b8993f] text-[#1A1A2E] font-bold rounded-lg"
+                    className="bg-primary hover:bg-primary-deep text-neutral-900 font-bold rounded-lg"
                   >
                     {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     Add Unit
@@ -259,16 +259,16 @@ export default function DeveloperUnitsPage() {
 
         {/* Units List */}
         {units.length === 0 && !showForm ? (
-          <Card className="rounded-xl border border-dashed border-[#D1D5DB] bg-card">
+          <Card className="rounded-xl border border-dashed border-input bg-card">
             <CardContent className="py-16 text-center">
-              <Home className="h-12 w-12 text-[#D1D5DB] mx-auto mb-4" />
-              <h3 className="font-semibold text-[#1F2937] mb-1">No units yet</h3>
-              <p className="text-[#9CA3AF] text-sm mb-5">
+              <Home className="h-12 w-12 text-input mx-auto mb-4" />
+              <h3 className="font-semibold text-foreground mb-1">No units yet</h3>
+              <p className="text-muted-foreground text-sm mb-5">
                 Add individual units to list your inventory
               </p>
               <Button
                 onClick={() => setShowForm(true)}
-                className="bg-[#C8A951] hover:bg-[#b8993f] text-[#1A1A2E] font-bold rounded-lg"
+                className="bg-primary hover:bg-primary-deep text-neutral-900 font-bold rounded-lg"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add First Unit
@@ -278,21 +278,21 @@ export default function DeveloperUnitsPage() {
         ) : units.length > 0 ? (
           <div className="space-y-2">
             {units.map((unit) => (
-              <Card key={unit.id} className="rounded-xl border border-[#E5E7EB] shadow-sm bg-card">
+              <Card key={unit.id} className="rounded-xl border border-border shadow-sm bg-card">
                 <CardContent className="p-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#1A1A2E]/5 flex items-center justify-center">
-                      <Home className="h-4 w-4 text-[#1A1A2E]/40" />
+                    <div className="w-9 h-9 rounded-lg bg-neutral-900/5 flex items-center justify-center">
+                      <Home className="h-4 w-4 text-neutral-900/40" />
                     </div>
                     <div>
-                      <div className="font-semibold text-[#1F2937] text-sm">Unit {unit.unit_number}</div>
-                      <div className="text-xs text-[#9CA3AF]">
+                      <div className="font-semibold text-foreground text-sm">Unit {unit.unit_number}</div>
+                      <div className="text-xs text-muted-foreground">
                         {unit.beds}bd · {unit.baths}ba{unit.interior_sqft ? ` · ${unit.interior_sqft} sqft` : ""}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className="font-bold text-[#C8A951] text-sm">
+                    <span className="font-bold text-primary text-sm">
                       ${unit.assignment_price.toLocaleString()}
                     </span>
                     <Badge
@@ -305,7 +305,7 @@ export default function DeveloperUnitsPage() {
                     <button
                       onClick={() => deleteUnit(unit.id)}
                       disabled={deletingId === unit.id}
-                      className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-danger hover:bg-danger-soft transition-colors"
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger-soft transition-colors"
                     >
                       {deletingId === unit.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     </button>
@@ -317,7 +317,7 @@ export default function DeveloperUnitsPage() {
               <Button
                 onClick={() => navigate("/developer/projects")}
                 variant="outline"
-                className="rounded-lg border-[#D1D5DB]"
+                className="rounded-lg border-input"
               >
                 ✓ Done — Back to Projects
               </Button>
