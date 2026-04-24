@@ -62,9 +62,12 @@ export function MobileDiscoveryCarousel({
   badge,
   city = "all",
   limit = 10,
-  size
+  size,
+  unpadded = false,
 }: MobileDiscoveryCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const headerPadX = unpadded ? "" : "px-4 sm:px-6";
+  const scrollPadX = unpadded ? "" : "px-4 sm:px-6 scroll-px-4 sm:scroll-px-6";
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["mobile-discovery", type, city],
