@@ -178,8 +178,14 @@ export function Footer() {
 
         {/* Bottom bar — brokerage + legal in one row */}
         <div className="mt-4 pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <img src={realBrokerLogo} alt="Real Broker" className="h-7 w-auto object-contain" />
+          <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+            <img
+              src={realBrokerLogo}
+              alt="Real Broker"
+              width={80}
+              height={28}
+              className="h-7 w-auto object-contain shrink-0 transform-none"
+            />
             <p className="text-xs text-muted-foreground">Real Broker · 3211 152 St, Building C, Suite 402, Surrey, BC V3Z 1H8</p>
           </div>
           <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap justify-center">
