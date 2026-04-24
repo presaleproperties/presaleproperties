@@ -411,6 +411,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         {activeTab === "projects" &&
         <>
             <CarouselSection delay={150}>
+              <FeaturedProjectPromo slug="baden-park" badgeLabel="Vancouver Spotlight" />
               <MobileDiscoveryCarousel
               type="city_vancouver"
               title="Vancouver"
