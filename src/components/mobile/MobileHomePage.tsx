@@ -308,17 +308,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            {/* "See all projects" CTA — escape hatch for power users */}
-            <div className="px-4 my-6">
-              <Link
-                to="/presale-projects"
-                className="flex items-center justify-center gap-2 w-full h-12 rounded-full bg-foreground text-background font-semibold text-sm shadow-md active:scale-[0.98] transition-transform"
-              >
-                Browse all projects
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-
           </> :
 
         <>
