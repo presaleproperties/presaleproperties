@@ -146,7 +146,7 @@ export function PresaleExpertsSection() {
                   {languages.map((lang) => (
                     <span
                       key={lang}
-                      className="text-xs px-3 py-1.5 rounded-full border border-primary/30 text-primary bg-primary/5 font-medium"
+                      className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border border-border bg-muted/50 text-foreground"
                     >
                       {lang}
                     </span>
