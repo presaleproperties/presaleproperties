@@ -24,7 +24,7 @@ import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { TwoWaysToBuy } from "@/components/home/TwoWaysToBuy";
 import { NewConstructionTrustBar } from "@/components/home/NewConstructionTrustBar";
-import { WhyChooseUs } from "@/components/home/WhyChooseUs";
+import { PresaleExpertsSection } from "@/components/home/PresaleExpertsSection";
 import { GoogleReviewsCarousel } from "@/components/home/GoogleReviewsCarousel";
 // Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
 const HOME_FAQS = [
@@ -325,7 +325,7 @@ const Index = () => {
           <VipListSignup />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
-          <WhyChooseUs />
+          <PresaleExpertsSection />
         </ScrollReveal>
         {/* Promo: Secondary trending project — second high-visual project moment */}
         {activeTab === "projects" && (
