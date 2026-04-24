@@ -500,7 +500,58 @@ serve(async (req: Request): Promise<Response> => {
       console.log("No Zapier webhook configured (ZAPIER_PROJECT_LEADS_WEBHOOK), skipping CRM sync");
     }
 
-    console.log("Lead processed successfully via Zapier webhook");
+    // ── DealzFlow CRM bridge (runs alongside Zapier) ───────────────────────
+    try {
+      const project = lead.presale_projects as any;
+      const [first_name, ...rest] = (lead.name || "").trim().split(/\s+/);
+      const last_name = rest.join(" ") || undefined;
+
+      const bridgePayload = {
+        lead: {
+          email: lead.email,
+          first_name: first_name || undefined,
+          last_name,
+          phone: lead.phone || undefined,
+          source: "presale-website",
+          campaign_source: lead.utm_campaign || undefined,
+          referral_source: lead.referrer || undefined,
+          project: project?.name || undefined,
+          projects: project?.name ? [project.name] : undefined,
+          city: project?.city || undefined,
+          province: "BC",
+          marketing_consent: true,
+          signup_completed_at: lead.created_at,
+          tags: ["PresaleProperties.com", lead.lead_source || "website"].filter(Boolean),
+          metadata: {
+            lead_id: lead.id,
+            lead_source: lead.lead_source,
+            persona: lead.persona,
+            agent_status: lead.agent_status,
+            intent_score: intentScoreResolved,
+            intent_tier: intentTier,
+            utm_source: lead.utm_source,
+            utm_medium: lead.utm_medium,
+            utm_campaign: lead.utm_campaign,
+            landing_page: lead.landing_page,
+            message: lead.message,
+          },
+        },
+      };
+
+      const bridgeRes = await supabase.functions.invoke("push-lead-to-crm", {
+        body: bridgePayload,
+      });
+      if (bridgeRes.error) {
+        console.error("[DealzFlow bridge] push failed:", bridgeRes.error);
+      } else {
+        console.log("[DealzFlow bridge] pushed:", bridgeRes.data);
+      }
+    } catch (bridgeErr) {
+      console.error("[DealzFlow bridge] error:", bridgeErr);
+      // Non-fatal — keep Zapier path successful
+    }
+
+    console.log("Lead processed successfully");
 
     return new Response(
       JSON.stringify({ success: true, leadId: lead.id }),
