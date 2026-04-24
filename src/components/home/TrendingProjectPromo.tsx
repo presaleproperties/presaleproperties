@@ -28,7 +28,7 @@ export function TrendingProjectPromo() {
   const price = formatPrice(project.starting_price);
 
   return (
-    <section className="relative isolate overflow-hidden py-6 md:py-10">
+    <section className="relative isolate overflow-hidden py-10 md:py-14">
       <div className="container px-4 sm:px-6">
         <Link
           to={url}
@@ -38,6 +38,8 @@ export function TrendingProjectPromo() {
             src={project.featured_image!}
             alt={`${project.name} in ${project.city}`}
             loading="lazy"
+            width={1600}
+            height={900}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
           {/* Gradient for readability */}
