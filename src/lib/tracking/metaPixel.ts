@@ -11,7 +11,7 @@
  * - value + currency enable bid optimization on Lead events
  */
 
-import { supabase } from "@/integrations/supabase/client";
+import { safeTrackingInvoke } from "./safeInvoke";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FbqFunction = (...args: any[]) => void;
@@ -123,26 +123,22 @@ export async function trackMetaDual(opts: DualSendOptions): Promise<void> {
     if (DEBUG) console.warn("Meta Pixel send failed", err);
   }
 
-  // 2. Server-side CAPI (fire-and-forget)
-  try {
-    await supabase.functions.invoke("meta-conversions-api", {
-      body: {
-        event_name: eventName,
-        event_id: eventId,
-        event_source_url: window.location.href,
-        email: userData?.email,
-        phone: userData?.phone,
-        first_name: userData?.first_name,
-        last_name: userData?.last_name,
-        fbc: getFbc(),
-        fbp: getFbp(),
-        client_user_agent: navigator.userAgent,
-        custom_data: customData,
-      },
-    });
-  } catch (err) {
-    if (DEBUG) console.warn("Meta CAPI send failed", err);
-  }
+  // 2. Server-side CAPI (fire-and-forget). Transport errors are swallowed
+  //    inside safeTrackingInvoke; the browser Pixel above is still the
+  //    primary delivery path so analytics keep working either way.
+  await safeTrackingInvoke("meta-conversions-api", {
+    event_name: eventName,
+    event_id: eventId,
+    event_source_url: window.location.href,
+    email: userData?.email,
+    phone: userData?.phone,
+    first_name: userData?.first_name,
+    last_name: userData?.last_name,
+    fbc: getFbc(),
+    fbp: getFbp(),
+    client_user_agent: navigator.userAgent,
+    custom_data: customData,
+  });
 }
 
 // ---------- High-level event helpers ----------
