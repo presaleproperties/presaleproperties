@@ -35,65 +35,62 @@ export function TrendingProjectPromo({ inline = false }: TrendingProjectPromoPro
   const price = formatPrice(project.starting_price);
 
   const card = (
-    <Link
-      to={url}
-      className="relative isolate flex flex-col justify-end overflow-hidden rounded-3xl border border-border shadow-xl group min-h-[420px] sm:min-h-[480px] lg:min-h-[520px]"
-    >
-      <img
-        src={project.featured_image!}
-        alt={`${project.name} in ${project.city}`}
-        loading="lazy"
-        width={1600}
-        height={900}
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-      />
-      {/* Gradient for readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
+    <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
+      <div className="grid md:grid-cols-2 gap-0">
+        <Link to={url} className="relative aspect-[4/3] md:aspect-auto md:h-auto md:min-h-[420px] overflow-hidden group">
+          <img
+            src={project.featured_image!}
+            alt={`${project.name} in ${project.city}`}
+            loading="lazy"
+            width={1200}
+            height={900}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1 shadow-lg">
+            <TrendingUp className="h-3 w-3" />
+            <span className="text-[11px] font-bold uppercase tracking-wider">Hot Right Now</span>
+          </div>
+        </Link>
 
-      {/* Top badge */}
-      <div className="absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1 shadow-lg">
-        <TrendingUp className="h-3 w-3" />
-        <span className="text-[11px] font-bold uppercase tracking-wider">Hot Right Now</span>
-      </div>
+        <div className="p-6 sm:p-8 md:p-12 flex flex-col justify-center min-w-0">
+          <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
+            <MapPin className="h-4 w-4 text-primary" />
+            <span>{project.neighborhood ? `${project.neighborhood}, ` : ""}{project.city}, BC</span>
+          </div>
 
-      {/* Content — flows naturally inside flex column, pinned to bottom */}
-      <div className="relative z-[1] p-5 sm:p-6 lg:p-10 text-on-dark">
-        <div className="flex items-center gap-1.5 text-on-dark/80 text-sm mb-2">
-          <MapPin className="h-4 w-4 text-primary shrink-0" />
-          <span>
-            {project.neighborhood ? `${project.neighborhood}, ` : ""}
-            {project.city}, BC
-          </span>
-        </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground leading-tight mb-3 break-words">
+            {project.name}
+          </h2>
 
-        <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold leading-tight mb-2 max-w-3xl break-words">
-          {project.name}
-        </h2>
+          {project.short_description && (
+            <p className="text-muted-foreground leading-relaxed mb-5 line-clamp-3">
+              {project.short_description}
+            </p>
+          )}
 
-        {project.short_description && (
-          <p className="text-on-dark/85 leading-relaxed mb-4 line-clamp-2 max-w-2xl text-sm sm:text-base">
-            {project.short_description}
-          </p>
-        )}
-
-        <div className="flex flex-wrap items-center gap-4 lg:gap-6">
           {price && (
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-on-dark/70 font-semibold">
+            <div className="mb-6">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
                 Starting From
               </p>
-              <p className="text-2xl lg:text-3xl font-extrabold text-primary">{price}</p>
+              <p className="text-3xl font-extrabold text-primary">{price}</p>
             </div>
           )}
-          <Button asChild size="lg" className="font-bold gap-2">
-            <span className="inline-flex items-center">
-              View VIP Pricing
-              <ArrowRight className="h-4 w-4" />
-            </span>
-          </Button>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button asChild size="lg" className="font-bold gap-2">
+              <Link to={url}>
+                View VIP Pricing
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="font-bold">
+              <Link to="/presale-projects">Browse All Projects</Link>
+            </Button>
+          </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 
   if (inline) return card;

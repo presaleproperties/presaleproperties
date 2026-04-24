@@ -4,6 +4,7 @@ import { ArrowRight, Building2, Home, MapPin, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
+import { SpotlightProjectPromo } from "./SpotlightProjectPromo";
 import { supabase } from "@/integrations/supabase/client";
 import { getCityPropertiesUrl } from "@/lib/propertiesUrls";
 
@@ -101,6 +102,11 @@ export function FeaturedProjects() {
               </Link>
             );
           })}
+        </div>
+
+        {/* Spotlight promo — embedded as the hero feature inside this section */}
+        <div className="mb-6 sm:mb-8">
+          <SpotlightProjectPromo inline />
         </div>
 
         {isLoading ? (
