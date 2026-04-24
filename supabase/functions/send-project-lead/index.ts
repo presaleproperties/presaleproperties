@@ -29,6 +29,14 @@ async function rateLimited(req: Request, funcKey: string): Promise<boolean> {
 
 interface ProjectLeadRequest {
   leadId: string;
+  /** Optional client-collected behavior bundle to forward to the CRM. */
+  behavior?: {
+    sessions?: unknown[];
+    views?: unknown[];
+    forms?: unknown[];
+  };
+  /** Stable anonymous-or-known identifier (visitor_id) for CRM stitching. */
+  presale_user_id?: string;
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -45,7 +53,7 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { leadId }: ProjectLeadRequest = await req.json();
+    const { leadId, behavior: clientBehavior, presale_user_id }: ProjectLeadRequest = await req.json();
     console.log("Processing project lead:", leadId);
 
     if (!leadId) {
@@ -506,12 +514,46 @@ serve(async (req: Request): Promise<Response> => {
       const [first_name, ...rest] = (lead.name || "").trim().split(/\s+/);
       const last_name = rest.join(" ") || undefined;
 
+      // Build behavior — prefer client-provided bundle, otherwise synthesize a
+      // minimal session entry from what we already have on the lead row so the
+      // CRM never receives an empty `behavior` object.
+      const leadAny = lead as any;
+      const behaviorPayload = (clientBehavior && (
+        (clientBehavior.sessions?.length ?? 0) > 0 ||
+        (clientBehavior.views?.length ?? 0) > 0 ||
+        (clientBehavior.forms?.length ?? 0) > 0
+      ))
+        ? clientBehavior
+        : {
+            sessions: [{
+              session_id: leadAny.session_id || `srv-${leadAny.id}`,
+              pages_viewed: leadAny.pages_viewed ?? 1,
+              duration_seconds: leadAny.time_on_site ?? 0,
+              landing_page: leadAny.landing_page || "",
+              exit_page: leadAny.landing_page || "",
+              referrer: leadAny.referrer || "",
+              utm_source: leadAny.utm_source || null,
+              utm_medium: leadAny.utm_medium || null,
+              utm_campaign: leadAny.utm_campaign || null,
+              device_type: leadAny.device_type || "desktop",
+              started_at: leadAny.created_at,
+              ended_at: new Date().toISOString(),
+            }],
+            views: [],
+            forms: [{
+              form_type: leadAny.form_type || leadAny.lead_source || "signup_completed",
+              status: "completed",
+              submitted_at: leadAny.created_at,
+            }],
+          };
+
       const bridgePayload = {
         lead: {
           email: lead.email,
           first_name: first_name || undefined,
           last_name,
           phone: lead.phone || undefined,
+          presale_user_id: presale_user_id || leadAny.visitor_id || undefined,
           source: "presale-website",
           campaign_source: lead.utm_campaign || undefined,
           referral_source: lead.referrer || undefined,
@@ -536,6 +578,7 @@ serve(async (req: Request): Promise<Response> => {
             message: lead.message,
           },
         },
+        behavior: behaviorPayload,
       };
 
       const bridgeRes = await supabase.functions.invoke("push-lead-to-crm", {

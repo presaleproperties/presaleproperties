@@ -100,6 +100,9 @@ async function sendEvent(eventName: string, eventPayload: object = {}): Promise<
  */
 export function trackPageView(): void {
   sendEvent("page_view", {});
+  // Update local behavior buffer + stream to CRM (anonymous-friendly)
+  import("./behaviorBuffer").then(({ recordPageView }) => recordPageView());
+  import("./streamBehavior").then(({ streamBehavior }) => streamBehavior());
 }
 
 /**
@@ -117,6 +120,16 @@ export interface PropertyViewData {
 
 export function trackPropertyView(data: PropertyViewData): void {
   sendEvent("property_view", data);
+  // Buffer for CRM bundle + stream live
+  import("./behaviorBuffer").then(({ recordPropertyView }) => {
+    recordPropertyView({
+      property_id: data.project_id,
+      property_name: data.project_name,
+      property_url: typeof window !== "undefined" ? window.location.href : "",
+      action: "view",
+    });
+  });
+  import("./streamBehavior").then(({ streamBehavior }) => streamBehavior());
   // Mirror to Meta as ViewContent (dual-send: Pixel + CAPI)
   import("./metaPixel").then(({ Meta }) => {
     Meta.viewContent({
@@ -195,6 +208,13 @@ export interface FavoriteData {
 
 export function trackFavoriteAdd(data: FavoriteData): void {
   sendEvent("favorite_add", data);
+  import("./behaviorBuffer").then(({ recordPropertyView }) => recordPropertyView({
+    property_id: data.project_id,
+    property_name: data.project_name,
+    property_url: typeof window !== "undefined" ? window.location.href : "",
+    action: "favorite",
+  }));
+  import("./streamBehavior").then(({ streamBehavior }) => streamBehavior());
 }
 
 /**
@@ -227,6 +247,11 @@ export interface FormStartData {
 
 export function trackFormStart(data: FormStartData): void {
   sendEvent("form_start", data);
+  import("./behaviorBuffer").then(({ recordFormEvent }) => recordFormEvent({
+    form_type: data.form_name,
+    status: "started",
+  }));
+  import("./streamBehavior").then(({ streamBehavior }) => streamBehavior());
 }
 
 /**
@@ -248,6 +273,17 @@ export interface FormSubmitData {
 
 export function trackFormSubmit(data: FormSubmitData): void {
   sendEvent("form_submit", data);
+  // Buffer + stream — pin known email so the CRM can stitch identity
+  import("./behaviorBuffer").then(({ recordFormEvent }) => recordFormEvent({
+    form_type: data.form_name || "signup_completed",
+    status: "completed",
+    funnel_step: typeof data.funnel_step === "number" ? data.funnel_step as number : undefined,
+    funnel_total_steps: typeof data.funnel_total_steps === "number" ? data.funnel_total_steps as number : undefined,
+  }));
+  import("./streamBehavior").then(({ streamBehavior, setKnownEmail }) => {
+    if (data.email) setKnownEmail(String(data.email));
+    streamBehavior({ immediate: true });
+  });
   // Estimated lead value by persona — drives FB ad bid optimization
   const personaValue: Record<string, number> = {
     investor: 200,
