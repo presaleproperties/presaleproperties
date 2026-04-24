@@ -15,6 +15,11 @@ interface FeaturedProjectPromoProps {
   slug: string;
   /** Optional override for the badge label (defaults to "Featured This Week") */
   badgeLabel?: string;
+  /**
+   * When true, renders just the card itself (no outer <section>/container/padding)
+   * so it can be embedded inside another grouped section without double-padding.
+   */
+  inline?: boolean;
 }
 
 /**
@@ -22,7 +27,7 @@ interface FeaturedProjectPromoProps {
  * fetched by slug. Visually mirrors SpotlightProjectPromo so promos
  * remain consistent across the page.
  */
-export function FeaturedProjectPromo({ slug, badgeLabel = "Featured This Week" }: FeaturedProjectPromoProps) {
+export function FeaturedProjectPromo({ slug, badgeLabel = "Featured This Week", inline = false }: FeaturedProjectPromoProps) {
   const { data: project } = useQuery({
     queryKey: ["featured-project-promo", slug],
     queryFn: async () => {
