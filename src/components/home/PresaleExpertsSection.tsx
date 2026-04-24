@@ -216,16 +216,16 @@ export function PresaleExpertsSection() {
                 )}
               </div>
 
-              {/* Two smaller photos */}
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {/* Smaller photos — show all remaining team members so no one is omitted */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {photosLoading || photos.length < 2
-                  ? [0, 1].map((i) => (
-                      <Skeleton key={i} className="aspect-[4/3] rounded-2xl" />
+                  ? [0, 1, 2].map((i) => (
+                      <Skeleton key={i} className="aspect-[4/5] rounded-2xl" />
                     ))
-                  : photos.slice(1, 3).map((m) => (
+                  : photos.slice(1).map((m) => (
                       <div
                         key={m.id}
-                        className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lg ring-1 ring-border/50 group relative"
+                        className="aspect-[4/5] rounded-2xl overflow-hidden shadow-lg ring-1 ring-border/50 group relative"
                       >
                         <img
                           src={m.photo_url!}
@@ -233,9 +233,9 @@ export function PresaleExpertsSection() {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent p-2.5">
-                          <p className="text-background text-xs font-bold leading-tight">{m.full_name}</p>
-                          <p className="text-background/80 text-[10px] leading-tight">{m.title}</p>
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/30 to-transparent p-2">
+                          <p className="text-background text-[11px] font-bold leading-tight truncate">{m.full_name}</p>
+                          <p className="text-background/80 text-[9px] leading-tight truncate">{m.title}</p>
                         </div>
                       </div>
                     ))}
