@@ -553,7 +553,7 @@ serve(async (req: Request): Promise<Response> => {
           first_name: first_name || undefined,
           last_name,
           phone: lead.phone || undefined,
-          presale_user_id: presale_user_id || lead.visitor_id || undefined,
+          presale_user_id: presale_user_id || leadAny.visitor_id || undefined,
           source: "presale-website",
           campaign_source: lead.utm_campaign || undefined,
           referral_source: lead.referrer || undefined,
