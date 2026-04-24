@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -113,18 +114,7 @@ export default function AdminPayments() {
     }).format(price);
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <Badge className="bg-success/10 text-success border-success/20">Completed</Badge>;
-      case "pending":
-        return <Badge variant="secondary">Pending</Badge>;
-      case "failed":
-        return <Badge variant="destructive">Failed</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
 
   return (
     <AdminLayout>

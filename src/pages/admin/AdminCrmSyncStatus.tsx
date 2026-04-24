@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge as SharedStatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,19 +25,13 @@ interface SyncRun {
   result: any;
 }
 
-const statusStyles: Record<string, string> = {
-  success: "bg-success/15 text-success-strong border-success/30",
-  failed: "bg-destructive/15 text-destructive border-destructive/20",
-  running: "bg-info/15 text-info-strong border-info/30",
-};
-
 function StatusBadge({ status }: { status: string }) {
   const Icon = status === "success" ? CheckCircle2 : status === "failed" ? XCircle : Loader2;
   return (
-    <Badge variant="outline" className={`gap-1 ${statusStyles[status] || ""}`}>
-      <Icon className={`h-3 w-3 ${status === "running" ? "animate-spin" : ""}`} />
-      {status}
-    </Badge>
+    <SharedStatusBadge
+      status={status}
+      icon={<Icon className={`h-3 w-3 ${status === "running" ? "animate-spin" : ""}`} />}
+    />
   );
 }
 
