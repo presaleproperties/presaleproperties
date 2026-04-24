@@ -29,12 +29,12 @@ export function RisingStarPromo() {
 
   return (
     <section className="py-10 md:py-14">
-      <div className="container px-4">
+      <div className="container px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-primary/5 via-card to-card shadow-lg">
-          <div className="grid sm:grid-cols-[260px_1fr] md:grid-cols-[340px_1fr] gap-0">
+          <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] lg:grid-cols-[340px_1fr] gap-0">
             <Link
               to={url}
-              className="relative h-44 sm:h-auto sm:min-h-[220px] overflow-hidden group"
+              className="relative h-48 sm:h-56 md:h-auto md:min-h-[220px] overflow-hidden group"
             >
               <img
                 src={project.featured_image!}
@@ -48,7 +48,7 @@ export function RisingStarPromo() {
               </div>
             </Link>
 
-            <div className="p-6 md:p-8 flex flex-col justify-center">
+            <div className="p-5 sm:p-6 md:p-8 flex flex-col justify-center">
               <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-2">
                 <MapPin className="h-3.5 w-3.5 text-primary" />
                 <span>
