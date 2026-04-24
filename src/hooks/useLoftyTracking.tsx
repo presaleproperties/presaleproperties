@@ -74,54 +74,43 @@ const getSessionId = (): string => {
   return sessionId;
 };
 
-// Track page view via the server-side edge function (webhook URL never exposed to client)
+// Track page view via the server-side edge function (webhook URL never exposed to client).
+// Transport errors (preview proxy, ad-blockers, offline) are swallowed in the helper —
+// tracking is best-effort and must not surface as user-visible errors.
 const sendToLofty = async (data: TrackingData) => {
-  try {
-    const payload = {
-      activity_type: "page_view",
-      visitor_id: getVisitorId(),
-      session_id: getSessionId(),
-      page_url: data.page_url,
-      page_title: data.page_title,
-      referrer: data.referrer,
-      device_type: window.innerWidth < 768 ? "mobile" : window.innerWidth < 1024 ? "tablet" : "desktop",
-      // Include project/listing-specific data
-      ...("project_id" in data ? { project_id: data.project_id, project_name: data.project_name, city: data.project_city } : {}),
-      ...("listing_id" in data ? { listing_key: data.listing_id, project_name: data.listing_title, city: data.listing_city, price: data.listing_price } : {}),
-    };
+  const payload = {
+    activity_type: "page_view",
+    visitor_id: getVisitorId(),
+    session_id: getSessionId(),
+    page_url: data.page_url,
+    page_title: data.page_title,
+    referrer: data.referrer,
+    device_type: window.innerWidth < 768 ? "mobile" : window.innerWidth < 1024 ? "tablet" : "desktop",
+    // Include project/listing-specific data
+    ...("project_id" in data ? { project_id: data.project_id, project_name: data.project_name, city: data.project_city } : {}),
+    ...("listing_id" in data ? { listing_key: data.listing_id, project_name: data.listing_title, city: data.listing_city, price: data.listing_price } : {}),
+  };
 
-    // Route through the edge function - webhook forwarding happens server-side
-    await supabase.functions.invoke("track-client-activity", {
-      body: payload,
-    });
-  } catch (error) {
-    console.error("Error sending tracking event:", error);
-  }
+  await safeTrackingInvoke("track-client-activity", payload);
 };
 
 // Track CTA clicks via edge function
 const trackCTAClick = async (data: CTAClickData) => {
-  try {
-    const payload = {
-      activity_type: "contact_form",
-      visitor_id: getVisitorId(),
-      session_id: getSessionId(),
-      page_url: window.location.href,
-      page_title: document.title,
-      project_id: data.project_id,
-      project_name: data.project_name,
-      utm_source: sessionStorage.getItem("utm_source") || undefined,
-      utm_medium: sessionStorage.getItem("utm_medium") || undefined,
-      utm_campaign: sessionStorage.getItem("utm_campaign") || undefined,
-      device_type: window.innerWidth < 768 ? "mobile" : window.innerWidth < 1024 ? "tablet" : "desktop",
-    };
+  const payload = {
+    activity_type: "contact_form",
+    visitor_id: getVisitorId(),
+    session_id: getSessionId(),
+    page_url: window.location.href,
+    page_title: document.title,
+    project_id: data.project_id,
+    project_name: data.project_name,
+    utm_source: sessionStorage.getItem("utm_source") || undefined,
+    utm_medium: sessionStorage.getItem("utm_medium") || undefined,
+    utm_campaign: sessionStorage.getItem("utm_campaign") || undefined,
+    device_type: window.innerWidth < 768 ? "mobile" : window.innerWidth < 1024 ? "tablet" : "desktop",
+  };
 
-    await supabase.functions.invoke("track-client-activity", {
-      body: payload,
-    });
-  } catch (error) {
-    console.error("Error sending CTA click event:", error);
-  }
+  await safeTrackingInvoke("track-client-activity", payload);
 };
 
 // Hook for tracking project views
