@@ -170,10 +170,10 @@ export function ResaleListingCard({
             <img
               src={photoUrls[currentImageIndex]}
               alt={address}
-              className="h-full w-full object-cover will-change-transform"
+              className="absolute inset-0 h-full w-full min-w-full min-h-full object-cover object-center will-change-transform"
               loading="lazy"
               decoding="async"
-              style={{ transform: 'translateZ(0)', contentVisibility: 'auto' }}
+              style={{ transform: 'translateZ(0) scale(1.02)', transformOrigin: 'center', contentVisibility: 'auto' }}
             />
 
             {/* Bottom gradient for price */}
