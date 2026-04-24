@@ -59,7 +59,7 @@ export function RisingStarPromo() {
                 </span>
               </div>
 
-              <h3 className="text-2xl md:text-3xl font-extrabold text-foreground leading-tight mb-2">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground leading-tight mb-2 break-words">
                 {project.name}
               </h3>
 
