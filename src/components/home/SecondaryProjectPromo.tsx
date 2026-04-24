@@ -3,6 +3,7 @@ import { Flame, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateProjectUrl } from "@/lib/seoUrls";
 import { useTrendingProjects } from "@/hooks/useTrendingProjects";
+import { HAND_PICKED_PROMO_SLUGS } from "./promoExclusions";
 
 const formatPrice = (price: number | null) => {
   if (!price) return null;
