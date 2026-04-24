@@ -3,7 +3,7 @@ import { FeaturedProjectPromo } from "./FeaturedProjectPromo";
 
 import { TrendingProjectPromo } from "./TrendingProjectPromo";
 import { SecondaryProjectPromo } from "./SecondaryProjectPromo";
-import { RisingStarPromo } from "./RisingStarPromo";
+
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 const FEATURED_CITIES = [
