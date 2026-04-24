@@ -31,7 +31,7 @@ export function SecondaryProjectPromo() {
       <div className="container px-4">
         <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
           <div className="grid md:grid-cols-2 gap-0">
-            <div className="p-8 md:p-12 flex flex-col justify-center order-2 md:order-1">
+            <div className="p-6 sm:p-8 md:p-12 flex flex-col justify-center order-2 md:order-1 min-w-0">
               <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
                 <MapPin className="h-4 w-4 text-primary" />
                 <span>
@@ -40,7 +40,7 @@ export function SecondaryProjectPromo() {
                 </span>
               </div>
 
-              <h2 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight mb-3">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground leading-tight mb-3 break-words">
                 {project.name}
               </h2>
 
@@ -74,12 +74,14 @@ export function SecondaryProjectPromo() {
 
             <Link
               to={url}
-              className="relative h-64 md:h-auto md:min-h-[420px] overflow-hidden group order-1 md:order-2"
+              className="relative aspect-[4/3] md:aspect-auto md:h-auto md:min-h-[420px] overflow-hidden group order-1 md:order-2"
             >
               <img
                 src={project.featured_image!}
                 alt={`${project.name} in ${project.city}`}
                 loading="lazy"
+                width={1200}
+                height={900}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1 shadow-lg">

@@ -34,12 +34,14 @@ export function RisingStarPromo() {
           <div className="grid sm:grid-cols-[260px_1fr] md:grid-cols-[340px_1fr] gap-0">
             <Link
               to={url}
-              className="relative h-44 sm:h-auto sm:min-h-[220px] overflow-hidden group"
+              className="relative aspect-[16/10] sm:aspect-auto sm:h-auto sm:min-h-[220px] overflow-hidden group"
             >
               <img
                 src={project.featured_image!}
                 alt={`${project.name} in ${project.city}`}
                 loading="lazy"
+                width={800}
+                height={500}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-foreground text-background rounded-full px-2.5 py-1 shadow-md">
@@ -48,7 +50,7 @@ export function RisingStarPromo() {
               </div>
             </Link>
 
-            <div className="p-6 md:p-8 flex flex-col justify-center">
+            <div className="p-5 sm:p-6 md:p-8 flex flex-col justify-center min-w-0">
               <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-2">
                 <MapPin className="h-3.5 w-3.5 text-primary" />
                 <span>
@@ -57,7 +59,7 @@ export function RisingStarPromo() {
                 </span>
               </div>
 
-              <h3 className="text-2xl md:text-3xl font-extrabold text-foreground leading-tight mb-2">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground leading-tight mb-2 break-words">
                 {project.name}
               </h3>
 

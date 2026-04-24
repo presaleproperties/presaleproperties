@@ -66,13 +66,13 @@ export function FeaturedProjectPromo({ slug, badgeLabel = "Featured This Week" }
               </div>
             </Link>
 
-            <div className="p-8 md:p-12 flex flex-col justify-center">
+            <div className="p-6 sm:p-8 md:p-12 flex flex-col justify-center min-w-0">
               <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
                 <MapPin className="h-4 w-4 text-primary" />
                 <span>{project.neighborhood ? `${project.neighborhood}, ` : ""}{project.city}, BC</span>
               </div>
 
-              <h2 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight mb-3">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground leading-tight mb-3 break-words">
                 {project.name}
               </h2>
 

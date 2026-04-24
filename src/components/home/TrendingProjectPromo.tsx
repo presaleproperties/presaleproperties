@@ -61,7 +61,7 @@ export function TrendingProjectPromo() {
               </span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold leading-tight mb-2 max-w-3xl">
+            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold leading-tight mb-2 max-w-3xl break-words">
               {project.name}
             </h2>
 
