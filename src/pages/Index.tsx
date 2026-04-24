@@ -320,12 +320,12 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           {activeTab === "projects" ? <CityProjectsSection /> : <ResaleCitySection />}
         </ScrollReveal>
-        {/* Editorial flow: social proof → trust/why-buy → lead magnet → tools → map */}
-        <ScrollReveal animation="fade-up" delay={100}>
-          <GoogleReviewsCarousel />
-        </ScrollReveal>
+        {/* Editorial flow: trust/why-buy → social proof → lead magnet → tools → map */}
         <ScrollReveal animation="fade-up" delay={100}>
           <PresaleExpertsSection />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <GoogleReviewsCarousel />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <MistakesGuideBanner location="homepage_banner" />
