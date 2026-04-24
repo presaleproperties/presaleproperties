@@ -59,23 +59,23 @@ export function TrendingProjectPromo() {
               </span>
             </div>
 
-            <h2 className="text-3xl md:text-5xl font-extrabold leading-tight mb-2 max-w-3xl">
+            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold leading-tight mb-2 max-w-3xl">
               {project.name}
             </h2>
 
             {project.short_description && (
-              <p className="text-on-dark/85 leading-relaxed mb-4 line-clamp-2 max-w-2xl">
+              <p className="text-on-dark/85 leading-relaxed mb-4 line-clamp-2 max-w-2xl text-sm sm:text-base">
                 {project.short_description}
               </p>
             )}
 
-            <div className="flex flex-wrap items-center gap-4 md:gap-6">
+            <div className="flex flex-wrap items-center gap-4 lg:gap-6">
               {price && (
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-on-dark/70 font-semibold">
                     Starting From
                   </p>
-                  <p className="text-2xl md:text-3xl font-extrabold text-primary">{price}</p>
+                  <p className="text-2xl lg:text-3xl font-extrabold text-primary">{price}</p>
                 </div>
               )}
               <Button asChild size="lg" className="font-bold gap-2">
