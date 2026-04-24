@@ -83,15 +83,15 @@ function formatRelativeTime(iso: string | null | undefined): string {
 }
 
 function StatusIcon({ status, className }: { status: AuditRun["status"]; className?: string }) {
-  if (status === "ok") return <ShieldCheck className={cn("text-emerald-600", className)} />;
-  if (status === "failed") return <ShieldAlert className={cn("text-amber-600", className)} />;
+  if (status === "ok") return <ShieldCheck className={cn("text-success", className)} />;
+  if (status === "failed") return <ShieldAlert className={cn("text-warning", className)} />;
   return <ShieldX className={cn("text-destructive", className)} />;
 }
 
 function StatusBadge({ status }: { status: AuditRun["status"] }) {
   const map = {
-    ok: { label: "Passing", cls: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30" },
-    failed: { label: "Failing", cls: "bg-amber-500/15 text-amber-700 border-amber-500/30" },
+    ok: { label: "Passing", cls: "bg-success/15 text-success-strong border-success/30" },
+    failed: { label: "Failing", cls: "bg-warning/15 text-warning-strong border-warning/30" },
     error: { label: "Errored", cls: "bg-destructive/15 text-destructive border-destructive/30" },
   } as const;
   const v = map[status] ?? map.error;
@@ -228,7 +228,7 @@ export default function AdminEmailHealth() {
           {latest && latest.status !== "ok" && latest.errors && latest.errors.length > 0 && (
             <CardContent className="border-t pt-4">
               <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertTriangle className="h-4 w-4 text-warning" />
                 Failures in latest run
               </p>
               <ul className="space-y-1.5 text-sm">
@@ -292,7 +292,7 @@ export default function AdminEmailHealth() {
             <CardContent>
               {ruleTally.length === 0 ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground py-6 justify-center">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  <ShieldCheck className="h-4 w-4 text-success" />
                   No failures recorded — recommendation emails are clean.
                 </div>
               ) : (
@@ -323,7 +323,7 @@ export default function AdminEmailHealth() {
             <CardContent>
               {staleTemplates.length === 0 ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground py-6 justify-center">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  <ShieldCheck className="h-4 w-4 text-success" />
                   All active templates are fresh.
                 </div>
               ) : (
@@ -431,8 +431,8 @@ function StatTile({
   tone: "ok" | "warn" | "danger" | "neutral";
 }) {
   const toneCls = {
-    ok: "border-emerald-500/30 bg-emerald-500/5",
-    warn: "border-amber-500/30 bg-amber-500/5",
+    ok: "border-success/30 bg-success/5",
+    warn: "border-warning/30 bg-warning/5",
     danger: "border-destructive/30 bg-destructive/5",
     neutral: "",
   }[tone];

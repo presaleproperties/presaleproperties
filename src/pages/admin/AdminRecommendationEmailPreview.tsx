@@ -242,7 +242,7 @@ export default function AdminRecommendationEmailPreview() {
                 variant={auditOk ? "default" : "destructive"}
                 className={cn(
                   "h-7 gap-1.5 px-2.5 text-[11px] font-semibold",
-                  auditOk && "bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/15 dark:text-emerald-400",
+                  auditOk && "bg-success/15 text-success-strong hover:bg-success/15 dark:text-success",
                 )}
               >
                 {auditOk ? (
@@ -390,7 +390,7 @@ export default function AdminRecommendationEmailPreview() {
                   disabled={!html}
                 >
                   {copied ? (
-                    <CheckCheck className="h-3.5 w-3.5 text-emerald-500" />
+                    <CheckCheck className="h-3.5 w-3.5 text-success" />
                   ) : (
                     <Copy className="h-3.5 w-3.5" />
                   )}
@@ -412,7 +412,7 @@ export default function AdminRecommendationEmailPreview() {
                     ref={iframeRef}
                     title="Recommendation email preview"
                     sandbox="allow-same-origin"
-                    className="w-full h-full bg-white"
+                    className="w-full h-full bg-card"
                   />
                 </div>
               ) : (
@@ -517,7 +517,7 @@ export default function AdminRecommendationEmailPreview() {
                               {hasIssue ? (
                                 <AlertTriangle className="h-3 w-3 text-destructive mt-0.5 shrink-0" />
                               ) : (
-                                <CheckCircle2 className="h-3 w-3 text-emerald-500 mt-0.5 shrink-0" />
+                                <CheckCircle2 className="h-3 w-3 text-success mt-0.5 shrink-0" />
                               )}
                               <div className="min-w-0 flex-1">
                                 <p className="font-medium text-foreground/90 truncate">

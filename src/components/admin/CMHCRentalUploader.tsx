@@ -213,17 +213,17 @@ export function CMHCRentalUploader({ onDataUpdated }: CMHCRentalUploaderProps) {
   return (
     <div className="space-y-6">
       {/* Header Card */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-800">
+      <Card className="bg-gradient-to-r from-info-soft to-info-soft dark:from-info-strong/30 dark:to-info-strong/30 border-info/30 dark:border-info">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 bg-info-soft dark:bg-info-strong rounded-lg">
+                <Building2 className="h-5 w-5 text-info dark:text-info" />
               </div>
               <div>
                 <CardTitle className="flex items-center gap-2">
                   CMHC Rental Market Data
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <Badge variant="outline" className="bg-success-soft text-success-strong border-success/30">
                     <CheckCircle2 className="h-3 w-3 mr-1" />
                     Verified Source
                   </Badge>
@@ -421,7 +421,7 @@ export function CMHCRentalUploader({ onDataUpdated }: CMHCRentalUploaderProps) {
             href="https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/market-reports/rental-market-reports-major-centres"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm text-info hover:underline"
           >
             View CMHC Rental Market Reports
             <ExternalLink className="h-3.5 w-3.5" />
@@ -471,7 +471,7 @@ export function CMHCRentalUploader({ onDataUpdated }: CMHCRentalUploaderProps) {
                         <TableCell className="text-right">{formatPercent(row.vacancy_rate_overall)}</TableCell>
                         <TableCell className="text-right">
                           {row.yoy_rent_change_1br !== null && (
-                            <span className={`flex items-center justify-end gap-1 ${row.yoy_rent_change_1br >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            <span className={`flex items-center justify-end gap-1 ${row.yoy_rent_change_1br >= 0 ? 'text-danger' : 'text-success'}`}>
                               {row.yoy_rent_change_1br >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                               {formatPercent(row.yoy_rent_change_1br, true)}
                             </span>
@@ -479,7 +479,7 @@ export function CMHCRentalUploader({ onDataUpdated }: CMHCRentalUploaderProps) {
                         </TableCell>
                         <TableCell className="text-right">
                           {row.yoy_rent_change_2br !== null && (
-                            <span className={`flex items-center justify-end gap-1 ${row.yoy_rent_change_2br >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            <span className={`flex items-center justify-end gap-1 ${row.yoy_rent_change_2br >= 0 ? 'text-danger' : 'text-success'}`}>
                               {row.yoy_rent_change_2br >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                               {formatPercent(row.yoy_rent_change_2br, true)}
                             </span>
@@ -490,10 +490,10 @@ export function CMHCRentalUploader({ onDataUpdated }: CMHCRentalUploaderProps) {
                             variant="outline" 
                             className={
                               row.data_quality === 'verified' 
-                                ? 'bg-green-50 text-green-700 border-green-200' 
+                                ? 'bg-success-soft text-success-strong border-success/30' 
                                 : row.data_quality === 'interpolated'
-                                ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
-                                : 'bg-gray-50 text-gray-700 border-gray-200'
+                                ? 'bg-warning-soft text-warning-strong border-warning/30'
+                                : 'bg-muted text-foreground border-border'
                             }
                           >
                             {row.data_quality}

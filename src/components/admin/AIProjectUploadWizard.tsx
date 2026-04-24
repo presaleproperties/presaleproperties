@@ -956,7 +956,7 @@ export function AIProjectUploadWizard() {
                 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
                 ${step === s ? "bg-primary text-primary-foreground" : 
                   ["upload", "processing", "review", "complete"].indexOf(step) > i 
-                    ? "bg-green-500 text-white" 
+                    ? "bg-success text-on-dark" 
                     : "bg-muted text-muted-foreground"}
               `}>
                 {["upload", "processing", "review", "complete"].indexOf(step) > i ? (
@@ -968,7 +968,7 @@ export function AIProjectUploadWizard() {
               {i < 3 && (
                 <div className={`w-12 h-0.5 ${
                   ["upload", "processing", "review", "complete"].indexOf(step) > i 
-                    ? "bg-green-500" 
+                    ? "bg-success" 
                     : "bg-muted"
                 }`} />
               )}
@@ -1275,7 +1275,7 @@ export function AIProjectUploadWizard() {
                         </div>
                       )}
                       {mapLat && mapLng && (
-                        <p className="text-xs text-green-600">
+                        <p className="text-xs text-success">
                           ✓ Coordinates: {parseFloat(mapLat).toFixed(5)}, {parseFloat(mapLng).toFixed(5)}
                         </p>
                       )}
@@ -1800,7 +1800,7 @@ export function AIProjectUploadWizard() {
                             alt={`Gallery ${i + 1}`}
                             className="w-full h-full object-cover rounded-lg"
                           />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-lg" />
+                          <div className="absolute inset-0 bg-neutral-900/0 group-hover:bg-neutral-900/40 transition-colors rounded-lg" />
                           <Button
                             type="button"
                             variant="secondary"
@@ -2040,7 +2040,7 @@ export function AIProjectUploadWizard() {
       {step === "complete" && (
         <Card>
           <CardContent className="py-16 text-center">
-            <CheckCircle2 className="h-16 w-16 mx-auto text-green-500 mb-6" />
+            <CheckCircle2 className="h-16 w-16 mx-auto text-success mb-6" />
             <h3 className="text-xl font-semibold mb-2">Project Created!</h3>
             <p className="text-muted-foreground mb-6">
               Redirecting to projects list...

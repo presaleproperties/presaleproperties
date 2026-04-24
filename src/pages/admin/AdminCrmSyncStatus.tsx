@@ -25,9 +25,9 @@ interface SyncRun {
 }
 
 const statusStyles: Record<string, string> = {
-  success: "bg-emerald-500/15 text-emerald-700 border-emerald-200",
+  success: "bg-success/15 text-success-strong border-success/30",
   failed: "bg-destructive/15 text-destructive border-destructive/20",
-  running: "bg-blue-500/15 text-blue-700 border-blue-200",
+  running: "bg-info/15 text-info-strong border-info/30",
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -156,7 +156,7 @@ export default function AdminCrmSyncStatus() {
           <Card>
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Last successful run
+                <CheckCircle2 className="h-3.5 w-3.5 text-success" /> Last successful run
               </CardDescription>
               <CardTitle className="text-xl">
                 {loading ? (

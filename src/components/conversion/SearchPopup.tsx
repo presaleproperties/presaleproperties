@@ -106,7 +106,7 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
     <>
       {/* Backdrop - lighter blur */}
       <div 
-        className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm animate-fade-in"
+        className="fixed inset-0 z-50 bg-neutral-900/30 backdrop-blur-sm animate-fade-in"
         onClick={() => onOpenChange(false)}
       />
       
@@ -115,8 +115,8 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
         <div className="mx-auto w-full max-w-md">
           {/* Glass Container */}
           <div className={cn(
-            "bg-black/30 backdrop-blur-xl rounded-2xl",
-            "border border-white/15 shadow-2xl",
+            "bg-neutral-900/30 backdrop-blur-xl rounded-2xl",
+            "border border-card/15 shadow-2xl",
             "overflow-hidden pt-3"
           )}>
 
@@ -128,8 +128,8 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
                 className={cn(
                   "px-4 py-2 rounded-full text-sm font-semibold transition-all border",
                   activeTab === "projects"
-                    ? "bg-white text-foreground shadow-lg border-transparent"
-                    : "bg-white/10 text-white hover:bg-white/20 border-white/20"
+                    ? "bg-card text-foreground shadow-lg border-transparent"
+                    : "bg-card/10 text-on-dark hover:bg-card/20 border-card/20"
                 )}
               >
                 Projects
@@ -140,8 +140,8 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
                 className={cn(
                   "px-4 py-2 rounded-full text-sm font-semibold transition-all border",
                   activeTab === "resale"
-                    ? "bg-white text-foreground shadow-lg border-transparent"
-                    : "bg-white/10 text-white hover:bg-white/20 border-white/20"
+                    ? "bg-card text-foreground shadow-lg border-transparent"
+                    : "bg-card/10 text-on-dark hover:bg-card/20 border-card/20"
                 )}
               >
                 Resale
@@ -166,9 +166,9 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
                     }}
                     className={cn(
                       "h-12 text-base pl-4 pr-12 rounded-xl",
-                      "bg-white border-white/80",
+                      "bg-card border-card/80",
                       "text-foreground placeholder:text-muted-foreground",
-                      "focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:border-white",
+                      "focus-visible:ring-2 focus-visible:ring-card/50 focus-visible:border-card",
                       "shadow-lg"
                     )}
                     autoComplete="off"
@@ -186,7 +186,7 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
             {/* Suggestions dropdown */}
             {showSuggestions && hasSuggestions && (
               <div className="px-4 pb-4">
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden max-h-[35vh] overflow-y-auto">
+                <div className="bg-card rounded-xl shadow-lg overflow-hidden max-h-[35vh] overflow-y-auto">
                   <SearchSuggestions
                     query={searchQuery}
                     onSelect={handleSuggestionSelect}

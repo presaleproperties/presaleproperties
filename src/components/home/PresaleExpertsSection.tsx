@@ -99,7 +99,7 @@ function VIPInlineForm() {
       <Button type="submit" disabled={isSubmitting} size="lg" className="w-full shadow-lg shadow-primary/30 font-semibold text-base">
         {isSubmitting ? "Joining..." : "Join VIP — It's Free"}
       </Button>
-      {error && <p className="text-center text-xs text-red-400">{error}</p>}
+      {error && <p className="text-center text-xs text-danger">{error}</p>}
       <p className="text-center text-xs text-background/40">No obligation. Unsubscribe anytime.</p>
     </form>
   );

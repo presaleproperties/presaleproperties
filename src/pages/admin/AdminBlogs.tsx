@@ -387,7 +387,7 @@ export default function AdminBlogs() {
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <h3 className="font-semibold truncate">{post.title}</h3>
                         {post.is_featured && (
-                          <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                          <Star className="h-4 w-4 text-warning fill-warning" />
                         )}
                         <Badge variant={post.is_published ? "default" : "secondary"}>
                           {post.is_published ? "Published" : "Draft"}

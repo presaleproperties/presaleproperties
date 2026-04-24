@@ -126,17 +126,17 @@ function getBikeLabel(score: number): string {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 70) return "text-green-600";
-  if (score >= 50) return "text-yellow-600";
-  if (score >= 25) return "text-orange-500";
-  return "text-red-500";
+  if (score >= 70) return "text-success";
+  if (score >= 50) return "text-warning";
+  if (score >= 25) return "text-warning";
+  return "text-danger";
 }
 
 function getScoreBgColor(score: number): string {
-  if (score >= 70) return "bg-green-500";
-  if (score >= 50) return "bg-yellow-500";
-  if (score >= 25) return "bg-orange-500";
-  return "bg-red-500";
+  if (score >= 70) return "bg-success";
+  if (score >= 50) return "bg-warning";
+  if (score >= 25) return "bg-warning";
+  return "bg-danger";
 }
 
 export function WalkTransitScore({ latitude, longitude }: WalkTransitScoreProps) {

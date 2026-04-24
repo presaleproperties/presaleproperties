@@ -98,10 +98,10 @@ const statusLabel: Record<string, string> = {
   sold_out: "Sold Out",
 };
 const statusStyle: Record<string, string> = {
-  coming_soon: "bg-blue-100 text-blue-800 border-blue-200",
-  registering: "bg-amber-100 text-amber-800 border-amber-200",
-  active: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  sold_out: "bg-slate-100 text-slate-600 border-slate-200",
+  coming_soon: "bg-info-soft text-info-strong border-info/30",
+  registering: "bg-warning-soft text-warning-strong border-warning/30",
+  active: "bg-success-soft text-success-strong border-success/30",
+  sold_out: "bg-muted text-foreground border-border",
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -424,7 +424,7 @@ export default function DeveloperAddInventoryWizard() {
             {autoMatched.length > 0 && !searchQuery && (
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  <Sparkles className="h-3.5 w-3.5 text-warning" />
                   Matching your company — {devProfile?.company_name}
                 </p>
                 {autoMatched.map(p => <ProjectRow key={p.id} project={p} selected={selectedProject?.id === p.id} onSelect={() => selectProject(p)} />)}
@@ -586,7 +586,7 @@ export default function DeveloperAddInventoryWizard() {
                               key={feat}
                               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted border border-border text-xs font-medium"
                             >
-                              <Star className="h-2.5 w-2.5 text-amber-500" />
+                              <Star className="h-2.5 w-2.5 text-warning" />
                               {feat}
                               <button onClick={() => removeCustomFeature(plan.id, feat)} className="ml-0.5 text-muted-foreground hover:text-destructive">
                                 <X className="h-3 w-3" />
@@ -610,7 +610,7 @@ export default function DeveloperAddInventoryWizard() {
                   Each unit will be reviewed by our team before going live.
                 </p>
                 <div className="flex items-start gap-2 pt-1">
-                  <AlertCircle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                  <AlertCircle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
                   <p className="text-xs text-muted-foreground">Typical review time is 1–2 business days. You'll be notified by email once approved.</p>
                 </div>
               </CardContent>
@@ -672,7 +672,7 @@ function ProjectRow({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <p className="text-sm font-semibold text-foreground truncate">{project.name}</p>
-          <Badge variant="outline" className={cn("text-[10px] shrink-0", statusStyle[project.status] || "bg-slate-100 text-slate-600")}>
+          <Badge variant="outline" className={cn("text-[10px] shrink-0", statusStyle[project.status] || "bg-muted text-foreground")}>
             {statusLabel[project.status] || project.status}
           </Badge>
         </div>
@@ -754,8 +754,8 @@ function FloorPlanCard({
               )}
               {plan.extracted && (
                 <div className="flex items-center gap-1.5 mt-1">
-                  <Sparkles className="h-3 w-3 text-amber-500" />
-                  <span className="text-xs text-emerald-600 font-medium">Auto-filled! Review & complete below.</span>
+                  <Sparkles className="h-3 w-3 text-warning" />
+                  <span className="text-xs text-success font-medium">Auto-filled! Review & complete below.</span>
                 </div>
               )}
             </div>
@@ -777,7 +777,7 @@ function FloorPlanCard({
         {/* AI-extracted fields */}
         <div className="space-y-3">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
-            <Sparkles className="h-3 w-3 text-amber-500" />
+            <Sparkles className="h-3 w-3 text-warning" />
             Unit Details {plan.extracted ? "(AI filled — review & edit)" : "(fill in manually or upload floor plan)"}
           </p>
           <div className="grid grid-cols-2 gap-3">

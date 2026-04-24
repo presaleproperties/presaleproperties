@@ -26,16 +26,16 @@ import {
 
 // Content categories with icons and descriptions
 const CONTENT_CATEGORIES = [
-  { slug: "presale-guides", title: "Presale Guides", description: "Learn how to buy presale condos and townhomes", icon: BookOpen, color: "bg-blue-500/10 text-blue-600", dbCategory: "Presale Guides" },
-  { slug: "buyer-education", title: "Buyer Education", description: "Essential knowledge for home buyers", icon: BookOpen, color: "bg-sky-500/10 text-sky-600", dbCategory: "Buyer Education" },
-  { slug: "market-insights", title: "Market Insights", description: "Latest presale market reports and trends", icon: TrendingUp, color: "bg-green-500/10 text-green-600", dbCategory: "Market Insights" },
-  { slug: "investment-strategy", title: "Investment Strategy", description: "ROI calculations and investment strategies", icon: DollarSign, color: "bg-emerald-500/10 text-emerald-600", dbCategory: "Investment Strategy" },
-  { slug: "neighbourhood-guides", title: "Neighbourhood Guides", description: "In-depth guides to BC's best neighbourhoods", icon: MapPin, color: "bg-purple-500/10 text-purple-600", dbCategory: "Neighbourhood Guides" },
-  { slug: "tax-finance", title: "Tax & Finance", description: "Tax planning and financial strategies", icon: DollarSign, color: "bg-amber-500/10 text-amber-600", dbCategory: "Tax & Finance" },
-  { slug: "city-spotlight", title: "City Spotlight", description: "Deep dives into BC's fastest-growing cities", icon: Building2, color: "bg-orange-500/10 text-orange-600", dbCategory: "City Spotlight" },
-  { slug: "assignments", title: "Assignments", description: "Buying and selling presale assignments", icon: TrendingUp, color: "bg-rose-500/10 text-rose-600", dbCategory: "Assignments" },
-  { slug: "agent-spotlight", title: "Agent Spotlight", description: "Meet the agents behind successful transactions", icon: Users, color: "bg-indigo-500/10 text-indigo-600", dbCategory: "Agent Spotlight" },
-  { slug: "faq", title: "FAQ", description: "Frequently asked questions about presales", icon: BookOpen, color: "bg-teal-500/10 text-teal-600", dbCategory: "FAQ" },
+  { slug: "presale-guides", title: "Presale Guides", description: "Learn how to buy presale condos and townhomes", icon: BookOpen, color: "bg-info/10 text-info", dbCategory: "Presale Guides" },
+  { slug: "buyer-education", title: "Buyer Education", description: "Essential knowledge for home buyers", icon: BookOpen, color: "bg-info/10 text-info", dbCategory: "Buyer Education" },
+  { slug: "market-insights", title: "Market Insights", description: "Latest presale market reports and trends", icon: TrendingUp, color: "bg-success/10 text-success", dbCategory: "Market Insights" },
+  { slug: "investment-strategy", title: "Investment Strategy", description: "ROI calculations and investment strategies", icon: DollarSign, color: "bg-success/10 text-success", dbCategory: "Investment Strategy" },
+  { slug: "neighbourhood-guides", title: "Neighbourhood Guides", description: "In-depth guides to BC's best neighbourhoods", icon: MapPin, color: "bg-primary/10 text-primary", dbCategory: "Neighbourhood Guides" },
+  { slug: "tax-finance", title: "Tax & Finance", description: "Tax planning and financial strategies", icon: DollarSign, color: "bg-warning/10 text-warning", dbCategory: "Tax & Finance" },
+  { slug: "city-spotlight", title: "City Spotlight", description: "Deep dives into BC's fastest-growing cities", icon: Building2, color: "bg-warning/10 text-warning", dbCategory: "City Spotlight" },
+  { slug: "assignments", title: "Assignments", description: "Buying and selling presale assignments", icon: TrendingUp, color: "bg-danger/10 text-danger", dbCategory: "Assignments" },
+  { slug: "agent-spotlight", title: "Agent Spotlight", description: "Meet the agents behind successful transactions", icon: Users, color: "bg-info/10 text-info", dbCategory: "Agent Spotlight" },
+  { slug: "faq", title: "FAQ", description: "Frequently asked questions about presales", icon: BookOpen, color: "bg-success/10 text-success", dbCategory: "FAQ" },
 ];
 // Quick resources
 const QUICK_RESOURCES = [
@@ -314,7 +314,7 @@ export default function ContentHub() {
                               </div>
                             )}
                             <div className="absolute top-3 left-3">
-                              <Badge className="bg-yellow-500 hover:bg-yellow-600">
+                              <Badge className="bg-warning hover:bg-warning">
                                 <Star className="h-3 w-3 mr-1 fill-current" />
                                 Featured
                               </Badge>

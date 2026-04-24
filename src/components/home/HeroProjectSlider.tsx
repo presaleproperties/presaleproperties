@@ -113,8 +113,8 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
       ))}
 
       {/* Gradient overlays */}
-      <div className={`absolute inset-0 z-[2] pointer-events-none ${lightOverlay ? "bg-gradient-to-t from-black/65 via-black/10 to-black/30" : "bg-gradient-to-t from-black/85 via-black/20 to-black/55"}`} />
-      <div className={`absolute inset-0 z-[2] pointer-events-none ${lightOverlay ? "bg-gradient-to-r from-black/25 via-transparent to-transparent" : "bg-gradient-to-r from-black/50 via-transparent to-transparent"}`} />
+      <div className={`absolute inset-0 z-[2] pointer-events-none ${lightOverlay ? "bg-gradient-to-t from-neutral-900/65 via-neutral-900/10 to-neutral-900/30" : "bg-gradient-to-t from-neutral-900/85 via-neutral-900/20 to-neutral-900/55"}`} />
+      <div className={`absolute inset-0 z-[2] pointer-events-none ${lightOverlay ? "bg-gradient-to-r from-neutral-900/25 via-transparent to-transparent" : "bg-gradient-to-r from-neutral-900/50 via-transparent to-transparent"}`} />
 
       {/* Bottom project info — compact, clean */}
       <div className="absolute bottom-0 left-0 right-0 z-[3] px-4 sm:px-8 md:px-14 pb-4 sm:pb-8">
@@ -125,7 +125,7 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
             <span className="inline-flex items-center gap-0.5 text-[4px] sm:text-[10px] font-black uppercase tracking-[0.12em] bg-primary text-primary-foreground px-[2px] py-[1px] sm:px-2.5 sm:py-0.5 rounded-[2px] sm:rounded">
               {project.status === "active" ? "Now Selling" : project.status === "coming_soon" ? "Coming Soon" : project.status === "registering" ? "Register Now" : "Sold Out"}
             </span>
-            <span className="inline-flex items-center gap-0.5 text-[4px] sm:text-[10px] font-semibold text-white/60 bg-white/10 backdrop-blur-sm px-[2px] py-[1px] sm:px-2 sm:py-0.5 rounded-[2px] sm:rounded border border-white/15 uppercase tracking-wider">
+            <span className="inline-flex items-center gap-0.5 text-[4px] sm:text-[10px] font-semibold text-on-dark/60 bg-card/10 backdrop-blur-sm px-[2px] py-[1px] sm:px-2 sm:py-0.5 rounded-[2px] sm:rounded border border-card/15 uppercase tracking-wider">
               {getTypeIcon(project.project_type)}
               {getTypeLabel(project.project_type)}
             </span>
@@ -134,16 +134,16 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
           {/* Project name + meta + actions in one row on sm+ */}
           <div className="flex items-end justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="text-lg sm:text-2xl md:text-[2rem] font-extrabold text-white leading-tight tracking-tight truncate" style={{ textShadow: "0 2px 16px rgba(0,0,0,0.7)" }}>
+              <h3 className="text-lg sm:text-2xl md:text-[2rem] font-extrabold text-on-dark leading-tight tracking-tight truncate" style={{ textShadow: "0 2px 16px rgba(0,0,0,0.7)" }}>
                 {project.name}
               </h3>
               <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 mt-1">
-                <span className="flex items-center gap-1 text-xs text-white/70">
+                <span className="flex items-center gap-1 text-xs text-on-dark/70">
                   <MapPin className="h-3 w-3 text-primary shrink-0" />
                   {project.neighborhood ? `${project.neighborhood}, ` : ""}{project.city}
                 </span>
                 {project.completion_year && (
-                  <span className="flex items-center gap-1 text-[11px] text-white/45">
+                  <span className="flex items-center gap-1 text-[11px] text-on-dark/45">
                     <Calendar className="h-3 w-3 shrink-0" />
                     Est. {project.completion_year}
                   </span>
@@ -163,7 +163,7 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
                   {/* All sizes: open lead form modal to gate document access */}
                   <button
                     onClick={() => setModalOpen(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 backdrop-blur-md text-white border border-white/25 active:scale-95 transition-all text-xs font-bold whitespace-nowrap"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/15 backdrop-blur-md text-on-dark border border-card/25 active:scale-95 transition-all text-xs font-bold whitespace-nowrap"
                   >
                     <Download className="h-3 w-3 text-primary shrink-0" />
                     {hasFloorplan ? "Floor Plans" : hasPricing ? "Pricing" : "Brochure"}
@@ -205,14 +205,14 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
         <>
           <button
             onClick={prev}
-            className="hidden md:flex absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-[6] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-black/30 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/50 active:scale-95 transition-all"
+            className="hidden md:flex absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-[6] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-neutral-900/30 backdrop-blur-md border border-card/15 text-on-dark items-center justify-center hover:bg-neutral-900/50 active:scale-95 transition-all"
             aria-label="Previous project"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={next}
-            className="hidden md:flex absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-[6] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-black/30 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/50 active:scale-95 transition-all"
+            className="hidden md:flex absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-[6] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-neutral-900/30 backdrop-blur-md border border-card/15 text-on-dark items-center justify-center hover:bg-neutral-900/50 active:scale-95 transition-all"
             aria-label="Next project"
           >
             <ChevronRight className="h-4 w-4" />

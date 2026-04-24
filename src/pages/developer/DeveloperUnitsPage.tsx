@@ -186,7 +186,7 @@ export default function DeveloperUnitsPage() {
                   <div>
                     <Label className="text-[#1F2937] text-xs">Unit # *</Label>
                     <Input {...register("unit_number")} placeholder="401" className="mt-1" />
-                    {errors.unit_number && <p className="text-red-500 text-xs mt-0.5">{errors.unit_number.message}</p>}
+                    {errors.unit_number && <p className="text-danger text-xs mt-0.5">{errors.unit_number.message}</p>}
                   </div>
                   <div>
                     <Label className="text-[#1F2937] text-xs">Unit Type</Label>
@@ -223,7 +223,7 @@ export default function DeveloperUnitsPage() {
                   <div>
                     <Label className="text-[#1F2937] text-xs">Asking Price ($) *</Label>
                     <Input {...register("assignment_price")} type="number" placeholder="699000" className="mt-1" />
-                    {errors.assignment_price && <p className="text-red-500 text-xs mt-0.5">{errors.assignment_price.message}</p>}
+                    {errors.assignment_price && <p className="text-danger text-xs mt-0.5">{errors.assignment_price.message}</p>}
                   </div>
                   <div>
                     <Label className="text-[#1F2937] text-xs">Original Price ($)</Label>
@@ -259,7 +259,7 @@ export default function DeveloperUnitsPage() {
 
         {/* Units List */}
         {units.length === 0 && !showForm ? (
-          <Card className="rounded-xl border border-dashed border-[#D1D5DB] bg-white">
+          <Card className="rounded-xl border border-dashed border-[#D1D5DB] bg-card">
             <CardContent className="py-16 text-center">
               <Home className="h-12 w-12 text-[#D1D5DB] mx-auto mb-4" />
               <h3 className="font-semibold text-[#1F2937] mb-1">No units yet</h3>
@@ -278,7 +278,7 @@ export default function DeveloperUnitsPage() {
         ) : units.length > 0 ? (
           <div className="space-y-2">
             {units.map((unit) => (
-              <Card key={unit.id} className="rounded-xl border border-[#E5E7EB] shadow-sm bg-white">
+              <Card key={unit.id} className="rounded-xl border border-[#E5E7EB] shadow-sm bg-card">
                 <CardContent className="p-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-[#1A1A2E]/5 flex items-center justify-center">
@@ -296,16 +296,16 @@ export default function DeveloperUnitsPage() {
                       ${unit.assignment_price.toLocaleString()}
                     </span>
                     <Badge
-                      className={unit.status === "published" ? "bg-green-100 text-green-700 border-0 text-xs" :
-                        unit.status === "sold" ? "bg-gray-100 text-gray-600 border-0 text-xs" :
-                        "bg-amber-100 text-amber-700 border-0 text-xs"}
+                      className={unit.status === "published" ? "bg-success-soft text-success-strong border-0 text-xs" :
+                        unit.status === "sold" ? "bg-muted text-foreground border-0 text-xs" :
+                        "bg-warning-soft text-warning-strong border-0 text-xs"}
                     >
                       {unit.status === "pending_approval" ? "Pending" : unit.status}
                     </Badge>
                     <button
                       onClick={() => deleteUnit(unit.id)}
                       disabled={deletingId === unit.id}
-                      className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-red-500 hover:bg-red-50 transition-colors"
+                      className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-danger hover:bg-danger-soft transition-colors"
                     >
                       {deletingId === unit.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     </button>

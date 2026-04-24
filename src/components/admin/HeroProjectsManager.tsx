@@ -101,8 +101,8 @@ export function HeroProjectsManager({ compact = false }: { compact?: boolean }) 
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-2">
-            <div className="rounded-lg bg-amber-100 p-1.5">
-              <Sparkles className="h-4 w-4 text-amber-600" />
+            <div className="rounded-lg bg-warning-soft p-1.5">
+              <Sparkles className="h-4 w-4 text-warning" />
             </div>
             <div>
               <h3 className="text-sm font-semibold">Homepage Hero Slider</h3>
@@ -120,7 +120,7 @@ export function HeroProjectsManager({ compact = false }: { compact?: boolean }) 
         </div>
 
         {overLimit && (
-          <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <div className="rounded-md border border-warning bg-warning-soft px-3 py-2 text-xs text-warning-strong">
             You have {liveCount} hero projects — only the top {HERO_LIMIT} by views will display.
           </div>
         )}
@@ -214,7 +214,7 @@ function HeroRow({
     <div
       className={cn(
         "flex items-center gap-3 rounded-lg border bg-card px-2.5 py-2 transition-colors",
-        checked ? "border-amber-200 bg-amber-50/40" : "hover:bg-muted/40",
+        checked ? "border-warning/30 bg-warning-soft/40" : "hover:bg-muted/40",
       )}
     >
       <div className="h-10 w-14 shrink-0 overflow-hidden rounded-md bg-muted">

@@ -466,8 +466,8 @@ export default function AdminDevelopers() {
                       <span
                         className={`text-xs px-2 py-1 rounded-full ${
                           dev.is_active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
+                            ? "bg-success-soft text-success-strong"
+                            : "bg-muted text-foreground"
                         }`}
                       >
                         {dev.is_active ? "Active" : "Inactive"}

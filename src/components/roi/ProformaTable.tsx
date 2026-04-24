@@ -157,7 +157,7 @@ export function ProformaTable({ projections }: ProformaTableProps) {
                         key={p.year} 
                         className={`text-right text-sm tabular-nums ${
                           row.type === "highlight" && isNegative ? "text-destructive" :
-                          row.type === "highlight" && !isNegative ? "text-green-600 dark:text-green-500" :
+                          row.type === "highlight" && !isNegative ? "text-success dark:text-success" :
                           row.type === "expense" && row.negate ? "text-destructive" :
                           ""
                         }`}

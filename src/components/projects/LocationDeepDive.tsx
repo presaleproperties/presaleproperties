@@ -173,9 +173,9 @@ export function LocationDeepDive({
   const data = getNeighborhoodData(neighborhood);
   
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600 dark:text-green-400";
-    if (score >= 60) return "text-yellow-600 dark:text-yellow-400";
-    return "text-orange-600 dark:text-orange-400";
+    if (score >= 80) return "text-success dark:text-success";
+    if (score >= 60) return "text-warning dark:text-warning";
+    return "text-warning dark:text-warning";
   };
 
   const getScoreLabel = (score: number) => {

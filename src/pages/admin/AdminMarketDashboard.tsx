@@ -255,17 +255,17 @@ export default function AdminMarketDashboard() {
 
   const getMarketTypeColor = (type: string | null) => {
     switch (type) {
-      case 'sellers': return 'bg-red-500/10 text-red-600 border-red-200';
-      case 'balanced': return 'bg-yellow-500/10 text-yellow-600 border-yellow-200';
-      case 'buyers': return 'bg-green-500/10 text-green-600 border-green-200';
+      case 'sellers': return 'bg-danger/10 text-danger border-danger/30';
+      case 'balanced': return 'bg-warning/10 text-warning border-warning/30';
+      case 'buyers': return 'bg-success/10 text-success border-success/30';
       default: return 'bg-muted text-muted-foreground';
     }
   };
 
   const getChangeIcon = (change: number | null) => {
     if (change === null) return <Minus className="h-4 w-4 text-muted-foreground" />;
-    if (change > 0) return <ArrowUpRight className="h-4 w-4 text-green-600" />;
-    if (change < 0) return <ArrowDownRight className="h-4 w-4 text-red-600" />;
+    if (change > 0) return <ArrowUpRight className="h-4 w-4 text-success" />;
+    if (change < 0) return <ArrowDownRight className="h-4 w-4 text-danger" />;
     return <Minus className="h-4 w-4 text-muted-foreground" />;
   };
 
@@ -309,20 +309,20 @@ export default function AdminMarketDashboard() {
         </div>
 
         {/* Data Coverage & Missing Months Alert */}
-        <Card className="border-blue-200 bg-blue-50/50">
+        <Card className="border-info/30 bg-info-soft/50">
           <CardContent className="py-4">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+              <Info className="h-5 w-5 text-info mt-0.5" />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium text-blue-800">Data Coverage Status</p>
+                  <p className="font-medium text-info-strong">Data Coverage Status</p>
                   {dateRange.latest && (
-                    <Badge variant="outline" className="bg-white">
+                    <Badge variant="outline" className="bg-card">
                       Latest: {MONTH_NAMES[dateRange.latest.month - 1]} {dateRange.latest.year}
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-blue-700 mt-1">
+                <p className="text-sm text-info-strong mt-1">
                   You have <strong>{dateRange.months} month(s)</strong> of data
                   {dateRange.earliest && dateRange.latest && (
                     <> from {MONTH_NAMES[dateRange.earliest.month - 1]} {dateRange.earliest.year} to {MONTH_NAMES[dateRange.latest.month - 1]} {dateRange.latest.year}</>
@@ -333,8 +333,8 @@ export default function AdminMarketDashboard() {
                   const estimatedMonths = [...new Set(allStats.filter(s => s.source_board === 'Estimated').map(s => `${MONTH_NAMES[s.report_month - 1]} ${s.report_year}`))];
                   if (estimatedMonths.length > 0) {
                     return (
-                      <p className="text-sm text-amber-700 mt-2 flex items-center gap-2">
-                        <span className="inline-block w-2 h-2 rounded-full bg-amber-500"></span>
+                      <p className="text-sm text-warning-strong mt-2 flex items-center gap-2">
+                        <span className="inline-block w-2 h-2 rounded-full bg-warning"></span>
                         <span><strong>Estimated data:</strong> {estimatedMonths.join(', ')} — Upload actual Snap Stats to replace</span>
                       </p>
                     );
@@ -406,7 +406,7 @@ export default function AdminMarketDashboard() {
                   </div>
                 </div>
                 {summaryMetrics.avgYoyChange !== null && (
-                  <div className={`flex items-center gap-1 mt-2 text-sm ${summaryMetrics.avgYoyChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className={`flex items-center gap-1 mt-2 text-sm ${summaryMetrics.avgYoyChange >= 0 ? 'text-success' : 'text-danger'}`}>
                     {getChangeIcon(summaryMetrics.avgYoyChange)}
                     <span>{summaryMetrics.avgYoyChange > 0 ? '+' : ''}{summaryMetrics.avgYoyChange}% YoY</span>
                   </div>
@@ -421,8 +421,8 @@ export default function AdminMarketDashboard() {
                     <p className="text-sm text-muted-foreground">Avg Sales Ratio</p>
                     <p className="text-2xl font-bold">{summaryMetrics.avgSalesRatio ? `${summaryMetrics.avgSalesRatio}%` : '—'}</p>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <Activity className="h-6 w-6 text-blue-600" />
+                  <div className="h-12 w-12 rounded-full bg-info/10 flex items-center justify-center">
+                    <Activity className="h-6 w-6 text-info" />
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
@@ -439,8 +439,8 @@ export default function AdminMarketDashboard() {
                     <p className="text-sm text-muted-foreground">Avg Days on Market</p>
                     <p className="text-2xl font-bold">{summaryMetrics.avgDaysOnMarket ? `${summaryMetrics.avgDaysOnMarket} days` : '—'}</p>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                    <Clock className="h-6 w-6 text-amber-600" />
+                  <div className="h-12 w-12 rounded-full bg-warning/10 flex items-center justify-center">
+                    <Clock className="h-6 w-6 text-warning" />
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">Average time to sell</p>
@@ -454,8 +454,8 @@ export default function AdminMarketDashboard() {
                     <p className="text-sm text-muted-foreground">Cities Tracked</p>
                     <p className="text-2xl font-bold">{summaryMetrics.totalCities}</p>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                    <MapPin className="h-6 w-6 text-green-600" />
+                  <div className="h-12 w-12 rounded-full bg-success/10 flex items-center justify-center">
+                    <MapPin className="h-6 w-6 text-success" />
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
@@ -573,7 +573,7 @@ export default function AdminMarketDashboard() {
                                 <p className="font-medium">{data.city}</p>
                                 <p className="text-primary">{formatPrice(data.benchmark_price)}</p>
                                 {data.yoy_price_change && (
-                                  <p className={data.yoy_price_change >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                  <p className={data.yoy_price_change >= 0 ? 'text-success' : 'text-danger'}>
                                     {data.yoy_price_change > 0 ? '+' : ''}{data.yoy_price_change}% YoY
                                   </p>
                                 )}
@@ -635,12 +635,12 @@ export default function AdminMarketDashboard() {
                             return (
                               <div className="bg-background border rounded-lg p-3 shadow-lg">
                                 <p className="font-medium">{data.city}</p>
-                                <p className="text-blue-600">Sales Ratio: {data.salesRatio}%</p>
+                                <p className="text-info">Sales Ratio: {data.salesRatio}%</p>
                                 <p className="text-muted-foreground">
                                   {data.marketType ? `${data.marketType.charAt(0).toUpperCase() + data.marketType.slice(1)}'s Market` : '—'}
                                 </p>
                                 {data.daysOnMarket && (
-                                  <p className="text-amber-600">{data.daysOnMarket} days on market</p>
+                                  <p className="text-warning">{data.daysOnMarket} days on market</p>
                                 )}
                               </div>
                             );
@@ -700,7 +700,7 @@ export default function AdminMarketDashboard() {
                           </td>
                           <td className="py-3 px-2 text-right">
                             {stat.yoy_price_change !== null ? (
-                              <span className={stat.yoy_price_change >= 0 ? 'text-green-600' : 'text-red-600'}>
+                              <span className={stat.yoy_price_change >= 0 ? 'text-success' : 'text-danger'}>
                                 {stat.yoy_price_change > 0 ? '+' : ''}{stat.yoy_price_change}%
                               </span>
                             ) : '—'}
@@ -741,15 +741,15 @@ export default function AdminMarketDashboard() {
                 <p className="text-muted-foreground">The typical price for a standard home in that area. Think of it as what "most" homes cost.</p>
               </div>
               <div>
-                <p className="font-medium text-blue-600">Sales Ratio</p>
+                <p className="font-medium text-info">Sales Ratio</p>
                 <p className="text-muted-foreground">How many homes sold vs. listed. Above 20% = seller's market (prices rise). Below 12% = buyer's market.</p>
               </div>
               <div>
-                <p className="font-medium text-amber-600">Days on Market</p>
+                <p className="font-medium text-warning">Days on Market</p>
                 <p className="text-muted-foreground">Average time to sell. Lower = hot market. Higher = buyers have more time to negotiate.</p>
               </div>
               <div>
-                <p className="font-medium text-green-600">YoY Change</p>
+                <p className="font-medium text-success">YoY Change</p>
                 <p className="text-muted-foreground">Year-over-year price change. Positive = prices went up from last year. Negative = prices dropped.</p>
               </div>
             </div>

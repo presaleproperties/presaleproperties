@@ -373,7 +373,7 @@ export default function DashboardDecks() {
                       variant={deck.is_published ? "default" : "secondary"}
                       className={
                         deck.is_published
-                          ? "bg-green-500/10 text-green-600 border-green-500/20"
+                          ? "bg-success/10 text-success border-success/20"
                           : ""
                       }
                     >
@@ -383,7 +383,7 @@ export default function DashboardDecks() {
                       variant="outline"
                       className={
                         deck.gate_enabled !== false
-                          ? "bg-amber-500/10 text-amber-600 border-amber-500/20 gap-1"
+                          ? "bg-warning/10 text-warning border-warning/20 gap-1"
                           : "bg-muted text-muted-foreground border-border gap-1"
                       }
                     >

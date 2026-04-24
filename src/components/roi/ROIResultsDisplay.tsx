@@ -118,15 +118,15 @@ export function ROIResultsDisplay({
             <div className="text-xl font-bold">{formatCurrency(results.totalCashInvested)}</div>
           </CardContent>
         </Card>
-        <Card className={`${results.totalReturnPercent >= 0 ? "bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800" : "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800"}`}>
+        <Card className={`${results.totalReturnPercent >= 0 ? "bg-success-soft border-success/30 dark:bg-success-strong/20 dark:border-success" : "bg-danger-soft border-danger/30 dark:bg-danger-strong/20 dark:border-danger"}`}>
           <CardContent className="p-4">
             <div className="text-xs text-muted-foreground mb-1">5-Year Total Return</div>
             <div className="flex items-center gap-1">
               <span className="text-xl font-bold">{formatPercent(results.totalReturnPercent)}</span>
               {results.totalReturnPercent >= 0 ? (
-                <ArrowUpRight className="h-4 w-4 text-green-600" />
+                <ArrowUpRight className="h-4 w-4 text-success" />
               ) : (
-                <ArrowDownRight className="h-4 w-4 text-red-600" />
+                <ArrowDownRight className="h-4 w-4 text-danger" />
               )}
             </div>
             <div className="text-xs text-muted-foreground">
@@ -167,13 +167,13 @@ export function ROIResultsDisplay({
           <div className="border-t pt-3 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Year 1 Net Cashflow:</span>
-              <span className={`font-medium ${results.year1NetCashflow >= 0 ? "text-green-600" : "text-red-600"}`}>
+              <span className={`font-medium ${results.year1NetCashflow >= 0 ? "text-success" : "text-danger"}`}>
                 {formatCurrency(results.year1NetCashflow)}
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Year 5 Net Cashflow:</span>
-              <span className={`font-medium ${results.year5NetCashflow >= 0 ? "text-green-600" : "text-red-600"}`}>
+              <span className={`font-medium ${results.year5NetCashflow >= 0 ? "text-success" : "text-danger"}`}>
                 {formatCurrency(results.year5NetCashflow)}
               </span>
             </div>
@@ -242,14 +242,14 @@ export function ROIResultsDisplay({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500" />
+                <div className="w-3 h-3 rounded-full bg-info" />
                 <span className="text-sm">Appreciation</span>
               </div>
               <span className="text-sm font-medium">{formatCurrency(results.appreciationReturn)}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-purple-500" />
+                <div className="w-3 h-3 rounded-full bg-primary" />
                 <span className="text-sm">Principal Paydown</span>
               </div>
               <span className="text-sm font-medium">{formatCurrency(results.principalPaydownReturn)}</span>

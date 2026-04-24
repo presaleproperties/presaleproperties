@@ -234,18 +234,18 @@ export function SocialMediaImporter({ onDataExtracted, isOpen, onClose }: Props)
               {/* Source Selection */}
               <Tabs value={activeSource} onValueChange={(v) => setActiveSource(v as any)} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 h-auto">
-                  <TabsTrigger value="facebook" className="flex items-center gap-2 py-3 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                  <TabsTrigger value="facebook" className="flex items-center gap-2 py-3 data-[state=active]:bg-info data-[state=active]:text-on-dark">
                     <FacebookIcon />
                     <span>Facebook Post</span>
                   </TabsTrigger>
-                  <TabsTrigger value="whatsapp" className="flex items-center gap-2 py-3 data-[state=active]:bg-green-600 data-[state=active]:text-white">
+                  <TabsTrigger value="whatsapp" className="flex items-center gap-2 py-3 data-[state=active]:bg-success data-[state=active]:text-on-dark">
                     <WhatsAppIcon />
                     <span>WhatsApp Message</span>
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="facebook" className="mt-4 space-y-4">
-                  <Card className="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/20 dark:to-blue-900/10 border-blue-200 dark:border-blue-800">
+                  <Card className="bg-gradient-to-br from-info-soft to-info-soft/50 dark:from-info-strong/20 dark:to-info-strong/10 border-info/30 dark:border-info">
                     <CardContent className="pt-4">
                       <p className="text-sm text-muted-foreground">
                         Upload a screenshot of your Facebook post and/or paste the description text. Our AI will extract all the property details automatically.
@@ -255,7 +255,7 @@ export function SocialMediaImporter({ onDataExtracted, isOpen, onClose }: Props)
                 </TabsContent>
 
                 <TabsContent value="whatsapp" className="mt-4 space-y-4">
-                  <Card className="bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/20 dark:to-green-900/10 border-green-200 dark:border-green-800">
+                  <Card className="bg-gradient-to-br from-success-soft to-success-soft/50 dark:from-success-strong/20 dark:to-success-strong/10 border-success/30 dark:border-success">
                     <CardContent className="pt-4">
                       <p className="text-sm text-muted-foreground">
                         Upload your marketing graphic from WhatsApp and paste the message text. We'll parse the property information for you.
@@ -279,8 +279,8 @@ export function SocialMediaImporter({ onDataExtracted, isOpen, onClose }: Props)
                     onClick={() => fileInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
                       activeSource === "facebook" 
-                        ? "border-blue-300 hover:border-blue-500 dark:border-blue-700 dark:hover:border-blue-500"
-                        : "border-green-300 hover:border-green-500 dark:border-green-700 dark:hover:border-green-500"
+                        ? "border-info hover:border-info dark:border-info dark:hover:border-info"
+                        : "border-success hover:border-success dark:border-success dark:hover:border-success"
                     }`}
                   >
                     <input
@@ -341,7 +341,7 @@ export function SocialMediaImporter({ onDataExtracted, isOpen, onClose }: Props)
               <Button
                 onClick={processContent}
                 disabled={isProcessing || (!description.trim() && !imagePreview)}
-                className={`w-full ${activeSource === "facebook" ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"}`}
+                className={`w-full ${activeSource === "facebook" ? "bg-info hover:bg-info" : "bg-success hover:bg-success"}`}
               >
                 {isProcessing ? (
                   <>
@@ -359,10 +359,10 @@ export function SocialMediaImporter({ onDataExtracted, isOpen, onClose }: Props)
           ) : (
             <>
               {/* Success State */}
-              <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+              <div className="flex items-center gap-2 p-3 bg-success/10 border border-success/20 rounded-lg">
+                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
                 <div>
-                  <p className="font-medium text-emerald-700 dark:text-emerald-400">Data Extracted Successfully!</p>
+                  <p className="font-medium text-success-strong dark:text-success">Data Extracted Successfully!</p>
                   <p className="text-sm text-muted-foreground">Review the fields below, then apply to your form.</p>
                 </div>
               </div>
@@ -391,7 +391,7 @@ export function SocialMediaImporter({ onDataExtracted, isOpen, onClose }: Props)
                 <Button variant="outline" onClick={() => setExtractedData(null)} className="flex-1">
                   Try Again
                 </Button>
-                <Button onClick={applyExtractedData} className="flex-1 bg-emerald-600 hover:bg-emerald-700">
+                <Button onClick={applyExtractedData} className="flex-1 bg-success hover:bg-success">
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   Apply to Form
                 </Button>

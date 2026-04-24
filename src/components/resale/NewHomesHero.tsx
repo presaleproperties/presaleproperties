@@ -76,7 +76,7 @@ export function NewHomesHero({ onOpenLeadForm }: NewHomesHeroProps) {
           className="h-full w-full object-cover"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-black/75" />
+        <div className="absolute inset-0 bg-gradient-to-b from-neutral-900/65 via-neutral-900/45 to-neutral-900/75" />
       </div>
 
       {/* Content */}
@@ -88,16 +88,16 @@ export function NewHomesHero({ onOpenLeadForm }: NewHomesHeroProps) {
           </p>
 
           {/* Headline */}
-          <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tightest text-white animate-fade-in leading-[1.05] drop-shadow-lg">
+          <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tightest text-on-dark animate-fade-in leading-[1.05] drop-shadow-lg">
             Find Your <span className="text-primary drop-shadow-[0_0_25px_hsl(40_65%_55%/0.5)]">New</span> Home
           </h1>
           
-          <p className="text-white/90 text-base sm:text-lg md:text-xl font-medium animate-fade-in max-w-xl mx-auto leading-relaxed">
+          <p className="text-on-dark/90 text-base sm:text-lg md:text-xl font-medium animate-fade-in max-w-xl mx-auto leading-relaxed">
             Search Presale & move-in ready homes
           </p>
 
           {/* Search Card */}
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-4 md:p-6 max-w-3xl mx-auto">
+          <div className="bg-card/95 backdrop-blur-md rounded-2xl shadow-2xl p-4 md:p-6 max-w-3xl mx-auto">
             {/* Property Type Toggle */}
             <div className="flex items-center justify-center gap-1 md:gap-2 mb-4 flex-wrap">
               {[
@@ -195,13 +195,13 @@ export function NewHomesHero({ onOpenLeadForm }: NewHomesHeroProps) {
 
           {/* Top Cities */}
           <div className="pt-4">
-            <p className="text-white/60 text-xs mb-3 uppercase tracking-wider">Browse by City</p>
+            <p className="text-on-dark/60 text-xs mb-3 uppercase tracking-wider">Browse by City</p>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-2.5 px-2">
               {TOP_CITIES.map((city) => (
                 <button
                   key={city}
                   onClick={() => handleCityClick(city)}
-                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white/90 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-all hover:scale-105 whitespace-nowrap"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-on-dark/90 bg-card/10 backdrop-blur-sm rounded-full hover:bg-card/20 transition-all hover:scale-105 whitespace-nowrap"
                 >
                   {city}
                 </button>

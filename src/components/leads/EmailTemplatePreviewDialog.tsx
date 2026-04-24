@@ -100,7 +100,7 @@ export function EmailTemplatePreviewDialog({
               <iframe
                 srcDoc={previewHtml}
                 title="Email Preview"
-                className="w-full bg-white rounded-md border shadow-sm"
+                className="w-full bg-card rounded-md border shadow-sm"
                 style={{
                   maxWidth: isMobile ? "100%" : 680,
                   height: isMobile ? "60vh" : "65vh",

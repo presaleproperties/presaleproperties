@@ -26,29 +26,29 @@ const SEASON_MONTHS: Record<CompletionSeason, { start: number; label: string }> 
 // Color coding for different phases
 const PHASE_COLORS = {
   deposit: {
-    bg: 'bg-amber-500',
-    text: 'text-white',
-    ring: 'ring-amber-200',
+    bg: 'bg-warning',
+    text: 'text-on-dark',
+    ring: 'ring-warning',
   },
   construction: {
-    bg: 'bg-slate-400',
-    text: 'text-white',
-    ring: 'ring-slate-200',
+    bg: 'bg-neutral-500',
+    text: 'text-on-dark',
+    ring: 'ring-ring',
   },
   completion: {
-    bg: 'bg-blue-500',
-    text: 'text-white',
-    ring: 'ring-blue-200',
+    bg: 'bg-info',
+    text: 'text-on-dark',
+    ring: 'ring-info',
   },
   mortgage: {
-    bg: 'bg-purple-500',
-    text: 'text-white',
-    ring: 'ring-purple-200',
+    bg: 'bg-primary',
+    text: 'text-on-dark',
+    ring: 'ring-primary',
   },
   exit: {
-    bg: 'bg-green-500',
-    text: 'text-white',
-    ring: 'ring-green-200',
+    bg: 'bg-success',
+    text: 'text-on-dark',
+    ring: 'ring-success',
   },
 };
 
@@ -221,7 +221,7 @@ export function InvestmentTimeline({ inputs, results }: InvestmentTimelineProps)
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm">{event.label}</span>
                             {event.isCurrent && (
-                              <Badge variant="default" className="text-[10px] h-5 bg-amber-500 hover:bg-amber-600">Now</Badge>
+                              <Badge variant="default" className="text-[10px] h-5 bg-warning hover:bg-warning">Now</Badge>
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground">{event.sublabel}</p>
@@ -235,7 +235,7 @@ export function InvestmentTimeline({ inputs, results }: InvestmentTimelineProps)
                           )}
                         </div>
                         <div className={`text-right shrink-0 ${
-                          event.isReturn ? 'text-green-600 dark:text-green-400' : ''
+                          event.isReturn ? 'text-success dark:text-success' : ''
                         }`}>
                           {event.amount !== null && (
                             <>
@@ -269,7 +269,7 @@ export function InvestmentTimeline({ inputs, results }: InvestmentTimelineProps)
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">Est. Return (5yr)</p>
-              <p className="font-bold text-lg text-green-600 dark:text-green-400">
+              <p className="font-bold text-lg text-success dark:text-success">
                 +{formatCurrency(results.totalReturnDollars)}
               </p>
             </div>

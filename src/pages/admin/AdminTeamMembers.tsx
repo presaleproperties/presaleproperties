@@ -357,7 +357,7 @@ export default function AdminTeamMembers() {
         </div>
 
         {/* Table */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border shadow-sm">
+        <div className="bg-card dark:bg-neutral-900 rounded-xl border shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>

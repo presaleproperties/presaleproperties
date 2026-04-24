@@ -172,13 +172,13 @@ export function MortgageVsCash({ inputs, results }: MortgageVsCashProps) {
                 {/* Return */}
                 <div className={`p-2 rounded-lg ${
                   isPositiveReturn 
-                    ? 'bg-green-50 dark:bg-green-950/30' 
-                    : 'bg-red-50 dark:bg-red-950/30'
+                    ? 'bg-success-soft dark:bg-success-strong/30' 
+                    : 'bg-danger-soft dark:bg-danger-strong/30'
                 }`}>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">5-Year Return</p>
                   <div className="flex items-baseline gap-1">
                     <span className={`text-lg font-bold ${
-                      isPositiveReturn ? 'text-green-600 dark:text-green-400' : 'text-red-600'
+                      isPositiveReturn ? 'text-success dark:text-success' : 'text-danger'
                     }`}>
                       {formatPercent(scenario.returnPercent)}
                     </span>
@@ -198,7 +198,7 @@ export function MortgageVsCash({ inputs, results }: MortgageVsCashProps) {
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Year 1 Cashflow</p>
                   <p className={`text-sm font-medium ${
-                    isPositiveCashflow ? 'text-green-600 dark:text-green-400' : 'text-red-600'
+                    isPositiveCashflow ? 'text-success dark:text-success' : 'text-danger'
                   }`}>
                     {formatCurrency(scenario.year1Cashflow)}
                   </p>
@@ -262,13 +262,13 @@ export function MortgageVsCash({ inputs, results }: MortgageVsCashProps) {
             <CardContent className="p-3 space-y-2">
               {scenario.pros.slice(0, 2).map((pro, i) => (
                 <div key={i} className="flex items-start gap-1.5">
-                  <Check className="h-3 w-3 text-green-500 mt-0.5 shrink-0" />
+                  <Check className="h-3 w-3 text-success mt-0.5 shrink-0" />
                   <span className="text-xs">{pro}</span>
                 </div>
               ))}
               {scenario.cons.slice(0, 2).map((con, i) => (
                 <div key={i} className="flex items-start gap-1.5">
-                  <X className="h-3 w-3 text-red-400 mt-0.5 shrink-0" />
+                  <X className="h-3 w-3 text-danger mt-0.5 shrink-0" />
                   <span className="text-xs text-muted-foreground">{con}</span>
                 </div>
               ))}

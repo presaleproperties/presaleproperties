@@ -93,12 +93,12 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
     <div className="space-y-6">
       {/* First-Time Buyer Banner */}
       {isFirstTimeBuyer && (
-        <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+        <div className="bg-success-soft dark:bg-success-strong/20 border border-success/30 dark:border-success rounded-lg p-3">
           <div className="flex items-start gap-2">
-            <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+            <ShieldCheck className="h-4 w-4 text-success dark:text-success mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-green-700 dark:text-green-300">First-Time Buyer Benefits Applied</p>
-              <p className="text-xs text-green-600 dark:text-green-400">
+              <p className="text-sm font-medium text-success-strong dark:text-success-soft-foreground">First-Time Buyer Benefits Applied</p>
+              <p className="text-xs text-success dark:text-success">
                 PTT exemption{pttFullExemption ? ' (full — new construction ≤$1.1M)' : pttPartialExemption ? ' (partial — new construction $1.1M–$1.15M)' : ' (over $1.15M — no exemption)'},{' '}
                 GST rebate{gstRebate > 0 ? ` (${formatCurrency(gstRebate)} back)` : ' (not eligible above $1.5M)'}
                 {cmhcInsurance > 0 ? `, CMHC insurance required` : ''}
@@ -139,7 +139,7 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
                 </div>
                 <div className="flex justify-between text-sm font-medium border-t border-border/50 pt-1.5">
                   <span>Total Deposits Paid</span>
-                  <span className="text-green-600 dark:text-green-400">✓ {formatCurrency(totalDepositPaid)}</span>
+                  <span className="text-success dark:text-success">✓ {formatCurrency(totalDepositPaid)}</span>
                 </div>
               </>
             )}
@@ -175,7 +175,7 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1 cursor-help">
+                    <span className="text-warning dark:text-warning flex items-center gap-1 cursor-help">
                       CMHC Mortgage Insurance
                       <Info className="h-3 w-3" />
                     </span>
@@ -186,7 +186,7 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
                 </Tooltip>
               </TooltipProvider>
               <div className="text-right">
-                <span className="font-medium text-amber-600 dark:text-amber-400">{formatCurrency(cmhcInsurance)}</span>
+                <span className="font-medium text-warning dark:text-warning">{formatCurrency(cmhcInsurance)}</span>
                 <p className="text-[10px] text-muted-foreground">Added to mortgage</p>
               </div>
             </div>
@@ -217,13 +217,13 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
             {/* GST Rebate line for first-time buyers */}
             {isFirstTimeBuyer && exit.includeGST && (
               <div className="flex justify-between text-sm ml-4">
-                <span className="text-green-600 dark:text-green-400 text-xs">
+                <span className="text-success dark:text-success text-xs">
                   GST New Housing Rebate
                   {gstRebate === 0 && purchasePrice >= 450000 && (
                     <span className="text-muted-foreground"> (not eligible over $450K)</span>
                   )}
                 </span>
-                <span className="font-medium text-green-600 dark:text-green-400">
+                <span className="font-medium text-success dark:text-success">
                   {gstRebate > 0 ? `-${formatCurrency(gstRebate)}` : '$0'}
                 </span>
               </div>
@@ -247,12 +247,12 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
                   className="scale-75"
                 />
                 {isFirstTimeBuyer && pttFullExemption && (
-                  <Badge variant="outline" className="text-[10px] h-5 bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800">
+                  <Badge variant="outline" className="text-[10px] h-5 bg-success-soft text-success-strong border-success/30 dark:bg-success-strong/30 dark:text-success dark:border-success">
                     EXEMPT
                   </Badge>
                 )}
                 {isFirstTimeBuyer && pttPartialExemption && (
-                  <Badge variant="outline" className="text-[10px] h-5 bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800">
+                  <Badge variant="outline" className="text-[10px] h-5 bg-warning-soft text-warning-strong border-warning/30 dark:bg-warning-strong/30 dark:text-warning dark:border-warning">
                     PARTIAL
                   </Badge>
                 )}
@@ -275,7 +275,7 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
           {/* Developer Credit */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm text-green-600 dark:text-green-400">Developer Credit / Incentive</Label>
+              <Label className="text-sm text-success dark:text-success">Developer Credit / Incentive</Label>
               <p className="text-[10px] text-muted-foreground">Any closing credit from developer</p>
             </div>
             <div className="w-28">
@@ -336,7 +336,7 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
               <span>{formatCurrency(totalDepositPaid)}</span>
             </div>
             {cmhcInsurance > 0 && (
-              <div className="flex justify-between text-xs text-amber-600 dark:text-amber-400">
+              <div className="flex justify-between text-xs text-warning dark:text-warning">
                 <span>+ CMHC Insurance (on mortgage)</span>
                 <span>{formatCurrency(cmhcInsurance)}</span>
               </div>
@@ -400,7 +400,7 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
           </div>
 
           {/* Exit Summary */}
-          <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3 space-y-1.5 text-sm">
+          <div className="bg-success-soft dark:bg-success-strong/20 rounded-lg p-3 space-y-1.5 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Est. Value (Year 5):</span>
               <span className="font-medium">{formatCurrency(estimatedYear5Value)}</span>
@@ -411,7 +411,7 @@ export function ClosingExitStep({ exit, purchasePrice, financing, purchase, upda
             </div>
             <div className="flex justify-between font-medium pt-1 border-t">
               <span>Net Proceeds:</span>
-              <span className="text-green-600 dark:text-green-400">
+              <span className="text-success dark:text-success">
                 {formatCurrency(estimatedYear5Value - sellingCosts)}
               </span>
             </div>

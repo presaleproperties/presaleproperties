@@ -247,13 +247,13 @@ export function AmortizationSchedule({ inputs, results }: AmortizationSchedulePr
                   <TableHead className="text-xs font-medium text-right">Total Paid</TableHead>
                   <TableHead className="text-xs font-medium text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                      <div className="w-2 h-2 rounded-full bg-success" />
                       Principal
                     </div>
                   </TableHead>
                   <TableHead className="text-xs font-medium text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <div className="w-2 h-2 rounded-full bg-blue-500" />
+                      <div className="w-2 h-2 rounded-full bg-info" />
                       Interest
                     </div>
                   </TableHead>
@@ -265,10 +265,10 @@ export function AmortizationSchedule({ inputs, results }: AmortizationSchedulePr
                   <TableRow key={year.year}>
                     <TableCell className="text-sm font-medium">{year.calendarYear}</TableCell>
                     <TableCell className="text-sm text-right">{formatCurrency(year.totalPaid)}</TableCell>
-                    <TableCell className="text-sm text-right text-green-600 dark:text-green-400">
+                    <TableCell className="text-sm text-right text-success dark:text-success">
                       {formatCurrency(year.principalPaid)}
                     </TableCell>
-                    <TableCell className="text-sm text-right text-blue-600 dark:text-blue-400">
+                    <TableCell className="text-sm text-right text-info dark:text-info">
                       {formatCurrency(year.interestPaid)}
                     </TableCell>
                     <TableCell className="text-sm text-right font-medium">
@@ -282,10 +282,10 @@ export function AmortizationSchedule({ inputs, results }: AmortizationSchedulePr
                   <TableCell className="text-sm text-right font-semibold">
                     {formatCurrency(termTotals.totalPaid)}
                   </TableCell>
-                  <TableCell className="text-sm text-right font-semibold text-green-600 dark:text-green-400">
+                  <TableCell className="text-sm text-right font-semibold text-success dark:text-success">
                     {formatCurrency(termTotals.principalPaid)}
                   </TableCell>
-                  <TableCell className="text-sm text-right font-semibold text-blue-600 dark:text-blue-400">
+                  <TableCell className="text-sm text-right font-semibold text-info dark:text-info">
                     {formatCurrency(termTotals.interestPaid)}
                   </TableCell>
                   <TableCell className="text-sm text-right font-semibold">
@@ -301,7 +301,7 @@ export function AmortizationSchedule({ inputs, results }: AmortizationSchedulePr
         <div className="grid grid-cols-2 gap-3 pt-2 border-t">
           <div className="text-center p-3 bg-muted/50 rounded-lg">
             <p className="text-xs text-muted-foreground mb-1">Total Interest (Full Amortization)</p>
-            <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+            <p className="text-lg font-bold text-info dark:text-info">
               {formatCurrency(schedule.reduce((sum, y) => sum + y.interestPaid, 0))}
             </p>
           </div>

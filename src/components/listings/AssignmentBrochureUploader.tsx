@@ -409,10 +409,10 @@ Include details like:
             </>
           ) : (
             <>
-              <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+              <div className="flex items-center gap-2 p-3 bg-success/10 border border-success/20 rounded-lg">
+                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
                 <div>
-                  <p className="font-medium text-green-700">Data Extracted Successfully!</p>
+                  <p className="font-medium text-success-strong">Data Extracted Successfully!</p>
                   <p className="text-sm text-muted-foreground">Review the extracted fields below, then apply to your form.</p>
                 </div>
               </div>

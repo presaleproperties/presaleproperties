@@ -111,8 +111,8 @@ export function PriceHistoryChart({
         {priceChange !== 0 && (
           <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
             priceChange < 0 
-              ? 'bg-green-100 text-green-700' 
-              : 'bg-red-100 text-red-700'
+              ? 'bg-success-soft text-success-strong' 
+              : 'bg-danger-soft text-danger-strong'
           }`}>
             {priceChange < 0 ? (
               <TrendingDown className="h-3.5 w-3.5" />

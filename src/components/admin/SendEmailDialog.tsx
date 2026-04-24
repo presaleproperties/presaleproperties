@@ -221,8 +221,8 @@ export function SendEmailDialog({
   };
 
   const sourceColor = (s: string) => {
-    if (s === "lead") return "bg-blue-500/10 text-blue-600 border-blue-200";
-    if (s === "client") return "bg-emerald-500/10 text-emerald-600 border-emerald-200";
+    if (s === "lead") return "bg-info/10 text-info border-info/30";
+    if (s === "client") return "bg-success/10 text-success border-success/30";
     return "bg-muted text-muted-foreground border-border";
   };
 
@@ -238,14 +238,14 @@ export function SendEmailDialog({
             {subject ? (
               <>Subject: <span className="font-medium text-foreground">{subject.slice(0, 60)}{subject.length > 60 ? "…" : ""}</span></>
             ) : (
-              <span className="text-amber-600 flex items-center gap-1"><AlertCircle className="h-3 w-3" /> No subject line set</span>
+              <span className="text-warning flex items-center gap-1"><AlertCircle className="h-3 w-3" /> No subject line set</span>
             )}
           </p>
         </DialogHeader>
 
         {sendResult ? (
           <div className="px-5 pb-6 pt-4 text-center">
-            <CheckCircle2 className="h-12 w-12 text-emerald-500 mx-auto mb-3" />
+            <CheckCircle2 className="h-12 w-12 text-success mx-auto mb-3" />
             <p className="font-semibold text-lg">
               {sendResult.failed === 0 ? "All emails sent!" : `${sendResult.sent} sent, ${sendResult.failed} failed`}
             </p>
@@ -295,7 +295,7 @@ export function SendEmailDialog({
                         <Badge variant="outline" className={cn("text-[9px] shrink-0", sourceColor(r.source))}>
                           {sourceLabel(r.source)}
                         </Badge>
-                        {alreadyAdded && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />}
+                        {alreadyAdded && <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />}
                       </button>
                     );
                   })}

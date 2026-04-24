@@ -70,8 +70,8 @@ export interface LeadCardProps {
 /** Match the Clients page intent palette exactly. */
 function getIntentColor(score: number) {
   if (score >= 8) return "bg-destructive text-destructive-foreground";
-  if (score >= 5) return "bg-amber-500 text-white";
-  if (score >= 3) return "bg-blue-500 text-white";
+  if (score >= 5) return "bg-warning text-on-dark";
+  if (score >= 3) return "bg-info text-on-dark";
   return "bg-secondary text-secondary-foreground";
 }
 

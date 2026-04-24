@@ -361,8 +361,8 @@ export default function AdminAIAnalytics() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-yellow-500/10 rounded-lg">
-                  <Eye className="h-6 w-6 text-yellow-600" />
+                <div className="p-3 bg-warning/10 rounded-lg">
+                  <Eye className="h-6 w-6 text-warning" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{openRate}%</p>
@@ -378,8 +378,8 @@ export default function AdminAIAnalytics() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-500/10 rounded-lg">
-                  <MousePointerClick className="h-6 w-6 text-green-600" />
+                <div className="p-3 bg-success/10 rounded-lg">
+                  <MousePointerClick className="h-6 w-6 text-success" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{clickRate}%</p>
@@ -561,12 +561,12 @@ export default function AdminAIAnalytics() {
                         </TableCell>
                         <TableCell className="text-center">{recipient.totalSent}</TableCell>
                         <TableCell className="text-center">
-                          <span className={recipient.opened > 0 ? "text-yellow-600 font-medium" : "text-muted-foreground"}>
+                          <span className={recipient.opened > 0 ? "text-warning font-medium" : "text-muted-foreground"}>
                             {recipient.opened}
                           </span>
                         </TableCell>
                         <TableCell className="text-center">
-                          <span className={recipient.clicked > 0 ? "text-green-600 font-medium" : "text-muted-foreground"}>
+                          <span className={recipient.clicked > 0 ? "text-success font-medium" : "text-muted-foreground"}>
                             {recipient.clicked}
                           </span>
                         </TableCell>

@@ -125,7 +125,7 @@ export function SafeMapWrapper({
     return (
       <div className={`${height} rounded-xl bg-muted flex items-center justify-center border border-border`}>
         <div className="text-center text-muted-foreground p-6 max-w-sm">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-3 text-amber-500" />
+          <AlertTriangle className="h-12 w-12 mx-auto mb-3 text-warning" />
           <h3 className="font-semibold text-foreground mb-2">Map couldn't load</h3>
           <p className="text-sm mb-4">
             The map is temporarily unavailable. You can still browse projects using the list view.
@@ -147,7 +147,7 @@ export function SafeMapWrapper({
   const ErrorFallback = (
     <div className={`${height} rounded-xl bg-muted flex items-center justify-center border border-border`}>
       <div className="text-center text-muted-foreground p-6 max-w-sm">
-        <AlertTriangle className="h-12 w-12 mx-auto mb-3 text-amber-500" />
+        <AlertTriangle className="h-12 w-12 mx-auto mb-3 text-warning" />
         <h3 className="font-semibold text-foreground mb-2">Map Error</h3>
         <p className="text-sm mb-4">
           Something went wrong loading the map. Try refreshing the page.

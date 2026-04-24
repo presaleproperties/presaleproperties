@@ -27,10 +27,10 @@ export function AreasOfFocus() {
         <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 block">
           Where We Work
         </span>
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-4 md:mb-6">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-on-dark tracking-tight mb-4 md:mb-6">
           New homes near you
         </h2>
-        <p className="text-white/60 text-sm sm:text-base max-w-lg mx-auto mb-10 md:mb-14">
+        <p className="text-on-dark/60 text-sm sm:text-base max-w-lg mx-auto mb-10 md:mb-14">
           We cover the communities where families are building their futures — from Vancouver to the Fraser Valley.
         </p>
 
@@ -39,7 +39,7 @@ export function AreasOfFocus() {
             <Link
               key={city}
               to={`/${slugify(city)}-presale-condos`}
-              className="px-5 py-2.5 sm:px-6 sm:py-3 border border-primary/30 text-white/90 text-xs sm:text-sm font-semibold uppercase tracking-widest hover:bg-primary hover:border-primary hover:text-primary-foreground transition-all duration-300 rounded-sm backdrop-blur-sm bg-white/[0.04]"
+              className="px-5 py-2.5 sm:px-6 sm:py-3 border border-primary/30 text-on-dark/90 text-xs sm:text-sm font-semibold uppercase tracking-widest hover:bg-primary hover:border-primary hover:text-primary-foreground transition-all duration-300 rounded-sm backdrop-blur-sm bg-card/[0.04]"
             >
               {city}
             </Link>

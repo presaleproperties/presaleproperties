@@ -59,7 +59,7 @@ export function FinancingStep({ financing, purchasePrice, updateInputs }: Financ
 
               {/* Step 1 — At Signing */}
               <div className="flex gap-4 items-start">
-                <div className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-amber-500 text-white ring-2 ring-amber-200 shrink-0">
+                <div className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-warning text-on-dark ring-2 ring-warning shrink-0">
                   <Pen className="h-4 w-4" />
                 </div>
                 <div className="flex-1 bg-muted/50 rounded-lg p-3">
@@ -159,7 +159,7 @@ export function FinancingStep({ financing, purchasePrice, updateInputs }: Financ
 
               {/* Step 4 — Total */}
               <div className="flex gap-4 items-start">
-                <div className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-green-600 text-white ring-2 ring-green-200 shrink-0">
+                <div className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-success text-on-dark ring-2 ring-success shrink-0">
                   <CheckCircle2 className="h-4 w-4" />
                 </div>
                 <div className="flex-1 bg-muted rounded-lg p-3">

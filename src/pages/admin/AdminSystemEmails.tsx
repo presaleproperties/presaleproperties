@@ -208,7 +208,7 @@ export default function AdminSystemEmails() {
                         <iframe
                           srcDoc={active.html}
                           title={active.name}
-                          className="w-full bg-white"
+                          className="w-full bg-card"
                           style={{ height: "750px", border: "none" }}
                           sandbox="allow-same-origin"
                         />

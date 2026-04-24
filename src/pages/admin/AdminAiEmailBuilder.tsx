@@ -82,14 +82,14 @@ function StepSection({
         {/* Step number */}
         <div className={cn(
           "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 transition-colors",
-          done ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
+          done ? "bg-success text-on-dark" : "bg-muted text-muted-foreground"
         )}>
           {done ? "✓" : step}
         </div>
         {/* Icon + Title */}
         <div className={cn(
           "shrink-0",
-          accent === "gold" ? "text-amber-500" : accent === "green" ? "text-emerald-500" : "text-primary"
+          accent === "gold" ? "text-warning" : accent === "green" ? "text-success" : "text-primary"
         )}>
           {icon}
         </div>
@@ -1820,8 +1820,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate(fromDeck ? "/dashboard/decks" : agentMode ? "/dashboard/marketing-hub" : "/admin/marketing-hub")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-sm shrink-0">
-            <Mail className="h-4 w-4 text-white" />
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-success to-success-strong flex items-center justify-center shadow-sm shrink-0">
+            <Mail className="h-4 w-4 text-on-dark" />
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-sm font-bold leading-none truncate">
@@ -1839,15 +1839,15 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               {dbSaving ? (
                 <><Loader2 className="h-3 w-3 animate-spin text-primary" /><span className="hidden md:inline text-muted-foreground">Saving…</span></>
               ) : hasUnsavedChanges ? (
-                <><span className="h-1.5 w-1.5 rounded-full bg-amber-500" /><span className="hidden md:inline text-amber-600 font-medium">Unsaved changes</span></>
+                <><span className="h-1.5 w-1.5 rounded-full bg-warning" /><span className="hidden md:inline text-warning font-medium">Unsaved changes</span></>
               ) : (
-                <><CheckCircle2 className="h-3 w-3 text-emerald-500" /><span className="hidden md:inline text-muted-foreground">Saved</span></>
+                <><CheckCircle2 className="h-3 w-3 text-success" /><span className="hidden md:inline text-muted-foreground">Saved</span></>
               )}
             </div>
           )}
           {!savedTemplateId && draftSavedAt && (
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0 hidden sm:flex">
-              <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+              <CheckCircle2 className="h-3 w-3 text-success" />
               <span className="hidden md:inline">Draft</span>
               <button onClick={() => { localStorage.removeItem(DRAFT_KEY); window.location.reload(); }} className="text-muted-foreground/50 hover:text-destructive transition-colors">
                 <X className="h-3 w-3" />
@@ -1866,9 +1866,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           </div>
           {aiResult && (
             <div className="hidden md:flex items-center bg-muted rounded-lg p-0.5 gap-0.5 shrink-0">
-              <button onClick={() => handleVersionSwitch("A")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "A" ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver A</button>
+              <button onClick={() => handleVersionSwitch("A")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "A" ? "bg-success text-on-dark shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver A</button>
               {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
-                <button onClick={() => handleVersionSwitch("B")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "B" ? "bg-amber-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver B</button>
+                <button onClick={() => handleVersionSwitch("B")} className={cn("px-2.5 py-1 text-[11px] font-semibold rounded transition-all", activeVersion === "B" ? "bg-warning text-on-dark shadow-sm" : "text-muted-foreground hover:text-foreground")}>Ver B</button>
               )}
             </div>
           )}
@@ -1900,7 +1900,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             <span className="hidden md:inline">{savedTemplateId ? "Save" : "Save as Template"}</span>
           </Button>
           <Button size="sm"
-            className={cn("h-8 gap-1.5 font-semibold transition-all duration-200 shrink-0 text-xs px-2.5", copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90")}
+            className={cn("h-8 gap-1.5 font-semibold transition-all duration-200 shrink-0 text-xs px-2.5", copied ? "bg-success hover:bg-success text-on-dark" : "bg-primary text-primary-foreground hover:bg-primary/90")}
             onClick={() => {
               handleCopy();
               // Auto-mark week done when copying HTML in campaign mode
@@ -1930,9 +1930,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         <div className="rounded-lg border border-border bg-card overflow-hidden">
           <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b border-border">
             <div className="flex items-center gap-1 shrink-0">
-              <div className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-              <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
-              <div className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
+              <div className="h-2.5 w-2.5 rounded-full bg-danger/80" />
+              <div className="h-2.5 w-2.5 rounded-full bg-warning/80" />
+              <div className="h-2.5 w-2.5 rounded-full bg-success/80" />
             </div>
             <Separator orientation="vertical" className="h-4 mx-1" />
             <div className="flex items-center gap-1 flex-1 min-w-0">
@@ -2010,7 +2010,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                   <Eye className="h-3 w-3" /> Preview
                 </Button>
                 <Button variant="ghost" size="sm"
-                  className={cn("h-7 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "edit" && "bg-amber-500/90 shadow-sm text-white")}
+                  className={cn("h-7 px-2.5 text-[11px] gap-1.5 rounded-md transition-all font-medium", previewMode === "edit" && "bg-warning/90 shadow-sm text-on-dark")}
                   onClick={() => setPreviewMode("edit")}
                   title="Click to edit text directly in the email">
                   <Bold className="h-3 w-3" /> Edit
@@ -2050,7 +2050,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               <Button
                 size="sm"
                 className={cn("h-7 gap-1 font-semibold transition-all duration-200 text-xs px-2.5 lg:hidden shrink-0",
-                  copied ? "bg-emerald-600 text-white" : "bg-primary text-primary-foreground"
+                  copied ? "bg-success text-on-dark" : "bg-primary text-primary-foreground"
                 )}
                 onClick={handleCopy}
               >
@@ -2061,9 +2061,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
             {/* Edit mode hint bar */}
             {previewMode === "edit" && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border-b border-amber-500/20 shrink-0">
-                <Bold className="h-3 w-3 text-amber-500 shrink-0" />
-                <span className="text-[10px] text-amber-600 dark:text-amber-400">Tap any text in the email to edit directly.</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-warning/10 border-b border-warning/20 shrink-0">
+                <Bold className="h-3 w-3 text-warning shrink-0" />
+                <span className="text-[10px] text-warning dark:text-warning">Tap any text in the email to edit directly.</span>
               </div>
             )}
 
@@ -2093,19 +2093,19 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             ) : (
               <div className="flex-1 overflow-auto flex flex-col" style={{ background: "#0d1117" }}>
                 {/* Code view header */}
-                <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5 shrink-0" style={{ background: "#161b22" }}>
-                  <div className="flex items-center gap-1.5 bg-white/5 rounded-lg p-0.5">
+                <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-card/5 shrink-0" style={{ background: "#161b22" }}>
+                  <div className="flex items-center gap-1.5 bg-card/5 rounded-lg p-0.5">
                     <button
                       onClick={() => setCodeViewTarget("lofty")}
-                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "lofty" ? "bg-blue-600 text-white" : "text-white/50 hover:text-white/80")}
+                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "lofty" ? "bg-info text-on-dark" : "text-on-dark/50 hover:text-on-dark/80")}
                     >Lofty / CRM</button>
                     <button
                       onClick={() => setCodeViewTarget("mailerlite")}
-                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "mailerlite" ? "bg-purple-600 text-white" : "text-white/50 hover:text-white/80")}
+                      className={cn("px-2.5 py-1 text-[10px] font-semibold rounded transition-all", codeViewTarget === "mailerlite" ? "bg-primary text-on-dark" : "text-on-dark/50 hover:text-on-dark/80")}
                     >MailerLite</button>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-white/30">
+                    <span className="text-[10px] text-on-dark/30">
                       {codeViewTarget === "lofty" ? getLoftyHtml().length.toLocaleString() : getMailerLiteHtml().length.toLocaleString()} chars
                     </span>
                     <button
@@ -2113,8 +2113,8 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                       className={cn(
                         "text-[10px] px-2.5 py-1 rounded font-medium transition-all",
                         (codeViewTarget === "lofty" ? copiedLofty : copiedML)
-                          ? "bg-emerald-600 text-white"
-                          : "bg-white/10 text-white/70 hover:bg-white/20"
+                          ? "bg-success text-on-dark"
+                          : "bg-card/10 text-on-dark/70 hover:bg-card/20"
                       )}
                     >
                       {(codeViewTarget === "lofty" ? copiedLofty : copiedML) ? "✓ Copied!" : "Copy HTML"}
@@ -2216,64 +2216,64 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         className={cn(
                           "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
                           layoutVersion === "modern"
-                            ? "border-sky-500 bg-sky-500/8 shadow-sm"
-                            : "border-border bg-muted/10 hover:border-sky-400/50"
+                            ? "border-info bg-info/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-info/50"
                         )}
                       >
                         <div className="text-[11px] font-semibold text-foreground">Modern</div>
                         <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
-                        {layoutVersion === "modern" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-sky-500" />}
+                        {layoutVersion === "modern" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-info" />}
                       </button>
                       <button
                         onClick={() => setLayoutVersion("modern-v2")}
                         className={cn(
                           "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
                           layoutVersion === "modern-v2"
-                            ? "border-violet-500 bg-violet-500/8 shadow-sm"
-                            : "border-border bg-muted/10 hover:border-violet-400/50"
+                            ? "border-primary bg-primary/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-primary/50"
                         )}
                       >
                         <div className="text-[11px] font-semibold text-foreground">Modern V2</div>
                         <div className="text-[9px] text-muted-foreground leading-tight">Edge-to-edge · Bold</div>
-                        {layoutVersion === "modern-v2" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-violet-500" />}
+                        {layoutVersion === "modern-v2" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-primary" />}
                       </button>
                       <button
                         onClick={() => setLayoutVersion("catalogue")}
                         className={cn(
                           "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
                           layoutVersion === "catalogue"
-                            ? "border-amber-500 bg-amber-500/8 shadow-sm"
-                            : "border-border bg-muted/10 hover:border-amber-400/50"
+                            ? "border-warning bg-warning/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-warning/50"
                         )}
                       >
                         <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
                           Catalogue
-                          <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-amber-500/15 text-amber-600 uppercase tracking-wide">New</span>
+                          <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-warning/15 text-warning uppercase tracking-wide">New</span>
                         </div>
                         <div className="text-[9px] text-muted-foreground leading-tight">Multi-project · 1–5 picks</div>
-                        {layoutVersion === "catalogue" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-amber-500" />}
+                        {layoutVersion === "catalogue" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-warning" />}
                       </button>
                       <button
                         onClick={() => setLayoutVersion("recommendation")}
                         className={cn(
                           "relative flex flex-col gap-1 px-3 py-2.5 rounded-lg border text-left transition-all",
                           layoutVersion === "recommendation"
-                            ? "border-rose-500 bg-rose-500/8 shadow-sm"
-                            : "border-border bg-muted/10 hover:border-rose-400/50"
+                            ? "border-danger bg-danger/8 shadow-sm"
+                            : "border-border bg-muted/10 hover:border-danger/50"
                         )}
                       >
                         <div className="text-[11px] font-semibold text-foreground flex items-center gap-1">
                           Recommendation
-                          <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-rose-500/15 text-rose-600 uppercase tracking-wide">V2</span>
+                          <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-danger/15 text-danger uppercase tracking-wide">V2</span>
                         </div>
                         <div className="text-[9px] text-muted-foreground leading-tight">2–8 picks · By category</div>
-                        {layoutVersion === "recommendation" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-rose-500" />}
+                        {layoutVersion === "recommendation" && <CheckCircle2 className="absolute top-2 right-2 h-3 w-3 text-danger" />}
                       </button>
                     </div>
                     {layoutVersion === "recommendation" && (
                       <div className="mt-3 pt-3 border-t border-border space-y-2">
                         <div className="flex items-center gap-1.5">
-                          <Package className="h-3 w-3 text-rose-500" />
+                          <Package className="h-3 w-3 text-danger" />
                           <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Recommended Projects</Label>
                         </div>
                         <p className="text-[9px] text-muted-foreground leading-relaxed">
@@ -2313,7 +2313,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     {layoutVersion === "catalogue" && (
                       <div className="mt-3 pt-3 border-t border-border space-y-2">
                         <div className="flex items-center gap-1.5">
-                          <Package className="h-3 w-3 text-amber-500" />
+                          <Package className="h-3 w-3 text-warning" />
                           <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Catalogue Projects</Label>
                         </div>
                         <p className="text-[9px] text-muted-foreground leading-relaxed">
@@ -2329,10 +2329,10 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                       <p className="text-[9px] text-[#7a8a5a]/70 mt-1.5 leading-relaxed">Clean editorial layout with rotating hero images. Stats bar, body copy, CTAs — no floor plans or incentives. Hero links to project page.</p>
                     )}
                     {layoutVersion === "modern" && (
-                      <p className="text-[9px] text-sky-600/70 mt-1.5 leading-relaxed">Full-bleed hero, huge bold headline, black pill CTAs — inspired by Lululemon's email design. Best for mobile readers.</p>
+                      <p className="text-[9px] text-info/70 mt-1.5 leading-relaxed">Full-bleed hero, huge bold headline, black pill CTAs — inspired by Lululemon's email design. Best for mobile readers.</p>
                     )}
                     {layoutVersion === "modern-v2" && (
-                      <p className="text-[9px] text-violet-600/70 mt-1.5 leading-relaxed">Identical to Modern layout — ready for customization.</p>
+                      <p className="text-[9px] text-primary/70 mt-1.5 leading-relaxed">Identical to Modern layout — ready for customization.</p>
                     )}
                   </div>
                 )}
@@ -2359,7 +2359,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                   <div className="relative rounded overflow-hidden border border-border">
                     <img src={heroImage} alt="Hero" className="w-full h-20 object-cover" onError={() => setHeroImage("")} />
                     <button onClick={() => setHeroImage("")} className="absolute top-1 right-1 h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
-                      <X className="h-3 w-3 text-white" />
+                      <X className="h-3 w-3 text-on-dark" />
                     </button>
                   </div>
                 )}
@@ -2394,7 +2394,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                             <button key={i} onClick={() => setHeroImage(img)}
                               className={cn("relative rounded overflow-hidden border-2 aspect-video transition-all", heroImage === img ? "border-primary" : "border-transparent hover:border-muted-foreground/40")}>
                               <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
-                              {heroImage === img && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-white" /></div>}
+                              {heroImage === img && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-on-dark" /></div>}
                             </button>
                           ))}
                         </div>
@@ -2412,7 +2412,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                             <button key={i} onClick={() => setHeroImage(img)}
                               className={cn("relative rounded overflow-hidden border-2 aspect-video transition-all", heroImage === img ? "border-primary" : "border-transparent hover:border-muted-foreground/40")}>
                               <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
-                              {heroImage === img && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-white" /></div>}
+                              {heroImage === img && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-on-dark" /></div>}
                             </button>
                           ))}
                         </div>
@@ -2430,7 +2430,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                           <button key={p.id} onClick={() => setHeroImage(p.featured_image!)}
                             className={cn("relative rounded overflow-hidden border-2 aspect-video transition-all", heroImage === p.featured_image ? "border-primary" : "border-transparent hover:border-muted-foreground/40")}>
                             <img src={p.featured_image!} alt={p.name} className="w-full h-full object-cover" />
-                            {heroImage === p.featured_image && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-white" /></div>}
+                            {heroImage === p.featured_image && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-on-dark" /></div>}
                           </button>
                         ))}
                       </div>
@@ -2449,7 +2449,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                   {floorPlans.map((fp, fpIdx) => (
                     <div key={fp.id} className="mt-1.5 border border-border rounded-lg overflow-hidden bg-muted/20">
                       <div className="relative">
-                        <img src={fp.url} alt="Floor plan" className="w-full h-24 object-contain bg-white" />
+                        <img src={fp.url} alt="Floor plan" className="w-full h-24 object-contain bg-card" />
                         <div className="absolute top-1 right-1 flex items-center gap-1">
                           {floorPlans.length > 1 && (
                             <>
@@ -2472,7 +2472,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                             </>
                           )}
                           <button onClick={() => removeFp(fp.id)} title="Remove" className="h-5 w-5 bg-destructive/90 rounded-full flex items-center justify-center">
-                            <X className="h-3 w-3 text-white" />
+                            <X className="h-3 w-3 text-on-dark" />
                           </button>
                         </div>
                       </div>
@@ -2768,9 +2768,9 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                     </div>
                     {aiResult && (
                       <div className="flex gap-1.5">
-                        <button onClick={() => handleVersionSwitch("A")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "A" ? "bg-emerald-600 text-white border-emerald-600" : "border-border text-muted-foreground hover:border-primary/30")}>Version A</button>
+                        <button onClick={() => handleVersionSwitch("A")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "A" ? "bg-success text-on-dark border-success" : "border-border text-muted-foreground hover:border-primary/30")}>Version A</button>
                         {(aiResult.subjectLineB || aiResult.bodyCopyB) && (
-                          <button onClick={() => handleVersionSwitch("B")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "B" ? "bg-amber-500 text-white border-amber-500" : "border-border text-muted-foreground hover:border-amber-300")}>Version B</button>
+                          <button onClick={() => handleVersionSwitch("B")} className={cn("flex-1 py-1.5 text-[11px] font-semibold rounded-lg border transition-all", activeVersion === "B" ? "bg-warning text-on-dark border-warning" : "border-border text-muted-foreground hover:border-warning")}>Version B</button>
                         )}
                       </div>
                     )}
@@ -2932,7 +2932,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                         className={cn(
                           "text-left px-2.5 py-2 rounded-lg border transition-all",
                           selectedFontId === fp.id
-                            ? "border-amber-500 bg-amber-500/8 shadow-sm"
+                            ? "border-warning bg-warning/8 shadow-sm"
                             : "border-border bg-muted/10 hover:border-primary/40"
                         )}
                       >
@@ -2981,7 +2981,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
               </Button>
               <Button
                 className={cn("w-full h-9 gap-1.5 font-semibold text-sm transition-all duration-200",
-                  copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"
+                  copied ? "bg-success hover:bg-success text-on-dark" : "bg-primary text-primary-foreground hover:bg-primary/90"
                 )}
                 onClick={handleCopy}
               >
@@ -3032,7 +3032,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
           <Button
             size="lg"
             className={cn("flex-1 h-12 gap-2 font-semibold transition-all",
-              copied ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-primary text-primary-foreground"
+              copied ? "bg-success hover:bg-success text-on-dark" : "bg-primary text-primary-foreground"
             )}
             onClick={handleCopy}
           >
@@ -3053,7 +3053,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
         {/* Save as Template dialog */}
         {saveDialogOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setSaveDialogOpen(false)}>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-900/50 backdrop-blur-sm" onClick={() => setSaveDialogOpen(false)}>
             <div className="bg-background rounded-xl border border-border shadow-2xl w-full max-w-md mx-4 p-6 space-y-4" onClick={e => e.stopPropagation()}>
               <div className="space-y-1">
                 <h3 className="text-lg font-bold text-foreground">Save as Template</h3>

@@ -139,9 +139,9 @@ export function InlineScheduler({
     <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300">
       {/* Header - Premium gradient with shine effect */}
       <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-4 py-4 md:px-5 md:py-5 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
-        <div className="absolute top-2 right-2 flex items-center gap-1 bg-green-500/90 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
-          <span className="h-1.5 w-1.5 bg-white rounded-full animate-pulse"></span>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-card/5 to-transparent animate-shimmer"></div>
+        <div className="absolute top-2 right-2 flex items-center gap-1 bg-success/90 text-on-dark text-[10px] font-semibold px-2 py-0.5 rounded-full">
+          <span className="h-1.5 w-1.5 bg-card rounded-full animate-pulse"></span>
           Available
         </div>
         <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-background relative">Schedule a Tour</h3>

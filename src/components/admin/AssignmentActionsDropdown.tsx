@@ -241,11 +241,11 @@ export function AssignmentActionsDropdown({
           {showApprovalActions && onApprove && onReject && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={onApprove} className="text-green-600">
+              <DropdownMenuItem onClick={onApprove} className="text-success">
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Approve & Publish
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={onReject} className="text-red-600">
+              <DropdownMenuItem onClick={onReject} className="text-danger">
                 <XCircle className="h-4 w-4 mr-2" />
                 Reject
               </DropdownMenuItem>
@@ -277,7 +277,7 @@ export function AssignmentActionsDropdown({
           <DropdownMenuSeparator />
           <DropdownMenuItem 
             onClick={() => setConfirmAction("delete")}
-            className="text-red-600 focus:text-red-600 focus:bg-red-50"
+            className="text-danger focus:text-danger focus:bg-danger-soft"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Delete Permanently
@@ -300,7 +300,7 @@ export function AssignmentActionsDropdown({
               disabled={processing}
               className={
                 confirmDetails?.variant === "destructive"
-                  ? "bg-red-600 hover:bg-red-700"
+                  ? "bg-danger hover:bg-danger"
                   : confirmDetails?.variant === "default"
                   ? "bg-primary hover:bg-primary/90"
                   : ""

@@ -200,7 +200,7 @@ export function InteractiveMortgageCalculator({ defaultPrice = 650000 }: Interac
                   </TooltipContent>
                 </Tooltip>
               </span>
-              <span className="font-medium text-amber-600">+{formatCurrency(calculations.cmhcInsurance)}</span>
+              <span className="font-medium text-warning">+{formatCurrency(calculations.cmhcInsurance)}</span>
             </div>
           )}
 

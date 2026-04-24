@@ -131,12 +131,12 @@ export function InlineAuditPanel({ options, className }: InlineAuditPanelProps) 
     return (
       <div
         className={cn(
-          "flex items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2",
+          "flex items-center gap-2 rounded-md border border-success/30 bg-success/5 px-3 py-2",
           className,
         )}
       >
-        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-        <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+        <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+        <span className="text-[11px] font-medium text-success-strong dark:text-success">
           All links valid — safe to send.
         </span>
       </div>
@@ -182,7 +182,7 @@ export function InlineAuditPanel({ options, className }: InlineAuditPanelProps) 
                         <code className="rounded bg-muted/60 px-1 py-0.5 text-[9.5px]">{href}</code>
                       </div>
                     )}
-                    <div className="text-emerald-700 dark:text-emerald-400">
+                    <div className="text-success-strong dark:text-success">
                       <span className="font-semibold">Fix: </span>
                       {suggestFix(err)}
                     </div>

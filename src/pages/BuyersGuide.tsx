@@ -73,42 +73,42 @@ const costs = [
     description:
       "The total price you pay for the assignment, including any premium over the original purchase price.",
     typical: "Market rate",
-    color: "bg-blue-50 text-blue-700 border-blue-100",
+    color: "bg-info-soft text-info-strong border-info/30",
   },
   {
     name: "Assignment Fee (to Seller)",
     description:
       "Fee charged by the original buyer for assigning their contract. This is negotiable between parties.",
     typical: "$5,000 – $50,000+",
-    color: "bg-violet-50 text-violet-700 border-violet-100",
+    color: "bg-primary/10 text-primary-deep border-primary/30",
   },
   {
     name: "Developer Assignment Fee",
     description:
       "Some developers charge a processing and approval fee. Confirm this before making an offer.",
     typical: "$500 – $5,000",
-    color: "bg-amber-50 text-amber-700 border-amber-100",
+    color: "bg-warning-soft text-warning-strong border-warning/30",
   },
   {
     name: "Legal Fees",
     description:
       "Your real estate lawyer reviews all documents and protects your interests throughout the process.",
     typical: "$1,500 – $3,000",
-    color: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    color: "bg-success-soft text-success-strong border-success/30",
   },
   {
     name: "Deposit Reimbursement",
     description:
       "You reimburse the original buyer for deposits they've already paid to the developer — typically held in trust.",
     typical: "15–20% of original price",
-    color: "bg-rose-50 text-rose-700 border-rose-100",
+    color: "bg-danger-soft text-danger-strong border-danger/30",
   },
   {
     name: "Remaining Balance at Completion",
     description:
       "The remaining amount owed to the developer, financed by your mortgage and paid at building completion.",
     typical: "Balance of purchase price",
-    color: "bg-cyan-50 text-cyan-700 border-cyan-100",
+    color: "bg-info-soft text-info-strong border-info/30",
   },
 ];
 
@@ -408,9 +408,9 @@ export default function BuyersGuide() {
                 ))}
               </div>
 
-              <div className="mt-6 flex items-start gap-3 p-4 bg-amber-50 border border-amber-200/80 rounded-xl">
-                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-800">
+              <div className="mt-6 flex items-start gap-3 p-4 bg-warning-soft border border-warning/30/80 rounded-xl">
+                <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                <p className="text-sm text-warning-strong">
                   <strong>Important:</strong> Always budget an additional 3–5% for closing costs including legal fees, property transfer tax, and adjustments. Consult with a mortgage broker early to ensure you can qualify at completion.
                 </p>
               </div>

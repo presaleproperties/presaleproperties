@@ -53,7 +53,7 @@ export function SearchResultsHeader({
           {newCount && newCount > 0 && (
             <>
               <span className="text-border">•</span>
-              <span className="text-green-600 font-medium">{newCount} new this week</span>
+              <span className="text-success font-medium">{newCount} new this week</span>
             </>
           )}
           {subtitle && (

@@ -25,44 +25,44 @@ export function EngagementFunnel({ data }: EngagementFunnelProps) {
       value: data.total_page_views, 
       unique: data.unique_page_viewers,
       icon: Eye, 
-      color: "bg-blue-100 text-blue-600",
-      barColor: "bg-blue-500",
+      color: "bg-info-soft text-info",
+      barColor: "bg-info",
     },
     { 
       label: "Project Views", 
       value: data.total_property_views, 
       unique: data.unique_property_viewers,
       icon: Users, 
-      color: "bg-indigo-100 text-indigo-600",
-      barColor: "bg-indigo-500",
+      color: "bg-info-soft text-info",
+      barColor: "bg-info",
     },
     { 
       label: "Floorplan Views", 
       value: data.total_floorplan_views, 
       icon: FileText, 
-      color: "bg-violet-100 text-violet-600",
-      barColor: "bg-violet-500",
+      color: "bg-primary/10 text-primary",
+      barColor: "bg-primary",
     },
     { 
       label: "CTA Clicks", 
       value: data.total_cta_clicks, 
       icon: MousePointerClick, 
-      color: "bg-amber-100 text-amber-600",
-      barColor: "bg-amber-500",
+      color: "bg-warning-soft text-warning",
+      barColor: "bg-warning",
     },
     { 
       label: "Form Started", 
       value: data.total_form_starts, 
       icon: FormInput, 
-      color: "bg-orange-100 text-orange-600",
-      barColor: "bg-orange-500",
+      color: "bg-warning-soft text-warning",
+      barColor: "bg-warning",
     },
     { 
       label: "Form Submitted", 
       value: data.total_form_submits, 
       icon: Send, 
-      color: "bg-emerald-100 text-emerald-600",
-      barColor: "bg-emerald-500",
+      color: "bg-success-soft text-success",
+      barColor: "bg-success",
     },
   ];
 
@@ -84,8 +84,8 @@ export function EngagementFunnel({ data }: EngagementFunnelProps) {
       <CardHeader className="py-4 px-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-violet-100 p-1.5">
-              <MousePointerClick className="h-3.5 w-3.5 text-violet-600" />
+            <div className="rounded-lg bg-primary/10 p-1.5">
+              <MousePointerClick className="h-3.5 w-3.5 text-primary" />
             </div>
             <CardTitle className="text-sm font-semibold">Engagement Funnel</CardTitle>
           </div>
@@ -134,7 +134,7 @@ export function EngagementFunnel({ data }: EngagementFunnelProps) {
             <p className="text-[10px] text-muted-foreground leading-tight">View → Click Rate</p>
           </div>
           <div className="text-center p-2 rounded-lg bg-muted/50">
-            <p className={`text-lg font-bold ${formDropOff > 50 ? 'text-red-500' : formDropOff > 25 ? 'text-amber-500' : 'text-emerald-600'}`}>
+            <p className={`text-lg font-bold ${formDropOff > 50 ? 'text-danger' : formDropOff > 25 ? 'text-warning' : 'text-success'}`}>
               {formDropOff}%
             </p>
             <p className="text-[10px] text-muted-foreground leading-tight">Form Drop-Off</p>

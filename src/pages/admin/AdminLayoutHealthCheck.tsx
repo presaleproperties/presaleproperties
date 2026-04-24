@@ -103,7 +103,7 @@ export default function AdminLayoutHealthCheck() {
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>Wrapped in layout</CardDescription>
-              <CardTitle className="text-3xl text-green-600">{counts.ok}</CardTitle>
+              <CardTitle className="text-3xl text-success">{counts.ok}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
@@ -115,7 +115,7 @@ export default function AdminLayoutHealthCheck() {
           <Card className={counts.missing > 0 ? "border-destructive" : undefined}>
             <CardHeader className="pb-2">
               <CardDescription>Missing layout (action needed)</CardDescription>
-              <CardTitle className={`text-3xl ${counts.missing > 0 ? "text-destructive" : "text-green-600"}`}>
+              <CardTitle className={`text-3xl ${counts.missing > 0 ? "text-destructive" : "text-success"}`}>
                 {counts.missing}
               </CardTitle>
             </CardHeader>
@@ -160,7 +160,7 @@ export default function AdminLayoutHealthCheck() {
                     <TableCell className="font-mono text-xs">{r.fileName}</TableCell>
                     <TableCell>
                       {r.status === "ok" && (
-                        <Badge className="bg-green-500/10 text-green-700 border-green-500/20 hover:bg-green-500/10">
+                        <Badge className="bg-success/10 text-success-strong border-success/20 hover:bg-success/10">
                           <CheckCircle2 className="h-3 w-3 mr-1" /> Wrapped
                         </Badge>
                       )}

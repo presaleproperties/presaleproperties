@@ -288,7 +288,7 @@ export function MobileMapSearchBar({
       case "listing":
         return <Hash className="h-4 w-4 text-primary" />;
       case "assignment":
-        return <FileText className="h-4 w-4 text-amber-500" />;
+        return <FileText className="h-4 w-4 text-warning" />;
     }
   };
 
@@ -306,7 +306,7 @@ export function MobileMapSearchBar({
     switch (type) {
       case "listing": return "bg-accent text-accent-foreground";
       case "project": return "bg-primary/10 text-primary";
-      case "assignment": return "bg-amber-500/10 text-amber-600";
+      case "assignment": return "bg-warning/10 text-warning";
       default: return "bg-muted text-muted-foreground";
     }
   };
@@ -315,13 +315,13 @@ export function MobileMapSearchBar({
     <div ref={containerRef} className="relative w-full">
       {/* Premium Compact Search Bar */}
       <div className={cn(
-        "flex items-center gap-2 bg-white/98 dark:bg-background/98 backdrop-blur-2xl rounded-[14px] shadow-lg shadow-black/8 border border-white/50 dark:border-white/10 px-3 py-1.5 transition-all",
+        "flex items-center gap-2 bg-card/98 dark:bg-background/98 backdrop-blur-2xl rounded-[14px] shadow-lg shadow-neutral-900/8 border border-card/50 dark:border-card/10 px-3 py-1.5 transition-all",
         isFocused && "ring-2 ring-primary/20 border-primary/30"
       )}>
         {/* Menu/Home Button - Far Left */}
         {homeButton}
         {/* Divider */}
-        <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
+        <div className="w-px h-5 bg-neutral-900/8 dark:bg-card/10" />
         <Search className="h-4 w-4 text-muted-foreground/60 shrink-0" />
         <Input
           ref={inputRef}
@@ -336,30 +336,30 @@ export function MobileMapSearchBar({
         {searchQuery && (
           <button 
             onClick={clearSearch}
-            className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            className="p-1 rounded-full hover:bg-neutral-900/5 dark:hover:bg-card/10 transition-colors"
           >
             <X className="h-3.5 w-3.5 text-muted-foreground/60" />
           </button>
         )}
         {/* Divider */}
-        <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
+        <div className="w-px h-5 bg-neutral-900/8 dark:bg-card/10" />
         {/* List View Button */}
         {listButton}
         {/* Divider */}
-        <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
+        <div className="w-px h-5 bg-neutral-900/8 dark:bg-card/10" />
         {/* Filter Button - Far Right */}
         {filterButton}
       </div>
 
       {/* Suggestions Dropdown */}
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white/98 dark:bg-background/98 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-2xl shadow-xl shadow-black/10 overflow-hidden z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-card/98 dark:bg-background/98 backdrop-blur-2xl border border-card/50 dark:border-card/10 rounded-2xl shadow-xl shadow-neutral-900/10 overflow-hidden z-50">
           <div className="max-h-[60vh] overflow-y-auto">
             {suggestions.map((suggestion, i) => (
               <button
                 key={`${suggestion.type}-${suggestion.value}-${i}`}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors text-left border-b border-black/5 dark:border-white/5 last:border-0"
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-neutral-900/5 dark:hover:bg-card/5 active:bg-neutral-900/10 dark:active:bg-card/10 transition-colors text-left border-b border-neutral-900/5 dark:border-card/5 last:border-0"
               >
                 <div className="w-9 h-9 rounded-xl bg-muted/50 flex items-center justify-center shrink-0">
                   {getIcon(suggestion.type)}
@@ -384,8 +384,8 @@ export function MobileMapSearchBar({
 
       {/* Recent Searches - shown when focused with no query */}
       {showSuggestions && searchQuery.length < 2 && suggestions.length === 0 && recentSearches.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white/98 dark:bg-background/98 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-2xl shadow-xl shadow-black/10 overflow-hidden z-50">
-          <div className="px-4 py-2 border-b border-black/5 dark:border-white/5">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-card/98 dark:bg-background/98 backdrop-blur-2xl border border-card/50 dark:border-card/10 rounded-2xl shadow-xl shadow-neutral-900/10 overflow-hidden z-50">
+          <div className="px-4 py-2 border-b border-neutral-900/5 dark:border-card/5">
             <span className="text-[11px] uppercase tracking-wider text-muted-foreground/60 font-semibold">Recent</span>
           </div>
           {recentSearches.map((search, i) => (
@@ -395,7 +395,7 @@ export function MobileMapSearchBar({
                 onSearchChange(search);
                 setShowSuggestions(true);
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-left border-b border-black/5 dark:border-white/5 last:border-0"
+              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-neutral-900/5 dark:hover:bg-card/5 transition-colors text-left border-b border-neutral-900/5 dark:border-card/5 last:border-0"
             >
               <Search className="h-4 w-4 text-muted-foreground/40 shrink-0" />
               <span className="text-sm text-foreground truncate">{search}</span>
@@ -406,7 +406,7 @@ export function MobileMapSearchBar({
 
       {/* No results message */}
       {showSuggestions && searchQuery.length >= 2 && suggestions.length === 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white/98 dark:bg-background/98 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-2xl shadow-xl shadow-black/10 overflow-hidden z-50 p-4 text-center">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-card/98 dark:bg-background/98 backdrop-blur-2xl border border-card/50 dark:border-card/10 rounded-2xl shadow-xl shadow-neutral-900/10 overflow-hidden z-50 p-4 text-center">
           <p className="text-sm text-muted-foreground">No results for "{searchQuery}"</p>
           <p className="text-xs text-muted-foreground/60 mt-1">Try a city name, MLS #, or address</p>
         </div>

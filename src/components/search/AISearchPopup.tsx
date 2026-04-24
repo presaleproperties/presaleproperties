@@ -696,7 +696,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] sm:pt-[15vh]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+        className="absolute inset-0 bg-neutral-900/60 backdrop-blur-md"
         onClick={() => onOpenChange(false)}
       />
 
@@ -705,7 +705,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
         ref={containerRef}
         className={cn(
           "relative z-10 w-full mx-3 sm:mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col",
-          "bg-background/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10",
+          "bg-background/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-card/10",
           conversation.length === 0 ? "max-w-md" : "max-w-2xl max-h-[80vh] sm:max-h-[70vh]"
         )}
       >
@@ -746,7 +746,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                 "relative flex items-center rounded-xl transition-all",
                 "bg-muted/60 border border-border/50",
                 "focus-within:border-primary/50 focus-within:bg-muted/80",
-                isListening && "border-red-500/50 bg-red-50/30 dark:bg-red-950/20",
+                isListening && "border-danger/50 bg-danger-soft/30 dark:bg-danger-strong/20",
                 showTypeahead && "rounded-b-none border-b-0"
               )}>
                 <Search className="absolute left-3.5 h-5 w-5 text-muted-foreground/60" />
@@ -780,7 +780,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                       disabled={isLoading}
                       className={cn(
                         "h-10 w-10 sm:h-8 sm:w-8 rounded-lg text-muted-foreground hover:text-foreground touch-manipulation",
-                        isListening && "text-red-500 animate-pulse"
+                        isListening && "text-danger animate-pulse"
                       )}
                     >
                       {isListening ? <MicOff className="h-5 w-5 sm:h-4 sm:w-4" /> : <Mic className="h-5 w-5 sm:h-4 sm:w-4" />}
@@ -817,13 +817,13 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                         </div>
                       )}
                       {suggestion.type === "city" && (
-                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                          <MapPin className="h-4 w-4 text-blue-500" />
+                        <div className="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center flex-shrink-0">
+                          <MapPin className="h-4 w-4 text-info" />
                         </div>
                       )}
                       {suggestion.type === "neighborhood" && (
-                        <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                          <Home className="h-4 w-4 text-green-500" />
+                        <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center flex-shrink-0">
+                          <Home className="h-4 w-4 text-success" />
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
@@ -846,8 +846,8 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
             </div>
 
             {isListening && (
-              <p className="text-sm text-red-500 mt-3 flex items-center justify-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <p className="text-sm text-danger mt-3 flex items-center justify-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-danger animate-pulse" />
                 Listening...
               </p>
             )}
@@ -918,8 +918,8 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                       <div className={cn(
                         "p-3 rounded-lg",
                         (message.projects && message.projects.length > 0) || (message.listings && message.listings.length > 0)
-                          ? "bg-green-500/10 text-green-700 dark:text-green-400" 
-                          : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                          ? "bg-success/10 text-success-strong dark:text-success" 
+                          : "bg-warning/10 text-warning-strong dark:text-warning"
                       )}>
                         <p className="text-sm">{message.content}</p>
                       </div>
@@ -1129,7 +1129,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                   placeholder="Refine: show me cheaper, larger units..."
                   className={cn(
                     "w-full pl-4 pr-20 py-2.5 rounded-xl border bg-muted/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors text-sm",
-                    isListening ? "border-red-500 bg-red-50/50 dark:bg-red-950/20" : "border-border"
+                    isListening ? "border-danger bg-danger-soft/50 dark:bg-danger-strong/20" : "border-border"
                   )}
                   disabled={isLoading}
                 />

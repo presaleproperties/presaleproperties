@@ -95,7 +95,7 @@ export function CampaignBundleSelector({ open, onClose, onSelect, userId }: Prop
   const getProjectName = (id: string) => projects.find(p => p.id === id)?.name || "Unknown";
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-900/50 backdrop-blur-sm" onClick={onClose}>
       <div className="bg-background rounded-xl border border-border shadow-2xl w-full max-w-lg mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-gradient-to-r from-primary/5 to-transparent">

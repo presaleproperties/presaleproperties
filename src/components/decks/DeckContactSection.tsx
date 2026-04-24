@@ -132,7 +132,7 @@ export function DeckContactSection({
                     alt={agent.fullName}
                     className="w-20 h-20 rounded-2xl object-cover object-top border-2 border-primary/30 shadow-md"
                   />
-                  <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-background" title="Available now" />
+                  <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-success border-2 border-background" title="Available now" />
                 </div>
                 <div className="min-w-0 overflow-hidden">
                   <h3 className="text-lg font-bold text-foreground leading-tight truncate">{agent.fullName}</h3>
@@ -211,7 +211,7 @@ export function DeckContactSection({
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-0.5">
                 {[1,2,3,4,5].map((i) => (
-                  <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <Star key={i} className="h-4 w-4 fill-warning text-warning" />
                 ))}
               </div>
               <span className="text-sm font-bold text-foreground">5.0</span>
@@ -238,7 +238,7 @@ export function DeckContactSection({
                     </div>
                     <div className="flex gap-0.5">
                       {Array.from({ length: review.rating }).map((_, s) => (
-                        <Star key={s} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <Star key={s} className="h-3 w-3 fill-warning text-warning" />
                       ))}
                     </div>
                   </div>

@@ -295,7 +295,7 @@ export default function PresaleProjectDetail() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "coming_soon":
-        return <Badge className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-0.5">Coming Soon</Badge>;
+        return <Badge className="bg-info hover:bg-info text-on-dark text-xs px-2 py-0.5">Coming Soon</Badge>;
       case "active":
         return <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs px-2 py-0.5">Now Selling</Badge>;
       case "sold_out":
@@ -720,7 +720,7 @@ export default function PresaleProjectDetail() {
       <main className="min-h-screen bg-background pb-24 lg:pb-0">
         <article itemScope itemType="https://schema.org/RealEstateListing">
         {/* Preview Mode Banner */}
-        {isPreviewMode && <div className="bg-yellow-500 text-yellow-950 py-2 px-4 text-center text-sm font-medium">
+        {isPreviewMode && <div className="bg-warning text-warning-strong py-2 px-4 text-center text-sm font-medium">
             Preview Mode — This project is not published yet
           </div>}
 
@@ -752,7 +752,7 @@ export default function PresaleProjectDetail() {
                 {/* Status Badge Row */}
                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
                   {getStatusBadge(project.status)}
-                  {project.is_featured && <Badge className="bg-yellow-500/90 hover:bg-yellow-500 text-white text-xs px-2 py-0.5">
+                  {project.is_featured && <Badge className="bg-warning/90 hover:bg-warning text-on-dark text-xs px-2 py-0.5">
                       <Star className="h-3 w-3 mr-1 fill-current" />
                       Featured
                     </Badge>}
@@ -879,12 +879,12 @@ export default function PresaleProjectDetail() {
                         </div>}
                     </div>
                     
-                    {project.incentives && <div className="mt-2 sm:mt-3 bg-green-50 dark:bg-green-950/30 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-green-200/50 dark:border-green-800/30">
+                    {project.incentives && <div className="mt-2 sm:mt-3 bg-success-soft dark:bg-success-strong/30 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-success/30/50 dark:border-success/30">
                         <div className="flex items-start gap-2">
-                          <Gift className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
+                          <Gift className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-success dark:text-success mt-0.5 shrink-0" />
                           <div>
-                            <p className="text-[10px] sm:text-xs text-green-700 dark:text-green-400 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">Current Incentives</p>
-                            <p className="text-xs sm:text-sm text-green-800 dark:text-green-300">{project.incentives}</p>
+                            <p className="text-[10px] sm:text-xs text-success-strong dark:text-success font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">Current Incentives</p>
+                            <p className="text-xs sm:text-sm text-success-strong dark:text-success-soft-foreground">{project.incentives}</p>
                           </div>
                         </div>
                       </div>}
@@ -895,7 +895,7 @@ export default function PresaleProjectDetail() {
                     <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4">Amenities</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-3 md:gap-4">
                       {project.amenities.map((a, i) => <div key={i} className="flex items-center gap-2 sm:gap-2">
-                          <CheckCircle className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-500 shrink-0" />
+                          <CheckCircle className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 text-success shrink-0" />
                           <span className="text-sm sm:text-sm md:text-base text-foreground">{a}</span>
                         </div>)}
                     </div>
@@ -940,7 +940,7 @@ export default function PresaleProjectDetail() {
                     <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Key Highlights</h2>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                       {project.highlights.map((h, i) => <li key={i} className="flex items-start gap-2">
-                          <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500 shrink-0 mt-0.5" />
+                          <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-success shrink-0 mt-0.5" />
                           <span className="text-sm md:text-base text-foreground">{h}</span>
                         </li>)}
                     </ul>

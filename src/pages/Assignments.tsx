@@ -169,14 +169,14 @@ function AssignmentCard({ listing }: { listing: Assignment }) {
           </div>
         )}
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[calc(100%-1.5rem)]">
-          <Badge className="bg-amber-500 hover:bg-amber-500 text-white text-[10px] px-2">Assignment</Badge>
+          <Badge className="bg-warning hover:bg-warning text-on-dark text-[10px] px-2">Assignment</Badge>
           {savings && savings > 0 && (
-            <Badge className="bg-green-600 hover:bg-green-600 text-white text-[10px] px-2">
+            <Badge className="bg-success hover:bg-success text-on-dark text-[10px] px-2">
               Save {formatPrice(savings)}
             </Badge>
           )}
           {credit && (
-            <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white text-[10px] px-2 gap-1">
+            <Badge className="bg-success hover:bg-success text-on-dark text-[10px] px-2 gap-1">
               <Sparkles className="h-2.5 w-2.5" />
               {formatPrice(credit)} Credit
             </Badge>

@@ -502,11 +502,11 @@ export default function AdminBlogImport() {
                 {importResults.map((result, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm">
                     {result.success ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <CheckCircle2 className="h-4 w-4 text-success" />
                     ) : (
-                      <XCircle className="h-4 w-4 text-red-500" />
+                      <XCircle className="h-4 w-4 text-danger" />
                     )}
-                    <span className={result.success ? '' : 'text-red-500'}>
+                    <span className={result.success ? '' : 'text-danger'}>
                       {result.name}
                       {result.error && ` - ${result.error}`}
                     </span>
@@ -522,7 +522,7 @@ export default function AdminBlogImport() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-5 w-5 text-success" />
                 Import Complete
               </CardTitle>
               <CardDescription>
@@ -532,14 +532,14 @@ export default function AdminBlogImport() {
             <CardContent className="space-y-4">
               {/* Summary */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-green-500/10 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-green-600">
+                <div className="p-4 bg-success/10 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-success">
                     {importResults.filter(r => r.success).length}
                   </p>
                   <p className="text-sm text-muted-foreground">Successful</p>
                 </div>
-                <div className="p-4 bg-red-500/10 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-red-600">
+                <div className="p-4 bg-danger/10 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-danger">
                     {importResults.filter(r => !r.success).length}
                   </p>
                   <p className="text-sm text-muted-foreground">Failed</p>
@@ -550,10 +550,10 @@ export default function AdminBlogImport() {
               {importResults.some(r => !r.success) && (
                 <div className="space-y-2">
                   <h4 className="font-medium flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-red-500" />
+                    <AlertCircle className="h-4 w-4 text-danger" />
                     Failed imports:
                   </h4>
-                  <div className="bg-red-500/5 rounded-lg p-3 space-y-1">
+                  <div className="bg-danger/5 rounded-lg p-3 space-y-1">
                     {importResults.filter(r => !r.success).map((result, i) => (
                       <p key={i} className="text-sm">
                         <span className="font-medium">{result.name}:</span>{' '}

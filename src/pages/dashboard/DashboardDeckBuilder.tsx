@@ -798,8 +798,8 @@ export default function DashboardDeckBuilder() {
                     {fp.image_url ? (
                       <>
                         <img src={fp.image_url} alt="" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                          <Upload className="h-4 w-4 text-white" />
+                        <div className="absolute inset-0 bg-neutral-900/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                          <Upload className="h-4 w-4 text-on-dark" />
                         </div>
                       </>
                     ) : analyzingFp === fp.id ? (
@@ -920,18 +920,18 @@ export default function DashboardDeckBuilder() {
                 {gallery.map((url, i) => (
                   <div key={i} className="relative aspect-square rounded-lg overflow-hidden group">
                     <img src={url} alt="" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
-                      <button className="p-1.5 bg-white/80 rounded hover:bg-white transition-colors"
+                    <div className="absolute inset-0 bg-neutral-900/0 group-hover:bg-neutral-900/50 transition-colors flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
+                      <button className="p-1.5 bg-card/80 rounded hover:bg-card transition-colors"
                         onClick={() => setGallery((g) => { const n = [...g]; [n[i - 1], n[i]] = [n[i], n[i - 1]]; return n; })} disabled={i === 0}>
                         <ArrowUp className="h-3 w-3" />
                       </button>
-                      <button className="p-1.5 bg-white/80 rounded hover:bg-white transition-colors"
+                      <button className="p-1.5 bg-card/80 rounded hover:bg-card transition-colors"
                         onClick={() => setGallery((g) => { const n = [...g]; [n[i], n[i + 1]] = [n[i + 1], n[i]]; return n; })} disabled={i === gallery.length - 1}>
                         <ArrowDown className="h-3 w-3" />
                       </button>
                       <button className="p-1.5 bg-destructive/80 rounded hover:bg-destructive transition-colors"
                         onClick={() => setGallery((g) => g.filter((_, idx) => idx !== i))}>
-                        <Trash2 className="h-3 w-3 text-white" />
+                        <Trash2 className="h-3 w-3 text-on-dark" />
                       </button>
                     </div>
                     {i === 0 && <div className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-[8px] font-bold px-1 py-0.5 rounded">HERO</div>}
@@ -1159,7 +1159,7 @@ export default function DashboardDeckBuilder() {
                   );
                 })}
                 {gatedSections.length === 0 && (
-                  <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
+                  <p className="text-xs text-warning dark:text-warning bg-warning-soft dark:bg-warning-strong/20 border border-warning/30 dark:border-warning rounded-lg px-3 py-2">
                     No sections are locked — the gate will still appear but unlock immediately.
                   </p>
                 )}
@@ -1283,8 +1283,8 @@ export default function DashboardDeckBuilder() {
                 /* iPhone 17 Pro Max frame: 430×932 */
                 <div className="mt-6 relative" style={{ width: 430 * 0.75, height: 932 * 0.75 }}>
                   {/* Phone bezel */}
-                  <div className="absolute inset-0 rounded-[40px] border-[3px] border-foreground/20 bg-black pointer-events-none z-10">
-                    <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[90px] h-[22px] bg-black rounded-full" />
+                  <div className="absolute inset-0 rounded-[40px] border-[3px] border-foreground/20 bg-neutral-900 pointer-events-none z-10">
+                    <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[90px] h-[22px] bg-neutral-900 rounded-full" />
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[100px] h-[4px] bg-foreground/20 rounded-full" />
                   </div>
                   <div className="absolute inset-[3px] rounded-[37px] overflow-hidden bg-background">

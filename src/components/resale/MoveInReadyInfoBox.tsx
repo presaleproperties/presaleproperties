@@ -20,8 +20,8 @@ export function MoveInReadyInfoBox({ yearBuilt }: MoveInReadyInfoBoxProps) {
   const ageLabel = monthsOld !== null && monthsOld < 12 ? ` • ${monthsOld} months old` : "";
 
   return (
-    <Alert className="bg-emerald-500/5 border-emerald-500/20 mb-6">
-      <Zap className="h-4 w-4 text-emerald-600" />
+    <Alert className="bg-success/5 border-success/20 mb-6">
+      <Zap className="h-4 w-4 text-success" />
       <AlertTitle className="text-sm font-semibold text-foreground flex flex-wrap items-center gap-2">
         Move-In Ready – Brand New
         <span className="text-xs font-normal text-muted-foreground">
@@ -51,7 +51,7 @@ export function MoveInReadyBenefits() {
       <ul className="space-y-2">
         {benefits.map((benefit) => (
           <li key={benefit} className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+            <Check className="h-4 w-4 text-success shrink-0" />
             <span>{benefit}</span>
           </li>
         ))}

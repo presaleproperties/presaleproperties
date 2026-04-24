@@ -222,7 +222,7 @@ export function LightboxGallery({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-black/98 border-none rounded-none [&>button]:hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-100 duration-200" aria-describedby={undefined}>
+      <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-neutral-900/98 border-none rounded-none [&>button]:hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-100 duration-200" aria-describedby={undefined}>
         <VisuallyHidden>
           <DialogTitle>Image Gallery - {alt}</DialogTitle>
         </VisuallyHidden>
@@ -239,7 +239,7 @@ export function LightboxGallery({
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-4 right-4 z-50 text-white bg-black/40 hover:bg-black/60 border border-white/20 h-11 w-11"
+            className="absolute top-4 right-4 z-50 text-on-dark bg-neutral-900/40 hover:bg-neutral-900/60 border border-card/20 h-11 w-11"
             onClick={(e) => {
               e.stopPropagation();
               onOpenChange(false);
@@ -251,26 +251,26 @@ export function LightboxGallery({
 
           {/* Image counter and zoom controls */}
           <div className="absolute top-4 left-4 z-50 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-            <div className="text-white/80 text-sm font-medium bg-black/40 px-3 py-1.5 rounded-full">
+            <div className="text-on-dark/80 text-sm font-medium bg-neutral-900/40 px-3 py-1.5 rounded-full">
               {currentIndex + 1} / {images.length}
             </div>
-            <div className="hidden md:flex items-center gap-1 bg-black/40 rounded-full px-1">
+            <div className="hidden md:flex items-center gap-1 bg-neutral-900/40 rounded-full px-1">
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/20 h-8 w-8"
+                className="text-on-dark hover:bg-card/20 h-8 w-8"
                 onClick={zoomOut}
                 disabled={scale <= MIN_SCALE}
               >
                 <ZoomOut className="h-4 w-4" />
               </Button>
-              <span className="text-white/80 text-xs font-medium min-w-[40px] text-center">
+              <span className="text-on-dark/80 text-xs font-medium min-w-[40px] text-center">
                 {Math.round(scale * 100)}%
               </span>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/20 h-8 w-8"
+                className="text-on-dark hover:bg-card/20 h-8 w-8"
                 onClick={zoomIn}
                 disabled={scale >= MAX_SCALE}
               >
@@ -280,7 +280,7 @@ export function LightboxGallery({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/20 h-8 w-8"
+                  className="text-on-dark hover:bg-card/20 h-8 w-8"
                   onClick={resetZoom}
                 >
                   <RotateCcw className="h-4 w-4" />
@@ -294,7 +294,7 @@ export function LightboxGallery({
             <Button
               variant="ghost"
               size="icon"
-              className="absolute left-2 md:left-4 z-50 text-white hover:bg-white/20 h-14 w-14 min-h-[56px] min-w-[56px] touch-active"
+              className="absolute left-2 md:left-4 z-50 text-on-dark hover:bg-card/20 h-14 w-14 min-h-[56px] min-w-[56px] touch-active"
               onClick={(e) => {
                 e.stopPropagation();
                 goToPrev();
@@ -341,7 +341,7 @@ export function LightboxGallery({
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 md:right-4 z-50 text-white hover:bg-white/20 h-14 w-14 min-h-[56px] min-w-[56px] touch-active"
+              className="absolute right-2 md:right-4 z-50 text-on-dark hover:bg-card/20 h-14 w-14 min-h-[56px] min-w-[56px] touch-active"
               onClick={(e) => {
                 e.stopPropagation();
                 goToNext();
@@ -354,7 +354,7 @@ export function LightboxGallery({
           {/* Thumbnail strip - larger touch targets, lifted for mobile safe-area */}
           {images.length > 1 && scale <= 1 && (
             <div
-              className="absolute left-1/2 -translate-x-1/2 z-50 flex gap-2 p-2 bg-black/40 backdrop-blur-sm rounded-xl max-w-[90vw] overflow-x-auto scroll-smooth-mobile"
+              className="absolute left-1/2 -translate-x-1/2 z-50 flex gap-2 p-2 bg-neutral-900/40 backdrop-blur-sm rounded-xl max-w-[90vw] overflow-x-auto scroll-smooth-mobile"
               style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)" }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -364,7 +364,7 @@ export function LightboxGallery({
                   onClick={() => setCurrentIndex(i)}
                   className={`shrink-0 w-14 h-14 md:w-16 md:h-16 min-w-[56px] min-h-[56px] rounded-lg overflow-hidden border-2 transition-all touch-active ${
                     currentIndex === i
-                      ? "border-white scale-105"
+                      ? "border-card scale-105"
                       : "border-transparent opacity-70 hover:opacity-100 active:opacity-100"
                   }`}
                 >
@@ -545,7 +545,7 @@ export function GalleryWithLightbox({
 
           {/* Photo Counter */}
           {images.length > 1 && (
-            <div className="absolute bottom-2 left-2 md:bottom-3 md:left-3 bg-black/70 backdrop-blur-sm px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[11px] md:text-xs font-medium text-white">
+            <div className="absolute bottom-2 left-2 md:bottom-3 md:left-3 bg-neutral-900/70 backdrop-blur-sm px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[11px] md:text-xs font-medium text-on-dark">
               {selectedIndex + 1} / {images.length}
             </div>
           )}
@@ -559,8 +559,8 @@ export function GalleryWithLightbox({
                   className={cn(
                     "h-1.5 w-1.5 md:h-2 md:w-2 rounded-full transition-all",
                     idx === selectedIndex 
-                      ? "bg-white w-3 md:w-4" 
-                      : "bg-white/50"
+                      ? "bg-card w-3 md:w-4" 
+                      : "bg-card/50"
                   )}
                 />
               ))}

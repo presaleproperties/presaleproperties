@@ -24,8 +24,8 @@ export function TopListingsTable({ listings }: TopListingsTableProps) {
       <Card>
         <CardHeader className="py-4 px-5">
           <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-violet-100 p-1.5">
-              <FileStack className="h-3.5 w-3.5 text-violet-600" />
+            <div className="rounded-lg bg-primary/10 p-1.5">
+              <FileStack className="h-3.5 w-3.5 text-primary" />
             </div>
             <CardTitle className="text-sm font-semibold">Top Listings</CardTitle>
           </div>
@@ -45,8 +45,8 @@ export function TopListingsTable({ listings }: TopListingsTableProps) {
       <CardHeader className="py-4 px-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-violet-100 p-1.5">
-              <FileStack className="h-3.5 w-3.5 text-violet-600" />
+            <div className="rounded-lg bg-primary/10 p-1.5">
+              <FileStack className="h-3.5 w-3.5 text-primary" />
             </div>
             <CardTitle className="text-sm font-semibold">Top Listings (Assignments)</CardTitle>
           </div>
@@ -63,7 +63,7 @@ export function TopListingsTable({ listings }: TopListingsTableProps) {
               className="flex items-center justify-between py-2.5 px-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <span className="text-[10px] font-bold text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded shrink-0">
+                <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded shrink-0">
                   #{index + 1}
                 </span>
                 <div className="min-w-0">
@@ -88,8 +88,8 @@ export function TopListingsTable({ listings }: TopListingsTableProps) {
                 <Badge 
                   variant="outline"
                   className={`text-[10px] px-1.5 py-0 ${
-                    listing.status === 'published' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                    listing.status === 'pending_approval' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                    listing.status === 'published' ? 'bg-success-soft text-success-strong border-success/30' :
+                    listing.status === 'pending_approval' ? 'bg-warning-soft text-warning-strong border-warning/30' :
                     ''
                   }`}
                 >

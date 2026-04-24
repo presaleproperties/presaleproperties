@@ -177,15 +177,15 @@ export function ResaleListingCard({
             />
 
             {/* Bottom gradient for price */}
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-neutral-900/70 via-neutral-900/30 to-transparent pointer-events-none" />
 
             {/* Price overlay */}
             <div className="absolute bottom-2.5 left-3">
-              <span className="text-white font-bold text-2xl lg:text-xl tracking-tight drop-shadow-md">
+              <span className="text-on-dark font-bold text-2xl lg:text-xl tracking-tight drop-shadow-md">
                 {formatPrice(price)}
               </span>
               {sqft && sqft > 0 && (
-                <span className="text-white/60 text-[10px] font-medium ml-1.5">
+                <span className="text-on-dark/60 text-[10px] font-medium ml-1.5">
                   ${Math.round(price / sqft)}/sf
                 </span>
               )}
@@ -193,21 +193,21 @@ export function ResaleListingCard({
 
             {/* Top badges */}
             <div className="absolute top-2.5 left-2.5 flex flex-col gap-1">
-              <Badge className="bg-emerald-600 text-white text-[10px] font-semibold shadow-sm px-2 py-0.5">
+              <Badge className="bg-success text-on-dark text-[10px] font-semibold shadow-sm px-2 py-0.5">
                 MOVE-IN READY
               </Badge>
               {isPriceReduced && (
-                <Badge className="bg-red-600 text-white text-[10px] font-bold shadow-sm px-2 py-0.5">
+                <Badge className="bg-danger text-on-dark text-[10px] font-bold shadow-sm px-2 py-0.5">
                   -{priceReductionPercent}% DROP
                 </Badge>
               )}
               {isNew && !isPriceReduced && (
-                <Badge className="bg-orange-500 text-white text-[10px] font-semibold shadow-sm px-2 py-0.5 flex items-center gap-0.5">
+                <Badge className="bg-warning text-on-dark text-[10px] font-semibold shadow-sm px-2 py-0.5 flex items-center gap-0.5">
                   <Flame className="h-2.5 w-2.5" /> NEW
                 </Badge>
               )}
               {isLongOnMarket && !isPriceReduced && !isNew && (
-                <Badge className="bg-amber-600 text-white text-[10px] font-semibold shadow-sm px-2 py-0.5 flex items-center gap-0.5">
+                <Badge className="bg-warning text-on-dark text-[10px] font-semibold shadow-sm px-2 py-0.5 flex items-center gap-0.5">
                   <Clock className="h-2.5 w-2.5" /> OPPORTUNITY
                 </Badge>
               )}
@@ -217,7 +217,7 @@ export function ResaleListingCard({
             {imageCount > 1 && (
               <div className="absolute bottom-2.5 right-3 flex gap-1">
                 {photoUrls.slice(0, 5).map((_, idx) => (
-                  <span key={idx} className={cn("h-1 rounded-full transition-all", idx === currentImageIndex ? "bg-white w-3" : "bg-white/40 w-1")} />
+                  <span key={idx} className={cn("h-1 rounded-full transition-all", idx === currentImageIndex ? "bg-card w-3" : "bg-card/40 w-1")} />
                 ))}
               </div>
             )}
@@ -284,16 +284,16 @@ export function ResaleListingCard({
                 />
 
                 {/* Bottom gradient for price overlay */}
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-neutral-900/70 via-neutral-900/30 to-transparent pointer-events-none" />
 
                 {/* Price — overlaid on image */}
                 <div className="absolute bottom-3 left-3">
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-white font-bold text-2xl lg:text-xl tracking-tight drop-shadow-md">
+                    <span className="text-on-dark font-bold text-2xl lg:text-xl tracking-tight drop-shadow-md">
                       {formatPrice(price)}
                     </span>
                     {sqft && sqft > 0 && (
-                      <span className="text-white/60 text-[10px] font-medium">
+                      <span className="text-on-dark/60 text-[10px] font-medium">
                         ${Math.round(price / sqft)}/sf
                       </span>
                     )}
@@ -301,21 +301,21 @@ export function ResaleListingCard({
                 </div>
             
                 <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1">
-                  <Badge className="bg-emerald-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5">
+                  <Badge className="bg-success text-on-dark text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5">
                     MOVE-IN READY
                   </Badge>
                   {isPriceReduced && (
-                    <Badge className="bg-red-600 text-white text-[9px] sm:text-[10px] font-bold shadow-lg px-1.5 py-0.5 animate-pulse">
+                    <Badge className="bg-danger text-on-dark text-[9px] sm:text-[10px] font-bold shadow-lg px-1.5 py-0.5 animate-pulse">
                       PRICE DROP -{priceReductionPercent}%
                     </Badge>
                   )}
                   {isNew && !isPriceReduced && (
-                    <Badge className="bg-orange-500 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5 flex items-center gap-0.5">
+                    <Badge className="bg-warning text-on-dark text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5 flex items-center gap-0.5">
                       <Flame className="h-2.5 w-2.5" /> HOT
                     </Badge>
                   )}
                   {isLongOnMarket && !isPriceReduced && !isNew && (
-                    <Badge className="bg-amber-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5 flex items-center gap-0.5">
+                    <Badge className="bg-warning text-on-dark text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5 flex items-center gap-0.5">
                       <Clock className="h-2.5 w-2.5" /> OPPORTUNITY
                     </Badge>
                   )}
@@ -333,17 +333,17 @@ export function ResaleListingCard({
             
                 {imageCount > 1 && (
                   <>
-                    <button onClick={goToPrevImage} className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70" aria-label="Previous image">
+                    <button onClick={goToPrevImage} className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-neutral-900/50 text-on-dark flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-neutral-900/70" aria-label="Previous image">
                       <ChevronLeft className="h-5 w-5" />
                     </button>
-                    <button onClick={goToNextImage} className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70" aria-label="Next image">
+                    <button onClick={goToNextImage} className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-neutral-900/50 text-on-dark flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-neutral-900/70" aria-label="Next image">
                       <ChevronRight className="h-5 w-5" />
                     </button>
                     <div className="absolute bottom-3 right-3 flex gap-1">
                       {photoUrls.slice(0, 5).map((_, idx) => (
-                        <span key={idx} className={cn("h-1 rounded-full transition-all", idx === currentImageIndex ? "bg-white w-3" : "bg-white/40 w-1")} />
+                        <span key={idx} className={cn("h-1 rounded-full transition-all", idx === currentImageIndex ? "bg-card w-3" : "bg-card/40 w-1")} />
                       ))}
-                      {imageCount > 5 && <span className="text-white text-xs ml-1">+{imageCount - 5}</span>}
+                      {imageCount > 5 && <span className="text-on-dark text-xs ml-1">+{imageCount - 5}</span>}
                     </div>
                   </>
                 )}

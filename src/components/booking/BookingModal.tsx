@@ -420,8 +420,8 @@ export function BookingModal({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-md">
           <div className="text-center py-6">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle className="h-8 w-8 text-green-600" />
+            <div className="mx-auto w-16 h-16 bg-success-soft rounded-full flex items-center justify-center mb-4">
+              <CheckCircle className="h-8 w-8 text-success" />
             </div>
             <h2 className="text-xl font-semibold mb-2">Request Submitted!</h2>
             <p className="text-muted-foreground text-sm mb-4">
@@ -438,10 +438,10 @@ export function BookingModal({
                 <span>{selectedTime && formatTimeDisplay(selectedTime)}</span>
               </div>
             </div>
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-left text-sm mb-6">
+            <div className="bg-info-soft border border-info/30 rounded-lg p-3 text-left text-sm mb-6">
               <div className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-                <span className="text-blue-800">
+                <MapPin className="h-4 w-4 text-info mt-0.5 shrink-0" />
+                <span className="text-info-strong">
                   Sales centre address will be provided upon confirmation
                 </span>
               </div>

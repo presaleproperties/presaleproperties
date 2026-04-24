@@ -57,10 +57,10 @@ export function DailySummaryWidget() {
   }, [user]);
 
   const items = [
-    { label: "New Leads Today", value: stats.newLeadsToday, icon: Users, color: "text-blue-600 bg-blue-100" },
-    { label: "Total Leads", value: stats.totalLeads, icon: TrendingUp, color: "text-emerald-600 bg-emerald-100" },
-    { label: "Emails Sent Today", value: stats.emailsSentToday, icon: Mail, color: "text-violet-600 bg-violet-100" },
-    { label: "Opens Today", value: stats.emailsOpenedToday, icon: Eye, color: "text-amber-600 bg-amber-100" },
+    { label: "New Leads Today", value: stats.newLeadsToday, icon: Users, color: "text-info bg-info-soft" },
+    { label: "Total Leads", value: stats.totalLeads, icon: TrendingUp, color: "text-success bg-success-soft" },
+    { label: "Emails Sent Today", value: stats.emailsSentToday, icon: Mail, color: "text-primary bg-primary/10" },
+    { label: "Opens Today", value: stats.emailsOpenedToday, icon: Eye, color: "text-warning bg-warning-soft" },
   ];
 
   return (

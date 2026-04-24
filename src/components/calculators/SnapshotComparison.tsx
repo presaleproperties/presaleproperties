@@ -31,7 +31,7 @@ export function SnapshotComparison({ snapshots, onDelete, onClearAll }: Snapshot
   const isLowestMonthly = (value: number) => value === lowestMonthly && snapshots.length > 1;
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div className="bg-card rounded-2xl shadow-xl overflow-hidden">
       {/* Header */}
       <div className="bg-primary/10 border-b border-primary/20 px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
@@ -75,14 +75,14 @@ export function SnapshotComparison({ snapshots, onDelete, onClearAll }: Snapshot
                   {/* Cash Flow */}
                   <div className={cn(
                     "rounded-lg p-3 text-center",
-                    isPositive ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200",
+                    isPositive ? "bg-success-soft border border-success/30" : "bg-danger-soft border border-danger/30",
                     isBestCashFlow(snapshot.results.monthlyCashFlow) && "ring-2 ring-primary ring-offset-1"
                   )}>
                     <div className="flex items-center justify-center gap-1 mb-1">
                       {isPositive ? (
-                        <TrendingUp className="w-4 h-4 text-green-600" />
+                        <TrendingUp className="w-4 h-4 text-success" />
                       ) : (
-                        <TrendingDown className="w-4 h-4 text-red-600" />
+                        <TrendingDown className="w-4 h-4 text-danger" />
                       )}
                       {isBestCashFlow(snapshot.results.monthlyCashFlow) && (
                         <Trophy className="w-3.5 h-3.5 text-primary" />
@@ -90,7 +90,7 @@ export function SnapshotComparison({ snapshots, onDelete, onClearAll }: Snapshot
                     </div>
                     <div className={cn(
                       "text-xl font-bold",
-                      isPositive ? "text-green-600" : "text-red-600"
+                      isPositive ? "text-success" : "text-danger"
                     )}>
                       {isPositive ? '+' : ''}{fmt(snapshot.results.monthlyCashFlow)}
                     </div>
@@ -99,7 +99,7 @@ export function SnapshotComparison({ snapshots, onDelete, onClearAll }: Snapshot
 
                   {/* Total Investment */}
                   <div className={cn(
-                    "rounded-lg p-3 bg-white border border-border/50",
+                    "rounded-lg p-3 bg-card border border-border/50",
                     isLowestInvestment(snapshot.results.totalCashRequired) && "ring-2 ring-primary ring-offset-1"
                   )}>
                     <div className="flex items-center justify-center gap-1 mb-1">
@@ -114,7 +114,7 @@ export function SnapshotComparison({ snapshots, onDelete, onClearAll }: Snapshot
 
                   {/* Monthly Costs */}
                   <div className={cn(
-                    "rounded-lg p-3 bg-white border border-border/50",
+                    "rounded-lg p-3 bg-card border border-border/50",
                     isLowestMonthly(snapshot.results.totalMonthlyExpenses) && "ring-2 ring-primary ring-offset-1"
                   )}>
                     <div className="flex items-center justify-center gap-1 mb-1">
@@ -143,7 +143,7 @@ export function SnapshotComparison({ snapshots, onDelete, onClearAll }: Snapshot
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Annual Cash Flow</span>
-                      <span className={cn("font-medium", isPositive ? "text-green-600" : "text-red-600")}>
+                      <span className={cn("font-medium", isPositive ? "text-success" : "text-danger")}>
                         {isPositive ? '+' : ''}{fmt(snapshot.results.annualCashFlow)}
                       </span>
                     </div>

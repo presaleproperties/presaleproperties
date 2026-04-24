@@ -820,9 +820,9 @@ function StepSection({ step, title, icon, done, doneLabel, accent = "default", d
   const [open, setOpen] = useState(defaultOpen);
 
   const accentColor = accent === "gold"
-    ? "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20"
+    ? "text-warning dark:text-warning bg-warning/10 border-warning/20"
     : accent === "green"
-    ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+    ? "text-success dark:text-success bg-success/10 border-success/20"
     : "text-primary bg-primary/10 border-primary/20";
 
   return (
@@ -838,7 +838,7 @@ function StepSection({ step, title, icon, done, doneLabel, accent = "default", d
         <div className={cn(
           "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 border transition-all",
           done
-            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+            ? "bg-success/15 text-success dark:text-success border-success/30"
             : open
             ? "bg-primary/10 text-primary border-primary/30"
             : "bg-muted/50 text-muted-foreground border-border"
@@ -1402,7 +1402,7 @@ export default function AdminEmailBuilder() {
 
         <div className="flex items-center gap-2 shrink-0">
           {useCustomHtml && (
-            <Badge variant="outline" className="text-[10px] h-7 px-2.5 border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/5">
+            <Badge variant="outline" className="text-[10px] h-7 px-2.5 border-warning/40 text-warning dark:text-warning bg-warning/5">
               Custom HTML
             </Badge>
           )}
@@ -1597,7 +1597,7 @@ export default function AdminEmailBuilder() {
             className={cn(
               "gap-2 h-9 px-4 font-semibold transition-all duration-200",
               copied
-                ? "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600"
+                ? "bg-success hover:bg-success text-on-dark border-success"
                 : "bg-primary text-primary-foreground hover:bg-primary/90"
             )}
             onClick={handleCopy}
@@ -1615,9 +1615,9 @@ export default function AdminEmailBuilder() {
       <div className="mb-3 rounded-lg border border-border bg-card overflow-hidden shrink-0">
         <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b border-border">
           <div className="flex items-center gap-1 shrink-0">
-            <div className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-            <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
-            <div className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
+            <div className="h-2.5 w-2.5 rounded-full bg-danger/80" />
+            <div className="h-2.5 w-2.5 rounded-full bg-warning/80" />
+            <div className="h-2.5 w-2.5 rounded-full bg-success/80" />
           </div>
           <Separator orientation="vertical" className="h-4 mx-1" />
           <div className="flex items-center gap-1 flex-1 min-w-0">
@@ -1708,12 +1708,12 @@ export default function AdminEmailBuilder() {
             </div>
           ) : (
             <div className="flex-1 overflow-auto" style={{ background: "#0d1117" }}>
-              <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-white/5" style={{ background: "#161b22" }}>
+              <div className="sticky top-0 px-4 py-2 flex items-center justify-between border-b border-card/5" style={{ background: "#161b22" }}>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono text-emerald-400">email.html</span>
-                  <Badge className="text-[9px] h-4 px-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Mailchimp-ready</Badge>
+                  <span className="text-[10px] font-mono text-success">email.html</span>
+                  <Badge className="text-[9px] h-4 px-1.5 bg-success/10 text-success border-success/20">Mailchimp-ready</Badge>
                 </div>
-                <span className="text-[10px] text-white/30">{finalHtml.length.toLocaleString()} chars</span>
+                <span className="text-[10px] text-on-dark/30">{finalHtml.length.toLocaleString()} chars</span>
               </div>
               <pre className="p-4 text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed" style={{ color: "#e6edf3" }}>
                 {finalHtml}
@@ -1740,7 +1740,7 @@ export default function AdminEmailBuilder() {
                 )}
               </div>
               {useCustomHtml && (
-                <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2 text-amber-500 hover:text-amber-600" onClick={() => setUseCustomHtml(false)}>
+                <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2 text-warning hover:text-warning" onClick={() => setUseCustomHtml(false)}>
                   ← Back to template
                 </Button>
               )}
@@ -1999,9 +1999,9 @@ export default function AdminEmailBuilder() {
                 }
               </Button>
               {pricingData && (
-                <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 space-y-2">
+                <div className="mt-3 rounded-lg border border-success/20 bg-success/5 p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                    <p className="text-[10px] font-bold text-success-strong dark:text-success uppercase tracking-wider flex items-center gap-1">
                       <TableProperties className="h-3 w-3" /> Pricing Summary
                     </p>
                     <button onClick={() => setPricingData(null)} className="text-[9px] text-muted-foreground hover:text-destructive transition-colors">Remove</button>
@@ -2078,7 +2078,7 @@ export default function AdminEmailBuilder() {
                     {!url ? (
                       <span className="text-[9px] text-muted-foreground/30 shrink-0 border border-dashed border-muted-foreground/20 rounded px-1">no url</span>
                     ) : (
-                      <div className={cn("h-1.5 w-1.5 rounded-full shrink-0", cta[key] ? "bg-emerald-500" : "bg-muted-foreground/20")} />
+                      <div className={cn("h-1.5 w-1.5 rounded-full shrink-0", cta[key] ? "bg-success" : "bg-muted-foreground/20")} />
                     )}
                   </div>
                 ))}
@@ -2139,10 +2139,10 @@ export default function AdminEmailBuilder() {
                       <Input
                         value={vars[key]}
                         onChange={v(key)}
-                        className={cn("h-7 text-[11px] font-mono pr-7", vars[key] && "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400")}
+                        className={cn("h-7 text-[11px] font-mono pr-7", vars[key] && "border-success/40 bg-success/5 text-success-strong dark:text-success")}
                         placeholder="https://"
                       />
-                      {vars[key] && <CheckCircle2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-emerald-500" />}
+                      {vars[key] && <CheckCircle2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-success" />}
                     </div>
                   </div>
                 ))}
@@ -2164,7 +2164,7 @@ export default function AdminEmailBuilder() {
               variant="outline"
               className={cn(
                 "w-full h-8 gap-2 text-xs transition-all duration-200",
-                copied && "bg-emerald-600 hover:bg-emerald-600 text-white border-emerald-600"
+                copied && "bg-success hover:bg-success text-on-dark border-success"
               )}
               onClick={handleCopy}
             >

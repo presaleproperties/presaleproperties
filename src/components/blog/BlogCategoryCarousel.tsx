@@ -67,7 +67,7 @@ export function BlogCategoryCarousel({ category, posts, formatDate }: BlogCatego
                         <FileText className="h-7 w-7 md:h-8 md:w-8 text-muted-foreground/20" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
                   <div className="p-4 md:p-5 flex flex-col gap-2">
                     <h3 className="font-bold text-sm md:text-base leading-snug group-hover:text-primary transition-colors duration-300 line-clamp-2">

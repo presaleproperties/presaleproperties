@@ -927,8 +927,8 @@ export default function ListingForm() {
                   className="h-auto py-4 flex-col gap-2 hover:bg-primary/5 hover:border-primary/50"
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center">
-                      <Sparkles className="h-4 w-4 text-white" />
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-info to-success flex items-center justify-center">
+                      <Sparkles className="h-4 w-4 text-on-dark" />
                     </div>
                     <span className="font-semibold">Facebook / WhatsApp</span>
                   </div>
@@ -1002,7 +1002,7 @@ export default function ListingForm() {
                                 isSelected
                                   ? mode.value === "public"
                                     ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                                    : "border-amber-500 bg-amber-500/5 ring-2 ring-amber-500/20"
+                                    : "border-warning bg-warning/5 ring-2 ring-warning/20"
                                   : "border-border hover:border-muted-foreground/30"
                               }`}
                             >
@@ -1010,7 +1010,7 @@ export default function ListingForm() {
                                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                                   mode.value === "public"
                                     ? "bg-primary/10 text-primary"
-                                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                    : "bg-warning/10 text-warning dark:text-warning"
                                 }`}>
                                   <Icon className="h-5 w-5" />
                                 </div>
@@ -1019,7 +1019,7 @@ export default function ListingForm() {
                                     <span className="font-semibold">{mode.label}</span>
                                     {isSelected && (
                                       <CheckCircle2 className={`h-4 w-4 ${
-                                        mode.value === "public" ? "text-primary" : "text-amber-500"
+                                        mode.value === "public" ? "text-primary" : "text-warning"
                                       }`} />
                                     )}
                                   </div>
@@ -1728,7 +1728,7 @@ export default function ListingForm() {
                 />
                 {brochureContent && (
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                    <CheckCircle2 className="h-3 w-3 text-success dark:text-success" />
                     Brochure content available for AI generation
                   </p>
                 )}

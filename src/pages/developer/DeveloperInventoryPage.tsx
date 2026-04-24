@@ -77,11 +77,11 @@ interface Project {
 }
 
 const statusBadge = (status: string) => {
-  if (status === "published") return "bg-emerald-100 text-emerald-700 border-emerald-200";
-  if (status === "pending_approval") return "bg-amber-100 text-amber-700 border-amber-200";
-  if (status === "sold") return "bg-slate-100 text-slate-600 border-slate-200";
-  if (status === "rejected") return "bg-red-100 text-red-700 border-red-200";
-  return "bg-slate-100 text-slate-600";
+  if (status === "published") return "bg-success-soft text-success-strong border-success/30";
+  if (status === "pending_approval") return "bg-warning-soft text-warning-strong border-warning/30";
+  if (status === "sold") return "bg-muted text-foreground border-border";
+  if (status === "rejected") return "bg-danger-soft text-danger-strong border-danger/30";
+  return "bg-muted text-foreground";
 };
 
 const statusText: Record<string, string> = {
@@ -275,7 +275,7 @@ export default function DeveloperInventoryPage() {
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-xl font-bold text-foreground truncate">{project.name}</h1>
                 {project.is_published && (
-                  <Badge variant="outline" className="text-[10px] text-emerald-700 border-emerald-200 bg-emerald-50">
+                  <Badge variant="outline" className="text-[10px] text-success-strong border-success/30 bg-success-soft">
                     <CheckCircle2 className="h-2.5 w-2.5 mr-1" /> Live on Site
                   </Badge>
                 )}
@@ -308,9 +308,9 @@ export default function DeveloperInventoryPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { label: "Total Units", value: stats.total, icon: Package, color: "text-foreground", bg: "bg-muted/50" },
-            { label: "Live", value: stats.live, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
-            { label: "Pending Review", value: stats.pending, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
-            { label: "Sold", value: stats.sold, icon: DollarSign, color: "text-slate-500", bg: "bg-slate-50" },
+            { label: "Live", value: stats.live, icon: CheckCircle2, color: "text-success", bg: "bg-success-soft" },
+            { label: "Pending Review", value: stats.pending, icon: Clock, color: "text-warning", bg: "bg-warning-soft" },
+            { label: "Sold", value: stats.sold, icon: DollarSign, color: "text-muted-foreground", bg: "bg-muted" },
           ].map(({ label, value, icon: Icon, color, bg }) => (
             <Card key={label} className="border border-border/60">
               <CardContent className={`p-3 flex items-center gap-3 ${bg} rounded-xl`}>
@@ -438,7 +438,7 @@ export default function DeveloperInventoryPage() {
 
                     {/* Rejection reason */}
                     {unit.status === "rejected" && (
-                      <div className="mt-3 rounded-lg bg-red-50 border border-red-100 px-3 py-2 text-xs text-red-700 flex items-start gap-2">
+                      <div className="mt-3 rounded-lg bg-danger-soft border border-danger/30 px-3 py-2 text-xs text-danger-strong flex items-start gap-2">
                         <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                         <span>This unit was rejected. Edit it and resubmit for review.</span>
                       </div>

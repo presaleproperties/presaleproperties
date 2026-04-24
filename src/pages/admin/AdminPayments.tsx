@@ -116,7 +116,7 @@ export default function AdminPayments() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-500/10 text-green-600 border-green-500/20">Completed</Badge>;
+        return <Badge className="bg-success/10 text-success border-success/20">Completed</Badge>;
       case "pending":
         return <Badge variant="secondary">Pending</Badge>;
       case "failed":
@@ -140,7 +140,7 @@ export default function AdminPayments() {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Revenue
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-green-500" />
+            <DollarSign className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{formatPrice(totalRevenue)}</div>

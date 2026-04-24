@@ -57,7 +57,7 @@ function VIPModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-neutral-900/70 backdrop-blur-sm" onClick={onClose} />
       {/* Modal */}
       <div className="relative bg-card rounded-2xl shadow-2xl w-full max-w-md p-6 sm:p-8">
         <button
@@ -128,7 +128,7 @@ function VIPModal({ onClose }: { onClose: () => void }) {
               >
                 {isSubmitting ? "Submitting..." : "Get Instant Access"}
               </Button>
-              {error && <p className="text-center text-xs text-red-500">{error}</p>}
+              {error && <p className="text-center text-xs text-danger">{error}</p>}
               <p className="text-center text-[11px] text-muted-foreground">No spam. Unsubscribe anytime.</p>
             </form>
           </>
@@ -166,7 +166,7 @@ export function HeroSection({
         {/* Auto-scrolling project slider as background */}
         <HeroProjectSlider />
         {/* Fallback overlay for when slider loads */}
-        <div className="absolute inset-0 bg-black/10 z-[2] pointer-events-none" />
+        <div className="absolute inset-0 bg-neutral-900/10 z-[2] pointer-events-none" />
 
         {/* Centered Content */}
         <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pointer-events-none" style={{ paddingTop: "clamp(8px, 2vh, 32px)", marginTop: "clamp(0px, 6vh, 80px)" }}>
@@ -174,21 +174,21 @@ export function HeroSection({
 
 
           {/* Headline */}
-          <h1 className="text-5xl md:text-6xl lg:text-[4.8rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-3 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+          <h1 className="text-5xl md:text-6xl lg:text-[4.8rem] font-extrabold text-on-dark text-center leading-[1.05] tracking-tight mb-3 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
             Vancouver{" "}
             <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>Presale</span>
             {" "}Properties
           </h1>
 
           {/* Subheadline */}
-          <p className="text-white/75 text-base md:text-lg text-center max-w-xl mb-6 leading-relaxed flex items-center justify-center gap-2" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
+          <p className="text-on-dark/75 text-base md:text-lg text-center max-w-xl mb-6 leading-relaxed flex items-center justify-center gap-2" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
             <MapPin className="w-4 h-4 text-primary shrink-0" strokeWidth={2.5} />
             Metro Vancouver
           </p>
 
           {/* Search Bar — glassmorphism premium */}
           <div className="relative z-[10] w-full max-w-2xl pointer-events-auto">
-            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[72px] border border-white/40">
+            <div ref={searchBarRef} className="relative flex items-center bg-card/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[72px] border border-card/40">
               {/* Tab switcher */}
               <div className="flex items-center shrink-0 pl-2 gap-1">
                 <button
@@ -243,9 +243,9 @@ export function HeroSection({
           <div className="relative z-[1] flex flex-wrap items-center justify-center gap-3 mt-5 pointer-events-auto">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold hover:bg-black/65 active:scale-95 transition-all shadow-lg"
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-neutral-900/50 backdrop-blur-md border border-card/15 text-on-dark text-sm font-semibold hover:bg-neutral-900/65 active:scale-95 transition-all shadow-lg"
             >
-              <MapPin className="w-4 h-4 text-white/80" />
+              <MapPin className="w-4 h-4 text-on-dark/80" />
               Search by Map
             </Link>
           </div>

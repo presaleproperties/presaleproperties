@@ -217,14 +217,14 @@ export default function AdminLiveActivity() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-              <Activity className="h-6 w-6 text-red-500" />
+              <Activity className="h-6 w-6 text-danger" />
               Live Activity Monitor
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5">Real-time visitor sessions, IP flags & bot detection</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full">
-              <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
               Live — {liveCount} events received
             </div>
           </div>
@@ -233,10 +233,10 @@ export default function AdminLiveActivity() {
         {/* Stats Bar */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Active Sessions", value: stats.activeSessions, icon: Users, color: "text-blue-500", sub: "last 30 min" },
-            { label: "Flagged IPs", value: stats.flaggedIPs, icon: ShieldAlert, color: "text-red-500", sub: "last 24h" },
-            { label: "Unique Visitors", value: stats.uniqueVisitorsToday, icon: Eye, color: "text-emerald-500", sub: "today" },
-            { label: "Bot Attempts", value: stats.botAttempts, icon: Bot, color: "text-orange-500", sub: "last 24h (blocked)" },
+            { label: "Active Sessions", value: stats.activeSessions, icon: Users, color: "text-info", sub: "last 30 min" },
+            { label: "Flagged IPs", value: stats.flaggedIPs, icon: ShieldAlert, color: "text-danger", sub: "last 24h" },
+            { label: "Unique Visitors", value: stats.uniqueVisitorsToday, icon: Eye, color: "text-success", sub: "today" },
+            { label: "Bot Attempts", value: stats.botAttempts, icon: Bot, color: "text-warning", sub: "last 24h (blocked)" },
           ].map(({ label, value, icon: Icon, color, sub }) => (
             <Card key={label}>
               <CardContent className="p-4">
@@ -260,7 +260,7 @@ export default function AdminLiveActivity() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
                   Live Activity Feed
                   <span className="ml-auto text-[10px] font-normal text-muted-foreground">newest first · max 200</span>
                 </CardTitle>
@@ -353,7 +353,7 @@ export default function AdminLiveActivity() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-orange-500" />
+                  <AlertTriangle className="h-4 w-4 text-warning" />
                   Suspicious Traffic
                   <span className="ml-auto text-[10px] font-normal text-muted-foreground">last 24h</span>
                 </CardTitle>
@@ -363,7 +363,7 @@ export default function AdminLiveActivity() {
                   {suspiciousIPs.length === 0 ? (
                     <div className="flex items-center justify-center h-24 text-sm text-muted-foreground px-4 text-center">
                       <div>
-                        <CheckCircle2 className="h-5 w-5 text-emerald-500 mx-auto mb-1" />
+                        <CheckCircle2 className="h-5 w-5 text-success mx-auto mb-1" />
                         No flagged IPs in last 24h
                       </div>
                     </div>
@@ -404,7 +404,7 @@ export default function AdminLiveActivity() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Users className="h-4 w-4 text-blue-500" />
+                <Users className="h-4 w-4 text-info" />
                 Top Visitors
                 <span className="ml-auto text-[10px] font-normal text-muted-foreground">last hour</span>
               </CardTitle>
@@ -426,7 +426,7 @@ export default function AdminLiveActivity() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Globe className="h-4 w-4 text-emerald-500" />
+                <Globe className="h-4 w-4 text-success" />
                 Top Pages
                 <span className="ml-auto text-[10px] font-normal text-muted-foreground">last hour</span>
               </CardTitle>
@@ -448,7 +448,7 @@ export default function AdminLiveActivity() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Monitor className="h-4 w-4 text-violet-500" />
+                <Monitor className="h-4 w-4 text-primary" />
                 Devices
                 <span className="ml-auto text-[10px] font-normal text-muted-foreground">last hour</span>
               </CardTitle>

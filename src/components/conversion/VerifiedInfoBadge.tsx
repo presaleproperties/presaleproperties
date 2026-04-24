@@ -36,7 +36,7 @@ export function VerifiedInfoBadge({
     <Tooltip>
       <TooltipTrigger asChild>
         <div className={`inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full cursor-help ${className}`}>
-          <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
+          <ShieldCheck className="h-3.5 w-3.5 text-success" />
           <span>
             Verified {lastVerified ? formatDate(lastVerified) : "Recently"}
           </span>

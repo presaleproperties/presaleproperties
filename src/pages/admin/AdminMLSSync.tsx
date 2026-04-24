@@ -522,13 +522,13 @@ export default function AdminMLSSync() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-500"><CheckCircle2 className="h-3 w-3 mr-1" />Completed</Badge>;
+        return <Badge className="bg-success"><CheckCircle2 className="h-3 w-3 mr-1" />Completed</Badge>;
       case "completed_with_errors":
-        return <Badge className="bg-yellow-500"><AlertTriangle className="h-3 w-3 mr-1" />With Errors</Badge>;
+        return <Badge className="bg-warning"><AlertTriangle className="h-3 w-3 mr-1" />With Errors</Badge>;
       case "failed":
         return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Failed</Badge>;
       case "running":
-        return <Badge className="bg-blue-500"><RefreshCw className="h-3 w-3 mr-1 animate-spin" />Running</Badge>;
+        return <Badge className="bg-info"><RefreshCw className="h-3 w-3 mr-1 animate-spin" />Running</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -861,20 +861,20 @@ export default function AdminMLSSync() {
           <CardContent className="space-y-6">
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="p-3 rounded-lg bg-orange-50 border border-orange-200 text-center">
-                <p className="text-2xl font-bold text-orange-600">{geocodeStats?.missingCoords || 0}</p>
+              <div className="p-3 rounded-lg bg-warning-soft border border-warning/30 text-center">
+                <p className="text-2xl font-bold text-warning">{geocodeStats?.missingCoords || 0}</p>
                 <p className="text-xs text-muted-foreground">Missing Coords</p>
               </div>
-              <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-center">
-                <p className="text-2xl font-bold text-green-600">{geocodeStats?.withCoords || 0}</p>
+              <div className="p-3 rounded-lg bg-success-soft border border-success/30 text-center">
+                <p className="text-2xl font-bold text-success">{geocodeStats?.withCoords || 0}</p>
                 <p className="text-xs text-muted-foreground">Geocoded</p>
               </div>
-              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-center">
-                <p className="text-2xl font-bold text-blue-600">{geocodingApiStats?.todayApiCalls || 0}</p>
+              <div className="p-3 rounded-lg bg-info-soft border border-info/30 text-center">
+                <p className="text-2xl font-bold text-info">{geocodingApiStats?.todayApiCalls || 0}</p>
                 <p className="text-xs text-muted-foreground">API Calls Today</p>
               </div>
-              <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 text-center">
-                <p className="text-2xl font-bold text-purple-600">{geocodingApiStats?.totalApiCalls || 0}</p>
+              <div className="p-3 rounded-lg bg-primary/10 border border-primary/30 text-center">
+                <p className="text-2xl font-bold text-primary">{geocodingApiStats?.totalApiCalls || 0}</p>
                 <p className="text-xs text-muted-foreground">Total API Calls</p>
               </div>
               <div className="p-3 rounded-lg bg-muted/50 text-center">
@@ -894,7 +894,7 @@ export default function AdminMLSSync() {
                 </div>
                 <div className="w-full bg-muted rounded-full h-3">
                   <div 
-                    className="bg-green-500 h-3 rounded-full transition-all" 
+                    className="bg-success h-3 rounded-full transition-all" 
                     style={{ 
                       width: `${(geocodeStats.withCoords / (geocodeStats.missingCoords + geocodeStats.withCoords)) * 100}%` 
                     }}
@@ -968,10 +968,10 @@ export default function AdminMLSSync() {
               </div>
             )}
 
-            <Alert className="bg-blue-50 border-blue-200">
-              <Clock className="h-4 w-4 text-blue-600" />
-              <AlertTitle className="text-blue-800">Automated Geocoding Schedule</AlertTitle>
-              <AlertDescription className="text-blue-700">
+            <Alert className="bg-info-soft border-info/30">
+              <Clock className="h-4 w-4 text-info" />
+              <AlertTitle className="text-info-strong">Automated Geocoding Schedule</AlertTitle>
+              <AlertDescription className="text-info-strong">
                 <ul className="list-disc ml-4 mt-1 space-y-1 text-sm">
                   <li><strong>5:00 AM PST</strong> - Batch 1: 100 listings</li>
                   <li><strong>5:30 AM PST</strong> - Batch 2: 100 listings</li>
@@ -997,24 +997,24 @@ export default function AdminMLSSync() {
           <CardContent className="space-y-4">
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-center">
-                <p className="text-2xl font-bold text-blue-600">
+              <div className="p-3 rounded-lg bg-info-soft border border-info/30 text-center">
+                <p className="text-2xl font-bold text-info">
                   {agentStats?.agents || 0} / {agentStats?.uniqueAgentsNeeded || 0}
                 </p>
                 <p className="text-xs text-muted-foreground">Agents Cached</p>
               </div>
-              <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 text-center">
-                <p className="text-2xl font-bold text-purple-600">
+              <div className="p-3 rounded-lg bg-primary/10 border border-primary/30 text-center">
+                <p className="text-2xl font-bold text-primary">
                   {agentStats?.offices || 0} / {agentStats?.uniqueOfficesNeeded || 0}
                 </p>
                 <p className="text-xs text-muted-foreground">Offices Cached</p>
               </div>
-              <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-center">
-                <p className="text-2xl font-bold text-green-600">{agentStats?.listingsWithAgent || 0}</p>
+              <div className="p-3 rounded-lg bg-success-soft border border-success/30 text-center">
+                <p className="text-2xl font-bold text-success">{agentStats?.listingsWithAgent || 0}</p>
                 <p className="text-xs text-muted-foreground">With Agent Name</p>
               </div>
-              <div className="p-3 rounded-lg bg-orange-50 border border-orange-200 text-center">
-                <p className="text-2xl font-bold text-orange-600">{agentStats?.listingsWithOffice || 0}</p>
+              <div className="p-3 rounded-lg bg-warning-soft border border-warning/30 text-center">
+                <p className="text-2xl font-bold text-warning">{agentStats?.listingsWithOffice || 0}</p>
                 <p className="text-xs text-muted-foreground">With Office Name</p>
               </div>
             </div>
@@ -1031,7 +1031,7 @@ export default function AdminMLSSync() {
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
                     <div 
-                      className="bg-blue-500 h-2 rounded-full transition-all" 
+                      className="bg-info h-2 rounded-full transition-all" 
                       style={{ 
                         width: `${Math.min(100, (agentStats.agents / agentStats.uniqueAgentsNeeded) * 100)}%` 
                       }}
@@ -1047,7 +1047,7 @@ export default function AdminMLSSync() {
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
                     <div 
-                      className="bg-purple-500 h-2 rounded-full transition-all" 
+                      className="bg-primary h-2 rounded-full transition-all" 
                       style={{ 
                         width: `${Math.min(100, (agentStats.offices / agentStats.uniqueOfficesNeeded) * 100)}%` 
                       }}
@@ -1089,10 +1089,10 @@ export default function AdminMLSSync() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Alert className="bg-blue-50 border-blue-200">
-              <CheckCircle2 className="h-4 w-4 text-blue-600" />
-              <AlertTitle className="text-blue-800">DDF Configured</AlertTitle>
-              <AlertDescription className="text-blue-700">
+            <Alert className="bg-info-soft border-info/30">
+              <CheckCircle2 className="h-4 w-4 text-info" />
+              <AlertTitle className="text-info-strong">DDF Configured</AlertTitle>
+              <AlertDescription className="text-info-strong">
                 <ul className="list-disc ml-4 mt-1 space-y-1">
                   <li>DDF_USERNAME and DDF_PASSWORD secrets configured ✓</li>
                   <li>API Endpoint: ddfapi.realtor.ca/odata/v1/Property</li>

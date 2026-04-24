@@ -319,8 +319,8 @@ export function PrintFlyerBuilder() {
             <div className="p-4 flex items-center gap-2">
               {([
                 { id: "luxury", label: "Luxury Dark", color: "bg-neutral-900" },
-                { id: "modern", label: "Modern Blue", color: "bg-slate-900" },
-                { id: "minimal", label: "Minimal Light", color: "bg-white border" },
+                { id: "modern", label: "Modern Blue", color: "bg-neutral-900" },
+                { id: "minimal", label: "Minimal Light", color: "bg-card border" },
               ] as const).map(s => (
                 <button
                   key={s.id}

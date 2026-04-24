@@ -250,7 +250,7 @@ export function MapSearchBar({
       case "listing":
         return <Hash className="h-4 w-4 text-primary" />;
       case "assignment":
-        return <FileText className="h-4 w-4 text-amber-500" />;
+        return <FileText className="h-4 w-4 text-warning" />;
     }
   };
 
@@ -268,7 +268,7 @@ export function MapSearchBar({
     switch (type) {
       case "listing": return "bg-accent text-accent-foreground";
       case "project": return "bg-primary/10 text-primary";
-      case "assignment": return "bg-amber-500/10 text-amber-600";
+      case "assignment": return "bg-warning/10 text-warning";
       default: return "bg-muted text-muted-foreground";
     }
   };

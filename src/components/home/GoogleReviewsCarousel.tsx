@@ -71,13 +71,13 @@ function ReviewCard({ review }: { review: GoogleReview }) {
               key={i}
               className={
                 i < review.rating
-                  ? "h-4 w-4 fill-yellow-400 text-yellow-400"
+                  ? "h-4 w-4 fill-warning text-warning"
                   : "h-4 w-4 text-muted-foreground/30"
               }
             />
           ))}
         </div>
-        <BadgeCheck className="h-4 w-4 text-blue-500 fill-blue-500/10" />
+        <BadgeCheck className="h-4 w-4 text-info fill-info/10" />
       </div>
 
       {/* Review text */}
@@ -148,7 +148,7 @@ export function GoogleReviewsCarousel() {
               <div className="flex items-center gap-2">
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                    <Star key={i} className="h-5 w-5 fill-warning text-warning" />
                   ))}
                 </div>
                 <span className="text-sm font-bold text-foreground">5.0</span>

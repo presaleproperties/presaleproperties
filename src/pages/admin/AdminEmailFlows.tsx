@@ -373,7 +373,7 @@ export default function AdminEmailFlows() {
                   : buildAutoResponseNoDocs({ projectName: "The Jericho", city: "Vancouver", developerName: "Anthem Properties", startingPrice: "From $599,900", deposit: "10%", completion: "2027", projectUrl: "https://presaleproperties.com/projects/the-jericho" }, "Sarah")
               }
               title="Template Preview"
-              className="w-full bg-white rounded-md border shadow-sm"
+              className="w-full bg-card rounded-md border shadow-sm"
               style={{ maxWidth: 680, height: "65vh", margin: "0 auto", display: "block" }}
               sandbox="allow-same-origin"
             />

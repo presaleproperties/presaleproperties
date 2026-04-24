@@ -45,12 +45,12 @@ function SystemOverview() {
   });
 
   const tiles = [
-    { label: "Users", value: stats?.users, color: "text-blue-600" },
-    { label: "Projects", value: stats?.projects, color: "text-emerald-600" },
-    { label: "MLS Listings", value: stats?.mlsListings, color: "text-violet-600" },
-    { label: "Leads", value: stats?.leads, color: "text-amber-600" },
-    { label: "Bookings", value: stats?.bookings, color: "text-cyan-600" },
-    { label: "Blog Posts", value: stats?.blogs, color: "text-rose-500" },
+    { label: "Users", value: stats?.users, color: "text-info" },
+    { label: "Projects", value: stats?.projects, color: "text-success" },
+    { label: "MLS Listings", value: stats?.mlsListings, color: "text-primary" },
+    { label: "Leads", value: stats?.leads, color: "text-warning" },
+    { label: "Bookings", value: stats?.bookings, color: "text-info" },
+    { label: "Blog Posts", value: stats?.blogs, color: "text-danger" },
   ];
 
   return (
@@ -425,8 +425,8 @@ function BackgroundJobs() {
   });
 
   const statusColor = (s: string) => {
-    if (s === "completed" || s === "sent") return "bg-emerald-500/15 text-emerald-700 border-emerald-200";
-    if (s === "running" || s === "sending" || s === "queued") return "bg-amber-500/15 text-amber-700 border-amber-200";
+    if (s === "completed" || s === "sent") return "bg-success/15 text-success-strong border-success/30";
+    if (s === "running" || s === "sending" || s === "queued") return "bg-warning/15 text-warning-strong border-warning/30";
     return "bg-destructive/15 text-destructive border-destructive/20";
   };
 

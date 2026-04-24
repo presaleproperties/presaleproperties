@@ -150,7 +150,7 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
   if (isSubmitted) {
     return (
       <div className={`${variant === "card" ? "bg-primary/5 border border-primary/20 rounded-xl p-6 md:p-8" : ""} text-center`}>
-        <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+        <CheckCircle className="h-12 w-12 text-success mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-foreground mb-2">You're on the list!</h3>
         <p className="text-muted-foreground text-sm">
           We'll email you when new presale projects match your preferences.

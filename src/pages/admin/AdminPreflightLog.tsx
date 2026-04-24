@@ -297,8 +297,8 @@ function StatCard({
         <Icon
           className={cn(
             "h-7 w-7 opacity-80",
-            tone === "ok" && "text-emerald-500",
-            tone === "warn" && "text-amber-500",
+            tone === "ok" && "text-success",
+            tone === "warn" && "text-warning",
             tone === "error" && "text-destructive",
             !tone && "text-muted-foreground",
           )}
@@ -312,11 +312,11 @@ function LogRow({ row }: { row: PreflightLogRow }) {
   const [open, setOpen] = useState(false);
   const statusBadge =
     row.status === "passed" ? (
-      <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20">
+      <Badge className="bg-success/15 text-success-strong dark:text-success hover:bg-success/20">
         Passed
       </Badge>
     ) : row.status === "passed_with_warnings" ? (
-      <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20">
+      <Badge className="bg-warning/15 text-warning-strong dark:text-warning hover:bg-warning/20">
         Warnings
       </Badge>
     ) : (
@@ -343,9 +343,9 @@ function LogRow({ row }: { row: PreflightLogRow }) {
         <TableCell>{statusBadge}</TableCell>
         <TableCell>
           <div className="flex items-center gap-1 text-xs">
-            <span className="text-emerald-600 font-semibold">{row.passed_count}</span>
+            <span className="text-success font-semibold">{row.passed_count}</span>
             <span className="text-muted-foreground">/</span>
-            <span className="text-amber-600 font-semibold">{row.warn_count}</span>
+            <span className="text-warning font-semibold">{row.warn_count}</span>
             <span className="text-muted-foreground">/</span>
             <span className="text-destructive font-semibold">{row.blocker_count}</span>
           </div>
@@ -356,7 +356,7 @@ function LogRow({ row }: { row: PreflightLogRow }) {
           {!row.send_attempted ? (
             <span className="text-muted-foreground italic">not sent</span>
           ) : row.send_succeeded ? (
-            <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
+            <span className="inline-flex items-center gap-1 text-success font-medium">
               <CheckCircle2 className="h-3 w-3" /> Sent
             </span>
           ) : row.send_succeeded === false ? (
@@ -384,8 +384,8 @@ function LogRow({ row }: { row: PreflightLogRow }) {
                     <span
                       className={cn(
                         "mt-1 inline-block h-2 w-2 rounded-full shrink-0",
-                        c.status === "pass" && "bg-emerald-500",
-                        c.status === "warn" && "bg-amber-500",
+                        c.status === "pass" && "bg-success",
+                        c.status === "warn" && "bg-warning",
                         c.status === "fail" && "bg-destructive",
                       )}
                     />

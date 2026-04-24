@@ -97,11 +97,11 @@ export function PhoneVerificationField({
   if (state === "verified") {
     return (
       <div className={cn(
-        "flex items-center gap-2 h-11 px-3 rounded-xl border border-green-600/40 bg-green-600/5",
+        "flex items-center gap-2 h-11 px-3 rounded-xl border border-success/40 bg-success/5",
         className
       )}>
-        <ShieldCheck className="h-4 w-4 text-green-600 shrink-0" />
-        <span className="text-sm text-green-700 dark:text-green-400 font-medium flex-1 truncate">
+        <ShieldCheck className="h-4 w-4 text-success shrink-0" />
+        <span className="text-sm text-success-strong dark:text-success font-medium flex-1 truncate">
           {currentPhone} — verified ✓
         </span>
         {!autoTrigger && (

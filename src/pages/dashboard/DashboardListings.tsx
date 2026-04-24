@@ -534,8 +534,8 @@ export default function DashboardListings() {
           subtitle="Manage your assignment listings"
           stats={[
             { label: "Total", value: listings.length, icon: <Layers className="h-3.5 w-3.5 text-background" />, color: "bg-background/20" },
-            { label: "Active", value: listings.filter(l => l.status === "published").length, icon: <TrendingUp className="h-3.5 w-3.5 text-green-400" />, color: "bg-green-500/20" },
-            { label: "Pending", value: listings.filter(l => l.status === "pending_approval" || l.status === "pending_payment").length, icon: <Clock className="h-3.5 w-3.5 text-amber-400" />, color: "bg-amber-500/20" },
+            { label: "Active", value: listings.filter(l => l.status === "published").length, icon: <TrendingUp className="h-3.5 w-3.5 text-success" />, color: "bg-success/20" },
+            { label: "Pending", value: listings.filter(l => l.status === "pending_approval" || l.status === "pending_payment").length, icon: <Clock className="h-3.5 w-3.5 text-warning" />, color: "bg-warning/20" },
             { label: "Drafts", value: listings.filter(l => l.status === "draft").length, icon: <Star className="h-3.5 w-3.5 text-primary" />, color: "bg-primary/20" },
           ]}
           searchQuery={searchQuery}
@@ -786,7 +786,7 @@ export default function DashboardListings() {
                 {addForm.floor_plan_url ? (
                   <div className="rounded-lg border border-primary/30 bg-primary/5 overflow-hidden">
                     {addForm.floor_plan_url.match(/\.(jpg|jpeg|png|webp|gif)$/i)
-                      ? <img src={addForm.floor_plan_url} alt="Floor plan" className="w-full max-h-48 object-contain bg-white" />
+                      ? <img src={addForm.floor_plan_url} alt="Floor plan" className="w-full max-h-48 object-contain bg-card" />
                       : <div className="flex items-center gap-3 px-4 py-3">
                         <FileText className="h-5 w-5 text-primary shrink-0" />
                         <span className="text-sm text-primary font-medium flex-1 truncate">Floor plan uploaded</span>
@@ -895,7 +895,7 @@ export default function DashboardListings() {
                         onClick={() => setAddForm(f => ({ ...f, [key]: !f[key] }))}
                         className={`h-5 w-9 rounded-full transition-colors relative ${addForm[key] ? "bg-primary" : "bg-muted"}`}
                       >
-                        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${addForm[key] ? "left-[18px]" : "left-0.5"}`} />
+                        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-all ${addForm[key] ? "left-[18px]" : "left-0.5"}`} />
                       </button>
                       <span className="text-xs text-muted-foreground">{label}</span>
                     </label>

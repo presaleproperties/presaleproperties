@@ -176,19 +176,19 @@ export function MobileProjectCard({
               />
 
               {/* Bottom gradient for price overlay */}
-              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-neutral-900/70 via-neutral-900/30 to-transparent pointer-events-none" />
 
               {/* Price — overlaid on image, large and prominent */}
               <div className="absolute bottom-2.5 left-3">
                 {startingPrice ? (
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-white/70 text-[10px] font-medium">From</span>
-                    <span className="text-white font-bold text-xl tracking-tight drop-shadow-md">
+                    <span className="text-on-dark/70 text-[10px] font-medium">From</span>
+                    <span className="text-on-dark font-bold text-xl tracking-tight drop-shadow-md">
                       {formatPrice(startingPrice)}
                     </span>
                   </div>
                 ) : (
-                  <span className="text-white/80 text-sm font-medium">Contact for Price</span>
+                  <span className="text-on-dark/80 text-sm font-medium">Contact for Price</span>
                 )}
               </div>
 
@@ -204,17 +204,17 @@ export function MobileProjectCard({
               {/* Image nav arrows — tablet+ */}
               {imageCount > 1 && (
                 <>
-                  <button onClick={goToPrevImage} className="absolute left-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-black/50 backdrop-blur-sm text-white hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Previous image">
+                  <button onClick={goToPrevImage} className="absolute left-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-neutral-900/50 backdrop-blur-sm text-on-dark hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Previous image">
                     <ChevronLeft className="h-4 w-4" />
                   </button>
-                  <button onClick={goToNextImage} className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-black/50 backdrop-blur-sm text-white hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Next image">
+                  <button onClick={goToNextImage} className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-neutral-900/50 backdrop-blur-sm text-on-dark hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Next image">
                     <ChevronRight className="h-4 w-4" />
                   </button>
 
                   {/* Dots */}
                   <div className="absolute bottom-2.5 right-3 flex gap-1">
                     {allImages.slice(0, 5).map((_, idx) => (
-                      <span key={idx} className={cn("h-1 rounded-full transition-all", idx === currentImageIndex ? "bg-white w-3" : "bg-white/40 w-1")} />
+                      <span key={idx} className={cn("h-1 rounded-full transition-all", idx === currentImageIndex ? "bg-card w-3" : "bg-card/40 w-1")} />
                     ))}
                   </div>
                 </>

@@ -914,7 +914,7 @@ export default function MortgageCalculatorPage() {
                             </div>
                           )}
                           {calculations.cmhcInsurance > 0 && (
-                            <div className="col-span-2 flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
+                            <div className="col-span-2 flex items-center gap-2 text-xs text-warning bg-warning-soft dark:bg-warning-strong/30 rounded-lg px-3 py-2">
                               <Info className="h-3.5 w-3.5 shrink-0" />
                               <span>+{formatCurrency(calculations.cmhcInsurance)} CMHC (down payment under 20%)</span>
                             </div>
@@ -1098,13 +1098,13 @@ export default function MortgageCalculatorPage() {
                         </div>
                       </div>
                       {isPrimaryHome && includeGST && (
-                        <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                        <p className="text-xs text-success mt-2 flex items-center gap-1">
                           <CheckCircle className="h-3 w-3" />
                           PTT exempt: Primary residence + new construction
                         </p>
                       )}
                       {isFirstTimeBuyer && !includeGST && (
-                        <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                        <p className="text-xs text-success mt-2 flex items-center gap-1">
                           <CheckCircle className="h-3 w-3" />
                           FTB PTT exemption (new construction): Full up to $1.1M, partial up to $1.15M
                         </p>
@@ -1159,7 +1159,7 @@ export default function MortgageCalculatorPage() {
                             {/* CMHC - Compact on mobile */}
                             <div className="py-1.5 md:py-2 border-t">
                               <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5">CMHC</p>
-                              <p className={`text-xs md:text-sm font-medium ${scenario.cmhcInsurance > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                              <p className={`text-xs md:text-sm font-medium ${scenario.cmhcInsurance > 0 ? 'text-warning' : 'text-success'}`}>
                                 {scenario.cmhcInsurance > 0 ? `+${formatCurrency(scenario.cmhcInsurance)}` : '$0'}
                               </p>
                             </div>
@@ -1227,7 +1227,7 @@ export default function MortgageCalculatorPage() {
                               <span>{formatCurrency(calculations.ptt.provincial)}</span>
                             </div>
                             {calculations.ptt.rebate > 0 && (
-                              <div className="flex justify-between py-1 pl-3 text-green-600">
+                              <div className="flex justify-between py-1 pl-3 text-success">
                                 <span className="flex items-center gap-1">
                                   {calculations.ptt.exemptionType}
                                   <TooltipProvider>
@@ -1246,7 +1246,7 @@ export default function MortgageCalculatorPage() {
                             )}
                             <div className="flex justify-between py-1 pl-3 font-medium">
                               <span>Net PTT</span>
-                              <span>{calculations.ptt.total === 0 ? <span className="text-green-600">$0</span> : formatCurrency(calculations.ptt.total)}</span>
+                              <span>{calculations.ptt.total === 0 ? <span className="text-success">$0</span> : formatCurrency(calculations.ptt.total)}</span>
                             </div>
                           </div>
                           
@@ -1261,7 +1261,7 @@ export default function MortgageCalculatorPage() {
                           {calculations.gstRebate > 0 && (
                             <div className="border-t pt-2">
                               <p className="text-xs font-medium text-muted-foreground mb-2">GST Rebate (credited at closing)</p>
-                              <div className="flex justify-between py-1 pl-3 text-green-600">
+                              <div className="flex justify-between py-1 pl-3 text-success">
                                 <span>GST New Housing Rebate — Bill C-4 (2026)</span>
                                 <span>-{formatCurrency(calculations.gstRebate)}</span>
                               </div>
@@ -1433,7 +1433,7 @@ export default function MortgageCalculatorPage() {
                             <p className="text-xs md:text-sm font-medium">{scenario.rate.toFixed(2)}%</p>
                             <p className="text-sm md:text-lg font-bold">{formatCurrency(scenario.payment)}</p>
                             {scenario.difference !== 0 && (
-                              <p className={`text-[10px] md:text-xs ${scenario.difference > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                              <p className={`text-[10px] md:text-xs ${scenario.difference > 0 ? 'text-danger' : 'text-success'}`}>
                                 {scenario.difference > 0 ? '+' : ''}{formatCurrency(scenario.difference)}
                               </p>
                             )}
@@ -1516,15 +1516,15 @@ export default function MortgageCalculatorPage() {
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-muted-foreground">Total Rent ({comparisonYears}yr)</span>
-                                <span className="font-medium text-red-500">-{formatCurrency(rentVsOwnComparison.totalRentPaid)}</span>
+                                <span className="font-medium text-danger">-{formatCurrency(rentVsOwnComparison.totalRentPaid)}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-muted-foreground">Invested Savings*</span>
-                                <span className="font-medium text-green-600">+{formatCurrency(rentVsOwnComparison.investedSavings)}</span>
+                                <span className="font-medium text-success">+{formatCurrency(rentVsOwnComparison.investedSavings)}</span>
                               </div>
                               <div className="flex justify-between pt-2 border-t">
                                 <span className="font-medium">Net Position</span>
-                                <span className={`font-bold ${rentVsOwnComparison.renterNetWealth >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                <span className={`font-bold ${rentVsOwnComparison.renterNetWealth >= 0 ? 'text-success' : 'text-danger'}`}>
                                   {rentVsOwnComparison.renterNetWealth >= 0 ? '+' : ''}{formatCurrency(rentVsOwnComparison.renterNetWealth)}
                                 </span>
                               </div>
@@ -1544,15 +1544,15 @@ export default function MortgageCalculatorPage() {
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-muted-foreground">Total Paid ({comparisonYears}yr)</span>
-                                <span className="font-medium text-red-500">-{formatCurrency(rentVsOwnComparison.totalOwnershipCost)}</span>
+                                <span className="font-medium text-danger">-{formatCurrency(rentVsOwnComparison.totalOwnershipCost)}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-muted-foreground">Home Equity Built</span>
-                                <span className="font-medium text-green-600">+{formatCurrency(rentVsOwnComparison.equityBuilt)}</span>
+                                <span className="font-medium text-success">+{formatCurrency(rentVsOwnComparison.equityBuilt)}</span>
                               </div>
                               <div className="flex justify-between pt-2 border-t">
                                 <span className="font-medium">Net Position</span>
-                                <span className={`font-bold ${rentVsOwnComparison.netWealthOwning >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                <span className={`font-bold ${rentVsOwnComparison.netWealthOwning >= 0 ? 'text-success' : 'text-danger'}`}>
                                   {rentVsOwnComparison.netWealthOwning >= 0 ? '+' : ''}{formatCurrency(rentVsOwnComparison.netWealthOwning)}
                                 </span>
                               </div>
@@ -1561,13 +1561,13 @@ export default function MortgageCalculatorPage() {
                         </div>
 
                         {/* Bottom Line Result */}
-                        <div className={`p-3 rounded-lg border-2 ${rentVsOwnComparison.owningIsBetter ? 'border-green-500/50 bg-green-50 dark:bg-green-950/30' : 'border-amber-500/50 bg-amber-50 dark:bg-amber-950/30'}`}>
+                        <div className={`p-3 rounded-lg border-2 ${rentVsOwnComparison.owningIsBetter ? 'border-success/50 bg-success-soft dark:bg-success-strong/30' : 'border-warning/50 bg-warning-soft dark:bg-warning-strong/30'}`}>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               {rentVsOwnComparison.owningIsBetter ? (
-                                <TrendingUp className="h-5 w-5 text-green-600" />
+                                <TrendingUp className="h-5 w-5 text-success" />
                               ) : (
-                                <TrendingDown className="h-5 w-5 text-amber-600" />
+                                <TrendingDown className="h-5 w-5 text-warning" />
                               )}
                               <span className="font-medium text-sm">
                                 {rentVsOwnComparison.owningIsBetter 
@@ -1623,7 +1623,7 @@ export default function MortgageCalculatorPage() {
                                 <TableRow key={row.year}>
                                   <TableCell className="font-medium">{row.year}</TableCell>
                                   <TableCell className="text-right">{formatCurrency(row.totalPaid)}</TableCell>
-                                  <TableCell className="text-right text-green-600">{formatCurrency(row.principalPaid)}</TableCell>
+                                  <TableCell className="text-right text-success">{formatCurrency(row.principalPaid)}</TableCell>
                                   <TableCell className="text-right text-muted-foreground">{formatCurrency(row.interestPaid)}</TableCell>
                                   <TableCell className="text-right font-medium">{formatCurrency(row.balance)}</TableCell>
                                 </TableRow>
@@ -1631,7 +1631,7 @@ export default function MortgageCalculatorPage() {
                               <TableRow className="bg-muted/50 font-semibold">
                                 <TableCell>Total</TableCell>
                                 <TableCell className="text-right">{formatCurrency(calculations.totalCost)}</TableCell>
-                                <TableCell className="text-right text-green-600">{formatCurrency(calculations.mortgageAmount)}</TableCell>
+                                <TableCell className="text-right text-success">{formatCurrency(calculations.mortgageAmount)}</TableCell>
                                 <TableCell className="text-right">{formatCurrency(calculations.totalInterest)}</TableCell>
                                 <TableCell className="text-right">$0</TableCell>
                               </TableRow>
@@ -1677,7 +1677,7 @@ export default function MortgageCalculatorPage() {
                             </p>
                           )}
                           {paymentFrequency.includes("accelerated") && (
-                            <p className="text-xs text-green-600 mt-1">
+                            <p className="text-xs text-success mt-1">
                               Pay off ~{Math.round(amortization - calculations.yearsToPayoff)} years faster
                             </p>
                           )}
@@ -1698,7 +1698,7 @@ export default function MortgageCalculatorPage() {
                             <span className="font-medium">{formatCurrency(calculations.mortgageAmount)}</span>
                           </div>
                           {calculations.cmhcInsurance > 0 && (
-                            <div className="flex justify-between text-amber-600">
+                            <div className="flex justify-between text-warning">
                               <span>CMHC Insurance</span>
                               <span>+{formatCurrency(calculations.cmhcInsurance)}</span>
                             </div>

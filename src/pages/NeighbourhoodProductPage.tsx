@@ -506,7 +506,7 @@ export default function NeighbourhoodProductPage() {
                                 <Building2 className="h-12 w-12 text-muted-foreground/50" />
                               </div>
                             )}
-                            <Badge className="absolute top-3 left-3 bg-green-500">Active</Badge>
+                            <Badge className="absolute top-3 left-3 bg-success">Active</Badge>
                           </div>
                           <div className="p-4">
                             <h3 className="font-semibold text-lg text-foreground mb-1">

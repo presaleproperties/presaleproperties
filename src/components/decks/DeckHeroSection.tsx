@@ -63,7 +63,7 @@ export function DeckHeroSection({
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/5" />
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/80 via-neutral-900/20 to-neutral-900/5" />
       </div>
 
       {/* Content */}
@@ -72,19 +72,19 @@ export function DeckHeroSection({
 
           {/* Developer badge */}
           {developerName && (
-            <span className="inline-block text-[11px] font-semibold uppercase tracking-[0.25em] text-white/60">
+            <span className="inline-block text-[11px] font-semibold uppercase tracking-[0.25em] text-on-dark/60">
               By {developerName}
             </span>
           )}
 
           {/* Project name */}
-          <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-on-dark leading-[1.05] tracking-tight">
             {projectName || "Project Name"}
           </h1>
 
           {/* Tagline */}
           {tagline && (
-            <p className="text-white/80 text-lg sm:text-xl font-light leading-snug max-w-lg">
+            <p className="text-on-dark/80 text-lg sm:text-xl font-light leading-snug max-w-lg">
               {tagline}
             </p>
           )}
@@ -98,12 +98,12 @@ export function DeckHeroSection({
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 shrink-0"
+                  className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-card/10 backdrop-blur-md border border-card/15 shrink-0"
                 >
                   <stat.icon className="h-4 w-4 text-primary shrink-0" />
                   <div>
-                    <p className="text-white/50 text-[10px] uppercase tracking-[0.15em] font-medium leading-none mb-1">{stat.label}</p>
-                    <p className="text-white font-semibold text-sm leading-none whitespace-nowrap">{stat.value}</p>
+                    <p className="text-on-dark/50 text-[10px] uppercase tracking-[0.15em] font-medium leading-none mb-1">{stat.label}</p>
+                    <p className="text-on-dark font-semibold text-sm leading-none whitespace-nowrap">{stat.value}</p>
                   </div>
                 </div>
               ))}
@@ -117,8 +117,8 @@ export function DeckHeroSection({
         className="hidden sm:flex absolute bottom-6 left-0 right-0 flex-col items-center gap-1 z-10 cursor-pointer"
         onClick={onFloorPlansClick}
       >
-        <span className="text-white/50 text-[10px] font-semibold uppercase tracking-[0.2em]">Scroll to explore</span>
-        <ChevronDown className="h-5 w-5 text-white/40 animate-bounce" />
+        <span className="text-on-dark/50 text-[10px] font-semibold uppercase tracking-[0.2em]">Scroll to explore</span>
+        <ChevronDown className="h-5 w-5 text-on-dark/40 animate-bounce" />
       </div>
     </section>
   );
