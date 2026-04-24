@@ -27,36 +27,57 @@ Deno.serve(async (req) => {
       return json({ error: "Invalid JSON body" }, 400);
     }
 
-    const { event_type, visitor_id, email, session_id, payload, source } = body as {
+    const {
+      event_type,
+      visitor_id,
+      email,
+      session_id,
+      payload,
+      source,
+      presale_user_id,
+      first_name,
+      last_name,
+      phone,
+    } = body as {
       event_type?: string;
       visitor_id?: string;
       email?: string;
       session_id?: string;
       payload?: Record<string, unknown>;
       source?: string;
+      presale_user_id?: string;
+      first_name?: string;
+      last_name?: string;
+      phone?: string;
     };
 
     if (!event_type) return json({ error: "event_type is required" }, 400);
-    if (!visitor_id && !email) {
-      return json({ error: "visitor_id or email is required for dedup" }, 400);
+
+    // CRM bridge requires lead.email. Skip anonymous events (visitor_id-only)
+    // since they cannot be stitched to a contact without an email yet.
+    const normalizedEmail = email ? String(email).trim().toLowerCase() : null;
+    if (!normalizedEmail) {
+      return json({ skipped: true, reason: "no_email_for_stitching" }, 200);
     }
 
-    // CRM bridge expects { lead?, behavior } shape. We send a behavior-only
-    // payload so the CRM can attach it to an existing contact (by visitor_id
-    // or email) without creating an empty lead.
     const crmPayload = {
+      lead: {
+        email: normalizedEmail,
+        ...(first_name ? { first_name } : {}),
+        ...(last_name ? { last_name } : {}),
+        ...(phone ? { phone } : {}),
+        ...(presale_user_id ? { presale_user_id } : {}),
+        source: source ?? "presale_properties",
+      },
       behavior: {
         event_type,
         visitor_id,
         session_id,
-        email,
+        email: normalizedEmail,
         source: source ?? "presale_properties",
         timestamp: new Date().toISOString(),
         payload: payload ?? {},
       },
-      ...(email
-        ? { lead: { email, source: source ?? "presale_properties" } }
-        : {}),
     };
 
     const res = await fetch(CRM_INGEST_URL, {
