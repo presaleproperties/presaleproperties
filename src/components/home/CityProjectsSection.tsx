@@ -20,6 +20,7 @@ const FEATURED_CITIES = [
  * Use this map to pin a featured project as a teaser before its city section.
  */
 const PRE_CITY_PROMOS: Record<string, { slug: string; badgeLabel?: string }> = {
+  Surrey: { slug: "the-loop", badgeLabel: "Surrey Spotlight" },
   Coquitlam: { slug: "ironwood", badgeLabel: "Coquitlam Spotlight" },
   Vancouver: { slug: "baden-park", badgeLabel: "Vancouver Spotlight" },
 };
