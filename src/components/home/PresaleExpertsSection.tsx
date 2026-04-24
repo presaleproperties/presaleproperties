@@ -200,46 +200,29 @@ export function PresaleExpertsSection() {
         <div className="container px-4 sm:px-6">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
-            {/* Left — Photo collage: 1 large hero + 2 smaller below */}
-            <div className="space-y-3 sm:space-y-4">
-              {/* Large hero photo */}
-              <div className="aspect-[16/10] rounded-2xl overflow-hidden shadow-xl ring-1 ring-border/50">
-                {photosLoading || photos.length === 0 ? (
-                  <Skeleton className="w-full h-full" />
-                ) : (
-                  <img
-                    src={photos[0].photo_url!}
-                    alt={`${photos[0].full_name} — ${photos[0].title}`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                )}
-              </div>
-
-              {/* Smaller photos — show all remaining team members so no one is omitted */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                {photosLoading || photos.length < 2
-                  ? [0, 1, 2].map((i) => (
-                      <Skeleton key={i} className="aspect-[4/5] rounded-2xl" />
-                    ))
-                  : photos.slice(1).map((m) => (
-                      <div
-                        key={m.id}
-                        className="aspect-[4/5] rounded-2xl overflow-hidden shadow-lg ring-1 ring-border/50 group relative"
-                      >
-                        <img
-                          src={m.photo_url!}
-                          alt={`${m.full_name} — ${m.title}`}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/30 to-transparent p-2">
-                          <p className="text-background text-[11px] font-bold leading-tight truncate">{m.full_name}</p>
-                          <p className="text-background/80 text-[9px] leading-tight truncate">{m.title}</p>
-                        </div>
+            {/* Left — Photo collage: 2x2 equal-size cards (all team members) */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {photosLoading || photos.length === 0
+                ? [0, 1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="aspect-[4/5] rounded-2xl" />
+                  ))
+                : photos.slice(0, 4).map((m) => (
+                    <div
+                      key={m.id}
+                      className="aspect-[4/5] rounded-2xl overflow-hidden shadow-lg ring-1 ring-border/50 group relative"
+                    >
+                      <img
+                        src={m.photo_url!}
+                        alt={`${m.full_name} — ${m.title}`}
+                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/30 to-transparent p-2.5">
+                        <p className="text-background text-xs sm:text-sm font-bold leading-tight">{m.full_name}</p>
+                        <p className="text-background/80 text-[10px] sm:text-xs leading-tight">{m.title}</p>
                       </div>
-                    ))}
-              </div>
+                    </div>
+                  ))}
             </div>
 
             {/* Right — Headline + numbered reasons + stats */}
