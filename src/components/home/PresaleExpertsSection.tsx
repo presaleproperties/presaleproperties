@@ -196,7 +196,7 @@ export function PresaleExpertsSection() {
       </div>
 
       {/* Middle: Why Choose Us — photo collage + numbered reasons (Springfield-style) */}
-      <div className="py-12 md:py-24 border-b border-border/40 bg-background">
+      <div className="py-14 md:py-28 bg-background">
         <div className="container px-4 sm:px-6">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
