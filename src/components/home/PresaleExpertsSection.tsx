@@ -126,6 +126,7 @@ function VIPInlineForm() {
 }
 
 export function PresaleExpertsSection() {
+  const { data: photos = [], isLoading: photosLoading } = useTeamPhotos();
   return (
     <section className="bg-background">
       {/* Top: Why Buy Presale — benefits grid */}
