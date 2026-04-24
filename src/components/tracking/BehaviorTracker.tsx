@@ -96,6 +96,22 @@ export function BehaviorTracker() {
         is_return_visit: isReturnVisit,
       });
     }
+
+    // Flush behavior to CRM on tab close / hide via sendBeacon
+    const flush = () => {
+      import("@/lib/tracking/streamBehavior").then(({ streamBehavior }) =>
+        streamBehavior({ immediate: true, beacon: true }),
+      );
+    };
+    const onVisibility = () => { if (document.visibilityState === "hidden") flush(); };
+    window.addEventListener("beforeunload", flush);
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("beforeunload", flush);
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, []);
 
   // Track page views on route change
