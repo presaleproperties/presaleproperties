@@ -514,12 +514,45 @@ serve(async (req: Request): Promise<Response> => {
       const [first_name, ...rest] = (lead.name || "").trim().split(/\s+/);
       const last_name = rest.join(" ") || undefined;
 
+      // Build behavior — prefer client-provided bundle, otherwise synthesize a
+      // minimal session entry from what we already have on the lead row so the
+      // CRM never receives an empty `behavior` object.
+      const behaviorPayload = (clientBehavior && (
+        (clientBehavior.sessions?.length ?? 0) > 0 ||
+        (clientBehavior.views?.length ?? 0) > 0 ||
+        (clientBehavior.forms?.length ?? 0) > 0
+      ))
+        ? clientBehavior
+        : {
+            sessions: [{
+              session_id: lead.session_id || `srv-${lead.id}`,
+              pages_viewed: lead.pages_viewed ?? 1,
+              duration_seconds: lead.time_on_site ?? 0,
+              landing_page: lead.landing_page || "",
+              exit_page: lead.landing_page || "",
+              referrer: lead.referrer || "",
+              utm_source: lead.utm_source || null,
+              utm_medium: lead.utm_medium || null,
+              utm_campaign: lead.utm_campaign || null,
+              device_type: lead.device_type || "desktop",
+              started_at: lead.created_at,
+              ended_at: new Date().toISOString(),
+            }],
+            views: [],
+            forms: [{
+              form_type: lead.form_type || lead.lead_source || "signup_completed",
+              status: "completed",
+              submitted_at: lead.created_at,
+            }],
+          };
+
       const bridgePayload = {
         lead: {
           email: lead.email,
           first_name: first_name || undefined,
           last_name,
           phone: lead.phone || undefined,
+          presale_user_id: presale_user_id || lead.visitor_id || undefined,
           source: "presale-website",
           campaign_source: lead.utm_campaign || undefined,
           referral_source: lead.referrer || undefined,
@@ -544,6 +577,7 @@ serve(async (req: Request): Promise<Response> => {
             message: lead.message,
           },
         },
+        behavior: behaviorPayload,
       };
 
       const bridgeRes = await supabase.functions.invoke("push-lead-to-crm", {
