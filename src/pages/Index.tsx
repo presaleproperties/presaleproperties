@@ -325,6 +325,9 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           <PresaleExpertsSection />
         </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <WhyChooseUs />
+        </ScrollReveal>
         {/* Lead magnet: cinematic banner — replaces inline form for better visual impact */}
         <ScrollReveal animation="fade-up" delay={100}>
           <MistakesGuideBanner location="homepage_banner" />
