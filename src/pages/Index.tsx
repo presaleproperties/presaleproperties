@@ -64,7 +64,7 @@ const HOME_FAQS = [
 ];
 
 const Index = () => {
-  const isMobileOrTablet = useIsMobileOrTablet();
+  const isMobileOrTablet = useIsMobile(); // Tablet (≥768px) now uses the desktop layout to match the user's preferred design.
   const [activeTab, setActiveTab] = useState<SearchTab>("projects");
   // Primary structured data - RealEstateAgent with LocalBusiness
   const organizationSchema = {
