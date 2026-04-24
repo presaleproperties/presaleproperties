@@ -35,8 +35,8 @@ export function SecondaryProjectPromo({ inline = false }: SecondaryProjectPromoP
 
   const card = (
     <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
-      <div className="grid md:grid-cols-2 gap-0">
-        <div className="p-6 sm:p-8 md:p-12 flex flex-col justify-center order-2 md:order-1 min-w-0">
+      <div className="grid lg:grid-cols-2 gap-0">
+        <div className="p-6 sm:p-8 lg:p-12 flex flex-col justify-center order-2 lg:order-1 min-w-0">
           <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
             <MapPin className="h-4 w-4 text-primary" />
             <span>
@@ -45,7 +45,7 @@ export function SecondaryProjectPromo({ inline = false }: SecondaryProjectPromoP
             </span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground leading-tight mb-3 break-words">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight mb-3 break-words">
             {project.name}
           </h2>
 
@@ -79,7 +79,7 @@ export function SecondaryProjectPromo({ inline = false }: SecondaryProjectPromoP
 
         <Link
           to={url}
-          className="relative aspect-[4/3] md:aspect-auto md:h-auto md:min-h-[420px] overflow-hidden group order-1 md:order-2"
+          className="relative aspect-[4/3] lg:aspect-auto lg:h-auto lg:min-h-[420px] overflow-hidden group order-1 lg:order-2"
         >
           <img
             src={project.featured_image!}

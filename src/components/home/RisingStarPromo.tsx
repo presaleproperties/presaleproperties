@@ -36,11 +36,11 @@ export function RisingStarPromo({ inline = false }: RisingStarPromoProps = {}) {
 
   const card = (
     <div className="relative isolate overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-primary/5 via-card to-card shadow-lg">
-      {/* Stack vertically on mobile/tablet, side-by-side from md+ to avoid clipping */}
-      <div className="grid md:grid-cols-[300px_1fr] lg:grid-cols-[340px_1fr] gap-0">
+      {/* Stack vertically on mobile/tablet, side-by-side from lg+ to avoid clipping */}
+      <div className="grid lg:grid-cols-[300px_1fr] xl:grid-cols-[340px_1fr] gap-0">
         <Link
           to={url}
-          className="relative aspect-[16/10] md:aspect-auto md:h-auto md:min-h-[220px] overflow-hidden group"
+          className="relative aspect-[16/10] lg:aspect-auto lg:h-auto lg:min-h-[220px] overflow-hidden group"
         >
           <img
             src={project.featured_image!}
@@ -56,7 +56,7 @@ export function RisingStarPromo({ inline = false }: RisingStarPromoProps = {}) {
           </div>
         </Link>
 
-        <div className="p-5 sm:p-6 md:p-8 flex flex-col justify-center min-w-0">
+        <div className="p-5 sm:p-6 lg:p-8 flex flex-col justify-center min-w-0">
           <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-2">
             <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
             <span className="truncate">
@@ -65,7 +65,7 @@ export function RisingStarPromo({ inline = false }: RisingStarPromoProps = {}) {
             </span>
           </div>
 
-          <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground leading-tight mb-2 break-words">
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground leading-tight mb-2 break-words">
             {project.name}
           </h3>
 
