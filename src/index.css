@@ -1087,9 +1087,9 @@ html {
   }
 }
 
-/* When Radix locks scroll, ensure body stays visually anchored */
+/* When Radix locks scroll, ensure body stays visually anchored.
+   No !important — ScrollLockSafety component must be able to clear stale locks. */
 body[data-scroll-locked] {
-  overflow: hidden !important;
-  /* Avoid the page being pushed when scrollbar is gone on desktop too */
+  overflow: hidden;
   overscroll-behavior: contain;
 }

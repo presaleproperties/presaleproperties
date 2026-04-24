@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/dashboard/ProtectedRoute";
 import { DashboardErrorBoundary } from "@/components/dashboard/DashboardErrorBoundary";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { ScrollLockSafety } from "@/components/util/ScrollLockSafety";
 import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
 import { GlobalPullToRefresh } from "@/components/GlobalPullToRefresh";
 import { ResaleToPropertiesRedirect } from "@/components/redirects/ResaleToPropertiesRedirect";
@@ -200,6 +201,7 @@ const App = () => (
           <SwipeNavigationProvider>
             <GlobalPullToRefresh>
             <ScrollToTop />
+            <ScrollLockSafety />
             <GlobalSEO />
             <FaviconLoader />
             <AgentManifestSwap />
