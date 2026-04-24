@@ -17,10 +17,11 @@ import { MetaEvents } from "@/components/tracking/MetaPixel";
 const PAGEVIEW_KEY = "pp_pageviews";
 const SHOWN_KEY = "pp_request_call_shown";
 const CONVERTED_KEY = "presale_lead_converted";
-const EXIT_INTENT_SHOWN_KEY = "exit_intent_shown"; // sessionStorage key set by ExitIntentPopup
+const EXIT_INTENT_SHOWN_KEY = "exit_intent_shown"; // sessionStorage key shared with ExitIntentPopup
 const MIN_PAGEVIEWS = 3; // show on the 3rd page view in the session/visitor lifetime
 const SHOW_DELAY_MS_DESKTOP = 1500;
-const SHOW_DELAY_MS_MOBILE = 45000; // 45s on mobile — give users time to browse first
+const MOBILE_MIN_TIME_MS = 30000;   // mobile: at least 30s in session
+const MOBILE_MIN_SCROLL_PCT = 0.5;  // …or 50% scroll depth, whichever comes first
 
 // Routes where the popup should never appear (forms / portals / sensitive flows)
 const BLOCKED_PATH_PREFIXES = [
