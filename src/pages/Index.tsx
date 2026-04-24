@@ -22,7 +22,7 @@ import { MistakesGuideBanner } from "@/components/home/MistakesGuideBanner";
 
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
-import { useIsMobileOrTablet } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { TwoWaysToBuy } from "@/components/home/TwoWaysToBuy";
 import { NewConstructionTrustBar } from "@/components/home/NewConstructionTrustBar";
 import { PresaleExpertsSection } from "@/components/home/PresaleExpertsSection";
