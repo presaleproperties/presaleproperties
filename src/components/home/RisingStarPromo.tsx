@@ -34,12 +34,14 @@ export function RisingStarPromo() {
           <div className="grid sm:grid-cols-[260px_1fr] md:grid-cols-[340px_1fr] gap-0">
             <Link
               to={url}
-              className="relative h-44 sm:h-auto sm:min-h-[220px] overflow-hidden group"
+              className="relative aspect-[16/10] sm:aspect-auto sm:h-auto sm:min-h-[220px] overflow-hidden group"
             >
               <img
                 src={project.featured_image!}
                 alt={`${project.name} in ${project.city}`}
                 loading="lazy"
+                width={800}
+                height={500}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-foreground text-background rounded-full px-2.5 py-1 shadow-md">
