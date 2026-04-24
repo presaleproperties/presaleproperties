@@ -3,7 +3,7 @@ import { FeaturedProjectPromo } from "./FeaturedProjectPromo";
 
 import { TrendingProjectPromo } from "./TrendingProjectPromo";
 import { SecondaryProjectPromo } from "./SecondaryProjectPromo";
-import { RisingStarPromo } from "./RisingStarPromo";
+
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 const FEATURED_CITIES = [
@@ -110,11 +110,6 @@ export function CityProjectsSection() {
               </CityGroup>
             );
           })}
-
-          {/* Closer: rising star (rank #4) — compact ribbon as bookend */}
-          <ScrollReveal animation="fade-up" delay={100}>
-            <RisingStarPromo />
-          </ScrollReveal>
         </div>
       </div>
     </section>
