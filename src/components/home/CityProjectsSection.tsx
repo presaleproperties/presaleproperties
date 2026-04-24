@@ -1,6 +1,6 @@
 import { CityProjectsCarousel } from "./CityProjectsCarousel";
 import { FeaturedProjectPromo } from "./FeaturedProjectPromo";
-import { SpotlightProjectPromo } from "./SpotlightProjectPromo";
+
 import { TrendingProjectPromo } from "./TrendingProjectPromo";
 import { SecondaryProjectPromo } from "./SecondaryProjectPromo";
 import { RisingStarPromo } from "./RisingStarPromo";
