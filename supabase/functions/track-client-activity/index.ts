@@ -313,6 +313,26 @@ const handler = async (req: Request): Promise<Response> => {
       // Don't fail the main request due to webhook issues
     }
 
+    // Fan out to DealzFlow CRM (fire-and-forget, never blocks)
+    try {
+      fetch(`${supabaseUrl}/functions/v1/push-activity-to-crm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
+          event_type: activity_type,
+          visitor_id,
+          session_id: sanitizedPayload.session_id,
+          source: "presale_properties_activity",
+          payload: sanitizedPayload,
+        }),
+      }).catch((err) => console.error("[CRM activity push] error:", err));
+    } catch (crmErr) {
+      console.error("[CRM activity push] outer error:", crmErr);
+    }
+
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
