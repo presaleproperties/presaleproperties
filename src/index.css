@@ -63,13 +63,52 @@
     --sidebar-border: 30 10% 91%;
     --sidebar-ring: 40 65% 55%;
 
-    /* Custom tokens */
+    /* Custom tokens — semantic states with soft + strong variants */
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
+    --success-soft: 142 60% 94%;
+    --success-soft-foreground: 142 70% 22%;
+    --success-strong: 142 76% 28%;
+
     --warning: 40 65% 55%;
     --warning-foreground: 0 0% 100%;
+    --warning-soft: 40 90% 94%;
+    --warning-soft-foreground: 30 70% 25%;
+    --warning-strong: 30 75% 40%;
+
     --info: 199 89% 48%;
     --info-foreground: 0 0% 100%;
+    --info-soft: 200 90% 95%;
+    --info-soft-foreground: 200 80% 25%;
+    --info-strong: 200 90% 35%;
+
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 100%;
+    --danger-soft: 0 85% 96%;
+    --danger-soft-foreground: 0 70% 35%;
+    --danger-strong: 0 75% 42%;
+
+    /* Neutral surfaces — replace ad-hoc gray/slate/zinc usage */
+    --surface: 0 0% 100%;
+    --surface-foreground: 220 20% 10%;
+    --surface-muted: 30 10% 96%;
+    --surface-strong: 30 10% 90%;
+    --neutral-900: 220 20% 10%;
+    --neutral-700: 220 15% 25%;
+    --neutral-500: 220 10% 50%;
+    --neutral-300: 220 10% 80%;
+    --neutral-100: 30 10% 96%;
+    --neutral-50: 30 15% 98%;
+    --on-dark: 0 0% 100%;
+    --on-dark-muted: 0 0% 100% / 0.7;
+
+    /* Chart palette — used by data-viz so charts stay themeable */
+    --chart-1: 40 65% 55%;
+    --chart-2: 200 80% 50%;
+    --chart-3: 142 60% 45%;
+    --chart-4: 270 60% 55%;
+    --chart-5: 0 75% 55%;
+    --chart-6: 30 80% 55%;
 
     /* Premium Gradients */
     --gradient-gold: linear-gradient(135deg, hsl(40 65% 55%), hsl(37 60% 48%));
