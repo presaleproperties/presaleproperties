@@ -168,6 +168,53 @@
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 220 20% 14%;
     --sidebar-ring: 40 65% 55%;
+
+    /* Dark mode semantic states */
+    --success: 142 60% 45%;
+    --success-foreground: 0 0% 100%;
+    --success-soft: 142 50% 16%;
+    --success-soft-foreground: 142 70% 80%;
+    --success-strong: 142 70% 60%;
+
+    --warning: 40 65% 55%;
+    --warning-foreground: 0 0% 100%;
+    --warning-soft: 40 50% 18%;
+    --warning-soft-foreground: 40 80% 80%;
+    --warning-strong: 40 80% 65%;
+
+    --info: 199 80% 55%;
+    --info-foreground: 0 0% 100%;
+    --info-soft: 200 50% 18%;
+    --info-soft-foreground: 200 80% 80%;
+    --info-strong: 200 80% 65%;
+
+    --danger: 0 70% 50%;
+    --danger-foreground: 0 0% 100%;
+    --danger-soft: 0 50% 18%;
+    --danger-soft-foreground: 0 80% 85%;
+    --danger-strong: 0 75% 60%;
+
+    /* Dark neutral surfaces */
+    --surface: 220 20% 9%;
+    --surface-foreground: 0 0% 98%;
+    --surface-muted: 220 20% 14%;
+    --surface-strong: 220 20% 18%;
+    --neutral-900: 0 0% 98%;
+    --neutral-700: 220 10% 75%;
+    --neutral-500: 220 10% 55%;
+    --neutral-300: 220 15% 28%;
+    --neutral-100: 220 20% 14%;
+    --neutral-50: 220 20% 9%;
+    --on-dark: 0 0% 100%;
+    --on-dark-muted: 0 0% 100% / 0.7;
+
+    /* Dark chart palette */
+    --chart-1: 40 65% 60%;
+    --chart-2: 200 80% 60%;
+    --chart-3: 142 60% 55%;
+    --chart-4: 270 60% 65%;
+    --chart-5: 0 75% 65%;
+    --chart-6: 30 80% 65%;
     
     /* Dark mode premium shadows */
     --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.2), 0 1px 2px -1px hsl(0 0% 0% / 0.2);
