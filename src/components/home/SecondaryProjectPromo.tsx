@@ -27,7 +27,7 @@ export function SecondaryProjectPromo() {
   const price = formatPrice(project.starting_price);
 
   return (
-    <section className="py-12 md:py-16">
+    <section className="py-6 md:py-12">
       <div className="container px-4">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
           <div className="grid md:grid-cols-2 gap-0">
