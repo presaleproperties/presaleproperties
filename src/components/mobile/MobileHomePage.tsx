@@ -423,7 +423,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
                 <MobileDiscoveryCarousel
                   type="city_coquitlam"
                   title="Coquitlam"
-                  city={selectedCity} />
+                  city={selectedCity}
+                  unpadded />
               </MobileGroup>
             </CarouselSection>
 
