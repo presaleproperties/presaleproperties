@@ -168,9 +168,25 @@ export function PresaleExpertsSection() {
                 Why Choose<br />
                 <span className="text-primary">Presale Properties?</span>
               </h2>
-              <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-8">
+              <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-5">
                 With 5+ years focused exclusively on presales and 400+ families served, we help you find new construction homes perfectly aligned with your lifestyle and investment goals.
               </p>
+
+              {/* Languages spoken */}
+              <div className="mb-8">
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {languages.map((lang) => (
+                    <span
+                      key={lang}
+                      className="text-xs px-3 py-1.5 rounded-full border border-primary/30 text-primary bg-primary/5 font-medium"
+                    >
+                      {lang}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">We serve clients in 5 languages.</p>
+              </div>
+
 
               <div className="space-y-6 mb-8">
                 {[
