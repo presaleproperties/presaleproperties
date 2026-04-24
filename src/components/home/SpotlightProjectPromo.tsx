@@ -47,7 +47,7 @@ export function SpotlightProjectPromo({ inline = false }: SpotlightProjectPromoP
               </div>
             </Link>
 
-            <div className="p-6 sm:p-8 md:p-12 flex flex-col justify-center min-w-0">
+            <div className="p-6 sm:p-8 lg:p-12 flex flex-col justify-center min-w-0">
               <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
                 <MapPin className="h-4 w-4 text-primary" />
                 <span>{project.neighborhood ? `${project.neighborhood}, ` : ""}{project.city}, BC</span>
