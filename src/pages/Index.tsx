@@ -14,7 +14,6 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
 import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
 import { VipListSignup } from "@/components/home/VipListSignup";
 import { MistakesGuideBanner } from "@/components/home/MistakesGuideBanner";
