@@ -13,7 +13,10 @@
 import { chromium, type FullConfig } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const AUTH_DIR = path.join(__dirname, ".auth");
 const AUTH_FILE = path.join(AUTH_DIR, "admin.json");
 
