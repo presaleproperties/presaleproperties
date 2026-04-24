@@ -405,6 +405,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </CarouselSection>
 
             <CarouselSection delay={200}>
+              <TrendingProjectPromo />
               <MobileDiscoveryCarousel
               type="city_surrey"
               title="Surrey"
