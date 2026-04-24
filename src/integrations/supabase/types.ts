@@ -1148,6 +1148,51 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_sync_runs: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          pulled_count: number | null
+          pushed_count: number | null
+          result: Json | null
+          started_at: string
+          status: string
+          sync_type: string
+          triggered_by: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          pulled_count?: number | null
+          pushed_count?: number | null
+          result?: Json | null
+          started_at?: string
+          status?: string
+          sync_type?: string
+          triggered_by?: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          pulled_count?: number | null
+          pushed_count?: number | null
+          result?: Json | null
+          started_at?: string
+          status?: string
+          sync_type?: string
+          triggered_by?: string
+        }
+        Relationships: []
+      }
       deck_visits: {
         Row: {
           created_at: string
