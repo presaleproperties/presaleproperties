@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { safeTrackingInvoke } from "@/lib/tracking/safeInvoke";
 
 interface PageViewData {
   page_type: "project" | "listing" | "blog" | "page";
