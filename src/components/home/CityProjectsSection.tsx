@@ -89,10 +89,6 @@ export function CityProjectsSection() {
         </div>
 
         <div className="space-y-8 md:space-y-12">
-          {/* Lead-in: hero spotlight (rank #1) before the first city — stays standalone as bookend */}
-          <ScrollReveal animation="fade-up" delay={100}>
-            <SpotlightProjectPromo />
-          </ScrollReveal>
 
           {FEATURED_CITIES.map((cityConfig) => {
             const handPicked = PRE_CITY_PROMOS[cityConfig.city];
