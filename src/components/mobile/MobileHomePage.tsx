@@ -277,7 +277,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
       <div className="pb-6">
         {activeTab === "projects" ?
         <>
-            {/* Hot Projects - Featured Section */}
+            {/* 1. Hot Projects - Featured Section */}
             <CarouselSection delay={0}>
               <MobileDiscoveryCarousel
               type="hot_projects"
@@ -290,9 +290,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             {/* Promo: Spotlight (rank #1 trending) */}
             <SpotlightProjectPromo />
 
-            <div className="my-6 border-t border-border/50" />
-
-            {/* Condos */}
+            {/* 2. Condos */}
             <CarouselSection delay={50}>
               <MobileDiscoveryCarousel
               type="condos"
@@ -301,12 +299,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            {/* Promo: Trending (rank #2 trending) */}
-            <TrendingProjectPromo />
-
-            <div className="my-6 border-t border-border/50" />
-
-            {/* Townhomes */}
+            {/* 3. Townhomes */}
             <CarouselSection delay={50}>
               <MobileDiscoveryCarousel
               type="townhomes"
@@ -315,26 +308,21 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            {/* Promo: Secondary (rank #3 trending) */}
-            <SecondaryProjectPromo />
+            {/* Promo: Trending (rank #2) — single ad-style break, not stacked between every row */}
+            <TrendingProjectPromo />
 
-            <div className="my-6 border-t border-border/50" />
+            {/* "See all projects" CTA — escape hatch for power users */}
+            <div className="px-4 my-6">
+              <Link
+                to="/presale-projects"
+                className="flex items-center justify-center gap-2 w-full h-12 rounded-full bg-foreground text-background font-semibold text-sm shadow-md active:scale-[0.98] transition-transform"
+              >
+                Browse all projects
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
 
-            {/* Single-Family / Detached */}
-            <CarouselSection delay={100}>
-              <MobileDiscoveryCarousel
-              type="single_family"
-              title="Detached Homes"
-              city={selectedCity} />
-
-            </CarouselSection>
-
-            {/* Promo: Rising Star (rank #4 trending) */}
-            <RisingStarPromo />
-
-            <div className="my-6 border-t border-border/50" />
-
-            {/* Projects Near You - City Quick Links */}
+            {/* 4. Projects Near You - City Quick Links */}
             <CarouselSection delay={125}>
               <MobileCityQuickLinks />
             </CarouselSection>
