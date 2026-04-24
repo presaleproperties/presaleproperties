@@ -17,8 +17,10 @@ import { MetaEvents } from "@/components/tracking/MetaPixel";
 const PAGEVIEW_KEY = "pp_pageviews";
 const SHOWN_KEY = "pp_request_call_shown";
 const CONVERTED_KEY = "presale_lead_converted";
+const EXIT_INTENT_SHOWN_KEY = "exit_intent_shown"; // sessionStorage key set by ExitIntentPopup
 const MIN_PAGEVIEWS = 3; // show on the 3rd page view in the session/visitor lifetime
-const SHOW_DELAY_MS = 1500;
+const SHOW_DELAY_MS_DESKTOP = 1500;
+const SHOW_DELAY_MS_MOBILE = 45000; // 45s on mobile — give users time to browse first
 
 // Routes where the popup should never appear (forms / portals / sensitive flows)
 const BLOCKED_PATH_PREFIXES = [
@@ -71,18 +73,25 @@ export function RequestACallPopup() {
       if (localStorage.getItem(CONVERTED_KEY) === "true") return;
       if (!shouldShowOnRoute(window.location.pathname)) return;
 
+      const isMobile = window.innerWidth < 768 || "ontouchstart" in window;
+
       const current = parseInt(localStorage.getItem(PAGEVIEW_KEY) || "0", 10) + 1;
       localStorage.setItem(PAGEVIEW_KEY, String(current));
 
       if (current >= MIN_PAGEVIEWS) {
+        const delay = isMobile ? SHOW_DELAY_MS_MOBILE : SHOW_DELAY_MS_DESKTOP;
         const t = setTimeout(() => {
+          // Don't double-stack with the exit-intent popup in the same session
+          try {
+            if (sessionStorage.getItem(EXIT_INTENT_SHOWN_KEY) === "true") return;
+          } catch {}
           setOpen(true);
           localStorage.setItem(SHOWN_KEY, "true");
           MetaEvents.formStart({
             content_name: "Request a Call Popup",
             content_category: "lead_magnet",
           });
-        }, SHOW_DELAY_MS);
+        }, delay);
         return () => clearTimeout(t);
       }
     } catch {

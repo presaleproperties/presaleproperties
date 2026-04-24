@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Map, Building2, Home, Calendar, Castle, MapPin, DollarSign, BedDouble, X, Search } from "lucide-react";
+import { Map, Building2, Home, Calendar, Castle, MapPin, DollarSign, BedDouble, X, Search, ArrowRight, Phone } from "lucide-react";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
 import { MobileResaleCityCarousel } from "./MobileResaleCityCarousel";
@@ -277,7 +277,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
       <div className="pb-6">
         {activeTab === "projects" ?
         <>
-            {/* Hot Projects - Featured Section */}
+            {/* 1. Hot Projects - Featured Section */}
             <CarouselSection delay={0}>
               <MobileDiscoveryCarousel
               type="hot_projects"
@@ -290,9 +290,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             {/* Promo: Spotlight (rank #1 trending) */}
             <SpotlightProjectPromo />
 
-            <div className="my-6 border-t border-border/50" />
-
-            {/* Condos */}
+            {/* 2. Condos */}
             <CarouselSection delay={50}>
               <MobileDiscoveryCarousel
               type="condos"
@@ -301,12 +299,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            {/* Promo: Trending (rank #2 trending) */}
-            <TrendingProjectPromo />
-
-            <div className="my-6 border-t border-border/50" />
-
-            {/* Townhomes */}
+            {/* 3. Townhomes */}
             <CarouselSection delay={50}>
               <MobileDiscoveryCarousel
               type="townhomes"
@@ -315,26 +308,21 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            {/* Promo: Secondary (rank #3 trending) */}
-            <SecondaryProjectPromo />
+            {/* Promo: Trending (rank #2) — single ad-style break, not stacked between every row */}
+            <TrendingProjectPromo />
 
-            <div className="my-6 border-t border-border/50" />
+            {/* "See all projects" CTA — escape hatch for power users */}
+            <div className="px-4 my-6">
+              <Link
+                to="/presale-projects"
+                className="flex items-center justify-center gap-2 w-full h-12 rounded-full bg-foreground text-background font-semibold text-sm shadow-md active:scale-[0.98] transition-transform"
+              >
+                Browse all projects
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
 
-            {/* Single-Family / Detached */}
-            <CarouselSection delay={100}>
-              <MobileDiscoveryCarousel
-              type="single_family"
-              title="Detached Homes"
-              city={selectedCity} />
-
-            </CarouselSection>
-
-            {/* Promo: Rising Star (rank #4 trending) */}
-            <RisingStarPromo />
-
-            <div className="my-6 border-t border-border/50" />
-
-            {/* Projects Near You - City Quick Links */}
+            {/* 4. Projects Near You - City Quick Links */}
             <CarouselSection delay={125}>
               <MobileCityQuickLinks />
             </CarouselSection>
@@ -407,7 +395,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </>
         }
 
-        {/* City-based Carousels - Only show for Presale tab */}
+        {/* City-based Carousels - Only show for Presale tab. Trimmed from 7 → 3 to reduce mobile scroll fatigue. */}
         {activeTab === "projects" &&
         <>
             <CarouselSection delay={150}>
@@ -427,14 +415,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            <CarouselSection delay={250}>
-              <MobileDiscoveryCarousel
-              type="city_burnaby"
-              title="Burnaby"
-              city={selectedCity} />
-
-            </CarouselSection>
-
             <CarouselSection delay={300}>
               <FeaturedProjectPromo slug="ironwood" badgeLabel="Coquitlam Spotlight" />
               <MobileDiscoveryCarousel
@@ -444,37 +424,16 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
             </CarouselSection>
 
-            <CarouselSection delay={350}>
-              <MobileDiscoveryCarousel
-              type="city_langley"
-              title="Langley"
-              city={selectedCity} />
-
-            </CarouselSection>
-
-            <CarouselSection delay={400}>
-              <MobileDiscoveryCarousel
-              type="city_richmond"
-              title="Richmond"
-              city={selectedCity} />
-
-            </CarouselSection>
-
-            <CarouselSection delay={450}>
-              <MobileDiscoveryCarousel
-              type="city_delta"
-              title="Delta"
-              city={selectedCity} />
-
-            </CarouselSection>
-
-            <CarouselSection delay={500}>
-              <MobileDiscoveryCarousel
-              type="city_abbotsford"
-              title="Abbotsford"
-              city={selectedCity} />
-
-            </CarouselSection>
+            {/* Browse other cities CTA — replaces 4 carousels (Burnaby, Langley, Richmond, Delta, Abbotsford) */}
+            <div className="px-4 my-8">
+              <Link
+                to="/presale-projects"
+                className="flex items-center justify-center gap-2 w-full h-12 rounded-full border border-border bg-background text-foreground font-semibold text-sm shadow-sm active:scale-[0.98] transition-transform"
+              >
+                Explore other cities
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </>
         }
       </div>
