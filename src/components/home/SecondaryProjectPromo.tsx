@@ -31,7 +31,7 @@ export function SecondaryProjectPromo() {
       <div className="container px-4">
         <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
           <div className="grid md:grid-cols-2 gap-0">
-            <div className="p-8 md:p-12 flex flex-col justify-center order-2 md:order-1">
+            <div className="p-6 sm:p-8 md:p-12 flex flex-col justify-center order-2 md:order-1 min-w-0">
               <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
                 <MapPin className="h-4 w-4 text-primary" />
                 <span>
