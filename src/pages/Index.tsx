@@ -17,6 +17,7 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MistakesGuideLeadMagnet } from "@/components/conversion/MistakesGuideLeadMagnet";
 import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
 import { VipListSignup } from "@/components/home/VipListSignup";
+import { MistakesGuideBanner } from "@/components/home/MistakesGuideBanner";
 
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
@@ -324,9 +325,9 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           <PresaleExpertsSection />
         </ScrollReveal>
-        {/* Lead magnet: Mistakes Guide — moved earlier from position 6 */}
+        {/* Lead magnet: cinematic banner — replaces inline form for better visual impact */}
         <ScrollReveal animation="fade-up" delay={100}>
-          <MistakesGuideLeadMagnet location="homepage" />
+          <MistakesGuideBanner location="homepage_banner" />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <ROICalculatorTeaser />
