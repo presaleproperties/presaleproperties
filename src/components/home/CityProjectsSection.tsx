@@ -17,7 +17,6 @@ const FEATURED_CITIES = [
 
 /**
  * Hand-picked promo slugs to render directly above a city carousel.
- * Use this map to pin a featured project as a teaser before its city section.
  */
 const PRE_CITY_PROMOS: Record<string, { slug: string; badgeLabel?: string }> = {
   Surrey: { slug: "the-loop", badgeLabel: "Surrey Spotlight" },
@@ -26,17 +25,49 @@ const PRE_CITY_PROMOS: Record<string, { slug: string; badgeLabel?: string }> = {
 };
 
 /**
- * Auto-trending promos (rank 1-4 from useTrendingProjects) interleaved
- * between city carousels for even rhythm. Each city gets at most one promo
- * (either a hand-picked one OR an auto-trending one) to keep spacing clean.
- *
- * Layout cadence: promo → city → city → promo → city → city → promo → city.
+ * Auto-trending promos interleaved between city carousels for even rhythm.
+ * Each city gets at most one promo (hand-picked OR auto).
  */
-const AUTO_PROMOS_BY_CITY: Record<string, "spotlight" | "trending" | "secondary" | "risingStar"> = {
-  Langley: "trending",   // cinematic full-bleed (rank #2)
-  Surrey: "spotlight",   // split layout (rank #1) — only if no hand-picked
-  Abbotsford: "secondary", // mirrored split (rank #3)
+const AUTO_PROMOS_BY_CITY: Record<string, "trending" | "secondary"> = {
+  Langley: "trending",
+  Abbotsford: "secondary",
 };
+
+/**
+ * Unified city group: a single rounded panel that hosts a promo card on top
+ * and the city carousel directly below it. Sharing a surface, padding rhythm,
+ * and animation makes the promo feel like a *featured first slot* of the
+ * carousel rather than a detached banner sitting above it.
+ */
+interface CityGroupProps {
+  city: string;
+  title: string;
+  subtitle?: string;
+  promoSlug?: string;
+  children?: React.ReactNode;
+}
+
+function CityGroup({ city, title, subtitle, promoSlug, children }: CityGroupProps) {
+  return (
+    <ScrollReveal animation="fade-up" delay={100}>
+      <div className="rounded-3xl border border-border/60 bg-card/40 shadow-sm overflow-hidden">
+        {children && (
+          <div className="p-4 sm:p-6 md:p-8 pb-0 sm:pb-0 md:pb-0">
+            {children}
+          </div>
+        )}
+        <div className="p-4 sm:p-6 md:p-8">
+          <CityProjectsCarousel
+            city={city}
+            title={title}
+            subtitle={subtitle}
+            excludeSlug={promoSlug}
+          />
+        </div>
+      </div>
+    </ScrollReveal>
+  );
+}
 
 export function CityProjectsSection() {
   return (
@@ -57,8 +88,8 @@ export function CityProjectsSection() {
           </p>
         </div>
 
-        <div className="space-y-12 md:space-y-16">
-          {/* Lead-in: hero spotlight (rank #1) before the first city */}
+        <div className="space-y-8 md:space-y-12">
+          {/* Lead-in: hero spotlight (rank #1) before the first city — stays standalone as bookend */}
           <ScrollReveal animation="fade-up" delay={100}>
             <SpotlightProjectPromo />
           </ScrollReveal>
@@ -68,32 +99,27 @@ export function CityProjectsSection() {
             const autoPromo = !handPicked ? AUTO_PROMOS_BY_CITY[cityConfig.city] : undefined;
 
             return (
-              <div key={cityConfig.city} className="space-y-12 md:space-y-16">
+              <CityGroup
+                key={cityConfig.city}
+                city={cityConfig.city}
+                title={cityConfig.title}
+                subtitle={cityConfig.subtitle}
+                promoSlug={handPicked?.slug}
+              >
                 {handPicked && (
-                  <ScrollReveal animation="fade-up" delay={100}>
-                    <FeaturedProjectPromo slug={handPicked.slug} badgeLabel={handPicked.badgeLabel} />
-                  </ScrollReveal>
+                  <FeaturedProjectPromo
+                    slug={handPicked.slug}
+                    badgeLabel={handPicked.badgeLabel}
+                    inline
+                  />
                 )}
-                {autoPromo === "trending" && (
-                  <ScrollReveal animation="fade-up" delay={100}>
-                    <TrendingProjectPromo />
-                  </ScrollReveal>
-                )}
-                {autoPromo === "secondary" && (
-                  <ScrollReveal animation="fade-up" delay={100}>
-                    <SecondaryProjectPromo />
-                  </ScrollReveal>
-                )}
-                <CityProjectsCarousel
-                  city={cityConfig.city}
-                  title={cityConfig.title}
-                  subtitle={cityConfig.subtitle}
-                />
-              </div>
+                {autoPromo === "trending" && <TrendingProjectPromo inline />}
+                {autoPromo === "secondary" && <SecondaryProjectPromo inline />}
+              </CityGroup>
             );
           })}
 
-          {/* Closing: rising star (rank #4) — compact ribbon to wrap the city block */}
+          {/* Closer: rising star (rank #4) — compact ribbon as bookend */}
           <ScrollReveal animation="fade-up" delay={100}>
             <RisingStarPromo />
           </ScrollReveal>
