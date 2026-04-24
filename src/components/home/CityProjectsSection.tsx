@@ -1,4 +1,5 @@
 import { CityProjectsCarousel } from "./CityProjectsCarousel";
+import { FeaturedProjectPromo } from "./FeaturedProjectPromo";
 
 const FEATURED_CITIES = [
   { city: "Langley", title: "Langley Projects", subtitle: "Township & City of Langley" },
@@ -8,6 +9,14 @@ const FEATURED_CITIES = [
   { city: "Abbotsford", title: "Abbotsford Projects", subtitle: "Fraser Valley" },
   { city: "Vancouver", title: "Vancouver Projects", subtitle: "Downtown & East Vancouver" },
 ];
+
+/**
+ * Hand-picked promo slugs to render directly above a city carousel.
+ * Use this map to pin a featured project as a teaser before its city section.
+ */
+const PRE_CITY_PROMOS: Record<string, { slug: string; badgeLabel?: string }> = {
+  Coquitlam: { slug: "ironwood", badgeLabel: "Coquitlam Spotlight" },
+};
 
 export function CityProjectsSection() {
   return (
@@ -29,14 +38,21 @@ export function CityProjectsSection() {
         </div>
 
         <div className="space-y-10 md:space-y-14">
-          {FEATURED_CITIES.map((cityConfig) => (
-            <CityProjectsCarousel
-              key={cityConfig.city}
-              city={cityConfig.city}
-              title={cityConfig.title}
-              subtitle={cityConfig.subtitle}
-            />
-          ))}
+          {FEATURED_CITIES.map((cityConfig) => {
+            const promo = PRE_CITY_PROMOS[cityConfig.city];
+            return (
+              <div key={cityConfig.city} className="space-y-10 md:space-y-14">
+                {promo && (
+                  <FeaturedProjectPromo slug={promo.slug} badgeLabel={promo.badgeLabel} />
+                )}
+                <CityProjectsCarousel
+                  city={cityConfig.city}
+                  title={cityConfig.title}
+                  subtitle={cityConfig.subtitle}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
