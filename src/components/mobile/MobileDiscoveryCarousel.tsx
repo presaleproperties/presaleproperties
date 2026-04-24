@@ -28,6 +28,8 @@ interface MobileDiscoveryCarouselProps {
   city?: string;
   limit?: number;
   size?: "default" | "large";
+  /** When true, the carousel removes its own horizontal padding so it can be embedded inside another padded container (e.g. MobileGroup). */
+  unpadded?: boolean;
 }
 
 const getCityFromType = (type: CarouselType): string | null => {
