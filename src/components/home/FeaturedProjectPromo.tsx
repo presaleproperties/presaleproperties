@@ -47,15 +47,17 @@ export function FeaturedProjectPromo({ slug, badgeLabel = "Featured This Week" }
   const price = formatPrice(project.starting_price);
 
   return (
-    <section className="relative isolate overflow-hidden py-2 md:py-4">
+    <section className="relative isolate overflow-hidden py-8 md:py-12">
       <div className="container px-4">
         <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
           <div className="grid md:grid-cols-2 gap-0">
-            <Link to={url} className="relative h-64 md:h-auto md:min-h-[420px] overflow-hidden group">
+            <Link to={url} className="relative aspect-[4/3] md:aspect-auto md:h-auto md:min-h-[420px] overflow-hidden group">
               <img
                 src={project.featured_image}
                 alt={`${project.name} in ${project.city}`}
                 loading="lazy"
+                width={1200}
+                height={900}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1 shadow-lg">
