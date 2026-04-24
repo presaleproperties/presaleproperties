@@ -34,56 +34,40 @@ export function WhyChooseUs() {
     },
   });
 
-  // Pick first 3 team members with photos for the collage
-  const photos = teamMembers.filter((m) => m.photo_url).slice(0, 3);
+  // Show all team members with photos in the collage
+  const photos = teamMembers.filter((m) => m.photo_url);
 
   return (
     <section className="py-20 md:py-28 bg-background">
       <div className="container px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
-          {/* Left: Photo collage */}
-          <div className="grid grid-cols-2 grid-rows-2 gap-3 sm:gap-4 aspect-square">
-            {isLoading || photos.length < 1 ? (
+          {/* Left: Photo collage — 2x2 grid of all team members */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {isLoading || photos.length === 0 ? (
               <>
-                <Skeleton className="col-span-2 row-span-1 rounded-2xl" />
-                <Skeleton className="rounded-2xl" />
-                <Skeleton className="rounded-2xl" />
+                <Skeleton className="aspect-square rounded-2xl" />
+                <Skeleton className="aspect-square rounded-2xl" />
+                <Skeleton className="aspect-square rounded-2xl" />
+                <Skeleton className="aspect-square rounded-2xl" />
               </>
             ) : (
-              <>
-                <div className="col-span-2 row-span-1 rounded-2xl overflow-hidden shadow-lg">
+              photos.map((m) => (
+                <div
+                  key={m.id}
+                  className="aspect-square rounded-2xl overflow-hidden shadow-lg group relative"
+                >
                   <img
-                    src={photos[0].photo_url!}
-                    alt={`${photos[0].full_name} — ${photos[0].title}`}
-                    className="w-full h-full object-cover"
+                    src={m.photo_url!}
+                    alt={`${m.full_name} — ${m.title}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent p-3">
+                    <p className="text-white text-xs sm:text-sm font-bold leading-tight">{m.full_name}</p>
+                    <p className="text-white/80 text-[10px] sm:text-xs leading-tight">{m.title}</p>
+                  </div>
                 </div>
-                {photos[1] ? (
-                  <div className="rounded-2xl overflow-hidden shadow-lg">
-                    <img
-                      src={photos[1].photo_url!}
-                      alt={`${photos[1].full_name} — ${photos[1].title}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                ) : (
-                  <div className="rounded-2xl bg-muted" />
-                )}
-                {photos[2] ? (
-                  <div className="rounded-2xl overflow-hidden shadow-lg">
-                    <img
-                      src={photos[2].photo_url!}
-                      alt={`${photos[2].full_name} — ${photos[2].title}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                ) : (
-                  <div className="rounded-2xl bg-muted" />
-                )}
-              </>
+              ))
             )}
           </div>
 
