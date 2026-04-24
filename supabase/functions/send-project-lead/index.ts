@@ -29,6 +29,14 @@ async function rateLimited(req: Request, funcKey: string): Promise<boolean> {
 
 interface ProjectLeadRequest {
   leadId: string;
+  /** Optional client-collected behavior bundle to forward to the CRM. */
+  behavior?: {
+    sessions?: unknown[];
+    views?: unknown[];
+    forms?: unknown[];
+  };
+  /** Stable anonymous-or-known identifier (visitor_id) for CRM stitching. */
+  presale_user_id?: string;
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -45,7 +53,7 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { leadId }: ProjectLeadRequest = await req.json();
+    const { leadId, behavior: clientBehavior, presale_user_id }: ProjectLeadRequest = await req.json();
     console.log("Processing project lead:", leadId);
 
     if (!leadId) {
