@@ -1,21 +1,8 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Flame, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { generateProjectUrl } from "@/lib/seoUrls";
-
-interface SecondaryProject {
-  id: string;
-  name: string;
-  slug: string;
-  city: string;
-  neighborhood: string | null;
-  starting_price: number | null;
-  featured_image: string | null;
-  project_type: string | null;
-  short_description: string | null;
-}
+import { useTrendingProjects } from "@/hooks/useTrendingProjects";
 
 const formatPrice = (price: number | null) => {
   if (!price) return null;
@@ -24,33 +11,17 @@ const formatPrice = (price: number | null) => {
 };
 
 /**
- * SecondaryProjectPromo
- * Mirrored counterpart to SpotlightProjectPromo. Skips the #1 most-viewed
- * project (already featured as the spotlight) and showcases the next one,
- * giving the homepage a second high-visual project moment.
+ * SecondaryProjectPromo — mirrored split layout. Renders the rank-3 trending
+ * project (Spotlight = #1, TrendingProjectPromo = #2, Secondary = #3).
  */
 export function SecondaryProjectPromo() {
-  const [project, setProject] = useState<SecondaryProject | null>(null);
-
-  useEffect(() => {
-    supabase
-      .from("presale_projects")
-      .select("id, name, slug, city, neighborhood, starting_price, featured_image, project_type, short_description")
-      .eq("is_published", true)
-      .not("featured_image", "is", null)
-      .order("view_count", { ascending: false, nullsFirst: false })
-      .range(1, 1) // skip the #1 (used by SpotlightProjectPromo) and grab the next
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setProject(data as SecondaryProject);
-      });
-  }, []);
-
+  const { data: projects } = useTrendingProjects(4);
+  const project = projects?.[2];
   if (!project) return null;
 
   const url = generateProjectUrl({
     slug: project.slug,
-    neighborhood: project.neighborhood || project.city,
+    neighborhood: project.neighborhood || project.city || "",
     projectType: (project.project_type as any) || "condo",
   });
   const price = formatPrice(project.starting_price);
@@ -60,7 +31,6 @@ export function SecondaryProjectPromo() {
       <div className="container px-4">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
           <div className="grid md:grid-cols-2 gap-0">
-            {/* Content — left on desktop (mirrored from Spotlight) */}
             <div className="p-8 md:p-12 flex flex-col justify-center order-2 md:order-1">
               <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
                 <MapPin className="h-4 w-4 text-primary" />
@@ -102,7 +72,6 @@ export function SecondaryProjectPromo() {
               </div>
             </div>
 
-            {/* Image — right on desktop */}
             <Link
               to={url}
               className="relative h-64 md:h-auto md:min-h-[420px] overflow-hidden group order-1 md:order-2"
