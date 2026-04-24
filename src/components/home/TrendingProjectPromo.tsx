@@ -11,12 +11,17 @@ const formatPrice = (price: number | null) => {
   return `$${price.toLocaleString("en-CA")}`;
 };
 
+interface TrendingProjectPromoProps {
+  /** Render just the card without the outer <section>/container/padding. */
+  inline?: boolean;
+}
+
 /**
  * TrendingProjectPromo — full-bleed cinematic hero with overlay text.
  * Renders the rank-2 project from the shared trending hook to give the
  * homepage a different visual rhythm vs. the split-layout promos.
  */
-export function TrendingProjectPromo() {
+export function TrendingProjectPromo({ inline = false }: TrendingProjectPromoProps = {}) {
   const { data: projects } = useTrendingProjects(8);
   const eligible = (projects ?? []).filter((p) => !HAND_PICKED_PROMO_SLUGS.has(p.slug));
   const project = eligible[1];
