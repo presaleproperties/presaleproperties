@@ -517,6 +517,7 @@ serve(async (req: Request): Promise<Response> => {
       // Build behavior — prefer client-provided bundle, otherwise synthesize a
       // minimal session entry from what we already have on the lead row so the
       // CRM never receives an empty `behavior` object.
+      const leadAny = lead as any;
       const behaviorPayload = (clientBehavior && (
         (clientBehavior.sessions?.length ?? 0) > 0 ||
         (clientBehavior.views?.length ?? 0) > 0 ||
@@ -525,24 +526,24 @@ serve(async (req: Request): Promise<Response> => {
         ? clientBehavior
         : {
             sessions: [{
-              session_id: lead.session_id || `srv-${lead.id}`,
-              pages_viewed: lead.pages_viewed ?? 1,
-              duration_seconds: lead.time_on_site ?? 0,
-              landing_page: lead.landing_page || "",
-              exit_page: lead.landing_page || "",
-              referrer: lead.referrer || "",
-              utm_source: lead.utm_source || null,
-              utm_medium: lead.utm_medium || null,
-              utm_campaign: lead.utm_campaign || null,
-              device_type: lead.device_type || "desktop",
-              started_at: lead.created_at,
+              session_id: leadAny.session_id || `srv-${leadAny.id}`,
+              pages_viewed: leadAny.pages_viewed ?? 1,
+              duration_seconds: leadAny.time_on_site ?? 0,
+              landing_page: leadAny.landing_page || "",
+              exit_page: leadAny.landing_page || "",
+              referrer: leadAny.referrer || "",
+              utm_source: leadAny.utm_source || null,
+              utm_medium: leadAny.utm_medium || null,
+              utm_campaign: leadAny.utm_campaign || null,
+              device_type: leadAny.device_type || "desktop",
+              started_at: leadAny.created_at,
               ended_at: new Date().toISOString(),
             }],
             views: [],
             forms: [{
-              form_type: lead.form_type || lead.lead_source || "signup_completed",
+              form_type: leadAny.form_type || leadAny.lead_source || "signup_completed",
               status: "completed",
-              submitted_at: lead.created_at,
+              submitted_at: leadAny.created_at,
             }],
           };
 
