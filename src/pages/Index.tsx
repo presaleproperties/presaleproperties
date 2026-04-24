@@ -22,7 +22,7 @@ import { MistakesGuideBanner } from "@/components/home/MistakesGuideBanner";
 
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
-import { useIsMobileOrTablet } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { TwoWaysToBuy } from "@/components/home/TwoWaysToBuy";
 import { NewConstructionTrustBar } from "@/components/home/NewConstructionTrustBar";
 import { PresaleExpertsSection } from "@/components/home/PresaleExpertsSection";
@@ -64,7 +64,7 @@ const HOME_FAQS = [
 ];
 
 const Index = () => {
-  const isMobileOrTablet = useIsMobileOrTablet();
+  const isMobileOrTablet = useIsMobile(); // Tablet (≥768px) now uses the desktop layout to match the user's preferred design.
   const [activeTab, setActiveTab] = useState<SearchTab>("projects");
   // Primary structured data - RealEstateAgent with LocalBusiness
   const organizationSchema = {
