@@ -125,8 +125,9 @@ Deno.serve(async (req) => {
       const bedsLabel = unitTypes.length > 0
         ? unitTypes.map((b: any) => `${b} bed`).join(", ") + " units"
         : null;
-      const devLabel = deck.developer_name ? `by ${deck.developer_name}` : null;
-      const completionLabel = deck.completion_year ? `Est. completion ${deck.completion_year}.` : null;
+      const deckAny = deck as any;
+      const devLabel = deckAny.developer_name ? `by ${deckAny.developer_name}` : null;
+      const completionLabel = deckAny.completion_year ? `Est. completion ${deckAny.completion_year}.` : null;
 
       // Prefer tagline/description, fall back to constructed sentence
       const rawDesc = (deck.tagline || deck.description || "").replace(/[#*_`>]/g, "").trim();
