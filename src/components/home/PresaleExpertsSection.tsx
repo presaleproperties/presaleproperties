@@ -130,7 +130,7 @@ export function PresaleExpertsSection() {
   return (
     <section className="bg-background">
       {/* Top: Why Buy Presale — benefits grid */}
-      <div className="py-10 md:py-24 border-b border-border/40">
+      <div className="py-10 md:py-24">
         <div className="container px-4 sm:px-6">
           <div className="max-w-5xl mx-auto">
             <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-16 items-center">
@@ -266,7 +266,7 @@ export function PresaleExpertsSection() {
               </div>
 
               {/* Stats strip */}
-              <div className="grid grid-cols-3 gap-4 sm:gap-6 py-5 border-t border-b border-border mb-6">
+              <div className="grid grid-cols-3 gap-4 sm:gap-6 py-5 border-t border-b border-border/30 mb-6">
                 {[
                   { value: "$200M+", label: "Sales Volume" },
                   { value: "400+", label: "Units Sold" },
