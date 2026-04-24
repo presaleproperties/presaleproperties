@@ -465,7 +465,7 @@ function BackgroundJobs() {
                         <TableRow key={j.id}>
                           <TableCell className="text-xs font-medium">{j.sync_type}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className={`text-[10px] ${statusColor(j.status)}`}>{j.status}</Badge>
+                            <StatusBadge status={j.status} className="text-[10px]" />
                           </TableCell>
                           <TableCell className="text-xs">{j.listings_fetched ?? 0}</TableCell>
                           <TableCell className="text-xs">{j.listings_created ?? 0}</TableCell>
@@ -503,7 +503,7 @@ function BackgroundJobs() {
                         <TableRow key={j.id}>
                           <TableCell className="text-xs font-medium">{j.trigger_source ?? "manual"}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className={`text-[10px] ${statusColor(j.status)}`}>{j.status}</Badge>
+                            <StatusBadge status={j.status} className="text-[10px]" />
                           </TableCell>
                           <TableCell className="text-xs">{j.listings_processed ?? 0}</TableCell>
                           <TableCell className="text-xs">{j.api_calls_made ?? 0}</TableCell>
@@ -540,7 +540,7 @@ function BackgroundJobs() {
                         <TableRow key={j.id}>
                           <TableCell className="text-xs">{j.to_email}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className={`text-[10px] ${statusColor(j.status)}`}>{j.status}</Badge>
+                            <StatusBadge status={j.status} className="text-[10px]" />
                           </TableCell>
                           <TableCell className="text-[10px] text-muted-foreground">
                             {formatDistanceToNow(new Date(j.scheduled_at), { addSuffix: true })}
