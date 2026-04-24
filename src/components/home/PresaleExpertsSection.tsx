@@ -2,8 +2,28 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { TrendingUp, Clock, Shield, Palette, Home, Building2, ArrowRight, Star, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+
+interface TeamMember {
+  id: string;
+  full_name: string;
+  title: string;
+  photo_url: string | null;
+}
+
+function useTeamPhotos() {
+  return useQuery({
+    queryKey: ["team-members"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_public_team_members");
+      if (error) throw error;
+      return ((data as unknown as TeamMember[]) || []).filter((m) => m.photo_url);
+    },
+  });
+}
 
 const benefits = [
   {
@@ -106,6 +126,7 @@ function VIPInlineForm() {
 }
 
 export function PresaleExpertsSection() {
+  const { data: photos = [], isLoading: photosLoading } = useTeamPhotos();
   return (
     <section className="bg-background">
       {/* Top: Why Buy Presale — benefits grid */}
@@ -181,6 +202,29 @@ export function PresaleExpertsSection() {
 
             {/* Left — Expert credibility */}
             <div className="space-y-5">
+              {/* Team headshot collage */}
+              <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-2">
+                {photosLoading || photos.length === 0
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="aspect-square rounded-xl bg-background/10" />
+                    ))
+                  : photos.slice(0, 4).map((m) => (
+                      <div
+                        key={m.id}
+                        className="aspect-square rounded-xl overflow-hidden shadow-lg ring-1 ring-background/10 group relative"
+                      >
+                        <img
+                          src={m.photo_url!}
+                          alt={`${m.full_name} — ${m.title}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/30 to-transparent p-1.5">
+                          <p className="text-background text-[10px] font-bold leading-tight truncate">{m.full_name}</p>
+                        </div>
+                      </div>
+                    ))}
+              </div>
               <span className="text-xs font-semibold uppercase tracking-widest text-primary block">
                 Your Presale Team
               </span>
