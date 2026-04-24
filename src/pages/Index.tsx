@@ -18,7 +18,7 @@ import { SpotlightProjectPromo } from "@/components/home/SpotlightProjectPromo";
 import { TrendingProjectPromo } from "@/components/home/TrendingProjectPromo";
 import { SecondaryProjectPromo } from "@/components/home/SecondaryProjectPromo";
 import { RisingStarPromo } from "@/components/home/RisingStarPromo";
-import { VipListSignup } from "@/components/home/VipListSignup";
+
 import { MistakesGuideBanner } from "@/components/home/MistakesGuideBanner";
 
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
