@@ -6,6 +6,7 @@ import { DeveloperPortalLayout } from "@/components/developer/DeveloperPortalLay
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import {
@@ -39,13 +40,6 @@ const statusLabel: Record<string, string> = {
   registering: "Registering",
   active: "Active",
   sold_out: "Sold Out",
-};
-
-const statusStyle: Record<string, string> = {
-  coming_soon: "bg-info-soft text-info-strong border-info/30",
-  registering: "bg-warning-soft text-warning-strong border-warning/30",
-  active: "bg-success-soft text-success-strong border-success/30",
-  sold_out: "bg-muted text-foreground border-border",
 };
 
 export default function DeveloperProjects() {

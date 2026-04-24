@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
@@ -520,18 +521,13 @@ export default function AdminMLSSync() {
     .reduce((sum, c) => sum + c.count, 0) || 0;
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <Badge className="bg-success"><CheckCircle2 className="h-3 w-3 mr-1" />Completed</Badge>;
-      case "completed_with_errors":
-        return <Badge className="bg-warning"><AlertTriangle className="h-3 w-3 mr-1" />With Errors</Badge>;
-      case "failed":
-        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Failed</Badge>;
-      case "running":
-        return <Badge className="bg-info"><RefreshCw className="h-3 w-3 mr-1 animate-spin" />Running</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
+    const iconMap: Record<string, JSX.Element> = {
+      completed: <CheckCircle2 className="h-3 w-3" />,
+      completed_with_errors: <AlertTriangle className="h-3 w-3" />,
+      failed: <XCircle className="h-3 w-3" />,
+      running: <RefreshCw className="h-3 w-3 animate-spin" />,
+    };
+    return <StatusBadge status={status} icon={iconMap[status]} />;
   };
 
   return (

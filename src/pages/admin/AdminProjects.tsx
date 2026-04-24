@@ -805,9 +805,7 @@ export default function AdminProjects() {
                             In Hero
                           </Badge>
                         )}
-                        <Badge className={getStatusColor(project.status)}>
-                          {formatStatus(project.status)}
-                        </Badge>
+                        <StatusBadge status={project.status} label={formatStatus(project.status)} />
                         <Badge variant={project.is_published ? "default" : "secondary"}>
                           {project.is_published ? "Published" : "Draft"}
                         </Badge>
