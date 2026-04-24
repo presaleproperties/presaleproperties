@@ -436,6 +436,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </CarouselSection>
 
             <CarouselSection delay={300}>
+              <FeaturedProjectPromo slug="ironwood" badgeLabel="Coquitlam Spotlight" />
               <MobileDiscoveryCarousel
               type="city_coquitlam"
               title="Coquitlam"
