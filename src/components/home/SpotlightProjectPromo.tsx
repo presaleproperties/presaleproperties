@@ -86,7 +86,13 @@ export function SpotlightProjectPromo({ inline = false }: SpotlightProjectPromoP
             </div>
           </div>
         </div>
-      </div>
+  );
+
+  if (inline) return card;
+
+  return (
+    <section className="relative isolate overflow-hidden py-6 md:py-12">
+      <div className="container px-4">{card}</div>
     </section>
   );
 }
