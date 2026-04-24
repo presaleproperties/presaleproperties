@@ -324,9 +324,6 @@ const Index = () => {
           <VipListSignup />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
-          <PresaleExpertsSection />
-        </ScrollReveal>
-        <ScrollReveal animation="fade-up" delay={100}>
           <WhyChooseUs />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
