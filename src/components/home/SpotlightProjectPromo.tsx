@@ -11,7 +11,12 @@ const formatPrice = (price: number | null) => {
   return `$${price.toLocaleString("en-CA")}`;
 };
 
-export function SpotlightProjectPromo() {
+interface SpotlightProjectPromoProps {
+  /** Render just the card without the outer <section>/container/padding. */
+  inline?: boolean;
+}
+
+export function SpotlightProjectPromo({ inline = false }: SpotlightProjectPromoProps = {}) {
   const { data: projects } = useTrendingProjects(8);
   const eligible = (projects ?? []).filter((p) => !HAND_PICKED_PROMO_SLUGS.has(p.slug));
   const project = eligible[0];
@@ -24,10 +29,8 @@ export function SpotlightProjectPromo() {
   });
   const price = formatPrice(project.starting_price);
 
-  return (
-    <section className="relative isolate overflow-hidden py-6 md:py-12">
-      <div className="container px-4">
-        <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
+  const card = (
+    <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
           <div className="grid md:grid-cols-2 gap-0">
             <Link to={url} className="relative aspect-[4/3] md:aspect-auto md:h-auto md:min-h-[420px] overflow-hidden group">
               <img
