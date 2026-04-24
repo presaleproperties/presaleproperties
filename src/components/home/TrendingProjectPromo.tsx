@@ -28,11 +28,11 @@ export function TrendingProjectPromo() {
   const price = formatPrice(project.starting_price);
 
   return (
-    <section className="py-6 md:py-10">
+    <section className="relative isolate overflow-hidden py-6 md:py-10">
       <div className="container px-4 sm:px-6">
         <Link
           to={url}
-          className="relative flex flex-col justify-end overflow-hidden rounded-3xl border border-border shadow-xl group min-h-[420px] sm:min-h-[480px] lg:min-h-[520px]"
+          className="relative isolate flex flex-col justify-end overflow-hidden rounded-3xl border border-border shadow-xl group min-h-[420px] sm:min-h-[480px] lg:min-h-[520px]"
         >
           <img
             src={project.featured_image!}
