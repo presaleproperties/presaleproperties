@@ -17,10 +17,11 @@ import { MetaEvents } from "@/components/tracking/MetaPixel";
 const PAGEVIEW_KEY = "pp_pageviews";
 const SHOWN_KEY = "pp_request_call_shown";
 const CONVERTED_KEY = "presale_lead_converted";
-const EXIT_INTENT_SHOWN_KEY = "exit_intent_shown"; // sessionStorage key set by ExitIntentPopup
+const EXIT_INTENT_SHOWN_KEY = "exit_intent_shown"; // sessionStorage key shared with ExitIntentPopup
 const MIN_PAGEVIEWS = 3; // show on the 3rd page view in the session/visitor lifetime
 const SHOW_DELAY_MS_DESKTOP = 1500;
-const SHOW_DELAY_MS_MOBILE = 45000; // 45s on mobile — give users time to browse first
+const MOBILE_MIN_TIME_MS = 30000;   // mobile: at least 30s in session
+const MOBILE_MIN_SCROLL_PCT = 0.5;  // …or 50% scroll depth, whichever comes first
 
 // Routes where the popup should never appear (forms / portals / sensitive flows)
 const BLOCKED_PATH_PREFIXES = [
@@ -78,22 +79,53 @@ export function RequestACallPopup() {
       const current = parseInt(localStorage.getItem(PAGEVIEW_KEY) || "0", 10) + 1;
       localStorage.setItem(PAGEVIEW_KEY, String(current));
 
-      if (current >= MIN_PAGEVIEWS) {
-        const delay = isMobile ? SHOW_DELAY_MS_MOBILE : SHOW_DELAY_MS_DESKTOP;
-        const t = setTimeout(() => {
-          // Don't double-stack with the exit-intent popup in the same session
-          try {
-            if (sessionStorage.getItem(EXIT_INTENT_SHOWN_KEY) === "true") return;
-          } catch {}
-          setOpen(true);
-          localStorage.setItem(SHOWN_KEY, "true");
-          MetaEvents.formStart({
-            content_name: "Request a Call Popup",
-            content_category: "lead_magnet",
-          });
-        }, delay);
-        return () => clearTimeout(t);
+      if (current < MIN_PAGEVIEWS) return;
+
+      let cancelled = false;
+      const cleanups: Array<() => void> = [];
+
+      const trigger = () => {
+        if (cancelled) return;
+        cancelled = true;
+        cleanups.forEach((fn) => { try { fn(); } catch {} });
+        // Suppress exit-intent popup for the rest of this session
+        try { sessionStorage.setItem(EXIT_INTENT_SHOWN_KEY, "true"); } catch {}
+        setOpen(true);
+        localStorage.setItem(SHOWN_KEY, "true");
+        MetaEvents.formStart({
+          content_name: "Request a Call Popup",
+          content_category: "lead_magnet",
+        });
+      };
+
+      // Don't double-stack if exit-intent already fired in this session
+      try {
+        if (sessionStorage.getItem(EXIT_INTENT_SHOWN_KEY) === "true") return;
+      } catch {}
+
+      if (isMobile) {
+        // Fire on whichever happens first: 30s elapsed OR 50% scroll depth
+        const t = setTimeout(trigger, MOBILE_MIN_TIME_MS);
+        cleanups.push(() => clearTimeout(t));
+
+        const onScroll = () => {
+          const doc = document.documentElement;
+          const max = doc.scrollHeight - window.innerHeight;
+          if (max <= 0) return;
+          const pct = window.scrollY / max;
+          if (pct >= MOBILE_MIN_SCROLL_PCT) trigger();
+        };
+        window.addEventListener("scroll", onScroll, { passive: true });
+        cleanups.push(() => window.removeEventListener("scroll", onScroll));
+      } else {
+        const t = setTimeout(trigger, SHOW_DELAY_MS_DESKTOP);
+        cleanups.push(() => clearTimeout(t));
       }
+
+      return () => {
+        cancelled = true;
+        cleanups.forEach((fn) => { try { fn(); } catch {} });
+      };
     } catch {
       // localStorage may be blocked — silently skip
     }
