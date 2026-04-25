@@ -254,17 +254,17 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </button>
           </div>
 
-          {/* Trust mini-strip — clean tablet/mobile sentence */}
+          {/* Trust mini-strip — tight, minimal */}
           <div className="mt-3 pointer-events-auto px-2">
             <p
-              className="text-[11px] text-on-dark/90 text-center tracking-wide leading-relaxed"
+              className="text-[11px] text-on-dark/90 text-center tracking-wide"
               style={{ textShadow: "0 1px 8px rgba(0,0,0,0.55)" }}
             >
-              <span className="font-bold text-on-dark">Trusted by 400+ families, buyers &amp; investors</span>
+              <span className="font-bold text-on-dark">400+ trusted</span>
               <span className="mx-1.5 text-on-dark/40">·</span>
-              <span className="font-bold text-on-dark">5 years in presale market</span>
+              <span className="font-bold text-on-dark">5 yrs</span>
               <span className="mx-1.5 text-on-dark/40">·</span>
-              <span className="font-bold text-on-dark">5.0★ Google rating</span>
+              <span className="font-bold text-on-dark">5.0★ Google</span>
             </p>
           </div>
 
