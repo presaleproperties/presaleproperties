@@ -201,8 +201,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </p>
 
           {/* Search bar */}
-          <div className="relative z-[10] w-full max-w-[340px] sm:max-w-[500px] pointer-events-auto">
-            <div ref={searchBarRef} className="relative flex items-center bg-card/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[60px] sm:h-[68px] border border-card/40">
+          <div className="relative z-[10] w-full max-w-[340px] pointer-events-auto">
+            <div ref={searchBarRef} className="relative flex items-center bg-card/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[60px] border border-card/40">
               {/* Tab switcher — compact on mobile */}
               <div className="flex items-center shrink-0 pl-1 gap-0.5">
                 {(["projects", "resale"] as SearchTab[]).map((tab) => (
@@ -230,15 +230,15 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
                   variant="hero"
                   hideIcon
                   dropdownContainer={searchBarRef}
-                  inputClassName="h-[60px] sm:h-[68px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-2 rounded-none shadow-none"
+                  inputClassName="h-[60px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-2 rounded-none shadow-none"
                 />
               </div>
               <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                className="shrink-0 w-10 h-10 sm:w-11 sm:h-11 mr-1.5 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-all shadow-md"
+                className="shrink-0 w-10 h-10 mr-1.5 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-all shadow-md"
                 aria-label="Search"
               >
-                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Search className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -257,7 +257,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           {/* Trust mini-strip — clean tablet/mobile sentence */}
           <div className="mt-3 pointer-events-auto px-2">
             <p
-              className="text-[11px] sm:text-xs text-on-dark/90 text-center tracking-wide leading-relaxed"
+              className="text-[11px] text-on-dark/90 text-center tracking-wide leading-relaxed"
               style={{ textShadow: "0 1px 8px rgba(0,0,0,0.55)" }}
             >
               <span className="font-bold text-on-dark">400+ presale properties sold</span>
