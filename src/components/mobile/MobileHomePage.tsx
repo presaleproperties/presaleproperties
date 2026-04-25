@@ -269,8 +269,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         </div>
       </div>
 
-        </div>
-      </div>
 
 
       {/* City Quick Links */}
