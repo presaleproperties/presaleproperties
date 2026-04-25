@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Users, Tag } from "lucide-react";
+import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Users, Tag, Sparkles } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -289,6 +289,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                     <div className="w-[420px] bg-background rounded-2xl shadow-[0_20px_60px_-10px_hsl(var(--foreground)/0.14),0_0_0_1px_hsl(var(--border)/0.6)] overflow-hidden p-2.5">
                       <div className="grid grid-cols-2 gap-1">
                         {[
+                          { to: "/presale-incentives", label: "Incentives & Deals", icon: Sparkles, desc: "Active discounts by city" },
                           { to: "/assignments", label: "Assignments", icon: Tag, desc: "Resale contracts" },
                           { to: "/blog", label: "Guides", icon: BookOpen, desc: "Buyer education" },
                           { to: "/faq", label: "FAQ", icon: BookOpen, desc: "Common questions" },
@@ -490,6 +491,20 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                           </div>
                         </CollapsibleContent>
                       </Collapsible>
+
+                      <div className="h-px bg-border/40 my-1" />
+
+                      {/* Incentives & Deals */}
+                      <Link
+                        to="/presale-incentives"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 py-4"
+                      >
+                        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Sparkles className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-lg font-semibold text-foreground">Incentives & Deals</span>
+                      </Link>
 
                       <div className="h-px bg-border/40 my-1" />
 
