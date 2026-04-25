@@ -9,6 +9,8 @@ import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { FeaturedResaleListings } from "@/components/home/FeaturedResaleListings";
 import { CityProjectsSection } from "@/components/home/CityProjectsSection";
 import { ResaleCitySection } from "@/components/home/ResaleCitySection";
+import { IncentivesStrip } from "@/components/home/IncentivesStrip";
+import { VipListSignup } from "@/components/home/VipListSignup";
 
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
@@ -312,6 +314,14 @@ const Index = () => {
       <main className="flex-1">
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
         {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
+
+        {/* Active Incentives — high-intent strip surfaced early */}
+        {activeTab === "projects" && (
+          <ScrollReveal animation="fade-up" delay={100}>
+            <IncentivesStrip />
+          </ScrollReveal>
+        )}
+
         {/*
           City block now owns ALL project promo cards (Spotlight, Trending,
           Secondary, RisingStar + hand-picked Featured per city). Each promo
@@ -320,13 +330,25 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           {activeTab === "projects" ? <CityProjectsSection /> : <ResaleCitySection />}
         </ScrollReveal>
-        {/* Editorial flow: trust/why-buy → social proof → lead magnet → tools → map */}
+
+        {/* Map promoted higher in the flow for engagement */}
+        <ScrollReveal animation="fade-up" delay={100}>
+          <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
+        </ScrollReveal>
+
+        {/* Editorial flow: trust/why-buy → social proof → lead magnet → tools */}
         <ScrollReveal animation="fade-up" delay={100}>
           <PresaleExpertsSection />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <GoogleReviewsCarousel />
         </ScrollReveal>
+
+        {/* Inline VIP capture — primary north-star conversion */}
+        <ScrollReveal animation="fade-up" delay={100}>
+          <VipListSignup />
+        </ScrollReveal>
+
         <ScrollReveal animation="fade-up" delay={100}>
           <MistakesGuideBanner location="homepage_banner" />
         </ScrollReveal>
@@ -335,10 +357,6 @@ const Index = () => {
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
-        </ScrollReveal>
-        {/* Large Map Section - Page Ending */}
-        <ScrollReveal animation="fade-up" delay={100}>
-          <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
         </ScrollReveal>
       </main>
 
