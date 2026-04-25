@@ -30,7 +30,7 @@ export function FeaturedProjects() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, view_count")
+        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, view_count, incentives, incentives_available")
         .eq("is_published", true)
         .order("view_count", { ascending: false })
         .limit(8);
@@ -138,6 +138,10 @@ export function FeaturedProjects() {
                 startingPrice={project.starting_price}
                 featuredImage={project.featured_image}
                 galleryImages={project.gallery_images}
+                hasIncentive={
+                  (project as any).incentives_available === true ||
+                  ((project as any).incentives && String((project as any).incentives).trim().length > 0)
+                }
                 size="featured"
               />
             ))}

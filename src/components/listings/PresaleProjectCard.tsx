@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Building2, Home, Warehouse, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Building2, Home, Warehouse, Calendar, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,8 @@ interface PresaleProjectCardProps {
   galleryImages?: string[] | null;
   lastVerifiedDate?: string | null;
   size?: "default" | "large" | "featured";
+  /** Show a green "Incentive" badge in the top-right of the image. */
+  hasIncentive?: boolean;
 }
 
 const formatPrice = (price: number) => {
@@ -83,6 +85,7 @@ export function PresaleProjectCard({
   featuredImage,
   galleryImages,
   size = "default",
+  hasIncentive = false,
 }: PresaleProjectCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -196,6 +199,16 @@ export function PresaleProjectCard({
                 <div className="absolute top-3 left-3">
                   <Badge className="bg-primary text-primary-foreground text-[10px] font-semibold shadow-sm px-2 py-0.5">
                     {statusLabel}
+                  </Badge>
+                </div>
+              )}
+
+              {/* Incentive Badge — top right */}
+              {hasIncentive && (
+                <div className="absolute top-3 right-3">
+                  <Badge className="bg-success text-success-foreground hover:bg-success text-[10px] font-bold shadow-sm px-2 py-0.5 gap-1 uppercase tracking-wide">
+                    <Sparkles className="h-2.5 w-2.5" />
+                    Incentive
                   </Badge>
                 </div>
               )}
