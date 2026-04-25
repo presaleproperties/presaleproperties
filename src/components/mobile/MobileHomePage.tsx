@@ -301,6 +301,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         </div>
       </div>
 
+      {/* Active Incentives strip — only for Presale tab */}
+      {activeTab === "projects" && <IncentivesStrip />}
+
       {/* Discovery Sections - Switch based on active tab */}
       <div className="pb-6">
         {activeTab === "projects" ?
