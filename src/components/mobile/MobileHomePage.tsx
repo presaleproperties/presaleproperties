@@ -89,63 +89,103 @@ function MobileVIPModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-neutral-900/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md p-6">
-        <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
-          <X className="h-5 w-5" />
+      <div className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-hidden flex flex-col ring-1 ring-primary/20">
+        <button onClick={onClose} className="absolute top-3 right-3 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center text-muted-foreground hover:text-foreground">
+          <X className="h-4 w-4" />
         </button>
         {submitted ? (
-          <div className="text-center py-4">
+          <div className="text-center px-6 py-10">
             <div className="text-3xl mb-3">🎉</div>
-            <h2 className="text-xl font-bold text-foreground mb-1">You're In!</h2>
-            <p className="text-sm text-muted-foreground">VIP access details are on the way.</p>
+            <h2 className="text-xl font-bold text-foreground mb-1">You're on the VIP list!</h2>
+            <p className="text-sm text-muted-foreground">Exclusive offers and early access details are on the way.</p>
           </div>
         ) : (
-          <>
-            <h2 className="text-xl font-bold text-foreground mb-1">Get VIP Presale Access</h2>
-            <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
-              Be first to see pricing, floor plans and off-market assignments before they go public.
-            </p>
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <input type="text" required placeholder="First Name" value={form.firstName}
-                onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
-              <input type="email" required placeholder="Email Address" value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
-              <input type="tel" required placeholder="Phone Number" value={form.phone}
-                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
-              <select required value={form.interest}
-                onChange={e => setForm(f => ({ ...f, interest: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
-                <option value="">I'm interested in…</option>
-                <option value="Condos">Condos</option>
-                <option value="Townhomes">Townhomes</option>
-                <option value="Both">Both</option>
-                <option value="Not sure yet">Not sure yet</option>
-              </select>
-              <select required value={form.isRealtor}
-                onChange={e => setForm(f => ({ ...f, isRealtor: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
-                <option value="">Are you a realtor?</option>
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-              </select>
-              <select required value={form.workingWithRealtor}
-                onChange={e => setForm(f => ({ ...f, workingWithRealtor: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
-                <option value="">Are you working with a realtor?</option>
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-              </select>
-              <button type="submit" disabled={isSubmitting} className="w-full h-11 bg-primary text-primary-foreground rounded-full font-bold text-sm disabled:opacity-60">
-                {isSubmitting ? "Submitting..." : "Get Instant Access"}
-              </button>
-              {error && <p className="text-center text-xs text-danger">{error}</p>}
-              <p className="text-center text-[11px] text-muted-foreground">No spam. Unsubscribe anytime.</p>
-            </form>
-          </>
+          <div className="overflow-y-auto">
+            {/* Premium gold banner */}
+            <div
+              className="relative px-5 pt-6 pb-4 text-center"
+              style={{
+                background:
+                  "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.85) 100%)",
+              }}
+            >
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/90 text-background text-[10px] font-bold uppercase tracking-[0.2em] mb-2.5">
+                🔒 VIP Access · Invitation Only
+              </div>
+              <h2 className="text-xl font-extrabold text-primary-foreground leading-tight tracking-tight">
+                Unlock Up to <span className="underline decoration-2 underline-offset-4">$100,000 Off</span><br />
+                <span className="text-primary-foreground/90">Select Presale Condos</span>
+              </h2>
+              <p className="text-primary-foreground/85 text-xs mt-1.5 leading-relaxed">
+                Off-market deals & pricing the public will never see.
+              </p>
+            </div>
+
+            <div className="px-5 pt-4 pb-5">
+              {/* FOMO benefit list */}
+              <ul className="space-y-1.5 mb-4">
+                {[
+                  "Up to $100K in developer incentives",
+                  "Off-market floor plans before launch",
+                  "Private VIP pricing — not advertised",
+                ].map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-[12.5px] text-foreground">
+                    <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full bg-primary/15 flex items-center justify-center">
+                      <span className="block h-1.5 w-1.5 rounded-full bg-primary" />
+                    </span>
+                    <span className="leading-snug">{b}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <form onSubmit={handleSubmit} className="space-y-2.5">
+                <input type="text" required placeholder="First Name" value={form.firstName}
+                  onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
+                <input type="email" required placeholder="Email Address" value={form.email}
+                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
+                <input type="tel" required placeholder="Phone Number" value={form.phone}
+                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
+                <select required value={form.interest}
+                  onChange={e => setForm(f => ({ ...f, interest: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
+                  <option value="">I'm interested in…</option>
+                  <option value="Condos">Condos</option>
+                  <option value="Townhomes">Townhomes</option>
+                  <option value="Both">Both</option>
+                  <option value="Not sure yet">Not sure yet</option>
+                </select>
+                <select required value={form.isRealtor}
+                  onChange={e => setForm(f => ({ ...f, isRealtor: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
+                  <option value="">Are you a realtor?</option>
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+                <select required value={form.workingWithRealtor}
+                  onChange={e => setForm(f => ({ ...f, workingWithRealtor: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
+                  <option value="">Are you working with a realtor?</option>
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+                <button type="submit" disabled={isSubmitting} className="w-full h-12 bg-primary text-primary-foreground rounded-full font-bold text-sm shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.6)] disabled:opacity-60">
+                  {isSubmitting ? "Securing your spot..." : "🔓 Unlock VIP Access — Free"}
+                </button>
+                {error && <p className="text-center text-xs text-danger">{error}</p>}
+                <div className="pt-1.5 space-y-1">
+                  <div className="flex items-center justify-center gap-1 text-[11px] text-foreground">
+                    <span className="text-primary">★★★★★</span>
+                    <span className="font-semibold">Trusted by 400+ buyers & investors</span>
+                  </div>
+                  <p className="text-center text-[10px] text-muted-foreground">No spam. Limited VIP spots per project.</p>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
       </div>
     </div>

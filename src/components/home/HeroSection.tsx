@@ -69,102 +69,144 @@ function VIPModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-neutral-900/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm" onClick={onClose} />
       {/* Modal */}
-      <div className="relative bg-card rounded-2xl shadow-2xl w-full max-w-md p-6 sm:p-8">
+      <div className="relative bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden ring-1 ring-primary/20 max-h-[92vh] flex flex-col">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute top-3 right-3 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
 
         {submitted ? (
-          <div className="text-center py-6">
-            <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">🎉</span>
+          <div className="text-center px-6 py-10">
+            <div className="h-14 w-14 rounded-full bg-primary/15 flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">🎉</span>
             </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">You're In!</h2>
-            <p className="text-sm text-muted-foreground">Check your inbox — VIP access details are on the way.</p>
+            <h2 className="text-xl font-bold text-foreground mb-2">You're on the VIP list!</h2>
+            <p className="text-sm text-muted-foreground">Check your inbox — your exclusive offers and early access details are on the way.</p>
           </div>
         ) : (
-          <>
-            <div className="mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Get VIP Presale Access</h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Be first to see pricing, floor plans and off-market assignments before they go public.
+          <div className="overflow-y-auto">
+            {/* Premium gold banner */}
+            <div
+              className="relative px-6 pt-7 pb-5 text-center"
+              style={{
+                background:
+                  "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.85) 100%)",
+              }}
+            >
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-foreground/90 text-background text-[10px] font-bold uppercase tracking-[0.2em] mb-3">
+                🔒 VIP Access · Invitation Only
+              </div>
+              <h2 className="text-2xl sm:text-[26px] font-extrabold text-primary-foreground leading-tight tracking-tight">
+                Unlock Up to <span className="underline decoration-2 underline-offset-4">$100,000 Off</span><br />
+                <span className="text-primary-foreground/90">Select Presale Condos</span>
+              </h2>
+              <p className="text-primary-foreground/85 text-xs sm:text-sm mt-2 leading-relaxed">
+                Off-market deals, developer credits & pricing the public will never see.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <input
-                type="text"
-                required
-                placeholder="First Name"
-                value={form.firstName}
-                onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              />
-              <input
-                type="email"
-                required
-                placeholder="Email Address"
-                value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              />
-              <input
-                type="tel"
-                required
-                placeholder="(604) 555-0123"
-                value={form.phone}
-                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                inputMode="numeric"
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              />
-              <select
-                required
-                value={form.interest}
-                onChange={e => setForm(f => ({ ...f, interest: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              >
-                <option value="">I'm interested in…</option>
-                <option value="Condos">Condos</option>
-                <option value="Townhomes">Townhomes</option>
-                <option value="Both">Both</option>
-                <option value="Not sure yet">Not sure yet</option>
-              </select>
-              <select
-                required
-                value={form.isRealtor}
-                onChange={e => setForm(f => ({ ...f, isRealtor: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              >
-                <option value="">Are you a realtor?</option>
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-              </select>
-              <select
-                required
-                value={form.workingWithRealtor}
-                onChange={e => setForm(f => ({ ...f, workingWithRealtor: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              >
-                <option value="">Are you working with a realtor?</option>
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-              </select>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full h-11 rounded-full font-bold text-sm"
-              >
-                {isSubmitting ? "Submitting..." : "Get Instant Access"}
-              </Button>
-              {error && <p className="text-center text-xs text-danger">{error}</p>}
-              <p className="text-center text-[11px] text-muted-foreground">No spam. Unsubscribe anytime.</p>
-            </form>
-          </>
+            <div className="px-6 pt-5 pb-6">
+              {/* FOMO benefit list */}
+              <ul className="space-y-2 mb-5">
+                {[
+                  "Up to $100K in developer incentives & credits",
+                  "Off-market floor plans before public launch",
+                  "Private VIP pricing — not advertised anywhere",
+                  "First-look on assignments & off-market deals",
+                ].map((b) => (
+                  <li key={b} className="flex items-start gap-2.5 text-[13px] text-foreground">
+                    <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full bg-primary/15 flex items-center justify-center">
+                      <span className="block h-1.5 w-1.5 rounded-full bg-primary" />
+                    </span>
+                    <span className="leading-snug">{b}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <form onSubmit={handleSubmit} className="space-y-2.5">
+                <input
+                  type="text"
+                  required
+                  placeholder="First Name"
+                  value={form.firstName}
+                  onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+                <input
+                  type="email"
+                  required
+                  placeholder="Email Address"
+                  value={form.email}
+                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+                <input
+                  type="tel"
+                  required
+                  placeholder="(604) 555-0123"
+                  value={form.phone}
+                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                  inputMode="numeric"
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+                <select
+                  required
+                  value={form.interest}
+                  onChange={e => setForm(f => ({ ...f, interest: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                >
+                  <option value="">I'm interested in…</option>
+                  <option value="Condos">Condos</option>
+                  <option value="Townhomes">Townhomes</option>
+                  <option value="Both">Both</option>
+                  <option value="Not sure yet">Not sure yet</option>
+                </select>
+                <select
+                  required
+                  value={form.isRealtor}
+                  onChange={e => setForm(f => ({ ...f, isRealtor: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                >
+                  <option value="">Are you a realtor?</option>
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+                <select
+                  required
+                  value={form.workingWithRealtor}
+                  onChange={e => setForm(f => ({ ...f, workingWithRealtor: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                >
+                  <option value="">Are you working with a realtor?</option>
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full h-12 rounded-full font-bold text-sm shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.6)] hover:shadow-[0_14px_36px_-10px_hsl(var(--primary)/0.7)] transition-shadow"
+                >
+                  {isSubmitting ? "Securing your spot..." : "🔓 Unlock VIP Access — Free"}
+                </Button>
+                {error && <p className="text-center text-xs text-danger">{error}</p>}
+
+                {/* Trust + scarcity footer */}
+                <div className="pt-2 space-y-1.5">
+                  <div className="flex items-center justify-center gap-1 text-[11px] text-foreground">
+                    <span className="text-primary">★★★★★</span>
+                    <span className="font-semibold">Trusted by 400+ buyers & investors</span>
+                  </div>
+                  <p className="text-center text-[10px] text-muted-foreground">
+                    No spam. Unsubscribe anytime. Limited VIP spots per project.
+                  </p>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
       </div>
     </div>
