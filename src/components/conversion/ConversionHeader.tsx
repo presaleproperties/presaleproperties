@@ -273,37 +273,63 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+
+                {/* ── More Dropdown (groups secondary links to prevent CTA overlap) ── */}
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className={cn(
+                    "h-9 px-4 text-[13px] font-semibold tracking-wide bg-transparent rounded-lg transition-all duration-200",
+                    "text-foreground/65 hover:text-foreground",
+                    "hover:bg-foreground/[0.04] data-[state=open]:bg-foreground/[0.04]",
+                    "data-[state=open]:text-foreground",
+                    "[&>svg]:text-primary/70 [&>svg]:ml-1.5 [&>svg]:h-3.5 [&>svg]:w-3.5"
+                  )}>
+                    More
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-[420px] bg-background rounded-2xl shadow-[0_20px_60px_-10px_hsl(var(--foreground)/0.14),0_0_0_1px_hsl(var(--border)/0.6)] overflow-hidden p-2.5">
+                      <div className="grid grid-cols-2 gap-1">
+                        {[
+                          { to: "/assignments", label: "Assignments", icon: Tag, desc: "Resale contracts" },
+                          { to: "/blog", label: "Guides", icon: BookOpen, desc: "Buyer education" },
+                          { to: "/faq", label: "FAQ", icon: BookOpen, desc: "Common questions" },
+                          { to: "/calculator", label: "Calculator", icon: Calculator, desc: "ROI & mortgage" },
+                          { to: "/about", label: "About", icon: Users, desc: "Meet the team" },
+                          { to: "/login", label: "Agent Portal", icon: Users, desc: "Sign in" },
+                        ].map(({ to, label, icon: Icon, desc }) => (
+                          <NavigationMenuLink key={to} asChild>
+                            <Link
+                              to={to}
+                              className={cn(
+                                "flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group",
+                                isActive(to)
+                                  ? "bg-primary/8"
+                                  : "hover:bg-secondary/70"
+                              )}
+                            >
+                              <div className={cn(
+                                "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                                isActive(to)
+                                  ? "bg-primary/15 text-primary"
+                                  : "bg-muted/70 text-foreground/60 group-hover:bg-primary/10 group-hover:text-primary"
+                              )}>
+                                <Icon className="h-3.5 w-3.5" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-[13px] font-semibold text-foreground leading-tight">{label}</div>
+                                <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">{desc}</p>
+                              </div>
+                            </Link>
+                          </NavigationMenuLink>
+                        ))}
+                      </div>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
 
-            {/* Plain text links — no icons, refined weight */}
-            {[
-              { to: "/assignments", label: "Assignments" },
-              { to: "/blog", label: "Guides" },
-              { to: "/faq", label: "FAQ" },
-              { to: "/calculator", label: "Calculator" },
-              { to: "/about", label: "About" },
-              { to: "/login", label: "Agent Portal" },
-            ].map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                className={cn(
-                  "h-9 px-4 flex items-center text-[13px] font-semibold tracking-wide rounded-lg transition-all duration-150",
-                  isActive(to)
-                    ? "text-foreground bg-foreground/[0.05]"
-                    : "text-foreground/65 hover:text-foreground hover:bg-foreground/[0.04]"
-                )}
-              >
-                {label}
-                {isActive(to) && (
-                  <span className="ml-2 h-1 w-1 rounded-full bg-primary inline-block" />
-                )}
-              </Link>
-            ))}
-
             {/* Separator */}
-            <div className="h-5 w-px bg-border/70 mx-4" />
+            <div className="h-5 w-px bg-border/70 mx-3" />
           </nav>
 
           {/* ── Desktop CTA ── */}
