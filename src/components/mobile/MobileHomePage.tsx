@@ -260,7 +260,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               className="text-[11px] text-on-dark/90 text-center tracking-wide leading-relaxed"
               style={{ textShadow: "0 1px 8px rgba(0,0,0,0.55)" }}
             >
-              <span className="font-bold text-on-dark">400+ presale properties sold</span>
+              <span className="font-bold text-on-dark">Trusted by 400+ families, buyers &amp; investors</span>
               <span className="mx-1.5 text-on-dark/40">·</span>
               <span className="font-bold text-on-dark">5 years in presale market</span>
               <span className="mx-1.5 text-on-dark/40">·</span>
