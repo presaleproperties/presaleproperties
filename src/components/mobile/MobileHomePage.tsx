@@ -12,6 +12,8 @@ import { PresaleExpertsSection } from "@/components/home/PresaleExpertsSection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
+import { IncentivesStrip } from "@/components/home/IncentivesStrip";
+import { VipListSignup } from "@/components/home/VipListSignup";
 import { Footer } from "@/components/layout/Footer";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "@/components/home/HeroProjectSlider";
