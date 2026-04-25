@@ -61,7 +61,9 @@ export function WhatsAppBubble() {
   return (
     <div
       className={cn(
-        "fixed z-[60] bottom-5 right-5 sm:bottom-6 sm:right-6",
+        // Lifted higher on mobile so it never sits over the hero card's
+        // inline CTAs (Floor Plans / Details) or the city pills strip.
+        "fixed z-[60] bottom-24 right-3 sm:bottom-6 sm:right-6",
         "flex flex-col items-end gap-2"
       )}
     >
@@ -97,7 +99,7 @@ export function WhatsAppBubble() {
         aria-label="Chat with us on WhatsApp"
         onClick={() => sessionStorage.setItem("wa_bubble_seen", "1")}
         className={cn(
-          "group relative h-14 w-14 rounded-full flex items-center justify-center",
+          "group relative h-12 w-12 sm:h-14 sm:w-14 rounded-full flex items-center justify-center",
           "bg-[#25D366] text-white shadow-[0_8px_28px_-4px_rgba(37,211,102,0.55)]",
           "hover:scale-105 active:scale-95 transition-transform",
           "ring-4 ring-[#25D366]/15"
@@ -105,7 +107,7 @@ export function WhatsAppBubble() {
       >
         {/* Pulse ring */}
         <span className="absolute inset-0 rounded-full bg-[#25D366]/40 animate-ping opacity-60" />
-        <MessageCircle className="h-7 w-7 relative z-10" strokeWidth={2.2} fill="currentColor" fillOpacity={0.05} />
+        <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7 relative z-10" strokeWidth={2.2} fill="currentColor" fillOpacity={0.05} />
       </a>
     </div>
   );
