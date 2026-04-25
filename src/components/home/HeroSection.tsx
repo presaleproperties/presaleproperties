@@ -16,9 +16,9 @@ interface HeroSectionProps {
 }
 
 const TRUST_STATS = [
-  { value: "400+", label: "Trusted Clients" },
-  { value: "5 yrs", label: "In Presale" },
-  { value: "5.0 ★", label: "Google" },
+  { value: "400+", label: "Families, Buyers & Investors Served" },
+  { value: "5", label: "Years in Presale Market" },
+  { value: "5.0 ★", label: "Google Rating" },
 ];
 
 function VIPModal({ onClose }: { onClose: () => void }) {
