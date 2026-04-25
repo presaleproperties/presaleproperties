@@ -111,9 +111,9 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
         )}
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
-        <div className="flex h-14 md:h-[68px] items-center justify-between px-4 lg:px-8 lg:max-w-screen-xl lg:mx-auto">
+        <div className="flex h-14 md:h-[68px] items-center justify-between gap-2 px-4 lg:px-6 xl:px-8 lg:max-w-screen-xl lg:mx-auto">
           {/* Logo */}
-          <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8" />
+          <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8 shrink-0" />
 
           {/* ── Desktop Navigation ── */}
           <nav className="hidden lg:flex items-center">
