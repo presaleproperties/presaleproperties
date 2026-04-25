@@ -13,7 +13,7 @@ import { IncentivesStrip } from "@/components/home/IncentivesStrip";
 import { VipListSignup } from "@/components/home/VipListSignup";
 
 import { RelatedContent } from "@/components/home/RelatedContent";
-import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
+
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 // Promo cards (Spotlight, Trending, Secondary, RisingStar) are now rendered
@@ -351,9 +351,6 @@ const Index = () => {
 
         <ScrollReveal animation="fade-up" delay={100}>
           <MistakesGuideBanner location="homepage_banner" />
-        </ScrollReveal>
-        <ScrollReveal animation="fade-up" delay={100}>
-          <ROICalculatorTeaser />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />

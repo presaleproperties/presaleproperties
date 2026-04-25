@@ -10,7 +10,7 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { PresaleExpertsSection } from "@/components/home/PresaleExpertsSection";
 import { RelatedContent } from "@/components/home/RelatedContent";
-import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
+
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { IncentivesStrip } from "@/components/home/IncentivesStrip";
 import { VipListSignup } from "@/components/home/VipListSignup";
@@ -531,10 +531,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <PresaleExpertsSection />
       </div>
 
-      {/* ROI Calculator Teaser */}
-      <div className="mt-4">
-        <ROICalculatorTeaser />
-      </div>
 
       {/* Quick Links Section */}
       <div className="mt-4">
