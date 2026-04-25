@@ -43,20 +43,34 @@ interface MobileHomePageProps {
 
 
 function MobileVIPModal({ onClose }: { onClose: () => void }) {
-  const [form, setForm] = useState({ firstName: "", email: "", phone: "" });
+  const [form, setForm] = useState({
+    firstName: "",
+    email: "",
+    phone: "",
+    interest: "",
+    isRealtor: "",
+    workingWithRealtor: "",
+  });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.interest || !form.isRealtor || !form.workingWithRealtor) {
+      setError("Please answer all questions.");
+      return;
+    }
     setIsSubmitting(true);
     setError(null);
     try {
       const { error: dbError } = await supabase.from("vip_registrations").insert({
         first_name: form.firstName,
         email: form.email,
-        phone: form.phone || null,
+        phone: form.phone,
+        interest: form.interest,
+        is_realtor: form.isRealtor === "yes",
+        working_with_realtor: form.workingWithRealtor === "yes",
         source: "mobile_hero_vip_modal",
         utm_source: new URLSearchParams(window.location.search).get("utm_source"),
         utm_medium: new URLSearchParams(window.location.search).get("utm_medium"),
@@ -99,9 +113,32 @@ function MobileVIPModal({ onClose }: { onClose: () => void }) {
               <input type="email" required placeholder="Email Address" value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
-              <input type="tel" placeholder="Phone Number (optional)" value={form.phone}
+              <input type="tel" required placeholder="Phone Number" value={form.phone}
                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                 className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
+              <select required value={form.interest}
+                onChange={e => setForm(f => ({ ...f, interest: e.target.value }))}
+                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
+                <option value="">I'm interested in…</option>
+                <option value="Condos">Condos</option>
+                <option value="Townhomes">Townhomes</option>
+                <option value="Both">Both</option>
+                <option value="Not sure yet">Not sure yet</option>
+              </select>
+              <select required value={form.isRealtor}
+                onChange={e => setForm(f => ({ ...f, isRealtor: e.target.value }))}
+                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
+                <option value="">Are you a realtor?</option>
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+              <select required value={form.workingWithRealtor}
+                onChange={e => setForm(f => ({ ...f, workingWithRealtor: e.target.value }))}
+                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
+                <option value="">Are you working with a realtor?</option>
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
               <button type="submit" disabled={isSubmitting} className="w-full h-11 bg-primary text-primary-foreground rounded-full font-bold text-sm disabled:opacity-60">
                 {isSubmitting ? "Submitting..." : "Get Instant Access"}
               </button>
