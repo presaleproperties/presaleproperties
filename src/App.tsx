@@ -34,6 +34,7 @@ import { PixelHealthCheck } from "@/components/tracking/PixelHealthCheck";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { RequestACallPopup } from "@/components/conversion/RequestACallPopup";
+import { WhatsAppBubble } from "@/components/conversion/WhatsAppBubble";
 import { PropertiesSlugDispatcher } from "@/components/routing/PropertiesSlugDispatcher";
 import { Suspense, lazy } from "react";
 
@@ -221,6 +222,7 @@ const App = () => (
             {/* <ExitIntentPopup /> - Temporarily hidden */}
             <ExitIntentPopup />
             <RequestACallPopup />
+            <WhatsAppBubble />
           <Suspense fallback={<PageFallback />}>
           <Routes>
             {/* Public Routes */}
