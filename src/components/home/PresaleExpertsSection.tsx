@@ -119,16 +119,16 @@ export function PresaleExpertsSection() {
         <div className="container px-4 sm:px-6">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 sm:gap-14 lg:gap-20 items-center">
 
-            {/* Left — Photo collage: premium 2x2 with gold rings + subtle frame */}
+            {/* Left — Photo collage: clean 2x2, evenly aligned */}
             <div className="relative">
-              {/* Decorative gold frame offset */}
+              {/* Soft gold glow accent (no offset frame) */}
               <div
                 aria-hidden
-                className="absolute -inset-3 sm:-inset-4 rounded-3xl border border-primary/20 hidden sm:block"
+                className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-primary/10 blur-3xl hidden sm:block"
               />
               <div
                 aria-hidden
-                className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-primary/10 blur-2xl hidden sm:block"
+                className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-primary/8 blur-3xl hidden sm:block"
               />
 
               <div className="relative grid grid-cols-2 gap-3 sm:gap-4">
@@ -136,16 +136,15 @@ export function PresaleExpertsSection() {
                   ? [0, 1, 2, 3].map((i) => (
                       <Skeleton key={i} className="aspect-[4/5] rounded-2xl" />
                     ))
-                  : photos.slice(0, 4).map((m, idx) => (
+                  : photos.slice(0, 4).map((m) => (
                       <div
                         key={m.id}
                         className="aspect-[4/5] rounded-2xl overflow-hidden shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)] ring-1 ring-border/40 hover:ring-primary/50 group relative transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_30px_70px_-20px_hsl(var(--primary)/0.35)]"
-                        style={{ transform: idx % 2 === 0 ? "translateY(0)" : "translateY(12px)" }}
                       >
                         <img
                           src={m.photo_url!}
                           alt={`${m.full_name} — ${m.title}`}
-                          className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700 ease-out"
+                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                           loading="lazy"
                         />
                         {/* Premium gradient + gold accent line */}
@@ -207,14 +206,12 @@ export function PresaleExpertsSection() {
                     body: "No pressure, no commission games. Straight answers, full disclosure, and ongoing support long after assignment or completion.",
                   },
                 ].map((p, i) => (
-                  <div key={p.title} className="group">
-                    <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 flex items-baseline gap-4">
-                      <span className="font-serif italic text-primary text-2xl sm:text-3xl leading-none tabular-nums w-7 shrink-0">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
+                  <div key={p.title}>
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1.5 flex items-baseline gap-3">
+                      <span className="text-primary">{i + 1}.</span>
                       <span>{p.title}</span>
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed pl-11 text-sm sm:text-base">
+                    <p className="text-muted-foreground leading-relaxed pl-7 text-sm sm:text-base">
                       {p.body}
                     </p>
                   </div>
