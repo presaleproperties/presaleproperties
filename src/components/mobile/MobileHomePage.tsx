@@ -474,6 +474,11 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <RelatedContent />
       </div>
 
+      {/* Inline VIP capture — primary lead form */}
+      <div className="mt-6">
+        <VipListSignup />
+      </div>
+
       {/* Large Map Section - Page Ending */}
       <div className="mt-4">
         <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
