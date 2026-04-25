@@ -163,10 +163,10 @@ const PresaleIncentivesPage = () => {
 
       <main>
         {/* HERO */}
-        <section className="relative overflow-hidden border-b bg-gradient-to-br from-primary/5 via-background to-background">
+        <section className="relative overflow-hidden border-b bg-gradient-to-br from-success/10 via-background to-background">
           <div className="container mx-auto px-4 py-14 md:py-20">
             <div className="max-w-3xl">
-              <Badge variant="secondary" className="mb-4 gap-1.5">
+              <Badge className="mb-4 gap-1.5 bg-success-soft text-success-strong border-success/30 hover:bg-success-soft">
                 <Sparkles className="h-3.5 w-3.5" />
                 Updated regularly
               </Badge>
@@ -206,7 +206,7 @@ const PresaleIncentivesPage = () => {
                   <a
                     key={city}
                     href={`#city-${city.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="shrink-0 px-3.5 py-1.5 rounded-full border bg-background text-sm font-medium text-foreground hover:border-primary hover:text-primary transition-colors"
+                    className="shrink-0 px-3.5 py-1.5 rounded-full border bg-background text-sm font-medium text-foreground hover:border-success hover:text-success-strong transition-colors"
                   >
                     {city} <span className="text-muted-foreground">({items.length})</span>
                   </a>
@@ -246,7 +246,7 @@ const PresaleIncentivesPage = () => {
                   <div className="flex items-end justify-between mb-6 pb-3 border-b">
                     <div>
                       <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-                        <MapPin className="h-6 w-6 text-primary" />
+                        <MapPin className="h-6 w-6 text-success-strong" />
                         {city} Presale Incentives
                       </h2>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -278,7 +278,7 @@ const PresaleIncentivesPage = () => {
                                   <Building2 className="h-12 w-12 text-muted-foreground/40" />
                                 </div>
                               )}
-                              <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground gap-1 shadow-md">
+                              <Badge className="absolute top-3 left-3 bg-success text-success-foreground gap-1 shadow-md hover:bg-success">
                                 <Sparkles className="h-3 w-3" />
                                 Incentive
                               </Badge>
@@ -289,10 +289,10 @@ const PresaleIncentivesPage = () => {
                               )}
                             </div>
                             <CardContent className="p-5">
-                              <div className="text-xs font-medium text-primary uppercase tracking-wide mb-1.5">
+                              <div className="text-xs font-medium text-success-strong uppercase tracking-wide mb-1.5">
                                 {p.neighborhood || p.city}
                               </div>
-                              <h3 className="font-bold text-lg leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                              <h3 className="font-bold text-lg leading-snug text-foreground group-hover:text-success-strong transition-colors line-clamp-2">
                                 {p.name}
                               </h3>
                               {p.developer_name && (
@@ -301,8 +301,8 @@ const PresaleIncentivesPage = () => {
                                 </p>
                               )}
                               {p.incentives ? (
-                                <p className="mt-3 text-sm text-foreground/80 leading-relaxed line-clamp-3 bg-primary/5 border border-primary/10 rounded-md p-2.5">
-                                  <Tag className="inline h-3.5 w-3.5 mr-1 text-primary" />
+                                <p className="mt-3 text-sm text-success-strong dark:text-success-soft-foreground leading-relaxed line-clamp-3 bg-success-soft dark:bg-success-strong/30 border border-success/30 rounded-md p-2.5">
+                                  <Tag className="inline h-3.5 w-3.5 mr-1 text-success-strong" />
                                   {p.incentives}
                                 </p>
                               ) : p.short_description ? (
@@ -310,7 +310,7 @@ const PresaleIncentivesPage = () => {
                                   {p.short_description}
                                 </p>
                               ) : null}
-                              <div className="mt-4 inline-flex items-center text-sm font-semibold text-primary group-hover:gap-2 gap-1 transition-all">
+                              <div className="mt-4 inline-flex items-center text-sm font-semibold text-success-strong group-hover:gap-2 gap-1 transition-all">
                                 View Incentive Details
                                 <ArrowRight className="h-4 w-4" />
                               </div>
@@ -348,7 +348,7 @@ const PresaleIncentivesPage = () => {
               </p>
 
               <h3 className="text-2xl font-semibold mt-10 mb-3 flex items-center gap-2">
-                <TrendingUp className="h-6 w-6 text-primary" />
+                <TrendingUp className="h-6 w-6 text-success-strong" />
                 The most common BC presale incentives in 2026
               </h3>
               <ul className="space-y-2">
@@ -386,7 +386,7 @@ const PresaleIncentivesPage = () => {
                 pricing — often before the marketing centre opens.
               </p>
 
-              <div className="not-prose mt-8 rounded-xl border bg-primary/5 p-6 md:p-8">
+              <div className="not-prose mt-8 rounded-xl border border-success/30 bg-success-soft dark:bg-success-strong/20 p-6 md:p-8">
                 <h3 className="text-xl md:text-2xl font-bold mb-2">
                   Get early access to BC's best presale incentives
                 </h3>
