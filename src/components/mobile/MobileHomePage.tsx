@@ -113,9 +113,32 @@ function MobileVIPModal({ onClose }: { onClose: () => void }) {
               <input type="email" required placeholder="Email Address" value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
-              <input type="tel" placeholder="Phone Number (optional)" value={form.phone}
+              <input type="tel" required placeholder="Phone Number" value={form.phone}
                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                 className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
+              <select required value={form.interest}
+                onChange={e => setForm(f => ({ ...f, interest: e.target.value }))}
+                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
+                <option value="">I'm interested in…</option>
+                <option value="Condos">Condos</option>
+                <option value="Townhomes">Townhomes</option>
+                <option value="Both">Both</option>
+                <option value="Not sure yet">Not sure yet</option>
+              </select>
+              <select required value={form.isRealtor}
+                onChange={e => setForm(f => ({ ...f, isRealtor: e.target.value }))}
+                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
+                <option value="">Are you a realtor?</option>
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+              <select required value={form.workingWithRealtor}
+                onChange={e => setForm(f => ({ ...f, workingWithRealtor: e.target.value }))}
+                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">
+                <option value="">Are you working with a realtor?</option>
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
               <button type="submit" disabled={isSubmitting} className="w-full h-11 bg-primary text-primary-foreground rounded-full font-bold text-sm disabled:opacity-60">
                 {isSubmitting ? "Submitting..." : "Get Instant Access"}
               </button>
