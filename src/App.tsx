@@ -168,6 +168,7 @@ const DashboardDeckBuilder = lazy(() => import("./pages/dashboard/DashboardDeckB
 const BuyerAuth = lazy(() => import("./pages/BuyerAuth"));
 const BuyerLogin = lazy(() => import("./pages/BuyerLogin"));
 const BuyerDashboard = lazy(() => import("./pages/buyer/BuyerDashboard"));
+const PresaleIncentivesPage = lazy(() => import("./pages/PresaleIncentivesPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -226,6 +227,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/thank-you" element={<ThankYou />} />
             <Route path="/presale-projects" element={<PresaleProjects />} />
+            <Route path="/presale-incentives" element={<PresaleIncentivesPage />} />
             {/* NEW SEO URL Structure: /presale-projects/{city}/{type}/{price} */}
             <Route path="/presale-projects/:citySlug/:typePriceSlug" element={<PresaleCityTypePricePage />} />
             <Route path="/presale-projects/:citySlug" element={<PresaleCityHubPage />} />
