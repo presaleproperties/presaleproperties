@@ -12,6 +12,8 @@ import { PresaleExpertsSection } from "@/components/home/PresaleExpertsSection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
+import { IncentivesStrip } from "@/components/home/IncentivesStrip";
+import { VipListSignup } from "@/components/home/VipListSignup";
 import { Footer } from "@/components/layout/Footer";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "@/components/home/HeroProjectSlider";
@@ -185,7 +187,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <HeroProjectSlider lightOverlay />
 
         {/* Hero Content — anchored to top only, never covers bottom project card */}
-        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 overflow-visible pointer-events-none" style={{ paddingTop: "clamp(60px, 22vh, 180px)" }}>
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 overflow-visible pointer-events-none" style={{ paddingTop: "clamp(48px, 14vh, 140px)" }}>
 
           {/* Headline */}
           <h1 className="text-[2rem] font-extrabold text-on-dark leading-[1.08] text-center mb-2 tracking-tight max-w-[320px]" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
@@ -241,16 +243,42 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </div>
           </div>
 
-          {/* Search by Map CTA */}
-          <div className="flex items-center justify-center mt-4 pointer-events-auto">
+          {/* Primary VIP CTA + Search by Map (side by side) */}
+          <div className="flex items-center justify-center gap-2 mt-4 pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => setMobileModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold active:scale-95 transition-all shadow-[0_8px_24px_-6px_hsl(40_65%_45%/0.55)]"
+            >
+              ✨ Get VIP Pricing
+            </button>
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900/50 backdrop-blur-md border border-card/15 text-on-dark text-sm font-semibold active:scale-95 transition-all shadow-lg"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-neutral-900/50 backdrop-blur-md border border-card/15 text-on-dark text-[13px] font-semibold active:scale-95 transition-all shadow-lg"
             >
-              <MapPin className="w-4 h-4 text-on-dark/80" />
-              <span className="sm:hidden">Map</span>
-              <span className="hidden sm:inline">Search by Map</span>
+              <MapPin className="w-3.5 h-3.5 text-on-dark/80" />
+              Map
             </Link>
+          </div>
+
+          {/* Trust mini-strip — compact, single row */}
+          <div className="mt-4 pointer-events-auto">
+            <div className="flex items-center justify-center gap-x-3 gap-y-1 flex-wrap text-on-dark/90 max-w-[320px]">
+              <span className="inline-flex items-baseline gap-1" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.55)" }}>
+                <span className="font-bold text-xs text-on-dark">400+</span>
+                <span className="text-[10px] uppercase tracking-wide text-on-dark/75">units</span>
+              </span>
+              <span className="h-2.5 w-px bg-on-dark/30" />
+              <span className="inline-flex items-baseline gap-1" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.55)" }}>
+                <span className="font-bold text-xs text-on-dark">$200M+</span>
+                <span className="text-[10px] uppercase tracking-wide text-on-dark/75">sold</span>
+              </span>
+              <span className="h-2.5 w-px bg-on-dark/30" />
+              <span className="inline-flex items-baseline gap-1" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.55)" }}>
+                <span className="font-bold text-xs text-on-dark">5.0★</span>
+                <span className="text-[10px] uppercase tracking-wide text-on-dark/75">Google</span>
+              </span>
+            </div>
           </div>
 
         </div>
@@ -272,6 +300,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           ))}
         </div>
       </div>
+
+      {/* Active Incentives strip — only for Presale tab */}
+      {activeTab === "projects" && <IncentivesStrip />}
 
       {/* Discovery Sections - Switch based on active tab */}
       <div className="pb-6">
@@ -441,6 +472,11 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
       {/* Quick Links Section */}
       <div className="mt-4">
         <RelatedContent />
+      </div>
+
+      {/* Inline VIP capture — primary lead form */}
+      <div className="mt-6">
+        <VipListSignup />
       </div>
 
       {/* Large Map Section - Page Ending */}
