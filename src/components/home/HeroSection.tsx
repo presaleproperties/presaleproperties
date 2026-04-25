@@ -241,6 +241,13 @@ export function HeroSection({
 
           {/* CTAs */}
           <div className="relative z-[1] flex flex-wrap items-center justify-center gap-3 mt-5 pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => setModalOpen(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 active:scale-95 transition-all shadow-[0_8px_24px_-6px_hsl(40_65%_45%/0.55)]"
+            >
+              ✨ Get VIP Pricing — Free
+            </button>
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
               className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-neutral-900/50 backdrop-blur-md border border-card/15 text-on-dark text-sm font-semibold hover:bg-neutral-900/65 active:scale-95 transition-all shadow-lg"
@@ -248,6 +255,23 @@ export function HeroSection({
               <MapPin className="w-4 h-4 text-on-dark/80" />
               Search by Map
             </Link>
+          </div>
+
+          {/* Trust stats — minimal premium row */}
+          <div className="relative z-[1] mt-7 pointer-events-auto">
+            <div className="flex flex-wrap items-center justify-center gap-x-5 sm:gap-x-8 gap-y-2 text-on-dark/90">
+              {TRUST_STATS.map((stat, i) => (
+                <div key={stat.label} className="flex items-center gap-2">
+                  {i > 0 && <span className="hidden sm:inline-block h-3 w-px bg-on-dark/25" />}
+                  <span className="font-bold text-sm sm:text-base text-on-dark drop-shadow" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}>
+                    {stat.value}
+                  </span>
+                  <span className="text-[11px] sm:text-xs text-on-dark/75 uppercase tracking-wide" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}>
+                    {stat.label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
