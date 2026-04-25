@@ -16,8 +16,7 @@ interface HeroSectionProps {
 }
 
 const TRUST_STATS = [
-  { value: "400+", label: "Units Sold" },
-  { value: "$200M+", label: "In Sales Volume" },
+  { value: "400+", label: "Presale Properties Sold" },
   { value: "5", label: "Years in Presale Market" },
   { value: "5.0 ★", label: "Google Rating" },
 ];
