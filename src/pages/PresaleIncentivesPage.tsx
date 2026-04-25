@@ -5,7 +5,7 @@ import { Helmet } from "@/components/seo/Helmet";
 import { MetaTags } from "@/components/seo/MetaTags";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -423,7 +423,7 @@ const PresaleIncentivesPage = () => {
       </main>
 
       <Footer />
-      <FloatingBottomNav />
+      
     </div>
   );
 };
