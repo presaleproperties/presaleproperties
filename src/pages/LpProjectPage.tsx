@@ -126,6 +126,17 @@ export default function LpProjectPage() {
       project_name: project.name,
       lead_source: searchParams.get("utm_source") || "direct",
     });
+
+    // Register page context for CRM presence broadcasts
+    setCurrentPageContext({
+      project_id: project.id,
+      project_name: project.name,
+      project_slug: project.slug,
+      city: project.city,
+      neighborhood: project.neighborhood ?? undefined,
+      page_type: "lp_project",
+    });
+    return () => clearCurrentPageContext();
   }, [project, searchParams]);
 
   // ---------- derived data ----------
