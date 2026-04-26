@@ -1,7 +1,21 @@
 import { supabase } from "@/integrations/supabase/client";
 import { postToDealsFlow } from "@/lib/postToDealsFlow";
 import { setKnownEmail } from "@/lib/tracking/streamBehavior";
+import {
+  leadToProjectLeadRow,
+  type CanonicalLead,
+} from "@/lib/contracts/leadContract";
 import { z } from "zod";
+
+/**
+ * Canonical entry-point — preferred for new code.
+ * Forms build a `CanonicalLead` via `buildCanonicalLead()` and pass it here;
+ * we flatten it into the project_leads row shape and reuse the same upsert
+ * logic that legacy callers use.
+ */
+export async function upsertCanonicalLead(lead: CanonicalLead): Promise<string> {
+  return upsertProjectLead(leadToProjectLeadRow(lead));
+}
 
 /**
  * Server-shape validation applied to every upsert. Form-level zod still
