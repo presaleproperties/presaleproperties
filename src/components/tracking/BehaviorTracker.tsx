@@ -114,15 +114,15 @@ export function BehaviorTracker() {
         // Admin SMS/desktop alert stays direct — it's an internal notification,
         // not a CRM write, and tolerates loss.
         enqueueCanonicalEvent({
-          event_type: "return_visit",
+          event_name: "return_visit",
           identity: { email: knownEmail },
           payload: {
             page_url: window.location.href,
             page_path: window.location.pathname,
             last_page_viewed: getLastPageViewed(),
             referrer: document.referrer || null,
+            source: "presale_properties_return_visit",
           },
-          source: "presale_properties_return_visit",
         });
         supabase.functions.invoke("notify-lead-return", {
           body: {
