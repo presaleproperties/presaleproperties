@@ -24,6 +24,14 @@ export function VipListSignup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
+  const { identity } = useCrmIdentity();
+
+  const isAlreadyVip =
+    !!identity?.known &&
+    (
+      (identity.tags ?? []).some((t) => VIP_TAGS.has(t)) ||
+      (identity.lifecycle_stage ? VIP_STAGES.has(identity.lifecycle_stage) : false)
+    );
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
