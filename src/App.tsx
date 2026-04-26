@@ -24,6 +24,7 @@ import { PwaSessionMemory } from "@/components/pwa/PwaSessionMemory";
 import { UtmTracker } from "@/components/UtmTracker";
 import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
+import { IntentAwareFloatingWhatsApp } from "@/components/crm/IntentAwareFloatingWhatsApp";
 import { MetaPixel } from "@/components/tracking/MetaPixel";
 import { GA4Tracker } from "@/components/tracking/GA4Tracker";
 import { TrackingScripts } from "@/components/tracking/TrackingScripts";
@@ -211,6 +212,7 @@ const App = () => (
             <UtmTracker />
             <LoftyPageTracker />
             <BehaviorTracker />
+            <IntentAwareFloatingWhatsApp />
             <MetaPixel />
             <GA4Tracker />
             <TrackingScripts />
