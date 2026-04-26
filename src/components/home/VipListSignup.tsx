@@ -2,13 +2,17 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Bell, CheckCircle, Mail } from "lucide-react";
+import { Bell, CheckCircle, Mail, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { trackFormSubmit } from "@/lib/tracking";
 import { notifyCrm } from "@/lib/notifyCrm";
+import { useCrmIdentity } from "@/hooks/useCrmIdentity";
+
+const VIP_TAGS = new Set(["vip", "vip_approved", "vip_member"]);
+const VIP_STAGES = new Set(["vip", "customer"]);
 
 const schema = z.object({
   email: z.string().email("Please enter a valid email").max(255),
