@@ -185,7 +185,8 @@ export type CanonicalEventName =
   | "deck_visit"
   | "deck_section_view"
   | "return_visit"
-  | "lead_back_on_site";
+  | "lead_back_on_site"
+  | "behavior_batch";
 
 export interface CanonicalEvent {
   kind: "event";
