@@ -23,14 +23,21 @@ const MIN_INTERVAL_MS = 1500; // throttle bursts
 
 function getKnownEmail(): string | undefined {
   try {
-    const raw = sessionStorage.getItem("pp_known_email");
+    const raw =
+      sessionStorage.getItem("pp_known_email") ||
+      localStorage.getItem("pp_known_email");
     return raw || undefined;
   } catch { return undefined; }
 }
 
 export function setKnownEmail(email: string | undefined | null): void {
   try {
-    if (email) sessionStorage.setItem("pp_known_email", String(email).trim().toLowerCase());
+    if (email) {
+      const clean = String(email).trim().toLowerCase();
+      sessionStorage.setItem("pp_known_email", clean);
+      // Persist across sessions so the return-visit alert can fire on next visit
+      localStorage.setItem("pp_known_email", clean);
+    }
   } catch { /* ignore */ }
 }
 

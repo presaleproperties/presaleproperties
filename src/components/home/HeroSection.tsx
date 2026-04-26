@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "./HeroProjectSlider";
 import { supabase } from "@/integrations/supabase/client";
+import { notifyCrm } from "@/lib/notifyCrm";
 
 const projectCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford", "Burnaby"];
 
@@ -57,6 +58,19 @@ function VIPModal({ onClose }: { onClose: () => void }) {
         landing_page: window.location.pathname,
       });
       if (dbError) throw dbError;
+      notifyCrm({
+        event_type: "vip_registration",
+        email: form.email,
+        first_name: form.firstName,
+        phone: form.phone,
+        source: "presale_properties_vip",
+        payload: {
+          interest: form.interest,
+          is_realtor: form.isRealtor === "yes",
+          working_with_realtor: form.workingWithRealtor === "yes",
+          form_source: "hero_vip_modal",
+        },
+      });
       setSubmitted(true);
     } catch (err) {
       console.error("VIP form error:", err);

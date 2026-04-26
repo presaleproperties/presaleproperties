@@ -13,6 +13,7 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { IncentivesStrip } from "@/components/home/IncentivesStrip";
+import { notifyCrm } from "@/lib/notifyCrm";
 import { VipListSignup } from "@/components/home/VipListSignup";
 import { Footer } from "@/components/layout/Footer";
 import { PowerSearch } from "@/components/search/PowerSearch";
@@ -78,6 +79,19 @@ function MobileVIPModal({ onClose }: { onClose: () => void }) {
         landing_page: window.location.pathname,
       });
       if (dbError) throw dbError;
+      notifyCrm({
+        event_type: "vip_registration",
+        email: form.email,
+        first_name: form.firstName,
+        phone: form.phone,
+        source: "presale_properties_vip",
+        payload: {
+          interest: form.interest,
+          is_realtor: form.isRealtor === "yes",
+          working_with_realtor: form.workingWithRealtor === "yes",
+          form_source: "mobile_hero_vip_modal",
+        },
+      });
       setSubmitted(true);
     } catch (err) {
       console.error("VIP form error:", err);

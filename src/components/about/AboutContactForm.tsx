@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatPhoneNumber } from "@/lib/formatPhone";
+import { notifyCrm } from "@/lib/notifyCrm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -129,6 +130,22 @@ export function AboutContactForm({
       }).select("id").single();
 
       if (error) throw error;
+
+      notifyCrm({
+        event_type: "appointment_booked",
+        email: data.email,
+        first_name: data.name.split(" ")[0],
+        last_name: data.name.split(" ").slice(1).join(" ") || undefined,
+        phone: data.phone,
+        source: "presale_properties_about",
+        payload: {
+          project_name: projectName,
+          requested_agent_id: data.agent_id || null,
+          requested_agent_name: selectedAgent?.full_name || null,
+          message: data.message || null,
+          form_source: "about_page",
+        },
+      });
 
       // Trigger Zapier/Lofty webhook (fire and forget)
       if (booking?.id) {
