@@ -11,6 +11,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { getVisitorId, getSessionId } from "@/lib/tracking";
+import { setKnownEmail } from "@/lib/tracking/streamBehavior";
 
 export interface NotifyCrmInput {
   /** Canonical event type, e.g. 'newsletter_subscribe', 'appointment_booked',
@@ -31,6 +32,7 @@ export interface NotifyCrmInput {
 
 export function notifyCrm(input: NotifyCrmInput): void {
   try {
+    if (input.email) setKnownEmail(input.email);
     supabase.functions
       .invoke("push-activity-to-crm", {
         body: {
