@@ -23,6 +23,8 @@ import {
 } from "@/lib/tracking";
 import { trackReturnVisit } from "@/lib/tracking/events";
 import { supabase } from "@/integrations/supabase/client";
+import { stitchFromUrl, stitchFromAuth } from "@/lib/crm/identityStitch";
+import { broadcastPresence, broadcastVisitorActive } from "@/lib/crm/presence";
 
 export function BehaviorTracker() {
   const location = useLocation();
