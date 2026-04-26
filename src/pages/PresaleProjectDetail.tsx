@@ -1024,6 +1024,9 @@ export default function PresaleProjectDetail() {
                   {/* Lead Form - Primary conversion point */}
                   <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} floorplanUrl={project.floorplan_files?.[0] || null} pricingUrl={project.pricing_sheets?.[0] || null} />
                   
+                  {/* Assigned-agent card — only renders if CRM has an agent for this visitor */}
+                  <AssignedAgentCard projectName={project.name} />
+
                   {/* Quick Actions Below Lead Form */}
                   <div className="flex gap-2">
                     <Button variant="outline" size="default" className="flex-1 justify-center h-11 text-sm" asChild>
