@@ -10,8 +10,12 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
-import { getVisitorId, getSessionId } from "@/lib/tracking";
 import { setKnownEmail } from "@/lib/tracking/streamBehavior";
+import {
+  buildCanonicalEvent,
+  eventToCrmBridgeBody,
+  type CanonicalEventName,
+} from "@/lib/contracts/leadContract";
 
 export interface NotifyCrmInput {
   /** Canonical event type, e.g. 'newsletter_subscribe', 'appointment_booked',
