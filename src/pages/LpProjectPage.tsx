@@ -37,6 +37,7 @@ import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
 import { LpLeadForm } from "@/components/lp/LpLeadForm";
 import { useAppSetting } from "@/hooks/useAppSetting";
 import { generateProjectFAQs } from "@/lib/seoFaq";
+import { setCurrentPageContext, clearCurrentPageContext } from "@/lib/crm/pageContext";
 
 type Project = {
   id: string;
