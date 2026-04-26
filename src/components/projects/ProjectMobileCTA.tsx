@@ -15,6 +15,10 @@ import { trackCTAClick } from "@/hooks/useLoftyTracking";
 import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId } from "@/lib/tracking";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { useLeadSubmission } from "@/hooks/useLeadSubmission";
+import { useCrmIdentity } from "@/hooks/useCrmIdentity";
+
+const HIGH_INTENT_TAGS = new Set(["high_intent","hot_lead","vip","vip_approved","ready_to_buy"]);
+const HIGH_INTENT_STAGES = new Set(["opportunity","sql","customer","vip"]);
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -185,8 +189,31 @@ export function ProjectMobileCTA({
     }
   };
 
-  const whatsappMsg = encodeURIComponent(`Hello! Can I get more details about "${projectName}"?`);
-  const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMsg}` : null;
+  // Prefer the CRM-assigned agent's WhatsApp/phone for hot leads,
+  // fall back to the generic project number for everyone else.
+  const { identity: crmIdentity } = useCrmIdentity();
+  const isHotLead =
+    !!crmIdentity?.known &&
+    (
+      crmIdentity.hot_lead === true ||
+      (crmIdentity.tags ?? []).some((t) => HIGH_INTENT_TAGS.has(t)) ||
+      (crmIdentity.lifecycle_stage ? HIGH_INTENT_STAGES.has(crmIdentity.lifecycle_stage) : false)
+    );
+  const assignedAgent = crmIdentity?.assigned_agent;
+  const useAssignedAgent = isHotLead && !!assignedAgent?.phone;
+
+  const whatsappMsg = encodeURIComponent(
+    useAssignedAgent
+      ? `Hi ${assignedAgent!.name.split(" ")[0]}, I'd like to chat about "${projectName}".`
+      : `Hello! Can I get more details about "${projectName}"?`
+  );
+  const effectiveWhatsappNumber = useAssignedAgent
+    ? assignedAgent!.phone!.replace(/\D/g, "")
+    : whatsappNumber;
+  const whatsappLink = effectiveWhatsappNumber
+    ? `https://wa.me/${effectiveWhatsappNumber}?text=${whatsappMsg}`
+    : null;
+  const callHref = useAssignedAgent ? `tel:${assignedAgent!.phone}` : "tel:+16722581100";
 
   const { isSubmitting } = form.formState;
 
@@ -353,7 +380,7 @@ export function ProjectMobileCTA({
             style={{ paddingLeft: "max(16px, env(safe-area-inset-left, 16px))", paddingRight: "max(16px, env(safe-area-inset-right, 16px))", paddingBottom: "max(16px, env(safe-area-inset-bottom, 16px))" }}>
             <div className="flex items-center gap-3">
               <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl" asChild>
-                <a href="tel:+16722581100" aria-label="Call agent"><Phone className="h-5 w-5" /></a>
+                <a href={callHref} aria-label={useAssignedAgent ? `Call ${assignedAgent!.name}` : "Call agent"}><Phone className="h-5 w-5" /></a>
               </Button>
               {whatsappLink && (
                 <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl text-primary border-border hover:bg-accent" asChild>
