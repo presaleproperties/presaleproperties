@@ -71,7 +71,7 @@ export function AssignedAgentCard({ projectName, className }: AssignedAgentCardP
               trackCTAClick({
                 cta_name: "assigned_agent_whatsapp",
                 cta_location: "assigned_agent_card",
-                destination: agent.phone!,
+                destination_url: agent.phone!,
               })
             }
           >
@@ -95,7 +95,7 @@ export function AssignedAgentCard({ projectName, className }: AssignedAgentCardP
               trackCTAClick({
                 cta_name: "assigned_agent_calendly",
                 cta_location: "assigned_agent_card",
-                destination: agent.calendly_url!,
+                destination_url: agent.calendly_url!,
               })
             }
           >

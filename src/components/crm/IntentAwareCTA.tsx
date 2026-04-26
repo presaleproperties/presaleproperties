@@ -95,7 +95,7 @@ export function IntentAwareCTA({
         trackCTAClick({
           cta_name: "intent_aware_whatsapp",
           cta_location: "intent_aware_cta",
-          destination: href,
+          destination_url: href,
         })
       }
     >
