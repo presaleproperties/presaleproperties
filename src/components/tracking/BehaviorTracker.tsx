@@ -88,6 +88,48 @@ export function BehaviorTracker() {
         console.log("📊 [Tracking] Return visit detected", { last_page_viewed: lastPage });
       }
     }
+
+    // Real-time "lead is back on site" alert.
+    // Fires once per browser session whenever a KNOWN lead (we have their
+    // email cached from a prior form submit) opens the site again. No
+    // 30-min gap requirement — the user wants instant alerts.
+    try {
+      const knownEmail = sessionStorage.getItem("pp_known_email")
+        || localStorage.getItem("pp_known_email");
+      const alreadyAlerted = sessionStorage.getItem("pp_lead_return_alerted") === "1";
+      if (knownEmail && !alreadyAlerted) {
+        sessionStorage.setItem("pp_lead_return_alerted", "1");
+        // Mirror to localStorage so streamBehavior also picks it up
+        try { localStorage.setItem("pp_known_email", knownEmail); } catch {}
+        // Fire CRM activity event + admin SMS/desktop alert in parallel
+        supabase.functions.invoke("push-activity-to-crm", {
+          body: {
+            event_type: "return_visit",
+            visitor_id: getVisitorId(),
+            session_id: getSessionId(),
+            email: knownEmail,
+            source: "presale_properties_return_visit",
+            payload: {
+              page_url: window.location.href,
+              page_path: window.location.pathname,
+              last_page_viewed: getLastPageViewed(),
+              referrer: document.referrer || null,
+            },
+          },
+        }).catch(() => {});
+        supabase.functions.invoke("notify-lead-return", {
+          body: {
+            email: knownEmail,
+            visitor_id: getVisitorId(),
+            page_url: window.location.href,
+            referrer: document.referrer || null,
+          },
+        }).catch(() => {});
+        if (import.meta.env.DEV) {
+          console.log("📊 [Tracking] Known lead return — alerted", { email: knownEmail });
+        }
+      }
+    } catch { /* ignore */ }
     
     if (import.meta.env.DEV) {
       console.log("📊 [Tracking] Initialized", {
