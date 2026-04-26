@@ -1148,6 +1148,120 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_identity_map: {
+        Row: {
+          assigned_agent_calendly_url: string | null
+          assigned_agent_email: string | null
+          assigned_agent_id: string | null
+          assigned_agent_name: string | null
+          assigned_agent_phone: string | null
+          assigned_agent_photo_url: string | null
+          auth_user_id: string | null
+          created_at: string
+          crm_contact_id: string | null
+          email: string | null
+          hot_lead: boolean | null
+          id: string
+          last_activity_at: string | null
+          lifecycle_stage: string | null
+          phone: string | null
+          presale_user_id: string | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_agent_calendly_url?: string | null
+          assigned_agent_email?: string | null
+          assigned_agent_id?: string | null
+          assigned_agent_name?: string | null
+          assigned_agent_phone?: string | null
+          assigned_agent_photo_url?: string | null
+          auth_user_id?: string | null
+          created_at?: string
+          crm_contact_id?: string | null
+          email?: string | null
+          hot_lead?: boolean | null
+          id?: string
+          last_activity_at?: string | null
+          lifecycle_stage?: string | null
+          phone?: string | null
+          presale_user_id?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_agent_calendly_url?: string | null
+          assigned_agent_email?: string | null
+          assigned_agent_id?: string | null
+          assigned_agent_name?: string | null
+          assigned_agent_phone?: string | null
+          assigned_agent_photo_url?: string | null
+          auth_user_id?: string | null
+          created_at?: string
+          crm_contact_id?: string | null
+          email?: string | null
+          hot_lead?: boolean | null
+          id?: string
+          last_activity_at?: string | null
+          lifecycle_stage?: string | null
+          phone?: string | null
+          presale_user_id?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crm_outbox: {
+        Row: {
+          attempts: number
+          created_at: string
+          email: string | null
+          endpoint: string
+          event_id: string | null
+          id: string
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          payload: Json
+          presale_user_id: string | null
+          status: string
+          synced_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          email?: string | null
+          endpoint: string
+          event_id?: string | null
+          id?: string
+          kind: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload: Json
+          presale_user_id?: string | null
+          status?: string
+          synced_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          email?: string | null
+          endpoint?: string
+          event_id?: string | null
+          id?: string
+          kind?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          presale_user_id?: string | null
+          status?: string
+          synced_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       crm_sync_runs: {
         Row: {
           created_at: string
@@ -4899,6 +5013,17 @@ export type Database = {
       calculate_lead_score_v2: { Args: { p_lead_id: string }; Returns: number }
       cleanup_old_sync_logs: { Args: never; Returns: undefined }
       cleanup_rate_limit_log: { Args: never; Returns: undefined }
+      enqueue_crm_outbox: {
+        Args: {
+          p_email?: string
+          p_endpoint: string
+          p_event_id?: string
+          p_kind: string
+          p_payload: Json
+          p_presale_user_id?: string
+        }
+        Returns: string
+      }
       get_engagement_funnel: {
         Args: { days_back?: number }
         Returns: {
@@ -5031,8 +5156,13 @@ export type Database = {
         Args: { project_id: string }
         Returns: undefined
       }
+      resolve_crm_identity: {
+        Args: { p_email?: string; p_phone?: string; p_presale_user_id?: string }
+        Returns: Json
+      }
       score_lead_realtor_risk: { Args: { p_lead_id: string }; Returns: Json }
       update_listing_agent_names: { Args: never; Returns: undefined }
+      upsert_crm_identity: { Args: { p_data: Json }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user" | "developer" | "agent"
