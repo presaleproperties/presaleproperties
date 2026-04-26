@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { trackFormSubmit } from "@/lib/tracking";
+import { notifyCrm } from "@/lib/notifyCrm";
 
 const schema = z.object({
   email: z.string().email("Please enter a valid email").max(255),
@@ -46,6 +47,12 @@ export function VipListSignup() {
       if (error && !error.message.includes("duplicate")) throw error;
 
       trackFormSubmit({ form_name: "vip_list", form_location: "homepage", email: data.email });
+      notifyCrm({
+        event_type: "newsletter_subscribe",
+        email: data.email.trim(),
+        source: "presale_properties_newsletter",
+        payload: { form_source: "vip_list_homepage", wants_projects: true, wants_assignments: false },
+      });
       setIsSubmitted(true);
     } catch (error: any) {
       console.error(error);

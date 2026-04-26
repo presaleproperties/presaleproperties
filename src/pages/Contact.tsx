@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Mail, Phone, MapPin, Send, CheckCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { notifyCrm } from "@/lib/notifyCrm";
 import { z } from "zod";
 
 const contactSchema = z.object({
@@ -82,6 +83,20 @@ export default function Contact() {
       }).select("id").single();
 
       if (bookingError) console.error("Error saving contact to DB:", bookingError);
+
+      notifyCrm({
+        event_type: "contact_form",
+        email: result.data.email,
+        first_name: result.data.name.split(" ")[0],
+        last_name: result.data.name.split(" ").slice(1).join(" ") || undefined,
+        phone: result.data.phone,
+        source: "presale_properties_contact",
+        payload: {
+          subject: result.data.subject,
+          message: result.data.message,
+          form_source: "contact_page",
+        },
+      });
 
       const { error: emailError } = await supabase.functions.invoke("send-contact-email", {
         body: { ...result.data },

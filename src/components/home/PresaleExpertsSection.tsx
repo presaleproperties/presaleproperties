@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { supabase } from "@/integrations/supabase/client";
+import { notifyCrm } from "@/lib/notifyCrm";
 import { useQuery } from "@tanstack/react-query";
 
 interface TeamMember {
@@ -46,6 +47,13 @@ function VIPInlineForm() {
         landing_page: window.location.pathname,
       });
       if (dbError) throw dbError;
+      notifyCrm({
+        event_type: "vip_registration",
+        email: form.email,
+        first_name: form.firstName,
+        source: "presale_properties_vip",
+        payload: { form_source: "presale_experts_section" },
+      });
       setSubmitted(true);
     } catch {
       setError("Something went wrong. Please try again.");

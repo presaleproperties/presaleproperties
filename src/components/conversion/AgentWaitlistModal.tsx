@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { notifyCrm } from "@/lib/notifyCrm";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -53,6 +54,15 @@ export function AgentWaitlistModal({ open, onOpenChange }: AgentWaitlistModalPro
         throw error;
       }
 
+      notifyCrm({
+        event_type: "agent_waitlist",
+        email: data.email.trim(),
+        first_name: data.name.trim().split(" ")[0],
+        last_name: data.name.trim().split(" ").slice(1).join(" ") || undefined,
+        phone: data.phone?.trim() || undefined,
+        source: "presale_properties_agent_waitlist",
+        payload: { brokerage_name: data.brokerage_name.trim() },
+      });
       setIsSubmitted(true);
     } catch (err: any) {
       console.error("Waitlist error:", err);

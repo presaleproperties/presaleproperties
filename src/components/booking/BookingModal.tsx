@@ -15,6 +15,7 @@ import { trackCTAClick } from "@/hooks/useLoftyTracking";
 import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { notifyCrm } from "@/lib/notifyCrm";
 
 type BuyerType = "first_time" | "investor";
 type HomeSize = "1_bed" | "2_bed" | "3_bed_plus";
@@ -289,6 +290,28 @@ export function BookingModal({
       const { error } = await supabase.from("bookings").insert(bookingData);
 
       if (error) throw error;
+
+      notifyCrm({
+        event_type: "appointment_booked",
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        phone,
+        source: "presale_properties_booking",
+        payload: {
+          project_id: projectId,
+          project_name: projectName,
+          project_city: projectCity,
+          project_neighborhood: projectNeighborhood,
+          appointment_date: format(selectedDate, "yyyy-MM-dd"),
+          appointment_time: selectedTime,
+          buyer_type: buyerType,
+          home_size: homeSize,
+          agent_status: agentStatus,
+          notes,
+          form_source: "booking_modal",
+        },
+      });
 
       // Trigger booking workflow
       await supabase.functions.invoke("trigger-workflow", {
