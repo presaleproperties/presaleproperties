@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { postToDealsFlow } from "@/lib/postToDealsFlow";
+import { setKnownEmail } from "@/lib/tracking/streamBehavior";
 import { z } from "zod";
 
 /**
