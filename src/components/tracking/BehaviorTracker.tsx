@@ -154,13 +154,20 @@ export function BehaviorTracker() {
       );
     };
     const onVisibility = () => { if (document.visibilityState === "hidden") flush(); };
+    const onActivity = () => broadcastVisitorActive();
     window.addEventListener("beforeunload", flush);
     window.addEventListener("pagehide", flush);
     document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("click", onActivity, { passive: true });
+    window.addEventListener("scroll", onActivity, { passive: true });
+    window.addEventListener("keydown", onActivity);
     return () => {
       window.removeEventListener("beforeunload", flush);
       window.removeEventListener("pagehide", flush);
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("click", onActivity);
+      window.removeEventListener("scroll", onActivity);
+      window.removeEventListener("keydown", onActivity);
     };
   }, []);
 
