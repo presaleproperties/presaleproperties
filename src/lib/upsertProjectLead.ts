@@ -49,6 +49,8 @@ export async function upsertProjectLead(
   }
 
   const email = parsed.data.email;
+  // Cache for real-time return-visit alerts on subsequent sessions
+  setKnownEmail(email);
   const cleanName = parsed.data.name || null;
   const cleanPhone = parsed.data.phone || null;
   const cleanMessage = parsed.data.message || null;
