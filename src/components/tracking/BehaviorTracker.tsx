@@ -77,7 +77,12 @@ export function BehaviorTracker() {
     
     // Initialize attribution (UTM capture)
     initAttribution();
-    
+
+    // Identity stitching — bind ?lead= / ?email= URL tokens to the cookie,
+    // then bind the auth user (if logged in) to the same contact.
+    stitchFromUrl().catch(() => {});
+    stitchFromAuth().catch(() => {});
+
     // Check for return visit and track if applicable
     const isReturnVisit = checkReturnVisit();
     if (isReturnVisit) {
@@ -85,7 +90,8 @@ export function BehaviorTracker() {
       trackReturnVisit({
         last_page_viewed: lastPage,
       });
-      
+      broadcastPresence("return_visit", { last_page_viewed: lastPage });
+
       if (import.meta.env.DEV) {
         console.log("📊 [Tracking] Return visit detected", { last_page_viewed: lastPage });
       }
