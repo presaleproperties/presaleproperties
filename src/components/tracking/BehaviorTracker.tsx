@@ -186,6 +186,7 @@ export function BehaviorTracker() {
     // Small delay to ensure page title is updated
     const timeoutId = setTimeout(() => {
       trackPageView();
+      broadcastPresence("page_view");
     }, 100);
     
     return () => clearTimeout(timeoutId);
