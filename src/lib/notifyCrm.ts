@@ -9,13 +9,9 @@
  * unaffected.
  */
 
-import { supabase } from "@/integrations/supabase/client";
 import { setKnownEmail } from "@/lib/tracking/streamBehavior";
-import {
-  buildCanonicalEvent,
-  eventToCrmBridgeBody,
-  type CanonicalEventName,
-} from "@/lib/contracts/leadContract";
+import { enqueueCanonicalEvent } from "@/lib/crm/outbox";
+import type { CanonicalEventName } from "@/lib/contracts/leadContract";
 
 export interface NotifyCrmInput {
   /** Canonical event type, e.g. 'newsletter_subscribe', 'appointment_booked',
@@ -34,10 +30,15 @@ export interface NotifyCrmInput {
   payload?: Record<string, unknown>;
 }
 
+/**
+ * Durable, retry-backed CRM notification. Writes to `crm_outbox` first
+ * (transactional), then kicks the drain function. Failures are auto-retried
+ * by the cron-scheduled worker with exponential backoff.
+ */
 export function notifyCrm(input: NotifyCrmInput): void {
   try {
     if (input.email) setKnownEmail(input.email);
-    const evt = buildCanonicalEvent({
+    enqueueCanonicalEvent({
       event_name: input.event_type as CanonicalEventName,
       identity: {
         email: input.email ?? undefined,
@@ -45,14 +46,10 @@ export function notifyCrm(input: NotifyCrmInput): void {
         last_name: input.last_name ?? undefined,
         phone: input.phone ?? undefined,
       },
-      payload: input.payload,
+      payload: { ...(input.payload ?? {}), source: input.source },
     });
-    const body = eventToCrmBridgeBody(evt);
-    if (input.source) body.source = input.source;
-    supabase.functions
-      .invoke("push-activity-to-crm", { body })
-      .catch(() => { /* swallow */ });
   } catch {
     /* ignore */
   }
 }
+

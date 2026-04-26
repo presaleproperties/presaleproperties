@@ -23,6 +23,8 @@ import {
 } from "@/lib/tracking";
 import { trackReturnVisit } from "@/lib/tracking/events";
 import { supabase } from "@/integrations/supabase/client";
+import { stitchFromUrl, stitchFromAuth } from "@/lib/crm/identityStitch";
+import { broadcastPresence, broadcastVisitorActive } from "@/lib/crm/presence";
 
 export function BehaviorTracker() {
   const location = useLocation();
@@ -75,7 +77,12 @@ export function BehaviorTracker() {
     
     // Initialize attribution (UTM capture)
     initAttribution();
-    
+
+    // Identity stitching — bind ?lead= / ?email= URL tokens to the cookie,
+    // then bind the auth user (if logged in) to the same contact.
+    stitchFromUrl().catch(() => {});
+    stitchFromAuth().catch(() => {});
+
     // Check for return visit and track if applicable
     const isReturnVisit = checkReturnVisit();
     if (isReturnVisit) {
@@ -83,7 +90,8 @@ export function BehaviorTracker() {
       trackReturnVisit({
         last_page_viewed: lastPage,
       });
-      
+      broadcastPresence("return_visit", { last_page_viewed: lastPage });
+
       if (import.meta.env.DEV) {
         console.log("📊 [Tracking] Return visit detected", { last_page_viewed: lastPage });
       }
@@ -146,13 +154,20 @@ export function BehaviorTracker() {
       );
     };
     const onVisibility = () => { if (document.visibilityState === "hidden") flush(); };
+    const onActivity = () => broadcastVisitorActive();
     window.addEventListener("beforeunload", flush);
     window.addEventListener("pagehide", flush);
     document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("click", onActivity, { passive: true });
+    window.addEventListener("scroll", onActivity, { passive: true });
+    window.addEventListener("keydown", onActivity);
     return () => {
       window.removeEventListener("beforeunload", flush);
       window.removeEventListener("pagehide", flush);
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("click", onActivity);
+      window.removeEventListener("scroll", onActivity);
+      window.removeEventListener("keydown", onActivity);
     };
   }, []);
 
@@ -171,6 +186,7 @@ export function BehaviorTracker() {
     // Small delay to ensure page title is updated
     const timeoutId = setTimeout(() => {
       trackPageView();
+      broadcastPresence("page_view");
     }, 100);
     
     return () => clearTimeout(timeoutId);
